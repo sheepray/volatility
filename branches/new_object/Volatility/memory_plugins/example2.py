@@ -30,17 +30,17 @@ class memmap_ex_2(forensics.commands.command):
 
     # Declare meta information associated with this plugin
     
-    meta_info = {} 
-    meta_info['author'] = 'AAron Walters'
-    meta_info['copyright'] = 'Copyright (c) 2007,2008 AAron Walters'
-    meta_info['contact'] = 'awalters@volatilesystems.com'
-    meta_info['license'] = 'GNU General Public License 2.0 or later'
-    meta_info['url'] = 'https://www.volatilesystems.com/default/volatility'
-    meta_info['os'] = 'WIN_32_XP_SP2'
-    meta_info['version'] = '1.0'
+    meta_info = dict(
+        author = 'AAron Walters',
+        copyright = 'Copyright (c) 2007,2008 AAron Walters',
+        contact = 'awalters@volatilesystems.com',
+        license = 'GNU General Public License 2.0 or later',
+        url = 'https://www.volatilesystems.com/default/volatility',
+        os = 'WIN_32_XP_SP2',
+        version = '1.0')
 
     # This module extends the standard parser. This is accomplished by 
-    # overriding the forensics.commands.command.parser() method. The 
+    # overriding the forensics.commands.command.parse() method. The 
     # overriding method begins by calling the base class method directly
     # then it further populates the OptionParser instance with two 
     # new options.  
@@ -70,8 +70,7 @@ class memmap_ex_2(forensics.commands.command):
     # provided by the standard parse would would provide the following
     # attributes: self.opts.filename, self.opts.base, self.opts.type.
 
-    def execute(self):
-
+    def calculate(self):
         op = self.op
         opts = self.opts
 
@@ -103,7 +102,7 @@ class memmap_ex_2(forensics.commands.command):
 
             if process_address_space is None:
                 print "Error obtaining address space for process [%d]" % (process_id)
-                return
+	        return
 
             addr_space = process_address_space
 
@@ -136,32 +135,32 @@ class memmap_ex_2(forensics.commands.command):
         
             addr_space = process_address_space
 
-
         entries = addr_space.get_available_pages()
   
-        print "%-12s %-12s %-12s"%('Virtual','Physical','Size')
-
         for entry in entries:
             phy_addr = addr_space.vtop(entry[0])
-            print "0x%-10x 0x%-10x 0x%-12x"%(entry[0],phy_addr,entry[1])
-    
+            yield (entry[0],phy_addr,entry[1])
 
+    def render_text(self, outfd, data):
+        outfd.write("%-12s %-12s %-12s\n"%('Virtual','Physical','Size'))
+        for d in data:
+            print "0x%-10x 0x%-10x 0x%-12x" % d
 
 class usrdmp_ex_2(forensics.commands.command):
 
     # Declare meta information associated with this plugin
     
-    meta_info = {} 
-    meta_info['author'] = 'AAron Walters'
-    meta_info['copyright'] = 'Copyright (c) 2007,2008 AAron Walters'
-    meta_info['contact'] = 'awalters@volatilesystems.com'
-    meta_info['license'] = 'GNU General Public License 2.0 or later'
-    meta_info['url'] = 'https://www.volatilesystems.com/default/volatility'
-    meta_info['os'] = 'WIN_32_XP_SP2'
-    meta_info['version'] = '1.0'
+    meta_info = dict(
+        author = 'AAron Walters',
+        copyright = 'Copyright (c) 2007,2008 AAron Walters',
+        contact = 'awalters@volatilesystems.com',
+        license = 'GNU General Public License 2.0 or later',
+        url = 'https://www.volatilesystems.com/default/volatility',
+        os = 'WIN_32_XP_SP2',
+        version = '1.0')
 
     # This module extends the standard parser. This is accomplished by 
-    # overriding the forensics.commands.command.parser() method. The 
+    # overriding the forensics.commands.command.parse() method. The 
     # overriding method begins by calling the base class method directly
     # then it further populates the OptionParser instance with two 
     # new options.  
@@ -192,7 +191,6 @@ class usrdmp_ex_2(forensics.commands.command):
     # attributes: self.opts.filename, self.opts.base, self.opts.type.
 
     def execute(self):
-
         if (self.opts.filename is None) or (not os.path.isfile(self.opts.filename)) :
             self.op.error("File is required")
         else:
@@ -221,7 +219,7 @@ class usrdmp_ex_2(forensics.commands.command):
 
             if process_address_space is None:
                 print "Error obtaining address space for process [%d]" % (process_id)
-                return
+	        return
 
             entries = process_address_space.get_available_pages()
 
@@ -247,7 +245,7 @@ class usrdmp_ex_2(forensics.commands.command):
     
             if len(task) == 0:
                 print "Error process [%d] not found"%self.opts.pid
-                return
+	        return
 
             if len(task) > 1:
                 print "Multiple processes [%d] found. Please specify offset."%self.opts.pid 
@@ -261,20 +259,20 @@ class usrdmp_ex_2(forensics.commands.command):
 
             if process_address_space is None:
                 print "Error obtaining address space for process [%d]" % (process_id)
-                return
+	        return
 
             image_file_name = process_imagename(process_address_space, types, task[0])
 
             entries = process_address_space.get_available_pages()
 
-            ofilename = str(self.opts.pid) + ".dmp"
+	    ofilename = str(self.opts.pid) + ".dmp"
 
             # Check to make sure file can open
-            try:
+	    try:
                 ohandle=open(ofilename,'wb')
             except IOError:
-                print "Error opening file [%s]"% (ofilename)
-                return
+	        print "Error opening file [%s]"% (ofilename)
+	        return
 
             for entry in entries:
                 data = process_address_space.read(entry[0],entry[1])

@@ -46,7 +46,10 @@ class command:
         """ This function returns a string that will be displayed when a
         user lists available plugins.
         """
-        return ""
+        try:
+            return self.__doc__
+        except:
+            return ""
 
     def calculate(self):
         """ This function is responsible for performing all calculations

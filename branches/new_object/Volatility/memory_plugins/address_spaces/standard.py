@@ -1,52 +1,65 @@
-# Volatility
-# Copyright (C) 2007,2008 Volatile Systems
-#
-# Original Source:
-# Copyright (C) 2004,2005,2006 4tphi Research
-# Author: {npetroni,awalters}@4tphi.net (Nick Petroni and AAron Walters)
-#
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or (at
-# your option) any later version.
-#
-# This program is distributed in the hope that it will be useful, but
-# WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-# General Public License for more details. 
-#
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA 
-#
+""" These are standard address spaces supported by Volatility """
+import forensics.addrspace as addrspace
+import os, struct
+from forensics.object2 import NewObject, Profile
+from vsyms import *
 
-"""
-@author:       AAron Walters
-@license:      GNU General Public License 2.0 or later
-@contact:      awalters@volatilesystems.com
-@organization: Volatile Systems
-"""
+class FileAddressSpace(addrspace.BaseAddressSpace):
+    """ This is a direct file AS.
 
-"""Module for dealing with x86 architecture stuff
-"""
-import struct
-from forensics.addrspace import FileAddressSpace
+    For this AS to be instanitiated, we need
 
-x86_native_types = { \
-    'int' : [4, 'l'], \
-    'long': [4, 'l'], \
-    'unsigned long' : [4, 'L'], \
-    'unsigned int' : [4, 'I'], \
-    'address' : [4, 'L'], \
-    'char' : [1, 'c'], \
-    'unsigned char' : [1, 'B'], \
-    'unsigned short int' : [2, 'H'], \
-    'unsigned short' : [2, 'H'], \
-    'short' : [2, 'h'], \
-    'long long' : [8, 'q'], \
-    'unsigned long long' : [8, 'Q'], \
-    }
+    1) A valid opts.filename
 
+    2) no one else has picked the AS before us
+    
+    3) base == None (we dont operate on anyone else so we need to be
+    right at the bottom of the AS stack.)
+    """
+    ## We should be the AS of last resort
+    order = 100
+    def __init__(self, base, opts):
+        assert(base == None)
+        self.name = opts['filename']
+        self.fname = self.name
+        self.mode = opts.get('mode','rb')
+	self.fhandle = open(self.fname, self.mode)
+        self.fsize = os.path.getsize(self.fname)
+        self.offset = 0
+
+    def fread(self, len):
+        return self.fhandle.read(len)
+
+    def read(self, addr, len):
+        self.fhandle.seek(addr)        
+        return self.fhandle.read(len)    
+
+    def zread(self, addr, len):
+        return self.read(addr, len)
+
+    def read_long(self, addr):
+        string = self.read(addr, 4)
+        (longval, ) =  struct.unpack('=L', string)
+        return longval
+
+    def get_address_range(self):
+        return [0,self.fsize-1]
+
+    def get_available_addresses(self):
+        return [0,self.get_address_range()]
+
+    def is_valid_address(self, addr):
+        if addr == None:
+	    return False
+        return addr < self.fsize - 1
+
+    def close():
+        self.fhandle.close()
+
+BLOCKSIZE = 1024 * 1024 * 10
+from struct import unpack
+
+## This stuff needs to go in the profile
 entry_size = 8
 pointer_size = 4
 page_shift = 12 
@@ -62,12 +75,62 @@ pde_shift= 21
 ptrs_per_pde = 512
 ptrs_page = 2048
 
-
-class IA32PagedMemory:
-    def __init__(self, baseAddressSpace, pdbr):
+class IA32PagedMemory(addrspace.BaseAddressSpace):
+    """ We accept an optional arg called dtb to force us to use a
+    specific dtb. If not provided, we try to find it from our base
+    AS, and failing that we search for it.
+    """
+    order = 90
+    def __init__(self, baseAddressSpace, opts):
+        ## We must be stacked on someone else:
+        assert(baseAddressSpace != None)
+        
+        ## We can not stack on someone with a page table
+        assert(not hasattr(baseAddressSpace, 'pgd_vaddr'))
+        
         self.base = baseAddressSpace
-        self.pgd_vaddr = pdbr
-        self.pae = False
+        self.profile = Profile()
+        self.pgd_vaddr = self.load_dtb()
+	self.pae = False
+
+        ## Finally we have to have a valid PsLoadedModuleList
+        assert(self.is_valid_address(nopae_syms.lookup('PsLoadedModuleList')))
+
+    def load_dtb(self):
+        try:
+            ## Try to be lazy and see if someone else found dtb for
+            ## us:
+            return self.base.dtb
+        except AttributeError:
+            ## Ok so we need to find our dtb ourselves:
+            dtb = self._find_dtb()
+            if dtb:
+                ## Make sure to save dtb for other AS's
+                self.base.dtb = dtb
+                return dtb
+
+    def _find_dtb(self):
+        offset = 0
+        while 1:
+            data = self.base.read(offset, BLOCKSIZE)
+            found = 0
+            if not data:
+                break
+
+            while 1:
+                found = data.find("\x03\x00\x1b\x00", found+1)
+                if found >= 0:
+                    (type,size) = unpack('=HH',data[found:found+4])
+                    proc = NewObject("_EPROCESS", offset+found, self.base,
+                                     profile = self.profile)
+                    if 'Idle' in proc.ImageFileName.v():
+                        return proc.Pcb.DirectoryTableBase[0]
+                else:
+                    break
+
+            offset+=len(data)
+
+        return None
 
     def entry_present(self, entry):
         if (entry & (0x00000001)) == 0x00000001:
@@ -106,13 +169,12 @@ class IA32PagedMemory:
     def vtop(self, vaddr):
         retVal = None
         pgd = self.get_pgd(vaddr)
-
         if self.entry_present(pgd):
             if self.page_size_flag(pgd):
                 retVal =  self.get_four_meg_paddr(vaddr, pgd)
             else:
                 pte = self.get_pte(vaddr, pgd)
-                if not pte: return None
+		if not pte: return None
                 if self.entry_present(pte):
                         retVal =  self.get_paddr(vaddr, pte)
         return retVal
@@ -120,6 +182,7 @@ class IA32PagedMemory:
     def read(self, vaddr, length):
         length = int(length)
         vaddr = int(vaddr)
+
         first_block = 0x1000 - vaddr % 0x1000
         full_blocks = ((length + (vaddr % 0x1000)) / 0x1000) - 1
         left_over = (length + vaddr) % 0x1000
@@ -129,14 +192,14 @@ class IA32PagedMemory:
             return None
         
         if length < first_block:
-            stuff_read = self.base.read(paddr, length)
-            if stuff_read == None:
-                return None
+	    stuff_read = self.base.read(paddr, length)
+	    if stuff_read == None:
+	        return None
             return stuff_read
 
         stuff_read = self.base.read(paddr, first_block)
         if stuff_read == None:
-            return None
+	    return None
 
         new_vaddr = vaddr + first_block
         for i in range(0,full_blocks):
@@ -144,8 +207,8 @@ class IA32PagedMemory:
             if paddr == None:
                 return None
             new_stuff = self.base.read(paddr, 0x1000)
-            if new_stuff == None:
-                return None
+	    if new_stuff == None:
+	        return None
             stuff_read = stuff_read + new_stuff
             new_vaddr = new_vaddr + 0x1000
 
@@ -154,8 +217,8 @@ class IA32PagedMemory:
             if paddr == None:
                 return None
             new_stuff = self.base.read(paddr, left_over)
-            if new_stuff == None:
-                return None
+	    if new_stuff == None:
+	        return None
             stuff_read = stuff_read + new_stuff
         return stuff_read
 
@@ -180,7 +243,7 @@ class IA32PagedMemory:
             paddr = self.vtop(new_vaddr)
             if paddr == None:
                 stuff_read = stuff_read + ('\0' * 0x1000)
-            else:
+	    else:
                 stuff_read = stuff_read + self.base.zread(paddr, 0x1000)
 
             new_vaddr = new_vaddr + 0x1000
@@ -195,21 +258,21 @@ class IA32PagedMemory:
 
     def read_long_phys(self, addr):
         string = self.base.read(addr, 4)
-        if not string:
-            return None
+	if not string:
+	    return None
         (longval, ) =  struct.unpack('=L', string)
         return longval
 
     def is_valid_address(self, addr):
         if addr == None:
-            return False
-        try:    
+	    return False
+	try:    
             phyaddr = self.vtop(addr)
-        except:
-            return False
+	except:
+	    return False
         if phyaddr == None:
             return False
-        if not self.base.is_valid_address(phyaddr):
+	if not self.base.is_valid_address(phyaddr):
             return False
         return True
 
@@ -231,13 +294,37 @@ class IA32PagedMemory:
                         page_list.append([start + j * 0x1000, 0x1000])
         return page_list        
 
+    def read_long_virt(self, addr):
+        string = self.read(addr, 4)
+	if string == None:
+	    return None
+        (longval, ) =  struct.unpack('=L', string)
+        return longval
 
-class IA32PagedMemoryPae:
-    def __init__(self, baseAddressSpace, pdbr):
+
+class IA32PagedMemoryPae(IA32PagedMemory):
+    order = 80
+    def __init__(self, baseAddressSpace, opts):
+        """ We accept an optional arg called dtb to force us to use a
+        specific dtb. If not provided, we try to find it from our base
+        AS, and failing that we search for it.
+        """
+        assert(baseAddressSpace != None)
+
+        ## We can not stack on someone with a page table
+        assert(not hasattr(baseAddressSpace, 'pgd_vaddr'))
+        
         self.base = baseAddressSpace
-        self.pgd_vaddr = pdbr
+        self.profile = Profile()
+        try:
+            self.pgd_vaddr = opts['dtb']
+        except KeyError:
+            self.pgd_vaddr = self.load_dtb()
         self.pae = True
 
+        ## Finally we have to have a valid PsLoadedModuleList
+        assert(self.is_valid_address(nopae_syms.lookup('PsLoadedModuleList')))
+        
     def entry_present(self, entry):
         if (entry & (0x00000001)) == 0x00000001:
             return True
@@ -259,9 +346,9 @@ class IA32PagedMemoryPae:
 
     def get_pdpi(self, vaddr):
         pdpi_entry = self.get_pdptb(self.pgd_vaddr) + self.pdpi_index(vaddr) * entry_size
-        return self.read_long_long_phys(pdpi_entry)
+	return self.read_long_long_phys(pdpi_entry)
 
-    def pde_index(self, vaddr): 
+    def pde_index(self, vaddr):
         return (vaddr >> pde_shift) & (ptrs_per_pde - 1)
 
     def pdba_base(self, pdpe):
@@ -294,25 +381,23 @@ class IA32PagedMemoryPae:
         retVal = None
         pdpe = self.get_pdpi(vaddr)
 
-        if not self.entry_present(pdpe):
-            return retVal
+	if not self.entry_present(pdpe):
+	    return retVal
 
-        pgd = self.get_pgd(vaddr,pdpe)
-
-        if not pgd: return None
-
+	pgd = self.get_pgd(vaddr,pdpe)
         if self.entry_present(pgd):
-                if self.page_size_flag(pgd):
-                    retVal = self.get_large_paddr(vaddr, pgd)
-                else:
+		if self.page_size_flag(pgd):
+		    retVal = self.get_large_paddr(vaddr, pgd)
+		else:
                     pte = self.get_pte(vaddr, pgd)
-                    if not pte: return None
                     if self.entry_present(pte):
                         retVal =  self.get_paddr(vaddr, pte)
+                        
         return retVal
 
     def read(self, vaddr, length):
         length = int(length)
+        vaddr = int(vaddr)
         first_block = 0x1000 - vaddr % 0x1000
         full_blocks = ((length + (vaddr % 0x1000)) / 0x1000) - 1
         left_over = (length + vaddr) % 0x1000
@@ -322,14 +407,14 @@ class IA32PagedMemoryPae:
             return None
         
         if length < first_block:
-            stuff_read = self.base.read(paddr, length)
-            if stuff_read == None:
-                return None
+	    stuff_read = self.base.read(paddr, length)
+	    if stuff_read == None:
+	        return None
             return stuff_read
 
         stuff_read = self.base.read(paddr, first_block)
         if stuff_read == None:
-            return None
+	    return None
 
         new_vaddr = vaddr + first_block
         for i in range(0,full_blocks):
@@ -337,8 +422,8 @@ class IA32PagedMemoryPae:
             if paddr == None:
                 return None
             new_stuff = self.base.read(paddr, 0x1000)
-            if new_stuff == None:
-                return None
+	    if new_stuff == None:
+	        return None
             stuff_read = stuff_read + new_stuff
             new_vaddr = new_vaddr + 0x1000
 
@@ -347,13 +432,14 @@ class IA32PagedMemoryPae:
             if paddr == None:
                 return None
             new_stuff = self.base.read(paddr, left_over)
-            if new_stuff == None:
+	    if new_stuff == None:
                 return None
             stuff_read = stuff_read + new_stuff
         return stuff_read
 
     def zread(self, vaddr, length):
         length=int(length)
+        vaddr=int(vaddr)
         first_block = 0x1000 - vaddr % 0x1000
         full_blocks = ((length + (vaddr % 0x1000)) / 0x1000) - 1
         left_over = (length + vaddr) % 0x1000
@@ -383,12 +469,19 @@ class IA32PagedMemoryPae:
             paddr = self.vtop(new_vaddr)
             if paddr == None:
                 stuff_read = stuff_read + ('\0' * left_over)
-            else:
+	    else:
                 stuff_read = stuff_read + self.base.zread(paddr, left_over)
         return stuff_read
         
     def read_long_phys(self, addr):
         string = self.base.read(addr, 4)
+	if string == None:
+	    return None
+        (longval, ) =  struct.unpack('=L', string)
+        return longval
+
+    def read_long_virt(self, addr):
+        string = self.read(addr, 4)
 	if string == None:
 	    return None
         (longval, ) =  struct.unpack('=L', string)
@@ -403,14 +496,14 @@ class IA32PagedMemoryPae:
 
     def is_valid_address(self, addr):
         if addr == None:
-            return False
-        try:    
+	    return False
+	try:    
             phyaddr = self.vtop(addr)
-        except:
-            return False
+	except:
+	    return False
         if phyaddr == None:
             return False
-        if not self.base.is_valid_address(phyaddr):
+	if not self.base.is_valid_address(phyaddr):
             return False
         return True
 
@@ -421,7 +514,7 @@ class IA32PagedMemoryPae:
 
         for i in range(0,ptrs_per_pdpi): 
 
-            start = (i * ptrs_per_pae_pgd * ptrs_per_pae_pgd * ptrs_per_pae_pte * 8)
+	    start = (i * ptrs_per_pae_pgd * ptrs_per_pae_pgd * ptrs_per_pae_pte * 8)
             pdpi_entry  = pdpi_base + i * entry_size        
             pdpe = self.read_long_long_phys(pdpi_entry)
 
@@ -431,16 +524,16 @@ class IA32PagedMemoryPae:
             pgd_curr = self.pdba_base(pdpe)          
                   
             for j in range(0,ptrs_per_pae_pgd):
-              soffset = start + (j * ptrs_per_pae_pgd * ptrs_per_pae_pte * 8)
+	      soffset = start + (j * ptrs_per_pae_pgd * ptrs_per_pae_pte * 8)
               entry = self.read_long_long_phys(pgd_curr)
               pgd_curr = pgd_curr + 8
               if self.entry_present(entry) and self.page_size_flag(entry):
-                  page_list.append([soffset, 0x200000])
+		  page_list.append([soffset, 0x200000])
               elif self.entry_present(entry):
                   pte_curr = entry & ~((1 << page_shift)-1)                
                   for k in range(0,ptrs_per_pae_pte):
                         pte_entry = self.read_long_long_phys(pte_curr)
                         pte_curr = pte_curr + 8
                         if self.entry_present(pte_entry):
-                            page_list.append([soffset + k * 0x1000, 0x1000])
+			    page_list.append([soffset + k * 0x1000, 0x1000])
         return page_list

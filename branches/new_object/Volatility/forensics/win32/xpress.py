@@ -117,14 +117,21 @@ def xpress_decode(inputBuffer):
             length = length + 3
             
             while length != 0:
-                try:							     
+	        try:							     
                     outputBuffer[outputIndex] = outputBuffer[outputIndex - offset - 1] 
-                except KeyError:
+		except KeyError:
                     return recombine(outputBuffer)
                 outputIndex += 1 
                 length -= 1 
 
-    return recombine(outputBuffer)
+    result = recombine(outputBuffer)
+    return result
+
+try:
+    import pyxpress
+
+    xpress_decode = pyxpress.decode
+except ImportError: pass
 
 if __name__ == "__main__":
     import sys

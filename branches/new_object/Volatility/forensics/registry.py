@@ -37,7 +37,6 @@ classes in the same plugin and have them all automatically loaded.
 """
 
 import os,sys,imp
-from os.path import dirname, join, normpath
 
 ## Define the parameters we need:
 PLUGINS = "memory_plugins:memory_objects"
@@ -67,15 +66,11 @@ class MemoryRegistry:
         self.classes = []
         self.class_names = []
         self.order = []
-       
-        # Get program path
-	#basedir = os.path.dirname(sys.argv[0])
-
+        
         ## Recurse over all the plugin directories recursively
         for path in PLUGINS.split(':'):
-	    #path = os.path.join(basedir, path)
-            path = os.path.normpath(os.path.join(os.path.dirname(__file__), \
-                os.path.join("..", path)))
+            path = os.path.normpath(os.path.join(os.path.dirname(__file__),
+                                                 os.path.join("..", path)))
             for dirpath, dirnames, filenames in os.walk(path):
                 sys.path.append(dirpath)
                 
@@ -83,7 +78,7 @@ class MemoryRegistry:
                     #Lose the extension for the module name
                     module_name = filename[:-3]
                     if filename.endswith(".py"):
-                        path = os.path.join(dirpath, filename)
+                        path = dirpath+'/'+filename
                         try:
                             if path not in self.module_paths:
                                 ## If we do not have the module in the 
@@ -243,10 +238,27 @@ class VolatilityObjectRegistry(MemoryRegistry):
     
     def __init__(self,ParentClass):
         MemoryRegistry.__init__(self,ParentClass)
+        ## First we sort the classes according to their order
+        def sort_function(x,y):
+            try:
+                a=x.order
+            except: a=10
+            
+            try:
+                b=y.order
+            except: b=10
+            
+            if a<b:
+                return -1
+            elif a==b: return 0
+            return 1
+        
+        self.classes.sort(sort_function)
+        
         for cls in self.classes:
             ## The name of the class is the object name
-            obj = ("%s" % cls).split()[-1]
-            obj = obj[1:-2]
+            obj = ("%s" % cls).split('.')[-1]
+	    obj = obj[:-2]
             try:
                 raise Exception("Object %s has already been defined by %s" % (obj,self.objects[obj]))
             except KeyError:
@@ -256,6 +268,7 @@ class VolatilityObjectRegistry(MemoryRegistry):
 LOCK = 0
 PLUGIN_COMMANDS = None
 OBJECT_CLASSES = None
+AS_CLASSES = None
 
 ## This is required for late initialization to avoid dependency nightmare.
 def Init():
@@ -274,3 +287,7 @@ def Init():
     import forensics.object2 as object2
     global OBJECT_CLASSES
     OBJECT_CLASSES = VolatilityObjectRegistry(object2.Object)
+
+    import forensics.addrspace as addrspace
+    global AS_CLASSES
+    AS_CLASSES = VolatilityObjectRegistry(addrspace.BaseAddressSpace)

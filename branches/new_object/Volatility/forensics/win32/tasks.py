@@ -27,13 +27,39 @@
 """
 
 from forensics.object import *
+from forensics.object2 import NewObject
 from forensics.win32.datetime import *
 #from forensics.win32.info import *
-from forensics.win32.info import find_psactiveprocesshead
+from forensics.win32.info import find_psactiveprocesshead, kpcr_addr
 import os
 from struct import unpack
 
 from forensics.addrspace import *
+
+def pslist(addr_space, profile):
+    """ A Generator for _EPROCESS objects (uses _KPCR symbols) """
+
+    ## Locate the kpcr struct - this is hard coded right now
+    kpcr = NewObject("_KPCR", kpcr_addr, addr_space, profile=profile)
+
+    ## Try to dereference the KdVersionBlock as a 64 bit struct
+    DebuggerDataList = kpcr.KdVersionBlock.dereference_as("_DBGKD_GET_VERSION64").DebuggerDataList
+    PsActiveProcessHead = DebuggerDataList.dereference_as("_KDDEBUGGER_DATA64"
+                                                          ).PsActiveProcessHead \
+                     or DebuggerDataList.dereference_as("_KDDEBUGGER_DATA32"
+                                                        ).PsActiveProcessHead \
+                     or kpcr.KdVersionBlock.dereference_as("_KDDEBUGGER_DATA32"
+                                                           ).PsActiveProcessHead
+    
+    if PsActiveProcessHead:
+        print type(PsActiveProcessHead)
+    ## Try to iterate over the process list in PsActiveProcessHead
+    ## (its really a pointer to a _LIST_ENTRY)
+        for l in PsActiveProcessHead.dereference_as("_LIST_ENTRY").list_of_type(
+            "_EPROCESS", "ActiveProcessLinks"):
+            yield l
+    else:
+        raise RuntimeError("Unable to find PsActiveProcessHead - is this image supported?")
 
 def process_list(addr_space, types, symbol_table=None):
     """
@@ -165,8 +191,10 @@ def process_handle_count(addr_space, types, task_vaddr):
     if object_table is None or not addr_space.is_valid_address(object_table):
         return None
     else:
-        handle_count = read_obj(addr_space, types,
-                                ['_HANDLE_TABLE', 'HandleCount'], object_table)
+        try:
+            handle_count = read_obj(addr_space, types,
+                                    ['_HANDLE_TABLE', 'HandleCount'], object_table)
+        except: return None
 
     return handle_count
 
