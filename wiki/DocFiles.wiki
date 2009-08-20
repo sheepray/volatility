@@ -1,7 +1,4 @@
-#summary One-sentence summary of this page.
 #labels Featured
-
-
 = Introduction =
 
 This page contains documents as part of the Volatility Documentation Project (VDP).  These documents are contributed by various members of the Volatility community.  New contributions are always welcome.
