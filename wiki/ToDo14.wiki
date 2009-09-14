@@ -14,4 +14,6 @@ TODO Items:
     * Object model improvements
     * Flexible and extensible address spaces
   # Convert core modules to plugins (i.e., get rid of vmodules!)
+  # Fix up the installer (setup.py)
+  # Binary builds for some platforms (eg, Windows)?
   # Documentation, documentation, documentation!
