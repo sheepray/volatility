@@ -1,0 +1,17 @@
+#summary TODO items for the 1.4 branch
+#labels Phase-Design
+
+= Introduction =
+
+This page documents the things we want to accomplish in the 1.4 branch, so we can a) keep track of them, and b) people new to the project can find things to work on.
+
+= Details =
+
+TODO Items:
+# Move Volatility into its own namespace, eg "volatility"
+# Merge in scudette's code:
+  * Flexible output
+  * Object model improvements
+  * Flexible and extensible address spaces
+# Convert core modules to plugins (i.e., get rid of vmodules!)
+# Documentation, documentation, documentation!
