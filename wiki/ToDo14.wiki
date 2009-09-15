@@ -16,4 +16,5 @@ TODO Items:
   # Convert core modules to plugins (i.e., get rid of vmodules!)
   # Fix up the installer (setup.py)
   # Binary builds for some platforms (eg, Windows)?
+  # Merge Linux branch into main
   # Documentation, documentation, documentation!
