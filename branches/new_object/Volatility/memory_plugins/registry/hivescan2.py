@@ -24,14 +24,17 @@
 @organization: Volatile Systems
 """
 
-from forensics.object2 import *
+#pylint: disable-msg=C0111
+
+import os
+from vtypes import xpsp2types as types
 import forensics.win32.meta_info as meta_info
 from forensics.win32.scan2 import scan_addr_space
 from forensics.win32.hive2 import PoolScanHiveFast2
-from forensics.win32.hive2 import hive_fname
 from forensics.win32.regtypes import regtypes
-from vutils import *
-from struct import unpack
+from forensics.addrspace import FileAddressSpace
+from vutils import find_addr_space, get_dtb, load_pae_address_space, load_nopae_address_space
+import forensics.commands
 
 class hivescan(forensics.commands.command):
     # Declare meta information associated with this plugin
@@ -62,7 +65,7 @@ class hivescan(forensics.commands.command):
             filename = opts.filename
 
         try:
-            flat_address_space = FileAddressSpace(filename,fast=True)
+            flat_address_space = FileAddressSpace(filename, fast=True)
         except:
             op.error("Unable to open image file %s" % (filename))
 
@@ -78,15 +81,15 @@ class hivescan(forensics.commands.command):
             try:
                 sysdtb = int(opts.base, 16)
             except:
-                op.error("Directory table base must be a hexidecimal number.")
+                op.error("Directory table base must be a hexadecimal number.")
         meta_info.set_dtb(sysdtb)
 
         # Set the kernel address space
         kaddr_space = load_pae_address_space(filename, sysdtb)
         if kaddr_space is None:
-             kaddr_space = load_nopae_address_space(filename, sysdtb)
+            kaddr_space = load_nopae_address_space(filename, sysdtb)
         meta_info.set_kas(kaddr_space)
 
         print "%-15s %-15s" % ("Offset", "(hex)")
         scanners = [PoolScanHiveFast2(search_address_space)]
-        objs = scan_addr_space(search_address_space, scanners)
+        _objs = scan_addr_space(search_address_space, scanners)

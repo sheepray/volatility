@@ -24,9 +24,11 @@
 @organization: Volatile Systems
 """
 
-from forensics.win32.hive2 import hive_list, hive_fname
-from forensics.object2 import *
-from vutils import *
+#pylint: disable-msg=C0111
+
+from forensics.object2 import Profile, NewObject
+from vutils import load_and_identify_image
+import forensics.commands
 
 class hivelist(forensics.commands.command):
     "Print list of registry hives"
@@ -55,8 +57,7 @@ class hivelist(forensics.commands.command):
             outfd.write("%#X  %s\n" % (hive.offset, name))
     
     def calculate(self):
-	(addr_space, symtab, types) = load_and_identify_image(self.op,
-            self.opts)
+        (addr_space, _symtab, _types) = load_and_identify_image(self.op, self.opts)
         profile = Profile()
 
         if not self.opts.offset:

@@ -25,13 +25,15 @@
 @contact:      awalters@volatilesystems.com
 @organization: Volatile Systems
 """
+
+#pylint: disable-msg=C0111
+
 import sys, StringIO
-sys.path.append(".")
-sys.path.append("..")
+# sys.path.append(".")
+# sys.path.append("..")
 
 from vtypes import xpsp2types as types
 from forensics.win32.overlay import xpsp2overlays
-from forensics.object import *
 from forensics.x86 import x86_native_types
 import forensics.registry as MemoryRegistry
 import struct
@@ -52,26 +54,24 @@ class Curry:
     curry(3) is the same as calling foo(a=1,b=3).
     For more information see the Oreilly Python Cookbook.
     """
-    def __init__(self,function,*args,**kwargs):
+    def __init__(self, function, *args, **kwargs):
         """ Initialised the curry object with the correct function."""
-        self.fun=function
+        self.fun = function
         self.pending = args[:]
         self.kwargs = kwargs.copy()
 
-    def __call__(self,*args,**kwargs):
+    def __call__(self, *args, **kwargs):
         if kwargs and self.kwargs:
-            kw=self.kwargs.copy()
+            kw = self.kwargs.copy()
             kw.update(kwargs)
         else:
             kw = kwargs or self.kwargs
             
         return self.fun(*(self.pending+args), **kw)
 
-import sys
 import traceback
-import cStringIO
 
-def get_bt_string(e=None):    
+def get_bt_string(_e=None):    
     return ''.join(traceback.format_stack()[:-3])
 
 class NoneObject(object):
@@ -102,7 +102,7 @@ class NoneObject(object):
     def next(self):
         raise StopIteration()
 
-    def __getattribute__(self,attr):
+    def __getattribute__(self, attr):
         try:
             return object.__getattribute__(self, attr)
         except AttributeError:
@@ -135,15 +135,17 @@ class NoneObject(object):
         
 class InvalidType(Exception):
     def __init__(self, typename=None):
+        Exception.__init__(self)
         self.typename = typename
 
     def __str__(self):
-	return str(self.typename)
+        return str(self.typename)
 
 class InvalidMember(Exception):
     def __init__(self, typename=None, membername=None):
+        Exception.__init__(self)
         self.typename = typename
-	self.membername = membername
+        self.membername = membername
 
     def __str__(self):
         return str(self.typename) + ":" + str(self.membername)
@@ -153,7 +155,8 @@ def NewObject(theType, offset, vm, parent=None, profile=None, name=None, **kwarg
     a string) from the type in profile passing optional args of
     kwargs.
     """
-    if name==None: name=theType
+    if name == None:
+        name = theType
 
     offset = int(offset)
     
@@ -184,16 +187,17 @@ def NewObject(theType, offset, vm, parent=None, profile=None, name=None, **kwarg
 class Object(object):        
     def __init__(self, theType, offset, vm, parent=None, profile=None, name=None):
         self.vm = vm
-	self.members = {}
-	self.parent = parent
-	self.extra_members = {}
-	self.profile = profile
-	self.offset = offset
+        self.members = {}
+        self.parent = parent
+        self.extra_members = {}
+        self.profile = profile
+        self.offset = offset
         self.name = name
         self.theType = theType
 
     def __nonzero__(self):
-        if self.v(): return True
+        if self.v():
+            return True
         return False
 
     def __add__(self, other):
@@ -210,9 +214,9 @@ class Object(object):
     
     def __eq__(self, other):
         if isinstance(other, Object):
-	   return (self.__class__ == other.__class__) and (self.offset == other.offset)
-	else:
-	   return NotImplemented
+            return (self.__class__ == other.__class__) and (self.offset == other.offset)
+        else:
+            return NotImplemented
 
     def __ne__(self, other):
         return not self == other
@@ -259,9 +263,11 @@ class Object(object):
     def get_member_names(self):
         return False
 
-    def get_bytes(self,amount=None):
+    def get_bytes(self, amount=None):
         if amount == None:
-            amount = self.size()
+            # FIXME: Figure out what self.size() should be?
+            # amount = self.size()
+            pass
 
         return self.vm.read(self.offset, amount)
 
@@ -283,8 +289,8 @@ class VType:
     """
     def __init__(self, profile, size, hasMembers=False, hasValue=False):
         self.profile = profile
-        self.hasMembers=hasMembers
-        self.hasValue=hasValue
+        self.hasMembers = hasMembers
+        self.hasValue = hasValue
         self.size = size
     
     def cdecl(self):
@@ -366,7 +372,8 @@ class Pointer(NativeType):
         return "Pointer %s" % self.v()
 
     def __nonzero__(self):
-        if self.dereference(): return True
+        if self.dereference():
+            return True
         return False
 
     def __repr__(self):
@@ -381,7 +388,7 @@ class Pointer(NativeType):
 
     def __getattribute__(self, attr):
         try:
-            return super(Pointer,self).__getattribute__(attr)
+            return super(Pointer, self).__getattribute__(attr)
         except AttributeError:
             ## We just dereference ourself
             result = self.dereference()
@@ -408,7 +415,7 @@ class XXCType(VType):
         self.members = members
         self.isStruct = isStruct
 
-    def add_member(self, name, member):
+    def add_member(self, _name, member):
         self.members[member.name] = member
 
     def set_members(self, members):
@@ -445,7 +452,7 @@ class Array(Object):
                         name=name)
         try:
             count = count(parent)
-        except TypeError,e:
+        except TypeError, _e:
             pass
         
         self.count = int(count)
@@ -491,7 +498,7 @@ class Array(Object):
             return False
         
         for i in range(self.count):
-            if not self[i]==other[i]:
+            if not self[i] == other[i]:
                 return False
 
         return True
@@ -515,7 +522,8 @@ class CType(Object):
         are the offsets, the values are Curried Object classes that
         will be instanitated when accessed.
         """
-        if not members: raise RuntimeError()
+        if not members:
+            raise RuntimeError()
         
         Object.__init__(self, theType, offset, vm, parent=parent, profile=profile, name=name)
         self.members = members
@@ -530,7 +538,7 @@ class CType(Object):
                                      self.offset)
     def __repr__(self):
         result = ''
-        for k,v in self.members.items():
+        for k, _v in self.members.items():
             result += " %s -\n %s\n" % ( k, self.m(k))
 
         return result
@@ -559,7 +567,7 @@ class CType(Object):
 
         return result
 
-    def __getattribute__(self,attr):
+    def __getattribute__(self, attr):
         try:
             return object.__getattribute__(self, attr)
         except AttributeError:
@@ -567,7 +575,8 @@ class CType(Object):
 
         try:
             return object.__getattribute__(self, "_"+attr)(attr)
-        except: pass
+        except:
+            pass
         
         return self.m(attr)
     
@@ -586,15 +595,17 @@ class Profile:
         
         # Load the native types
         for nt, value in native_types.items():
-            if type(value)==list:
+            if type(value) == list:
                 self.types[nt] = Curry(NativeType, nt, format_string=value[1])
 
         self.import_typeset(abstract_types, overlay)
 
         # Load the abstract data types
-    def import_typeset(self, abstract_types, overlay={}):
-        for name, value in abstract_types.items():
-           self.import_type(name, abstract_types, overlay)
+    def import_typeset(self, abstract_types, overlay=None):
+        if overlay is None:
+            overlay = {}
+        for name, _value in abstract_types.items():
+            self.import_type(name, abstract_types, overlay)
 	
     def import_type(self, ctype, typeDict, overlay):
         """ Parses the abstract_types by converting their string
@@ -622,7 +633,7 @@ class Profile:
                 ## We have a list of the form [ ClassName, dict(.. args ..) ]
                 return Curry(NewObject, theType=typeList[0], name=name,
                              **args)
-        except (TypeError,IndexError),e:
+        except (TypeError, IndexError), _e:
             pass
 
         ## This is of the form [ 'void' ]
@@ -653,7 +664,8 @@ class Profile:
         if 1:
             try:
                 args = typeList[1]
-            except IndexError: args = {}
+            except IndexError:
+                args = {}
             
             obj_name = typeList[0]
             return Curry(NewObject, obj_name, name=name, **args)
@@ -665,8 +677,8 @@ class Profile:
 
     def get_obj_offset(self, name, member):
         """ Returns a members offset within the struct """
-        tmp = self.types[name](name,None, profile=self)
-        offset, cls = tmp.members[member]
+        tmp = self.types[name](name, None, profile=self)
+        offset, _cls = tmp.members[member]
         
         return offset
 
@@ -675,20 +687,22 @@ class Profile:
 
         Basically if overlay has None in any alot it gets applied from vtype.
         """
-        if not overlay: return type_member
+        if not overlay:
+            return type_member
 
         if type(type_member)==dict:
-            for k,v in type_member.items():
+            for k, v in type_member.items():
                 if k not in overlay:
                     overlay[k] = v
                 else:
                     overlay[k] = self.apply_overlay(v, overlay[k])
                     
         elif type(overlay)==list:
-            if len(overlay)!=len(type_member): return overlay
+            if len(overlay) != len(type_member):
+                return overlay
             
             for i in range(len(overlay)):
-                if overlay[i]==None:
+                if overlay[i] == None:
                     overlay[i] = type_member[i]
                 else:
                     overlay[i] = self.apply_overlay(type_member[i], overlay[i])
@@ -719,7 +733,7 @@ class Profile:
         ctype = self.apply_overlay(typeDict[cname], overlay.get(cname))
         members = {}
         size = ctype[0]
-        for k,v in ctype[1].items():
+        for k, v in ctype[1].items():
             members[k] = (v[0], self.list_to_type(k, v[1], typeDict))
 
         ## Allow the plugins to over ride the class constructor here
@@ -737,7 +751,7 @@ class BufferAddressSpace(addrspace.FileAddressSpace):
         self.fhandle = StringIO.StringIO(buff)
         self.fsize = len(buff)
 
-if __name__=='__main__':
+if __name__ == '__main__':
     ## If called directly we run unit tests on this stuff
     import unittest
 
@@ -777,15 +791,15 @@ if __name__=='__main__':
             ## test comparison of array members
             self.assertEqual(o.MAGIC[0], 'A')
             self.assertEqual(o.MAGIC[0], o.MAGIC[2])
-            self.assertEqual(o.MAGIC, ['A','B','A'])
+            self.assertEqual(o.MAGIC, ['A', 'B', 'A'])
             self.assertEqual(o.MAGIC, 'ABA')
             
             ## Iteration over arrays:
             tmp = 'ABA'
             count = 0
             for t in o.MAGIC:
-                self.assertEqual(t,tmp[count])
-                count+=1
+                self.assertEqual(t, tmp[count])
+                count += 1
 
         def test02Links(self):
             """ Tests intrastruct links, pointers etc """
@@ -820,4 +834,4 @@ if __name__=='__main__':
             self.assertEqual(n.HandleTableList.prev.TableCode, 1)
             
     suite = unittest.makeSuite(ObjectTests)
-    result = unittest.TextTestRunner(verbosity=2).run(suite)
+    res = unittest.TextTestRunner(verbosity=2).run(suite)

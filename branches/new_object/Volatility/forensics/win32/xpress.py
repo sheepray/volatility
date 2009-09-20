@@ -29,7 +29,7 @@
 @contact:      bdolangavitt@wesleyan.edu
 """
 
-#!/usr/bin/env python
+#pylint: disable-msg=C0111
 
 from struct import unpack
 from struct import error as StructError 
@@ -83,7 +83,7 @@ def xpress_decode(inputBuffer):
             # and then at some later point get the nibble from the high part (F).
 
             try:
-                length = unpack("<H",inputBuffer[inputIndex:inputIndex+2])[0]
+                length = unpack("<H", inputBuffer[inputIndex:inputIndex+2])[0]
             except StructError:
                 return recombine(outputBuffer)
 
@@ -107,7 +107,7 @@ def xpress_decode(inputBuffer):
                     inputIndex += 1
                     if length == 255:
                         try:
-                            length = unpack("<H",inputBuffer[inputIndex:inputIndex+2])[0]
+                            length = unpack("<H", inputBuffer[inputIndex:inputIndex+2])[0]
                         except StructError:
                             return recombine(outputBuffer)
                         inputIndex = inputIndex + 2
@@ -117,15 +117,14 @@ def xpress_decode(inputBuffer):
             length = length + 3
             
             while length != 0:
-	        try:							     
+                try:							     
                     outputBuffer[outputIndex] = outputBuffer[outputIndex - offset - 1] 
-		except KeyError:
+                except KeyError:
                     return recombine(outputBuffer)
                 outputIndex += 1 
                 length -= 1 
 
-    result = recombine(outputBuffer)
-    return result
+    return recombine(outputBuffer)
 
 try:
     import pyxpress

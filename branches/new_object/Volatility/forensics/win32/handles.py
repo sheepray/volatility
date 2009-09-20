@@ -26,9 +26,10 @@
 @organization: Volatile Systems LLC
 """
 
-from forensics.object import *
-from forensics.win32.datetime import *
-from forensics.win32.tasks import *
+#pylint: disable-msg=C0111
+
+from forensics.object import read_value, read_unicode_string, read_obj, obj_size, get_obj_offset
+from forensics.win32.tasks import process_list, process_pid, process_handle_table
 
 LEVEL_MASK = 0x00000003
 TABLE_MASK = 0xfffffff8
@@ -57,7 +58,7 @@ def handle_table_L1_addr(addr_space, types, table_vaddr, entry_num):
     return handle_table_code(addr_space, types, table_vaddr) + \
            ADDR_SIZE * entry_num
 
-def handle_table_L2_addr(addr_space, types, L1_table, L2):
+def handle_table_L2_addr(_addr_space, _types, L1_table, L2):
     if L1_table != 0x0:
         L2_entry = L1_table + ADDR_SIZE * L2
         return L2_entry
@@ -67,7 +68,7 @@ def handle_table_L1_entry(addr_space, types, table_vaddr, entry_num):
     return handle_table_code(addr_space, types, table_vaddr) + \
            obj_size(types, '_HANDLE_TABLE_ENTRY') * entry_num
 
-def handle_table_L2_entry(addr_space, types, table_vaddr, L1_table, L2):
+def handle_table_L2_entry(_addr_space, types, _table_vaddr, L1_table, L2):
     if L1_table != 0x0:
         L2_entry = L1_table + obj_size(types, '_HANDLE_TABLE_ENTRY') * L2
         
@@ -75,7 +76,7 @@ def handle_table_L2_entry(addr_space, types, table_vaddr, L1_table, L2):
     
     return None
 
-def handle_table_L3_entry(addr_space, types, table_vaddr, L2_table, L3):
+def handle_table_L3_entry(_addr_space, types, _table_vaddr, L2_table, L3):
     if L2_table != 0x0:
         L3_entry = L2_table + obj_size(types, '_HANDLE_TABLE_ENTRY') * L3
         
@@ -91,7 +92,7 @@ def handle_entry_object(addr_space, types, entry_vaddr):
  
     return handle_object & ~0x00000007
 
-def addr_entry(addr_space, types, entry_vaddr):
+def addr_entry(addr_space, _types, entry_vaddr):
     entry = read_value(addr_space, 'unsigned long', entry_vaddr)
     if entry is None:
         return None
@@ -124,8 +125,8 @@ def is_object_file(addr_space, types, obj_vaddr):
 
     return not type_name is None and type_name.find("File") != -1
 
-def object_data(addr_space, types, obj_vaddr):
-    (offset, tmp) = get_obj_offset(types, ['_OBJECT_HEADER', 'Body'])
+def object_data(_addr_space, types, obj_vaddr):
+    (offset, _tmp) = get_obj_offset(types, ['_OBJECT_HEADER', 'Body'])
     return obj_vaddr + offset
 
 def file_name(addr_space, types, file_vaddr):
@@ -156,54 +157,54 @@ def handle_tables(addr_space, types, symtab, pid=None):
 
 
 def handle_entries(addr_space, types, table):
-        # In the case of Windows 2000, the table sizes are limited
-        # to at most 256 entries since they are only addressed with 8 bits.
+    # In the case of Windows 2000, the table sizes are limited
+    # to at most 256 entries since they are only addressed with 8 bits.
 
-        all_entries = []
+    all_entries = []
 
-        table_code = handle_table_code(addr_space, types, table)
+    table_code = handle_table_code(addr_space, types, table)
 
-        if table_code == 0:
-            return all_entries
-
-        table_levels = handle_table_levels(addr_space, types, table)
-
-        if table_levels == 0:
-            num_entries = handle_num_entries(addr_space, types, table)
-
-            for counter in range(0, 0x200):
-                entry = handle_table_L1_entry(addr_space, types, table, counter)
-                if entry != None and entry !=0:
-                    all_entries.append(entry)
-                        
-        elif table_levels == 1:
-            for i in range(0, 0x400):
-                L1_entry = handle_table_L1_addr(addr_space, types, table, i)
-                if not L1_entry is None:
-                    L1_table = addr_entry(addr_space, types, L1_entry)
-                    if L1_table is None:
-                        continue
-
-                    for j in range(0, 0x200):
-                        L2_entry = handle_table_L2_entry(addr_space, types, table, L1_table, j)
-                        if not L2_entry is None:
-                            all_entries.append(L2_entry)
-
-        elif table_levels == 2:
-            for i in range(0, 0x400):
-                L1_entry = handle_table_L1_addr(addr_space, types, table, i)
-                if not L1_entry is None:
-                    L1_table = addr_entry(addr_space, types, L1_entry)
-                    if L1_table is None:
-                        continue
-                    for j in range(0, 0x400):
-                        L2_entry = handle_table_L2_addr(addr_space, types, L1_table, j)
-                        if not L2_entry is None:
-                            L2_table = addr_entry(addr_space, types, L2_entry)
-                            if L2_table is None:
-                                continue
-                            for k in range(0, 0x200):
-                                L3_entry = handle_table_L3_entry(addr_space, types, table, L2_table, k)
-                                if not L3_entry is None: 
-                                    all_entries.append(L3_entry)       
+    if table_code == 0:
         return all_entries
+
+    table_levels = handle_table_levels(addr_space, types, table)
+
+    if table_levels == 0:
+        _num_entries = handle_num_entries(addr_space, types, table)
+
+        for counter in range(0, 0x200):
+            entry = handle_table_L1_entry(addr_space, types, table, counter)
+            if entry != None and entry != 0:
+                all_entries.append(entry)
+                    
+    elif table_levels == 1:
+        for i in range(0, 0x400):
+            L1_entry = handle_table_L1_addr(addr_space, types, table, i)
+            if not L1_entry is None:
+                L1_table = addr_entry(addr_space, types, L1_entry)
+                if L1_table is None:
+                    continue
+
+                for j in range(0, 0x200):
+                    L2_entry = handle_table_L2_entry(addr_space, types, table, L1_table, j)
+                    if not L2_entry is None:
+                        all_entries.append(L2_entry)
+
+    elif table_levels == 2:
+        for i in range(0, 0x400):
+            L1_entry = handle_table_L1_addr(addr_space, types, table, i)
+            if not L1_entry is None:
+                L1_table = addr_entry(addr_space, types, L1_entry)
+                if L1_table is None:
+                    continue
+                for j in range(0, 0x400):
+                    L2_entry = handle_table_L2_addr(addr_space, types, L1_table, j)
+                    if not L2_entry is None:
+                        L2_table = addr_entry(addr_space, types, L2_entry)
+                        if L2_table is None:
+                            continue
+                        for k in range(0, 0x200):
+                            L3_entry = handle_table_L3_entry(addr_space, types, table, L2_table, k)
+                            if not L3_entry is None: 
+                                all_entries.append(L3_entry)       
+    return all_entries

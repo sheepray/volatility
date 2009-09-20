@@ -23,7 +23,7 @@
 @organization: Komoku, Inc.
 """
 
-from forensics.symbols import *
+from forensics.symbols import SymbolTable
 
 nopae_syms = SymbolTable({
     'HandleTableListHead' : 0x805617c8,\

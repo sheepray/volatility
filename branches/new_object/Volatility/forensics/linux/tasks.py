@@ -20,6 +20,8 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA 
 #
 
+#pylint: disable-msg=C0111
+
 """
 @author:       AAron Walters
 @license:      GNU General Public License 2.0 or later
@@ -27,7 +29,7 @@
 @organization: Volatile Systems
 """
 
-from forensics.object2 import *
+from forensics.object2 import NewObject
 from forensics.linked_list import list_do
 
 # Defines
@@ -42,6 +44,8 @@ _TRACED_          = 8
 _ZOMBIE_          = 16
 _DEAD_            = 32
 _NONINTERACTIVE_  = 64
+# FIXME: Check this is ok
+_SWAPPING_        = 128
 
 def process_list(addr_space, types, symtab, theProfile):
     
@@ -52,15 +56,15 @@ def process_list(addr_space, types, symtab, theProfile):
     if task_start_vaddr == None:
         init_task_vaddr = symtab.lookup('init_task')
         if init_task_vaddr == None:
-             return []
-        init_task = Object('task_struct', init_task_vaddr, addr_space, \
+            return []
+        init_task = NewObject('task_struct', init_task_vaddr, addr_space, \
             None, theProfile)       
         list_do(init_task, ['tasks', 'next'], task_list.append, profile=theProfile)
     return task_list
 
-def task_cpu(processor,verbose=False):
+def task_cpu(processor, verbose=False):
     if (processor < NO_PROC_ID):
-        return "%d"%processor
+        return "%d" % processor
     if (processor == NO_PROC_ID):
         if verbose == False:
             return '-'
@@ -68,33 +72,33 @@ def task_cpu(processor,verbose=False):
             return 'NO_PROC_ID'
 
 def task_to_pid(task_list, task_offset):
-     for task in task_list:
-         if task_offset == task.offset:
-             return task.pid
-     return -1
+    for task in task_list:
+        if task_offset == task.offset:
+            return task.pid
+    return -1
   
 def pid_to_task(task_list, pid):
-     match_tasks = [] 
-     for task in task_list:
-         if pid == task.pid:
-             match_tasks.append(task)
-     return match_tasks
+    match_tasks = [] 
+    for task in task_list:
+        if pid == task.pid:
+            match_tasks.append(task)
+    return match_tasks
            
-def task_state_string(state,verbose=False):
+def task_state_string(state, verbose=False):
     if state == _RUNNING_:
-        return ['TASK_RUNNING', 'RU'][verbose==False]
+        return ['TASK_RUNNING', 'RU'][verbose == False]
     elif state == _INTERRUPTIBLE_:
-        return ['TASK_INTERRUPTIBLE', 'IN'][verbose==False]
+        return ['TASK_INTERRUPTIBLE', 'IN'][verbose == False]
     elif state == _UNINTERRUPTIBLE_:
-        return ['TASK_UNINTERRUPTIBLE', 'UN'][verbose==False]
+        return ['TASK_UNINTERRUPTIBLE', 'UN'][verbose == False]
     elif state == _ZOMBIE_:
-        return ['TASK_ZOMBIE', 'ZO'][verbose==False]
+        return ['TASK_ZOMBIE', 'ZO'][verbose == False]
     elif state == _STOPPED_:
-        return ['TASK_STOPPED', 'ST'][verbose==False]
+        return ['TASK_STOPPED', 'ST'][verbose == False]
     elif state == _DEAD_:
-        return ['TASK_DEAD', 'DE'][verbose==False]
+        return ['TASK_DEAD', 'DE'][verbose == False]
     elif state == _SWAPPING_:
-        return ['TASK_SWAPPING', 'SW'][verbose==False] 
+        return ['TASK_SWAPPING', 'SW'][verbose == False] 
 
 def task_rss(task):
     if task.mm.is_valid():
@@ -126,7 +130,7 @@ def task_pgd(task):
 def task_create_addr_space(kaddr_space, pgd):
 
     try:
-	process_address_space = kaddr_space.__class__(kaddr_space.base, pgd)
+        process_address_space = kaddr_space.__class__(kaddr_space.base, pgd)
     except:
         return None
 
@@ -139,36 +143,36 @@ def task_fds(task, addr_space, types, symtab, theProfile):
     if task.m('files').v() != None and task.m('files').v() != 0:
         files_vaddr = task.m('files').v()
         
-        files = Object('files_struct', files_vaddr, addr_space, \
+        files = NewObject('files_struct', files_vaddr, addr_space, \
                 None, theProfile)
 
-	if files == None:
-	    return out
+        if files == None:
+            return out
 
         fdt = files.m('fdt').dereference()
-	fd  = fdt.m('fd').v()
-	max_fds = fdt.m('max_fds').v()
-	for i in range(max_fds):
-	    filep = (fd+4*i)
-	    filep = addr_space.read_long_virt(filep)
+        fd  = fdt.m('fd').v()
+        max_fds = fdt.m('max_fds').v()
+        for i in range(max_fds):
+            filep = (fd+4*i)
+            filep = addr_space.read_long_virt(filep)
             
-	    if (filep):
-	        fileinfo = Object('file', filep, addr_space, \
+            if (filep):
+                fileinfo = NewObject('file', filep, addr_space, \
                     None, theProfile)
 
                 dentry = fileinfo.m('f_dentry').v()
-		if dentry == 0:
-		    continue
+                if dentry == 0:
+                    continue
 
-                dentry = Object('dentry', dentry, addr_space, \
+                dentry = NewObject('dentry', dentry, addr_space, \
                     None, theProfile)
 
-		if dentry == None:
-		    continue
-		inode = dentry.m('d_inode').v()
+                if dentry == None:
+                    continue
+                inode = dentry.m('d_inode').v()
 
-                inode = Object('inode', inode, addr_space, \
+                inode = NewObject('inode', inode, addr_space, \
                     None, theProfile)
 
-		out.append((i,filep,dentry,inode))
+                out.append((i, filep, dentry, inode))
     return out

@@ -30,6 +30,8 @@
 @organization: Volatile Systems
 """
 
+#pylint: disable-msg=C0111
+
 import sys
 import os
 import forensics.registry as MemoryRegistry
@@ -161,7 +163,6 @@ modules = {
 
 
 def list_modules():
-    global modules
     print "\tSupported Internel Commands:"
     keys = modules.keys()
     keys.sort()
@@ -173,7 +174,7 @@ def list_plugins():
     keys = MemoryRegistry.PLUGIN_COMMANDS.commands.keys()
     keys.sort()
     for cmdname in keys:
-        command=MemoryRegistry.PLUGIN_COMMANDS[cmdname]()
+        command = MemoryRegistry.PLUGIN_COMMANDS[cmdname]()
         print "\t\t%-15s\t%-s" % (cmdname, command.help())      
 
 
@@ -211,12 +212,10 @@ def main(argv=sys.argv):
     if modules.has_key(argv[1]):
         modules[argv[1]].execute(argv[1], argv[2:])
     elif MemoryRegistry.PLUGIN_COMMANDS.commands.has_key(argv[1]):
-        command=MemoryRegistry.PLUGIN_COMMANDS[argv[1]](argv[2:])
+        command = MemoryRegistry.PLUGIN_COMMANDS[argv[1]](argv[2:])
         command.execute()
 
 
 if __name__ == "__main__":
     main()
-
-1
 

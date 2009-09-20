@@ -26,9 +26,9 @@
 @organization: Volatile Systems
 """
 
-from forensics.object import *
-from time import gmtime, strftime
+#pylint: disable-msg=C0111
 
+from forensics.object import get_obj_offset, read_obj_from_buf, read_obj
 
 def windows_to_unix_time(windows_time):
     """
@@ -41,7 +41,7 @@ def windows_to_unix_time(windows_time):
     @return  UNIX time
     """
     if(windows_time == 0):
-        unix_time =0
+        unix_time = 0
     else:
         unix_time = windows_time / 10000000
         unix_time = unix_time - 11644473600
@@ -74,8 +74,8 @@ def read_time_buff(buff, types, vaddr):
 
     return (high_time << 32) | low_time
 
-def read_time_buf(buff,data_types,member_list,object_offset):
-    (time_offset, tmp) = get_obj_offset(data_types, \
+def read_time_buf(buff, data_types, member_list, object_offset):
+    (time_offset, _tmp) = get_obj_offset(data_types, \
         member_list)
 
     low_time  = read_obj_from_buf(buff, data_types, \
@@ -126,7 +126,7 @@ def system_time(addr_space, types, vaddr):
     @rtype Integer
     @return   returns the 64-bit system time number
     """
-    (offset, tmp) = get_obj_offset(types, ['_KUSER_SHARED_DATA', 'SystemTime'])
+    (offset, _tmp) = get_obj_offset(types, ['_KUSER_SHARED_DATA', 'SystemTime'])
     
     return read_time(addr_space, types, vaddr + offset)
 
@@ -146,7 +146,7 @@ def time_zone_bias(addr_space, types, vaddr):
     @rtype Integer
     @return   returns the 64-bit system time number
     """
-    (offset, tmp) = get_obj_offset(types, ['_KUSER_SHARED_DATA', 'TimeZoneBias'])
+    (offset, _tmp) = get_obj_offset(types, ['_KUSER_SHARED_DATA', 'TimeZoneBias'])
     
     return read_time(addr_space, types, vaddr + offset)
 

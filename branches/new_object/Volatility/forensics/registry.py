@@ -24,6 +24,9 @@
 # * along with this program; if not, write to the Free Software
 # * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 # *****************************************************
+
+#pylint: disable-msg=C0111
+
 """ This module implements a class registry.
 
 We scan the memory_plugins directory for all python files and add those
@@ -31,12 +34,12 @@ classes which should be registered into their own lookup tables. These
 are then ordered as required. The rest of Volatility will then call onto the
 registered classes when needed.
 
-This mechanism allows us to reorgenise the code according to
+This mechanism allows us to reorganise the code according to
 functionality. For example we may include a Scanner, Report and File
 classes in the same plugin and have them all automatically loaded.
 """
 
-import os,sys,imp
+import os, sys, imp
 
 ## Define the parameters we need:
 PLUGINS = "memory_plugins:memory_objects"
@@ -54,13 +57,13 @@ class MemoryRegistry:
     order = []
     filenames = {}
     
-    def __init__(self,ParentClass):
+    def __init__(self, ParentClass):
         """ Search the plugins directory for all classes extending
         ParentClass.
 
         These will be considered as implementations and added to our
         internal registry.  
-	"""
+	    """
 
         ## Create instance variables
         self.classes = []
@@ -71,23 +74,23 @@ class MemoryRegistry:
         for path in PLUGINS.split(':'):
             path = os.path.normpath(os.path.join(os.path.dirname(__file__),
                                                  os.path.join("..", path)))
-            for dirpath, dirnames, filenames in os.walk(path):
+            for dirpath, _dirnames, filenames in os.walk(path):
                 sys.path.append(dirpath)
                 
                 for filename in filenames:
                     #Lose the extension for the module name
                     module_name = filename[:-3]
                     if filename.endswith(".py"):
-                        path = dirpath+'/'+filename
+                        path = os.path.join(dirpath, filename)
                         try:
                             if path not in self.module_paths:
                                 ## If we do not have the module in the 
-				## cache, we load it now
+                                ## cache, we load it now
                                 try:
                                     #open the plugin file
-                                    fd = open(path ,"r")
-                                except Exception,e:
-                                    print "Unable to open plugin file '%s': %s"% (filename,e)
+                                    fd = open(path, "r")
+                                except Exception, e:
+                                    print "Unable to open plugin file '%s': %s" % (filename, e)
                                     continue
 
                                 #load the module into our namespace
@@ -97,9 +100,9 @@ class MemoryRegistry:
                                     try:
                                         module = sys.modules[module_name]
                                     except KeyError:
-                                        module = imp.load_source(module_name,dirpath+'/'+filename,fd)
-                                except Exception,e:
-                                    print "*** Unable to load module %s: %s" % (module_name,e)
+                                        module = imp.load_source(module_name, dirpath + os.path.sep + filename, fd)
+                                except Exception, e:
+                                    print "*** Unable to load module %s: %s" % (module_name, e)
                                     continue
 
                                 fd.close()
@@ -140,12 +143,12 @@ class MemoryRegistry:
                             for cls in dir(module):
                                 try:
                                     Class = module.__dict__[cls]
-                                    if issubclass(Class,ParentClass) and Class!=ParentClass:
+                                    if issubclass(Class, ParentClass) and Class != ParentClass:
                                         ## Check the class for consitancy
                                         try:
                                             self.check_class(Class)
-                                        except AttributeError,e:
-                                            print "Failed to load %s '%s': %s" % (ParentClass,cls,e)
+                                        except AttributeError, e:
+                                            print "Failed to load %s '%s': %s" % (ParentClass, cls, e)
                                             continue
 
                                         ## Add the class to ourselves:
@@ -156,10 +159,10 @@ class MemoryRegistry:
                                     continue
 
                         except TypeError, e:
-                            print "Could not compile module %s: %s"% (module_name,e)
+                            print "Could not compile module %s: %s" % (module_name, e)
                             continue
 
-    def add_class(self, ParentClass, module_desc, cls, Class, filename):
+    def add_class(self, _ParentClass, _module_desc, _cls, Class, filename):
         """ Adds the class provided to our self. This is here to be
         possibly over ridden by derived classes.
         """
@@ -171,13 +174,13 @@ class MemoryRegistry:
             except:
                 self.order.append(10)
 
-    def check_class(self,Class):
+    def check_class(self, Class):
         """ Run a set of tests on the class to ensure its ok to use.
 
         If there is any problem, we chuck an exception.
         """
 
-    def import_module(self,name=None,load_as=None):
+    def import_module(self, name=None, load_as=None):
         """ Loads the named module into the system module name space.
         After calling this it is possible to do:
 
@@ -194,10 +197,11 @@ class MemoryRegistry:
         should persist. This may lead to indeterminate behaviour.  
 	"""
 
-        if not load_as: load_as=name
+        if not load_as:
+            load_as = name
         
         for module in self.modules:
-            if name==module.__name__:
+            if name == module.__name__:
                 sys.modules[load_as] = module
                 return
 
@@ -215,42 +219,45 @@ class MemoryRegistry:
 class VolatilityCommandRegistry(MemoryRegistry):
     """ A class to manage commands """
     commands = {}
-    def __getitem__(self,command_name):
+    def __getitem__(self, command_name):
         """ Return the command objects by name """
         return self.commands[command_name]
     
-    def __init__(self,ParentClass):
-        MemoryRegistry.__init__(self,ParentClass)
+    def __init__(self, ParentClass):
+        MemoryRegistry.__init__(self, ParentClass)
         for cls in self.classes:
             ## The name of the class is the command name
             command = ("%s" % cls).split('.')[-1]
             try:
-                raise Exception("Command %s has already been defined by %s" % (command,self.commands[command]))
+                raise Exception("Command %s has already been defined by %s" % (command, self.commands[command]))
             except KeyError:
-                self.commands[command]=cls
+                self.commands[command] = cls
 
 class VolatilityObjectRegistry(MemoryRegistry):
     """ A class to manage objects """
     objects = {}
-    def __getitem__(self,object_name):
+    def __getitem__(self, object_name):
         """ Return the objects by name """
         return self.objects[object_name]
     
-    def __init__(self,ParentClass):
-        MemoryRegistry.__init__(self,ParentClass)
+    def __init__(self, ParentClass):
+        MemoryRegistry.__init__(self, ParentClass)
         ## First we sort the classes according to their order
-        def sort_function(x,y):
+        def sort_function(x, y):
             try:
-                a=x.order
-            except: a=10
+                a = x.order
+            except:
+                a = 10
             
             try:
-                b=y.order
-            except: b=10
+                b = y.order
+            except:
+                b = 10
             
-            if a<b:
+            if a < b:
                 return -1
-            elif a==b: return 0
+            elif a == b:
+                return 0
             return 1
         
         self.classes.sort(sort_function)
@@ -258,11 +265,11 @@ class VolatilityObjectRegistry(MemoryRegistry):
         for cls in self.classes:
             ## The name of the class is the object name
             obj = ("%s" % cls).split('.')[-1]
-	    obj = obj[:-2]
+            obj = obj[:-2]
             try:
-                raise Exception("Object %s has already been defined by %s" % (obj,self.objects[obj]))
+                raise Exception("Object %s has already been defined by %s" % (obj, self.objects[obj]))
             except KeyError:
-                self.objects[obj]=cls
+                self.objects[obj] = cls
 
 
 LOCK = 0
@@ -276,7 +283,7 @@ def Init():
     global LOCK
     if LOCK:
         return
-    LOCK=1
+    LOCK = 1
 
     ## Register all shell commands:
     import forensics.commands as commands

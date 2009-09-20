@@ -27,26 +27,33 @@
 @organization: Volatile Systems
 """
 
-import sys
+#pylint: disable-msg=C0111
+
 import os
 
-
-from vutils import *
-from forensics.win32.datetime import *
-from forensics.win32.tasks import *
-from forensics.win32.network import *
-from forensics.win32.handles import *
-from forensics.win32.modules import *
-from forensics.win32.vad import *
-from forensics.win32.scan import *
-from forensics.win32.crash_addrspace import *
-from forensics.win32.hiber_addrspace import *
-from forensics.win32.crashdump import *
+from time import gmtime, strftime
+from vutils import get_standard_parser, is_hiberfil, is_crash_dump, types, get_dtb, find_addr_space, load_pae_address_space, load_nopae_address_space, load_and_identify_image, find_dtb
+from forensics.addrspace import FileAddressSpace
+from forensics.win32.hiber_addrspace import WindowsHiberFileSpace32
+from forensics.win32.crash_addrspace import WindowsCrashDumpSpace32
+from forensics.object import read_unicode_string, read_obj
+from forensics.win32.datetime import local_time, windows_to_unix_time
+from forensics.win32.tasks import module_base, module_path, module_size, create_addr_space, process_addr_space, process_command_line, process_dtb, process_find_pid
+from forensics.win32.tasks import process_imagename, process_ldrs, process_list, process_peb, process_pid, process_handle_table, process_create_time, process_handle_count
+from forensics.win32.tasks import process_inherited_from, process_num_active_threads, process_vadroot
+from forensics.win32.modules import modules_list
+from forensics.win32.network import connection_laddr, connection_lport, connection_raddr, connection_rport, connection_pid, tcb_connections
+from forensics.win32.network import socket_create_time, socket_local_port, socket_pid, socket_protocol, open_sockets
+from forensics.win32.handles import handle_entries, handle_process_id, handle_tables, handle_entry_object, is_object_file, object_data, file_name
+from forensics.win32.modules import module_baseaddr, module_imagename, module_imagesize, module_modulename
+from forensics.win32.vad import vad_dump, vad_info, print_vad_dot_infix, print_vad_dot_prefix, print_vad_table, print_vad_tree, traverse_vad
+from forensics.win32.scan import module_scan, conn_scan, ps_scan_dot, ps_scan, socket_scan, thrd_scan
+from forensics.win32.crashdump import crash_to_dd, dd_to_crash
 import forensics.win32.meta_info as meta_info
-from forensics.win32.xpress import xpress_decode
 from forensics.win32.registry import print_entry_keys
-from forensics.win32.executable import rebuild_exe_dsk,rebuild_exe_mem
-from forensics.win32.scan2 import *
+from forensics.win32.executable import rebuild_exe_dsk, rebuild_exe_mem
+from forensics.win32.scan2 import scan_addr_space, PoolScanProcessDot, PoolScanThreadFast2
+from forensics.win32.scan2 import PoolScanSockFast2, PoolScanConnFast2, PoolScanModuleFast2, PoolScanProcessFast2 
 
 class VolatoolsModule:
     def __init__(self, cmd_name, cmd_desc, cmd_execute):
@@ -71,7 +78,7 @@ def get_image_info(cmdname, argv):
     """
     op = get_standard_parser(cmdname)
     
-    opts, args = op.parse_args(argv)
+    opts, _args = op.parse_args(argv)
 
     if not opts.base is None:
         print "Ignoring option -b"
@@ -100,7 +107,7 @@ def get_image_info(cmdname, argv):
 #  Datetime
 ###################################
 def format_time(time):
-    ts=strftime("%a %b %d %H:%M:%S %Y",
+    ts = strftime("%a %b %d %H:%M:%S %Y",
                 gmtime(time))
     return ts
     
@@ -109,9 +116,9 @@ def get_datetime(cmdname, argv):
     Function prints a formatted string of the image local time.
     """
     op = get_standard_parser(cmdname)
-    opts, args = op.parse_args(argv)
+    opts, _args = op.parse_args(argv)
 
-    (addr_space, symtab, types) = load_and_identify_image(op, opts)
+    (addr_space, _symtab, types) = load_and_identify_image(op, opts)
 
     KUSER_SHARED_DATA = 0xFFDF0000
 
@@ -122,7 +129,7 @@ def get_datetime(cmdname, argv):
     time = windows_to_unix_time(local_time(addr_space, types, KUSER_SHARED_DATA))
     ts = format_time(time)
 
-    print "Image local date and time: %s"%ts    
+    print "Image local date and time: %s" % ts    
 
 ###################################
 #  modules list
@@ -132,13 +139,13 @@ def get_modules(cmdname, argv):
     Function prints a formatted table of module information
     """
     op = get_standard_parser(cmdname)
-    opts, args = op.parse_args(argv)
+    opts, _args = op.parse_args(argv)
 
     (addr_space, symtab, types) = load_and_identify_image(op, opts)
     
     all_modules = modules_list(addr_space, types, symtab)
 
-    print "%-50s %-12s %-8s %s" %('File','Base', 'Size', 'Name')
+    print "%-50s %-12s %-8s %s" % ('File', 'Base', 'Size', 'Name')
 
     for module in all_modules:
         if not addr_space.is_valid_address(module):
@@ -169,13 +176,13 @@ def get_pslist(cmdname, argv):
     Function prints a formatted table of process information for image
     """
     op = get_standard_parser(cmdname)
-    opts, args = op.parse_args(argv)
+    opts, _args = op.parse_args(argv)
 
     (addr_space, symtab, types) = load_and_identify_image(op, opts)
 
     all_tasks = process_list(addr_space, types, symtab)
 
-    print "%-20s %-6s %-6s %-6s %-6s %-6s"%('Name','Pid','PPid','Thds','Hnds','Time')
+    print "%-20s %-6s %-6s %-6s %-6s %-6s" % ('Name', 'Pid', 'PPid', 'Thds', 'Hnds', 'Time')
 
     for task in all_tasks:
         if not addr_space.is_valid_address(task):
@@ -193,7 +200,7 @@ def get_pslist(cmdname, argv):
         if active_threads is None:
             active_threads = -1
 
-        inherited_from  = process_inherited_from(addr_space, types,task)
+        inherited_from  = process_inherited_from(addr_space, types, task)
         if inherited_from is None:
             inherited_from = -1
 
@@ -230,7 +237,7 @@ def get_dlllist(cmdname, argv):
                   help='Get info for this Pid',
                   action='store', type='int', dest='pid')
 
-    opts, args = op.parse_args(argv)
+    opts, _args = op.parse_args(argv)
 
     filename = opts.filename
 
@@ -241,17 +248,19 @@ def get_dlllist(cmdname, argv):
         try:
             offset = int(opts.offset, 16)
         except:
-            op.error("EPROCESS offset must be a hexidecimal number.")
+            op.error("EPROCESS offset must be a hexadecimal number.")
         
         try:
             flat_address_space = FileAddressSpace(filename)
         except:
-            op.error("Unable to open image file %s" %(filename))
+            op.error("Unable to open image file %s" % (filename))
 
         directory_table_base = process_dtb(flat_address_space, types, offset)
 
         process_address_space = create_addr_space(addr_space, directory_table_base)
 
+        process_id = process_pid(flat_address_space, types, offset)
+                            
         if process_address_space is None:
             print "Error obtaining address space for process [%d]" % (process_id)
             return
@@ -259,9 +268,7 @@ def get_dlllist(cmdname, argv):
 
         image_file_name = process_imagename(flat_address_space, types, offset)
 
-        process_id = process_pid(flat_address_space, types, offset)
-                            
-        print "%s pid: %d"%(image_file_name, process_id)
+        print "%s pid: %d" % (image_file_name, process_id)
 
         peb = process_peb(flat_address_space, types, offset)
 
@@ -281,7 +288,7 @@ def get_dlllist(cmdname, argv):
         modules = process_ldrs(process_address_space, types, peb)
 
         if len(modules) > 0:
-            print "%-12s %-12s %s"%('Base','Size','Path')
+            print "%-12s %-12s %s" % ('Base', 'Size', 'Path')
         
         for module in modules:
             if not process_address_space.is_valid_address(module):
@@ -302,7 +309,7 @@ def get_dlllist(cmdname, argv):
             else:
                 size = "0x%-10x" % (size)
                 
-            print "%s %s %s"%(base,size,path)            
+            print "%s %s %s" % (base, size, path)            
             
         print
 
@@ -312,9 +319,9 @@ def get_dlllist(cmdname, argv):
         all_tasks = process_list(addr_space, types, symtab)        
 
         if not opts.pid == None:
-            all_tasks = process_find_pid(addr_space,types, symtab, all_tasks, opts.pid)
+            all_tasks = process_find_pid(addr_space, types, symtab, all_tasks, opts.pid)
             if len(all_tasks) == 0:
-                print "Error process [%d] not found"%opts.pid
+                print "Error process [%d] not found" % opts.pid
 
         star_line = '*'*72
     
@@ -324,14 +331,14 @@ def get_dlllist(cmdname, argv):
                 continue
             
             if len(all_tasks) > 1:
-                print "%s"%star_line
+                print "%s" % star_line
         
             image_file_name = process_imagename(addr_space, types, task)
 
             process_id = process_pid(addr_space, types, task)
 
         
-            print "%s pid: %d"%(image_file_name, process_id)
+            print "%s pid: %d" % (image_file_name, process_id)
         
             process_address_space = process_addr_space(addr_space, types, task, opts.filename)
             if process_address_space is None:
@@ -359,7 +366,7 @@ def get_dlllist(cmdname, argv):
             modules = process_ldrs(process_address_space, types, peb)
 
             if len(modules) > 0:
-                print "%-12s %-12s %s"%('Base','Size','Path')
+                print "%-12s %-12s %s" % ('Base', 'Size', 'Path')
         
             for module in modules:
                 if not process_address_space.is_valid_address(module):
@@ -380,7 +387,7 @@ def get_dlllist(cmdname, argv):
                 else:
                     size = "0x%-10x" % (size)
                 
-                print "%s %s %s"%(base,size,path)            
+                print "%s %s %s" % (base, size, path)            
             
             print
 
@@ -392,16 +399,14 @@ def get_connections(cmdname, argv):
     Function prints a list of open connections
     """
     op = get_standard_parser(cmdname)
-    opts, args = op.parse_args(argv)
-
-    star_line = '*'*72
+    opts, _args = op.parse_args(argv)
 
     (addr_space, symtab, types) = load_and_identify_image(op, opts)
     
     connections = tcb_connections(addr_space, types, symtab)
 
     if len(connections) > 0:
-        print "%-25s %-25s %-6s"%('Local Address','Remote Address','Pid')
+        print "%-25s %-25s %-6s" % ('Local Address', 'Remote Address', 'Pid')
 
     for connection in connections:
         
@@ -414,10 +419,10 @@ def get_connections(cmdname, argv):
         rport   = connection_rport(addr_space, types, connection)
         raddr   = connection_raddr(addr_space, types, connection)
 
-        local = "%s:%d"%(laddr,lport)
-        remote = "%s:%d"%(raddr,rport)
+        local = "%s:%d" % (laddr, lport)
+        remote = "%s:%d" % (raddr, rport)
 
-        print "%-25s %-25s %-6d"%(local,remote,pid)
+        print "%-25s %-25s %-6d" % (local, remote, pid)
 
 ###################################
 #  sockets - List open sockets
@@ -427,14 +432,14 @@ def get_sockets(cmdname, argv):
     Function prints a list of open sockets.
     """
     op = get_standard_parser(cmdname)
-    opts, args = op.parse_args(argv)
+    opts, _args = op.parse_args(argv)
 
     (addr_space, symtab, types) = load_and_identify_image(op, opts)
     
     sockets = open_sockets(addr_space, types, symtab)
 
     if len(sockets) > 0:
-        print "%-6s %-6s %-6s %-26s"%('Pid','Port','Proto','Create Time')
+        print "%-6s %-6s %-6s %-26s" % ('Pid', 'Port', 'Proto', 'Create Time')
 
     for socket in sockets:
 
@@ -446,7 +451,7 @@ def get_sockets(cmdname, argv):
         port  = socket_local_port(addr_space, types, socket)
         time  = socket_create_time(addr_space, types, socket)
         
-        print "%-6d %-6d %-6d %-26s"%(pid,port,proto,format_time(time))
+        print "%-6d %-6d %-6d %-26s" % (pid, port, proto, format_time(time))
 
 ###################################
 #  files - List open files
@@ -454,7 +459,7 @@ def get_sockets(cmdname, argv):
 def print_entry_file(addr_space, types, entry):
 
     if not addr_space.is_valid_address(entry):
-    	return
+        return
 
     obj = handle_entry_object(addr_space, types, entry)
     if obj is None:
@@ -462,10 +467,10 @@ def print_entry_file(addr_space, types, entry):
     
     if addr_space.is_valid_address(obj):
         if is_object_file(addr_space, types, obj):
-            file = object_data(addr_space, types, obj)
-            fname = file_name(addr_space, types, file)
+            f = object_data(addr_space, types, obj)
+            fname = file_name(addr_space, types, f)
             if fname != "":
-                print "%-6s %-40s"%("File",fname)
+                print "%-6s %-40s" % ("File", fname)
 
 def get_open_files(cmdname, argv):
     """
@@ -483,7 +488,7 @@ def get_open_files(cmdname, argv):
                   help='Get info for this Pid',
                   action='store', type='int', dest='pid')
 
-    opts, args = op.parse_args(argv)
+    opts, _args = op.parse_args(argv)
 
     filename = opts.filename
     pid = opts.pid
@@ -495,12 +500,12 @@ def get_open_files(cmdname, argv):
         try:
             offset = int(opts.offset, 16)
         except:
-            op.error("EPROCESS offset must be a hexidecimal number.")
+            op.error("EPROCESS offset must be a hexadecimal number.")
         
         try:
             flat_address_space = FileAddressSpace(filename)
         except:
-            op.error("Unable to open image file %s" %(filename))
+            op.error("Unable to open image file %s" % (filename))
 
         ObjectTable = process_handle_table(flat_address_space, types, offset)
 
@@ -509,20 +514,20 @@ def get_open_files(cmdname, argv):
         
     else:
 
-        htables = handle_tables(addr_space, types, symtab,pid)
+        htables = handle_tables(addr_space, types, symtab, pid)
 
 
-    star_line = '*'*72
+    star_line = '*' * 72
 
     for table in htables:
         if len(htables) > 1:
-            print "%s"%star_line
+            print "%s" % star_line
 
         process_id = handle_process_id(addr_space, types, table)
         if process_id == None:
             continue
 
-        print "Pid: %-6d"%(process_id)
+        print "Pid: %-6d" % (process_id)
 
         entries = handle_entries(addr_space, types, table)
         for hentry in entries:
@@ -547,7 +552,7 @@ def get_strings(cmdname, argv):
 
     op.add_option('-s', '--strings', help='(required) File of form <offset>:<string>',
                   action='store', type='string', dest='stringfile')
-    opts, args = op.parse_args(argv)
+    opts, _args = op.parse_args(argv)
 
     if opts.stringfile is None:
         op.error("String file (-s) required")
@@ -621,7 +626,7 @@ def vadinfo(cmdname, argv):
                   help='Dump the VAD of the process with this Pid',
                   action='store', type='int', dest='pid')
 
-    opts, args = op.parse_args(argv)
+    opts, _args = op.parse_args(argv)
 
     if opts.filename is None:
         op.error("vadinfo -f <filename:required>")
@@ -635,7 +640,7 @@ def vadinfo(cmdname, argv):
         try:
             offset = int(opts.offset, 16)
         except:
-            op.error("EPROCESS offset must be a hexidecimal number.")
+            op.error("EPROCESS offset must be a hexadecimal number.")
         
         try:
             flat_address_space = FileAddressSpace(filename)
@@ -665,15 +670,15 @@ def vadinfo(cmdname, argv):
         all_tasks = process_list(addr_space, types, symtab)
 
         if not opts.pid == None:
-            all_tasks = process_find_pid(addr_space,types, symtab, all_tasks, opts.pid)
+            all_tasks = process_find_pid(addr_space, types, symtab, all_tasks, opts.pid)
             if len(all_tasks) == 0:
-                print "Error process [%d] not found"%opts.pid
+                print "Error process [%d] not found" % opts.pid
 
-        star_line = '*'*72
+        star_line = '*' * 72
 
         for task in all_tasks:
 
-            print "%s"%star_line
+            print "%s" % star_line
   
             if not addr_space.is_valid_address(task):
                 print "Task address is not valid"
@@ -689,7 +694,7 @@ def vadinfo(cmdname, argv):
                 print "Error obtaining address space for process [%d]" % (process_id)
                 continue
 
-            print "Pid: %-6d"%(process_id)
+            print "Pid: %-6d" % (process_id)
 
             VadRoot = process_vadroot(addr_space, types, task)
 
@@ -715,7 +720,7 @@ def vaddump(cmdname, argv):
                   help='Dump the VAD of the process with this Pid',
                   action='store', type='int', dest='pid')
 
-    opts, args = op.parse_args(argv)
+    opts, _args = op.parse_args(argv)
 
     if opts.filename is None:
         op.error("vaddump -f <filename:required>")
@@ -729,7 +734,7 @@ def vaddump(cmdname, argv):
         try:
             offset = int(opts.offset, 16)
         except:
-            op.error("EPROCESS offset must be a hexidecimal number.")
+            op.error("EPROCESS offset must be a hexadecimal number.")
 
         try:
             flat_address_space = FileAddressSpace(filename)
@@ -759,15 +764,15 @@ def vaddump(cmdname, argv):
         all_tasks = process_list(addr_space, types, symtab)
 
         if not opts.pid == None:
-            all_tasks = process_find_pid(addr_space,types, symtab, all_tasks, opts.pid)
+            all_tasks = process_find_pid(addr_space, types, symtab, all_tasks, opts.pid)
             if len(all_tasks) == 0:
-                print "Error process [%d] not found"%opts.pid
+                print "Error process [%d] not found" % opts.pid
             
         star_line = '*'*72
 
         for task in all_tasks:
 
-            print "%s"%star_line
+            print "%s" % star_line
 
             if not addr_space.is_valid_address(task):
                 print "Task address is not valid"
@@ -785,7 +790,7 @@ def vaddump(cmdname, argv):
                 print "Error obtaining address space for process [%d]" % (process_id)
                 continue
 
-            print "Pid: %-6d"%(process_id)
+            print "Pid: %-6d" % (process_id)
 
             VadRoot = process_vadroot(addr_space, types, task)
 
@@ -828,17 +833,13 @@ def vadwalk(cmdname, argv):
                   help='Dump the VAD of the process with this Pid',
                   action='store', type='int', dest='pid')
 
-    opts, args = op.parse_args(argv)  
+    opts, _args = op.parse_args(argv)  
 
 
     if opts.filename is None:
         op.error("vadwalk -f <filename:required> [options]")
     else:
         filename = opts.filename    
-
-    tree = opts.tree
-    table = opts.table
-    dot = opts.dot
 
     (addr_space, symtab, types) = load_and_identify_image(op, opts)
 
@@ -850,7 +851,7 @@ def vadwalk(cmdname, argv):
         try:
             offset = int(opts.offset, 16)
         except:
-            op.error("EPROCESS offset must be a hexidecimal number.")
+            op.error("EPROCESS offset must be a hexadecimal number.")
  
         try:
             flat_address_space = FileAddressSpace(filename)
@@ -862,7 +863,7 @@ def vadwalk(cmdname, argv):
 
         process_address_space = create_addr_space(addr_space, directory_table_base)
 
-        image_file_name = process_imagename(flat_address_space, types, offset)
+        _image_file_name = process_imagename(flat_address_space, types, offset)
         process_id = process_pid(flat_address_space, types, offset)
 
         if process_address_space is None:
@@ -897,15 +898,15 @@ def vadwalk(cmdname, argv):
         all_tasks = process_list(addr_space, types, symtab)
 
         if not opts.pid == None:
-            all_tasks = process_find_pid(addr_space,types, symtab, all_tasks, opts.pid)
+            all_tasks = process_find_pid(addr_space, types, symtab, all_tasks, opts.pid)
             if len(all_tasks) == 0:
-                print "Error process [%d] not found"%opts.pid
+                print "Error process [%d] not found" % opts.pid
 
         star_line = '*'*72
 
         for task in all_tasks:
 
-            print "%s"%star_line    
+            print "%s" % star_line    
             
             if not addr_space.is_valid_address(task):
                 print "Task address is not valid"
@@ -921,7 +922,7 @@ def vadwalk(cmdname, argv):
                 print "Error obtaining address space for process [%d]" % (process_id)
                 continue
 
-            print "Pid: %-6d"%(process_id)
+            print "Pid: %-6d" % (process_id)
 
             VadRoot = process_vadroot(addr_space, types, task)
 
@@ -974,7 +975,7 @@ def psscan(cmdname, argv):
                   help='Print processes in dot format',
                   action='store_true',dest='dot_format', default=False)
 
-    opts, args = op.parse_args(argv)
+    opts, _args = op.parse_args(argv)
 
     slow = opts.slow
 
@@ -988,7 +989,7 @@ def psscan(cmdname, argv):
         try:
             start = int(opts.start, 16)
         except:
-            op.error("Start of scan must be a hexidecimal number.")
+            op.error("Start of scan must be a hexadecimal number.")
     else:
         start = 0
 
@@ -998,7 +999,7 @@ def psscan(cmdname, argv):
         try:
             end = int(opts.end, 16)
         except:
-            op.error("End of scan must be a hexidecimal number.")
+            op.error("End of scan must be a hexadecimal number.")
 
         if end > filesize:
             op.error("End of scan is larger than filesize 0x%x"%(filesize))
@@ -1008,15 +1009,15 @@ def psscan(cmdname, argv):
 
     try:
         if slow == False:
-            flat_address_space = FileAddressSpace(filename,fast=True)
+            flat_address_space = FileAddressSpace(filename, fast=True)
         else:
-            flat_address_space = FileAddressSpace(filename,fast=False)
+            flat_address_space = FileAddressSpace(filename, fast=False)
     except:
         op.error("Unable to open image file %s" % (filename))
     
     if is_hiberfil(filename) == True:
-        flat_address_space = FileAddressSpace(filename,fast=False)
-        flat_address_space = WindowsHiberFileSpace32(flat_address_space,0,0)
+        flat_address_space = FileAddressSpace(filename, fast=False)
+        flat_address_space = WindowsHiberFileSpace32(flat_address_space, 0, 0)
         slow = True
 
     if opts.dot_format:
@@ -1046,7 +1047,7 @@ def thrdscan(cmdname, argv):
                   help='Scan in slow mode',
                   action='store_true',dest='slow', default=False)
 
-    opts, args = op.parse_args(argv)
+    opts, _args = op.parse_args(argv)
 
     slow = opts.slow
 
@@ -1060,7 +1061,7 @@ def thrdscan(cmdname, argv):
         try:
             start = int(opts.start, 16)
         except:
-            op.error("Start of scan must be a hexidecimal number.")
+            op.error("Start of scan must be a hexadecimal number.")
     else:
         start = 0
 
@@ -1070,7 +1071,7 @@ def thrdscan(cmdname, argv):
         try:
             end = int(opts.end, 16)
         except:
-            op.error("End of scan must be a hexidecimal number.")
+            op.error("End of scan must be a hexadecimal number.")
 
         if end > filesize:
             op.error("End of scan is larger than filesize 0x%x"% (filesize) )
@@ -1081,16 +1082,16 @@ def thrdscan(cmdname, argv):
     try:
 
         if slow == False:
-            flat_address_space = FileAddressSpace(filename,fast=True)
+            flat_address_space = FileAddressSpace(filename, fast=True)
         else:
-            flat_address_space = FileAddressSpace(filename,fast=False)
+            flat_address_space = FileAddressSpace(filename, fast=False)
 
     except:
         op.error("Unable to open image file %s" % (filename))
     
     if is_hiberfil(filename) == True:
-        flat_address_space = FileAddressSpace(filename,fast=False)
-        flat_address_space = WindowsHiberFileSpace32(flat_address_space,0,0)
+        flat_address_space = FileAddressSpace(filename, fast=False)
+        flat_address_space = WindowsHiberFileSpace32(flat_address_space, 0, 0)
         slow = True
 
     thrd_scan(flat_address_space, types, filename, start, end, slow) 
@@ -1119,7 +1120,7 @@ def sockscan(cmdname, argv):
                   action='store_true',dest='slow', default=False)
 
 
-    opts, args = op.parse_args(argv)
+    opts, _args = op.parse_args(argv)
 
     slow = opts.slow
 
@@ -1133,7 +1134,7 @@ def sockscan(cmdname, argv):
         try:
             start = int(opts.start, 16)
         except:
-            op.error("Start of scan must be a hexidecimal number.")
+            op.error("Start of scan must be a hexadecimal number.")
     else:
         start = 0
 
@@ -1143,10 +1144,10 @@ def sockscan(cmdname, argv):
         try:
             end = int(opts.end, 16)
         except:
-            op.error("End of scan must be a hexidecimal number.")
+            op.error("End of scan must be a hexadecimal number.")
 
         if end > filesize:
-            op.error("End of scan is larger than filesize 0x%x"%(filesize))
+            op.error("End of scan is larger than filesize 0x%x" % (filesize))
 
     else:
         end = filesize
@@ -1154,16 +1155,16 @@ def sockscan(cmdname, argv):
     try:
 
         if slow == False:
-            flat_address_space = FileAddressSpace(filename,fast=True)
+            flat_address_space = FileAddressSpace(filename, fast=True)
         else:
-            flat_address_space = FileAddressSpace(filename,fast=False)
+            flat_address_space = FileAddressSpace(filename, fast=False)
 
     except:
         op.error("Unable to open image file %s" % (filename))
    
     if is_hiberfil(filename) == True:
-        flat_address_space = FileAddressSpace(filename,fast=False)
-        flat_address_space = WindowsHiberFileSpace32(flat_address_space,0,0)
+        flat_address_space = FileAddressSpace(filename, fast=False)
+        flat_address_space = WindowsHiberFileSpace32(flat_address_space, 0, 0)
         slow = True
 
     socket_scan(flat_address_space, types, filename, start, end, slow) 
@@ -1190,7 +1191,7 @@ def connscan(cmdname, argv):
                   help='Scan in slow mode',
                   action='store_true',dest='slow', default=False)
 
-    opts, args = op.parse_args(argv)
+    opts, _args = op.parse_args(argv)
 
     slow = opts.slow
 
@@ -1204,7 +1205,7 @@ def connscan(cmdname, argv):
         try:
             start = int(opts.start, 16)
         except:
-            op.error("Start of scan must be a hexidecimal number.")
+            op.error("Start of scan must be a hexadecimal number.")
     else:
         start = 0
 
@@ -1214,10 +1215,10 @@ def connscan(cmdname, argv):
         try:
             end = int(opts.end, 16)
         except:
-            op.error("End of scan must be a hexidecimal number.")
+            op.error("End of scan must be a hexadecimal number.")
 
         if end > filesize:
-            sop.error("End of scan is larger than filesize 0x%x"%(filesize))
+            op.error("End of scan is larger than filesize 0x%x" % (filesize))
 
     else:
         end = filesize
@@ -1225,16 +1226,16 @@ def connscan(cmdname, argv):
     try:
 
         if slow == False:
-            flat_address_space = FileAddressSpace(filename,fast=True)
+            flat_address_space = FileAddressSpace(filename, fast=True)
         else:
-            flat_address_space = FileAddressSpace(filename,fast=False)
+            flat_address_space = FileAddressSpace(filename, fast=False)
 
     except:
         op.error("Unable to open image file %s" % (filename))
 
     if is_hiberfil(filename) == True:
-        flat_address_space = FileAddressSpace(filename,fast=False)
-        flat_address_space = WindowsHiberFileSpace32(flat_address_space,0,0)
+        flat_address_space = FileAddressSpace(filename, fast=False)
+        flat_address_space = WindowsHiberFileSpace32(flat_address_space, 0, 0)
         slow = True
     
     conn_scan(flat_address_space, types, filename, start, end, slow) 
@@ -1255,7 +1256,7 @@ def mem_map(cmdname, argv):
         help='Print the memory map for this Pid',
         action='store', type='int', dest='pid')
 
-    opts, args = op.parse_args(argv)
+    opts, _args = op.parse_args(argv)
 
     if (opts.filename is None) or (not os.path.isfile(opts.filename)) :
         op.error("File is required")
@@ -1269,7 +1270,7 @@ def mem_map(cmdname, argv):
         try:
             offset = int(opts.offset, 16)
         except:
-            op.error("EPROCESS offset must be a hexidecimal number.")
+            op.error("EPROCESS offset must be a hexadecimal number.")
  
         try:
             flat_address_space = FileAddressSpace(filename)
@@ -1280,7 +1281,7 @@ def mem_map(cmdname, argv):
 
         process_address_space = create_addr_space(addr_space, directory_table_base)
 
-        image_file_name = process_imagename(flat_address_space, types, offset)
+        _image_file_name = process_imagename(flat_address_space, types, offset)
         process_id = process_pid(flat_address_space, types, offset)
 
         if process_address_space is None:
@@ -1296,14 +1297,14 @@ def mem_map(cmdname, argv):
         
         all_tasks = process_list(addr_space, types, symtab)
 
-        task = process_find_pid(addr_space,types, symtab, all_tasks, opts.pid)
+        task = process_find_pid(addr_space, types, symtab, all_tasks, opts.pid)
     
         if len(task) == 0:
-            print "Error process [%d] not found"%opts.pid
+            print "Error process [%d] not found" % opts.pid
             return
 
         if len(task) > 1:
-            print "Multiple processes [%d] found. Please specify offset."%opts.pid 
+            print "Multiple processes [%d] found. Please specify offset." % opts.pid 
             return
 
         directory_table_base = process_dtb(addr_space, types, task[0])
@@ -1321,11 +1322,11 @@ def mem_map(cmdname, argv):
 
     entries = addr_space.get_available_pages()
   
-    print "%-12s %-12s %-12s"%('Virtual','Physical','Size')
+    print "%-12s %-12s %-12s" % ('Virtual', 'Physical', 'Size')
 
     for entry in entries:
         phy_addr = addr_space.vtop(entry[0])
-        print "0x%-10x 0x%-10x 0x%-12x"%(entry[0],phy_addr,entry[1])
+        print "0x%-10x 0x%-10x 0x%-12x" % (entry[0], phy_addr, entry[1])
 
 ###################################
 #  module scan
@@ -1350,7 +1351,7 @@ def modscan(cmdname, argv):
                   help='Scan in slow mode',
                   action='store_true',dest='slow', default=False)
     
-    opts, args = op.parse_args(argv)
+    opts, _args = op.parse_args(argv)
     
     slow = opts.slow
     
@@ -1363,7 +1364,7 @@ def modscan(cmdname, argv):
         try:
             start = int(opts.start, 16)
         except:
-            op.error("Start of scan must be a hexidecimal number.")
+            op.error("Start of scan must be a hexadecimal number.")
     else:
         start = 0
 
@@ -1373,7 +1374,7 @@ def modscan(cmdname, argv):
         try:
             end = int(opts.end, 16)
         except:
-            op.error("End of scan must be a hexidecimal number.")
+            op.error("End of scan must be a hexadecimal number.")
 
         if end > filesize:
             op.error("End of scan is larger than filesize 0x%x"%(filesize))
@@ -1381,7 +1382,7 @@ def modscan(cmdname, argv):
         end = filesize
        
     try:  
-        flat_address_space = FileAddressSpace(filename,fast=True)
+        flat_address_space = FileAddressSpace(filename, fast=True)
     except:
         op.error("Unable to open image file %s" % (filename))
  
@@ -1392,17 +1393,17 @@ def modscan(cmdname, argv):
         try:
             sysdtb = int(opts.base, 16)
         except:
-            op.error("Directory table base must be a hexidecimal number.")
+            op.error("Directory table base must be a hexadecimal number.")
 
 
     if is_crash_dump(filename) == True:
-        sub_addr_space = WindowsCrashDumpSpace32(flat_address_space,0,0)
+        sub_addr_space = WindowsCrashDumpSpace32(flat_address_space, 0, 0)
     else:
         sub_addr_space = flat_address_space
 
     if is_hiberfil(filename) == True:
-        flat_address_space = FileAddressSpace(filename,fast=False)
-        flat_address_space = WindowsHiberFileSpace32(flat_address_space,0,0)
+        flat_address_space = FileAddressSpace(filename, fast=False)
+        flat_address_space = WindowsHiberFileSpace32(flat_address_space, 0, 0)
         slow = True
 
     meta_info.set_dtb(sysdtb)
@@ -1421,15 +1422,13 @@ def dump_chk(cmdname, argv):
     Print crash dump information
     """
     op = get_standard_parser(cmdname)
-    opts, args = op.parse_args(argv)
+    opts, _args = op.parse_args(argv)
 
     if (opts.filename is None) or (not os.path.isfile(opts.filename)) :
         op.error("File is required")
-    else:
-        filename = opts.filename  
 
     fileAS = FileAddressSpace(opts.filename)
-    crashAS = WindowsCrashDumpSpace32(fileAS,0,0)
+    crashAS = WindowsCrashDumpSpace32(fileAS, 0, 0)
 
     print "DUMP_HEADER32:"
     print "MajorVersion		0x%08x"% \
@@ -1465,13 +1464,14 @@ def dump_chk(cmdname, argv):
     
     print 
     print "Physical Memory Description:"
-    print "Number of runs: %d"%crashAS.get_number_of_runs()
+    print "Number of runs: %d" % crashAS.get_number_of_runs()
     print "FileOffset	Start Address	Length"
-    foffset=0x1000
+    foffset = 0x1000
+    run = []
     for run in crashAS.runs:
-        print "%08x	%08x	%08x"%(foffset,run[0]*0x1000,run[1]*0x1000)
+        print "%08x	%08x	%08x" % (foffset, run[0]*0x1000, run[1]*0x1000)
         foffset += (run[1] * 0x1000)
-    print "%08x	%08x"%(foffset-0x1000,((run[0]+run[1]-1)*0x1000))
+    print "%08x	%08x" % (foffset-0x1000, ((run[0]+run[1]-1)*0x1000))
 
 
 ###################################
@@ -1490,7 +1490,7 @@ def mem_dump(cmdname, argv):
         help='Dump the address space for this Pid',
         action='store', type='int', dest='pid')
 
-    opts, args = op.parse_args(argv)
+    opts, _args = op.parse_args(argv)
 
     if (opts.filename is None) or (not os.path.isfile(opts.filename)) :
         op.error("File is required")
@@ -1504,7 +1504,7 @@ def mem_dump(cmdname, argv):
         try:
             offset = int(opts.offset, 16)
         except:
-            op.error("EPROCESS offset must be a hexidecimal number.")
+            op.error("EPROCESS offset must be a hexadecimal number.")
  
         try:
             flat_address_space = FileAddressSpace(filename)
@@ -1515,7 +1515,7 @@ def mem_dump(cmdname, argv):
 
         process_address_space = create_addr_space(addr_space, directory_table_base)
 
-        image_file_name = process_imagename(flat_address_space, types, offset)
+        _image_file_name = process_imagename(flat_address_space, types, offset)
         process_id = process_pid(flat_address_space, types, offset)
 
         if process_address_space is None:
@@ -1528,11 +1528,11 @@ def mem_dump(cmdname, argv):
         ofilename = opts.offset + ".dmp"
 
         # Check to make sure file can open
-        ohandle=open(ofilename,'wb')
+        ohandle = open(ofilename, 'wb')
 
         for entry in entries:
-            data = process_address_space.read(entry[0],entry[1])
-            ohandle.write("%s"%data)
+            data = process_address_space.read(entry[0], entry[1])
+            ohandle.write("%s" % data)
 
         ohandle.close()
 
@@ -1543,14 +1543,14 @@ def mem_dump(cmdname, argv):
 
         all_tasks = process_list(addr_space, types, symtab)
 
-        task = process_find_pid(addr_space,types, symtab, all_tasks, opts.pid)
+        task = process_find_pid(addr_space, types, symtab, all_tasks, opts.pid)
     
         if len(task) == 0:
-            print "Error process [%d] not found"%opts.pid
+            print "Error process [%d] not found" % opts.pid
             return
 
         if len(task) > 1:
-            print "Multiple processes [%d] found. Please specify offset."%opts.pid 
+            print "Multiple processes [%d] found. Please specify offset." % opts.pid 
             return
 
         directory_table_base = process_dtb(addr_space, types, task[0])
@@ -1563,7 +1563,7 @@ def mem_dump(cmdname, argv):
             print "Error obtaining address space for process [%d]" % (process_id)
             return
 
-        image_file_name = process_imagename(process_address_space, types, task[0])
+        _image_file_name = process_imagename(process_address_space, types, task[0])
 
         entries = process_address_space.get_available_pages()
 
@@ -1572,14 +1572,14 @@ def mem_dump(cmdname, argv):
 
         # Check to make sure file can open
         try:
-            ohandle=open(ofilename,'wb')
+            ohandle = open(ofilename, 'wb')
         except IOError:
-            print "Error opening file [%s]"% (ofilename)
+            print "Error opening file [%s]" % (ofilename)
             return
 
         for entry in entries:
-            data = process_address_space.read(entry[0],entry[1])
-            ohandle.write("%s"%data)
+            data = process_address_space.read(entry[0], entry[1])
+            ohandle.write("%s" % data)
 
         ohandle.close()
 
@@ -1590,7 +1590,6 @@ def hibinfo(cmdname, argv):
     """
     Print hiberfile.sys meta information and convert to raw image
     """
-    PagesListHead = {}
     op = get_standard_parser(cmdname)
 
     op.add_option('-q', '--quick',
@@ -1599,12 +1598,10 @@ def hibinfo(cmdname, argv):
     
     op.add_option("-d", "--dump", help="save dd-style dump to FILE",
             metavar="FILE", dest="dump")
-    opts, args = op.parse_args(argv)
+    opts, _args = op.parse_args(argv)
 
     if (opts.filename is None) or (not os.path.isfile(opts.filename)) :
         op.error("File is required")
-    else:
-        filename = opts.filename  
 
     if opts.dump is None and opts.quick == False:
         op.error("Dump file is required")
@@ -1613,35 +1610,35 @@ def hibinfo(cmdname, argv):
 
     fileAS = FileAddressSpace(opts.filename)
     
-    hiberAS = WindowsHiberFileSpace32(fileAS,0,0)
+    hiberAS = WindowsHiberFileSpace32(fileAS, 0, 0)
 
     if not hiberAS:
         print "Error: Failed to open file"
         return 
 
-    print "Signature: %s"%hiberAS.get_signature()
+    print "Signature: %s" % hiberAS.get_signature()
 
-    print "SystemTime: %s"%hiberAS.get_system_time()
+    print "SystemTime: %s" % hiberAS.get_system_time()
 
     print
     print "Control registers flags"
 
-    print "CR0: %08x"%hiberAS.CR0
+    print "CR0: %08x" % hiberAS.CR0
 
-    print "CR0[PAGING]: %d"%hiberAS.is_paging() 
+    print "CR0[PAGING]: %d" % hiberAS.is_paging() 
 
-    print "CR3: %08x"%hiberAS.CR3
+    print "CR3: %08x" % hiberAS.CR3
 
-    print "CR4: %08x"%hiberAS.CR4
+    print "CR4: %08x" % hiberAS.CR4
 
-    print "CR4[PSE]: %d"%hiberAS.is_pse()
+    print "CR4[PSE]: %d" % hiberAS.is_pse()
 
-    print "CR4[PAE]: %d"%hiberAS.is_pae()
+    print "CR4[PAE]: %d" % hiberAS.is_pae()
 
-    (major,minor,build) =  hiberAS.get_version()
+    (major, minor, build) =  hiberAS.get_version()
 
     print
-    print "Windows Version is %d.%d (%d)"%(major,minor,build)
+    print "Windows Version is %d.%d (%d)" % (major, minor, build)
     print
 
     if opts.quick:
@@ -1671,7 +1668,7 @@ def raw2dmp(cmdname, argv):
     op.add_option('-o', '--output', help='Output file',
                   action='store', type='string', dest='outfile')
 
-    opts, args = op.parse_args(argv)
+    opts, _args = op.parse_args(argv)
 
     if (opts.outfile is None):
         op.error("Output file is required")  
@@ -1694,7 +1691,7 @@ def dmp2raw(cmdname, argv):
     op.add_option('-o', '--output', help='Output file',
                   action='store', type='string', dest='outfile')
 
-    opts, args = op.parse_args(argv)
+    opts, _args = op.parse_args(argv)
 
     if (opts.outfile is None):
         op.error("Output file is required")  
@@ -1702,7 +1699,7 @@ def dmp2raw(cmdname, argv):
     filename = opts.filename
 
     try:
-	    flat_address_space = FileAddressSpace(filename,fast=False)
+        flat_address_space = FileAddressSpace(filename, fast=False)
     except:
         op.error("Unable to open image file %s" % (filename))
 
@@ -1728,7 +1725,7 @@ def get_open_keys(cmdname, argv):
                   help='Get info for this Pid',
                   action='store', type='int', dest='pid')
 
-    opts, args = op.parse_args(argv)
+    opts, _args = op.parse_args(argv)
 
     filename = opts.filename
     pid = opts.pid
@@ -1741,7 +1738,7 @@ def get_open_keys(cmdname, argv):
         try:
             offset = int(opts.offset, 16)
         except:
-            op.error("EPROCESS offset must be a hexidecimal number.")
+            op.error("EPROCESS offset must be a hexadecimal number.")
         
         try:
             flat_address_space = FileAddressSpace(filename)
@@ -1755,19 +1752,19 @@ def get_open_keys(cmdname, argv):
         
     else:
 
-        htables = handle_tables(addr_space, types, symtab,pid)
+        htables = handle_tables(addr_space, types, symtab, pid)
 
     star_line = '*'*72
 
     for table in htables:
         if len(htables) > 1:
-            print "%s"%star_line
+            print "%s" % star_line
 
         process_id = handle_process_id(addr_space, types, table)
         if process_id == None:
             continue
 
-        print "Pid: %-6d"%(process_id)
+        print "Pid: %-6d" % (process_id)
 
         entries = handle_entries(addr_space, types, table)
         for hentry in entries:
@@ -1779,7 +1776,7 @@ def get_open_keys(cmdname, argv):
 ###################################
 # procdump - Dump a process to an executable image
 ###################################
-def procdump(cmdname,argv):
+def procdump(cmdname, argv):
     """
     This function dumps a process to a PE file.
     """
@@ -1798,7 +1795,7 @@ def procdump(cmdname,argv):
     op.add_option('-u', '--unsafe',
                   help='do not perform sanity checks on sections when dumping',
                   action='store_false', default=True, dest='safe')
-    opts, args = op.parse_args(argv)
+    opts, _args = op.parse_args(argv)
 
     if opts.filename is None:
         op.error("procdump -f <filename:required>")
@@ -1823,7 +1820,7 @@ def procdump(cmdname,argv):
         try:
             flat_address_space = FileAddressSpace(filename)
         except:
-            op.error("Unable to open image file %s" %(filename))
+            op.error("Unable to open image file %s" % (filename))
 
         directory_table_base = process_dtb(flat_address_space, types, offset)
 
@@ -1853,7 +1850,7 @@ def procdump(cmdname,argv):
             print "Error: Image base not memory resident for process [%d]" % (process_id)
             return
 
-        print "Dumping %s, pid: %-6d output: %s"%(image_file_name,process_id,"executable.%d.exe" % (process_id))
+        print "Dumping %s, pid: %-6d output: %s" % (image_file_name, process_id, "executable.%d.exe" % (process_id))
         of = open("executable.%d.exe" % (process_id), 'wb')
         rebuild_exe(process_address_space, types, img_base, of, opts.safe)
         of.close()
@@ -1861,9 +1858,9 @@ def procdump(cmdname,argv):
         all_tasks = process_list(addr_space, types, symtab)
 
         if not opts.pid == None:
-            all_tasks = process_find_pid(addr_space,types, symtab, all_tasks, opts.pid)
+            all_tasks = process_find_pid(addr_space, types, symtab, all_tasks, opts.pid)
             if len(all_tasks) == 0:
-                print "Error process [%d] not found"%opts.pid
+                print "Error process [%d] not found" % opts.pid
 
         star_line = '*'*72
 
@@ -1900,12 +1897,12 @@ def procdump(cmdname,argv):
                 print "Error: Image base not memory resident for process [%d]" % (process_id)
                 continue
 
-            print "Dumping %s, pid: %-6d output: %s"%(image_file_name,process_id,"executable.%d.exe" % (process_id))
+            print "Dumping %s, pid: %-6d output: %s" % (image_file_name, process_id, "executable.%d.exe" % (process_id))
 
             of = open("executable.%d.exe" % (process_id), 'wb')
             try:
                 rebuild_exe(process_address_space, types, img_base, of, opts.safe)
-            except ValueError,ve:
+            except ValueError, ve:
                 print "Unable to dump executable; sanity check failed:"
                 print "  ", ve
                 print "You can use -u to disable this check."
@@ -1921,17 +1918,17 @@ def connscan2(cmdname, argv):
  
     scanners = []
     op = get_standard_parser(cmdname)
-    opts, args = op.parse_args(argv)
+    opts, _args = op.parse_args(argv)
 
     if (opts.filename is None) or (not os.path.isfile(opts.filename)) :
         op.error("File is required")
     else:
         filename = opts.filename  
 
-    flat_address_space = FileAddressSpace(filename,fast=True)
+    flat_address_space = FileAddressSpace(filename, fast=True)
 
     try:
-        flat_address_space = FileAddressSpace(filename,fast=True)
+        flat_address_space = FileAddressSpace(filename, fast=True)
     except:
         op.error("Unable to open image file %s" % (filename))
 
@@ -1947,7 +1944,7 @@ def connscan2(cmdname, argv):
         try:
             sysdtb = int(opts.base, 16)
         except:
-            op.error("Directory table base must be a hexidecimal number.")
+            op.error("Directory table base must be a hexadecimal number.")
 
     meta_info.set_dtb(sysdtb)
     kaddr_space = load_pae_address_space(filename, sysdtb)
@@ -1956,17 +1953,17 @@ def connscan2(cmdname, argv):
     meta_info.set_kas(kaddr_space)
 
     print "Local Address             Remote Address            Pid   \n"+ \
-          "------------------------- ------------------------- ------ \n";
+          "------------------------- ------------------------- ------ \n"
 
     scanners.append(PoolScanConnFast2(search_address_space))
-    scan_addr_space(search_address_space,scanners)
+    scan_addr_space(search_address_space, scanners)
 
 
 def sockscan2(cmdname, argv):
  
     scanners = []
     op = get_standard_parser(cmdname)
-    opts, args = op.parse_args(argv)
+    opts, _args = op.parse_args(argv)
 
     if (opts.filename is None) or (not os.path.isfile(opts.filename)) :
         op.error("File is required")
@@ -1974,7 +1971,7 @@ def sockscan2(cmdname, argv):
         filename = opts.filename  
 
     try:
-        flat_address_space = FileAddressSpace(filename,fast=True)
+        flat_address_space = FileAddressSpace(filename, fast=True)
     except:
         op.error("Unable to open image file %s" % (filename))
     
@@ -1990,7 +1987,7 @@ def sockscan2(cmdname, argv):
         try:
             sysdtb = int(opts.base, 16)
         except:
-            op.error("Directory table base must be a hexidecimal number.")
+            op.error("Directory table base must be a hexadecimal number.")
 
     meta_info.set_dtb(sysdtb)
     kaddr_space = load_pae_address_space(filename, sysdtb)
@@ -1999,15 +1996,15 @@ def sockscan2(cmdname, argv):
     meta_info.set_kas(kaddr_space)
 
     print "PID    Port   Proto  Create Time                Offset \n"+ \
-    "------ ------ ------ -------------------------- ----------\n";
+    "------ ------ ------ -------------------------- ----------\n"
 
     scanners.append(PoolScanSockFast2(search_address_space))
-    scan_addr_space(search_address_space,scanners)
+    scan_addr_space(search_address_space, scanners)
 
 def modscan2(cmdname, argv): 
     scanners = []
     op = get_standard_parser(cmdname)
-    opts, args = op.parse_args(argv)
+    opts, _args = op.parse_args(argv)
 
     if (opts.filename is None) or (not os.path.isfile(opts.filename)) :
         op.error("File is required")
@@ -2015,7 +2012,7 @@ def modscan2(cmdname, argv):
         filename = opts.filename  
 
     try:
-        flat_address_space = FileAddressSpace(filename,fast=True)
+        flat_address_space = FileAddressSpace(filename, fast=True)
     except:
         op.error("Unable to open image file %s" % (filename))
     
@@ -2031,7 +2028,7 @@ def modscan2(cmdname, argv):
         try:
             sysdtb = int(opts.base, 16)
         except:
-            op.error("Directory table base must be a hexidecimal number.")
+            op.error("Directory table base must be a hexadecimal number.")
 
     meta_info.set_dtb(sysdtb)
     kaddr_space = load_pae_address_space(filename, sysdtb)
@@ -2039,15 +2036,15 @@ def modscan2(cmdname, argv):
         kaddr_space = load_nopae_address_space(filename, sysdtb)
     meta_info.set_kas(kaddr_space)
 
-    print "%-50s %-12s %-8s %s \n"%('File','Base', 'Size', 'Name')
+    print "%-50s %-12s %-8s %s \n" % ('File', 'Base', 'Size', 'Name')
 
     scanners.append((PoolScanModuleFast2(search_address_space)))
-    scan_addr_space(search_address_space,scanners)
+    scan_addr_space(search_address_space, scanners)
 
 def thrdscan2(cmdname, argv):
     scanners = []
     op = get_standard_parser(cmdname)
-    opts, args = op.parse_args(argv)
+    opts, _args = op.parse_args(argv)
 
     if (opts.filename is None) or (not os.path.isfile(opts.filename)) :
         op.error("File is required")
@@ -2055,7 +2052,7 @@ def thrdscan2(cmdname, argv):
         filename = opts.filename  
 
     try:
-        flat_address_space = FileAddressSpace(filename,fast=True)
+        flat_address_space = FileAddressSpace(filename, fast=True)
     except:
         op.error("Unable to open image file %s" % (filename))
     
@@ -2071,7 +2068,7 @@ def thrdscan2(cmdname, argv):
         try:
             sysdtb = int(opts.base, 16)
         except:
-            op.error("Directory table base must be a hexidecimal number.")
+            op.error("Directory table base must be a hexadecimal number.")
 
     meta_info.set_dtb(sysdtb)
     kaddr_space = load_pae_address_space(filename, sysdtb)
@@ -2080,18 +2077,18 @@ def thrdscan2(cmdname, argv):
     meta_info.set_kas(kaddr_space)
 
     print "No.  PID    TID    Offset    \n"+ \
-          "---- ------ ------ ----------\n";
+          "---- ------ ------ ----------\n"
 
     scanners.append((PoolScanThreadFast2(search_address_space)))
-    scan_addr_space(search_address_space,scanners)
+    scan_addr_space(search_address_space, scanners)
 
 def psscan2(cmdname, argv):
     scanners = []
     op = get_standard_parser(cmdname)
     op.add_option('-d', '--dot',
         help='Print processes in dot format',
-        action='store_true',dest='dot_format', default=False)
-    opts, args = op.parse_args(argv)
+        action='store_true', dest='dot_format', default=False)
+    opts, _args = op.parse_args(argv)
 
     if (opts.filename is None) or (not os.path.isfile(opts.filename)) :
         op.error("File is required")
@@ -2099,7 +2096,7 @@ def psscan2(cmdname, argv):
         filename = opts.filename  
 
     try:
-        flat_address_space = FileAddressSpace(filename,fast=True)
+        flat_address_space = FileAddressSpace(filename, fast=True)
     except:
         op.error("Unable to open image file %s" % (filename))
 
@@ -2116,7 +2113,7 @@ def psscan2(cmdname, argv):
         try:
             sysdtb = int(opts.base, 16)
         except:
-            op.error("Directory table base must be a hexidecimal number.")
+            op.error("Directory table base must be a hexadecimal number.")
 
     meta_info.set_dtb(sysdtb)
     kaddr_space = load_pae_address_space(filename, sysdtb)
@@ -2129,11 +2126,11 @@ def psscan2(cmdname, argv):
               "graph [rankdir = \"TB\"];"
         scanners.append((PoolScanProcessDot(search_address_space)))
     else:
-        print "PID    PPID   Time created             Time exited              Offset     PDB        Remarks\n"+ \
-          "------ ------ ------------------------ ------------------------ ---------- ---------- ----------------\n";
+        print "PID    PPID   Time created             Time exited              Offset     PDB        Remarks\n" + \
+          "------ ------ ------------------------ ------------------------ ---------- ---------- ----------------\n"
         scanners.append((PoolScanProcessFast2(search_address_space)))
 
-    scan_addr_space(search_address_space,scanners)
+    scan_addr_space(search_address_space, scanners)
 
     if opts.dot_format:
         print "}"

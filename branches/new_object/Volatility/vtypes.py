@@ -334,6 +334,16 @@ xpsp2types = { \
   'SizeOfRawData' : [ 0x10, ['unsigned long']], \
   'PointerToRawData' : [ 0x14, ['unsigned long']], \
 } ], \
+'_LDR_DATA_TABLE_ENTRY' : [ 0x50, { \
+    'InLoadOrderLinks' : [ 0x0, ['_LIST_ENTRY']], \
+    'InMemoryOrderLinks' : [ 0x8, ['_LIST_ENTRY']], \
+    'InInitializationOrderLinks' : [ 0x10, ['_LIST_ENTRY']], \
+    'DllBase' : [ 0x18, ['pointer', ['void']]], \
+    'EntryPoint' : [ 0x1c, ['pointer', ['void']]], \
+    'SizeOfImage' : [ 0x20, ['unsigned long']], \
+    'FullDllName' : [ 0x24, ['_UNICODE_STRING']], \
+    'BaseDllName' : [ 0x2c, ['_UNICODE_STRING']], \
+} ], \
 
 ## These are registry related types
   '_CM_KEY_NODE' : [ 0x50, {

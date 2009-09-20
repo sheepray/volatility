@@ -23,6 +23,8 @@
 @organization: Volatile Systems LLC
 """
 
+#pylint: disable-msg=C0111
+
 # Global Variables
 DirectoryTableBase = ""
 KernelAddressSpace = ""

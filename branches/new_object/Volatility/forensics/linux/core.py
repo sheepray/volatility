@@ -1,11 +1,11 @@
 """ An impelentation of a Core file address space for memory analysis
 of core files.
 """
-from forensics.object import *
-from forensics.object2 import Profile,NewObject
+from forensics.object2 import Profile, NewObject
 from forensics.addrspace import FileAddressSpace
 import sys
-import forensics.registry as MemoryRegistry
+
+#pylint: disable-msg=C0111
 
 ## For now use filenames:
 #address_space = FileAddressSpace(sys.argv[1])
@@ -80,8 +80,9 @@ class CoreAddressSpace(FileAddressSpace):
                                      i.p_vaddr.v() + i.p_filesz.v(), ## Vaddr end
                                      i.p_offset.v()))
 
-        def comp(x,y):
-            if x[0]<y[0]: return -1
+        def comp(x, y):
+            if x[0] < y[0]:
+                return -1
             return 1
 
         self.offsets.sort(comp)
@@ -96,7 +97,8 @@ class CoreAddressSpace(FileAddressSpace):
     def find_physical_offset(self, addr):
         ## Check if we are in the same section as before:
         physical_offset = self.test_physical_offset(self.offset_index, addr)
-        if physical_offset: return physical_offset
+        if physical_offset:
+            return physical_offset
         
         for i in range(len(self.offsets)):
             physical_offset = self.test_physical_offset(i, addr)
@@ -107,10 +109,10 @@ class CoreAddressSpace(FileAddressSpace):
             
         raise RuntimeError("Address 0x%08X is not contained in Core file" % addr)
 
-    def read(self, addr, len):
+    def read(self, addr, length):
         physical_offset = self.find_physical_offset(addr)
         self.fhandle.seek(physical_offset)
-        return self.fhandle.read(len)
+        return self.fhandle.read(length)
 
     def get_address_range(self):
         return [self.offsets[0][0], self.offsets[-1][1] ]
@@ -125,4 +127,4 @@ class CoreAddressSpace(FileAddressSpace):
         
 
 c = CoreAddressSpace(sys.argv[1])
-print "%r" % c.read(0xb7ed5e12,4)
+print "%r" % c.read(0xb7ed5e12, 4)

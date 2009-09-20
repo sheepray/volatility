@@ -29,9 +29,10 @@
    
 """
 
-from forensics.addrspace import FileAddressSpace
-import forensics.x86
-from forensics.object import *
+#pylint: disable-msg=C0111
+
+import struct
+from forensics.object import obj_size, read_obj, get_obj_offset
 
 page_shift = 12
 
@@ -40,14 +41,13 @@ debug_types = { \
 
 
 class WindowsCrashDumpSpace32:
-    def __init__(self, baseAddressSpace,offset,ramsize=0):
+    def __init__(self, baseAddressSpace, offset, ramsize=0):
         self.runs = []
         self.offset = offset
         self.base = baseAddressSpace
         self.fname = ''
-        native_types = forensics.x86.x86_native_types
 
-        self.dump_header = self.base.read(offset,obj_size(debug_types, '_DMP_HEADER'))
+        self.dump_header = self.base.read(offset, obj_size(debug_types, '_DMP_HEADER'))
 
         self.number_of_runs = read_obj(self.base, debug_types,
             ['_DMP_HEADER', 'PhysicalMemoryBlockBuffer','NumberOfRuns'], offset)
@@ -55,14 +55,14 @@ class WindowsCrashDumpSpace32:
         self.number_of_pages = read_obj(self.base, debug_types,
             ['_DMP_HEADER', 'PhysicalMemoryBlockBuffer','NumberOfPages'], offset)
 
-        (start_run,tmp) = get_obj_offset(debug_types, ['_DMP_HEADER', 'PhysicalMemoryBlockBuffer', 'Run'])
+        (start_run, _tmp) = get_obj_offset(debug_types, ['_DMP_HEADER', 'PhysicalMemoryBlockBuffer', 'Run'])
 
-        for cnt in range(0,self.number_of_runs):
+        for cnt in range(0, self.number_of_runs):
             BasePage = read_obj(self.base, debug_types,
                 ['_PHYSICAL_MEMORY_RUN', 'BasePage'], start_run+(8*cnt))
             PageCount = read_obj(self.base, debug_types,
                 ['_PHYSICAL_MEMORY_RUN', 'PageCount'], start_run+(8*cnt))
-            self.runs.append([BasePage,PageCount])
+            self.runs.append([BasePage, PageCount])
 
     def get_header(self):
         return self.dump_header
@@ -170,11 +170,11 @@ class WindowsCrashDumpSpace32:
             return None
 	
         if len < first_block:
-            return self.base.read(baddr,len)
+            return self.base.read(baddr, len)
 
         stuff_read = self.base.read(baddr, first_block)
         new_addr = addr + first_block
-        for i in range(0,full_blocks):
+        for _i in range(0, full_blocks):
             baddr = self.get_addr(new_addr)
             if baddr == None:
                 return None
@@ -207,7 +207,7 @@ class WindowsCrashDumpSpace32:
             stuff_read = self.base.read(baddr, first_block)
 
         new_vaddr = vaddr + first_block
-        for i in range(0,full_blocks):
+        for _i in range(0, full_blocks):
             baddr = self.get_addr(new_vaddr)
             if baddr == None:
                 stuff_read = stuff_read + ('\0' * 0x1000)
@@ -220,12 +220,12 @@ class WindowsCrashDumpSpace32:
             baddr = self.get_addr(new_vaddr)
             if baddr == None:
                 stuff_read = stuff_read + ('\0' * left_over)
-	    else:
+            else:
                 stuff_read = stuff_read + self.base.read(baddr, left_over)
         return stuff_read
 
     def read_long(self, addr):
-        baseaddr = self.get_addr(addr)
+        _baseaddr = self.get_addr(addr)
         string = self.read(addr, 4)
         (longval, ) = struct.unpack('=L', string)
         return longval
@@ -234,7 +234,7 @@ class WindowsCrashDumpSpace32:
         page_list = []
         for run in self.runs:
             start = run[0]
-            for page in range(start,start + run[1]):
+            for page in range(start, start + run[1]):
                 page_list.append([page * 0x1000, 0x1000])
         return page_list
 
@@ -242,7 +242,7 @@ class WindowsCrashDumpSpace32:
         """ This relates to the logical address range that is indexable """
         run = self.runs[-1]
         size = run[0] * 0x1000 + run[1]*0x1000
-        return [0,size]
+        return [0, size]
 
     def get_available_addresses(self):
         """ This returns the ranges  of valid addresses """
@@ -251,10 +251,10 @@ class WindowsCrashDumpSpace32:
             address_list.append([run[0] * 0x1000, run[1] * 0x1000])
         return address_list
 
-    def check_address_range(self,addr):
+    def check_address_range(self, addr):
         memrange = self.get_address_range()
         if addr < memrange[0] or addr > memrange[1]:
-	    raise IOError
+            raise IOError
 
     def close(self):
         self.base.close()

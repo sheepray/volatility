@@ -24,16 +24,22 @@
 @organization: Volatile Systems LLC
 """
 
-from forensics.object import *
+#pylint: disable-msg=C0111
+
+from forensics.object import read_obj, get_obj_offset, obj_size, builtin_types
 import struct
 
 def round_up(addr, align):
-    if addr % align == 0: return addr
-    else: return (addr + (align - (addr % align)))
+    if addr % align == 0: 
+        return addr
+    else: 
+        return (addr + (align - (addr % align)))
 
 def round_down(addr, align):
-    if addr % align == 0: return addr
-    else: return (addr - (addr % align))
+    if addr % align == 0: 
+        return addr
+    else: 
+        return (addr - (addr % align))
 
 def write_value(of, value_type, addr, data):
     pack_str = builtin_types[value_type][1]
@@ -45,7 +51,7 @@ def write_obj(of, types, field, addr, data):
     off, tp = get_obj_offset(types, field)
     write_value(of, tp, addr+off, data)
 
-def read_section(addr_space, sect, img_base, size):
+def read_section(addr_space, sect, img_base, _size):
     section_start = img_base + sect['VirtualAddress']
     return addr_space.zread(section_start, sect['SizeOfRawData'])
 
@@ -63,7 +69,7 @@ def write_section_header(of, types, orig_header, sect, addr):
 def get_sections_start(addr_space, types, header):
     nt_header = header + read_obj(addr_space, types,
             ["_IMAGE_DOS_HEADER", "e_lfanew"], header)
-    optional_header_start,_ = get_obj_offset(types,
+    optional_header_start, _ = get_obj_offset(types,
             ['_IMAGE_NT_HEADERS', 'OptionalHeader'])
     optional_header_size = read_obj(addr_space, types,
             ['_IMAGE_NT_HEADERS', 'FileHeader', 'SizeOfOptionalHeader'],
@@ -131,7 +137,7 @@ def section_entry(addr_space, types, sect_addr):
                ['SizeOfRawData'], ['PointerToRawData'] ]
     sect = {}
 
-    (name_off,_) = get_obj_offset(types, ['_IMAGE_SECTION_HEADER',
+    (name_off, _) = get_obj_offset(types, ['_IMAGE_SECTION_HEADER',
         'Name'])
     name_len = 8
     sect['Name'] = addr_space.zread(sect_addr + name_off, name_len)
@@ -142,7 +148,7 @@ def section_entry(addr_space, types, sect_addr):
         sect["_".join(f)] = val
     return sect
 
-def audit_read_write(addr_space,types,data_start,data_size,ofile):
+def audit_read_write(addr_space, _types, data_start, data_size, ofile):
     first_block = 0x1000 - data_start % 0x1000
     full_blocks = ((data_size + (data_start % 0x1000)) / 0x1000) - 1
     left_over = (data_size + data_start) % 0x1000
@@ -151,24 +157,24 @@ def audit_read_write(addr_space,types,data_start,data_size,ofile):
 
     # Deal with reads that are smaller than a block
     if data_size < first_block:
-        data_read = addr_space.zread(data_start,data_size)
+        data_read = addr_space.zread(data_start, data_size)
         if paddr == None:
-            print "Memory Not Accessible: Virtual Address: 0x%x File Offset: 0x%x Size: 0x%x"%(data_start,ofile.tell(),data_size)
+            print "Memory Not Accessible: Virtual Address: 0x%x File Offset: 0x%x Size: 0x%x" % (data_start, ofile.tell(), data_size)
         ofile.write(data_read)
         return
             
-    data_read = addr_space.zread(data_start,first_block)
+    data_read = addr_space.zread(data_start, first_block)
     if paddr == None:
-        print "Memory Not Accessible: Virtual Address: 0x%x File Offset: 0x%x Size: 0x%x"%(data_start,ofile.tell(),first_block)
+        print "Memory Not Accessible: Virtual Address: 0x%x File Offset: 0x%x Size: 0x%x" % (data_start, ofile.tell(), first_block)
     ofile.write(data_read)
 
     # The middle part of the read
     new_vaddr = data_start + first_block
 
-    for i in range(0,full_blocks):
+    for _i in range(0, full_blocks):
         data_read = addr_space.zread(new_vaddr, 0x1000)
         if addr_space.vtop(new_vaddr) == None:
-            print "Memory Not Accessible: Virtual Address: 0x%x File Offset: 0x%x Size: 0x%x"%(new_vaddr,ofile.tell(),0x1000)
+            print "Memory Not Accessible: Virtual Address: 0x%x File Offset: 0x%x Size: 0x%x" % (new_vaddr, ofile.tell(), 0x1000)
         ofile.write(data_read)    
         new_vaddr = new_vaddr + 0x1000	    
 
@@ -176,7 +182,7 @@ def audit_read_write(addr_space,types,data_start,data_size,ofile):
     if left_over > 0:
         data_read = addr_space.zread(new_vaddr, left_over)
         if addr_space.vtop(new_vaddr) == None:
-            print "Memory Not Accessible: Virtual Address: 0x%x File Offset: 0x%x Size: 0x%x"%(new_vaddr,ofile.tell(),left_over)       
+            print "Memory Not Accessible: Virtual Address: 0x%x File Offset: 0x%x Size: 0x%x" % (new_vaddr, ofile.tell(), left_over)       
         ofile.write(data_read)	
     return
 
@@ -196,9 +202,9 @@ def rebuild_exe_dsk(addr_space, types, addr, of, safe=True):
             sanity_check_section(sect, img_size)
         section_start = addr + sect['VirtualAddress']
         file_offset_align = round_down(sect['PointerToRawData'], file_align)
-        if file_offset_align!= sect['PointerToRawData']:
+        if file_offset_align != sect['PointerToRawData']:
             print "Warning: section start on disk not aligned to file alignment."
-            print "Warning: adjusted section start from %x to %x." % (sect['PointerToRawData'],file_offset_align)
+            print "Warning: adjusted section start from %x to %x." % (sect['PointerToRawData'], file_offset_align)
         of.seek(file_offset_align)
         audit_read_write(addr_space, types, 
             section_start,sect['SizeOfRawData'],of)

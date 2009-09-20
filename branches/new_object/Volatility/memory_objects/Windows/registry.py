@@ -23,9 +23,11 @@
 @contact:      bdolangavitt@wesleyan.edu
 """
 
-from forensics.object2 import Object
-from forensics.object import *
-from vtypes import xpsp2types as types
+#pylint: disable-msg=C0111
+
+#from forensics.object2 import NewObject
+#from forensics.object import *
+#from vtypes import xpsp2types as types
 
 ##class _CM_KEY_NODE(Object):
 ##    """Class representing a _CM_KEY_NODE

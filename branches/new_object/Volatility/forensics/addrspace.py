@@ -67,7 +67,7 @@ class FileAddressSpace:
         if fast == True:
             self.fast_fhandle = open(fname, mode)
 
-    def fread(self,len):
+    def fread(self, len):
         return self.fast_fhandle.read(len)
 
     def read(self, addr, len):
@@ -83,17 +83,17 @@ class FileAddressSpace:
         return longval
 
     def get_address_range(self):
-        return [0,self.fsize-1]
+        return [0, self.fsize-1]
 
     def get_available_addresses(self):
-        return [0,self.get_address_range()]
+        return [0, self.get_address_range()]
 
     def is_valid_address(self, addr):
         if addr == None:
             return False
         return addr < self.fsize - 1
 
-    def close():
+    def close(self):
         self.fhandle.close()
 
 class BufferAddressSpace(FileAddressSpace):

@@ -23,10 +23,12 @@
 @contact:      bdolangavitt@wesleyan.edu
 """
 
-from forensics.win32.rawreg import *
-from forensics.win32.hive2 import HiveAddressSpace,HiveFileAddressSpace
+#pylint: disable-msg=C0111
+
+from forensics.win32.rawreg import get_root, open_key, values
+from forensics.win32.hive2 import HiveAddressSpace, HiveFileAddressSpace
 from forensics.win32.hashdump import get_bootkey
-from forensics.win32.lsasecrets import get_secret_by_name,get_lsa_key
+from forensics.win32.lsasecrets import get_secret_by_name, get_lsa_key
 from Crypto.Hash import HMAC
 from Crypto.Cipher import ARC4
 from struct import unpack
@@ -35,7 +37,7 @@ def get_nlkm(secaddr, lsakey, profile):
     return get_secret_by_name(secaddr, 'NL$KM', lsakey, profile)
 
 def decrypt_hash(edata, nlkm, ch):
-    hmac_md5 = HMAC.new(nlkm,ch)
+    hmac_md5 = HMAC.new(nlkm, ch)
     rc4key = hmac_md5.digest()
 
     rc4 = ARC4.new(rc4key)
@@ -90,7 +92,8 @@ def dump_hashes(sysaddr, secaddr, profile):
 
     hashes = []
     for v in values(cache):
-        if v.Name == "NL$Control": continue
+        if v.Name == "NL$Control":
+            continue
         
         data = v.vm.read(v.Data, v.DataLength)
 

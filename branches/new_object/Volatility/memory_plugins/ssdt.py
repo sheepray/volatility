@@ -26,10 +26,13 @@
 from operator import itemgetter
 from bisect import bisect_right
 
-from forensics.object2 import *
+from forensics.object2 import NewObject, Profile
 from forensics.win32.tasks import pslist
 from forensics.win32.modules import lsmod
-from vutils import *
+from vutils import load_and_identify_image
+import forensics.commands
+
+#pylint: disable-msg=C0111
 
 ssdt_types = {
   '_SERVICE_DESCRIPTOR_TABLE' : [ 0x40, {
@@ -1012,7 +1015,8 @@ def find_module(modlist, mod_addrs, addr):
     in order of the module base address."""
     
     pos = bisect_right(mod_addrs, addr) - 1
-    if pos == -1: return None
+    if pos == -1:
+        return None
     mod = modlist[mod_addrs[pos]]
 
     if (addr >= mod.BaseAddress.v() and 
@@ -1044,11 +1048,11 @@ class ssdt(forensics.commands.command):
         profile = Profile()
         profile.add_types(ssdt_types)
 
-	(addr_space, symtab, types) = load_and_identify_image(self.op,
+        (addr_space, symtab, types) = load_and_identify_image(self.op,
             self.opts)
 
         ## Get a sorted list of module addresses
-        mods = dict( (mod.BaseAddress.v(),mod) for mod in lsmod(addr_space, profile) )
+        mods = dict( (mod.BaseAddress.v(), mod) for mod in lsmod(addr_space, profile) )
         mod_addrs = sorted(mods.keys())
 
         # Gather up all SSDTs referenced by threads
@@ -1063,9 +1067,9 @@ class ssdt(forensics.commands.command):
         tables = set()
         
         for ssdt in ssdts:
-            for i,desc in enumerate(ssdt.Descriptors):
+            for i, desc in enumerate(ssdt.Descriptors):
                 if desc.is_valid() and desc.ServiceLimit != 0:
-                    tables.add((i,desc.KiServiceTable.v(),desc.ServiceLimit.v()))
+                    tables.add((i, desc.KiServiceTable.v(), desc.ServiceLimit.v()))
 
         print "Finding appropriate address space for tables..."
         tables_with_vm = []
@@ -1085,8 +1089,8 @@ class ssdt(forensics.commands.command):
                 tables_with_vm.append( (idx, table, n, addr_space) )
 
         # Print out the entries for each table
-        for idx,table,n,vm in sorted(tables_with_vm, key=itemgetter(0)):
-            print "SSDT[%d] at %x with %d entries" % (idx,table, n)
+        for idx, table, n, vm in sorted(tables_with_vm, key=itemgetter(0)):
+            print "SSDT[%d] at %x with %d entries" % (idx, table, n)
             if vm.is_valid_address(table):
                 for i in range(n):
                     syscall_addr = NewObject('unsigned long', table+(i*4), vm, profile=profile).v()

@@ -22,9 +22,10 @@
 # the following reference:
 # "The VAD Tree: A Process-Eye View of Physical Memory," Brendan Dolan-Gavitt
 
-from forensics.win32.handles import *
-from forensics.win32.info import *
-from forensics.object import *
+#pylint: disable-msg=C0111
+
+from forensics.object import read_obj, get_obj_offset, obj_size, read_value
+from forensics.win32.handles import file_name
 import os
 
 vad_flags = { \
@@ -100,7 +101,7 @@ def get_bit_flags(value, flags):
     if not vad_flags.has_key(flags):
         raise Exception('Invalid flags ' + flags)
     bit_dict = vad_flags[flags] 
-    for (k,v) in bit_dict.items():
+    for (k, v) in bit_dict.items():
         if ((v[1] == 0x1) and ((( 1 << (v[0])) & value) > 0)):
             matches.append(k)
     return matches
@@ -127,22 +128,22 @@ def traverse_vad(parent, addr_space, types, vad_addr, prefix_callback, infix_cal
         prefix_callback(addr_space, types, vad_addr, level, storage)
 
     if LeftChild > 0:
-        traverse_vad(vad_addr, addr_space, types, LeftChild, prefix_callback, infix_callback, postfix_callback, level+1,storage)
+        traverse_vad(vad_addr, addr_space, types, LeftChild, prefix_callback, infix_callback, postfix_callback, level+1, storage)
 
     if infix_callback != None:
         infix_callback(addr_space, types, vad_addr, level, storage)
 
     if RightChild > 0:
-        traverse_vad(vad_addr, addr_space, types, RightChild, prefix_callback, infix_callback, postfix_callback, level+1,storage)
+        traverse_vad(vad_addr, addr_space, types, RightChild, prefix_callback, infix_callback, postfix_callback, level+1, storage)
 
     if postfix_callback != None:
-        postfix_callback(addr_space, types, vad_addr, level,storage)
+        postfix_callback(addr_space, types, vad_addr, level, storage)
 
 
-def parse_vad(parent, addr_space, types, vad_addr, vadlist, level=0):
+def parse_vad(_parent, addr_space, types, vad_addr, vadlist, level=0):
 
     if not addr_space.is_valid_address(vad_addr):
-       return
+        return
 
     LeftChild = read_obj(addr_space, types,
                          ['_MMVAD_SHORT', 'LeftChild'], vad_addr)
@@ -167,7 +168,7 @@ def print_vad_short(addr_space, types, vad_entry):
     tag_addr = vad_entry - 0x4
     if not addr_space.is_valid_address(tag_addr):
         print "Not Valid"
-    tag = addr_space.read(tag_addr,4)
+    tag = addr_space.read(tag_addr, 4)
            
     StartingVpn = read_obj(addr_space, types,
                            ['_MMVAD_LONG', 'StartingVpn'], vad_entry)  
@@ -179,16 +180,16 @@ def print_vad_short(addr_space, types, vad_entry):
 
     EndingVpn = ((EndingVpn+1) << 12) - 1
 
-    print "VAD node @%08x Start %08x End %08x Tag %4s"%(vad_entry,StartingVpn,EndingVpn,tag)
+    print "VAD node @%08x Start %08x End %08x Tag %4s" % (vad_entry, StartingVpn, EndingVpn, tag)
 
-    (u_offset, tmp) = get_obj_offset(types, ['_MMVAD_LONG', 'u'])
+    (u_offset, _tmp) = get_obj_offset(types, ['_MMVAD_LONG', 'u'])
 
     Flags = read_value(addr_space, 'unsigned long', u_offset+vad_entry)
       
     flags = "Flags: " + ", ".join(get_bit_flags(Flags,'_MMVAD_FLAGS'))
     print flags
 
-    print "Commit Charge: %d Protection: %x" % (Flags & get_mask_flag('_MMVAD_FLAGS', 'CommitCharge'),(Flags & get_mask_flag('_MMVAD_FLAGS', 'Protection')) >> 24)
+    print "Commit Charge: %d Protection: %x" % (Flags & get_mask_flag('_MMVAD_FLAGS', 'CommitCharge'), (Flags & get_mask_flag('_MMVAD_FLAGS', 'Protection')) >> 24)
 
 
 
@@ -196,7 +197,7 @@ def print_vad_control(addr_space, types, vad_entry):
                
     ControlArea = read_obj(addr_space, types,
                            ['_MMVAD_LONG', 'ControlArea'], vad_entry)
-    ControlAreaObject = addr_space.read(ControlArea,obj_size(types,'_CONTROL_AREA'))
+    ControlAreaObject = addr_space.read(ControlArea, obj_size(types,'_CONTROL_AREA'))
 
     if addr_space.is_valid_address(ControlArea) and ControlAreaObject != None:
 
@@ -205,11 +206,11 @@ def print_vad_control(addr_space, types, vad_entry):
 
         print "ControlArea @%08x Segment %08x" % (ControlArea, Segment)
 
-        Flink = read_obj(addr_space, types, ['_CONTROL_AREA', 'DereferenceList', 'Flink'],ControlArea)
+        Flink = read_obj(addr_space, types, ['_CONTROL_AREA', 'DereferenceList', 'Flink'], ControlArea)
 
-        Blink = read_obj(addr_space, types, ['_CONTROL_AREA', 'DereferenceList', 'Blink'],ControlArea)
+        Blink = read_obj(addr_space, types, ['_CONTROL_AREA', 'DereferenceList', 'Blink'], ControlArea)
 
-        print "Dereference list: Flink %08x, Blink %08x"%(Flink,Blink)
+        print "Dereference list: Flink %08x, Blink %08x" % (Flink, Blink)
 
         NumberOfSectionReferences = read_obj(addr_space, types,
             ['_CONTROL_AREA', 'NumberOfSectionReferences'], ControlArea)
@@ -217,7 +218,7 @@ def print_vad_control(addr_space, types, vad_entry):
         NumberOfPfnReferences = read_obj(addr_space, types,
             ['_CONTROL_AREA', 'NumberOfPfnReferences'], ControlArea)
 
-        print "NumberOfSectionReferences: %10d NumberOfPfnReferences:  %10d"%(NumberOfSectionReferences,NumberOfPfnReferences)
+        print "NumberOfSectionReferences: %10d NumberOfPfnReferences:  %10d" % (NumberOfSectionReferences, NumberOfPfnReferences)
 
         NumberOfMappedViews = read_obj(addr_space, types,
              ['_CONTROL_AREA', 'NumberOfMappedViews'], ControlArea)
@@ -225,7 +226,7 @@ def print_vad_control(addr_space, types, vad_entry):
         NumberOfSubsections = read_obj(addr_space, types,
              ['_CONTROL_AREA', 'NumberOfSubsections'], ControlArea)
 
-        print "NumberOfMappedViews:       %10d NumberOfSubsections:    %10d" % (NumberOfMappedViews,NumberOfSubsections)
+        print "NumberOfMappedViews:       %10d NumberOfSubsections:    %10d" % (NumberOfMappedViews, NumberOfSubsections)
 
         FlushInProgressCount = read_obj(addr_space, types,
              ['_CONTROL_AREA', 'FlushInProgressCount'], ControlArea)
@@ -233,9 +234,9 @@ def print_vad_control(addr_space, types, vad_entry):
         NumberOfUserReferences = read_obj(addr_space, types,
              ['_CONTROL_AREA', 'NumberOfUserReferences'], ControlArea)
 
-        print "FlushInProgressCount:      %10d NumberOfUserReferences: %10d"%(FlushInProgressCount,NumberOfUserReferences)
+        print "FlushInProgressCount:      %10d NumberOfUserReferences: %10d" % (FlushInProgressCount, NumberOfUserReferences)
 
-        (u_offset, tmp) = get_obj_offset(types, ['_CONTROL_AREA', 'u'])
+        (u_offset, _tmp) = get_obj_offset(types, ['_CONTROL_AREA', 'u'])
         Flags = read_value(addr_space, 'unsigned long', u_offset+ControlArea)
 
         flags = "Flags: " + ", ".join(get_bit_flags(Flags,'_MMSECTION_FLAGS'))
@@ -262,8 +263,8 @@ def print_vad_control(addr_space, types, vad_entry):
         NumberOfSystemCacheViews = read_obj(addr_space, types,
 	         ['_CONTROL_AREA', 'NumberOfSystemCacheViews'], ControlArea)
 
-        print "WaitingForDeletion Event: %08x"%WaitingForDeletion
-        print "ModifiedWriteCount: %8d NumberOfSystemCacheViews: %8d"%(ModifiedWriteCount,NumberOfSystemCacheViews)
+        print "WaitingForDeletion Event: %08x" % WaitingForDeletion
+        print "ModifiedWriteCount: %8d NumberOfSystemCacheViews: %8d" % (ModifiedWriteCount, NumberOfSystemCacheViews)
 
 
 def print_vad_ext(addr_space, types, vad_entry):
@@ -273,9 +274,9 @@ def print_vad_ext(addr_space, types, vad_entry):
                                 ['_MMVAD_LONG', 'FirstPrototypePte'], vad_entry)
     LastContiguousPte = read_obj(addr_space, types,
                                 ['_MMVAD_LONG', 'LastContiguousPte'], vad_entry)
-    print "First prototype PTE: %08x Last contiguous PTE: %08x"%(FirstPrototypePte,LastContiguousPte)
+    print "First prototype PTE: %08x Last contiguous PTE: %08x" % (FirstPrototypePte, LastContiguousPte)
  
-    (u2_offset, tmp) = get_obj_offset(types, ['_MMVAD_LONG', 'u2'])
+    (u2_offset, _tmp) = get_obj_offset(types, ['_MMVAD_LONG', 'u2'])
 
     Flags = read_value(addr_space, 'unsigned long', u2_offset+vad_entry)          
     flags = "Flags2: " + ", ".join(get_bit_flags(Flags,'_MMVAD_FLAGS2'))
@@ -286,18 +287,18 @@ def print_vad_ext(addr_space, types, vad_entry):
     if (Flags and
         Flags & get_mask_flag('_MMVAD_FLAGS2','LongVad')):
                
-        (u3_offset, tmp) = get_obj_offset(types, ['_MMVAD_LONG', 'u3'])
+        (u3_offset, _tmp) = get_obj_offset(types, ['_MMVAD_LONG', 'u3'])
 
         StartVpn = read_value(addr_space, 'unsigned long', u3_offset+vad_entry)
         EndVpn = read_value(addr_space, 'unsigned long', u3_offset+4+vad_entry)
 
-        (u4_offset, tmp) = get_obj_offset(types, ['_MMVAD_LONG', 'u4'])
+        (u4_offset, _tmp) = get_obj_offset(types, ['_MMVAD_LONG', 'u4'])
         ExtendedInfo = read_value(addr_space, 'unsigned long', u4_offset+vad_entry)
 
-        print "Secured: %08x - %08x" %(StartVpn,EndVpn)
-        print "Pointer to _MMEXTEND_INFO (or _MMBANKED_SECTION ?): %08x"%ExtendedInfo
+        print "Secured: %08x - %08x" % (StartVpn, EndVpn)
+        print "Pointer to _MMEXTEND_INFO (or _MMBANKED_SECTION ?): %08x" % ExtendedInfo
 
-def append_entry(addr_space, types, vad_addr, level, storage):
+def append_entry(_addr_space, _types, vad_addr, _level, storage):
     storage.append(vad_addr)
 
 def vad_info(addr_space, types, VadRoot):
@@ -311,7 +312,7 @@ def vad_info(addr_space, types, VadRoot):
         tag_addr = vad_entry - 0x4
         if not addr_space.is_valid_address(tag_addr):
             print "Not Valid"
-        tag = addr_space.read(tag_addr,4)
+        tag = addr_space.read(tag_addr, 4)
 
         # Let's classify the VADS
         if tag == "Vadl":
@@ -343,7 +344,7 @@ def vad_info(addr_space, types, VadRoot):
             if addr_space.is_valid_address(ControlArea):
                 print_vad_control(addr_space, types, vad_entry) 
 
-            print_vad_ext(addr_space,types, vad_entry)
+            print_vad_ext(addr_space, types, vad_entry)
 
             print 
 
@@ -387,10 +388,10 @@ def vad_dump(addr_space, types, VadRoot, name, offset, dir):
 
         NumberOfPages = Range >> 12
 
-        for i in range(0,NumberOfPages):
+        for i in range(0, NumberOfPages):
             page_addr = StartingVpn+i*0x1000
             if not addr_space.is_valid_address(page_addr):
-                range_data + ('\0' * 0x1000)
+                range_data += ('\0' * 0x1000)
                 continue
             page_read = addr_space.read(page_addr, 0x1000)
             if page_read == None:
@@ -399,21 +400,21 @@ def vad_dump(addr_space, types, VadRoot, name, offset, dir):
                 range_data = range_data + page_read
 
         if not dir == None:
-            f = open(dir+"/"+"%s.%x.%08x-%08x.dmp" % (name,offset,StartingVpn,EndingVpn), 'wb')
+            f = open(dir + os.path.sep + "%s.%x.%08x-%08x.dmp" % (name, offset, StartingVpn, EndingVpn), 'wb')
         else:
-            f = open("%s.%x.%08x-%08x.dmp" % (name,offset,StartingVpn,EndingVpn), 'wb')
+            f = open("%s.%x.%08x-%08x.dmp" % (name, offset, StartingVpn, EndingVpn), 'wb')
 
         f.write(range_data)
         f.close()
  
 
-def print_vad_table(addr_space, types, vad_addr,level, storage):
+def print_vad_table(addr_space, types, vad_addr, _level, _storage):
     
     tag_addr = vad_addr - 0x4
     if not addr_space.is_valid_address(tag_addr):
         return
 
-    tag = addr_space.read(tag_addr,4)
+    tag = addr_space.read(tag_addr, 4)
 
     EndingVpn = read_obj(addr_space, types,
                          ['_MMVAD_SHORT', 'EndingVpn'], vad_addr)
@@ -432,18 +433,18 @@ def print_vad_table(addr_space, types, vad_addr,level, storage):
     Parent = read_obj(addr_space, types,
                              ['_MMVAD_SHORT', 'Parent'], vad_addr)
     
-    print "%08x %08x %08x %08x %08x %08x %-4s"%(vad_addr,
+    print "%08x %08x %08x %08x %08x %08x %-4s" % (vad_addr,
                                              Parent, LeftChild,        
                                              RightChild, StartingVpn,
-                                             EndingVpn,tag)
+                                             EndingVpn, tag)
 
-def print_vad_dot_prefix(addr_space, types, vad_addr, level, storage):
+def print_vad_dot_prefix(addr_space, types, vad_addr, _level, _storage):
     
     tag_addr = vad_addr - 0x4
     if not addr_space.is_valid_address(tag_addr):
         return
 
-    tag = addr_space.read(tag_addr,4)
+    tag = addr_space.read(tag_addr, 4)
 
     EndingVpn = read_obj(addr_space, types,
                          ['_MMVAD_SHORT', 'EndingVpn'], vad_addr)
@@ -464,22 +465,22 @@ def print_vad_dot_prefix(addr_space, types, vad_addr, level, storage):
     Parent = read_obj(addr_space, types,
                              ['_MMVAD_SHORT', 'Parent'], vad_addr)
         
-    print 'vad_%x [label = "{ %08x - %08x }" shape = "record" color = "blue"];'%(vad_addr, StartingVpn, EndingVpn)
+    print 'vad_%x [label = "{ %08x - %08x }" shape = "record" color = "blue"];' % (vad_addr, StartingVpn, EndingVpn)
     
     if LeftChild > 0:
-        print "vad_%x -> vad_%x"%(vad_addr, LeftChild)
+        print "vad_%x -> vad_%x" % (vad_addr, LeftChild)
 
 
-def print_vad_dot_infix(addr_space, types, vad_addr, level, storage):
+def print_vad_dot_infix(addr_space, types, vad_addr, _level, _storage):
 
     RightChild = read_obj(addr_space, types,
                              ['_MMVAD_SHORT', 'RightChild'], vad_addr)
     
     if RightChild > 0:
-        print "vad_%x -> vad_%x"%(vad_addr, RightChild)
+        print "vad_%x -> vad_%x" % (vad_addr, RightChild)
 
 
-def print_vad_tree(addr_space, types, vad_addr, level, storage):
+def print_vad_tree(addr_space, types, vad_addr, level, _storage):
     
     EndingVpn = read_obj(addr_space, types,
                          ['_MMVAD_SHORT', 'EndingVpn'], vad_addr)
@@ -492,4 +493,4 @@ def print_vad_tree(addr_space, types, vad_addr, level, storage):
     StartingVpn = StartingVpn << 12
 
     
-    print " "*level +"%08x - %08x"%(StartingVpn,EndingVpn)
+    print " " * level + "%08x - %08x" % (StartingVpn, EndingVpn)

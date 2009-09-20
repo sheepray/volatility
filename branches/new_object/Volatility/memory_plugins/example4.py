@@ -23,8 +23,12 @@
 @organization: Volatile Systems
 """
 
-from vutils import *
-from forensics.win32.tasks import *
+#pylint: disable-msg=C0111
+
+from time import gmtime, strftime
+from vutils import load_and_identify_image
+from forensics.win32.tasks import process_create_time, process_handle_count, process_imagename, process_inherited_from, process_list, process_pid, process_num_active_threads
+import forensics.commands
 
 class pslist_ex_4(forensics.commands.command):
 
@@ -60,7 +64,7 @@ class pslist_ex_4(forensics.commands.command):
     # provided by the standard parse would would provide the following
     # attributes: self.opts.filename, self.opts.base, self.opts.type.
 
-    def render_text(self,outfd, data):
+    def render_text(self, outfd, data):
         outfd.write("%-20s %-6s %-6s %-6s %-6s %-6s\n"%(
             'Name','Pid','PPid','Thds','Hnds','Time'))
 
@@ -81,7 +85,7 @@ class pslist_ex_4(forensics.commands.command):
     def calculate(self):
         (addr_space, symtab, types) = load_and_identify_image(self.op, self.opts)
 
-        all_tasks = process_list(addr_space,types,symtab)
+        all_tasks = process_list(addr_space, types, symtab)
         
         for task in all_tasks:
             if not addr_space.is_valid_address(task):
@@ -99,7 +103,7 @@ class pslist_ex_4(forensics.commands.command):
             if active_threads is None:
                 active_threads = -1
 
-            inherited_from  = process_inherited_from(addr_space, types,task)
+            inherited_from  = process_inherited_from(addr_space, types, task)
             if inherited_from is None:
                 inherited_from = -1
 
@@ -111,7 +115,7 @@ class pslist_ex_4(forensics.commands.command):
             if create_time is None:
                 create_time = "UNKNOWN"
             else:
-                create_time=strftime("%a %b %d %H:%M:%S %Y",gmtime(create_time))     
+                create_time=strftime("%a %b %d %H:%M:%S %Y", gmtime(create_time))     
 
             yield (image_file_name,
                    process_id,

@@ -27,17 +27,19 @@
 @organization: Volatile Systems
 """
 
+#pylint: disable-msg=C0111
+
 import optparse
 
 from vtypes import xpsp2types as types
-from vsyms import *
+from vsyms import pae_syms, nopae_syms
 from forensics.win32.tasks import find_dtb
 from forensics.win32.tasks import find_csdversion
 
-from forensics.addrspace import *
-from forensics.x86 import *
-from forensics.win32.crash_addrspace import *
-from forensics.win32.hiber_addrspace import *
+from forensics.addrspace import FileAddressSpace
+from forensics.x86 import IA32PagedMemory, IA32PagedMemoryPae
+from forensics.win32.crash_addrspace import WindowsCrashDumpSpace32
+from forensics.win32.hiber_addrspace import WindowsHiberFileSpace32
 
 ###################################
 #  Helper functions
@@ -56,7 +58,7 @@ def get_standard_parser(cmdname):
     op.add_option('-t', '--type',
                   help='(optional, default="auto") Identify the image type (pae, nopae, auto)',
                   action='store', type='string', dest='type')   
-    op.add_option('-H','--output',default = 'text',
+    op.add_option('-H','--output', default = 'text',
                   help='(optional, default="text") Output format (xml, html, sql)')
     op.add_option('-O', '--out_file', default=None,
                   help='(output filename to write results onto - default stdout)') 
@@ -103,13 +105,13 @@ def load_pae_address_space(filename, dtb):
     try:
         if is_crash_dump(filename) == True:
             linAS = FileAddressSpace(filename)
-            phyAS = WindowsCrashDumpSpace32(linAS,0,0)
+            phyAS = WindowsCrashDumpSpace32(linAS, 0, 0)
             # Currently we only support full crash dumps
             if not phyAS.get_dumptype() == 1:
                 return None
         elif is_hiberfil(filename) == True:
             linAS = FileAddressSpace(filename)
-            phyAS = WindowsHiberFileSpace32(linAS,0,0)
+            phyAS = WindowsHiberFileSpace32(linAS, 0, 0)
         else:
             phyAS = FileAddressSpace(filename)
         addr_space = IA32PagedMemoryPae(phyAS, dtb)
@@ -126,13 +128,13 @@ def load_nopae_address_space(filename, dtb):
     try:
         if is_crash_dump(filename) == True:
             linAS = FileAddressSpace(filename)
-            phyAS = WindowsCrashDumpSpace32(linAS,0,0)
+            phyAS = WindowsCrashDumpSpace32(linAS, 0, 0)
 	    # Currently we only support full crash dumps
             if not phyAS.get_dumptype() == 1:
                 return None
         elif is_hiberfil(filename) == True:
             linAS = FileAddressSpace(filename)
-            phyAS = WindowsHiberFileSpace32(linAS,0,0)
+            phyAS = WindowsHiberFileSpace32(linAS, 0, 0)
         else:
             phyAS = FileAddressSpace(filename)
         addr_space = IA32PagedMemory(phyAS, dtb)
@@ -163,7 +165,7 @@ def load_and_identify_image(op, opts, verbose=False):
         try:
             dtb = int(opts.base, 16)
         except:
-            op.error("Directory table base must be a hexidecimal number.")
+            op.error("Directory table base must be a hexadecimal number.")
 
     if not opts.type is None:
         if opts.type == 'nopae':
@@ -235,19 +237,19 @@ def is_hiberfil(filename):
         return True
     return False
 
-def find_addr_space(addr_space,types):
+def find_addr_space(addr_space, types):
     """
     Determine what types of address space (if any)
     needs to be overlayed.
     """
     if is_crash_dump(addr_space.fname) == True:
-       addr_space = WindowsCrashDumpSpace32(addr_space,0,0)
+        addr_space = WindowsCrashDumpSpace32(addr_space, 0, 0)
     elif is_hiberfil(addr_space.fname) == True:
-       addr_space = WindowsHiberFileSpace32(addr_space,0,0)
+        addr_space = WindowsHiberFileSpace32(addr_space, 0, 0)
     
     return addr_space
 
-def get_dtb(addr_space,types):
+def get_dtb(addr_space, types):
     if isinstance(addr_space, WindowsCrashDumpSpace32):
         dtb = addr_space.get_directorytablebase()
     elif isinstance(addr_space, WindowsHiberFileSpace32):
@@ -257,7 +259,9 @@ def get_dtb(addr_space,types):
     return dtb
 
 
-def PrintWithDefaults(format,args,defaults={}):
+def PrintWithDefaults(format, args, defaults=None):
+    if defaults is None:
+        defaults = {}
     argslist = list(args)
     if len(defaults) > 0:
         for index, item in enumerate(argslist):
@@ -266,5 +270,5 @@ def PrintWithDefaults(format,args,defaults={}):
                     argslist[index] = defaults[index]
         args = tuple(argslist)
    
-    output = format%args
+    output = format % args
     print output

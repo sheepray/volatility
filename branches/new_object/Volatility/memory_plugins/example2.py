@@ -23,8 +23,13 @@
 @organization: Volatile Systems
 """
 
-from vutils import *
-from forensics.win32.tasks import *
+#pylint: disable-msg=C0111
+
+import os
+from vutils import load_and_identify_image
+from forensics.addrspace import FileAddressSpace
+from forensics.win32.tasks import create_addr_space, process_dtb, process_find_pid, process_imagename, process_list, process_pid
+import forensics.commands
 
 class memmap_ex_2(forensics.commands.command):
 
@@ -86,23 +91,23 @@ class memmap_ex_2(forensics.commands.command):
             try:
                 offset = int(opts.offset, 16)
             except:
-                op.error("EPROCESS offset must be a hexidecimal number.")
+                op.error("EPROCESS offset must be a hexadecimal number.")
  
             try:
                 flat_address_space = FileAddressSpace(filename)
             except:
-                op.error("Unable to open image file %s" %(filename))
+                op.error("Unable to open image file %s" % (filename))
 
             directory_table_base = process_dtb(flat_address_space, types, offset)
 
             process_address_space = create_addr_space(addr_space, directory_table_base)
 
-            image_file_name = process_imagename(flat_address_space, types, offset)
+            _image_file_name = process_imagename(flat_address_space, types, offset)
             process_id = process_pid(flat_address_space, types, offset)
 
             if process_address_space is None:
                 print "Error obtaining address space for process [%d]" % (process_id)
-	        return
+                return
 
             addr_space = process_address_space
 
@@ -113,14 +118,14 @@ class memmap_ex_2(forensics.commands.command):
         
             all_tasks = process_list(addr_space, types, symtab)
 
-            task = process_find_pid(addr_space,types, symtab, all_tasks, opts.pid)
+            task = process_find_pid(addr_space, types, symtab, all_tasks, opts.pid)
     
             if len(task) == 0:
-                print "Error process [%d] not found"%opts.pid
+                print "Error process [%d] not found" % opts.pid
                 return
 
             if len(task) > 1:
-                print "Multiple processes [%d] found. Please specify offset."%opts.pid 
+                print "Multiple processes [%d] found. Please specify offset." % opts.pid 
                 return
 
             directory_table_base = process_dtb(addr_space, types, task[0])
@@ -139,10 +144,10 @@ class memmap_ex_2(forensics.commands.command):
   
         for entry in entries:
             phy_addr = addr_space.vtop(entry[0])
-            yield (entry[0],phy_addr,entry[1])
+            yield (entry[0], phy_addr, entry[1])
 
     def render_text(self, outfd, data):
-        outfd.write("%-12s %-12s %-12s\n"%('Virtual','Physical','Size'))
+        outfd.write("%-12s %-12s %-12s\n" % ('Virtual', 'Physical', 'Size'))
         for d in data:
             print "0x%-10x 0x%-10x 0x%-12x" % d
 
@@ -203,34 +208,34 @@ class usrdmp_ex_2(forensics.commands.command):
             try:
                 offset = int(self.opts.offset, 16)
             except:
-                self.op.error("EPROCESS offset must be a hexidecimal number.")
+                self.op.error("EPROCESS offset must be a hexadecimal number.")
  
             try:
                 flat_address_space = FileAddressSpace(filename)
             except:
-                self.op.error("Unable to open image file %s" %(filename))
+                self.op.error("Unable to open image file %s" % (filename))
 
             directory_table_base = process_dtb(flat_address_space, types, offset)
 
             process_address_space = create_addr_space(addr_space, directory_table_base)
 
-            image_file_name = process_imagename(flat_address_space, types, offset)
+            _image_file_name = process_imagename(flat_address_space, types, offset)
             process_id = process_pid(flat_address_space, types, offset)
 
             if process_address_space is None:
                 print "Error obtaining address space for process [%d]" % (process_id)
-	        return
+                return
 
             entries = process_address_space.get_available_pages()
 
-            ofilename = opts.offset + ".dmp"
+            ofilename = self.opts.offset + ".dmp"
 
             # Check to make sure file can open
-            ohandle=open(ofilename,'wb')
+            ohandle = open(ofilename, 'wb')
 
             for entry in entries:
-                data = process_address_space.read(entry[0],entry[1])
-                ohandle.write("%s"%data)
+                data = process_address_space.read(entry[0], entry[1])
+                ohandle.write("%s" % data)
 
             ohandle.close()
 
@@ -241,14 +246,14 @@ class usrdmp_ex_2(forensics.commands.command):
 
             all_tasks = process_list(addr_space, types, symtab)
 
-            task = process_find_pid(addr_space,types, symtab, all_tasks, self.opts.pid)
+            task = process_find_pid(addr_space, types, symtab, all_tasks, self.opts.pid)
     
             if len(task) == 0:
-                print "Error process [%d] not found"%self.opts.pid
-	        return
+                print "Error process [%d] not found" % self.opts.pid
+                return
 
             if len(task) > 1:
-                print "Multiple processes [%d] found. Please specify offset."%self.opts.pid 
+                print "Multiple processes [%d] found. Please specify offset." % self.opts.pid 
                 return
 
             directory_table_base = process_dtb(addr_space, types, task[0])
@@ -259,23 +264,23 @@ class usrdmp_ex_2(forensics.commands.command):
 
             if process_address_space is None:
                 print "Error obtaining address space for process [%d]" % (process_id)
-	        return
+                return
 
-            image_file_name = process_imagename(process_address_space, types, task[0])
+            _image_file_name = process_imagename(process_address_space, types, task[0])
 
             entries = process_address_space.get_available_pages()
 
-	    ofilename = str(self.opts.pid) + ".dmp"
+            ofilename = str(self.opts.pid) + ".dmp"
 
             # Check to make sure file can open
-	    try:
-                ohandle=open(ofilename,'wb')
+            try:
+                ohandle = open(ofilename, 'wb')
             except IOError:
-	        print "Error opening file [%s]"% (ofilename)
-	        return
+                print "Error opening file [%s]" % (ofilename)
+                return
 
             for entry in entries:
-                data = process_address_space.read(entry[0],entry[1])
+                data = process_address_space.read(entry[0], entry[1])
                 ohandle.write("%s"%data)
 
             ohandle.close() 

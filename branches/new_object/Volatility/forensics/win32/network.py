@@ -26,9 +26,12 @@
 @organization: Volatile Systems
 """
 
-from forensics.object import *
-from forensics.win32.datetime import *
-from forensics.win32.modules import *
+#pylint: disable-msg=C0111
+
+import struct
+from forensics.object import read_value, read_obj, get_obj_offset
+from forensics.win32.datetime import read_time, windows_to_unix_time
+from forensics.win32.modules import module_find_baseaddr, modules_list
 from socket import ntohs, inet_ntoa
 
 module_versions = { \
@@ -90,7 +93,7 @@ def tcb_connections(addr_space, types, symbol_table):
 
     return connection_list
 
-def get_tcb_connections(addr_space, types, symbol_table, base_addr, TCBTableOff, SizeOff):
+def get_tcb_connections(addr_space, types, _symbol_table, base_addr, TCBTableOff, SizeOff):
 
     TCBTable = base_addr + TCBTableOff 
     MaxHashTableSize = base_addr + SizeOff
@@ -107,11 +110,11 @@ def get_tcb_connections(addr_space, types, symbol_table, base_addr, TCBTableOff,
     TableSize = read_value(addr_space, 'unsigned long', MaxHashTableSize)
 
     if TableSize == None:
-       return []
+        return []
 
     connection_list = []
-    for cnt in range(0,TableSize):
-        EntryAddress=TCBTableAddr + 4*cnt
+    for cnt in range(0, TableSize):
+        EntryAddress = TCBTableAddr + 4*cnt
 
         if not addr_space.is_valid_address(EntryAddress):
             continue
@@ -125,7 +128,7 @@ def get_tcb_connections(addr_space, types, symbol_table, base_addr, TCBTableOff,
 
         while next != 0x0:
             if not addr_space.is_valid_address(next):
-                print "ConnectionList Truncated Invalid 0x%x"%next
+                print "ConnectionList Truncated Invalid 0x%x" % next
                 return connection_list
             connection_list.append(next)
             next = read_obj(addr_space, types,
@@ -161,7 +164,7 @@ def connection_lport(addr_space, types, connection_vaddr):
 def connection_laddr(addr_space, types, connection_vaddr):
     laddr = read_obj(addr_space, types,
                     ['_TCPT_OBJECT', 'LocalIpAddress'], connection_vaddr)
-    return inet_ntoa(struct.pack('=L',laddr)) 
+    return inet_ntoa(struct.pack('=L', laddr)) 
 
 def connection_rport(addr_space, types, connection_vaddr):
     return ntohs(read_obj(addr_space, types,
@@ -170,7 +173,7 @@ def connection_rport(addr_space, types, connection_vaddr):
 def connection_raddr(addr_space, types, connection_vaddr):
     raddr = read_obj(addr_space, types,
                     ['_TCPT_OBJECT', 'RemoteIpAddress'], connection_vaddr)
-    return inet_ntoa(struct.pack('=L',raddr))    
+    return inet_ntoa(struct.pack('=L', raddr))    
 
 def open_sockets(addr_space, types, symbol_table):
     all_modules = modules_list(addr_space, types, symbol_table)
@@ -185,7 +188,7 @@ def open_sockets(addr_space, types, symbol_table):
 
     return socket_list
 
-def get_open_sockets(addr_space, types, symbol_table, base_addr, AddrObjTableOffset, AddrObjTableSizeOffset):
+def get_open_sockets(addr_space, types, _symbol_table, base_addr, AddrObjTableOffset, AddrObjTableSizeOffset):
     
     AddrObjTable = base_addr + AddrObjTableOffset 
     AddrObjTableSize = base_addr + AddrObjTableSizeOffset
@@ -194,11 +197,11 @@ def get_open_sockets(addr_space, types, symbol_table, base_addr, AddrObjTableOff
     AddrTableSize = read_value(addr_space, 'unsigned long', AddrObjTableSize)
 
     if AddrObjAddr == None or AddrTableSize == None:
-            return []
+        return []
 
     socket_list = []
-    for cnt in range(0,AddrTableSize):
-        EntryAddress=AddrObjAddr + 4*cnt
+    for cnt in range(0, AddrTableSize):
+        EntryAddress = AddrObjAddr + 4*cnt
 
         if not addr_space.is_valid_address(EntryAddress):
             continue
@@ -213,7 +216,7 @@ def get_open_sockets(addr_space, types, symbol_table, base_addr, AddrObjTableOff
 
         while next != 0x0:
             if not addr_space.is_valid_address(next):
-                print "SocketList Truncated Invalid 0x%x"%next
+                print "SocketList Truncated Invalid 0x%x" % next
                 return socket_list
             socket_list.append(next)
             next = read_obj(addr_space, types,
@@ -249,7 +252,7 @@ def socket_local_port(addr_space, types, socket_vaddr):
                     ['_ADDRESS_OBJECT', 'LocalPort'], socket_vaddr))
 
 def socket_create_time(addr_space, types, socket_vaddr):
-    (create_time_offset, tmp) = get_obj_offset(types, ['_ADDRESS_OBJECT', 'CreateTime'])    
+    (create_time_offset, _tmp) = get_obj_offset(types, ['_ADDRESS_OBJECT', 'CreateTime'])    
     create_time     = read_time(addr_space, types, socket_vaddr + create_time_offset)
     if create_time == None:
         return None

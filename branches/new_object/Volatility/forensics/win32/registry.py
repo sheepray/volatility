@@ -23,16 +23,15 @@
 @organization: Volatile Systems LLC
 """
 
-from forensics.object import *
-from forensics.win32.info import *
-from forensics.win32.datetime import windows_to_unix_time
-from forensics.addrspace import FileAddressSpace
-from forensics.win32.handles import handle_entry_object,is_object_key,object_data
+#pylint: disable-msg=C0111
+
+from forensics.object import read_obj, read_string
+from forensics.win32.handles import handle_entry_object, is_object_key, object_data
 
 def print_entry_keys(addr_space, types, entry):
 
     if not addr_space.is_valid_address(entry):
-    	return
+        return
 
     obj = handle_entry_object(addr_space, types, entry)
 
@@ -58,7 +57,8 @@ def print_entry_keys(addr_space, types, entry):
                       ['_CM_NAME_CONTROL_BLOCK', 'NameLength'], NameBlock)
 
                 OutName = read_string(addr_space, types, ['_CM_NAME_CONTROL_BLOCK', 'Name'] , NameBlock , NameLength)
-                if not OutName: OutName = "????????"
+                if not OutName: 
+                    OutName = "????????"
             else:
                 OutName = "????????"
 
@@ -72,7 +72,8 @@ def print_entry_keys(addr_space, types, entry):
                     NameLength = read_obj(addr_space, types,
                         ['_CM_NAME_CONTROL_BLOCK', 'NameLength'], NameBlock)
                     Name = read_string(addr_space, types, ['_CM_NAME_CONTROL_BLOCK', 'Name'] , NameBlock , NameLength)
-                    if not Name: Name = "????????"
+                    if not Name: 
+                        Name = "????????"
                     OutName = Name + '\\' + OutName
                 else:
                     OutName = "????????" + '\\' + OutName

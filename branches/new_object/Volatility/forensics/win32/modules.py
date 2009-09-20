@@ -23,8 +23,10 @@
 @organization: Komoku, Inc.
 """
 
-from forensics.object import *
-from forensics.win32.info import *
+#pylint: disable-msg=C0111
+
+from forensics.object import read_obj, read_unicode_string, get_obj_offset
+from forensics.win32.info import find_psloadedmodulelist, kpcr_addr
 from forensics.object2 import NewObject
 
 def lsmod(addr_space, profile):
@@ -53,7 +55,7 @@ def lsmod(addr_space, profile):
             "_LDR_MODULE", "InLoadOrderModuleList"):
             yield l
 
-def modules_list(addr_space, types, symbol_table):
+def modules_list(addr_space, types, _symbol_table):
     """
     Get the virtual addresses of all Windows modules 
     """
@@ -62,7 +64,7 @@ def modules_list(addr_space, types, symbol_table):
     PsLoadedModuleList = find_psloadedmodulelist(addr_space, types)
 
     if not PsLoadedModuleList is None:
-        (offset, tmp)  = get_obj_offset(types, \
+        (offset, _tmp)  = get_obj_offset(types, \
 	     ['_LDR_DATA_TABLE_ENTRY', 'InLoadOrderLinks'])
 
         first_module = PsLoadedModuleList - offset
@@ -111,7 +113,7 @@ def module_baseaddr(address_space, types, module_vaddr):
     return read_obj(address_space, types,
         ['_LDR_DATA_TABLE_ENTRY', 'DllBase'], module_vaddr)
 
-def module_find_baseaddr(addr_space, types,modules,name):
+def module_find_baseaddr(addr_space, types, modules, name):
     for module in modules:
         module_name = module_imagename(addr_space, types, module)
         if module_name is None:

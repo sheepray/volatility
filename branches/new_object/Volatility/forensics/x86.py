@@ -20,6 +20,8 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA 
 #
 
+#pylint: disable-msg=C0111
+
 """
 @author:       AAron Walters
 @license:      GNU General Public License 2.0 or later
@@ -30,7 +32,6 @@
 """Module for dealing with x86 architecture stuff
 """
 import struct
-from forensics.addrspace import FileAddressSpace
 
 x86_native_types = { \
     'int' : [4, 'l'], \
@@ -58,7 +59,7 @@ ptrs_per_pdpi = 4
 pgdir_shift = 22
 pdpi_shift = 30
 pdptb_shift = 5
-pde_shift= 21
+pde_shift = 21
 ptrs_per_pde = 512
 ptrs_page = 2048
 
@@ -112,9 +113,10 @@ class IA32PagedMemory:
                 retVal =  self.get_four_meg_paddr(vaddr, pgd)
             else:
                 pte = self.get_pte(vaddr, pgd)
-                if not pte: return None
+                if not pte:
+                    return None
                 if self.entry_present(pte):
-                        retVal =  self.get_paddr(vaddr, pte)
+                    retVal =  self.get_paddr(vaddr, pte)
         return retVal
 
     def read(self, vaddr, length):
@@ -139,7 +141,7 @@ class IA32PagedMemory:
             return None
 
         new_vaddr = vaddr + first_block
-        for i in range(0,full_blocks):
+        for _i in range(0, full_blocks):
             paddr = self.vtop(new_vaddr)
             if paddr == None:
                 return None
@@ -176,7 +178,7 @@ class IA32PagedMemory:
             stuff_read = self.base.zread(paddr, first_block)
 
         new_vaddr = vaddr + first_block
-        for i in range(0,full_blocks):
+        for _i in range(0, full_blocks):
             paddr = self.vtop(new_vaddr)
             if paddr == None:
                 stuff_read = stuff_read + ('\0' * 0x1000)
@@ -216,7 +218,7 @@ class IA32PagedMemory:
     def get_available_pages(self):
         page_list = []
         pgd_curr = self.pgd_vaddr
-        for i in range(0,ptrs_per_pgd):
+        for i in range(0, ptrs_per_pgd):
             start = (i * ptrs_per_pgd * ptrs_per_pte * 4)
             entry = self.read_long_phys(pgd_curr)
             pgd_curr = pgd_curr + 4
@@ -224,7 +226,7 @@ class IA32PagedMemory:
                 page_list.append([start, 0x400000])
             elif self.entry_present(entry):
                 pte_curr = entry & ~((1 << page_shift)-1)                
-                for j in range(0,ptrs_per_pte):
+                for j in range(0, ptrs_per_pte):
                     pte_entry = self.read_long_phys(pte_curr)
                     pte_curr = pte_curr + 4
                     if self.entry_present(pte_entry):
@@ -297,18 +299,20 @@ class IA32PagedMemoryPae:
         if not self.entry_present(pdpe):
             return retVal
 
-        pgd = self.get_pgd(vaddr,pdpe)
+        pgd = self.get_pgd(vaddr, pdpe)
 
-        if not pgd: return None
+        if not pgd:
+            return None
 
         if self.entry_present(pgd):
-                if self.page_size_flag(pgd):
-                    retVal = self.get_large_paddr(vaddr, pgd)
-                else:
-                    pte = self.get_pte(vaddr, pgd)
-                    if not pte: return None
-                    if self.entry_present(pte):
-                        retVal =  self.get_paddr(vaddr, pte)
+            if self.page_size_flag(pgd):
+                retVal = self.get_large_paddr(vaddr, pgd)
+            else:
+                pte = self.get_pte(vaddr, pgd)
+                if not pte:
+                    return None
+                if self.entry_present(pte):
+                    retVal =  self.get_paddr(vaddr, pte)
         return retVal
 
     def read(self, vaddr, length):
@@ -332,7 +336,7 @@ class IA32PagedMemoryPae:
             return None
 
         new_vaddr = vaddr + first_block
-        for i in range(0,full_blocks):
+        for _i in range(0, full_blocks):
             paddr = self.vtop(new_vaddr)
             if paddr == None:
                 return None
@@ -353,7 +357,7 @@ class IA32PagedMemoryPae:
         return stuff_read
 
     def zread(self, vaddr, length):
-        length=int(length)
+        length = int(length)
         first_block = 0x1000 - vaddr % 0x1000
         full_blocks = ((length + (vaddr % 0x1000)) / 0x1000) - 1
         left_over = (length + vaddr) % 0x1000
@@ -370,7 +374,7 @@ class IA32PagedMemoryPae:
             stuff_read = self.base.zread(paddr, first_block)
 
         new_vaddr = vaddr + first_block
-        for i in range(0,full_blocks):
+        for _i in range(0, full_blocks):
             paddr = self.vtop(new_vaddr)
             if paddr == None:
                 stuff_read = stuff_read + ('\0' * 0x1000)
@@ -389,17 +393,17 @@ class IA32PagedMemoryPae:
         
     def read_long_phys(self, addr):
         string = self.base.read(addr, 4)
-	if string == None:
-	    return None
+        if string == None:
+            return None
         (longval, ) =  struct.unpack('=L', string)
         return longval
 
     def read_long_long_phys(self, addr):
-        string = self.base.read(addr,8)
-	if string == None:
-	    return None
-	(longlongval, ) = struct.unpack('=Q', string)
-	return longlongval
+        string = self.base.read(addr, 8)
+        if string == None:
+            return None
+        (longlongval, ) = struct.unpack('=Q', string)
+        return longlongval
 
     def is_valid_address(self, addr):
         if addr == None:
@@ -419,7 +423,7 @@ class IA32PagedMemoryPae:
        
         pdpi_base = self.get_pdptb(self.pgd_vaddr)
 
-        for i in range(0,ptrs_per_pdpi): 
+        for i in range(0, ptrs_per_pdpi): 
 
             start = (i * ptrs_per_pae_pgd * ptrs_per_pae_pgd * ptrs_per_pae_pte * 8)
             pdpi_entry  = pdpi_base + i * entry_size        
@@ -430,15 +434,15 @@ class IA32PagedMemoryPae:
           
             pgd_curr = self.pdba_base(pdpe)          
                   
-            for j in range(0,ptrs_per_pae_pgd):
-              soffset = start + (j * ptrs_per_pae_pgd * ptrs_per_pae_pte * 8)
-              entry = self.read_long_long_phys(pgd_curr)
-              pgd_curr = pgd_curr + 8
-              if self.entry_present(entry) and self.page_size_flag(entry):
-                  page_list.append([soffset, 0x200000])
-              elif self.entry_present(entry):
-                  pte_curr = entry & ~((1 << page_shift)-1)                
-                  for k in range(0,ptrs_per_pae_pte):
+            for j in range(0, ptrs_per_pae_pgd):
+                soffset = start + (j * ptrs_per_pae_pgd * ptrs_per_pae_pte * 8)
+                entry = self.read_long_long_phys(pgd_curr)
+                pgd_curr = pgd_curr + 8
+                if self.entry_present(entry) and self.page_size_flag(entry):
+                    page_list.append([soffset, 0x200000])
+                elif self.entry_present(entry):
+                    pte_curr = entry & ~((1 << page_shift)-1)                
+                    for k in range(0, ptrs_per_pae_pte):
                         pte_entry = self.read_long_long_phys(pte_curr)
                         pte_curr = pte_curr + 8
                         if self.entry_present(pte_entry):

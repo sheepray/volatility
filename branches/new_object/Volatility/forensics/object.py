@@ -20,6 +20,8 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA 
 #
 
+#pylint: disable-msg=C0111
+
 """
 @author:       AAron Walters
 @license:      GNU General Public License 2.0 or later
@@ -82,7 +84,7 @@ def read_value(addr_space, value_type, vaddr):
 def read_unicode_string(addr_space, types, member_list, vaddr):
     offset = 0
     if len(member_list) > 1:
-        (offset, current_type) = get_obj_offset(types, member_list)
+        (offset, _current_type) = get_obj_offset(types, member_list)
 
 
     buf    = read_obj(addr_space, types, ['_UNICODE_STRING', 'Buffer'], vaddr + offset)
@@ -123,7 +125,7 @@ def read_unicode_string_p(phys_addr_space, virt_addr_space, types, member_list, 
 
     offset = 0
     if len(member_list) > 1:
-        (offset, current_type) = get_obj_offset(types, member_list)
+        (offset, _current_type) = get_obj_offset(types, member_list)
 
     # read string length and buffer pointer into virtual address space
     buf    = read_obj(phys_addr_space, types, ['_UNICODE_STRING', 'Buffer'], phys_addr + offset)
@@ -138,7 +140,7 @@ def read_unicode_string_p(phys_addr_space, virt_addr_space, types, member_list, 
         return None
     
     try:
-        readBuf = readBuf.decode('UTF-16').encode('ascii','backslashreplace')
+        readBuf = readBuf.decode('UTF-16').encode('ascii', 'backslashreplace')
     except:
         return None
     
@@ -148,7 +150,7 @@ def read_unicode_string_p(phys_addr_space, virt_addr_space, types, member_list, 
 def read_string(addr_space, types, member_list, vaddr, max_length=256):
     offset = 0
     if len(member_list) > 1:
-        (offset, current_type) = get_obj_offset(types, member_list)
+        (offset, _current_type) = get_obj_offset(types, member_list)
 
     val = addr_space.read(vaddr + offset, max_length)
 
@@ -166,7 +168,7 @@ def read_null_string(addr_space, types, member_list, vaddr, max_length=256):
 
     if (string.find('\0') == -1):
         return string
-    (string, none) = string.split('\0', 1)
+    (string, _none) = string.split('\0', 1)
     return string
         
 def get_obj_offset(types, in_member_list):
@@ -179,6 +181,9 @@ def get_obj_offset(types, in_member_list):
     current_type = member_list.pop()
 
     offset = 0
+
+    current_member = None
+    member_dict = None
 
     while (len(member_list) > 0):
         if current_type == 'array':
@@ -221,6 +226,6 @@ def read_obj(addr_space, types, member_list, vaddr):
     return read_value(addr_space, current_type, vaddr + offset)
 
 
-def read_obj_from_buf(data,types,member_list,doffset):
+def read_obj_from_buf(data, types, member_list, doffset):
     addr_space = BufferAddressSpace(data)
     return read_obj(addr_space, types, member_list, doffset)

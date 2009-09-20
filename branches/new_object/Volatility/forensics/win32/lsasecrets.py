@@ -17,17 +17,20 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA 
 #
 
+#pylint: disable-msg=C0111
+
 """
 @author:       Brendan Dolan-Gavitt
 @license:      GNU General Public License 2.0 or later
 @contact:      bdolangavitt@wesleyan.edu
 """
 
-from forensics.win32.rawreg import *
-from forensics.win32.hive2 import HiveAddressSpace,HiveFileAddressSpace
-from forensics.win32.hashdump import get_bootkey,str_to_key
+from struct import unpack
+from forensics.win32.rawreg import get_root, open_key, subkeys
+from forensics.win32.hive2 import HiveAddressSpace, HiveFileAddressSpace
+from forensics.win32.hashdump import get_bootkey, str_to_key
 from Crypto.Hash import MD5
-from Crypto.Cipher import ARC4,DES
+from Crypto.Cipher import ARC4, DES
 
 def get_lsa_key(secaddr, bootkey, profile):
     root = get_root(secaddr, profile)
@@ -49,7 +52,7 @@ def get_lsa_key(secaddr, bootkey, profile):
 
     md5 = MD5.new()
     md5.update(bootkey)
-    for i in range(1000):
+    for _i in range(1000):
         md5.update(obf_lsa_key[60:76])
     rc4key = md5.digest()
 
@@ -65,7 +68,7 @@ def decrypt_secret(secret, key):
     Note that key can be longer than 7 bytes."""
     decrypted_data = ''
     j = 0   # key index
-    for i in range(0,len(secret),8):
+    for i in range(0, len(secret), 8):
         enc_block = secret[i:i+8]
         block_key = key[j:j+7]
         des_key = str_to_key(block_key)

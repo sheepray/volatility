@@ -39,6 +39,8 @@ The progressbar module is very easy to use, yet very powerful. And
 automatically supports features like auto-resizing when available.
 """
 
+#pylint: disable-msg=C0111
+
 __author__ = "Nilton Volpato"
 __author_email__ = "first-name dot last-name @ gmail.com"
 __date__ = "2006-05-07"
@@ -119,13 +121,14 @@ class FileTransferSpeed(ProgressBarWidget):
     "Widget for showing the transfer speed (useful for file transfers)."
     def __init__(self):
         self.fmt = '%6.2f %s'
-        self.units = ['B','K','M','G','T','P']
+        self.units = ['B', 'K', 'M', 'G', 'T', 'P']
     def update(self, pbar):
         if pbar.seconds_elapsed < 2e-6:#== 0:
             bps = 0.0
         else:
             bps = float(pbar.currval) / pbar.seconds_elapsed
         spd = bps
+        u = ""
         for u in self.units:
             if spd < 1000:
                 break
@@ -158,14 +161,14 @@ class Bar(ProgressBarWidgetHFill):
         if isinstance(self.marker, (str, unicode)):
             return self.marker
         else:
-            return self.marker.update(pbar)
+            return self.marker.update(pbar) #pylint: disable-msg=E1103
     def update(self, pbar, width):
         percent = pbar.percentage()
         cwidth = width - len(self.left) - len(self.right)
         marked_width = int(percent * cwidth / 100)
         m = self._format_marker(pbar)
-        bar = (self.left + (m*marked_width).ljust(cwidth) + self.right)
-        return bar
+        nbar = (self.left + (m*marked_width).ljust(cwidth) + self.right)
+        return nbar
 
 class ReverseBar(Bar):
     "The reverse bar of progress, or bar of regress. :)"
@@ -174,8 +177,8 @@ class ReverseBar(Bar):
         cwidth = width - len(self.left) - len(self.right)
         marked_width = int(percent * cwidth / 100)
         m = self._format_marker(pbar)
-        bar = (self.left + (m*marked_width).rjust(cwidth) + self.right)
-        return bar
+        nbar = (self.left + (m*marked_width).rjust(cwidth) + self.right)
+        return nbar
 
 default_widgets = [Percentage(), ' ', Bar()]
 class ProgressBar(object):
@@ -217,7 +220,7 @@ class ProgressBar(object):
         self.signal_set = False
         if term_width is None:
             try:
-                self.handle_resize(None,None)
+                self.handle_resize(None, None)
                 signal.signal(signal.SIGWINCH, self.handle_resize)
                 self.signal_set = True
             except:
@@ -231,8 +234,8 @@ class ProgressBar(object):
         self.start_time = None
         self.seconds_elapsed = 0
 
-    def handle_resize(self, signum, frame):
-        h,w=array('h', ioctl(self.fd,termios.TIOCGWINSZ,'\0'*8))[:2]
+    def handle_resize(self, _signum, _frame):
+        _h, w = array('h', ioctl(self.fd, termios.TIOCGWINSZ, '\0'*8))[:2]
         self.term_width = w
 
     def percentage(self):
@@ -307,8 +310,7 @@ class ProgressBar(object):
 
 
 
-if __name__=='__main__':
-    import os
+if __name__ == '__main__':
 
     def example1():
         widgets = ['Test: ', Percentage(), ' ', Bar(marker=RotatingMarker()),
@@ -325,11 +327,11 @@ if __name__=='__main__':
             "It's bigger between 45 and 80 percent"
             def update(self, pbar):
                 if 45 < pbar.percentage() < 80:
-                    return 'Bigger Now ' + FileTransferSpeed.update(self,pbar)
+                    return 'Bigger Now ' + FileTransferSpeed.update(self, pbar)
                 else:
-                    return FileTransferSpeed.update(self,pbar)
+                    return FileTransferSpeed.update(self, pbar)
 
-        widgets = [CrazyFileTransferSpeed(),' <<<', Bar(), '>>> ', Percentage(),' ', ETA()]
+        widgets = [CrazyFileTransferSpeed(), ' <<<', Bar(), '>>> ', Percentage(), ' ', ETA()]
         pbar = ProgressBar(widgets=widgets, maxval=10000000)
         # maybe do something
         pbar.start()
@@ -354,7 +356,7 @@ if __name__=='__main__':
                    ' ', ETA(), ' ', FileTransferSpeed()]
         pbar = ProgressBar(widgets=widgets, maxval=500)
         pbar.start()
-        for i in range(100,500+1,50):
+        for i in range(100, 500+1, 50):
             time.sleep(0.2)
             pbar.update(i)
         pbar.finish()

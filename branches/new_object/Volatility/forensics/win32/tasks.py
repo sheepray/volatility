@@ -26,15 +26,15 @@
 @organization: Volatile Systems
 """
 
-from forensics.object import *
+#pylint: disable-msg=C0111
+
+from forensics.object import read_obj, read_unicode_string, get_obj_offset, read_null_string
 from forensics.object2 import NewObject
-from forensics.win32.datetime import *
-#from forensics.win32.info import *
+from forensics.win32.datetime import read_time, windows_to_unix_time
 from forensics.win32.info import find_psactiveprocesshead, kpcr_addr
-import os
 from struct import unpack
 
-from forensics.addrspace import *
+from forensics.addrspace import FileAddressSpace
 
 def pslist(addr_space, profile):
     """ A Generator for _EPROCESS objects (uses _KPCR symbols) """
@@ -67,10 +67,10 @@ def process_list(addr_space, types, symbol_table=None):
     """
     plist = []
     
-    PsActiveProcessHead = find_psactiveprocesshead(addr_space,types)
+    PsActiveProcessHead = find_psactiveprocesshead(addr_space, types)
 
     if not PsActiveProcessHead is None:
-        (offset, tmp)  = get_obj_offset(types, ['_EPROCESS', 'ActiveProcessLinks'])
+        (offset, _tmp)  = get_obj_offset(types, ['_EPROCESS', 'ActiveProcessLinks'])
 
         first_process = PsActiveProcessHead - offset
 
@@ -83,7 +83,7 @@ def process_list(addr_space, types, symbol_table=None):
         this_process = current - offset
         
         while current != PsActiveProcessHead:
-            Type =  read_obj(addr_space, types, ['_EPROCESS', 'Pcb', 'Header','Type'], this_process)
+            Type =  read_obj(addr_space, types, ['_EPROCESS', 'Pcb', 'Header', 'Type'], this_process)
 
             if not Type == 0x03:
                 break
@@ -125,9 +125,9 @@ def find_dtb(addr_space, types):
     """
    
     try:
-        flat_address_space = FileAddressSpace(addr_space.name,fast=True)
+        flat_address_space = FileAddressSpace(addr_space.name, fast=True)
     except:
-        print "Unable to open image file %s" %filename
+        print "Unable to open image file %s" % addr_space.name
         return None
 
     offset = 0
@@ -140,14 +140,14 @@ def find_dtb(addr_space, types):
         while 1:
             found = data.find("\x03\x00\x1b\x00", found+1)
             if found >= 0:
-                (type,size) = unpack('=HH',data[found:found+4])
-                if process_imagename(addr_space,types,offset+found).find('Idle') != -1:
+                (type, size) = unpack('=HH', data[found:found+4])
+                if process_imagename(addr_space, types, offset+found).find('Idle') != -1:
                     return process_dtb(addr_space, types, offset+found)
 
             else:
                 break
             
-        offset+=len(data)
+        offset += len(data)
 
     return None
 
@@ -194,13 +194,14 @@ def process_handle_count(addr_space, types, task_vaddr):
         try:
             handle_count = read_obj(addr_space, types,
                                     ['_HANDLE_TABLE', 'HandleCount'], object_table)
-        except: return None
+        except:
+            return None
 
     return handle_count
 
 
 def process_create_time(addr_space, types, task_vaddr):
-    (create_time_offset, tmp) = get_obj_offset(types, ['_EPROCESS', 'CreateTime'])    
+    (create_time_offset, _tmp) = get_obj_offset(types, ['_EPROCESS', 'CreateTime'])    
     create_time     = read_time(addr_space, types, task_vaddr + create_time_offset)
 
     if create_time is None:
@@ -210,14 +211,14 @@ def process_create_time(addr_space, types, task_vaddr):
     return create_time
 
 def process_exit_time(addr_space, types, task_vaddr):
-    (exit_time_offset, tmp) = get_obj_offset(types, ['_EPROCESS', 'ExitTime'])    
+    (exit_time_offset, _tmp) = get_obj_offset(types, ['_EPROCESS', 'ExitTime'])    
     exit_time     = read_time(addr_space, types, task_vaddr + exit_time_offset)
     if exit_time is None:
         return None
     exit_time     = windows_to_unix_time(exit_time)
     return exit_time
 
-def process_addr_space(kaddr_space, types, task_vaddr, fname=None):
+def process_addr_space(kaddr_space, types, task_vaddr, _fname=None):
     directory_table_base =  read_obj(kaddr_space, types,
                                      ['_EPROCESS', 'Pcb', 'DirectoryTableBase', 0], task_vaddr)
 
@@ -311,7 +312,7 @@ def process_ldrs(process_address_space, types, peb_vaddr):
         if not process_address_space.is_valid_address(next_module):
             print "ModuleList Truncated, unable to read module at 0x%x\n" % (next_module)
             return module_list
-        prev_module = this_module
+        _prev_module = this_module
         this_module = next_module
         next_module = read_obj(process_address_space, types,
                          ['_LDR_DATA_TABLE_ENTRY', 'InLoadOrderLinks', 'Flink'],
@@ -345,10 +346,10 @@ def find_csdversion(addr_space, types):
 
         CSDVersion = peb_csdversion(process_address_space, types, peb)
         if CSDVersion in CSDVersionDict:
-            CSDVersionDict[CSDVersion] +=1
+            CSDVersionDict[CSDVersion] += 1
         else:
             CSDVersionDict[CSDVersion] = 1
 
-    MaxCSDVersion = max([ (CSDVersionDict[x],x) for x in CSDVersionDict])[1]
+    MaxCSDVersion = max([ (CSDVersionDict[x], x) for x in CSDVersionDict])[1]
 
     return MaxCSDVersion

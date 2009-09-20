@@ -17,35 +17,36 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA 
 #
 
+#pylint: disable-msg=C0111
+
 """
 @author:       Brendan Dolan-Gavitt
 @license:      GNU General Public License 2.0 or later
 @contact:      bdolangavitt@wesleyan.edu
 """
 
-from forensics.object import *
-from forensics.win32.scan2 import *
-from forensics.win32.info import *
-from forensics.win32.datetime import windows_to_unix_time
-from forensics.addrspace import FileAddressSpace
-from time import ctime
-import os.path
+# from forensics.object import *
+from forensics.object import read_obj, read_unicode_string, get_obj_offset, read_obj_from_buf
+from forensics.object2 import NewObject
+from forensics.win32.scan2 import GenMemScanObject, PoolScanner, meta_info
+import struct
 
-FILTER=''.join([(len(repr(chr(x)))==3) and chr(x) or '.' for x in range(256)])
+FILTER = ''.join([(len(repr(chr(x))) == 3) and chr(x) or '.' for x in range(256)])
 
 def dump(src, length=8):
-    N=0; result=''
+    N = 0
+    result = ''
     while src:
-       s,src = src[:length],src[length:]
-       hexa = ' '.join(["%02X"%ord(x) for x in s])
-       s = s.translate(FILTER)
-       result += "%04X   %-*s   %s\n" % (N, length*3, hexa, s)
-       N+=length
+        s, src = src[:length], src[length:]
+        hexa = ' '.join(["%02X" % ord(x) for x in s])
+        s = s.translate(FILTER)
+        result += "%04X   %-*s   %s\n" % (N, length*3, hexa, s)
+        N += length
     return result
 
 class PoolScanHiveFast2(GenMemScanObject):
     """ Scan for _CMHIVE objects """
-    def __init__(self,addr_space):
+    def __init__(self, addr_space):
         GenMemScanObject.__init__(self, addr_space)
         self.pool_tag = "CM10"
         self.pool_size = 0x4a8
@@ -59,8 +60,8 @@ class PoolScanHiveFast2(GenMemScanObject):
             self.add_constraint(self.check_hive_sig)
 
         def check_pagedpooltype(self, buff, found):
-            data_types = meta_info.DataTypes
-            pool_hdr_val = read_obj_from_buf(buff,self.data_types, \
+            _data_types = meta_info.DataTypes
+            pool_hdr_val = read_obj_from_buf(buff, self.data_types, \
                 ['_POOL_HEADER', 'Ulong1'],found-4)
             if pool_hdr_val == None:
                 return False           
@@ -81,9 +82,9 @@ class PoolScanHiveFast2(GenMemScanObject):
             else:
                 return True
 
-        def object_action(self,buff,object_offset):
-            address = self.as_offset+object_offset
-            print "%-15d %#-15x" % (address,address)
+        def object_action(self, buff, object_offset):
+            address = self.as_offset + object_offset
+            print "%-15d %#-15x" % (address, address)
 
 CI_TYPE_MASK   = 0x80000000
 CI_TYPE_SHIFT  = 0x1F
@@ -166,7 +167,7 @@ class HiveAddressSpace:
                 stuff_read = "\0" * first_block
 
         new_vaddr = vaddr + first_block
-        for i in range(0,full_blocks):
+        for _i in range(0, full_blocks):
             paddr = self.vtop(new_vaddr)
             if paddr == None and zero:
                 stuff_read = stuff_read + "\0" * BLOCK_SIZE
@@ -296,7 +297,7 @@ class HiveFileAddressSpace:
                 stuff_read = "\0" * first_block
 
         new_vaddr = vaddr + first_block
-        for i in range(0,full_blocks):
+        for _i in range(0, full_blocks):
             paddr = self.vtop(new_vaddr)
             if paddr == None and zero:
                 stuff_read = stuff_read + "\0" * BLOCK_SIZE
@@ -329,7 +330,8 @@ class HiveFileAddressSpace:
 
     def is_valid_address(self, vaddr):
         paddr = self.vtop(vaddr)
-        if not paddr: return False
+        if not paddr:
+            return False
         return self.base.is_valid_address(paddr)
 
 def hive_list(flat_address_space, process_address_space, types, start):
@@ -364,7 +366,8 @@ def hive_list(flat_address_space, process_address_space, types, start):
 def hive_fname(addr_space, types, addr):
     """Read the hive file name from its File Object"""
     fobjaddr = read_obj(addr_space, types, ['_CMHIVE', 'FileObject'], addr)
-    if fobjaddr: fname = read_unicode_string(addr_space, types, ['_FILE_OBJECT', 'FileName'], fobjaddr)
+    if fobjaddr:
+        fname = read_unicode_string(addr_space, types, ['_FILE_OBJECT', 'FileName'], fobjaddr)
     else: fname = ''
     return fname
 
@@ -384,5 +387,6 @@ def find_first_hive(flat_address_space):
     sig = "CM10\xe0\xbe\xe0\xbe"
     i = 0
     while flat_address_space.is_valid_address(i):
-        if flat_address_space.read(i,len(sig)) == sig: return i+4
+        if flat_address_space.read(i, len(sig)) == sig:
+            return i+4
         i += 4

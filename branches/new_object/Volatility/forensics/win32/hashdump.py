@@ -17,17 +17,19 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA 
 #
 
+#pylint: disable-msg=C0111
+
 """
 @author:       Brendan Dolan-Gavitt
 @license:      GNU General Public License 2.0 or later
 @contact:      bdolangavitt@wesleyan.edu
 """
 
-from forensics.win32.rawreg import *
-from forensics.win32.hive2 import HiveAddressSpace,HiveFileAddressSpace
-from Crypto.Hash import MD5,MD4
-from Crypto.Cipher import ARC4,DES
-from struct import unpack,pack
+from forensics.win32.rawreg import get_root, open_key, values, subkeys
+from forensics.win32.hive2 import HiveAddressSpace, HiveFileAddressSpace
+from Crypto.Hash import MD5, MD4
+from Crypto.Cipher import ARC4, DES
+from struct import unpack, pack
 
 odd_parity = [
   1, 1, 2, 2, 4, 4, 7, 7, 8, 8, 11, 11, 13, 13, 14, 14,
@@ -83,13 +85,13 @@ def sid_to_key(sid):
     s1 += chr((sid>>8) & 0xFF)
     s1 += chr((sid>>16) & 0xFF)
     s1 += chr((sid>>24) & 0xFF)
-    s1 += s1[0];
-    s1 += s1[1];
-    s1 += s1[2];
+    s1 += s1[0]
+    s1 += s1[1]
+    s1 += s1[2]
     s2 = s1[3] + s1[0] + s1[1] + s1[2]
     s2 += s2[0] + s2[1] + s2[2]
 
-    return str_to_key(s1),str_to_key(s2)
+    return str_to_key(s1), str_to_key(s2)
 
 def hash_lm(pw):
     pw = pw[:14].upper()
@@ -111,18 +113,21 @@ def find_control_set(sysaddr, profile):
         return 1
 
     for v in values(csselect):
-        if v.Name == "Current": return v.Data
+        if v.Name == "Current":
+            return v.Data
 
 def get_bootkey(sysaddr, profile):
-    cs = find_control_set(sysaddr,profile)
+    cs = find_control_set(sysaddr, profile)
     lsa_base = ["ControlSet%03d" % cs, "Control", "Lsa"]
-    lsa_keys = ["JD","Skew1","GBG","Data"]
+    lsa_keys = ["JD", "Skew1", "GBG", "Data"]
 
     root = get_root(sysaddr, profile)
-    if not root: return None
+    if not root:
+        return None
 
     lsa = open_key(root, lsa_base)
-    if not lsa: return None
+    if not lsa:
+        return None
 
     bootkey = ""
     
@@ -141,16 +146,19 @@ def get_hbootkey(samaddr, bootkey, profile):
     sam_account_path = ["SAM", "Domains", "Account"]
 
     root = get_root(samaddr, profile)
-    if not root: return None
+    if not root:
+        return None
 
     sam_account_key = open_key(root, sam_account_path)
-    if not sam_account_key: return None
+    if not sam_account_key:
+        return None
 
     F = None
     for v in values(sam_account_key):
         if v.Name == 'F':
             F = samaddr.read(v.Data, v.DataLength)
-    if not F: return None
+    if not F:
+        return None
 
     md5 = MD5.new()
     md5.update(F[0x70:0x80] + aqwerty + bootkey + anum)
@@ -165,20 +173,22 @@ def get_user_keys(samaddr, profile):
     user_key_path = ["SAM", "Domains", "Account", "Users"]
 
     root = get_root(samaddr, profile)
-    if not root: return None
+    if not root:
+        return None
 
     user_key = open_key(root, user_key_path)
-    if not user_key: return None
+    if not user_key:
+        return None
 
     return [k for k in subkeys(user_key) if k.Name != "Names"]
 
 def decrypt_single_hash(rid, hbootkey, enc_hash, lmntstr):
-    (des_k1,des_k2) = sid_to_key(rid)
+    (des_k1, des_k2) = sid_to_key(rid)
     d1 = DES.new(des_k1, DES.MODE_ECB)
     d2 = DES.new(des_k2, DES.MODE_ECB)
 
     md5 = MD5.new()
-    md5.update(hbootkey[:0x10] + pack("<L",rid) + lmntstr)
+    md5.update(hbootkey[:0x10] + pack("<L", rid) + lmntstr)
     rc4_key = md5.digest()
     rc4 = ARC4.new(rc4_key)
     obfkey = rc4.encrypt(enc_hash)
@@ -199,17 +209,17 @@ def decrypt_hashes(rid, enc_lm_hash, enc_nt_hash, hbootkey):
     else:
         nthash = ""
 
-    return lmhash,nthash
+    return lmhash, nthash
 
 def encrypt_single_hash(rid, hbootkey, hash, lmntstr):
-    (des_k1,des_k2) = sid_to_key(rid)
+    (des_k1, des_k2) = sid_to_key(rid)
     d1 = DES.new(des_k1, DES.MODE_ECB)
     d2 = DES.new(des_k2, DES.MODE_ECB)
 
     enc_hash = d1.encrypt(hash[:8]) + d2.encrypt(hash[8:])
 
     md5 = MD5.new()
-    md5.update(hbootkey[:0x10] + pack("<L",rid) + lmntstr)
+    md5.update(hbootkey[:0x10] + pack("<L", rid) + lmntstr)
     rc4_key = md5.digest()
     rc4 = ARC4.new(rc4_key)
     obfkey = rc4.encrypt(enc_hash)
@@ -229,7 +239,7 @@ def encrypt_hashes(rid, lm_hash, nt_hash, hbootkey):
     else:
         enc_nthash = ""
 
-    return enc_lmhash,enc_nthash
+    return enc_lmhash, enc_nthash
 
 def get_user_hashes(user_key, hbootkey):
     samaddr = user_key.vm
@@ -238,7 +248,8 @@ def get_user_hashes(user_key, hbootkey):
     for v in values(user_key):
         if v.Name == 'V':
             V = samaddr.read(v.Data, v.DataLength)
-    if not V: return None
+    if not V:
+        return None
 
     lm_offset = unpack("<L", V[0x9c:0xa0])[0] + 0xCC + 4
     lm_len = unpack("<L", V[0xa0:0xa4])[0] - 4
@@ -263,7 +274,8 @@ def get_user_name(user_key):
     for v in values(user_key):
         if v.Name == 'V':
             V = samaddr.read(v.Data, v.DataLength)
-    if not V: return None
+    if not V:
+        return None
 
     name_offset = unpack("<L", V[0x0c:0x10])[0] + 0xCC
     name_length = unpack("<L", V[0x10:0x14])[0]
@@ -277,7 +289,8 @@ def get_user_desc(user_key):
     for v in values(user_key):
         if v.Name == 'V':
             V = samaddr.read(v.Data, v.DataLength)
-    if not V: return None
+    if not V:
+        return None
     
     desc_offset = unpack("<L", V[0x24:0x28])[0] + 0xCC
     desc_length = unpack("<L", V[0x28:0x2c])[0]
@@ -286,14 +299,16 @@ def get_user_desc(user_key):
     return desc
 
 def dump_hashes(sysaddr, samaddr, profile):
-    bootkey = get_bootkey(sysaddr,profile)
-    hbootkey = get_hbootkey(samaddr,bootkey,profile)
+    bootkey = get_bootkey(sysaddr, profile)
+    hbootkey = get_hbootkey(samaddr, bootkey, profile)
 
     for user in get_user_keys(samaddr, profile):
-        lmhash,nthash = get_user_hashes(user,hbootkey)
-        if not lmhash: lmhash = empty_lm
-        if not nthash: nthash = empty_nt
-        print "%s:%d:%s:%s:::" % (get_user_name(user), int(user.Name,16),
+        lmhash, nthash = get_user_hashes(user, hbootkey)
+        if not lmhash:
+            lmhash = empty_lm
+        if not nthash:
+            nthash = empty_nt
+        print "%s:%d:%s:%s:::" % (get_user_name(user), int(user.Name, 16),
                             lmhash.encode('hex'), nthash.encode('hex'))
 
 def dump_memory_hashes(addr_space, types, syshive, samhive, profile):

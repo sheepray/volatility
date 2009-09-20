@@ -26,6 +26,8 @@
 @organization: Volatile Systems
 """
 
+#pylint: disable-msg=C0111
+
 #
 # Details about the techniques used in this file can be found in 
 # the following references:
@@ -35,40 +37,38 @@
 #              http://www.rootkit.com/newsread.php?newsid=153
 #
 
-from forensics.object import *
+from forensics.object import read_obj, read_value
 from forensics.win32.datetime import system_time
-
-from struct import unpack
 
 kpcr_addr =  0xffdff000
 KUSER_SHARED_DATA = 0xFFDF0000
 
 def info_mmpfndatabase64(addr_space, types, addr):
-   return read_obj(addr_space, types,
+    return read_obj(addr_space, types,
                    ['_KDDEBUGGER_DATA64', 'MmPfnDatabase'], addr)
 
 def info_psactiveprocesshead64(addr_space, types, debug_addr):
-   return read_obj(addr_space, types,
+    return read_obj(addr_space, types,
                    ['_KDDEBUGGER_DATA64', 'PsActiveProcessHead'], debug_addr)
 
 def info_psactiveprocesshead32(addr_space, types, debug_addr):
-   return read_obj(addr_space, types,
+    return read_obj(addr_space, types,
                    ['_KDDEBUGGER_DATA32', 'PsActiveProcessHead'], debug_addr)
 
 def info_psloadedmodulelist64(addr_space, types, addr):
-   return read_obj(addr_space, types,
+    return read_obj(addr_space, types,
                    ['_KDDEBUGGER_DATA64', 'PsLoadedModuleList'], addr)
 
 def info_psloadedmodulelist32(addr_space, types, debug_addr):
-   return read_obj(addr_space, types,
+    return read_obj(addr_space, types,
                    ['_KDDEBUGGER_DATA32', 'PsLoadedModuleList'], debug_addr)
 
 def info_kdversionblock(addr_space, types, addr):
-   return read_obj(addr_space, types,
+    return read_obj(addr_space, types,
                    ['_KPCR', 'KdVersionBlock'], addr)
 
-def info_debuggerdatalist(addr_space,types,addr):
-   return read_obj(addr_space, types,
+def info_debuggerdatalist(addr_space, types, addr):
+    return read_obj(addr_space, types,
                    ['_DBGKD_GET_VERSION64', 'DebuggerDataList'], addr)
 
 

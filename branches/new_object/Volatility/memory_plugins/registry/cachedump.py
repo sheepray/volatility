@@ -24,11 +24,13 @@
 @organization: Volatile Systems
 """
 
+#pylint: disable-msg=C0111
+
+from forensics.object2 import Profile
 from forensics.win32.regtypes import regtypes
-from forensics.win32.rawreg import get_root, open_key, subkeys, values, value_data
 from forensics.win32.domcachedump import dump_memory_hashes
-from forensics.object2 import *
-from vutils import *
+import forensics.commands
+from vutils import load_and_identify_image
 
 class cachedump(forensics.commands.command):
 
@@ -54,15 +56,14 @@ class cachedump(forensics.commands.command):
         return  "Dump (decrypted) domain hashes from the registry"
     
     def execute(self):
-	(addr_space, symtab, types) = load_and_identify_image(self.op,
-            self.opts)
+        (addr_space, _symtab, types) = load_and_identify_image(self.op, self.opts)
         
         # In general it's not recommended to update the global types on the fly,
         # but I'm special and I know what I'm doing ;)
         types.update(regtypes)
 
         if not self.opts.syshive or not self.opts.sechive:
-            op.error("Both SYSTEM and SECURITY offsets must be provided")
+            self.op.error("Both SYSTEM and SECURITY offsets must be provided")
         
         dump_memory_hashes(addr_space, types, self.opts.syshive, self.opts.sechive, Profile())
 

@@ -27,8 +27,9 @@
 @organization: Volatile Systems
 """
 
-from forensics.object2 import *
-from forensics.linked_list import list_do
+#pylint: disable-msg=C0111
+
+from forensics.object2 import NewObject
 
 def file_pathname(file, addr_space, theProfile):
 
@@ -43,16 +44,16 @@ def file_pathname(file, addr_space, theProfile):
 
     vfsmnt_addr = file.m('f_vfsmnt').v()
     if vfsmnt_addr == 0:
-       return None
+        return None
 
-    vfsmnt = Object('vfsmount', vfsmnt_addr, addr_space, \
+    vfsmnt = NewObject('vfsmount', vfsmnt_addr, addr_space, \
         None, theProfile)
        
 
     parent = dentry
     tmp_dentry = None
 
-    pathname =""
+    pathname = ""
 
     while tmp_dentry != parent and parent:
         tmp_pathname = pathname
@@ -60,18 +61,18 @@ def file_pathname(file, addr_space, theProfile):
 
         name_len = tmp_dentry.get_deep_member(['d_name', 'len']).v()
         name_name = tmp_dentry.get_deep_member(['d_name', 'name']).v()            
-        string = addr_space.read(name_name,name_len)
+        string = addr_space.read(name_name, name_len)
         if tmp_dentry != dentry:
-           if (name_len > 1 or (not string == "/")) and (not tmp_pathname[0:1] == "/"):
-               pathname = string + "/" + tmp_pathname
-           else:
-               pathname = string + tmp_pathname
+            if (name_len > 1 or (not string == "/")) and (not tmp_pathname[0:1] == "/"):
+                pathname = string + "/" + tmp_pathname
+            else:
+                pathname = string + tmp_pathname
         else:
-           pathname = string
+            pathname = string
 
         d_parent = tmp_dentry.m('d_parent').v()
 
-        parent = Object('dentry', d_parent, addr_space, \
+        parent = NewObject('dentry', d_parent, addr_space, \
             None, theProfile)
 
         if tmp_dentry == parent:

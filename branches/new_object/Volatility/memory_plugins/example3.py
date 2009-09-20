@@ -23,10 +23,13 @@
 @organization: Volatile Systems
 """
 
-from forensics.object2 import *
-from forensics.object import *
-from vutils import *
-from forensics.win32.tasks import *
+#pylint: disable-msg=C0111
+
+from forensics.object2 import NewObject, Profile 
+from vutils import load_and_identify_image, PrintWithDefaults
+from forensics.win32.tasks import process_list
+from time import gmtime, strftime
+import forensics.commands
 
 class pslist_ex_3(forensics.commands.command):
 
@@ -69,7 +72,7 @@ class pslist_ex_3(forensics.commands.command):
 	(addr_space, symtab, types) = load_and_identify_image(self.op, \
             self.opts)
 
-        all_tasks = process_list(addr_space,types,symtab)
+        all_tasks = process_list(addr_space, types, symtab)
 
         print "%-20s %-6s %-6s %-6s %-6s %-6s"% \
             ('Name','Pid','PPid','Thds','Hnds','Time')
@@ -78,7 +81,7 @@ class pslist_ex_3(forensics.commands.command):
             if not addr_space.is_valid_address(task):
                 continue
 
-            eprocess = Object('_EPROCESS', task, addr_space, None, theProfile)
+            eprocess = NewObject('_EPROCESS', task, addr_space, None, theProfile)
             image_file_name = eprocess.ImageFileName
             process_id = eprocess.UniqueProcessId.v()
             active_threads = eprocess.ActiveThreads
@@ -86,16 +89,15 @@ class pslist_ex_3(forensics.commands.command):
 
             if eprocess.ObjectTable.is_valid():
                 handle_count = eprocess.ObjectTable.HandleCount
-	    else:
-	        handle_count = None
+            else:
+                handle_count = None
 
             create_time = eprocess.CreateTime
  
             if not create_time is None:
-                create_time=strftime("%a %b %d %H:%M:%S %Y",\
-                    gmtime(create_time))     
+                create_time = strftime("%a %b %d %H:%M:%S %Y", gmtime(create_time))     
 
-            defaults = {0:"UNKNOWN",1:-1,2:-1,3:-1,4:-1,5:"UNKNOWN"}
+            defaults = {0:"UNKNOWN", 1:-1, 2:-1, 3:-1, 4:-1, 5:"UNKNOWN"}
 
             PrintWithDefaults("%-20s %-6d %-6d %-6d %-6d %-26s", \
                                                    (image_file_name,

@@ -24,27 +24,29 @@
 @organization: Volatile Systems
 """
 
-from forensics.win32.datetime import windows_to_unix_time
+#pylint: disable-msg=C0111
+
+# from forensics.win32.datetime import windows_to_unix_time
 from forensics.win32.hive2 import HiveAddressSpace
 from forensics.win32.rawreg import get_root, open_key, subkeys, values, value_data
-from forensics.object2 import *
-from vutils import *
-
-from time import ctime
+from forensics.object2 import Profile
+from vutils import load_and_identify_image
+import forensics.commands
 
 def vol(k):
     return bool(k.offset & 0x80000000)
 
-FILTER=''.join([(len(repr(chr(x)))==3) and chr(x) or '.' for x in range(256)])
+FILTER = ''.join([(len(repr(chr(x))) == 3) and chr(x) or '.' for x in range(256)])
 
 def hd(src, length=16):
-    N=0; result=''
+    N = 0
+    result = ''
     while src:
-        s,src = src[:length],src[length:]
-        hexa = ' '.join(["%02X"%ord(x) for x in s])
+        s, src = src[:length], src[length:]
+        hexa = ' '.join(["%02X" % ord(k) for k in s])
         s = s.translate(FILTER)
         result += "%04X   %-*s   %s\n" % (N, length*3, hexa, s)
-        N+=length
+        N += length
     return result
 
 class printkey(forensics.commands.command):
@@ -69,12 +71,11 @@ class printkey(forensics.commands.command):
         return  "Print a registry key, and its subkeys and values"
     
     def execute(self):
-	(addr_space, symtab, types) = load_and_identify_image(self.op,
-            self.opts)
+        (addr_space, _symtab, _types) = load_and_identify_image(self.op, self.opts)
 
         profile = Profile()
         if not self.opts.hive:
-            op.error("No hive offset provided!")
+            self.op.error("No hive offset provided!")
         
         if len(self.args) == 1 and '\\' in self.args[0]:
             self.args = self.args[0].split('\\')
@@ -96,6 +97,7 @@ class printkey(forensics.commands.command):
         print
         print "Values:"
         for v in values(key):
-            tp,dat = value_data(v)
-            if tp == 'REG_BINARY': dat = "\n" + hd(dat, length=16)
+            tp, dat = value_data(v)
+            if tp == 'REG_BINARY':
+                dat = "\n" + hd(dat, length=16)
             print "%-9s %-10s : %s %s" % (tp, v.Name, dat, "(Volatile)" if vol(v) else "(Stable)")

@@ -23,10 +23,11 @@
 @contact:      bdolangavitt@wesleyan.edu
 """
 
+#pylint: disable-msg=C0111
+
 from forensics.object2 import CType, NewObject, NativeType, Curry
-from forensics.object import *
 from vtypes import xpsp2types as types
-from forensics.win32.datetime import *
+from forensics.win32.datetime import windows_to_unix_time
 import vmodules
 
 class _UNICODE_STRING(CType):
@@ -40,10 +41,11 @@ class _UNICODE_STRING(CType):
     def v(self):
         try:
             length = self.Length.v()
-            if length > 1024: length=0
+            if length > 1024:
+                length=0
             data = self.vm.read(self.Buffer.v(), length)
             return data.decode("utf16","ignore").encode("ascii",'backslashreplace')
-        except Exception,e:
+        except Exception, e:
             return ''
 
     def __str__(self):
@@ -52,7 +54,8 @@ class _UNICODE_STRING(CType):
 class _LIST_ENTRY(CType):
     """ Adds iterators for _LIST_ENTRY types """
     def list_of_type(self, type, member, forward=True):
-        if not self.is_valid(): return
+        if not self.is_valid():
+            return
         
         ## Get the first element
         if forward:
@@ -60,7 +63,7 @@ class _LIST_ENTRY(CType):
         else:
             lst = self.Blink.dereference()
 
-        offset = self.profile.get_obj_offset(type ,member)
+        offset = self.profile.get_obj_offset(type, member)
 
         seen = set()
         seen.add(lst.offset)
@@ -78,7 +81,8 @@ class _LIST_ENTRY(CType):
             else:
                 lst = obj.m(member).Blink.dereference()
 
-            if not lst.is_valid() or lst.offset in seen: return
+            if not lst.is_valid() or lst.offset in seen:
+                return
             seen.add(lst.offset)
 
             yield obj
@@ -137,7 +141,7 @@ class _EPROCESS(CType):
         process_ad = self.get_process_address_space()
         if process_ad:
             offset =  self.m("Peb").v()
-            peb = NewObject("_PEB",offset, vm=process_ad, profile=self.profile,
+            peb = NewObject("_PEB", offset, vm=process_ad, profile=self.profile,
                             name = "Peb", parent=self)
 
             if peb.is_valid():
@@ -147,7 +151,7 @@ class _EPROCESS(CType):
         """ Gets a process address space for a task given in _EPROCESS """
         directory_table_base = self.Pcb.DirectoryTableBase[0].v()
         
-        process_as= self.vm.__class__(self.vm.base, dict(dtb = directory_table_base))
+        process_as = self.vm.__class__(self.vm.base, dict(dtb = directory_table_base))
         process_as.name = "Process"
 
         return process_as
@@ -162,7 +166,8 @@ class _EPROCESS(CType):
                             target = Curry(NewObject, "_HANDLE_TABLE_ENTRY"))
         for t in table:
             offset = t.dereference_as('unsigned int')
-            if not offset.is_valid(): break
+            if not offset.is_valid():
+                break
 
             if level > 0:
                 ## We need to go deeper:
@@ -171,16 +176,16 @@ class _EPROCESS(CType):
             else:
                 ## OK We got to the bottom table, we just resolve
                 ## objects here:
-                offset = int(offset) & ~0x00000007;
+                offset = int(offset) & ~0x00000007
                 obj = NewObject("_OBJECT_HEADER", offset, self.vm,
                                 parent=self, profile=self.profile)
                 try:
                     if obj.Type.Name.__str__()=='File':
-                        file = NewObject("_FILE_OBJECT", obj.Body.offset, self.vm,
+                        filevar = NewObject("_FILE_OBJECT", obj.Body.offset, self.vm,
                                          parent=self, profile=self.profile)
-                        yield file
+                        yield filevar
 
-                except Exception,e:
+                except Exception, e:
                     pass
         
     def handles(self):
@@ -208,10 +213,10 @@ import socket, struct
 
 class _TCPT_OBJECT(CType):
     def _RemoteIpAddress(self, attr):
-        return socket.inet_ntoa(struct.pack("<I",self.m(attr).v()))
+        return socket.inet_ntoa(struct.pack("<I", self.m(attr).v()))
     
     def _LocalIpAddress(self, attr):
-        return socket.inet_ntoa(struct.pack("<I",self.m(attr).v()))
+        return socket.inet_ntoa(struct.pack("<I", self.m(attr).v()))
 
     def _RemotePort(self, attr):
         return socket.ntohs(self.m(attr).v())

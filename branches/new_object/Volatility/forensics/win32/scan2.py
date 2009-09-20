@@ -24,6 +24,7 @@
 # Special thanks to Michael Cohen for ideas and comments!
 #
 
+#pylint: disable-msg=C0111
 
 """
 @author:       AAron Walters
@@ -32,15 +33,12 @@
 @organization: Volatile Systems.
 """
 
-import os
-from struct import unpack
-from forensics.object import *
-from forensics.win32.datetime import *
-from forensics.win32.info import *
-from forensics.win32.tasks import *
-from forensics.win32.network import *
-from forensics.win32.modules import *
-from forensics.x86 import *
+import struct
+from time import gmtime, strftime
+from forensics.object import read_obj_from_buf, read_string, obj_size, get_obj_offset
+from forensics.win32.datetime import read_time_buf
+from forensics.win32.tasks import BLOCKSIZE
+from forensics.win32.network import inet_ntoa, ntohs
 import forensics.win32.meta_info as meta_info
 
 
@@ -92,14 +90,14 @@ class GenMemScanObject:
     and destroyed at the end of the run.
     """
     ## Should this scanner be on by default?
-    default=False
+    default = False
 
     ## This is a list of scanner names which we depend on. Depending
     ## on a scanner will force it to be enabled whenever we are
     ## enabled.
     depends = []
     
-    def __init__(self,addr_space):
+    def __init__(self, addr_space):
         """ Factory constructor.
 
         @arg addr_space: An address space object for the address
@@ -136,21 +134,22 @@ class SlidingMemoryScanner(BaseMemoryScanner):
     #windowsize=8
 
     def __init__(self, poffset, outer, window_size=8):
-        BaseMemoryScanner.__init__(self, poffset,outer)
+        BaseMemoryScanner.__init__(self, poffset, outer)
         self.window = ''
-        self.offset=0
+        self.offset = 0
+        self.as_offset = 0
         self.outer = outer
         self.window_size = window_size
 
     def process(self, data, offset, metadata=None):
         buf = self.window + data
         self.as_offset = self.offset
-        self.process_buffer(buf,self.offset,metadata)
+        self.process_buffer(buf, self.offset, metadata)
         self.offset += len(buf)
         self.window = buf[-self.window_size:]
         self.offset -= len(self.window)
 
-    def process_buffer(self,buf,offset):
+    def process_buffer(self, buf, offset):
         """ This abstract method should implement the actual scanner.
   
         @arg buf: The chunk of data to be analyzed.
@@ -159,7 +158,7 @@ class SlidingMemoryScanner(BaseMemoryScanner):
 
         """
 
-def scan_addr_space(addr_space,scan_objects):
+def scan_addr_space(addr_space, scan_objects):
     """ Given an address space and a list of scan_objects, this
     function scans the address space using the scan_objects
 
@@ -168,30 +167,27 @@ def scan_addr_space(addr_space,scan_objects):
     the address space 
     """
 
-    # BUFFSIZE was chosen so that data would be aligned
-    # on 8 bytes.
-    #
     # CHUNKSIZE was chosen so that we will process
     # a 4KB page of memory at a time. This has a number of
     # advantages. One of which being the common page size on
     # IA32 machines.
     
-
-    BUFFSIZE = 1024 * 1024 * 10
     CHUNKSIZE = 0x1000
 
     objs = []
     for c in scan_objects:
         objs.append(c.Scan(addr_space, c))
 
-    if len(objs)==0: return
+    if len(objs) == 0:
+        return
 
     as_offset = 0
     while 1:
         try:
-            data = addr_space.zread(as_offset,BLOCKSIZE)
-            if not data: break
-        except IOError,e:
+            data = addr_space.zread(as_offset, BLOCKSIZE)
+            if not data:
+                break
+        except IOError, e:
             break
 
         poffset = 0
@@ -207,7 +203,7 @@ def scan_addr_space(addr_space,scan_objects):
 
             for o in objs:
                 if not o.ignore:
-                    interest+=1
+                    interest += 1
 
             if not interest:
                 break
@@ -215,14 +211,14 @@ def scan_addr_space(addr_space,scan_objects):
             for o in objs:
                 try:
                     if not o.ignore:
-                        interest+=1
-                        o.process(chunk,as_offset+poffset, metadata=metadata)
+                        interest += 1
+                        o.process(chunk, as_offset+poffset , metadata=metadata)
 
-                except Exception,e:
-                    print "Scanner (%s) on Offset %d Error: %s" %(o,as_offset,e)
+                except Exception, e:
+                    print "Scanner (%s) on Offset %d Error: %s" % (o, as_offset, e)
                     raise
      
-            poffset+=CHUNKSIZE
+            poffset += CHUNKSIZE
         
         # All the CHUNKS of data from this read have been
         # processed. At this point we call the finish method
@@ -232,9 +228,9 @@ def scan_addr_space(addr_space,scan_objects):
         for o in objs:
             try:
                 o.finish()
-            except Exception,e:
-                print "Scanner (%s) on Offset %d Error: %s" %(o,as_offset,e)
-        as_offset+=len(data)
+            except Exception, e:
+                print "Scanner (%s) on Offset %d Error: %s" % (o, as_offset, e)
+        as_offset += len(data)
 
     return objs
 
@@ -247,24 +243,27 @@ class PoolScanner(SlidingMemoryScanner):
         self.climit = None     
         self.matches = []
 
-    def format_time(self,time):
-        ts=strftime("%a %b %d %H:%M:%S %Y",gmtime(time))
+    def format_time(self, time):
+        try:
+            ts = strftime("%a %b %d %H:%M:%S %Y", gmtime(time))
+        except ValueError:
+            return "[invalid]"
         return ts
 
-    def set_limit(self,limit):
+    def set_limit(self, limit):
         self.climit = limit
 
     def get_limit(self):
         if self.climit == None:
-             return len(self.constraints)
+            return len(self.constraints)
         elif self.climit > len(self.constraints):
-             return len(self.constraints)
+            return len(self.constraints)
         else:
-             return self.climit
+            return self.climit
 
     def get_blocksize(self, buff, found):
-        pool_hdr_val = read_obj_from_buf(buff,self.data_types, \
-            ['_POOL_HEADER', 'Ulong1'],found-4)
+        pool_hdr_val = read_obj_from_buf(buff, self.data_types, \
+            ['_POOL_HEADER', 'Ulong1'], found-4)
         if pool_hdr_val == None:
             return None
 
@@ -272,8 +271,8 @@ class PoolScanner(SlidingMemoryScanner):
         
         return BlockSize
         
-    def get_poolsize(self, buff, free):
-        BlockSize = self.get_blocksize(buff, free)
+    def get_poolsize(self, buff, found):
+        BlockSize = self.get_blocksize(buff, found)
         
         if BlockSize == None:
             return None
@@ -315,7 +314,7 @@ class PoolScanner(SlidingMemoryScanner):
         return self.check_pooltype_nonpaged_or_free(buff, found)
         
     def check_pooltype_free(self, buff, found):
-        PoolType = self.get_pooltype(buff, free)
+        PoolType = self.get_pooltype(buff, found)
         
         if PoolType == 0:
             return True
@@ -323,7 +322,7 @@ class PoolScanner(SlidingMemoryScanner):
         return False
         
     def check_pooltype_nonfree(self, buff, found):
-        PoolType = self.get_pooltype(buff, free)
+        PoolType = self.get_pooltype(buff, found)
         
         if PoolType != 0:
             return True
@@ -364,7 +363,7 @@ class PoolScanner(SlidingMemoryScanner):
 
     def get_poolindex(self, buff, found):
         data_types = meta_info.DataTypes
-        pool_hdr_val = read_obj_from_buf(buff,self.data_types, \
+        pool_hdr_val = read_obj_from_buf(buff, self.data_types, \
             ['_POOL_HEADER', 'Ulong1'],found-4)
         if pool_hdr_val == None:
             return False   
@@ -393,50 +392,50 @@ class PoolScanner(SlidingMemoryScanner):
             
         return False
                 
-    def check_addr(self,buff,found):
-       cnt = 0
-       for func in self.constraints:
-           val = func(buff,found)
-           if val == True:
-              cnt = cnt+1
-       return cnt
+    def check_addr(self, buff, found):
+        cnt = 0
+        for func in self.constraints:
+            val = func(buff, found)
+            if val == True:
+                cnt = cnt+1
+        return cnt
 
-    def add_constraint(self,func):
+    def add_constraint(self, func):
         self.constraints.append(func)
 
-    def object_offset(self,found):
-        return (found - 4) + obj_size(self.data_types,'_POOL_HEADER')
+    def object_offset(self, found):
+        return (found - 4) + obj_size(self.data_types, '_POOL_HEADER')
        
-    def object_action(self,buff,found):
+    def object_action(self, buff, found):
         """ If constraints are met, perform this action.
         """
         pass
                      
-    def process_buffer(self,buff,poffset,metadata=None):
+    def process_buffer(self, buff, poffset, metadata=None):
 
-            found = 0
-            while 1:
-                found = buff.find(self.outer.pool_tag, found+1)
-                if found > 0:
+        found = 0
+        while 1:
+            found = buff.find(self.outer.pool_tag, found+1)
+            if found > 0:
 
-                     oaddr = self.object_offset(found)+self.as_offset
+                oaddr = self.object_offset(found)+self.as_offset
 
-                     if oaddr in self.matches:
-                         continue                           
+                if oaddr in self.matches:
+                    continue                           
 
-                     match_count = self.check_addr(buff,found)
-                    
-                     if match_count == self.get_limit():
-                         ooffset = self.object_offset(found)
-                         self.object_action(buff,ooffset)
-                         self.matches.append(oaddr)
-                                             
-                else:
-                    break
+                match_count = self.check_addr(buff, found)
+                
+                if match_count == self.get_limit():
+                    ooffset = self.object_offset(found)
+                    self.object_action(buff, ooffset)
+                    self.matches.append(oaddr)
+                                         
+            else:
+                break
 
 class PoolScanConnFast2(GenMemScanObject):
     """ Scan for pool objects """
-    def __init__(self,addr_space):
+    def __init__(self, addr_space):
         GenMemScanObject.__init__(self, addr_space)
         self.pool_tag = "\x54\x43\x50\x54" 
         self.pool_size = 0x198
@@ -448,7 +447,7 @@ class PoolScanConnFast2(GenMemScanObject):
             self.add_constraint(self.check_pooltype)
             self.add_constraint(self.check_poolindex)
 
-        def object_action(self,buff,object_offset):
+        def object_action(self, buff, object_offset):
             """
             In this instance, the object action is to print to
             stdout
@@ -459,21 +458,21 @@ class PoolScanConnFast2(GenMemScanObject):
 	        ['_TCPT_OBJECT', 'LocalPort'], object_offset))
             laddr = read_obj_from_buf(buff, self.data_types, \
 	        ['_TCPT_OBJECT', 'LocalIpAddress'], object_offset)
-            laddr = inet_ntoa(struct.pack('=L',laddr))
+            laddr = inet_ntoa(struct.pack('=L', laddr))
             rport = ntohs(read_obj_from_buf(buff, self.data_types, \
 	        ['_TCPT_OBJECT', 'RemotePort'], object_offset))
             raddr = read_obj_from_buf(buff, self.data_types, \
 	        ['_TCPT_OBJECT', 'RemoteIpAddress'], object_offset)
-            raddr = inet_ntoa(struct.pack('=L',raddr))
+            raddr = inet_ntoa(struct.pack('=L', raddr))
 
-            local = "%s:%d"%(laddr,lport)
-            remote = "%s:%d"%(raddr,rport)
+            local = "%s:%d" % (laddr, lport)
+            remote = "%s:%d" % (raddr, rport)
 
-            print "%-25s %-25s %-6d"%(local,remote,pid)
+            print "%-25s %-25s %-6d" % (local, remote, pid)
 
 class PoolScanSockFast2(GenMemScanObject):
     """ Scan for pool objects """
-    def __init__(self,addr_space):
+    def __init__(self, addr_space):
         GenMemScanObject.__init__(self, addr_space)
         self.pool_tag = "\x54\x43\x50\x41" 
         self.pool_size = 0x170
@@ -490,7 +489,7 @@ class PoolScanSockFast2(GenMemScanObject):
         def check_socket_create_time(self, buff, found):
             soffset = self.object_offset(found)
 
-            time = read_time_buf(buff,self.data_types,\
+            time = read_time_buf(buff, self.data_types,\
                 ['_ADDRESS_OBJECT', 'CreateTime'],soffset)
 
             if time == None:
@@ -500,7 +499,7 @@ class PoolScanSockFast2(GenMemScanObject):
                 return True
             return False
             
-        def object_action(self,buff,object_offset):
+        def object_action(self, buff, object_offset):
             """
             In this instance, the object action is to print to
             stdout
@@ -512,19 +511,19 @@ class PoolScanSockFast2(GenMemScanObject):
             port = ntohs(read_obj_from_buf(buff, self.data_types, \
                 ['_ADDRESS_OBJECT', 'LocalPort'], object_offset))
            
-            time = read_time_buf(buff,self.data_types,\
-                ['_ADDRESS_OBJECT', 'CreateTime'],object_offset)
+            time = read_time_buf(buff, self.data_types, \
+                ['_ADDRESS_OBJECT', 'CreateTime'], object_offset)
 
             ooffset = self.as_offset + object_offset
             try:
-                print "%-6d %-6d %-6d %-26s 0x%0.8x"%(pid,port,proto, \
-                    self.format_time(time),ooffset)
+                print "%-6d %-6d %-6d %-26s 0x%0.8x" % (pid, port, proto, \
+                    self.format_time(time), ooffset)
             except:
                 return
 
 class PoolScanModuleFast2(GenMemScanObject):
     """ Scan for pool objects """
-    def __init__(self,addr_space):
+    def __init__(self, addr_space):
         GenMemScanObject.__init__(self, addr_space)
         self.pool_tag = "\x4D\x6D\x4C\x64" 
         self.pool_size = 0x4c
@@ -575,7 +574,7 @@ class PoolScanModuleFast2(GenMemScanObject):
             return modulename
         
 
-        def object_action(self,buff,object_offset):
+        def object_action(self, buff, object_offset):
             """
             In this instance, the object action is to print to
             stdout
@@ -594,7 +593,7 @@ class PoolScanModuleFast2(GenMemScanObject):
 
 class PoolScanProcessFast2(GenMemScanObject):
     """ Scan for pool objects """
-    def __init__(self,addr_space):
+    def __init__(self, addr_space):
         GenMemScanObject.__init__(self, addr_space)
         self.pool_tag = "\x50\x72\x6F\xE3"
         self.pool_size = 0x280
@@ -629,9 +628,9 @@ class PoolScanProcessFast2(GenMemScanObject):
                 return False
             return True
 
-        def object_offset(self,found):
-            (offset, tmp) = get_obj_offset(self.data_types, ['_OBJECT_HEADER', 'Body'])
-            return (found - 4) + obj_size(self.data_types,'_POOL_HEADER') + offset
+        def object_offset(self, found):
+            (offset, _tmp) = get_obj_offset(self.data_types, ['_OBJECT_HEADER', 'Body'])
+            return (found - 4) + obj_size(self.data_types, '_POOL_HEADER') + offset
 
         def check_thread_list(self, buff, found):
             kernel = 0x80000000
@@ -651,7 +650,7 @@ class PoolScanProcessFast2(GenMemScanObject):
 
             return True
 
-        def object_action(self,buff,object_offset):
+        def object_action(self, buff, object_offset):
             """
             In this instance, the object action is to print to
             stdout
@@ -666,7 +665,7 @@ class PoolScanProcessFast2(GenMemScanObject):
             address = self.as_offset + object_offset
 
 
-            (file_name_offset, current_type) = get_obj_offset(self.data_types,\
+            (file_name_offset, _current_type) = get_obj_offset(self.data_types, \
                 ['_EPROCESS', 'ImageFileName'])
                      
             fnoffset = object_offset+file_name_offset
@@ -674,13 +673,13 @@ class PoolScanProcessFast2(GenMemScanObject):
             if (string.find('\0') == -1):
                 ImageFileName = string
             else:
-                (ImageFileName, none) = string.split('\0', 1)
+                (ImageFileName, _none) = string.split('\0', 1)
 
-            create_time = read_time_buf(buff,self.data_types,\
-                ['_EPROCESS', 'CreateTime'],object_offset)
+            create_time = read_time_buf(buff, self.data_types, \
+                ['_EPROCESS', 'CreateTime'], object_offset)
 
-            exit_time = read_time_buf(buff,self.data_types,\
-                ['_EPROCESS', 'ExitTime'],object_offset)
+            exit_time = read_time_buf(buff, self.data_types, \
+                ['_EPROCESS', 'ExitTime'], object_offset)
             
             if create_time == 0:
                 CreateTime = ""
@@ -700,10 +699,13 @@ class PoolScanProcessDot(PoolScanProcessFast2):
 
     class Scan(PoolScanProcessFast2.Scan):
         def format_time(self, time):
-            ts=strftime("%H:%M:%S\\n%Y-%m-%d",gmtime(time))
+            try:
+                ts = strftime("%H:%M:%S\\n%Y-%m-%d", gmtime(time))
+            except ValueError:
+                return "[invalid]"
             return ts
 
-        def object_action(self,buff,object_offset):
+        def object_action(self, buff, object_offset):
             """
             In this instance, the object action is to print to
             stdout
@@ -719,7 +721,7 @@ class PoolScanProcessDot(PoolScanProcessFast2):
             
             address = self.as_offset + object_offset
 
-            (file_name_offset, current_type) = get_obj_offset(self.data_types,\
+            (file_name_offset, current_type) = get_obj_offset(self.data_types, \
                 ['_EPROCESS', 'ImageFileName'])
                      
             fnoffset = object_offset+file_name_offset
@@ -727,19 +729,19 @@ class PoolScanProcessDot(PoolScanProcessFast2):
             if (string.find('\0') == -1):
                 ImageFileName = string
             else:
-                (ImageFileName, none) = string.split('\0', 1)
+                (ImageFileName, _none) = string.split('\0', 1)
 
-            create_time = read_time_buf(buff,self.data_types,\
-                ['_EPROCESS', 'CreateTime'],object_offset)
+            create_time = read_time_buf(buff, self.data_types, \
+                ['_EPROCESS', 'CreateTime'], object_offset)
 
-            exit_time = read_time_buf(buff,self.data_types,\
-                ['_EPROCESS', 'ExitTime'],object_offset)
+            exit_time = read_time_buf(buff, self.data_types, \
+                ['_EPROCESS', 'ExitTime'], object_offset)
 
             if create_time == 0:
                 CreateTime = ""
             else:
                 CreateTime = self.format_time(create_time)
-                CreateTime = " | started\\n%s"%CreateTime
+                CreateTime = " | started\\n%s" % CreateTime
 
             if exit_time == 0:
                 ExitTime = ""
@@ -747,15 +749,15 @@ class PoolScanProcessDot(PoolScanProcessFast2):
                 ExitTime = self.format_time(exit_time)
 
             if not ExitTime == "":
-                print "pid%u [label = \"{%u | file ofs\\n0x%x | %s%s | exited\\n%s\\n code %d}\" shape = \"record\" style = \"filled\" fillcolor = \"lightgray\"];"%(UniqueProcessId,UniqueProcessId,address, ImageFileName,CreateTime, ExitTime,ExitStatus)
+                print "pid%u [label = \"{%u | file ofs\\n0x%x | %s%s | exited\\n%s\\n code %d}\" shape = \"record\" style = \"filled\" fillcolor = \"lightgray\"];" % (UniqueProcessId, UniqueProcessId, address, ImageFileName, CreateTime, ExitTime, ExitStatus)
             else:
-                print "pid%u [label = \"{%u | file ofs\\n0x%x | %s%s | running}\" shape = \"record\"];"%(UniqueProcessId,UniqueProcessId,address,ImageFileName,CreateTime)
+                print "pid%u [label = \"{%u | file ofs\\n0x%x | %s%s | running}\" shape = \"record\"];" % (UniqueProcessId, UniqueProcessId, address, ImageFileName, CreateTime)
 
-            print "pid%u -> pid%u []"%(InheritedFromUniqueProcessId,UniqueProcessId)
+            print "pid%u -> pid%u []" % (InheritedFromUniqueProcessId, UniqueProcessId)
 
 class PoolScanThreadFast2(GenMemScanObject):
     """ Scan for pool objects """
-    def __init__(self,addr_space):
+    def __init__(self, addr_space):
         GenMemScanObject.__init__(self, addr_space)
         self.pool_tag = "\x54\x68\x72\xE5"
         self.pool_size = 0x278
@@ -829,11 +831,11 @@ class PoolScanThreadFast2(GenMemScanObject):
 
             return True
 
-        def object_offset(self,found):
-            (offset, tmp) = get_obj_offset(self.data_types, ['_OBJECT_HEADER', 'Body'])
-            return (found - 4) + obj_size(self.data_types,'_POOL_HEADER') + offset
+        def object_offset(self, found):
+            (offset, _tmp) = get_obj_offset(self.data_types, ['_OBJECT_HEADER', 'Body'])
+            return (found - 4) + obj_size(self.data_types, '_POOL_HEADER') + offset
 
-        def object_action(self,buff,object_offset):
+        def object_action(self, buff, object_offset):
             """
             In this instance, the object action is to print to
             stdout
@@ -846,4 +848,4 @@ class PoolScanThreadFast2(GenMemScanObject):
             
             address = self.as_offset + object_offset
 
-            print "%6d %6d 0x%0.8x"%(UniqueProcess, UniqueThread, address)
+            print "%6d %6d 0x%0.8x" % (UniqueProcess, UniqueThread, address)

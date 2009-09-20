@@ -1,22 +1,28 @@
-from vutils import *
-from vmodules import *
-from vtypes import *
+from vtypes import xpsp2types
+from forensics.win32.tasks import pslist
 from forensics.object2 import Profile
 import forensics.utils as utils
+import forensics.commands
+
+#pylint: disable-msg=C0111
 
 def add_new_type(structure, field, offset, type):
     xpsp2types[structure][1][field] = [offset, [type]]
 
 class pstree(forensics.commands.command):
     """Print process list as a tree"""
+    def __init__(self, args=None):
+        forensics.commands.command.__init__(self, args)
+        self.profile = None
+    
     def parser(self):
         forensics.commands.command.parser(self)
-        self.op.add_option('-v', '--verbose',action='store_true',
+        self.op.add_option('-v', '--verbose', action='store_true',
                            help='print more information')
 
     def execute(self):
         add_new_type('_RTL_USER_PROCESS_PARAMETERS', 'ImagePathName', 0x38, '_UNICODE_STRING')
-        add_new_type('_EPROCESS','SeAuditProcessCreationInfo',0x1f4,
+        add_new_type('_EPROCESS', 'SeAuditProcessCreationInfo', 0x1f4,
                      '_SE_AUDIT_PROCESS_CREATION_INFO')
 
         xpsp2types.update( {
@@ -63,7 +69,8 @@ class pstree(forensics.commands.command):
                                 ' '*pad, task_info['ImagePathName']))
                             outfd.write("%s    audit: %s\n" % (
                                 ' '*pad, task_info['Audit ImageFileName']) )
-                        except KeyError: pass
+                        except KeyError:
+                            pass
                         
                     draw_branch(pad + 1, task_info['process_id'])
                     del data[task]

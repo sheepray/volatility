@@ -17,12 +17,15 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA 
 #
 
+#pylint: disable-msg=C0111
+
 """
 @author:       Brendan Dolan-Gavitt
 @license:      GNU General Public License 2.0 or later
 @contact:      bdolangavitt@wesleyan.edu
 """
 
+from forensics.object import read_value
 from forensics.object2 import NewObject
 from struct import unpack
 
@@ -62,7 +65,7 @@ VALUE_TYPES = dict(enumerate([
 ]))
 VALUE_TYPES.setdefault("REG_UNKNOWN")
 
-def get_root(address_space,profile,stable=True):
+def get_root(address_space, profile, stable=True):
     if stable:
         return NewObject("_CM_KEY_NODE", ROOT_INDEX, address_space, profile=profile)
     else:
@@ -92,9 +95,11 @@ def read_sklist(sk):
         for i in range(sk.Count):
             # Read and dereference the pointer
             ptr_off = sk.get_member_offset('List')+(i*4)
-            if not self.vm.is_valid_address(ptr_off): continue
-            ssk_off = read_value(self.vm, "unsigned int", ptr_off)
-            if not self.vm.is_valid_address(ssk_off): continue
+            if not sk.vm.is_valid_address(ptr_off):
+                continue
+            ssk_off = read_value(sk.vm, "unsigned int", ptr_off)
+            if not sk.vm.is_valid_address(ssk_off):
+                continue
             
             ssk = NewObject("_CM_KEY_INDEX", ssk_off, sk.vm, profile=sk.profile)
             for i in read_sklist(ssk):
@@ -102,7 +107,8 @@ def read_sklist(sk):
         
 # Note: had to change SubKeyLists to be array of 2 pointers in vtypes.py
 def subkeys(key):
-    if not key.is_valid(): return
+    if not key.is_valid():
+        return
     if key.SubKeyCounts[0] > 0:
         sk_off = key.SubKeyLists[0]
         sk = NewObject("_CM_KEY_INDEX", sk_off, key.vm, profile=key.profile)
@@ -111,7 +117,7 @@ def subkeys(key):
         else:
             for i in read_sklist(sk):
                 if i.Signature.v() == NK_SIG:
-                        yield i
+                    yield i
             
     if key.SubKeyCounts[1] > 0:
         sk_off = key.SubKeyLists[1]
@@ -150,7 +156,7 @@ def value_data(val):
         valdata = unpack(">L", valdata)[0]
     elif valtype == "REG_QWORD":
         valdata = unpack("<Q", valdata)[0]
-    return (valtype,valdata)
+    return (valtype, valdata)
 
 def walk(root):
     yield root

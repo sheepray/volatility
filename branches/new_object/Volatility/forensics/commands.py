@@ -17,19 +17,19 @@
 #
 
 
-import optparse
-from vutils import *
+import sys
+from vutils import get_standard_parser 
 
 class command:
     """ Base class for each plugin command """
     op = ""
     opts = ""
     args = ""
-    cmdname =""
+    cmdname = ""
     # meta_info will be removed
     meta_info = {}
 
-    def __init__(self,args=None):
+    def __init__(self, args=None):
         """ Constructor uses args as an initializer. It creates an instance
         of OptionParser, populates the options, and finally parses the 
         command line. Options are stored in the self.opts attribute.
