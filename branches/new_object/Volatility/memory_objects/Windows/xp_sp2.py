@@ -115,13 +115,24 @@ class String(NativeType):
         return data.split("\x00")[0]
 
 class WinTimeStamp(NativeType):
-    def __init__(self, type, offset, vm=None,
+    def __init__(self, type=None, offset=None, vm=None, value=None,
                  parent=None, profile=None, name=None, **args):
-        NativeType.__init__(self, type, offset, vm, parent=parent, profile=profile,
-                            name=name, format_string="q")
+        ## This allows us to have a WinTimeStamp object with a
+        ## predetermined value
+        if value:
+            self.data = value
+        else:
+            NativeType.__init__(self, type, offset, vm, parent=parent, profile=profile,
+                                name=name, format_string="q")
 
     def v(self):
-        return windows_to_unix_time(NativeType.v(self))
+        try:
+            return self.data
+        except:
+            return windows_to_unix_time(NativeType.v(self))
+
+    def __sub__(self, x):
+        return WinTimeStamp(value = self.v() - x.v())
 
     def __str__(self):
         return vmodules.format_time(self.v())
@@ -146,6 +157,8 @@ class _EPROCESS(CType):
 
             if peb.is_valid():
                 return peb
+
+        return NoneObject("Peb not found")
             
     def get_process_address_space(self):
         """ Gets a process address space for a task given in _EPROCESS """
