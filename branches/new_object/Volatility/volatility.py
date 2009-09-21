@@ -39,10 +39,6 @@ import forensics.registry as MemoryRegistry
 from vmodules import *
 
 modules = {
-    'datetime':
-    VolatoolsModule('datetime',
-                    'Get date/time information for image',
-                    get_datetime),
     'pslist':
     VolatoolsModule('pslist',
                     'Print list of running processes',
@@ -71,10 +67,6 @@ modules = {
     VolatoolsModule('strings',
                     'Match physical offsets to virtual addresses (may take a while, VERY verbose)',
                     get_strings),
-    'ident':
-    VolatoolsModule('ident',
-                    'Identify image properties',
-                    get_image_info),
     'vadinfo':
             VolatoolsModule('vadinfo',
                     'Dump the VAD info',

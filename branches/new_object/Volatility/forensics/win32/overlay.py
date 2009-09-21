@@ -13,6 +13,11 @@ xpsp2overlays = {
     'UniqueProcessId' : [ None, ['unsigned int']], \
     }],
 
+    '_KUSER_SHARED_DATA' : [ None, { \
+    'SystemTime' : [ None, ['WinTimeStamp', {}]], \
+    'TimeZoneBias' : [ None, ['WinTimeStamp', {}]], \
+    }],
+
     '_ADDRESS_OBJECT' : [ None, { \
     'CreateTime' : [ None, ['WinTimeStamp', {}]], \
     }],

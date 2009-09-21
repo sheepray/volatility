@@ -68,41 +68,6 @@ class VolatoolsModule:
     def execute(self, module, args):
         self.cmd_execute(module, args)
 
-
-###################################
-#  identify
-###################################
-def get_image_info(cmdname, argv):
-    """
-    Function provides as many characteristics as can be identified for given image.
-    """
-    op = get_standard_parser(cmdname)
-    
-    opts, _args = op.parse_args(argv)
-
-    if not opts.base is None:
-        print "Ignoring option -b"
-        opts.base = None
-
-    if not opts.type is None:
-        print "Ignoring option -t"
-        opts.type = None
-
-    (addr_space, symtab, types) = load_and_identify_image(op, opts, True)
-
-    if not addr_space is None and not symtab is None:
-        KUSER_SHARED_DATA = 0xFFDF0000    
-
-        if not addr_space.is_valid_address(KUSER_SHARED_DATA):
-            print "%25s UNAVAILABLE" % ("Datetime:")
-            return
-    
-    
-        time = windows_to_unix_time(local_time(addr_space, types, KUSER_SHARED_DATA))
-        ts = format_time(time)
-
-        print "%25s %s"% ("Datetime:", ts)
-
 ###################################
 #  Datetime
 ###################################
@@ -110,26 +75,6 @@ def format_time(time):
     ts = strftime("%a %b %d %H:%M:%S %Y",
                 gmtime(time))
     return ts
-    
-def get_datetime(cmdname, argv):
-    """
-    Function prints a formatted string of the image local time.
-    """
-    op = get_standard_parser(cmdname)
-    opts, _args = op.parse_args(argv)
-
-    (addr_space, _symtab, types) = load_and_identify_image(op, opts)
-
-    KUSER_SHARED_DATA = 0xFFDF0000
-
-    if not addr_space.is_valid_address(KUSER_SHARED_DATA):
-        print "ERROR: KUSER_SHARED_DATA Invalid: Try a different Page Directory Base"
-        return
-    
-    time = windows_to_unix_time(local_time(addr_space, types, KUSER_SHARED_DATA))
-    ts = format_time(time)
-
-    print "Image local date and time: %s" % ts    
 
 ###################################
 #  modules list

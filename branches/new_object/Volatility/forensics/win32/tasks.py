@@ -52,7 +52,7 @@ def pslist(addr_space, profile):
                                                            ).PsActiveProcessHead
     
     if PsActiveProcessHead:
-        print type(PsActiveProcessHead)
+        # print type(PsActiveProcessHead)
     ## Try to iterate over the process list in PsActiveProcessHead
     ## (its really a pointer to a _LIST_ENTRY)
         for l in PsActiveProcessHead.dereference_as("_LIST_ENTRY").list_of_type(

@@ -51,7 +51,6 @@ def windows_to_unix_time(windows_time):
 
     return unix_time
 
-
 def read_time(addr_space, types, vaddr):
     low_time  = read_obj(addr_space, types,
                          ['_KSYSTEM_TIME', 'LowPart'], vaddr)
