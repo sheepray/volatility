@@ -22,7 +22,8 @@ class FileAddressSpace(addrspace.BaseAddressSpace):
     order = 100
     def __init__(self, base, opts):
         addrspace.BaseAddressSpace.__init__(self, base, opts)
-        assert(base == None)
+        assert base == None, 'Must be first Address Space'
+        assert opts['filename'], 'Filename must be specified'
         self.name = opts['filename']
         self.fname = self.name
         self.mode = opts.get('mode','rb')
@@ -88,10 +89,10 @@ class IA32PagedMemory(addrspace.BaseAddressSpace):
         addrspace.BaseAddressSpace.__init__(self, base, opts)
         
         ## We must be stacked on someone else:
-        assert(base != None)
+        assert base, "No base Address Space"
         
         ## We can not stack on someone with a page table
-        assert(not hasattr(base, 'pgd_vaddr'))
+        assert not hasattr(base, 'pgd_vaddr'), "Can not stack over page table AS"
         
         self.profile = Profile()
         try:
@@ -100,7 +101,7 @@ class IA32PagedMemory(addrspace.BaseAddressSpace):
             self.pgd_vaddr = self.load_dtb()
 
         ## Finally we have to have a valid PsLoadedModuleList
-        assert(self.is_valid_address(nopae_syms.lookup('PsLoadedModuleList')))
+        assert self.is_valid_address(nopae_syms.lookup('PsLoadedModuleList')), "PsLoadedModuleList not valid Address"
 
     def load_dtb(self):
         try:

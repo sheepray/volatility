@@ -12,7 +12,7 @@ class WindowsCrashDumpSpace32(standard.FileAddressSpace):
     order = 30
     def __init__(self, baseAddressSpace, opts):
         ## We must have an AS below us
-        assert(baseAddressSpace)
+        assert baseAddressSpace, "No base Address Space"
 
         ## Must start with the magic PAGEDUMP
         assert(baseAddressSpace.read(0, 8) == 'PAGEDUMP')

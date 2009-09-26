@@ -40,7 +40,7 @@ class WindowsHiberFileSpace32(standard.FileAddressSpace):
     """
     order = 10
     def __init__(self, baseAddressSpace, opts):
-        assert(baseAddressSpace)
+        assert baseAddressSpace, "No base Address Space"
         self.runs = []
         self.base = baseAddressSpace
         self.PageDict = {}
@@ -57,7 +57,7 @@ class WindowsHiberFileSpace32(standard.FileAddressSpace):
                                 profile=self.profile)
         
         ## Is the signature right?
-        assert(self.header.Signature.v() == 'hibr')
+        assert self.header.Signature.v() == 'hibr', "Header signature invalid"
         
         # Extract processor state
         self.ProcState = NewObject("_KPROCESSOR_STATE", 2 * 4096, baseAddressSpace,

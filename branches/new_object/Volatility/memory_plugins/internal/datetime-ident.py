@@ -21,7 +21,7 @@ class datetime(forensics.commands.command):
 
     def render_text(self, outfd, data):
         """Renders the calculated data as text to outfd"""
-        outfd.write("Image local date and time: " + data['ImageDatetime'] + "\n")
+        outfd.write("Image local date and time: %s\n" % data['ImageDatetime'])
 
     def calculate(self):
         result = {}

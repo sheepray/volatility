@@ -37,7 +37,6 @@ from forensics.addrspace import FileAddressSpace
 from forensics.win32.hiber_addrspace import WindowsHiberFileSpace32
 from forensics.win32.crash_addrspace import WindowsCrashDumpSpace32
 from forensics.object import read_unicode_string, read_obj
-from forensics.win32.datetime import local_time, windows_to_unix_time
 from forensics.win32.tasks import module_base, module_path, module_size, create_addr_space, process_addr_space, process_command_line, process_dtb, process_find_pid
 from forensics.win32.tasks import process_imagename, process_ldrs, process_list, process_peb, process_pid, process_handle_table, process_create_time, process_handle_count
 from forensics.win32.tasks import process_inherited_from, process_num_active_threads, process_vadroot
@@ -72,7 +71,7 @@ class VolatoolsModule:
 #  Datetime
 ###################################
 def format_time(time):
-    ts = strftime("%a %b %d %H:%M:%S %Y",
+    ts = strftime("%a %b %d %H:%M:%S %Y GMT",
                 gmtime(time))
     return ts
 

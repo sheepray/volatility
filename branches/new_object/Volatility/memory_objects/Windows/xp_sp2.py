@@ -25,7 +25,7 @@
 
 #pylint: disable-msg=C0111
 
-from forensics.object2 import CType, NewObject, NativeType, Curry
+from forensics.object2 import CType, NewObject, NoneObject, NativeType, Curry
 from vtypes import xpsp2types as types
 from forensics.win32.datetime import windows_to_unix_time
 import vmodules

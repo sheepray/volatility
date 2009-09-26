@@ -35,6 +35,7 @@
 import sys
 import os
 import forensics.registry as MemoryRegistry
+import forensics.utils
 
 from vmodules import *
 
@@ -193,20 +194,26 @@ def main(argv=sys.argv):
 
     MemoryRegistry.Init()
 
-    if (len(argv) < 2):
+    try:
+        module = argv[1]
+    except IndexError:
         usage(os.path.basename(argv[0]))
-
-    if not modules.has_key(argv[1]) and \
-        not MemoryRegistry.PLUGIN_COMMANDS.commands.has_key(argv[1]):
+        sys.exit(-1)
+        
+    if module not in modules and \
+           module not in MemoryRegistry.PLUGIN_COMMANDS.commands:
+        
         print "Error: Invalid module [%s]." % (argv[1])
         usage(argv[0])
 
-    if modules.has_key(argv[1]):
-        modules[argv[1]].execute(argv[1], argv[2:])
-    elif MemoryRegistry.PLUGIN_COMMANDS.commands.has_key(argv[1]):
-        command = MemoryRegistry.PLUGIN_COMMANDS[argv[1]](argv[2:])
-        command.execute()
-
+    try:
+        if module in modules:
+            modules[module].execute(module, argv[2:])
+        elif module in MemoryRegistry.PLUGIN_COMMANDS.commands:
+            command = MemoryRegistry.PLUGIN_COMMANDS[module](argv[2:])
+            command.execute()
+    except forensics.utils.AddrSpaceError, e:
+        print e
 
 if __name__ == "__main__":
     main()
