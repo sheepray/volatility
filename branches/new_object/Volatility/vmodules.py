@@ -40,7 +40,7 @@ from forensics.object import read_unicode_string, read_obj
 from forensics.win32.tasks import module_base, module_path, module_size, create_addr_space, process_addr_space, process_command_line, process_dtb, process_find_pid
 from forensics.win32.tasks import process_imagename, process_ldrs, process_list, process_peb, process_pid, process_handle_table, process_create_time, process_handle_count
 from forensics.win32.tasks import process_inherited_from, process_num_active_threads, process_vadroot
-from forensics.win32.handles import handle_entries, handle_process_id, handle_tables, handle_entry_object, is_object_file, object_data, file_name
+from forensics.win32.handles import handle_entries, handle_process_id, handle_tables
 from forensics.win32.vad import vad_dump, vad_info, print_vad_dot_infix, print_vad_dot_prefix, print_vad_table, print_vad_tree, traverse_vad
 from forensics.win32.scan import module_scan, conn_scan, ps_scan_dot, ps_scan, socket_scan, thrd_scan
 from forensics.win32.crashdump import crash_to_dd, dd_to_crash
@@ -293,87 +293,6 @@ def get_dlllist(cmdname, argv):
                 print "%s %s %s" % (base, size, path)            
             
             print
-
-###################################
-#  files - List open files
-###################################
-def print_entry_file(addr_space, types, entry):
-
-    if not addr_space.is_valid_address(entry):
-        return
-
-    obj = handle_entry_object(addr_space, types, entry)
-    if obj is None:
-        return
-    
-    if addr_space.is_valid_address(obj):
-        if is_object_file(addr_space, types, obj):
-            f = object_data(addr_space, types, obj)
-            fname = file_name(addr_space, types, f)
-            if fname != "":
-                print "%-6s %-40s" % ("File", fname)
-
-def get_open_files(cmdname, argv):
-    """
-    Function prints a list of open files for each process.
-    """
-    htables = []    
-
-    op = get_standard_parser(cmdname)
-
-    op.add_option('-o', '--offset',
-               help='EPROCESS Offset (in hex) in physical address space',
-               action='store', type='string', dest='offset')
-
-    op.add_option('-p', '--pid',
-                  help='Get info for this Pid',
-                  action='store', type='int', dest='pid')
-
-    opts, _args = op.parse_args(argv)
-
-    filename = opts.filename
-    pid = opts.pid
-
-    (addr_space, symtab, types) = load_and_identify_image(op, opts)
-    
-    if not opts.offset is None:
- 
-        try:
-            offset = int(opts.offset, 16)
-        except:
-            op.error("EPROCESS offset must be a hexadecimal number.")
-        
-        try:
-            flat_address_space = FileAddressSpace(filename)
-        except:
-            op.error("Unable to open image file %s" % (filename))
-
-        ObjectTable = process_handle_table(flat_address_space, types, offset)
-
-        if addr_space.is_valid_address(ObjectTable):
-            htables.append(ObjectTable)
-        
-    else:
-
-        htables = handle_tables(addr_space, types, symtab, pid)
-
-
-    star_line = '*' * 72
-
-    for table in htables:
-        if len(htables) > 1:
-            print "%s" % star_line
-
-        process_id = handle_process_id(addr_space, types, table)
-        if process_id == None:
-            continue
-
-        print "Pid: %-6d" % (process_id)
-
-        entries = handle_entries(addr_space, types, table)
-        for hentry in entries:
-            print_entry_file(addr_space, types, hentry)
-
 
 ###################################
 #  strings - identify pid(s) associated with a string

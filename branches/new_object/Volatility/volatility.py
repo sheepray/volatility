@@ -48,10 +48,6 @@ modules = {
     VolatoolsModule('dlllist',
                     'Print list of loaded dlls for each process',
                     get_dlllist),
-    'files':
-    VolatoolsModule('files',
-                    'Print list of open files for each process',
-                    get_open_files),
     'strings':
     VolatoolsModule('strings',
                     'Match physical offsets to virtual addresses (may take a while, VERY verbose)',

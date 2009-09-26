@@ -25,11 +25,11 @@
 
 #pylint: disable-msg=C0111
 
-from forensics.object2 import CType, NewObject, NoneObject, NativeType, Curry
-from forensics.win32.datetime import windows_to_unix_time
-import vmodules
+import vmodules, pdb
+import forensics.object2 as object2
+import forensics.win32 as win32
 
-class _UNICODE_STRING(CType):
+class _UNICODE_STRING(object2.CType):
     """Class representing a _UNICODE_STRING
 
     Adds the following behavior:
@@ -50,7 +50,7 @@ class _UNICODE_STRING(CType):
     def __str__(self):
         return self.v()
 
-class _LIST_ENTRY(CType):
+class _LIST_ENTRY(object2.CType):
     """ Adds iterators for _LIST_ENTRY types """
     def list_of_type(self, type, member, forward=True):
         if not self.is_valid():
@@ -69,10 +69,10 @@ class _LIST_ENTRY(CType):
         
         while 1:            
             ## Instantiate the object
-            obj = NewObject(type, offset = lst.offset - offset,
-                            vm=self.vm,
-                            parent=self.parent,
-                            profile=self.profile, name=type)
+            obj = object2.NewObject(type, offset = lst.offset - offset,
+                                    vm=self.vm,
+                                    parent=self.parent,
+                                    profile=self.profile, name=type)
 
 
             if forward:
@@ -89,7 +89,7 @@ class _LIST_ENTRY(CType):
     def __iter__(self):
         return self.list_of_type(self.parent.name, self.name)
 
-class String(NativeType):
+class String(object2.NativeType):
     def __init__(self, type, offset, vm=None,
                  length=1, parent=None, profile=None, name=None, **args):
         ## Allow length to be a callable:
@@ -99,7 +99,7 @@ class String(NativeType):
             pass
         
         ## length must be an integer
-        NativeType.__init__(self, type, offset, vm, parent=parent, profile=profile,
+        object2.NativeType.__init__(self, type, offset, vm, parent=parent, profile=profile,
                             name=name, format_string="%ds" % length)
 
     def upper(self):
@@ -113,7 +113,7 @@ class String(NativeType):
         ## Make sure its null terminated:
         return data.split("\x00")[0]
 
-class WinTimeStamp(NativeType):
+class WinTimeStamp(object2.NativeType):
     def __init__(self, type=None, offset=None, vm=None, value=None,
                  parent=None, profile=None, name=None, **args):
         ## This allows us to have a WinTimeStamp object with a
@@ -122,17 +122,17 @@ class WinTimeStamp(NativeType):
         if value:
             self.data = value
         else:
-            NativeType.__init__(self, type, offset, vm, parent=parent, profile=profile,
-                                name=name, format_string="q")
+            object2.NativeType.__init__(self, type, offset, vm, parent=parent, profile=profile,
+                                        name=name, format_string="q")
 
     def value(self):
         """Override the value return, depending on whether we have a data field"""
         if self.data is not None:
             return self.data
-        return NativeType.value(self)
+        return object2.NativeType.value(self)
 
     def v(self):
-        return windows_to_unix_time(self.value())
+        return win32.datetime.windows_to_unix_time(self.value())
 
     def __sub__(self, x):
         return WinTimeStamp(value = self.value() - x.value())
@@ -143,7 +143,7 @@ class WinTimeStamp(NativeType):
 LEVEL_MASK = 0xfffffff8
 
 
-class _EPROCESS(CType):
+class _EPROCESS(object2.CType):
     """ An extensive _EPROCESS with bells and whistles """
     def _Peb(self, _attr):
         """ Returns a _PEB object which is using the process address space.
@@ -155,13 +155,13 @@ class _EPROCESS(CType):
         process_ad = self.get_process_address_space()
         if process_ad:
             offset =  self.m("Peb").v()
-            peb = NewObject("_PEB", offset, vm=process_ad, profile=self.profile,
-                            name = "Peb", parent=self)
+            peb = object2.NewObject("_PEB", offset, vm=process_ad, profile=self.profile,
+                                    name = "Peb", parent=self)
 
             if peb.is_valid():
                 return peb
 
-        return NoneObject("Peb not found")
+        return object2.NoneObject("Peb not found")
             
     def get_process_address_space(self):
         """ Gets a process address space for a task given in _EPROCESS """
@@ -177,9 +177,8 @@ class _EPROCESS(CType):
         and iterates over them.
 
         """
-        table = NewObject("Array", offset, self.vm,
-                            count=0x200, parent=self, profile=self.profile,
-                            target = Curry(NewObject, "_HANDLE_TABLE_ENTRY"))
+        table = object2.Array("_HANDLE_TABLE_ENTRY", offset=offset, vm=self.vm,
+                              count=0x200, parent=self, profile=self.profile)
         for t in table:
             offset = t.dereference_as('unsigned int')
             if not offset.is_valid():
@@ -193,13 +192,11 @@ class _EPROCESS(CType):
                 ## OK We got to the bottom table, we just resolve
                 ## objects here:
                 offset = int(offset) & ~0x00000007
-                obj = NewObject("_OBJECT_HEADER", offset, self.vm,
-                                parent=self, profile=self.profile)
+                obj = object2.NewObject("_OBJECT_HEADER", offset, self.vm,
+                                        parent=self, profile=self.profile)
                 try:
-                    if obj.Type.Name.__str__()=='File':
-                        filevar = NewObject("_FILE_OBJECT", obj.Body.offset, self.vm,
-                                         parent=self, profile=self.profile)
-                        yield filevar
+                    if obj.Type.Name:
+                        yield obj
 
                 except Exception, _e:
                     pass
@@ -227,7 +224,7 @@ class _EPROCESS(CType):
 
 import socket, struct
 
-class _TCPT_OBJECT(CType):
+class _TCPT_OBJECT(object2.CType):
     def _RemoteIpAddress(self, attr):
         return socket.inet_ntoa(struct.pack("<I", self.m(attr).v()))
     
