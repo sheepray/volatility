@@ -248,18 +248,6 @@ def create_addr_space(kaddr_space, directory_table_base):
 
     return process_address_space
 
-def process_command_line(process_address_space, types, peb_vaddr):
-    process_parameters = read_obj(process_address_space, types,
-                                  ['_PEB', 'ProcessParameters'], peb_vaddr)
-    
-    
-    if process_parameters is None:
-        return None
-    
-    return read_unicode_string(process_address_space, types,
-                               ['_RTL_USER_PROCESS_PARAMETERS', 'CommandLine'],
-                               process_parameters)    
-
 def peb_number_processors(process_address_space, types, peb_vaddr):
     return read_obj(process_address_space, types,
                                   ['_PEB', 'NumberOfProcessors'], peb_vaddr)
@@ -278,49 +266,6 @@ def module_size(process_address_space, types, module_vaddr):
 def module_base(process_address_space, types, module_vaddr):
     return read_obj(process_address_space, types,
                     ['_LDR_DATA_TABLE_ENTRY', 'DllBase'], module_vaddr)
-
-def process_ldrs(process_address_space, types, peb_vaddr):
-    ldr = read_obj(process_address_space, types,
-                   ['_PEB', 'Ldr'], peb_vaddr)
-
-    module_list = []
-
-    if ldr is None:
-        print "Unable to read ldr for peb 0x%x" % (peb_vaddr)
-        return module_list
-
-    first_module = read_obj(process_address_space, types,
-                            ['_PEB_LDR_DATA', 'InLoadOrderModuleList', 'Flink'],
-                            ldr)
-
-    if first_module is None:
-        print "Unable to read first module for ldr 0x%x" % (ldr)
-        return module_list        
-    
-    this_module = first_module
-
-    next_module = read_obj(process_address_space, types,
-                         ['_LDR_DATA_TABLE_ENTRY', 'InLoadOrderLinks', 'Flink'],
-                           this_module)
-
-    if next_module is None:
-        print "ModuleList Truncated, unable to read module at 0x%x\n" % (this_module)        
-        return module_list
-    
-    while next_module != first_module:
-        module_list.append(this_module)
-        if not process_address_space.is_valid_address(next_module):
-            print "ModuleList Truncated, unable to read module at 0x%x\n" % (next_module)
-            return module_list
-        _prev_module = this_module
-        this_module = next_module
-        next_module = read_obj(process_address_space, types,
-                         ['_LDR_DATA_TABLE_ENTRY', 'InLoadOrderLinks', 'Flink'],
-                         this_module)
-
-        
-    return module_list
-
 
 def find_csdversion(addr_space, types):
 

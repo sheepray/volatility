@@ -44,10 +44,6 @@ modules = {
     VolatoolsModule('pslist',
                     'Print list of running processes',
                     get_pslist),
-    'dlllist':
-    VolatoolsModule('dlllist',
-                    'Print list of loaded dlls for each process',
-                    get_dlllist),
     'strings':
     VolatoolsModule('strings',
                     'Match physical offsets to virtual addresses (may take a while, VERY verbose)',
