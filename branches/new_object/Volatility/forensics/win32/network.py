@@ -31,9 +31,8 @@
 import struct, pdb
 import forensics.win32 as win32
 import forensics.object2 as object2
-from forensics.object import read_value, read_obj, get_obj_offset
+from forensics.object import read_obj, get_obj_offset
 from forensics.win32.datetime import read_time, windows_to_unix_time
-from forensics.win32.modules import module_find_baseaddr, modules_list
 from socket import ntohs, inet_ntoa
 
 module_versions = { \
@@ -116,78 +115,38 @@ def determine_connections(addr_space, profile):
 
     return object2.NoneObject("Unable to determine connections")
 
-def tcb_connections(addr_space, types, symbol_table):
-    all_modules = modules_list(addr_space, types, symbol_table)
-    base_addr = module_find_baseaddr(addr_space, types, all_modules,"tcpip")
+def determine_sockets(addr_space, profile):
+    """Determines all sockets for each module"""
+    all_modules = win32.modules.lsmod(addr_space, profile)
+    sockets = []
 
-    if base_addr is None:
-        return []
+    for m in all_modules:
+        if str(m.ModuleName).lower() == 'tcpip.sys':
+            for attempt in module_versions:
+                table_size = object2.NewObject(
+                    "unsigned long",
+                    m.BaseAddress + module_versions[attempt]['AddrObjTableSizeOffset'][0],
+                    addr_space, profile=profile)
+                
+                table_addr = object2.NewObject(
+                    "unsigned long",
+                    m.BaseAddress + module_versions[attempt]['AddrObjTableOffset'][0],
+                    addr_space, profile=profile)
+                
+                if int(table_size) > 0:
+                    table = object2.Array(
+                        offset = table_addr, vm = addr_space,
+                        count=table_size, profile=profile,
+                        target = object2.Curry(object2.Pointer, "_ADDRESS_OBJECT"))
+                    
+                    for entry in table:
+                        sock = entry.dereference()
+                        while sock.is_valid():
+                            sockets.append(sock)
+                            sock = sock.Next
+            return sockets
 
-    connection_list = []
-
-    connection_list = find_connections(addr_space, types, symbol_table, base_addr)
-
-    return connection_list
-
-def get_tcb_connections(addr_space, types, _symbol_table, base_addr, TCBTableOff, SizeOff):
-
-    TCBTable = base_addr + TCBTableOff 
-    MaxHashTableSize = base_addr + SizeOff
-
-
-    TCBTableAddr = read_value(addr_space, 'unsigned long', TCBTable)
-
-    if TCBTableAddr == None:
-        return []
-
-    if not addr_space.is_valid_address(TCBTableAddr):
-        return []
-
-    TableSize = read_value(addr_space, 'unsigned long', MaxHashTableSize)
-
-    if TableSize == None:
-        return []
-
-    connection_list = []
-    for cnt in range(0, TableSize):
-        EntryAddress = TCBTableAddr + 4*cnt
-
-        if not addr_space.is_valid_address(EntryAddress):
-            continue
-
-        TableEntry = read_value(addr_space, 'unsigned long', EntryAddress)
-        if TableEntry == 0 or TableEntry == None:
-            continue
-
-        next = read_obj(addr_space, types,
-                        ['_TCPT_OBJECT', 'Next'], TableEntry)
-
-        while next != 0x0:
-            if not addr_space.is_valid_address(next):
-                print "ConnectionList Truncated Invalid 0x%x" % next
-                return connection_list
-            connection_list.append(next)
-            next = read_obj(addr_space, types,
-                            ['_TCPT_OBJECT', 'Next'], next)
-
-        connection_list.append(TableEntry)
-
-    return connection_list
-
-
-def find_connections(addr_space, types, symbol_table, base_addr):
-
-    connection_list = []
-
-    for offsets in module_versions:
-        offsets = module_versions[offsets]
-         
-        connection_list = get_tcb_connections(addr_space, types, symbol_table, base_addr, offsets['TCBTableOff'][0], offsets['SizeOff'][0])
-        if len(connection_list) > 0:
-            return connection_list
-
-    return connection_list
-
+    return object2.NoneObject("Unable to determine sockets")
 
 def connection_pid(addr_space, types, connection_vaddr):
     return read_obj(addr_space, types,
@@ -210,70 +169,6 @@ def connection_raddr(addr_space, types, connection_vaddr):
     raddr = read_obj(addr_space, types,
                     ['_TCPT_OBJECT', 'RemoteIpAddress'], connection_vaddr)
     return inet_ntoa(struct.pack('=L', raddr))    
-
-def open_sockets(addr_space, types, symbol_table):
-    all_modules = modules_list(addr_space, types, symbol_table)
-    base_addr = module_find_baseaddr(addr_space, types, all_modules,"tcpip")
-
-    if base_addr is None:
-        return []
-
-    socket_list = []
-
-    socket_list = find_sockets(addr_space, types, symbol_table, base_addr)
-
-    return socket_list
-
-def get_open_sockets(addr_space, types, _symbol_table, base_addr, AddrObjTableOffset, AddrObjTableSizeOffset):
-    
-    AddrObjTable = base_addr + AddrObjTableOffset 
-    AddrObjTableSize = base_addr + AddrObjTableSizeOffset
-
-    AddrObjAddr   = read_value(addr_space, 'unsigned long', AddrObjTable)
-    AddrTableSize = read_value(addr_space, 'unsigned long', AddrObjTableSize)
-
-    if AddrObjAddr == None or AddrTableSize == None:
-        return []
-
-    socket_list = []
-    for cnt in range(0, AddrTableSize):
-        EntryAddress = AddrObjAddr + 4*cnt
-
-        if not addr_space.is_valid_address(EntryAddress):
-            continue
-
-        TableEntry = read_value(addr_space, 'unsigned long', EntryAddress)
-        if TableEntry == 0 or TableEntry == None:
-            continue
-
-        socket_list.append(TableEntry)
-        next = read_obj(addr_space, types,
-                        ['_ADDRESS_OBJECT', 'Next'], TableEntry)
-
-        while next != 0x0:
-            if not addr_space.is_valid_address(next):
-                print "SocketList Truncated Invalid 0x%x" % next
-                return socket_list
-            socket_list.append(next)
-            next = read_obj(addr_space, types,
-                            ['_ADDRESS_OBJECT', 'Next'], next)
-
-    return socket_list
-
-
-def find_sockets(addr_space, types, symbol_table, base_addr):
-
-    socket_list = []
-
-    for offsets in module_versions:
-        offsets = module_versions[offsets]
-         
-        socket_list = get_open_sockets(addr_space, types, symbol_table, base_addr, offsets['AddrObjTableOffset'][0], offsets['AddrObjTableSizeOffset'][0])
-        if len(socket_list) > 0:
-            return socket_list
-
-    return socket_list
-
 
 def socket_pid(addr_space, types, socket_vaddr):
     return read_obj(addr_space, types,

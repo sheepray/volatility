@@ -40,10 +40,7 @@ from forensics.object import read_unicode_string, read_obj
 from forensics.win32.tasks import module_base, module_path, module_size, create_addr_space, process_addr_space, process_command_line, process_dtb, process_find_pid
 from forensics.win32.tasks import process_imagename, process_ldrs, process_list, process_peb, process_pid, process_handle_table, process_create_time, process_handle_count
 from forensics.win32.tasks import process_inherited_from, process_num_active_threads, process_vadroot
-from forensics.win32.modules import modules_list
-from forensics.win32.network import socket_create_time, socket_local_port, socket_pid, socket_protocol, open_sockets
 from forensics.win32.handles import handle_entries, handle_process_id, handle_tables, handle_entry_object, is_object_file, object_data, file_name
-from forensics.win32.modules import module_baseaddr, module_imagename, module_imagesize, module_modulename
 from forensics.win32.vad import vad_dump, vad_info, print_vad_dot_infix, print_vad_dot_prefix, print_vad_table, print_vad_tree, traverse_vad
 from forensics.win32.scan import module_scan, conn_scan, ps_scan_dot, ps_scan, socket_scan, thrd_scan
 from forensics.win32.crashdump import crash_to_dd, dd_to_crash
@@ -73,43 +70,6 @@ def format_time(time):
     ts = strftime("%a %b %d %H:%M:%S %Y GMT",
                 gmtime(time))
     return ts
-
-###################################
-#  modules list
-###################################
-def get_modules(cmdname, argv):
-    """
-    Function prints a formatted table of module information
-    """
-    op = get_standard_parser(cmdname)
-    opts, _args = op.parse_args(argv)
-
-    (addr_space, symtab, types) = load_and_identify_image(op, opts)
-    
-    all_modules = modules_list(addr_space, types, symtab)
-
-    print "%-50s %-12s %-8s %s" % ('File', 'Base', 'Size', 'Name')
-
-    for module in all_modules:
-        if not addr_space.is_valid_address(module):
-            continue
-        module_image = module_imagename(addr_space, types, module)
-        if module_image is None:
-            module_image = "UNKNOWN"
-            
-        module_name = module_modulename(addr_space, types, module)
-        if module_name is None:
-            module_name = "UNKNOWN"
-
-        module_base = module_baseaddr(addr_space, types, module)
-        if module_base is None:
-            module_base = "UNKNOWN"
-        else:
-            module_base = "0x%010x" % module_base
-
-        module_size = module_imagesize(addr_space, types, module)
-        
-        print "%-50s %s 0x%06x %s" % (module_image, module_base, module_size, module_name)
 
 ###################################
 #  pslist - process list
@@ -333,35 +293,6 @@ def get_dlllist(cmdname, argv):
                 print "%s %s %s" % (base, size, path)            
             
             print
-
-###################################
-#  sockets - List open sockets
-###################################
-def get_sockets(cmdname, argv):
-    """
-    Function prints a list of open sockets.
-    """
-    op = get_standard_parser(cmdname)
-    opts, _args = op.parse_args(argv)
-
-    (addr_space, symtab, types) = load_and_identify_image(op, opts)
-    
-    sockets = open_sockets(addr_space, types, symtab)
-
-    if len(sockets) > 0:
-        print "%-6s %-6s %-6s %-26s" % ('Pid', 'Port', 'Proto', 'Create Time')
-
-    for socket in sockets:
-
-        if not addr_space.is_valid_address(socket):
-            continue
-
-        pid   = socket_pid(addr_space, types, socket)
-        proto = socket_protocol(addr_space, types, socket)
-        port  = socket_local_port(addr_space, types, socket)
-        time  = socket_create_time(addr_space, types, socket)
-        
-        print "%-6d %-6d %-6d %-26s" % (pid, port, proto, format_time(time))
 
 ###################################
 #  files - List open files

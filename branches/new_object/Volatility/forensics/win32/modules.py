@@ -25,8 +25,8 @@
 
 #pylint: disable-msg=C0111
 
-from forensics.object import read_obj, read_unicode_string, get_obj_offset
-from forensics.win32.info import find_psloadedmodulelist, kpcr_addr
+from forensics.object import read_obj, read_unicode_string
+from forensics.win32.info import kpcr_addr
 from forensics.object2 import NewObject
 
 def lsmod(addr_space, profile):
@@ -54,48 +54,6 @@ def lsmod(addr_space, profile):
         for l in tmp.dereference_as("_LIST_ENTRY").list_of_type(
             "_LDR_MODULE", "InLoadOrderModuleList"):
             yield l
-
-def modules_list(addr_space, types, _symbol_table):
-    """
-    Get the virtual addresses of all Windows modules 
-    """
-    modules_list = []
-
-    PsLoadedModuleList = find_psloadedmodulelist(addr_space, types)
-
-    if not PsLoadedModuleList is None:
-        (offset, _tmp)  = get_obj_offset(types, \
-	     ['_LDR_DATA_TABLE_ENTRY', 'InLoadOrderLinks'])
-
-        first_module = PsLoadedModuleList - offset
-
-        current = read_obj(addr_space, types, \
-	     ['_LDR_DATA_TABLE_ENTRY', 'InLoadOrderLinks', 'Flink'],
-                           first_module)
-        
-        this_module = current - offset
-        
-        next =  read_obj(addr_space, types, \
-	     ['_LDR_DATA_TABLE_ENTRY', 'InLoadOrderLinks', 'Flink'],
-                         this_module)        
-
-        while this_module != PsLoadedModuleList:
-
-            if not addr_space.is_valid_address(this_module):
-                print "Module list truncated, unable to read 0x%x." % (this_module)
-                return modules_list
-
-            modules_list.append(this_module)
-            current = read_obj(addr_space, types, \
-	        ['_LDR_DATA_TABLE_ENTRY', 'InLoadOrderLinks', 'Flink'],
-                               this_module)
-            this_module = current - offset
-
-            if not addr_space.is_valid_address(this_module):
-                print "ModuleList Truncated Invalid Module"
-                return modules_list
-
-    return modules_list
 
 def module_imagename(address_space, types, module_vaddr):
     return read_unicode_string(address_space, types,
