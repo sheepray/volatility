@@ -26,7 +26,6 @@
 #pylint: disable-msg=C0111
 
 from forensics.object2 import CType, NewObject, NoneObject, NativeType, Curry
-from vtypes import xpsp2types as types
 from forensics.win32.datetime import windows_to_unix_time
 import vmodules
 
@@ -42,10 +41,10 @@ class _UNICODE_STRING(CType):
         try:
             length = self.Length.v()
             if length > 1024:
-                length=0
+                length = 0
             data = self.vm.read(self.Buffer.v(), length)
             return data.decode("utf16","ignore").encode("ascii",'backslashreplace')
-        except Exception, e:
+        except Exception, _e:
             return ''
 
     def __str__(self):
@@ -119,20 +118,24 @@ class WinTimeStamp(NativeType):
                  parent=None, profile=None, name=None, **args):
         ## This allows us to have a WinTimeStamp object with a
         ## predetermined value
+        self.data = None
         if value:
             self.data = value
         else:
             NativeType.__init__(self, type, offset, vm, parent=parent, profile=profile,
                                 name=name, format_string="q")
 
-    def v(self):
-        try:
+    def value(self):
+        """Override the value return, depending on whether we have a data field"""
+        if self.data is not None:
             return self.data
-        except:
-            return windows_to_unix_time(NativeType.v(self))
+        return NativeType.value(self)
+
+    def v(self):
+        return windows_to_unix_time(self.value())
 
     def __sub__(self, x):
-        return WinTimeStamp(value = self.v() - x.v())
+        return WinTimeStamp(value = self.value() - x.value())
 
     def __str__(self):
         return vmodules.format_time(self.v())
@@ -142,7 +145,7 @@ LEVEL_MASK = 0xfffffff8
 
 class _EPROCESS(CType):
     """ An extensive _EPROCESS with bells and whistles """
-    def _Peb(self,attr):
+    def _Peb(self, _attr):
         """ Returns a _PEB object which is using the process address space.
 
         The PEB structure is referencing back into the process address
@@ -198,7 +201,7 @@ class _EPROCESS(CType):
                                          parent=self, profile=self.profile)
                         yield filevar
 
-                except Exception, e:
+                except Exception, _e:
                     pass
         
     def handles(self):
