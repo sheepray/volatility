@@ -1,4 +1,4 @@
-#!c:\python\python.exe
+#!/usr/bin/python
 #  -*- mode: python; -*-
 #
 # Volatility
@@ -32,7 +32,7 @@
 
 #pylint: disable-msg=C0111
 
-import sys
+import sys, pdb
 import os
 import forensics.registry as MemoryRegistry
 import forensics.utils
@@ -56,10 +56,6 @@ modules = {
     VolatoolsModule('files',
                     'Print list of open files for each process',
                     get_open_files),
-    'connections':
-    VolatoolsModule('connections',
-                    'Print list of open connections',
-                    get_connections),    
     'modules':
     VolatoolsModule('modules',
                     'Print list of loaded modules',
@@ -216,5 +212,9 @@ def main(argv=sys.argv):
         print e
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception,e:
+        print e
+        pdb.post_mortem()
 

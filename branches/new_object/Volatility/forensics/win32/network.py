@@ -28,7 +28,9 @@
 
 #pylint: disable-msg=C0111
 
-import struct
+import struct, pdb
+import forensics.win32 as win32
+import forensics.object2 as object2
 from forensics.object import read_value, read_obj, get_obj_offset
 from forensics.win32.datetime import read_time, windows_to_unix_time
 from forensics.win32.modules import module_find_baseaddr, modules_list
@@ -60,10 +62,10 @@ module_versions = { \
   'AddrObjTableSizeOffset' : [0x48664], \
 },
 '3394': {
-    'TCBTableOff': [0x49768], \
-    'SizeOff': [0x3F73C], \
-    'AddrObjTableOffset': [0x486E0], \
-    'AddrObjTableSizeOffset': [0x486E4], \
+  'TCBTableOff': [0x49768], \
+  'SizeOff': [0x3F73C], \
+  'AddrObjTableOffset': [0x486E0], \
+  'AddrObjTableSizeOffset': [0x486E4], \
 },
 '5625' : { \
   'TCBTableOff' : [0x49ae8], \
@@ -79,6 +81,40 @@ module_versions = { \
 }
 }
 
+
+def determine_connections(addr_space, profile):
+    """Determines all connections for each module"""
+    all_modules = win32.modules.lsmod(addr_space, profile)
+    connections = []
+
+    for m in all_modules:
+        if str(m.ModuleName).lower() == 'tcpip.sys':
+            for attempt in module_versions:
+                table_size = object2.NewObject(
+                    "unsigned long",
+                    m.BaseAddress + module_versions[attempt]['SizeOff'][0],
+                    addr_space, profile=profile)
+                
+                table_addr = object2.NewObject(
+                    "unsigned long",
+                    m.BaseAddress + module_versions[attempt]['TCBTableOff'][0],
+                    addr_space, profile=profile)
+                
+                if int(table_size) > 0:
+                    table = object2.Array(
+                        offset = table_addr, vm = addr_space,
+                        count = table_size, profile = profile, 
+                        target = object2.Curry(object2.Pointer, '_TCPT_OBJECT'))
+                    
+                    for entry in table:
+                        conn = entry.dereference()
+                        while conn:
+                            connections.append(conn)
+                            conn = conn.Next
+                            
+            return connections
+
+    return object2.NoneObject("Unable to determine connections")
 
 def tcb_connections(addr_space, types, symbol_table):
     all_modules = modules_list(addr_space, types, symbol_table)

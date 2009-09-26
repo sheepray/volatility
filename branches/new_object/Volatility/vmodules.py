@@ -41,7 +41,6 @@ from forensics.win32.tasks import module_base, module_path, module_size, create_
 from forensics.win32.tasks import process_imagename, process_ldrs, process_list, process_peb, process_pid, process_handle_table, process_create_time, process_handle_count
 from forensics.win32.tasks import process_inherited_from, process_num_active_threads, process_vadroot
 from forensics.win32.modules import modules_list
-from forensics.win32.network import connection_laddr, connection_lport, connection_raddr, connection_rport, connection_pid, tcb_connections
 from forensics.win32.network import socket_create_time, socket_local_port, socket_pid, socket_protocol, open_sockets
 from forensics.win32.handles import handle_entries, handle_process_id, handle_tables, handle_entry_object, is_object_file, object_data, file_name
 from forensics.win32.modules import module_baseaddr, module_imagename, module_imagesize, module_modulename
@@ -334,39 +333,6 @@ def get_dlllist(cmdname, argv):
                 print "%s %s %s" % (base, size, path)            
             
             print
-
-###################################
-#  connections - List open connections
-###################################
-def get_connections(cmdname, argv):
-    """
-    Function prints a list of open connections
-    """
-    op = get_standard_parser(cmdname)
-    opts, _args = op.parse_args(argv)
-
-    (addr_space, symtab, types) = load_and_identify_image(op, opts)
-    
-    connections = tcb_connections(addr_space, types, symtab)
-
-    if len(connections) > 0:
-        print "%-25s %-25s %-6s" % ('Local Address', 'Remote Address', 'Pid')
-
-    for connection in connections:
-        
-        if not addr_space.is_valid_address(connection):
-            continue
-
-        pid     = connection_pid(addr_space, types, connection)
-        lport   = connection_lport(addr_space, types, connection)
-        laddr   = connection_laddr(addr_space, types, connection)
-        rport   = connection_rport(addr_space, types, connection)
-        raddr   = connection_raddr(addr_space, types, connection)
-
-        local = "%s:%d" % (laddr, lport)
-        remote = "%s:%d" % (raddr, rport)
-
-        print "%-25s %-25s %-6d" % (local, remote, pid)
 
 ###################################
 #  sockets - List open sockets

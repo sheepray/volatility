@@ -14,7 +14,6 @@ def load_as(opts):
                 found = True
                 break
             except Exception, e:
-                print "%r: %s" % (e,e)
                 error.append_reason(cls.__name__, e) 
                 continue
 

@@ -28,7 +28,7 @@
 
 #pylint: disable-msg=C0111
 
-import sys, StringIO
+import sys, StringIO, pdb
 # sys.path.append(".")
 # sys.path.append("..")
 
@@ -99,6 +99,9 @@ class NoneObject(object):
     def __iter__(self):
         return self
 
+    def __len__(self):
+        return 0
+
     def next(self):
         raise StopIteration()
 
@@ -162,8 +165,8 @@ def NewObject(theType, offset, vm, parent=None, profile=None, name=None, **kwarg
     
     ## If we cant instantiate the object here, we just error out:
     if not vm.is_valid_address(offset):
-        return NoneObject("Invalid Address 0x%08X, instantiating %s from %s"\
-                          % (offset, name, parent), strict=profile.strict)
+        return NoneObject("Invalid Address 0x%08X, instantiating %s"\
+                          % (offset, name), strict=profile.strict)
 
     if theType in profile.types:
         result = profile.types[theType](offset=offset, vm=vm, name=name,
@@ -307,8 +310,12 @@ class NativeType(Object):
         return struct.calcsize(self.format_string)
 
     def value(self):
-        (val, ) = struct.unpack(self.format_string, \
-                                self.vm.read(self.offset, self.size()))
+        data = self.vm.read(self.offset, self.size())
+        if not data: return NoneObject("Unable to read %s bytes from %s" % (
+            self.size(), self.offset))
+        
+        (val, ) = struct.unpack(self.format_string, data)
+                
         return val
 
     def cdecl(self):
@@ -352,7 +359,11 @@ class Pointer(NativeType):
     def __init__(self, theType, offset, vm, parent=None, profile=None, target=None, name=None):
         NativeType.__init__(self, theType, offset = offset, vm=vm, name=name,
                             parent=parent, profile=profile)
-        self.target = target
+        if theType:
+            self.target = Curry(NewObject, theType)
+        else:
+            self.target = target
+            
         self.format_string = "=L"
 
     def is_valid(self):
@@ -444,7 +455,7 @@ class XXCType(VType):
 
 class Array(Object):
     """ An array of objects of the same size """
-    def __init__(self, targetType, offset, vm, parent=None,
+    def __init__(self, targetType=None, offset=0, vm=None, parent=None,
                  profile=None, count=1, name=None, target=None):
         ## Instantiate the first object on the offset:
         Object.__init__(self, targetType, offset, vm,
@@ -459,7 +470,11 @@ class Array(Object):
 
         self.position = 0
         self.original_offset = offset
-        self.target = target
+        if targetType:
+            self.target = Curry(NewObject, targetType)
+        else:
+            self.target = target
+            
         self.current = self.target(offset=offset, vm=vm, parent=self,
                                        profile=profile, name= name)
         
@@ -471,9 +486,10 @@ class Array(Object):
         return self.count * self.current.size()
 
     def next(self):
-        if self.position >= self.count:
+        if not self.current or \
+               self.position >= self.count:
             raise StopIteration()
-
+        
         offset = self.original_offset + self.position * self.current.size()
         self.position += 1
 
@@ -588,8 +604,14 @@ class Profile:
     system. We parse the abstract_types and join them with
     native_types to make everything work together.
     """
-    def __init__(self, native_types=x86_native_types, abstract_types=types,
-                 overlay=xpsp2overlays, strict=False):
+    def __init__(self, native_types=None, abstract_types=None,
+                 overlay=None, strict=False):
+        if native_types is None:
+            native_types = x86_native_types
+        if abstract_types is None:
+            abstract_types = types
+        if overlay is None:
+            overlay = xpsp2overlays
         self.types = {}
         self.strict = strict
         
@@ -642,13 +664,13 @@ class Profile:
 
         ## This is of the form [ 'pointer' , [ 'foobar' ]]
         if typeList[0] == 'pointer':
-            return Curry(Pointer, Pointer,
+            return Curry(Pointer, None,
                          name = name,
                          target=self.list_to_type(name, typeList[1], typeDict))
 
         ## This is an array: [ 'array', count, ['foobar'] ]
         if typeList[0] == 'array':
-            return Curry(Array, Array,
+            return Curry(Array, None,
                          name = name, count=typeList[1],
                          target=self.list_to_type(name, typeList[2], typeDict))
 
