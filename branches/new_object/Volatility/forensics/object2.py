@@ -281,21 +281,6 @@ class Object(object):
         return "[%s %s] @ 0x%08X" % (self.__class__.__name__, self.name or '',
                                      self.offset)
 
-class VType:
-    """ This is a proxy class for members in the struct.
-
-    We use proxy classes to fill in members in the struct so we dont
-    need to dereference them until we want to.
-    """
-    def __init__(self, profile, size, hasMembers=False, hasValue=False):
-        self.profile = profile
-        self.hasMembers = hasMembers
-        self.hasValue = hasValue
-        self.size = size
-    
-    def cdecl(self):
-        return "VType"
-
 class NativeType(Object):
     def __init__(self, theType, offset, vm, parent=None, profile=None,
                  format_string=None, name=None, **args):

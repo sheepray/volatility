@@ -1498,46 +1498,6 @@ def procdump(cmdname, argv):
                 print "You can use -u to disable this check."
             of.close()
 
-def modscan2(cmdname, argv): 
-    scanners = []
-    op = get_standard_parser(cmdname)
-    opts, _args = op.parse_args(argv)
-
-    if (opts.filename is None) or (not os.path.isfile(opts.filename)) :
-        op.error("File is required")
-    else:
-        filename = opts.filename  
-
-    try:
-        flat_address_space = FileAddressSpace(filename, fast=True)
-    except:
-        op.error("Unable to open image file %s" % (filename))
-    
-    meta_info.set_datatypes(types)
-
-    # Determine the applicable address space
-    search_address_space = find_addr_space(flat_address_space, types)
-
-    # Find a dtb value
-    if opts.base is None:
-        sysdtb = get_dtb(search_address_space, types)
-    else:
-        try:
-            sysdtb = int(opts.base, 16)
-        except:
-            op.error("Directory table base must be a hexadecimal number.")
-
-    meta_info.set_dtb(sysdtb)
-    kaddr_space = load_pae_address_space(filename, sysdtb)
-    if kaddr_space is None:
-        kaddr_space = load_nopae_address_space(filename, sysdtb)
-    meta_info.set_kas(kaddr_space)
-
-    print "%-50s %-12s %-8s %s \n" % ('File', 'Base', 'Size', 'Name')
-
-    scanners.append((PoolScanModuleFast2(search_address_space)))
-    scan_addr_space(search_address_space, scanners)
-
 def thrdscan2(cmdname, argv):
     scanners = []
     op = get_standard_parser(cmdname)

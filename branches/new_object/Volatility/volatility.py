@@ -111,10 +111,6 @@ modules = {
     VolatoolsModule('procdump',
                   'Dump a process to an executable sample',
                   procdump),
-    'thrdscan2':
-    VolatoolsModule('thrdscan2',
-                  'Scan for thread objects (New)',
-                  thrdscan2),
     'psscan2':
     VolatoolsModule('psscan2',
                   'Scan for process objects (New)',

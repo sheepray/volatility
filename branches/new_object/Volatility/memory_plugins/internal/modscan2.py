@@ -88,3 +88,65 @@ class modscan2(forensics.commands.command):
                    ldr_entry.DllBase,
                    ldr_entry.SizeOfImage,
                    self.parse_string(ldr_entry.BaseDllName))
+
+class PoolScanThreadFast2(PoolScanner):
+    pool_tag = "\x54\x68\x72\xE5"
+    pool_size = 0x278
+    
+    ## Kernel address range
+    kernel = 0x80000000
+    thread = None
+    
+    def __init__(self):
+        PoolScanner.__init__(self)
+        self.add_constraint(self.check_blocksize_geq)
+        self.add_constraint(self.check_pooltype_nonpaged_or_free)
+        #self.add_constraint(self.check_poolindex)
+        self.add_constraint(self.check_threads_process)
+        self.add_constraint(self.check_start_address)
+        self.add_constraint(self.check_semaphores)
+
+    def object_offset(self, found):
+        offset = PoolScanner.object_offset(self, found)        
+        extra = self.buffer.profile.get_obj_offset("_OBJECT_HEADER", "Body")
+        
+        return extra + offset
+
+    def check_threads_process(self, found):
+        self.thread = NewObject('_ETHREAD', vm=self.buffer,
+                           offset=self.object_offset(found))
+
+        return self.thread.Cid.UniqueProcess.v()==0 or \
+               self.thread.ThreadsProcess.v() > self.kernel
+
+    def check_start_address(self, found):
+        return self.thread.Cid.UniqueProcess.v() == 0 or \
+               self.thread.StartAddress != 0
+
+    def check_semaphores(self, found):
+        if self.thread.Tcb.SuspendSemaphore.Header.Size.v() != 0x05 and \
+           self.thread.Tcb.SuspendSemaphore.Header.Size.v() != 0x05:
+            return False
+
+        if self.thread.LpcReplySemaphore.Header.Size.v() != 5 and \
+           self.thread.LpcReplySemaphore.Header.Type.v() != 5:
+            return False
+
+        return True
+
+class thrdscan2(modscan2):
+    def execute(self):
+        ## Here we scan the physical address space
+        address_space = utils.load_as(dict(type='physical'))
+
+        ## We need the kernel_address_space later
+        self.kernel_address_space = utils.load_as()
+        
+        print "No.  PID    TID    Offset    \n"+ \
+              "---- ------ ------ ----------\n"
+
+        scanner = PoolScanThreadFast2()
+        for offset in scanner.scan(address_space):
+            print "%6d %6d 0x%0.8x" % (scanner.thread.Cid.UniqueProcess,
+                                       scanner.thread.Cid.UniqueThread,
+                                       scanner.thread.offset)
