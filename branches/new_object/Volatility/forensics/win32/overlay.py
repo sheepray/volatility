@@ -19,6 +19,7 @@ xpsp2overlays = {
     }],
 
     '_ADDRESS_OBJECT' : [ None, { \
+    'LocalPort': [ None, ['unsigned be short']], \
     'CreateTime' : [ None, ['WinTimeStamp', {}]], \
     }],
 
@@ -75,5 +76,10 @@ xpsp2overlays = {
     'BlockSize': [ 0x2, ['BitField', dict(start_bit = 0, end_bit = 9)]], 
     'PoolType': [ 0x2, [ 'BitField', dict(start_bit = 9, end_bit = 16)]],
     } ],\
-    
+
+    '_TCPT_OBJECT': [ None, {
+    'RemotePort': [ None, [ 'unsigned be short']],
+    'LocalPort': [ None, [ 'unsigned be short']],
+    } ],
+
     }

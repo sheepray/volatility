@@ -328,6 +328,9 @@ class NativeType(Object):
         return hex(self.v())
 
     def __str__(self):
+        return "%s" % (self.v())
+
+    def __repr__(self):
         return " [%s]: %s" % (self.theType, self.v())
 
     def __and__(self, other):

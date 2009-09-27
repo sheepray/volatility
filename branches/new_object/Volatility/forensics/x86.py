@@ -43,6 +43,7 @@ x86_native_types = { \
     'unsigned char' : [1, 'B'], \
     'unsigned short int' : [2, 'H'], \
     'unsigned short' : [2, 'H'], \
+    'unsigned be short' : [2, '>H'], \
     'short' : [2, 'h'], \
     'long long' : [8, 'q'], \
     'unsigned long long' : [8, 'Q'], \

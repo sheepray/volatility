@@ -99,8 +99,7 @@ class IA32PagedMemory(addrspace.BaseAddressSpace):
     pae = False
     def __init__(self, base, opts):
         addrspace.BaseAddressSpace.__init__(self, base, opts)
-
-        if opts.get('type') == 'physical':
+        if opts and opts.get('type') == 'physical':
             raise RuntimeError("User requested physical AS")
         
         ## We must be stacked on someone else:
@@ -108,7 +107,7 @@ class IA32PagedMemory(addrspace.BaseAddressSpace):
         
         ## We can not stack on someone with a page table
         assert not hasattr(base, 'pgd_vaddr'), "Can not stack over page table AS"
-
+        self.profile = Profile()
         self.pgd_vaddr = config.DTB or self.load_dtb()
 
         ## Finally we have to have a valid PsLoadedModuleList

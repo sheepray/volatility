@@ -65,9 +65,10 @@ configuration information:
    configuration
    
 """    
-import ConfigParser, optparse, os, sys, pdb
+import ConfigParser, os, sys, pdb
+from optparse import Option, OptionParser, BadOptionError
 
-class PyFlagOptionParser(optparse.OptionParser):
+class PyFlagOptionParser(OptionParser):
     final = False
     help_hooks = []
     
@@ -86,7 +87,7 @@ class PyFlagOptionParser(optparse.OptionParser):
 
         try:
             opt = self._match_long_opt(opt)
-        except optparse.BadOptionError:
+        except BadOptionError:
             ## we are here because we dont recognise this option.  Its
             ## possible that it has not been defined yet so unless
             ## this is our final run we just ignore it.
@@ -100,9 +101,9 @@ class PyFlagOptionParser(optparse.OptionParser):
             nargs = option.nargs
             if len(rargs) < nargs:
                 if nargs == 1:
-                    self.error(_("%s option requires an argument") % opt)
+                    self.error(("%s option requires an argument") % opt)
                 else:
-                    self.error(_("%s option requires %d arguments")
+                    self.error(("%s option requires %d arguments")
                                % (opt, nargs))
             elif nargs == 1:
                 value = rargs.pop(0)
@@ -122,14 +123,14 @@ class PyFlagOptionParser(optparse.OptionParser):
         ## We cant emit errors about missing parameters until we are
         ## sure that all modules have registered all their parameters
         if self.final:
-            return optparse.OptionParser.error(self,msg)
+            return OptionParser.error(self,msg)
 
     def print_help(self):
-        optparse.OptionParser.print_help(self)
+        OptionParser.print_help(self)
 
         for cb in self.help_hooks:
             print cb()
-        
+
 class ConfObject(object):
     """ This is a singleton class to manage the configuration.
 
@@ -266,6 +267,11 @@ class ConfObject(object):
             self.add_file(self._filename)
 
             try:
+                if getattr(self.optparse_opts, "version") == True:
+                    print "Version: ",
+                    self.optparser.print_version()
+                    sys.exit(0)
+                    
                 ## Help can only be set on the command line
                 if getattr(self.optparse_opts, "help"):
                     
@@ -390,16 +396,12 @@ else:
     config.add_file("volatilityrc")
 
 ## This calculates the version:
-import re
-version = "$Version: 0.87-pre1 Date: Thu Jun 12 00:48:38 EST 2008$"
-m = re.match("\$Version: ([^ ]+)", version)
-if m:
-    version = m.group(1)
-else:
-    version = "0.87-pre1"
-
-config.add_option("VERSION", default=version, readonly=True,
+config.add_option("VERSION", default=None, readonly=True,
+                  action='store_true',
                   help = "The current version")
+
+## This needs to be updated by the VCS
+config.optparser.version = "0.87-pre1 Date: Thu Jun 12 00:48:38 EST 2008"
 
 try:
     config.add_option("CONF_FILE", default=os.environ['HOME']+'/.volatilityrc',

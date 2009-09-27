@@ -872,6 +872,13 @@ class PoolScanner(BaseScanner):
         self.pool_tag = self.pool_tag or pool_tag
         self.constraints = constraints or []
 
+    def object_offset(self, found):
+        """ This returns the offset of the object contained within
+        this pool allocation.
+        """
+        obj = NewObject('_POOL_HEADER', vm=self.buffer, offset=found-4)
+        return obj.offset + obj.size()
+    
     def get_blocksize(self, found):
         pool_hdr_val = NewObject('_POOL_HEADER', vm=self.buffer,
                                  offset = found - 4)
@@ -902,6 +909,7 @@ class PoolScanner(BaseScanner):
         """ This calls all our constraints on the offset found and
         returns the number of contrainst that matched.
         """
+        #pdb.set_trace()
         cnt = 0
         for func in self.constraints:
             ## constraints can raise for an error

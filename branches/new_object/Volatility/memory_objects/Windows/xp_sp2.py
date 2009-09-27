@@ -232,9 +232,3 @@ class _TCPT_OBJECT(object2.CType):
     
     def _LocalIpAddress(self, attr):
         return socket.inet_ntoa(struct.pack("<I", self.m(attr).v()))
-
-    def _RemotePort(self, attr):
-        return socket.ntohs(self.m(attr).v())
-
-    def _LocalPort(self, attr):
-        return socket.ntohs(self.m(attr).v())

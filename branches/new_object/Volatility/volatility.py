@@ -111,18 +111,6 @@ modules = {
     VolatoolsModule('procdump',
                   'Dump a process to an executable sample',
                   procdump),
-    'connscan2xxx':
-    VolatoolsModule('connscan2xx',
-                  'Scan for connection objects (New)',
-                  connscan2xxx),
-    'sockscan2':
-    VolatoolsModule('sockscan2',
-                  'Scan for socket objects (New)',
-                  sockscan2),
-    'modscan2':
-    VolatoolsModule('modscan2',
-                  'Scan for module objects (New)',
-                  modscan2),
     'thrdscan2':
     VolatoolsModule('thrdscan2',
                   'Scan for thread objects (New)',
