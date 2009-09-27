@@ -33,7 +33,6 @@ from forensics.object2 import NewObject
 from forensics.win32.datetime import read_time, windows_to_unix_time
 from forensics.win32.info import find_psactiveprocesshead, kpcr_addr
 from struct import unpack
-import pdb
 from forensics.addrspace import FileAddressSpace
 
 def pslist(addr_space, profile):

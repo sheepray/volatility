@@ -28,11 +28,10 @@ This module implements the fast module scanning
 
 #pylint: disable-msg=C0111
 
-import os, pdb
 from forensics.win32.scan2 import PoolScanner
 import forensics.commands
 import forensics.conf
-config=forensics.conf.ConfObject()
+config = forensics.conf.ConfObject()
 import forensics.utils as utils
 from forensics.object2 import NewObject
 
@@ -72,7 +71,7 @@ class modscan2(forensics.commands.command):
     
     def execute(self):
         ## Here we scan the physical address space
-        address_space = utils.load_as(dict(type='physical'))
+        address_space = utils.load_as(astype = 'physical')
 
         ## We need the kernel_address_space later
         self.kernel_address_space = utils.load_as()
@@ -137,7 +136,7 @@ class PoolScanThreadFast2(PoolScanner):
 class thrdscan2(modscan2):
     def execute(self):
         ## Here we scan the physical address space
-        address_space = utils.load_as(dict(type='physical'))
+        address_space = utils.load_as(astype = 'physical')
 
         ## We need the kernel_address_space later
         self.kernel_address_space = utils.load_as()
@@ -146,7 +145,7 @@ class thrdscan2(modscan2):
               "---- ------ ------ ----------\n"
 
         scanner = PoolScanThreadFast2()
-        for offset in scanner.scan(address_space):
+        for _offset in scanner.scan(address_space):
             print "%6d %6d 0x%0.8x" % (scanner.thread.Cid.UniqueProcess,
                                        scanner.thread.Cid.UniqueThread,
                                        scanner.thread.offset)

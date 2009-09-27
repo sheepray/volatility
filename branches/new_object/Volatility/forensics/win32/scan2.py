@@ -33,7 +33,7 @@
 @organization: Volatile Systems.
 """
 
-import struct, pdb
+import struct
 from time import gmtime, strftime
 #from forensics.object import read_obj_from_buf, read_string, obj_size, get_obj_offset
 from forensics.object2 import NewObject

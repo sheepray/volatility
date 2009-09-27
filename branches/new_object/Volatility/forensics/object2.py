@@ -28,7 +28,7 @@
 
 #pylint: disable-msg=C0111
 
-import sys, StringIO, pdb
+import sys
 # sys.path.append(".")
 # sys.path.append("..")
 
@@ -36,6 +36,7 @@ from vtypes import xpsp2types as types
 from forensics.win32.overlay import xpsp2overlays
 from forensics.x86 import x86_native_types
 import forensics.registry as MemoryRegistry
+import forensics.addrspace as addrspace
 import struct
 
 class Curry:
@@ -117,8 +118,7 @@ class NoneObject(object):
         return False
 
     def __eq__(self, other):
-        if other is None: return True
-        return False
+        return (other is None)
 
     ## Make us subscriptable obj[j]
     def __getitem__(self, item):
@@ -294,8 +294,8 @@ class NativeType(Object):
 
     def value(self):
         data = self.vm.read(self.offset, self.size())
-        if not data: return NoneObject("Unable to read %s bytes from %s" % (
-            self.size(), self.offset))
+        if not data:
+            return NoneObject("Unable to read %s bytes from %s" % (self.size(), self.offset))
         
         (val, ) = struct.unpack(self.format_string, data)
                 
@@ -353,18 +353,18 @@ class Void(NativeType):
 
     def dereference_as(self, derefType):
         return NewObject(derefType, self.v(), \
-                         self.vm, parent=self,profile=self.profile)
+                         self.vm, parent=self, profile=self.profile)
 
 class Pointer(NativeType):
     def __init__(self, theType, offset, vm, parent=None, profile=None, target=None, name=None):
         NativeType.__init__(self, theType, offset = offset, vm=vm, name=name,
                             parent=parent, profile=profile)
+        self.format_string = "=L"
+        
         if theType:
             self.target = Curry(NewObject, theType)
         else:
             self.target = target
-            
-        self.format_string = "=L"
 
     def is_valid(self):
         """ Returns if what we are pointing to is valid """
@@ -429,7 +429,7 @@ class Array(Object):
             self.target = Curry(NewObject, targetType)
         else:
             self.target = target
-            
+
         self.current = self.target(offset=offset, vm=vm, parent=self,
                                        profile=profile, name= name)
         
@@ -441,8 +441,11 @@ class Array(Object):
         return self.count * self.current.size()
 
     def next(self):
-        if not self.current or \
-               self.position >= self.count:
+        # We do *NOT* stop on a NULL Pointer being returned,
+        # but *do* want to stop on a NoneObject or any other duff value
+        # so we specifically must use == rather than is when testing None
+        # (in order to catch the NoneObject too)
+        if (self.current == None) or self.position >= self.count:
             raise StopIteration()
         
         offset = self.original_offset + self.position * self.current.size()
@@ -583,7 +586,7 @@ class Profile:
             overlay = {}
         for name, _value in abstract_types.items():
             self.import_type(name, abstract_types, overlay)
-	
+
     def import_type(self, ctype, typeDict, overlay):
         """ Parses the abstract_types by converting their string
         representations to class instances.
@@ -732,7 +735,7 @@ if __name__ == '__main__':
         """ Tests the object implementation. """
 
         def make_object(self, obj, offset, type, data):
-            address_space = BufferAddressSpace(data)
+            address_space = addrspace.BufferAddressSpace(data)
             profile = Profile(abstract_types=type)
             o = NewObject(obj, offset, address_space, profile=profile)
             

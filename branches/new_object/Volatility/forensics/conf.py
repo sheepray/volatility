@@ -21,6 +21,9 @@
 # * along with this program; if not, write to the Free Software
 # * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 # ******************************************************
+
+#pylint: disable-msg=C0111
+
 """ Configuration modules for pyflag.
 
 PyFlag is a complex package and requires a flexible configuration
@@ -65,10 +68,10 @@ configuration information:
    configuration
    
 """    
-import ConfigParser, os, sys, pdb
-from optparse import Option, OptionParser, BadOptionError
+import ConfigParser, optparse, os, sys
+import forensics
 
-class PyFlagOptionParser(OptionParser):
+class PyFlagOptionParser(optparse.OptionParser):
     final = False
     help_hooks = []
     
@@ -87,7 +90,7 @@ class PyFlagOptionParser(OptionParser):
 
         try:
             opt = self._match_long_opt(opt)
-        except BadOptionError:
+        except optparse.BadOptionError:
             ## we are here because we dont recognise this option.  Its
             ## possible that it has not been defined yet so unless
             ## this is our final run we just ignore it.
@@ -103,8 +106,7 @@ class PyFlagOptionParser(OptionParser):
                 if nargs == 1:
                     self.error(("%s option requires an argument") % opt)
                 else:
-                    self.error(("%s option requires %d arguments")
-                               % (opt, nargs))
+                    self.error(("%s option requires %d arguments") % (opt, nargs))
             elif nargs == 1:
                 value = rargs.pop(0)
             else:
@@ -123,15 +125,16 @@ class PyFlagOptionParser(OptionParser):
         ## We cant emit errors about missing parameters until we are
         ## sure that all modules have registered all their parameters
         if self.final:
-            return OptionParser.error(self,msg)
-        else: raise RuntimeError(msg)
+            return optparse.OptionParser.error(self, msg)
+        else:
+            raise RuntimeError(msg)
 
-    def print_help(self):
-        OptionParser.print_help(self)
+    def print_help(self, file=sys.stdout):
+        optparse.OptionParser.print_help(self, file)
 
         for cb in self.help_hooks:
-            print cb()
-
+            file.write(cb())
+        
 class ConfObject(object):
     """ This is a singleton class to manage the configuration.
 
@@ -193,7 +196,7 @@ class ConfObject(object):
         if version:
             self.optparser.version = version
         
-    def add_file(self, filename, type='init'):
+    def add_file(self, filename, _type='init'):
         """ Adds a new file to parse """
         self._filenames.append(filename)
         
@@ -204,7 +207,7 @@ class ConfObject(object):
                 conf_parser = ConfigParser.ConfigParser()
                 conf_parser.read(f)                
 
-                for k,v in conf_parser.items('DEFAULT'):
+                for k, v in conf_parser.items('DEFAULT'):
                     ## Absolute parameters are protected from
                     ## configuration files:
                     if k in self._absolute.keys():
@@ -212,14 +215,14 @@ class ConfObject(object):
 
                     try:
                         v = eval(v, self.g_dict)
-                    except Exception,e:
+                    except Exception, _e:
                         pass
 
                     ## update the configured options
                     self.cnf_opts[k] = v
                     
             except IOError:
-                print "Unable to open %s" % _filename
+                print "Unable to open %s" % f
 
         ConfObject._filename = filename
 
@@ -234,7 +237,7 @@ class ConfObject(object):
         self.optparser.help_hooks.append(cb)
 
     def set_help_hook(self, cb):
-        self.optparser.help_hooks=[cb]
+        self.optparser.help_hooks = [cb]
 
     def parse_options(self, final=True):
         """ Parses the options from command line and any conf files
@@ -254,8 +257,8 @@ class ConfObject(object):
 
             ## Update our cmdline dict:
             for k in dir(opts):
-                v = getattr(opts,k)
-                if k in self.options and not v==None:
+                v = getattr(opts, k)
+                if k in self.options and not v == None:
                     self.opts[k] = v
 
         except UnboundLocalError:
@@ -273,12 +276,7 @@ class ConfObject(object):
             ## Reparse the config file again:
             self.add_file(self._filename)
 
-            try:
-                if getattr(self.optparse_opts, "version") == True:
-                    print "Version: ",
-                    self.optparser.print_version()
-                    sys.exit(0)
-                    
+            try:                    
                 ## Help can only be set on the command line
                 if getattr(self.optparse_opts, "help"):
                     
@@ -287,7 +285,7 @@ class ConfObject(object):
                         try:
                             opt.metavar = "%s" % (getattr(self, opt.dest) or
                                                   opt.dest.upper())
-                        except Exception,e:
+                        except Exception, _e:
                             pass
 
                     self.optparser.print_help()
@@ -301,7 +299,8 @@ class ConfObject(object):
         """
         option = option.lower()
 
-        if option in self.options: return
+        if option in self.options:
+            return
         
         self.options.append(option)
         
@@ -318,7 +317,8 @@ class ConfObject(object):
             default = args['default']
             try:
                 default = eval(default, self.g_dict)
-            except: pass
+            except:
+                pass
             
             self.default_opts[option] = default
             del args['default']
@@ -328,9 +328,10 @@ class ConfObject(object):
         try:
             self._absolute[option] = args['absolute']
             del args['absolute']
-        except KeyError: pass
+        except KeyError:
+            pass
 
-        self.docstrings[option] = args.get('help',None)
+        self.docstrings[option] = args.get('help', None)
 
         if short_option:
             self.optparser.add_option("-%s" % short_option, "--%s" % option, **args)
@@ -346,7 +347,7 @@ class ConfObject(object):
         except AttributeError:
             pass
         
-    def update(self, key,value):
+    def update(self, key, value):
         """ This can be used by scripts to force a value of an option """
         self.readonly[key.lower()] = value
         
@@ -359,39 +360,46 @@ class ConfObject(object):
         ## Maybe its a class method?
         try:
             return super(ConfObject, self).__getattribute__(attr)
-        except AttributeError: pass
+        except AttributeError:
+            pass
 
         ## Is it a ready only parameter (i.e. can not be overridden by
         ## the config file)
         try:
             return self.readonly[attr.lower()]
-        except KeyError: pass
+        except KeyError:
+            pass
 
         ## Try to find the attribute in the command line options:
         try:
             return self.opts[attr.lower()]
-        except KeyError: pass
+        except KeyError:
+            pass
 
         ## Was it given in the environment?
         try:
             return os.environ["VOLATILITY_" + attr.upper()]
-        except KeyError: pass
+        except KeyError:
+            pass
 
         ## No - try the configuration file:
         try:
             return self.cnf_opts[attr.lower()]
-        except KeyError: pass
+        except KeyError:
+            pass
 
         ## No - is there a default for it?
         try:
             return self.default_opts[attr.lower()]
-        except KeyError: pass
+        except KeyError:
+            pass
 
         ## Maybe its just a command line option:
         try:
             if not attr.startswith("_") and self.optparse_opts:
                 return getattr(self.optparse_opts, attr.lower())
-        except AttributeError: pass
+        except AttributeError:
+            pass
         
         raise AttributeError("Parameter %s is not configured - try setting it on the command line (-h for help)" % attr)
 
@@ -401,14 +409,6 @@ if os.access(config_file, os.R_OK):
     config.add_file(config_file)
 else:
     config.add_file("volatilityrc")
-
-## This calculates the version:
-config.add_option("VERSION", default=None, readonly=True,
-                  action='store_true',
-                  help = "The current version")
-
-## This needs to be updated by the VCS
-config.optparser.version = "0.87-pre1 Date: Thu Jun 12 00:48:38 EST 2008"
 
 try:
     config.add_option("CONF_FILE", default=os.environ['HOME']+'/.volatilityrc',

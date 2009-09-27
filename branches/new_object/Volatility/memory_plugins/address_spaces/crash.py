@@ -1,7 +1,9 @@
 """ An AS for processing crash dumps """
 import standard
 import struct
-from forensics.object2 import NewObject, Profile
+from forensics.object2 import NewObject
+import forensics.conf
+config = forensics.conf.ConfObject()
 
 #pylint: disable-msg=C0111
 
@@ -10,18 +12,18 @@ page_shift = 12
 class WindowsCrashDumpSpace32(standard.FileAddressSpace):
     """ This AS supports windows Crash Dump format """
     order = 30
-    def __init__(self, baseAddressSpace, opts):
+    def __init__(self, baseAddressSpace, **kwargs):
+        standard.FileAddressSpace.__init__(self, baseAddressSpace, layered = True, **kwargs)
         ## We must have an AS below us
         assert baseAddressSpace, "No base Address Space"
 
         ## Must start with the magic PAGEDUMP
-        assert(baseAddressSpace.read(0, 8) == 'PAGEDUMP')
+        assert(baseAddressSpace.read(0, 8) == 'PAGEDUMP'), "Header signature invalid"
 
         self.runs = []
-        self.offset = opts.get('offset', 0)
-        self.base = baseAddressSpace
+        # I have the feeling config.OFFSET will interfere with plugin options...
+        self.offset = 0 # config.OFFSET
         self.fname = ''
-        self.profile = Profile()
 
         self.header = NewObject("_DMP_HEADER", self.offset, baseAddressSpace,
                                 profile = self.profile)
@@ -40,7 +42,7 @@ class WindowsCrashDumpSpace32(standard.FileAddressSpace):
     def get_addr(self, addr):
         page_offset = (addr & 0x00000FFF)
         page = addr >> page_shift
-	
+
         # This is the offset to account for the header file
         offset = 1
         for run in self.runs:
@@ -65,7 +67,7 @@ class WindowsCrashDumpSpace32(standard.FileAddressSpace):
         baddr = self.get_addr(addr)
         if baddr == None:
             return None
-	
+
         if len < first_block:
             stuff_read = self.base.read(baddr, len)
             return stuff_read
@@ -78,7 +80,7 @@ class WindowsCrashDumpSpace32(standard.FileAddressSpace):
                 return None
             stuff_read = stuff_read + self.base.read(baddr, 0x1000)
             new_addr = new_addr + 0x1000
-	
+
         if left_over > 0:
             baddr = self.get_addr(new_addr)
             if baddr == None:

@@ -30,7 +30,7 @@
 """
 
 from forensics.object2 import NewObject
-from forensics.linked_list import list_do
+# from forensics.linked_list import list_do
 
 # Defines
 
@@ -59,7 +59,7 @@ def process_list(addr_space, types, symtab, theProfile):
             return []
         init_task = NewObject('task_struct', init_task_vaddr, addr_space, \
             None, theProfile)       
-        list_do(init_task, ['tasks', 'next'], task_list.append, profile=theProfile)
+        # list_do(init_task, ['tasks', 'next'], task_list.append, profile=theProfile)
     return task_list
 
 def task_cpu(processor, verbose=False):

@@ -32,13 +32,14 @@
 
 #pylint: disable-msg=C0111
 
-import sys, pdb, textwrap
-import os
+import sys, textwrap
 import forensics.registry as MemoryRegistry
-import forensics.utils
 import forensics.conf
-config=forensics.conf.ConfObject()
+config = forensics.conf.ConfObject()
 from forensics.object2 import Curry
+
+config.add_option('DEBUG', short_option = 'd', action='count',
+                  help = 'Debug volatility', default=0)
 
 from vmodules import *
 
@@ -153,7 +154,6 @@ def list_plugins():
 
 def usage(progname):
     print ""
-    print "\tVolatile Systems Volatility Framework v1.3"
     print "\tCopyright (C) 2007,2008 Volatile Systems"
     print "\tCopyright (C) 2007 Komoku, Inc."
     print "\tThis is free software; see the source for copying conditions."
@@ -178,7 +178,11 @@ def command_help(command):
     
     return result + command.help()
 
-def main(argv=sys.argv):
+def main():
+
+    # Get the version information on every output from the beginning
+    # Exceptionally useful for debugging/telling people what's going on
+    print "Volatile Systems Volatility Framework " + forensics.version
 
     MemoryRegistry.Init()
 
@@ -221,7 +225,9 @@ if __name__ == "__main__":
     
     try:
         main()
-    except Exception,e:
-        print e
-        pdb.post_mortem()
+    except Exception, ex:
+        print ex
+        if config.DEBUG:
+            import pdb
+            pdb.post_mortem()
 

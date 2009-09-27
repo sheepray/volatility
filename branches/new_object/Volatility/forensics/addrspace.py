@@ -29,23 +29,20 @@
 
 """ Alias for all address spaces """
 
+#pylint: disable-msg=C0111
+
 import os
 import struct
-from forensics.object2 import NewObject, Profile
-
-try:
-    from cStringIO import StringIO
-except ImportError:
-    from StringIO import StringIO
+import object2
 
 class BaseAddressSpace:
     """ This is the base class of all Address Spaces. """
-    def __init__(self, base, opts):
+    def __init__(self, base, **kwargs):
         """ base is the AS we will be stacking on top of, opts are
         options which we may use.
         """
         self.base = base
-        self.opts = opts
+        self.profile = object2.Profile()
 
     def read(self, addr, len):
         """ Read some date from a certain offset """
@@ -60,11 +57,11 @@ class BaseAddressSpace:
 ## transparent support for a string buffer so types can be
 ## instantiated off the buffer.
 class BufferAddressSpace(BaseAddressSpace):
-    def __init__(self):
+    def __init__(self, **kwargs):
+        BaseAddressSpace.__init__(self, None, **kwargs)
         self.fname = "Buffer"
         self.data = ''
         self.base_offset = 0
-        self.profile = Profile()
 
     def assign_buffer(self, data, base_offset=0):
         self.base_offset = base_offset

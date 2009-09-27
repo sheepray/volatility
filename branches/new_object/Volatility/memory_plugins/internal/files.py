@@ -10,6 +10,9 @@ import forensics.commands
 import forensics.win32 as win32
 import forensics.object2 as object2
 import forensics.utils as utils
+import forensics.conf as conf
+
+config = conf.ConfObject()
 
 class files(forensics.commands.command):
     """Print list of open files for each process"""
@@ -47,7 +50,7 @@ class files(forensics.commands.command):
         result = {}
         addr_space = utils.load_as()
         
-        if self.opts.offset:
+        if config.OFFSET:
             try:
                 offset = int(self.opts.offset, 16)
             except ValueError:
@@ -61,7 +64,7 @@ class files(forensics.commands.command):
         for task in tasks:
             if task.ObjectTable.HandleTableList:
                 pid = int(task.ObjectTable.UniqueProcessId)
-                if self.opts.pid and pid != self.opts.pid:
+                if config.PID and pid != config.PID:
                     continue
                 handles = task.handles()
                 

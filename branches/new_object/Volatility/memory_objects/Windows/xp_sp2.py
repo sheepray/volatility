@@ -25,9 +25,10 @@
 
 #pylint: disable-msg=C0111
 
-import vmodules, pdb
+import vmodules
 import forensics.object2 as object2
 import forensics.win32 as win32
+# FIXME: It's currently important these are imported here, otherwise they don't show up in the MemoryObjects registry
 from forensics.object2 import BitField, Pointer, Void, Array, CType
 
 
@@ -169,7 +170,7 @@ class _EPROCESS(object2.CType):
         """ Gets a process address space for a task given in _EPROCESS """
         directory_table_base = self.Pcb.DirectoryTableBase[0].v()
         
-        process_as = self.vm.__class__(self.vm.base, None, dtb = directory_table_base)
+        process_as = self.vm.__class__(self.vm.base, dtb = directory_table_base)
         process_as.name = "Process"
 
         return process_as

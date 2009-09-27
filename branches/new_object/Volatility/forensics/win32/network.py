@@ -28,7 +28,7 @@
 
 #pylint: disable-msg=C0111
 
-import struct, pdb
+import struct
 import forensics.win32 as win32
 import forensics.object2 as object2
 from forensics.object import read_obj, get_obj_offset
@@ -104,13 +104,12 @@ def determine_connections(addr_space, profile):
                         offset = table_addr, vm = addr_space,
                         count = table_size, profile = profile, 
                         target = object2.Curry(object2.Pointer, '_TCPT_OBJECT'))
-                    
+
                     for entry in table:
                         conn = entry.dereference()
-                        while conn:
+                        while conn.is_valid():
                             connections.append(conn)
                             conn = conn.Next
-                            
             return connections
 
     return object2.NoneObject("Unable to determine connections")
@@ -136,7 +135,7 @@ def determine_sockets(addr_space, profile):
                 if int(table_size) > 0:
                     table = object2.Array(
                         offset = table_addr, vm = addr_space,
-                        count=table_size, profile=profile,
+                        count = table_size, profile = profile,
                         target = object2.Curry(object2.Pointer, "_ADDRESS_OBJECT"))
                     
                     for entry in table:

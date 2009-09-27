@@ -28,11 +28,9 @@ This module implements the fast connection scanning
 
 #pylint: disable-msg=C0111
 
-import os
 from forensics.win32.scan2 import PoolScanner
-import forensics.commands
 import forensics.conf
-config=forensics.conf.ConfObject()
+config = forensics.conf.ConfObject()
 import forensics.utils as utils
 from forensics.object2 import NewObject
 
@@ -64,7 +62,7 @@ class connscan2(forensics.commands.command):
     
     def execute(self):
         ## Just grab the AS and scan it using our scanner
-        address_space = utils.load_as(dict(type='physical'))
+        address_space = utils.load_as(astype = 'physical')
 
         print "Local Address             Remote Address            Pid   \n"+ \
               "------------------------- ------------------------- ------ \n"

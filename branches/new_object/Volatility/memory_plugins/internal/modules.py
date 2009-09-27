@@ -29,10 +29,9 @@ class modules(forensics.commands.command):
         
 
     def calculate(self):
-        result = {}
         self.profile = object2.Profile()
 
-        addr_space = utils.load_as(self.opts)
+        addr_space = utils.load_as()
         
         result = win32.modules.lsmod(addr_space, self.profile)
 

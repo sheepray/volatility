@@ -9,7 +9,6 @@ import forensics.win32 as win32
 import forensics.utils as utils
 import forensics.commands
 import vmodules
-import time, pdb
 
 #pylint: disable-msg=C0111
 
@@ -27,7 +26,7 @@ class datetime(forensics.commands.command):
         result = {}
         self.profile = object2.Profile()
 
-        addr_space = utils.load_as(self.opts)
+        addr_space = utils.load_as()
         
         # Get the Image Datetime
         result['ImageDatetime'] = self.get_image_datetime(addr_space)

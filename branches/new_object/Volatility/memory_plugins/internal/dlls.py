@@ -6,10 +6,20 @@ Created on 26 Sep 2009
 
 #pylint: disable-msg=C0111
 
-import forensics.commands
+import forensics
 import forensics.win32 as win32
 import forensics.object2 as object2
 import forensics.utils as utils
+
+config = forensics.conf.ConfObject()
+
+config.add_option('OFFSET', short_option = 'o', default=None,
+    help='EPROCESS Offset (in hex) in physical address space',
+    action='store', type='string')
+
+config.add_option('PID', short_option = 'p',
+    help='Get info for this Pid', default=None,
+    action='store', type='int')
 
 class dlllist(forensics.commands.command):
     """Print list of loaded dlls for each process"""
@@ -21,14 +31,6 @@ class dlllist(forensics.commands.command):
     def parser(self):
         """Sets up the parser before execution"""
         forensics.commands.command.parser(self)
-
-        self.op.add_option('-o', '--offset',
-            help='EPROCESS Offset (in hex) in physical address space',
-            action='store', type='string', dest='offset')
-
-        self.op.add_option('-p', '--pid',
-            help='Get info for this Pid', default=None,
-            action='store', type='int', dest='pid')
 
     def render_text(self, outfd, data):
         first = True
@@ -49,19 +51,20 @@ class dlllist(forensics.commands.command):
                 for m in modules:
                     outfd.write("0x%0.8x   0x%0.6x     %s\n" % (int(m.BaseAddress), int(m.SizeOfImage), m.FullDllName))
             else:
+                print task.Peb
                 outfd.write("Unable to read PEB for task.\n")
 
     def calculate(self):
         result = {}
         self.profile = object2.Profile()
 
-        addr_space = utils.load_as(self.opts)
+        addr_space = utils.load_as()
         
-        if self.opts.offset:
+        if config.OFFSET:
             try:
-                offset = int(self.opts.offset, 16)
+                offset = int(config.OFFSET, 16)
             except ValueError:
-                self.op.error("EPROCESS offset must be a hexadecimal number.")
+                config.error("EPROCESS offset must be a hexadecimal number.")
             
             tasks = [object2.NewObject("_EPROCESS", offset, addr_space, profile=self.profile)]
 
@@ -71,7 +74,7 @@ class dlllist(forensics.commands.command):
         for task in tasks:
             if task.UniqueProcessId:
                 pid = int(task.UniqueProcessId)
-                if self.opts.pid and pid != self.opts.pid:
+                if config.PID and pid != config.PID:
                     continue
                 
                 result[pid] = {'task': task, 'modules': []}

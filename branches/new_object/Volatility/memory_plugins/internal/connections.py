@@ -31,7 +31,7 @@ class connections(forensics.commands.command):
     def render_text(self, outfd, data):
         if len(data):
             outfd.write("%-25s %-25s %-6s\n" % ('Local Address', 'Remote Address', 'Pid'))
-        
+
         for conn in data:
             local = "%s:%s" % (conn.LocalIpAddress, conn.LocalPort)
             remote = "%s:%s" % (conn.RemoteIpAddress, conn.RemotePort)
@@ -39,12 +39,10 @@ class connections(forensics.commands.command):
         
 
     def calculate(self):
-        result = {}
         self.profile = object2.Profile()
 
-        addr_space = utils.load_as(self.opts)
+        addr_space = utils.load_as()
         
-        # Get the Image Datetime
         result = win32.network.determine_connections(addr_space, self.profile)
 
         return result

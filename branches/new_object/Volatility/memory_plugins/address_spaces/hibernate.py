@@ -1,6 +1,6 @@
 """ A Hiber file Address Space """
 import standard
-from forensics.object2 import NewObject, Profile
+from forensics.object2 import NewObject
 from forensics.win32.xpress import xpress_decode
 from thirdparty.progressbar import Bar, ETA, ProgressBar, Percentage, RotatingMarker
 import cPickle as pickle
@@ -39,10 +39,10 @@ class WindowsHiberFileSpace32(standard.FileAddressSpace):
     2) the first 4 bytes must be 'hibr'
     """
     order = 10
-    def __init__(self, baseAddressSpace, opts):
+    def __init__(self, baseAddressSpace, **kwargs):
+        standard.FileAddressSpace.__init__(self, baseAddressSpace, layered = True, **kwargs)
         assert baseAddressSpace, "No base Address Space"
         self.runs = []
-        self.base = baseAddressSpace
         self.PageDict = {}
         self.HighestPage = 0
         self.PageIndex = 0
@@ -52,7 +52,6 @@ class WindowsHiberFileSpace32(standard.FileAddressSpace):
         self.MemRangeCnt = 0
         self.offset = 0
         # Extract header information
-        self.profile = Profile()
         self.header = NewObject('_IMAGE_HIBER_HEADER', 0, baseAddressSpace,
                                 profile=self.profile)
         

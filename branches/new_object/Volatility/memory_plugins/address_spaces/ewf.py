@@ -1,10 +1,14 @@
 """ This Address Space allows us to open ewf files """
 import standard
 
-from ctypes import *
-import ctypes.util
+#pylint: disable-msg=C0111
 
-possible_names = ['libewf-1', 'ewf',]
+from ctypes import CDLL, c_char_p, c_int, pointer, c_ulonglong, c_ulong, create_string_buffer
+import ctypes.util
+import forensics.conf
+config = forensics.conf.ConfObject()
+
+possible_names = ['libewf-1', 'ewf', ]
 for name in possible_names:
     resolved = ctypes.util.find_library(name)
     if resolved:
@@ -20,12 +24,12 @@ class ewffile:
     """ A file like object to provide access to the ewf file """
     def __init__(self, volumes):
         if isinstance(volumes, str):
-            volumes = [volumes,]
+            volumes = [volumes, ]
 
         volume_array = c_char_p * len(volumes)
         self.handle = libewf.libewf_open(volume_array(*volumes), c_int(len(volumes)),
                                          c_int(1))
-        if self.handle==0:
+        if self.handle == 0:
             raise RuntimeError("Unable to open ewf file")
 
         self.readptr = 0
@@ -34,11 +38,11 @@ class ewffile:
         self.size = size_p.contents.value
         
     def seek(self, offset, whence=0):
-        if whence==0:
+        if whence == 0:
             self.readptr = offset
-        elif whence==1:
+        elif whence == 1:
             self.readptr += offset
-        elif whence==2:
+        elif whence == 2:
             self.readptr = self.size + offset
 
         self.readptr = min(self.readptr, self.size)
@@ -89,13 +93,12 @@ class EWFAddressSpace(standard.FileAddressSpace):
     2) The first 6 bytes must be 45 56 46 09 0D 0A (EVF header)
     """
     order = 20
-    def __init__(self, base, opts):
+    def __init__(self, base):
+        standard.FileAddressSpace.__init__(self, base)
         assert(base)
-        assert(base.read(0,6) == "\x45\x56\x46\x09\x0D\x0A")
-        self.name = self.fname = opts['filename']
+        assert(base.read(0, 6) == "\x45\x56\x46\x09\x0D\x0A")
         self.fhandle = ewf_open([self.name])
-        self.mode = 'rb'
-        self.fhandle.seek(0,2)
+        self.fhandle.seek(0, 2)
         self.fsize = self.fhandle.tell()
         self.fhandle.seek(0)
 

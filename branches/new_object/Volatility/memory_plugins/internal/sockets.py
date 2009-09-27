@@ -28,10 +28,9 @@ class sockets(forensics.commands.command):
         
 
     def calculate(self):
-        result = {}
         self.profile = object2.Profile()
 
-        addr_space = utils.load_as(self.opts)
+        addr_space = utils.load_as()
         
         # Get the Image Datetime
         result = win32.network.determine_sockets(addr_space, self.profile)

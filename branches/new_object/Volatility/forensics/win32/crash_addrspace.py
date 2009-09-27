@@ -51,7 +51,7 @@ class WindowsCrashDumpSpace32:
 
         self.number_of_runs = read_obj(self.base, debug_types,
             ['_DMP_HEADER', 'PhysicalMemoryBlockBuffer','NumberOfRuns'], offset)
-	
+
         self.number_of_pages = read_obj(self.base, debug_types,
             ['_DMP_HEADER', 'PhysicalMemoryBlockBuffer','NumberOfPages'], offset)
 
@@ -143,7 +143,7 @@ class WindowsCrashDumpSpace32:
     def get_addr(self, addr):
         page_offset = (addr & 0x00000FFF)
         page = addr >> page_shift
-	
+
         # This is the offset to account for the header file
         offset = 1
         for run in self.runs:
@@ -168,7 +168,7 @@ class WindowsCrashDumpSpace32:
         baddr = self.get_addr(addr)
         if baddr == None:
             return None
-	
+
         if len < first_block:
             return self.base.read(baddr, len)
 
@@ -180,7 +180,7 @@ class WindowsCrashDumpSpace32:
                 return None
             stuff_read = stuff_read + self.base.read(baddr, 0x1000)
             new_addr = new_addr + 0x1000
-	
+
         if left_over > 0:
             baddr = self.get_addr(new_addr)
             if baddr == None:

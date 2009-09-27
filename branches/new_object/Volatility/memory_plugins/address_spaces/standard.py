@@ -1,10 +1,10 @@
 """ These are standard address spaces supported by Volatility """
+import struct
 import forensics.addrspace as addrspace
-import os, struct
-from forensics.object2 import NewObject, Profile
+import forensics.object2 as object2 
 from vsyms import nopae_syms
 import forensics.conf
-config=forensics.conf.ConfObject()
+config = forensics.conf.ConfObject()
 
 #pylint: disable-msg=C0111
 
@@ -18,7 +18,7 @@ class FileAddressSpace(addrspace.BaseAddressSpace):
 
     For this AS to be instanitiated, we need
 
-    1) A valid opts.filename
+    1) A valid config.FILENAME
 
     2) no one else has picked the AS before us
     
@@ -27,19 +27,18 @@ class FileAddressSpace(addrspace.BaseAddressSpace):
     """
     ## We should be the AS of last resort
     order = 100
-    def __init__(self, base, opts, **kwargs):
-        addrspace.BaseAddressSpace.__init__(self, base, opts, **kwargs)
-        assert base == None, 'Must be first Address Space'
+    def __init__(self, base, layered=False, **kwargs):
+        addrspace.BaseAddressSpace.__init__(self, base, **kwargs)
+        assert base == None or layered, 'Must be first Address Space'
         filename = config.FILENAME
         assert filename, 'Filename must be specified'
         self.name = filename
         self.fname = self.name
         self.mode = 'rb'
         self.fhandle = open(self.fname, self.mode)
-        self.fhandle.seek(0,2)
+        self.fhandle.seek(0, 2)
         self.fsize = self.fhandle.tell()
         self.offset = 0
-        self.profile = Profile()
 
     def fread(self, length):
         return self.fhandle.read(length)
@@ -98,17 +97,16 @@ class IA32PagedMemory(addrspace.BaseAddressSpace):
     """
     order = 90
     pae = False
-    def __init__(self, base, opts, dtb = None, **kwargs):
-        addrspace.BaseAddressSpace.__init__(self, base, opts, **kwargs)
-        if opts and opts.get('type') == 'physical':
-            raise RuntimeError("User requested physical AS")
+    def __init__(self, base, dtb=0, astype = None, **kwargs):
+        addrspace.BaseAddressSpace.__init__(self, base, **kwargs)
+        assert astype != 'physical', "User requested physical AS"
         
         ## We must be stacked on someone else:
         assert base, "No base Address Space"
         
         ## We can not stack on someone with a page table
         assert not hasattr(base, 'pgd_vaddr'), "Can not stack over page table AS"
-        self.profile = Profile()
+        self.profile = object2.Profile()
         self.pgd_vaddr = dtb or config.DTB or self.load_dtb()
 
         ## Finally we have to have a valid PsLoadedModuleList
@@ -139,8 +137,8 @@ class IA32PagedMemory(addrspace.BaseAddressSpace):
                 found = data.find("\x03\x00\x1b\x00", found+1)
                 if found >= 0:
                     # (_type, _size) = unpack('=HH', data[found:found+4])
-                    proc = NewObject("_EPROCESS", offset+found, self.base,
-                                     profile = self.profile)
+                    proc = object2.NewObject("_EPROCESS", offset+found, self.base,
+                                             profile = self.profile)
                     if 'Idle' in proc.ImageFileName.v():
                         return proc.Pcb.DirectoryTableBase[0]
                 else:
@@ -325,12 +323,12 @@ class IA32PagedMemory(addrspace.BaseAddressSpace):
 class IA32PagedMemoryPae(IA32PagedMemory):
     order = 80
     pae = True
-    def __init__(self, base, opts, **kwargs):
+    def __init__(self, base, dtb=0, **kwargs):
         """ We accept an optional arg called dtb to force us to use a
         specific dtb. If not provided, we try to find it from our base
         AS, and failing that we search for it.
         """
-        IA32PagedMemory.__init__(self, base, opts, **kwargs)
+        IA32PagedMemory.__init__(self, base, **kwargs)
         
     def get_pdptb(self, pdpr):
         return pdpr & 0xFFFFFFE0
