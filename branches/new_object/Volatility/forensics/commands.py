@@ -17,7 +17,7 @@
 #
 
 
-import sys
+import sys, textwrap
 from vutils import get_standard_parser 
 
 class command:
@@ -47,7 +47,7 @@ class command:
         user lists available plugins.
         """
         try:
-            return self.__doc__
+            return textwrap.dedent(self.__doc__)
         except:
             return ""
 

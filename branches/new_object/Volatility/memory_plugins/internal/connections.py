@@ -12,7 +12,17 @@ import forensics.object2 as object2
 import forensics.utils as utils
 
 class connections(forensics.commands.command):
-    """Print list of open connections"""
+    """
+    Print list of open connections
+    ------------------------------
+
+    This module follows the handle table of each task and prints
+    current connections.
+
+    Note that if you are using a hibernated image this might not work
+    because Windows closes all sockets before hibernating. You might
+    find it more effective to do conscan instead.
+    """
 
     def __init__(self, args=None):
         forensics.commands.command.__init__(self, args)

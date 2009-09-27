@@ -32,10 +32,13 @@
 
 #pylint: disable-msg=C0111
 
-import sys, pdb
+import sys, pdb, textwrap
 import os
 import forensics.registry as MemoryRegistry
 import forensics.utils
+import forensics.conf
+config=forensics.conf.ConfObject()
+from forensics.object2 import Curry
 
 from vmodules import *
 
@@ -136,20 +139,33 @@ modules = {
 
 
 def list_modules():
-    print "\tSupported Internel Commands:"
+    result = "\n\tSupported Internel Commands:\n\n"
     keys = modules.keys()
     keys.sort()
     for mod in keys:
-        print "\t\t%-15s\t%-s" % (mod, modules[mod].desc())        
+        result += "\t\t%-15s\t%-s\n" % (mod, modules[mod].desc())
+        
+    return result
 
 def list_plugins():
-    print "\tSupported Plugin Commands:"
+    result = "\n\tSupported Plugin Commands:\n\n"
     keys = MemoryRegistry.PLUGIN_COMMANDS.commands.keys()
     keys.sort()
     for cmdname in keys:
         command = MemoryRegistry.PLUGIN_COMMANDS[cmdname]()
-        print "\t\t%-15s\t%-s" % (cmdname, command.help())      
+        help = command.help()
+        ## Just put the title line (First non empty line) in this
+        ## abbreviated display
+        try:
+            for line in help.splitlines():
+                if line:
+                    help = line
+                    break
+        except:
+            help = ''
+        result += "\t\t%-15s\t%-s\n" % (cmdname, help)
 
+    return result
 
 def usage(progname):
     print ""
@@ -170,32 +186,55 @@ def usage(progname):
     print "\tExample: volatility pslist -f /path/to/my/file"
     sys.exit(0)
 
+def command_help(command):
+    result = textwrap.dedent("""
+    ---------------------------------
+    Module %s
+    ---------------------------------\n""" % command.__class__.__name__)
+    
+    return result + command.help()
+
 def main(argv=sys.argv):
 
     MemoryRegistry.Init()
 
+    ## Parse all the options now
+    config.parse_options(False)
     try:
-        module = argv[1]
+        module = config.args[0]
     except IndexError:
-        usage(os.path.basename(argv[0]))
-        sys.exit(-1)
+        config.parse_options()
+        config.error("You must specify something to do")
         
     if module not in modules and \
            module not in MemoryRegistry.PLUGIN_COMMANDS.commands:
-        
-        print "Error: Invalid module [%s]." % (argv[1])
-        usage(argv[0])
+        config.parse_options()        
+        config.error("Invalid module [%s]." % (module))
 
     try:
         if module in modules:
-            modules[module].execute(module, argv[2:])
+            command = modules[module]
+            config.set_help_hook(Curry(command_help, command))
+            config.parse_options()
+            
+            command.execute(module, config.args[1:])
+            
         elif module in MemoryRegistry.PLUGIN_COMMANDS.commands:
-            command = MemoryRegistry.PLUGIN_COMMANDS[module](argv[2:])
+            command = MemoryRegistry.PLUGIN_COMMANDS[module](config.args[1:])
+
+            ## Register the help cb from the command itself
+            config.set_help_hook(Curry(command_help, command))
+            config.parse_options()
+             
             command.execute()
     except forensics.utils.AddrSpaceError, e:
         print e
 
 if __name__ == "__main__":
+    config.set_usage(usage = "Volatility - A memory forensics analysis platform.\n\nTry volatility.py -h for help.")
+    config.add_help_hook(list_modules)
+    config.add_help_hook(list_plugins)
+    
     try:
         main()
     except Exception,e:

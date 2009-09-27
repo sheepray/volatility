@@ -3,8 +3,15 @@ import forensics.addrspace as addrspace
 import os, struct
 from forensics.object2 import NewObject, Profile
 from vsyms import nopae_syms
+import forensics.conf
+config=forensics.conf.ConfObject()
 
 #pylint: disable-msg=C0111
+
+## This module requires a filename to be passed by the user
+config.add_option("FILENAME", default = None,
+                  short_option = 'f',
+                  help = "Filename to use when opening an image")
 
 class FileAddressSpace(addrspace.BaseAddressSpace):
     """ This is a direct file AS.
@@ -23,8 +30,9 @@ class FileAddressSpace(addrspace.BaseAddressSpace):
     def __init__(self, base, opts):
         addrspace.BaseAddressSpace.__init__(self, base, opts)
         assert base == None, 'Must be first Address Space'
-        assert opts['filename'], 'Filename must be specified'
-        self.name = opts['filename']
+        filename = config.FILENAME
+        assert filename, 'Filename must be specified'
+        self.name = filename
         self.fname = self.name
         self.mode = opts.get('mode','rb')
         self.fhandle = open(self.fname, self.mode)
