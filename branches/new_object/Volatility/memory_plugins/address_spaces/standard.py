@@ -36,7 +36,8 @@ class FileAddressSpace(addrspace.BaseAddressSpace):
         self.fname = self.name
         self.mode = 'rb'
         self.fhandle = open(self.fname, self.mode)
-        self.fsize = os.path.getsize(self.fname)
+        self.fhandle.seek(0,2)
+        self.fsize = self.fhandle.tell()
         self.offset = 0
         self.profile = Profile()
 
