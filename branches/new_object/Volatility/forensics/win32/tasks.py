@@ -33,12 +33,11 @@ from forensics.object2 import NewObject
 from forensics.win32.datetime import read_time, windows_to_unix_time
 from forensics.win32.info import find_psactiveprocesshead, kpcr_addr
 from struct import unpack
-
+import pdb
 from forensics.addrspace import FileAddressSpace
 
 def pslist(addr_space, profile):
     """ A Generator for _EPROCESS objects (uses _KPCR symbols) """
-
     ## Locate the kpcr struct - this is hard coded right now
     kpcr = NewObject("_KPCR", kpcr_addr, addr_space, profile=profile)
 

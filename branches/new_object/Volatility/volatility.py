@@ -188,7 +188,7 @@ def main(argv=sys.argv):
         module = config.args[0]
     except IndexError:
         config.parse_options()
-        config.error("You must specify something to do")
+        config.error("You must specify something to do (try -h)")
         
     if module not in modules and \
            module not in MemoryRegistry.PLUGIN_COMMANDS.commands:

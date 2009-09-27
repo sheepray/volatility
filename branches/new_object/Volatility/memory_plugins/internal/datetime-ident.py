@@ -9,7 +9,7 @@ import forensics.win32 as win32
 import forensics.utils as utils
 import forensics.commands
 import vmodules
-import time
+import time, pdb
 
 #pylint: disable-msg=C0111
 
@@ -40,7 +40,7 @@ class datetime(forensics.commands.command):
         return k.SystemTime - k.TimeZoneBias
 
 class ident(datetime):
-
+    """ Identify information for the image """
     def __init__(self, args=None):
         datetime.__init__(self, args)
     
@@ -54,9 +54,7 @@ class ident(datetime):
     
     def calculate(self):
         result = {}
-        self.profile = object2.Profile()
-
-        addr_space = utils.load_as(self.opts)
+        addr_space = utils.load_as()
 
         # Get the name
         tmpspace = addr_space

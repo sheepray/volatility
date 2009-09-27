@@ -45,7 +45,7 @@ class PoolScanSockFast2(PoolScanner):
         self.add_constraint(self.check_blocksize_equal)
         self.add_constraint(self.check_pooltype_nonpaged_or_free)
         self.add_constraint(self.check_socket_create_time)
-        #self.add_constraint(self.check_poolindex)
+        self.add_constraint(self.check_poolindex_zero)
 
     def check_socket_create_time(self, found):
         soffset = self.object_offset(found)

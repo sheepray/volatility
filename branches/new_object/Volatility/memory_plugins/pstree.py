@@ -3,6 +3,11 @@ from forensics.win32.tasks import pslist
 from forensics.object2 import Profile
 import forensics.utils as utils
 import forensics.commands
+import forensics.conf
+config=forensics.conf.ConfObject()
+
+config.add_option("VERBOSE", default=0, type='int',
+                  short_option='v', help='Verbose information')
 
 #pylint: disable-msg=C0111
 
@@ -15,11 +20,6 @@ class pstree(forensics.commands.command):
         forensics.commands.command.__init__(self, args)
         self.profile = None
     
-    def parser(self):
-        forensics.commands.command.parser(self)
-        self.op.add_option('-v', '--verbose', action='store_true',
-                           help='print more information')
-
     def execute(self):
         add_new_type('_RTL_USER_PROCESS_PARAMETERS', 'ImagePathName', 0x38, '_UNICODE_STRING')
         add_new_type('_EPROCESS', 'SeAuditProcessCreationInfo', 0x1f4,
@@ -61,7 +61,7 @@ class pstree(forensics.commands.command):
                         task_info['handle_count'],
                         task_info['create_time']))
 
-                    if self.opts.verbose:
+                    if config.VERBOSE > 1:
                         try:
                             outfd.write("%s    cmd: %s\n" % (
                                 ' '*pad, task_info['command_line']))
@@ -82,10 +82,9 @@ class pstree(forensics.commands.command):
         
     def calculate(self):
         result = {}
-        self.profile = Profile()
-
+        
         ## Load a new address space
-        addr_space = utils.load_as(self.opts)
+        addr_space = utils.load_as()
 
         for task in pslist(addr_space, self.profile):
             task_info = {}
@@ -100,7 +99,7 @@ class pstree(forensics.commands.command):
             ## Get the Process Environment Block - Note that _EPROCESS
             ## will automatically switch to process address space by
             ## itself.
-            if self.opts.verbose:
+            if config.VERBOSE > 1:
                 peb = task.Peb
                 if peb:
                     task_info['command_line'] = peb.ProcessParameters.CommandLine

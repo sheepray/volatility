@@ -117,6 +117,7 @@ class NoneObject(object):
         return False
 
     def __eq__(self, other):
+        if other is None: return True
         return False
 
     ## Make us subscriptable obj[j]
@@ -710,6 +711,8 @@ class Profile:
         members = {}
         size = ctype[0]
         for k, v in ctype[1].items():
+            if v[0]==None:
+                print "Error - %s has no offset in object %s. Check that vtypes has a concerete definition for it." % (k, cname)
             members[k] = (v[0], self.list_to_type(k, v[1], typeDict))
 
         ## Allow the plugins to over ride the class constructor here

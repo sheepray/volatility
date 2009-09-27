@@ -120,20 +120,53 @@ xpsp2types = { \
   '_HANDLE_TABLE_ENTRY' : [ 0x8, { \
     'Object' : [ 0x0, ['pointer', ['void']]], \
 } ], \
-  '_OBJECT_HEADER' : [ 0x20, { \
-    'Type' : [ 0x8, ['pointer', ['_OBJECT_TYPE']]], \
-    'Body' : [ 0x18, ['_QUAD']], \
-} ], \
-  '_OBJECT_TYPE' : [ 0x190, { \
+'_OBJECT_HEADER' : [ 0x18, {
+    'PointerCount' : [ 0x0, ['int']],
+    'HandleCount' : [ 0x4, ['int']],
+    'Type' : [ 0x8, ['pointer', ['_OBJECT_TYPE']]],
+    'NameInfoOffset' : [ 0x0c, ['unsigned char']],
+    'HandleInfoOffset' : [ 0xd, ['unsigned char']],    
+    'QuotaInfoOffset' : [ 0xe, ['unsigned char']],
+    'Flags' : [ 0xf, ['unsigned char']],
+    'ObjectCreateInfo' : [ 0x10, ['pointer', ['_OBJECT_TYPE']]],
+    'SecurityDescriptor' : [ 0x14, ['pointer', ['_OBJECT_TYPE']]],
+    'Body': [ 0x18, ['_QUAD']],
+    } ],
+'_OBJECT_TYPE' : [ 0x190, { \
     'Name' : [ 0x40, ['_UNICODE_STRING']], \
 } ], \
-  '_FILE_OBJECT' : [ 0x70, { \
-    'Type' : [ 0x0, ['short']], \
-    'FileName' : [ 0x30, ['_UNICODE_STRING']], \
-} ], \
+'_FILE_OBJECT' : [ 0x70, {
+    'Type' : [ 0x0, ['unsigned short']],
+    'Size' : [ 0x2, ['unsigned short']],
+    'DeviceObject' : [ 0x4, ['pointer', ['_DEVICE_OBJECT']]],
+    'Vpb' : [ 0x8, ['pointer', ['_VPB']]],
+    'FsContext' : [ 0xc, ['pointer', ['void']]],
+    'FsContext2' : [ 0x10, ['pointer', ['void']]],      
+    'SectionObjectPointer' : [ 0x14, ['pointer', ['_SECTION_OBJECT_POINTERS']]],
+    'PrivateCacheMap' : [ 0x18, ['pointer', ['void']]],
+    'FinalStatus' : [ 0x1c, ['unsigned long']],
+    'RelatedFileObject' : [ 0x20, ['pointer', ['_FILE_OBJECT']]],
+    'LockOperation' : [ 0x24, ['unsigned char']],
+    'DeletePending' : [ 0x25, ['unsigned char']],
+    'ReadAccess' : [ 0x26, ['unsigned char']],
+    'WriteAccess' : [ 0x27, ['unsigned char']],
+    'DeleteAccess' : [ 0x28, ['unsigned char']],
+    'SharedRead' : [ 0x29, ['unsigned char']],
+    'SharedWrite' : [ 0x2a, ['unsigned char']],
+    'SharedDelete' : [ 0x2b, ['unsigned char']],
+    'Flags' : [ 0x2c, ['unsigned long']],
+    'FileName' : [ 0x30, ['_UNICODE_STRING']],
+    'CurrentByteOffset' : [ 0x38, ['_LARGE_INTEGER']],
+    'Waiters' : [ 0x40, ['unsigned long']],
+    'Busy' : [ 0x44, ['unsigned long']],
+    'LastLock' : [ 0x48, ['pointer', ['void']]],
+    'Lock' : [ 0x4c, ['_KEVENT']],
+    'Event' : [ 0x5c, ['_KEVENT']],
+    'CompletionContext' : [ 0x6c, ['pointer', ['_IO_COMPLETION_CONTEXT']]],
+    } ],
 '_KPCR' : [  0xd70, { \
   'KdVersionBlock' : [ 0x34, ['pointer', ['void']]], \
-} ], \
+  } ], \
   '_KDDEBUGGER_DATA32' : [ 0x44, { \
   'PsLoadedModuleList' : [ 0x70, ['unsigned long']], \
   'PsActiveProcessHead' : [ 0x78, ['unsigned long']], \

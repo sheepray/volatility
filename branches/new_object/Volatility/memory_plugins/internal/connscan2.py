@@ -44,7 +44,7 @@ class PoolScanConnFast2(PoolScanner):
         PoolScanner.__init__(self)
         self.add_constraint(self.check_blocksize_geq)
         self.add_constraint(self.check_pooltype_nonpaged_or_free)
-        #self.add_constraint(self.check_poolindex)
+        self.add_constraint(self.check_poolindex_zero)
 
 class connscan2(forensics.commands.command):
     """ Scan Physical memory for _TCPT_OBJECT objects (tcp connections)

@@ -27,8 +27,8 @@ class FileAddressSpace(addrspace.BaseAddressSpace):
     """
     ## We should be the AS of last resort
     order = 100
-    def __init__(self, base, opts):
-        addrspace.BaseAddressSpace.__init__(self, base, opts)
+    def __init__(self, base, opts, **kwargs):
+        addrspace.BaseAddressSpace.__init__(self, base, opts, **kwargs)
         assert base == None, 'Must be first Address Space'
         filename = config.FILENAME
         assert filename, 'Filename must be specified'
@@ -97,8 +97,8 @@ class IA32PagedMemory(addrspace.BaseAddressSpace):
     """
     order = 90
     pae = False
-    def __init__(self, base, opts):
-        addrspace.BaseAddressSpace.__init__(self, base, opts)
+    def __init__(self, base, opts, dtb = None, **kwargs):
+        addrspace.BaseAddressSpace.__init__(self, base, opts, **kwargs)
         if opts and opts.get('type') == 'physical':
             raise RuntimeError("User requested physical AS")
         
@@ -108,7 +108,7 @@ class IA32PagedMemory(addrspace.BaseAddressSpace):
         ## We can not stack on someone with a page table
         assert not hasattr(base, 'pgd_vaddr'), "Can not stack over page table AS"
         self.profile = Profile()
-        self.pgd_vaddr = config.DTB or self.load_dtb()
+        self.pgd_vaddr = dtb or config.DTB or self.load_dtb()
 
         ## Finally we have to have a valid PsLoadedModuleList
         assert self.is_valid_address(nopae_syms.lookup('PsLoadedModuleList')), "PsLoadedModuleList not valid Address"
@@ -324,12 +324,12 @@ class IA32PagedMemory(addrspace.BaseAddressSpace):
 class IA32PagedMemoryPae(IA32PagedMemory):
     order = 80
     pae = True
-    def __init__(self, base, opts):
+    def __init__(self, base, opts, **kwargs):
         """ We accept an optional arg called dtb to force us to use a
         specific dtb. If not provided, we try to find it from our base
         AS, and failing that we search for it.
         """
-        IA32PagedMemory.__init__(self, base, opts)
+        IA32PagedMemory.__init__(self, base, opts, **kwargs)
         
     def get_pdptb(self, pdpr):
         return pdpr & 0xFFFFFFE0

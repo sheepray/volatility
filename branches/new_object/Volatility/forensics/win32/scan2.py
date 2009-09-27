@@ -900,6 +900,13 @@ class PoolScanner(BaseScanner):
     def check_pagedpooltype(self, found):
         return (self.get_pooltype(found) % 2) == 0
 
+    def check_poolindex_zero(self, found):
+        """ Checks that the pool index is zero """
+        pool_hdr = NewObject('_POOL_HEADER', vm=self.buffer,
+                             offset = found - 4)
+        
+        return pool_hdr.PoolIndex.v() == 0
+    
     def check_pooltype_nonpaged_or_free(self, found):
         """ Returns true if pool is free or non paged """
         type = self.get_pooltype(found)
@@ -909,7 +916,6 @@ class PoolScanner(BaseScanner):
         """ This calls all our constraints on the offset found and
         returns the number of contrainst that matched.
         """
-        #pdb.set_trace()
         cnt = 0
         for func in self.constraints:
             ## constraints can raise for an error

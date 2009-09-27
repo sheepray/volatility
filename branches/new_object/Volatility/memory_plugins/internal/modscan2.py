@@ -44,7 +44,7 @@ class PoolScanModuleFast2(PoolScanner):
         PoolScanner.__init__(self)
         self.add_constraint(self.check_blocksize_geq)
         self.add_constraint(self.check_pooltype_nonpaged_or_free)
-        #self.add_constraint(self.check_poolindex)
+        self.add_constraint(self.check_poolindex_zero)
 
 class modscan2(forensics.commands.command):
     """ Scan Physical memory for _TCPT_OBJECT objects (tcp connections)
@@ -101,7 +101,7 @@ class PoolScanThreadFast2(PoolScanner):
         PoolScanner.__init__(self)
         self.add_constraint(self.check_blocksize_geq)
         self.add_constraint(self.check_pooltype_nonpaged_or_free)
-        #self.add_constraint(self.check_poolindex)
+        self.add_constraint(self.check_poolindex_zero)
         self.add_constraint(self.check_threads_process)
         self.add_constraint(self.check_start_address)
         self.add_constraint(self.check_semaphores)

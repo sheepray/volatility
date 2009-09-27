@@ -124,6 +124,7 @@ class PyFlagOptionParser(OptionParser):
         ## sure that all modules have registered all their parameters
         if self.final:
             return OptionParser.error(self,msg)
+        else: raise RuntimeError(msg)
 
     def print_help(self):
         OptionParser.print_help(self)
@@ -248,17 +249,23 @@ class ConfObject(object):
         ## Parse the command line options:
         try:
             (opts, args) = self.optparser.parse_args()
+
+            self.opts.clear()
+
+            ## Update our cmdline dict:
+            for k in dir(opts):
+                v = getattr(opts,k)
+                if k in self.options and not v==None:
+                    self.opts[k] = v
+
         except UnboundLocalError:
             raise RuntimeError("Unknown option - use -h to see help")
         
-        self.opts.clear()
+        ## If error() was called we catch it here
+        except RuntimeError:
+            opts = {}
+            args = sys.argv[1:]
         
-        ## Update our cmdline dict:
-        for k in dir(opts):
-            v = getattr(opts,k)
-            if k in self.options and not v==None:
-                self.opts[k] = v
-
         self.optparse_opts = opts
         self.args = args
 

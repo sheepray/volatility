@@ -169,7 +169,7 @@ class _EPROCESS(object2.CType):
         """ Gets a process address space for a task given in _EPROCESS """
         directory_table_base = self.Pcb.DirectoryTableBase[0].v()
         
-        process_as = self.vm.__class__(self.vm.base, dict(dtb = directory_table_base))
+        process_as = self.vm.__class__(self.vm.base, None, dtb = directory_table_base)
         process_as.name = "Process"
 
         return process_as
