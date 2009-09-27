@@ -31,6 +31,7 @@ from forensics.win32.tasks import pslist
 from forensics.win32.modules import lsmod
 from vutils import load_and_identify_image
 import forensics.commands
+import forensics.utils as utils
 
 #pylint: disable-msg=C0111
 
@@ -1048,8 +1049,7 @@ class ssdt(forensics.commands.command):
         profile = Profile()
         profile.add_types(ssdt_types)
 
-        (addr_space, symtab, types) = load_and_identify_image(self.op,
-            self.opts)
+        addr_space = utils.load_as()
 
         ## Get a sorted list of module addresses
         mods = dict( (mod.BaseAddress.v(), mod) for mod in lsmod(addr_space, profile) )

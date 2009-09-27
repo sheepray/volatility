@@ -27,69 +27,50 @@
 #pylint: disable-msg=C0111
 
 import os
-from vtypes import xpsp2types as types
-import forensics.win32.meta_info as meta_info
-from forensics.win32.scan2 import scan_addr_space
-from forensics.win32.hive2 import PoolScanHiveFast2
-from forensics.win32.regtypes import regtypes
-from forensics.addrspace import FileAddressSpace
-from vutils import find_addr_space, get_dtb, load_pae_address_space, load_nopae_address_space
+from forensics.win32.scan2 import PoolScanner
 import forensics.commands
+import forensics.conf
+config=forensics.conf.ConfObject()
+import forensics.utils as utils
+from forensics.object2 import NewObject
+
+class PoolScanHiveFast2(PoolScanner):
+    pool_size = 0x4a8
+    pool_tag = "CM10"
+    
+    def __init__(self):
+        PoolScanner.__init__(self)
+        self.add_constraint(self.check_blocksize_equal)
+        self.add_constraint(self.check_pagedpooltype)
+        #self.add_constraint(self.check_poolindex)
+        self.add_constraint(self.check_hive_sig)
+
+    def check_hive_sig(self, found):
+        sig = NewObject('_HHIVE', vm=self.buffer, offset=found+4).Signature.v()
+        return sig == 0xbee0bee0
 
 class hivescan(forensics.commands.command):
+    """ Scan Physical memory for _CMHIVE objects (registry hives)
+
+    You will need to obtain these offsets to feed into the hivelist command.
+    """
+
     # Declare meta information associated with this plugin
     
-    meta_info = forensics.commands.command.meta_info 
-    meta_info['author'] = 'Brendan Dolan-Gavitt'
-    meta_info['copyright'] = 'Copyright (c) 2007,2008 Brendan Dolan-Gavitt'
-    meta_info['contact'] = 'bdolangavitt@wesleyan.edu'
-    meta_info['license'] = 'GNU General Public License 2.0 or later'
-    meta_info['url'] = 'http://moyix.blogspot.com/'
-    meta_info['os'] = 'WIN_32_XP_SP2'
-    meta_info['version'] = '1.0'
-
-    def help(self):
-        return  "Scan for _CMHIVE objects (registry hives)"
+    meta_info = dict(
+        author = 'Brendan Dolan-Gavitt',
+        copyright = 'Copyright (c) 2007,2008 Brendan Dolan-Gavitt',
+        contact = 'bdolangavitt@wesleyan.edu',
+        license = 'GNU General Public License 2.0 or later',
+        url = 'http://moyix.blogspot.com/',
+        os = 'WIN_32_XP_SP2',
+        version = '1.0',
+        )
     
     def execute(self):
-        # In general it's not recommended to update the global types on the fly,
-        # but I'm special and I know what I'm doing ;)
-        types.update(regtypes)
-
-        op = self.op
-        opts = self.opts
-
-        if (opts.filename is None) or (not os.path.isfile(opts.filename)):
-            op.error("File is required")
-        else:
-            filename = opts.filename
-
-        try:
-            flat_address_space = FileAddressSpace(filename, fast=True)
-        except:
-            op.error("Unable to open image file %s" % (filename))
-
-        meta_info.set_datatypes(types)
-
-        # Determine the applicable address space (ie hiber, crash)
-        search_address_space = find_addr_space(flat_address_space, types)
-
-        # Find a dtb value
-        if opts.base is None:
-            sysdtb = get_dtb(search_address_space, types)
-        else:
-            try:
-                sysdtb = int(opts.base, 16)
-            except:
-                op.error("Directory table base must be a hexadecimal number.")
-        meta_info.set_dtb(sysdtb)
-
-        # Set the kernel address space
-        kaddr_space = load_pae_address_space(filename, sysdtb)
-        if kaddr_space is None:
-            kaddr_space = load_nopae_address_space(filename, sysdtb)
-        meta_info.set_kas(kaddr_space)
-
+        ## Just grab the AS and scan it using our scanner
+        address_space = utils.load_as(dict(type='physical'))
+        
         print "%-15s %-15s" % ("Offset", "(hex)")
-        scanners = [PoolScanHiveFast2(search_address_space)]
-        _objs = scan_addr_space(search_address_space, scanners)
+        for offset in PoolScanHiveFast2().scan(address_space):
+            print "%-15s 0x%08X" % (offset, offset)

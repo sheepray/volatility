@@ -65,6 +65,15 @@ xpsp2overlays = {
     } ], \
 
     '_PHYSICAL_MEMORY_DESCRIPTOR' : [ None, { \
-        'Run' : [ None, ['array', lambda x: x.NumberOfRuns, ['_PHYSICAL_MEMORY_RUN']]], \
-        } ], \
+    'Run' : [ None, ['array', lambda x: x.NumberOfRuns, ['_PHYSICAL_MEMORY_RUN']]], \
+    } ], \
+
+    ## This is different between Windows 2000 and WinXP. This overlay
+    ## is for xp.
+    '_POOL_HEADER' : [ None, { \
+    'PoolIndex': [ 0x0, ['BitField', dict(start_bit = 9, end_bit = 16)]], 
+    'BlockSize': [ 0x2, ['BitField', dict(start_bit = 0, end_bit = 9)]], 
+    'PoolType': [ 0x2, [ 'BitField', dict(start_bit = 9, end_bit = 16)]],
+    } ],\
+    
     }

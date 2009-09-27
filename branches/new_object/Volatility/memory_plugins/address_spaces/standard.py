@@ -34,10 +34,11 @@ class FileAddressSpace(addrspace.BaseAddressSpace):
         assert filename, 'Filename must be specified'
         self.name = filename
         self.fname = self.name
-        self.mode = opts.get('mode','rb')
+        self.mode = 'rb'
         self.fhandle = open(self.fname, self.mode)
         self.fsize = os.path.getsize(self.fname)
         self.offset = 0
+        self.profile = Profile()
 
     def fread(self, length):
         return self.fhandle.read(length)
@@ -86,6 +87,9 @@ pde_shift = 21
 ptrs_per_pde = 512
 ptrs_page = 2048
 
+config.add_option("DTB", type='int', default=0,
+                  help = "DTB Address")
+
 class IA32PagedMemory(addrspace.BaseAddressSpace):
     """ We accept an optional arg called dtb to force us to use a
     specific dtb. If not provided, we try to find it from our base
@@ -95,18 +99,17 @@ class IA32PagedMemory(addrspace.BaseAddressSpace):
     pae = False
     def __init__(self, base, opts):
         addrspace.BaseAddressSpace.__init__(self, base, opts)
+
+        if opts.get('type') == 'physical':
+            raise RuntimeError("User requested physical AS")
         
         ## We must be stacked on someone else:
         assert base, "No base Address Space"
         
         ## We can not stack on someone with a page table
         assert not hasattr(base, 'pgd_vaddr'), "Can not stack over page table AS"
-        
-        self.profile = Profile()
-        try:
-            self.pgd_vaddr = opts['dtb']
-        except KeyError:
-            self.pgd_vaddr = self.load_dtb()
+
+        self.pgd_vaddr = config.DTB or self.load_dtb()
 
         ## Finally we have to have a valid PsLoadedModuleList
         assert self.is_valid_address(nopae_syms.lookup('PsLoadedModuleList')), "PsLoadedModuleList not valid Address"

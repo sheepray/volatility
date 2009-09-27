@@ -31,6 +31,7 @@
 
 import os
 import struct
+from forensics.object2 import NewObject, Profile
 
 try:
     from cStringIO import StringIO
@@ -55,7 +56,31 @@ class BaseAddressSpace:
     def is_valid_address(self, addr):
         """ Tell us if the address is valid """
 
+## This is a specialised AS for use internally - Its used to provide
+## transparent support for a string buffer so types can be
+## instantiated off the buffer.
+class BufferAddressSpace(BaseAddressSpace):
+    def __init__(self):
+        self.fname = "Buffer"
+        self.data = ''
+        self.base_offset = 0
+        self.profile = Profile()
 
+    def assign_buffer(self, data, base_offset=0):
+        self.base_offset = base_offset
+        self.data = data
+
+    def is_valid_address(self, addr):
+        if addr < self.base_offset or addr > self.base_offset + len(self.data):
+            return False
+
+        return True
+        
+    def read(self, addr, len):
+        offset = addr - self.base_offset
+        
+        return self.data[offset: offset+len]
+        
 ## Maintained for backward compatibility do not use in new code
 class FileAddressSpace:
     def __init__(self, fname, mode='rb', fast=False):
@@ -95,13 +120,3 @@ class FileAddressSpace:
 
     def close(self):
         self.fhandle.close()
-
-class BufferAddressSpace(FileAddressSpace):
-    def __init__(self, buf, fast=False):
-        self.fname = "String buffer"
-        self.name = self.fname
-        self.fhandle = StringIO(buf)
-        self.fsize = len(buf)
-        
-        if fast == True:
-            self.fast_fhandle = StringIO(buf)

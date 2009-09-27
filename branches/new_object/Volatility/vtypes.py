@@ -197,6 +197,8 @@ xpsp2types = { \
 } ], \
 '_POOL_HEADER' : [  0x8, { \
   'Ulong1' : [ 0x0, ['unsigned long']], \
+  'BlockSize': [ 0x2, ['unsigned short']], \
+  'PoolType': [ 0x2, ['unsigned short']], \
   'ProcessBilled' : [ 0x4, ['pointer', ['_EPROCESS']]], \
   'PoolTag' : [ 0x4, ['unsigned long']], \
   'AllocatorBackTraceIndex' : [ 0x4, ['unsigned short']], \

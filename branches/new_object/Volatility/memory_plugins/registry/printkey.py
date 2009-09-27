@@ -32,6 +32,13 @@ from forensics.win32.rawreg import get_root, open_key, subkeys, values, value_da
 from forensics.object2 import Profile
 from vutils import load_and_identify_image
 import forensics.commands
+import forensics.utils as utils
+import forensics.conf
+config=forensics.conf.ConfObject()
+
+## This module requires a filename to be passed by the user
+config.add_option("HIVE_OFFSET", default = 0, type='int',
+                  help = "Offset to reg hive")
 
 def vol(k):
     return bool(k.offset & 0x80000000)
@@ -71,16 +78,17 @@ class printkey(forensics.commands.command):
         return  "Print a registry key, and its subkeys and values"
     
     def execute(self):
-        (addr_space, _symtab, _types) = load_and_identify_image(self.op, self.opts)
-
+        addr_space = utils.load_as(self.opts)
         profile = Profile()
-        if not self.opts.hive:
-            self.op.error("No hive offset provided!")
+
+        hive_offset = config.hive_offset
+        if not hive_offset:
+            config.error("No hive offset provided!")
         
         if len(self.args) == 1 and '\\' in self.args[0]:
             self.args = self.args[0].split('\\')
         
-        hive = HiveAddressSpace(addr_space, profile, self.opts.hive)
+        hive = HiveAddressSpace(addr_space, profile, hive_offset)
         root = get_root(hive, profile)
         if not root:
             print "Unable to find root key. Is the hive offset correct?"

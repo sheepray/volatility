@@ -33,9 +33,10 @@
 @organization: Volatile Systems.
 """
 
-import struct
+import struct, pdb
 from time import gmtime, strftime
-from forensics.object import read_obj_from_buf, read_string, obj_size, get_obj_offset
+#from forensics.object import read_obj_from_buf, read_string, obj_size, get_obj_offset
+from forensics.object2 import NewObject
 from forensics.win32.datetime import read_time_buf
 from forensics.win32.tasks import BLOCKSIZE
 from forensics.win32.network import inet_ntoa, ntohs
@@ -238,17 +239,9 @@ class PoolScanner(SlidingMemoryScanner):
     
     def __init__(self, poffset, outer):
         SlidingMemoryScanner.__init__(self, poffset, outer, outer.pool_size)
-        self.data_types = meta_info.DataTypes
-        self.constraints = []
+
         self.climit = None     
         self.matches = []
-
-    def format_time(self, time):
-        try:
-            ts = strftime("%a %b %d %H:%M:%S %Y", gmtime(time))
-        except ValueError:
-            return "[invalid]"
-        return ts
 
     def set_limit(self, limit):
         self.climit = limit
@@ -849,3 +842,110 @@ class PoolScanThreadFast2(GenMemScanObject):
             address = self.as_offset + object_offset
 
             print "%6d %6d 0x%0.8x" % (UniqueProcess, UniqueThread, address)
+
+
+########### Following is the new implementation of the scanning
+########### framework. The old framework was based on PyFlag's
+########### scanning framework which is probably too complex for this.
+
+from forensics.addrspace import BufferAddressSpace
+
+class BaseScanner:
+    def __init__(self):
+        self.constraints = []
+        self.climit = None
+        
+    def scan(self, address_space):
+        """ This is a generator called to scan the AS. """
+        yield NoneObject("No objects found")
+
+class PoolScanner(BaseScanner):
+    climit = None
+    pool_size = 0
+    pool_tag = None
+    
+    def __init__(self, pool_tag=None, window_size=8, chunksize = 0x1000, constraints=None):
+        BaseScanner.__init__(self)
+        self.buffer = BufferAddressSpace()
+        self.window_size = window_size
+        self.chunksize = chunksize
+        self.pool_tag = self.pool_tag or pool_tag
+        self.constraints = constraints or []
+
+    def get_blocksize(self, found):
+        pool_hdr_val = NewObject('_POOL_HEADER', vm=self.buffer,
+                                 offset = found - 4)
+
+        return pool_hdr_val.BlockSize.v()
+
+    def check_blocksize_equal(self, found):
+        return self.get_blocksize(found) * 8 == self.pool_size
+
+    def check_blocksize_geq(self, found):
+        return self.get_blocksize(found) * 8 >= self.pool_size
+
+    def get_pooltype(self, found):
+        pool_hdr = NewObject('_POOL_HEADER', vm=self.buffer,
+                             offset = found - 4)
+        
+        return pool_hdr.PoolType.v()
+
+    def check_pagedpooltype(self, found):
+        return (self.get_pooltype(found) % 2) == 0
+
+    def check_pooltype_nonpaged_or_free(self, found):
+        """ Returns true if pool is free or non paged """
+        type = self.get_pooltype(found)
+        return type == 0 or (type % 2) == 1
+
+    def check_addr(self, found):
+        """ This calls all our constraints on the offset found and
+        returns the number of contrainst that matched.
+        """
+        cnt = 0
+        for func in self.constraints:
+            ## constraints can raise for an error
+            try:
+                val = func(found)
+            except Exception:
+                continue
+            
+            if val == True:
+                cnt = cnt+1
+        return cnt
+
+    def add_constraint(self, func):
+        self.constraints.append(func)
+
+    def pool_tag_find(self, tag):
+        """ An iterator over the current buffer for all tags - returns
+        AS offsets.
+        """
+        found = 0
+        while 1:
+            found = self.buffer.data.find(tag, found+1)
+            if found==-1: return
+            
+            yield found + self.base_offset
+
+    def scan(self, address_space):
+        self.base_offset = 0
+        ## Work out how many matches are needed
+        climit = self.climit or len(self.constraints)
+        found = 0
+        while 1:
+            data = address_space.read(self.base_offset, BLOCKSIZE)
+            if not data: break
+            
+            self.buffer.assign_buffer(data, self.base_offset)
+
+            ## Find all occurances of the pool tag in this buffer and
+            ## check them:
+            for found in self.pool_tag_find(self.pool_tag):
+                match_count = self.check_addr(found)
+                if match_count >= climit:
+                    ## yield the offset to the start of the memory
+                    ## (after the pool tag)
+                    yield found + len(self.pool_tag)
+
+            self.base_offset += len(data)

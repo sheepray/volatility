@@ -1,6 +1,6 @@
 import forensics.registry as registry
 
-def load_as(opts):
+def load_as(opts=None):
     base_as = None
     error = AddrSpaceError()
     while 1:
@@ -9,7 +9,7 @@ def load_as(opts):
         for cls in  registry.AS_CLASSES.classes:
             # print "Trying %s " % cls
             try:
-                base_as = cls(base_as, opts.__dict__)
+                base_as = cls(base_as, opts)
                 # print "Succeeded instantiating %s" % base_as
                 found = True
                 break

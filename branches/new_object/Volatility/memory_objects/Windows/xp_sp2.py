@@ -28,6 +28,8 @@
 import vmodules, pdb
 import forensics.object2 as object2
 import forensics.win32 as win32
+from forensics.object2 import BitField, Pointer, Void, Array, CType
+
 
 class _UNICODE_STRING(object2.CType):
     """Class representing a _UNICODE_STRING

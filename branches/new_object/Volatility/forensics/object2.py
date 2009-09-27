@@ -37,7 +37,6 @@ from forensics.win32.overlay import xpsp2overlays
 from forensics.x86 import x86_native_types
 import forensics.registry as MemoryRegistry
 import struct
-import forensics.addrspace as addrspace
 
 class Curry:
     """ This class makes a curried object available for simple inlined functions.
@@ -158,10 +157,9 @@ def NewObject(theType, offset, vm, parent=None, profile=None, name=None, **kwarg
     a string) from the type in profile passing optional args of
     kwargs.
     """
-    if name == None:
-        name = theType
-
+    name = name or theType
     offset = int(offset)
+    profile = profile or vm.profile
     
     ## If we cant instantiate the object here, we just error out:
     if not vm.is_valid_address(offset):
@@ -177,13 +175,12 @@ def NewObject(theType, offset, vm, parent=None, profile=None, name=None, **kwarg
     # Need to check for any derived object types that may be 
     # found in the global memory registry.
     try:
-        if theType:
-            if MemoryRegistry.OBJECT_CLASSES.objects.has_key(theType):
-                return MemoryRegistry.OBJECT_CLASSES[theType](
-                    theType,
-                    offset,
-                    vm = vm, parent=parent, profile=profile, name=name,
-                    **kwargs)
+        if theType in MemoryRegistry.OBJECT_CLASSES.objects:
+            return MemoryRegistry.OBJECT_CLASSES[theType](
+                theType,
+                offset,
+                vm = vm, parent=parent, profile=profile, name=name,
+                **kwargs)
     except AttributeError:
         pass
 
@@ -339,6 +336,20 @@ class NativeType(Object):
     def __mod__(self, other):
         return int(self) % other
 
+
+class BitField(NativeType):
+    def __init__(self, theType, offset, vm, parent=None, profile=None,
+                 start_bit=0, end_bit=32, name=None, **args):
+        Object.__init__(self, theType, offset, vm, parent=parent,
+                        profile=profile, name=name)
+        self.format_string = 'L'
+        self.start_bit = start_bit
+        self.end_bit = end_bit
+
+    def value(self):
+        i = NativeType.value(self)
+        return (i & ( (1 << self.end_bit) - 1)) >> self.start_bit
+
 class Void(NativeType):
     def __init__(self, theType, offset, vm, parent=None, profile=None,
                  format_string=None, **args):
@@ -407,51 +418,6 @@ class Pointer(NativeType):
             #if isinstance(result, CType):
             #    return result.m(attr)
             return result.__getattribute__(attr)
-
-class CTypeMember:
-    """ A placeholder for a type in a struct.
-
-    We use this intermediate placeholder so we dont need to
-    instantiate theType right away. This is done on demand.
-    """
-    def __init__(self, name, offset, theType):
-        self.name = name
-        self.offset = offset
-        self.type = theType
-        
-class XXCType(VType):
-    def __init__(self, profile, name, size, members, isStruct):
-        VType.__init__(self, profile, size, True, False)
-        self.name = name
-        self.members = members
-        self.isStruct = isStruct
-
-    def add_member(self, _name, member):
-        self.members[member.name] = member
-
-    def set_members(self, members):
-        self.members = members
-
-    def get_member_names(self):
-        return self.members.keys()
-
-    def get_member_type(self, memname):
-        return self.members[memname].type
-
-    def get_member_offset(self, memname):
-        return self.members[memname].offset
-
-    def get_member(self, memname):
-        return self.members[memname]
-
-    def is_struct(self):
-        return self.isStruct
-
-    def cdecl(self):
-        if self.isStruct:
-            return "struct %s" % self.name
-        else:
-            return "union %s" % self.name
 
 class Array(Object):
     """ An array of objects of the same size """
@@ -766,12 +732,6 @@ class Profile:
             cls = CType
         
         return Curry(cls, cls, members=members, size=size)
-
-class BufferAddressSpace(addrspace.FileAddressSpace):
-    def __init__(self, buff):
-        self.fname = "Buffer"
-        self.fhandle = StringIO.StringIO(buff)
-        self.fsize = len(buff)
 
 if __name__ == '__main__':
     ## If called directly we run unit tests on this stuff

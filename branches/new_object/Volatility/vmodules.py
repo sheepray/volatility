@@ -1504,7 +1504,7 @@ def procdump(cmdname, argv):
 #  of the new scanning infrastructure.
 ###################################
 
-def connscan2(cmdname, argv):
+def connscan2xxx(cmdname, argv):
  
     scanners = []
     op = get_standard_parser(cmdname)

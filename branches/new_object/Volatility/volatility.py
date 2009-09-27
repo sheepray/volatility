@@ -111,10 +111,10 @@ modules = {
     VolatoolsModule('procdump',
                   'Dump a process to an executable sample',
                   procdump),
-    'connscan2':
-    VolatoolsModule('connscan2',
+    'connscan2xxx':
+    VolatoolsModule('connscan2xx',
                   'Scan for connection objects (New)',
-                  connscan2),
+                  connscan2xxx),
     'sockscan2':
     VolatoolsModule('sockscan2',
                   'Scan for socket objects (New)',
@@ -231,7 +231,7 @@ def main(argv=sys.argv):
         print e
 
 if __name__ == "__main__":
-    config.set_usage(usage = "Volatility - A memory forensics analysis platform.\n\nTry volatility.py -h for help.")
+    config.set_usage(usage = "Volatility - A memory forensics analysis platform.")
     config.add_help_hook(list_modules)
     config.add_help_hook(list_plugins)
     
