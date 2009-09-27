@@ -112,7 +112,7 @@ class PyFlagOptionParser(OptionParser):
                 del rargs[0:nargs]
 
         elif had_explicit_value:
-            self.error(_("%s option does not take a value") % opt)
+            self.error(("%s option does not take a value") % opt)
 
         else:
             value = None

@@ -80,11 +80,11 @@ class modscan2(forensics.commands.command):
         print "%-50s %-12s %-8s %s \n" % ('File', 'Base', 'Size', 'Name')
         
         for offset in PoolScanModuleFast2().scan(address_space):
-            ldr_entry = NewObject('_LDR_MODULE', vm=address_space,
+            ldr_entry = NewObject('_LDR_DATA_TABLE_ENTRY', vm=address_space,
                                   offset = offset)
 
             print "%-50s 0x%010x 0x%06x %s" % \
                   (self.parse_string(ldr_entry.FullDllName),
-                   ldr_entry.BaseAddress,
+                   ldr_entry.DllBase,
                    ldr_entry.SizeOfImage,
-                   self.parse_string(ldr_entry.ModuleName))
+                   self.parse_string(ldr_entry.BaseDllName))
