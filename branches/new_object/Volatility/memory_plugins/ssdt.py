@@ -29,7 +29,6 @@ from bisect import bisect_right
 from forensics.object2 import NewObject
 from forensics.win32.tasks import pslist
 from forensics.win32.modules import lsmod
-from vutils import load_and_identify_image
 import forensics.commands
 import forensics.utils as utils
 
@@ -1050,22 +1049,22 @@ class ssdt(forensics.commands.command):
         addr_space.profile.add_types(ssdt_types)
 
         ## Get a sorted list of module addresses
-        mods = dict( (mod.BaseAddress.v(), mod) for mod in lsmod(addr_space, profile) )
+        mods = dict( (mod.BaseAddress.v(), mod) for mod in lsmod(addr_space) )
         mod_addrs = sorted(mods.keys())
 
         # Gather up all SSDTs referenced by threads
         print "Gathering all referenced SSDTs from KTHREADs..."
         ssdts = set()
-        for proc in pslist(addr_space, profile):
+        for proc in pslist(addr_space):
             for thread in proc.ThreadListHead.list_of_type("_ETHREAD", "ThreadListEntry"):
-                ssdt = thread.Tcb.ServiceTable.dereference()
-                ssdts.add(ssdt)
+                ssdt_obj = thread.Tcb.ServiceTable.dereference()
+                ssdts.add(ssdt_obj)
 
         # Get a list of *unique* SSDT entries. Typically we see only two.
         tables = set()
         
-        for ssdt in ssdts:
-            for i, desc in enumerate(ssdt.Descriptors):
+        for ssdt_obj in ssdts:
+            for i, desc in enumerate(ssdt_obj.Descriptors):
                 if desc.is_valid() and desc.ServiceLimit != 0:
                     tables.add((i, desc.KiServiceTable.v(), desc.ServiceLimit.v()))
 
@@ -1073,7 +1072,7 @@ class ssdt(forensics.commands.command):
         tables_with_vm = []
         for idx, table, n in tables:
             found = False
-            for p in pslist(addr_space, profile):
+            for p in pslist(addr_space):
                 ## This is the process address space
                 ps_ad = p.get_process_address_space()
                 ## Is the table accessible from the process AS?
@@ -1091,7 +1090,7 @@ class ssdt(forensics.commands.command):
             print "SSDT[%d] at %x with %d entries" % (idx, table, n)
             if vm.is_valid_address(table):
                 for i in range(n):
-                    syscall_addr = NewObject('unsigned long', table+(i*4), vm, profile=profile).v()
+                    syscall_addr = NewObject('unsigned long', table+(i*4), vm).v()
                     try:
                         syscall_name = xpsp2_syscalls[idx][i]
                     except IndexError:

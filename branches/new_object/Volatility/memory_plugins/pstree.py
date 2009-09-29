@@ -1,6 +1,5 @@
 """pstree example file"""
 
-from vtypes import xpsp2types
 from forensics.win32.tasks import pslist
 import forensics.utils as utils
 import forensics.commands
@@ -12,28 +11,18 @@ config.add_option("VERBOSE", default=0, type='int',
 
 #pylint: disable-msg=C0111
 
-def add_new_type(structure, field, offset, type):
-    xpsp2types[structure][1][field] = [offset, [type]]
+pslist_types = {
+    '_SE_AUDIT_PROCESS_CREATION_INFO' : [ 0x4, {
+    'ImageFileName' : [ 0x0, ['pointer', ['_OBJECT_NAME_INFORMATION']]],
+    } ],
+                                      
+    '_OBJECT_NAME_INFORMATION' : [ 0x8, {
+    'Name' : [ 0x0, ['_UNICODE_STRING']],
+    } ],
+    }
 
 class pstree(forensics.commands.command):
     """Print process list as a tree"""    
-    def execute(self):
-        add_new_type('_RTL_USER_PROCESS_PARAMETERS', 'ImagePathName', 0x38, '_UNICODE_STRING')
-        add_new_type('_EPROCESS', 'SeAuditProcessCreationInfo', 0x1f4,
-                     '_SE_AUDIT_PROCESS_CREATION_INFO')
-
-        xpsp2types.update( {
-            '_SE_AUDIT_PROCESS_CREATION_INFO' : [ 0x4, {
-            'ImageFileName' : [ 0x0, ['pointer', ['_OBJECT_NAME_INFORMATION']]],
-            } ],
-                                              
-            '_OBJECT_NAME_INFORMATION' : [ 0x8, {
-            'Name' : [ 0x0, ['_UNICODE_STRING']],
-            } ],
-            } )
-
-        ## Call our base class
-        forensics.commands.command.execute(self)
 
     def find_root(self, pid_dict, pid):
         while pid in pid_dict:
@@ -82,6 +71,7 @@ class pstree(forensics.commands.command):
         
         ## Load a new address space
         addr_space = utils.load_as()
+        addr_space.profile.add_types(pslist_types)
 
         for task in pslist(addr_space):
             task_info = {}
