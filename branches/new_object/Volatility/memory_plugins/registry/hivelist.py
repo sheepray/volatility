@@ -27,8 +27,15 @@
 #pylint: disable-msg=C0111
 
 from forensics.object2 import Profile, NewObject
-from vutils import load_and_identify_image
+import forensics.utils as utils
 import forensics.commands
+import forensics.conf
+config = forensics.conf.ConfObject()
+
+## This module requires a filename to be passed by the user
+config.add_option("HIVE_OFFSET",
+                  default = None, type='int',
+                  help = "Offset to reg hive")
 
 class hivelist(forensics.commands.command):
     "Print list of registry hives"
@@ -45,9 +52,6 @@ class hivelist(forensics.commands.command):
 
     def parser(self):
         forensics.commands.command.parser(self)
-        self.op.add_option('-o', '--offset',
-            help='First hive offset',
-            action='store', type='int', dest='offset')
 
     def render_text(self, outfd, result):
         outfd.write("Address      Name\n")
@@ -57,26 +61,26 @@ class hivelist(forensics.commands.command):
             outfd.write("%#X  %s\n" % (hive.offset, name))
     
     def calculate(self):
-        (addr_space, _symtab, _types) = load_and_identify_image(self.op, self.opts)
+        flat = utils.load_as(astype = 'physical')
+        addr_space = utils.load_as()
         profile = Profile()
 
-        if not self.opts.offset:
-            print "You must specify a hive offset (-o)"
-            return
+        if not config.HIVE_OFFSET:
+            config.error("You must specify a hive offset (--hive-offset)")
 
         def generate_results():
-            flat = addr_space.base
             ## The first hive is normally given in physical address space
             ## - so we instantiate it using the flat address space. We
             ## then read the Flink of the list to locate the address of
             ## the first hive in virtual address space. hmm I wish we
             ## could go from physical to virtual memroy easier.
             
-            start_hive_offset = NewObject("_CMHIVE", self.opts.offset,
+            start_hive_offset = NewObject("_CMHIVE", int(config.HIVE_OFFSET),
                                           flat, profile=profile).HiveList.Flink.v() - 0x224
 
             ## Now instantiate the first hive in virtual address space as normal
             start_hive = NewObject("_CMHIVE", start_hive_offset, addr_space, profile=profile)
+            
             for hive in start_hive.HiveList:
                 yield hive
 

@@ -30,7 +30,7 @@ import os, pdb
 from forensics.win32.scan2 import PoolScanner
 import forensics.commands
 import forensics.conf
-config=forensics.conf.ConfObject()
+config = forensics.conf.ConfObject()
 import forensics.utils as utils
 from forensics.object2 import NewObject
 

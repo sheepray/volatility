@@ -48,7 +48,7 @@ import forensics.win32.meta_info as meta_info
 from forensics.win32.registry import print_entry_keys
 from forensics.win32.executable import rebuild_exe_dsk, rebuild_exe_mem
 from forensics.win32.scan2 import scan_addr_space, PoolScanProcessDot, PoolScanThreadFast2
-from forensics.win32.scan2 import PoolScanSockFast2, PoolScanConnFast2, PoolScanModuleFast2, PoolScanProcessFast2 
+from forensics.win32.scan2 import PoolScanProcessFast2 
 
 class VolatoolsModule:
     def __init__(self, cmd_name, cmd_desc, cmd_execute):

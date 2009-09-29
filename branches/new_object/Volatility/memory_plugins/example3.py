@@ -25,7 +25,7 @@
 
 #pylint: disable-msg=C0111
 
-from forensics.object2 import NewObject, Profile 
+from vutils import PrintWithDefaults
 from time import gmtime, strftime
 import forensics.commands
 import forensics.utils as utils
@@ -72,9 +72,6 @@ class pslist_ex_3(forensics.commands.command):
 
             create_time = eprocess.CreateTime
  
-            if not create_time is None:
-                create_time = strftime("%a %b %d %H:%M:%S %Y", gmtime(create_time))     
-
             defaults = {0:"UNKNOWN", 1:-1, 2:-1, 3:-1, 4:-1, 5:"UNKNOWN"}
 
             PrintWithDefaults("%-20s %-6d %-6d %-6d %-6d %-26s", \
@@ -83,7 +80,7 @@ class pslist_ex_3(forensics.commands.command):
                                                    inherited_from,
                                                    active_threads,
                                                    handle_count,
-                                                   create_time),defaults)
+                                                   create_time), defaults)
 
 ##class _EPROCESS(CType):
 ##    """Class representing an _EPROCESS.

@@ -35,9 +35,12 @@ from vtypes import xpsp2types as types
 from vsyms import pae_syms, nopae_syms
 from forensics.win32.tasks import find_dtb
 from forensics.win32.tasks import find_csdversion
+import forensics.utils as utils
+import forensics.conf
+config = forensics.conf.ConfObject()
 
 from forensics.addrspace import FileAddressSpace
-from forensics.x86 import IA32PagedMemory, IA32PagedMemoryPae
+# from forensics.x86 import IA32PagedMemory, IA32PagedMemoryPae
 from forensics.win32.crash_addrspace import WindowsCrashDumpSpace32
 from forensics.win32.hiber_addrspace import WindowsHiberFileSpace32
 
@@ -103,18 +106,8 @@ def load_file_address_space(op, opts):
 
 def load_pae_address_space(filename, dtb):
     try:
-        if is_crash_dump(filename) == True:
-            linAS = FileAddressSpace(filename)
-            phyAS = WindowsCrashDumpSpace32(linAS, 0, 0)
-            # Currently we only support full crash dumps
-            if not phyAS.get_dumptype() == 1:
-                return None
-        elif is_hiberfil(filename) == True:
-            linAS = FileAddressSpace(filename)
-            phyAS = WindowsHiberFileSpace32(linAS, 0, 0)
-        else:
-            phyAS = FileAddressSpace(filename)
-        addr_space = IA32PagedMemoryPae(phyAS, dtb)
+        config.update('FILENAME', filename)
+        addr_space = utils.load_as(dtb = dtb)
 
         if not addr_space.is_valid_address(pae_syms.lookup('PsLoadedModuleList')):
             addr_space = None
@@ -126,18 +119,9 @@ def load_pae_address_space(filename, dtb):
 
 def load_nopae_address_space(filename, dtb):
     try:
-        if is_crash_dump(filename) == True:
-            linAS = FileAddressSpace(filename)
-            phyAS = WindowsCrashDumpSpace32(linAS, 0, 0)
-	    # Currently we only support full crash dumps
-            if not phyAS.get_dumptype() == 1:
-                return None
-        elif is_hiberfil(filename) == True:
-            linAS = FileAddressSpace(filename)
-            phyAS = WindowsHiberFileSpace32(linAS, 0, 0)
-        else:
-            phyAS = FileAddressSpace(filename)
-        addr_space = IA32PagedMemory(phyAS, dtb)
+        config.update('FILENAME', filename)
+        addr_space = utils.load_as(dtb)
+        
         if not addr_space.is_valid_address(nopae_syms.lookup('PsLoadedModuleList')):
             addr_space = None
     except:

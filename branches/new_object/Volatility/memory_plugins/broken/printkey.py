@@ -30,11 +30,10 @@
 from forensics.win32.hive2 import HiveAddressSpace
 from forensics.win32.rawreg import get_root, open_key, subkeys, values, value_data
 from forensics.object2 import Profile
-from vutils import load_and_identify_image
 import forensics.commands
 import forensics.utils as utils
 import forensics.conf
-config=forensics.conf.ConfObject()
+config = forensics.conf.ConfObject()
 
 ## This module requires a filename to be passed by the user
 config.add_option("HIVE_OFFSET", default = 0, type='int',

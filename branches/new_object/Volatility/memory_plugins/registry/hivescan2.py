@@ -26,11 +26,10 @@
 
 #pylint: disable-msg=C0111
 
-import os
 from forensics.win32.scan2 import PoolScanner
 import forensics.commands
 import forensics.conf
-config=forensics.conf.ConfObject()
+config = forensics.conf.ConfObject()
 import forensics.utils as utils
 from forensics.object2 import NewObject
 
@@ -69,7 +68,7 @@ class hivescan(forensics.commands.command):
     
     def execute(self):
         ## Just grab the AS and scan it using our scanner
-        address_space = utils.load_as(dict(type='physical'))
+        address_space = utils.load_as(astype = 'physical')
         
         print "%-15s %-15s" % ("Offset", "(hex)")
         for offset in PoolScanHiveFast2().scan(address_space):

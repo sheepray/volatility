@@ -29,7 +29,7 @@
 import sys
 from forensics.win32.regtypes import regtypes
 from forensics.win32.lsasecrets import get_memory_secrets
-from vutils import load_and_identify_image
+import forensics.utils as utils
 import forensics.commands
 
 FILTER = ''.join([(len(repr(chr(i))) == 3) and chr(i) or '.' for i in range(256)])
@@ -69,17 +69,16 @@ class lsadump(forensics.commands.command):
         return  "Dump (decrypted) LSA secrets from the registry"
     
     def execute(self):
-        (addr_space, _symtab, types) = load_and_identify_image(self.op,
-            self.opts)
+        addr_space = utils.load_as()
 
         # In general it's not recommended to update the global types on the fly,
         # but I'm special and I know what I'm doing ;)
-        types.update(regtypes)
+        # types.update(regtypes)
 
         if not self.opts.syshive or not self.opts.sechive:
             self.op.error("Both SYSTEM and SECURITY offsets must be provided")
         
-        secrets = get_memory_secrets(addr_space, types, self.opts.syshive, self.opts.sechive, Profile())
+        secrets = get_memory_secrets(addr_space, types, self.opts.syshive, self.opts.sechive)
         if not secrets:
             print "Error: unable to read LSA secrets from registry"
             sys.exit(1)

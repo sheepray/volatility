@@ -36,7 +36,7 @@
 import struct
 from time import gmtime, strftime
 #from forensics.object import read_obj_from_buf, read_string, obj_size, get_obj_offset
-from forensics.object2 import NewObject
+from forensics.object2 import NewObject, NoneObject
 from forensics.win32.datetime import read_time_buf
 from forensics.win32.tasks import BLOCKSIZE
 from forensics.win32.network import inet_ntoa, ntohs

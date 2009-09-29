@@ -1,9 +1,11 @@
+"""pstree example file"""
+
 from vtypes import xpsp2types
 from forensics.win32.tasks import pslist
 import forensics.utils as utils
 import forensics.commands
 import forensics.conf
-config=forensics.conf.ConfObject()
+config = forensics.conf.ConfObject()
 
 config.add_option("VERBOSE", default=0, type='int',
                   short_option='v', help='Verbose information')
