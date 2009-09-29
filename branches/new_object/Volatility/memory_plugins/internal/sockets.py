@@ -14,11 +14,6 @@ import socket
 
 class sockets(forensics.commands.command):
     """Print list of open sockets"""
-
-    def __init__(self, args=None):
-        forensics.commands.command.__init__(self, args)
-        self.profile = None
-
     def render_text(self, outfd, data):
         if len(data):
             outfd.write("%-6s %-6s %-6s %-26s\n" % ('Pid', 'Port', 'Proto', 'Create Time'))
@@ -28,11 +23,9 @@ class sockets(forensics.commands.command):
         
 
     def calculate(self):
-        self.profile = object2.Profile()
-
         addr_space = utils.load_as()
         
         # Get the Image Datetime
-        result = win32.network.determine_sockets(addr_space, self.profile)
+        result = win32.network.determine_sockets(addr_space)
 
         return result

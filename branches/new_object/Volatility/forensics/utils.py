@@ -1,6 +1,7 @@
 import forensics.registry as registry
 import forensics.conf
 config = forensics.conf.ConfObject()
+from forensics.debug import debug, b
 
 #pylint: disable-msg=C0111
 
@@ -8,17 +9,17 @@ def load_as(**kwargs):
     base_as = None
     error = AddrSpaceError()
     while 1:
-        __debug("Voting round")
+        debug("Voting round")
         found = False
         for cls in registry.AS_CLASSES.classes:
-            __debug("Trying %s " % cls)
+            debug("Trying %s " % cls)
             try:
                 base_as = cls(base_as, **kwargs)
-                __debug("Succeeded instantiating %s" % base_as)
+                debug("Succeeded instantiating %s" % base_as)
                 found = True
                 break
             except AssertionError, e:
-                __debug("Failed instantiating %s: %s" % (cls.__name__, e), 2) 
+                debug("Failed instantiating %s: %s" % (cls.__name__, e), 2) 
                 error.append_reason(cls.__name__, e) 
                 continue
 
@@ -29,12 +30,8 @@ def load_as(**kwargs):
 
     if base_as is None:
         raise error
-        
-    return base_as
 
-def __debug(msg, level=1):
-    if config.DEBUG >= level:
-        print msg
+    return base_as
 
 class AddrSpaceError(Exception):
     """Address Space Exception, so we can catch and deal with it in the main program"""

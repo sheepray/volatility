@@ -26,7 +26,7 @@
 from operator import itemgetter
 from bisect import bisect_right
 
-from forensics.object2 import NewObject, Profile
+from forensics.object2 import NewObject
 from forensics.win32.tasks import pslist
 from forensics.win32.modules import lsmod
 from vutils import load_and_identify_image
@@ -1046,10 +1046,8 @@ class ssdt(forensics.commands.command):
         xpsp2types['_ETHREAD'][1]['ThreadListEntry'] = [ 0x22c, ['_LIST_ENTRY']]
         xpsp2types['_KTHREAD'][1]['ServiceTable']  = [ 0xe0, ['pointer', ['_SERVICE_DESCRIPTOR_TABLE']]]
 
-        profile = Profile()
-        profile.add_types(ssdt_types)
-
         addr_space = utils.load_as()
+        addr_space.profile.add_types(ssdt_types)
 
         ## Get a sorted list of module addresses
         mods = dict( (mod.BaseAddress.v(), mod) for mod in lsmod(addr_space, profile) )

@@ -35,10 +35,12 @@ from forensics.win32.info import find_psactiveprocesshead, kpcr_addr
 from struct import unpack
 from forensics.addrspace import FileAddressSpace
 
-def pslist(addr_space, profile):
+def pslist(addr_space):
     """ A Generator for _EPROCESS objects (uses _KPCR symbols) """
     ## Locate the kpcr struct - this is hard coded right now
-    kpcr = NewObject("_KPCR", kpcr_addr, addr_space, profile=profile)
+    kpcr = NewObject("_KPCR",
+                     offset=kpcr_addr,
+                     vm=addr_space)
 
     ## Try to dereference the KdVersionBlock as a 64 bit struct
     DebuggerDataList = kpcr.KdVersionBlock.dereference_as("_DBGKD_GET_VERSION64").DebuggerDataList

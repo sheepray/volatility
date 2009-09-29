@@ -5,6 +5,7 @@ import forensics.object2 as object2
 from vsyms import nopae_syms
 import forensics.conf
 config = forensics.conf.ConfObject()
+from forensics.debug import b
 
 #pylint: disable-msg=C0111
 
@@ -106,7 +107,6 @@ class IA32PagedMemory(addrspace.BaseAddressSpace):
         
         ## We can not stack on someone with a page table
         assert not hasattr(base, 'pgd_vaddr'), "Can not stack over page table AS"
-        self.profile = object2.Profile()
         self.pgd_vaddr = dtb or config.DTB or self.load_dtb()
 
         ## Finally we have to have a valid PsLoadedModuleList
@@ -132,13 +132,15 @@ class IA32PagedMemory(addrspace.BaseAddressSpace):
             found = 0
             if not data:
                 break
-
+            
             while 1:
                 found = data.find("\x03\x00\x1b\x00", found+1)
                 if found >= 0:
                     # (_type, _size) = unpack('=HH', data[found:found+4])
-                    proc = object2.NewObject("_EPROCESS", offset+found, self.base,
-                                             profile = self.profile)
+                    proc = object2.NewObject("_EPROCESS",
+                                             offset = offset+found,
+                                             vm=self.base)
+
                     if 'Idle' in proc.ImageFileName.v():
                         return proc.Pcb.DirectoryTableBase[0]
                 else:

@@ -29,7 +29,6 @@
 import sys
 from forensics.win32.regtypes import regtypes
 from forensics.win32.lsasecrets import get_memory_secrets
-from forensics.object2 import Profile
 from vutils import load_and_identify_image
 import forensics.commands
 

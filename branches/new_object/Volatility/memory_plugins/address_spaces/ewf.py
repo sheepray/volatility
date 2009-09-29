@@ -93,7 +93,7 @@ class EWFAddressSpace(standard.FileAddressSpace):
     2) The first 6 bytes must be 45 56 46 09 0D 0A (EVF header)
     """
     order = 20
-    def __init__(self, base):
+    def __init__(self, base, **kwargs):
         standard.FileAddressSpace.__init__(self, base)
         assert(base)
         assert(base.read(0, 6) == "\x45\x56\x46\x09\x0D\x0A")

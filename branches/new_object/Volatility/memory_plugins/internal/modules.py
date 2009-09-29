@@ -13,11 +13,6 @@ import forensics.utils as utils
 
 class modules(forensics.commands.command):
     """Print list of loaded modules"""
-
-    def __init__(self, args=None):
-        forensics.commands.command.__init__(self, args)
-        self.profile = None
-
     def render_text(self, outfd, data):
         header = False
         
@@ -29,10 +24,8 @@ class modules(forensics.commands.command):
         
 
     def calculate(self):
-        self.profile = object2.Profile()
-
         addr_space = utils.load_as()
         
-        result = win32.modules.lsmod(addr_space, self.profile)
+        result = win32.modules.lsmod(addr_space)
 
         return result

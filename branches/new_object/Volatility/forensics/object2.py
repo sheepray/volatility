@@ -32,12 +32,10 @@ import sys
 # sys.path.append(".")
 # sys.path.append("..")
 
-from vtypes import xpsp2types as types
-from forensics.win32.overlay import xpsp2overlays
-from forensics.x86 import x86_native_types
 import forensics.registry as MemoryRegistry
 import forensics.addrspace as addrspace
 import struct
+import forensics.debug as debug
 
 class Curry:
     """ This class makes a curried object available for simple inlined functions.
@@ -169,7 +167,7 @@ def NewObject(theType, offset, vm, parent=None, profile=None, name=None, **kwarg
 
     if theType in profile.types:
         result = profile.types[theType](offset=offset, vm=vm, name=name,
-                                        parent=parent, profile=profile)
+                                        parent=parent)
         return result
     
 
@@ -180,10 +178,14 @@ def NewObject(theType, offset, vm, parent=None, profile=None, name=None, **kwarg
             return MemoryRegistry.OBJECT_CLASSES[theType](
                 theType,
                 offset,
-                vm = vm, parent=parent, profile=profile, name=name,
+                vm = vm, parent=parent, name=name,
                 **kwargs)
     except AttributeError:
         pass
+
+    ## If we get here we have no idea what the type is supposed to be? 
+    ## This is a serious error.
+    debug.debug("Cant find object %s in profile %s???" % (theType, profile), level = 5)
 
 class Object(object):        
     def __init__(self, theType, offset, vm, parent=None, profile=None, name=None):
@@ -191,7 +193,7 @@ class Object(object):
         self.members = {}
         self.parent = parent
         self.extra_members = {}
-        self.profile = profile
+        self.profile = profile or vm.profile
         self.offset = offset
         self.name = name
         self.theType = theType
@@ -248,10 +250,10 @@ class Object(object):
 
     def dereference_as(self, derefType):
         return NewObject(derefType, self.v(), \
-                         self.vm, parent=self ,profile=self.profile)
+                         self.vm, parent=self)
 
     def cast(self, castString):
-        return Object(castString, self.offset, self.vm, None, self.profile)
+        return Object(castString, self.offset, self.vm, None)
 
     def v(self):
         return self.value()
@@ -431,7 +433,7 @@ class Array(Object):
             self.target = target
 
         self.current = self.target(offset=offset, vm=vm, parent=self,
-                                       profile=profile, name= name)
+                                       name= name)
         
     def __iter__(self):
         self.position = 0
@@ -454,7 +456,7 @@ class Array(Object):
         ## Instantiate the target here:
         if self.vm.is_valid_address(offset):
             return self.target(offset = offset, vm=self.vm,
-                               profile=self.profile, parent=self,
+                               parent=self,
                                name="%s %s" % (self.name, self.position))
         else:
             return NoneObject("Array %s, Invalid position %s" % (self.name, self.position),
@@ -483,8 +485,7 @@ class Array(Object):
                  pos * self.current.size()
         if pos <= self.count and self.vm.is_valid_address(offset):
             return self.target(offset = offset,
-                               vm=self.vm, parent=self,
-                               profile=self.profile)
+                               vm=self.vm, parent=self)
         else:
             return NoneObject("Array %s invalid member %s" % (self.name, pos),
                               self.profile.strict)
@@ -499,7 +500,7 @@ class CType(Object):
         if not members:
             raise RuntimeError()
         
-        Object.__init__(self, theType, offset, vm, parent=parent, profile=profile, name=name)
+        Object.__init__(self, theType, offset, vm, parent=parent, profile = profile, name=name)
         self.members = members
         self.offset = offset
         self.struct_size = size
@@ -537,7 +538,7 @@ class CType(Object):
             offset = int(offset) + int(self.offset)
 
         result = cls(offset = offset, vm=self.vm,
-                     profile=self.profile, parent=self, name=attr)
+                     parent=self, name=attr)
 
         return result
 
@@ -557,28 +558,27 @@ class CType(Object):
 ## Profiles are the interface for creating/interpreting
 ## objects
 
+## This option allows us to load a different profile if needed.
+
 class Profile:
     """ A profile is a collection of types relating to a certain
     system. We parse the abstract_types and join them with
     native_types to make everything work together.
     """
-    def __init__(self, native_types=None, abstract_types=None,
-                 overlay=None, strict=False):
-        if native_types is None:
-            native_types = x86_native_types
-        if abstract_types is None:
-            abstract_types = types
-        if overlay is None:
-            overlay = xpsp2overlays
+    native_types = {}
+    abstract_types = {}
+    overlay = {}
+    
+    def __init__(self, strict=False):
         self.types = {}
         self.strict = strict
         
         # Load the native types
-        for nt, value in native_types.items():
+        for nt, value in self.native_types.items():
             if type(value) == list:
                 self.types[nt] = Curry(NativeType, nt, format_string=value[1])
 
-        self.import_typeset(abstract_types, overlay)
+        self.import_typeset(self.abstract_types, self.overlay)
 
         # Load the abstract data types
     def import_typeset(self, abstract_types, overlay=None):

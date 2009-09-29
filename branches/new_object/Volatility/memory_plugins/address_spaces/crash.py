@@ -25,8 +25,7 @@ class WindowsCrashDumpSpace32(standard.FileAddressSpace):
         self.offset = 0 # config.OFFSET
         self.fname = ''
 
-        self.header = NewObject("_DMP_HEADER", self.offset, baseAddressSpace,
-                                profile = self.profile)
+        self.header = NewObject("_DMP_HEADER", self.offset, baseAddressSpace)
 
         self.runs = [ (x.BasePage.v(), x.PageCount.v()) \
                       for x in self.header.PhysicalMemoryBlockBuffer.Run ]

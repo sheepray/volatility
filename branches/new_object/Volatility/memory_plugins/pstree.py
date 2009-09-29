@@ -1,6 +1,5 @@
 from vtypes import xpsp2types
 from forensics.win32.tasks import pslist
-from forensics.object2 import Profile
 import forensics.utils as utils
 import forensics.commands
 import forensics.conf
@@ -15,11 +14,7 @@ def add_new_type(structure, field, offset, type):
     xpsp2types[structure][1][field] = [offset, [type]]
 
 class pstree(forensics.commands.command):
-    """Print process list as a tree"""
-    def __init__(self, args=None):
-        forensics.commands.command.__init__(self, args)
-        self.profile = None
-    
+    """Print process list as a tree"""    
     def execute(self):
         add_new_type('_RTL_USER_PROCESS_PARAMETERS', 'ImagePathName', 0x38, '_UNICODE_STRING')
         add_new_type('_EPROCESS', 'SeAuditProcessCreationInfo', 0x1f4,
@@ -86,7 +81,7 @@ class pstree(forensics.commands.command):
         ## Load a new address space
         addr_space = utils.load_as()
 
-        for task in pslist(addr_space, self.profile):
+        for task in pslist(addr_space):
             task_info = {}
             task_info['eprocess'] = task
             task_info['image_file_name'] = task.ImageFileName or 'UNKNOWN'

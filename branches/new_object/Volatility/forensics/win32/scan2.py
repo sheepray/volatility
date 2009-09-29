@@ -906,7 +906,12 @@ class PoolScanner(BaseScanner):
                              offset = found - 4)
         
         return pool_hdr.PoolIndex.v() == 0
-    
+
+    def check_pooltype_nonpaged(self, found):
+        """ Returns true if pool is free or non paged """
+        type = self.get_pooltype(found)
+        return type > 0 and (type % 2) == 1
+
     def check_pooltype_nonpaged_or_free(self, found):
         """ Returns true if pool is free or non paged """
         type = self.get_pooltype(found)

@@ -81,9 +81,9 @@ module_versions = { \
 }
 
 
-def determine_connections(addr_space, profile):
+def determine_connections(addr_space):
     """Determines all connections for each module"""
-    all_modules = win32.modules.lsmod(addr_space, profile)
+    all_modules = win32.modules.lsmod(addr_space)
     connections = []
 
     for m in all_modules:
@@ -91,18 +91,20 @@ def determine_connections(addr_space, profile):
             for attempt in module_versions:
                 table_size = object2.NewObject(
                     "unsigned long",
-                    m.BaseAddress + module_versions[attempt]['SizeOff'][0],
-                    addr_space, profile=profile)
+                    offset = m.BaseAddress + \
+                             module_versions[attempt]['SizeOff'][0],
+                    vm = addr_space)
                 
                 table_addr = object2.NewObject(
                     "unsigned long",
-                    m.BaseAddress + module_versions[attempt]['TCBTableOff'][0],
-                    addr_space, profile=profile)
+                    offset = m.BaseAddress + \
+                             module_versions[attempt]['TCBTableOff'][0],
+                    vm = addr_space)
                 
                 if int(table_size) > 0:
                     table = object2.Array(
                         offset = table_addr, vm = addr_space,
-                        count = table_size, profile = profile, 
+                        count = table_size, 
                         target = object2.Curry(object2.Pointer, '_TCPT_OBJECT'))
 
                     for entry in table:
@@ -114,9 +116,9 @@ def determine_connections(addr_space, profile):
 
     return object2.NoneObject("Unable to determine connections")
 
-def determine_sockets(addr_space, profile):
+def determine_sockets(addr_space):
     """Determines all sockets for each module"""
-    all_modules = win32.modules.lsmod(addr_space, profile)
+    all_modules = win32.modules.lsmod(addr_space)
     sockets = []
 
     for m in all_modules:
@@ -124,18 +126,20 @@ def determine_sockets(addr_space, profile):
             for attempt in module_versions:
                 table_size = object2.NewObject(
                     "unsigned long",
-                    m.BaseAddress + module_versions[attempt]['AddrObjTableSizeOffset'][0],
-                    addr_space, profile=profile)
+                    offset = m.BaseAddress + \
+                             module_versions[attempt]['AddrObjTableSizeOffset'][0],
+                    vm = addr_space)
                 
                 table_addr = object2.NewObject(
                     "unsigned long",
-                    m.BaseAddress + module_versions[attempt]['AddrObjTableOffset'][0],
-                    addr_space, profile=profile)
+                    offset = m.BaseAddress + \
+                             module_versions[attempt]['AddrObjTableOffset'][0],
+                    vm = addr_space)
                 
                 if int(table_size) > 0:
                     table = object2.Array(
                         offset = table_addr, vm = addr_space,
-                        count = table_size, profile = profile,
+                        count = table_size,
                         target = object2.Curry(object2.Pointer, "_ADDRESS_OBJECT"))
                     
                     for entry in table:

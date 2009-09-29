@@ -26,12 +26,17 @@
 #pylint: disable-msg=C0111
 
 from forensics.object2 import NewObject, Profile 
-from vutils import load_and_identify_image, PrintWithDefaults
-from forensics.win32.tasks import process_list
 from time import gmtime, strftime
 import forensics.commands
+import forensics.utils as utils
+import forensics.win32 as win32
 
 class pslist_ex_3(forensics.commands.command):
+    "Print list running processes"
+    # We need to override the forensics.commands.command.help() method to
+    # change the user help message.  This function returns a string that 
+    # will be displayed when a user lists available plugins.
+
 
     # Declare meta information associated with this plugin
     
@@ -44,44 +49,17 @@ class pslist_ex_3(forensics.commands.command):
     meta_info['os'] = 'WIN_32_XP_SP2'
     meta_info['version'] = '1.0'
         
-    # This module makes use of the standard parser. Thus it is not 
-    # necessary to override the forensics.commands.command.parse() method.
-    # The standard parser provides the following command line options:
-    #    '-f', '--file', '(required) Image file'
-    #    '-b', '--base', '(optional) Physical offset (in hex) of DTB'
-    #    '-t', '--type', '(optional) Identify the image type'
-
-
-    # We need to override the forensics.commands.command.help() method to
-    # change the user help message.  This function returns a string that 
-    # will be displayed when a user lists available plugins.
-
-    def help(self):
-        return  "Print list running processes"
-
-    # Finally we override the forensics.commands.command.execute() method
-    # which provides the plugins core functionality. Command line options
-    # are accessed as attributes of self.opts. For example, the options 
-    # provided by the standard parse would would provide the following
-    # attributes: self.opts.filename, self.opts.base, self.opts.type.
+    # We override the forensics.commands.command.execute() method
+    # which provides the plugins core functionality. 
 
     def execute(self):
-
-        theProfile = Profile()
-
-	(addr_space, symtab, types) = load_and_identify_image(self.op, \
-            self.opts)
-
-        all_tasks = process_list(addr_space, types, symtab)
+        addr_space = utils.load_as()
+        all_tasks = win32.tasks.pslist(addr_space)
 
         print "%-20s %-6s %-6s %-6s %-6s %-6s"% \
             ('Name','Pid','PPid','Thds','Hnds','Time')
 
-        for task in all_tasks:
-            if not addr_space.is_valid_address(task):
-                continue
-
-            eprocess = NewObject('_EPROCESS', task, addr_space, None, theProfile)
+        for eprocess in all_tasks:
             image_file_name = eprocess.ImageFileName
             process_id = eprocess.UniqueProcessId.v()
             active_threads = eprocess.ActiveThreads

@@ -34,6 +34,15 @@
 import os
 import struct
 import object2
+import registry
+
+import forensics.conf
+config = forensics.conf.ConfObject()
+from forensics.debug import b, debug
+
+## By default load the profile that the user asked for
+config.add_option("PROFILE", default='WinXPSP2',
+                  help = "Name of the profile to load")
 
 class BaseAddressSpace:
     """ This is the base class of all Address Spaces. """
@@ -42,7 +51,8 @@ class BaseAddressSpace:
         options which we may use.
         """
         self.base = base
-        self.profile = object2.Profile()
+        ## Load the required profile
+        self.profile = registry.PROFILES[config.PROFILE]()
 
     def read(self, addr, len):
         """ Read some date from a certain offset """

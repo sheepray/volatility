@@ -24,14 +24,6 @@ config.add_option('PID', short_option = 'p',
 class dlllist(forensics.commands.command):
     """Print list of loaded dlls for each process"""
 
-    def __init__(self, args=None):
-        forensics.commands.command.__init__(self, args)
-        self.profile = None
-
-    def parser(self):
-        """Sets up the parser before execution"""
-        forensics.commands.command.parser(self)
-
     def render_text(self, outfd, data):
         first = True
         for pid in data:
@@ -56,8 +48,6 @@ class dlllist(forensics.commands.command):
 
     def calculate(self):
         result = {}
-        self.profile = object2.Profile()
-
         addr_space = utils.load_as()
         
         if config.OFFSET:
@@ -66,10 +56,10 @@ class dlllist(forensics.commands.command):
             except ValueError:
                 config.error("EPROCESS offset must be a hexadecimal number.")
             
-            tasks = [object2.NewObject("_EPROCESS", offset, addr_space, profile=self.profile)]
+            tasks = [object2.NewObject("_EPROCESS", offset, addr_space)]
 
         else:
-            tasks = win32.tasks.pslist(addr_space, self.profile)
+            tasks = win32.tasks.pslist(addr_space)
         
         for task in tasks:
             if task.UniqueProcessId:

@@ -52,15 +52,13 @@ class WindowsHiberFileSpace32(standard.FileAddressSpace):
         self.MemRangeCnt = 0
         self.offset = 0
         # Extract header information
-        self.header = NewObject('_IMAGE_HIBER_HEADER', 0, baseAddressSpace,
-                                profile=self.profile)
+        self.header = NewObject('_IMAGE_HIBER_HEADER', 0, baseAddressSpace)
         
         ## Is the signature right?
-        assert self.header.Signature.v() == 'hibr', "Header signature invalid"
+        assert self.header and self.header.Signature.v() == 'hibr', "Header signature invalid"
         
         # Extract processor state
-        self.ProcState = NewObject("_KPROCESSOR_STATE", 2 * 4096, baseAddressSpace,
-                                   profile=self.profile)
+        self.ProcState = NewObject("_KPROCESSOR_STATE", 2 * 4096, baseAddressSpace)
 
         ## This is a pointer to the page table - any ASs above us dont
         ## need to search for it.
@@ -81,15 +79,14 @@ class WindowsHiberFileSpace32(standard.FileAddressSpace):
         XpressIndex = 0    
         XpressHeader = NewObject("_IMAGE_XPRESS_HEADER",
                                  (self.header.FirstTablePage + 1) * 4096, \
-                                 self.base, profile=self.profile)
+                                 self.base)
         
         XpressBlockSize = self.get_xpress_block_size(XpressHeader)
 
         MemoryArrayOffset = self.header.FirstTablePage * 4096
 
         while MemoryArrayOffset:
-            MemoryArray = NewObject('_MEMORY_RANGE_ARRAY', MemoryArrayOffset, self.base,
-                                    profile = self.profile)
+            MemoryArray = NewObject('_MEMORY_RANGE_ARRAY', MemoryArrayOffset, self.base)
 
             EntryCount = MemoryArray.MemArrayLink.EntryCount.v()
             for i in MemoryArray.RangeTable:
@@ -182,8 +179,7 @@ class WindowsHiberFileSpace32(standard.FileAddressSpace):
             if XpressHeaderOffset - original_offset > 10240:
                 return None, None
 
-        XpressHeader = NewObject("_IMAGE_XPRESS_HEADER", XpressHeaderOffset, self.base,
-                                 profile=self.profile)
+        XpressHeader = NewObject("_IMAGE_XPRESS_HEADER", XpressHeaderOffset, self.base)
         XpressBlockSize = self.get_xpress_block_size(XpressHeader)
         
         return XpressHeader, XpressBlockSize

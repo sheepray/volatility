@@ -40,6 +40,12 @@ classes in the same plugin and have them all automatically loaded.
 """
 
 import os, sys, imp
+import forensics.conf
+config = forensics.conf.ConfObject()
+import forensics.debug as debug
+
+config.add_option("INFO", default=None, action="store_true",
+                  help = "Print information about all registered objects")
 
 ## Define the parameters we need:
 PLUGINS = "memory_plugins:memory_objects"
@@ -48,13 +54,12 @@ class MemoryRegistry:
     """ Main class to register classes derived from a given parent
     class. 
     """
-
+    ## NOTE - These are class attributes - they will be the same for
+    ## all classes, subclasses and future instances of them. They DO
+    ## NOT get reset for each instance.
     modules = []
     module_desc = []
     module_paths = []
-    classes = []
-    class_names = []
-    order = []
     filenames = {}
     
     def __init__(self, ParentClass):
@@ -63,7 +68,7 @@ class MemoryRegistry:
 
         These will be considered as implementations and added to our
         internal registry.  
-	    """
+        """
 
         ## Create instance variables
         self.classes = []
@@ -218,13 +223,14 @@ class MemoryRegistry:
 
 class VolatilityCommandRegistry(MemoryRegistry):
     """ A class to manage commands """
-    commands = {}
     def __getitem__(self, command_name):
         """ Return the command objects by name """
         return self.commands[command_name]
     
     def __init__(self, ParentClass):
         MemoryRegistry.__init__(self, ParentClass)
+        self.commands = {}
+    
         for cls in self.classes:
             ## The name of the class is the command name
             command = ("%s" % cls).split('.')[-1]
@@ -235,13 +241,14 @@ class VolatilityCommandRegistry(MemoryRegistry):
 
 class VolatilityObjectRegistry(MemoryRegistry):
     """ A class to manage objects """
-    objects = {}
     def __getitem__(self, object_name):
         """ Return the objects by name """
         return self.objects[object_name]
     
     def __init__(self, ParentClass):
         MemoryRegistry.__init__(self, ParentClass)
+        self.objects = {}
+        
         ## First we sort the classes according to their order
         def sort_function(x, y):
             try:
@@ -264,18 +271,49 @@ class VolatilityObjectRegistry(MemoryRegistry):
         
         for cls in self.classes:
             ## The name of the class is the object name
-            obj = ("%s" % cls).split('.')[-1]
-            obj = obj[:-2]
+            obj = cls.__name__.split('.')[-1]
             try:
                 raise Exception("Object %s has already been defined by %s" % (obj, self.objects[obj]))
             except KeyError:
                 self.objects[obj] = cls
 
 
+def print_info():
+    for k,v in globals().items():
+        if isinstance(v, MemoryRegistry):
+            print "\n"
+            print "%s" % k
+            print "-" * len(k)
+
+            result = []
+            max_length = 0
+            for cls in v.classes:
+                try:
+                    doc = cls.__doc__.strip().splitlines()[0]
+                except:
+                    doc = 'No docs'
+                result.append((cls.__name__, doc))
+                max_length = max(len(cls.__name__), max_length)
+
+            ## Sort the result
+            def cmp(x,y):
+                if x[0] < y[0]:
+                    return -1
+                else: return 1
+            result.sort(cmp)
+
+            fmt= "%%-%ds - %%-15s" % max_length
+            for x in result:
+                print fmt % x
+
+
+
 LOCK = 0
 PLUGIN_COMMANDS = None
 OBJECT_CLASSES = None
 AS_CLASSES = None
+PROFILES = None
+
 
 ## This is required for late initialization to avoid dependency nightmare.
 def Init():
@@ -298,3 +336,11 @@ def Init():
     import forensics.addrspace as addrspace
     global AS_CLASSES
     AS_CLASSES = VolatilityObjectRegistry(addrspace.BaseAddressSpace)
+
+    import forensics.object2 as object2
+    global PROFILES
+    PROFILES = VolatilityObjectRegistry(object2.Profile)
+
+    if config.INFO:
+        print_info()
+        sys.exit(0)

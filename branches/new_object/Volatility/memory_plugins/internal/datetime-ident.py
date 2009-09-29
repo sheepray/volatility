@@ -13,19 +13,12 @@ import vmodules
 #pylint: disable-msg=C0111
 
 class datetime(forensics.commands.command):
-
-    def __init__(self, args=None):
-        forensics.commands.command.__init__(self, args)
-        self.profile = None
-
     def render_text(self, outfd, data):
         """Renders the calculated data as text to outfd"""
         outfd.write("Image local date and time: %s\n" % data['ImageDatetime'])
 
     def calculate(self):
         result = {}
-        self.profile = object2.Profile()
-
         addr_space = utils.load_as()
         
         # Get the Image Datetime
@@ -35,7 +28,10 @@ class datetime(forensics.commands.command):
 
     def get_image_datetime(self, addr_space):
         """Returns the image datetime"""
-        k = object2.NewObject("_KUSER_SHARED_DATA", win32.info.KUSER_SHARED_DATA, addr_space, profile=self.profile)
+        k = object2.NewObject("_KUSER_SHARED_DATA",
+                              offset=win32.info.KUSER_SHARED_DATA,
+                              vm=addr_space)
+        
         return k.SystemTime - k.TimeZoneBias
 
 class ident(datetime):
@@ -82,7 +78,7 @@ class ident(datetime):
     def find_csdversion(self, addr_space):
         """Find the CDS version from an address space"""
         csdvers = {}
-        for task in win32.tasks.pslist(addr_space, self.profile):
+        for task in win32.tasks.pslist(addr_space):
             if task.Peb.CSDVersion:
                 lookup = str(task.Peb.CSDVersion)
                 csdvers[lookup] = csdvers.get(lookup, 0) + 1
