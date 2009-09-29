@@ -323,7 +323,7 @@ class IA32PagedMemory(addrspace.BaseAddressSpace):
 class IA32PagedMemoryPae(IA32PagedMemory):
     order = 80
     pae = True
-    def __init__(self, base, dtb=0, **kwargs):
+    def __init__(self, base, **kwargs):
         """ We accept an optional arg called dtb to force us to use a
         specific dtb. If not provided, we try to find it from our base
         AS, and failing that we search for it.
