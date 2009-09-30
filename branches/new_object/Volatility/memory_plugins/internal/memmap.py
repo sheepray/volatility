@@ -69,7 +69,7 @@ class memmap(forensics.commands.command):
                     pages = task_space.get_available_pages()
                     for p in pages:
                         pa = task_space.vtop(p[0])
-                        if pa:
+                        if pa is not None:
                             res.append((p[0], pa, p[1]))
                     result[pid] = {'task': task, 'pages': res}
 
