@@ -80,10 +80,6 @@ modules = {
             VolatoolsModule('connscan',
 		    'Scan for connection objects',
 		    connscan),
-    'memmap':
-            VolatoolsModule('memmap',
-		    'Print the memory map',
-		    mem_map),
     'modscan':
     VolatoolsModule('modscan',
             'Scan for modules',
