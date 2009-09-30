@@ -26,7 +26,6 @@ class connections(forensics.commands.command):
 
     def __init__(self, args=None):
         forensics.commands.command.__init__(self, args)
-        self.profile = None
 
     def render_text(self, outfd, data):
         if len(data):
@@ -39,10 +38,8 @@ class connections(forensics.commands.command):
         
 
     def calculate(self):
-        self.profile = object2.Profile()
-
         addr_space = utils.load_as()
         
-        result = win32.network.determine_connections(addr_space, self.profile)
+        result = win32.network.determine_connections(addr_space)
 
         return result

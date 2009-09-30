@@ -13,6 +13,7 @@ import vmodules
 #pylint: disable-msg=C0111
 
 class datetime(forensics.commands.command):
+    """Get date/time information for image"""
     def render_text(self, outfd, data):
         """Renders the calculated data as text to outfd"""
         outfd.write("Image local date and time: %s\n" % data['ImageDatetime'])

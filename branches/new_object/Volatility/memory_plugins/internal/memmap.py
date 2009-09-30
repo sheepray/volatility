@@ -22,7 +22,7 @@ config.add_option('PID', short_option = 'p',
     action='store', type='int')
 
 class memmap(forensics.commands.command):
-    """Print list of loaded dlls for each process"""
+    """Print the memory map"""
 
     def render_text(self, outfd, data):
         first = True

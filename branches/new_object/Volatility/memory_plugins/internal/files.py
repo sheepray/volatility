@@ -14,24 +14,16 @@ import forensics.conf as conf
 
 config = conf.ConfObject()
 
+config.add_option('OFFSET', short_option = 'o', default=None,
+    help='EPROCESS Offset (in hex) in physical address space',
+    action='store', type='string')
+
+config.add_option('PID', short_option = 'p',
+    help='Get info for this Pid', default=None,
+    action='store', type='int')
+
 class files(forensics.commands.command):
     """Print list of open files for each process"""
-
-    def __init__(self, args=None):
-        forensics.commands.command.__init__(self, args)
-        self.profile = None
-
-    def parser(self):
-        """Sets up the parser before execution"""
-        forensics.commands.command.parser(self)
-
-        self.op.add_option('-o', '--offset',
-            help='EPROCESS Offset (in hex) in physical address space',
-            action='store', type='string', dest='offset')
-
-        self.op.add_option('-p', '--pid',
-            help='Get info for this Pid', default=None,
-            action='store', type='int', dest='pid')
 
     def render_text(self, outfd, data):
         first = True
@@ -56,10 +48,10 @@ class files(forensics.commands.command):
             except ValueError:
                 self.op.error("EPROCESS offset must be a hexadecimal number.")
             
-            tasks = [object2.NewObject("_EPROCESS", offset, addr_space, profile=self.profile)]
+            tasks = [object2.NewObject("_EPROCESS", offset, addr_space)]
 
         else:
-            tasks = win32.tasks.pslist(addr_space, self.profile)
+            tasks = win32.tasks.pslist(addr_space)
         
         for task in tasks:
             if task.ObjectTable.HandleTableList:
