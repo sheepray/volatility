@@ -206,11 +206,11 @@ xpsp2types = { \
   'Parent' : [ 0x8, ['pointer', ['_MMVAD']]], \
   'LeftChild' : [ 0xc, ['pointer', ['_MMVAD']]], \
   'RightChild' : [ 0x10, ['pointer', ['_MMVAD']]], \
-  'u' : [ 0x14, ['__unnamed']], \
+  'Flags' : [ 0x14, ['unsigned long']], \
   'ControlArea' : [ 0x18, ['pointer', ['_CONTROL_AREA']]], \
   'FirstPrototypePte' : [ 0x1c, ['pointer', ['_MMPTE']]], \
   'LastContiguousPte' : [ 0x20, ['pointer', ['_MMPTE']]], \
-  'u2' : [ 0x24, ['__unnamed']], \
+  'Flags2' : [ 0x24, ['unsigned long']], \
   'u3' : [ 0x28, ['__unnamed']], \
   'u4' : [ 0x30, ['__unnamed']], \
 } ], \
@@ -220,11 +220,11 @@ xpsp2types = { \
   'Parent' : [ 0x8, ['pointer', ['_MMVAD']]], \
   'LeftChild' : [ 0xc, ['pointer', ['_MMVAD']]], \
   'RightChild' : [ 0x10, ['pointer', ['_MMVAD']]], \
-  'u' : [ 0x14, ['__unnamed']], \
+  'Flags' : [ 0x14, ['unsigned long']], \
   'ControlArea' : [ 0x18, ['pointer', ['_CONTROL_AREA']]], \
   'FirstPrototypePte' : [ 0x1c, ['pointer', ['_MMPTE']]], \
   'LastContiguousPte' : [ 0x20, ['pointer', ['_MMPTE']]], \
-  'u2' : [ 0x24, ['__unnamed']], \
+  'Flags2' : [ 0x24, ['unsigned long']], \
 } ], \
 '_MMVAD_SHORT' : [  0x18, { \
   'StartingVpn' : [ 0x0, ['unsigned long']], \
@@ -232,7 +232,7 @@ xpsp2types = { \
   'Parent' : [ 0x8, ['pointer', ['_MMVAD']]], \
   'LeftChild' : [ 0xc, ['pointer', ['_MMVAD']]], \
   'RightChild' : [ 0x10, ['pointer', ['_MMVAD']]], \
-  'u' : [ 0x14, ['__unnamed']], \
+  'Flags' : [ 0x14, ['unsigned long']], \
 } ], \
 '_CONTROL_AREA' : [  0x30, { \
   'Segment' : [ 0x0, ['pointer', ['_SEGMENT']]], \
@@ -243,7 +243,7 @@ xpsp2types = { \
   'NumberOfSubsections' : [ 0x18, ['unsigned short']], \
   'FlushInProgressCount' : [ 0x1a, ['unsigned short']], \
   'NumberOfUserReferences' : [ 0x1c, ['unsigned long']], \
-  'u' : [ 0x20, ['__unnamed']], \
+  'Flags' : [ 0x20, ['unsigned long']], \
   'FilePointer' : [ 0x24, ['pointer', ['_FILE_OBJECT']]], \
   'WaitingForDeletion' : [ 0x28, ['pointer', ['_EVENT_COUNTER']]], \
   'ModifiedWriteCount' : [ 0x2c, ['unsigned short']], \

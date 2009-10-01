@@ -8,9 +8,7 @@ Created on 25 Sep 2009
 
 import forensics.commands
 import forensics.win32 as win32
-import forensics.object2 as object2
 import forensics.utils as utils
-import socket
 
 class sockets(forensics.commands.command):
     """Print list of open sockets"""

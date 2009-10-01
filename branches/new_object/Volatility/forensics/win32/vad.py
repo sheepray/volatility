@@ -28,6 +28,8 @@ from forensics.object import read_obj, get_obj_offset, obj_size, read_value
 from forensics.win32.handles import file_name
 import os
 
+### SAVE THESE, THEY'RE STILL IN USE ###
+
 vad_flags = { \
 '_MMVAD_FLAGS' : { \
   'CommitCharge' : [0x0, 0x13], \
@@ -105,6 +107,8 @@ def get_bit_flags(value, flags):
         if ((v[1] == 0x1) and ((( 1 << (v[0])) & value) > 0)):
             matches.append(k)
     return matches
+
+### STUFF FROM HERE ON IS DEPRECATED ###
 
 def traverse_vad(parent, addr_space, types, vad_addr, prefix_callback, infix_callback, postfix_callback, level=0, storage = None):
 
