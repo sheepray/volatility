@@ -52,10 +52,6 @@ modules = {
     VolatoolsModule('strings',
                     'Match physical offsets to virtual addresses (may take a while, VERY verbose)',
                     get_strings),
-    'vadinfo':
-            VolatoolsModule('vadinfo',
-                    'Dump the VAD info',
-	             vadinfo),
     'vaddump':
             VolatoolsModule('vaddump',
 		    'Dump the Vad sections to files',

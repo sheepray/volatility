@@ -20,7 +20,7 @@ config.add_option('PID', short_option = 'p',
     help='Get info for this Pid', default=None,
     action='store', type='int')
 
-class vadinfo2(commands.command):
+class vadinfo(commands.command):
     """Dump the VAD info"""
 
     def render_text(self, outfd, data):
