@@ -56,10 +56,6 @@ modules = {
             VolatoolsModule('vaddump',
 		    'Dump the Vad sections to files',
 		    vaddump),
-    'vadwalk':
-            VolatoolsModule('vadwalk',
-		    'Walk the vad tree',
-		    vadwalk),
     'psscan':
             VolatoolsModule('psscan',
 		    'Scan for EPROCESS objects',

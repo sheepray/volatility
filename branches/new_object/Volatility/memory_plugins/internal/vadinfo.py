@@ -20,10 +20,12 @@ config.add_option('PID', short_option = 'p',
     help='Get info for this Pid', default=None,
     action='store', type='int')
 
+
 class vadinfo(commands.command):
     """Dump the VAD info"""
 
     def render_text(self, outfd, data):
+        
         for pid in data:
             outfd.write("*" * 72 + "\n")
             outfd.write("Pid: %-6d\n" % (pid))
@@ -133,3 +135,50 @@ class vadinfo(commands.command):
         if root.RightChild:
             rightside = self.accumulate_vads(root.RightChild.dereference())
         return [root] + leftside + rightside
+    
+class vadtree(vadinfo):
+    """Walk the VAD tree and display in tree format"""
+    
+    def render_text(self, outfd, data):
+        for pid in data:
+            outfd.write("*" * 72 + "\n")
+            outfd.write("Pid: %-6d\n" % (pid))
+            levels = {}
+            for vad in data[pid]['vadlist']:
+                level = levels.get(vad.Parent.dereference().offset, -1) + 1
+                levels[vad.offset] = level
+                outfd.write(" " * level + "%08x - %08x\n" % ( 
+                            int(vad.StartingVpn) << 12,
+                            ((int(vad.EndingVpn) + 1) << 12) -1))
+
+    def render_dot(self, outfd, data):
+        for pid in data:
+            outfd.write("/" + "*" * 72 + "/\n")
+            outfd.write("/* Pid: %-6d */\n" % (pid))
+            outfd.write("digraph processtree {\n")
+            outfd.write("graph [rankdir = \"TB\"];\n")
+            for vad in data[pid]['vadlist']:
+                if vad.Parent:
+                    outfd.write("vad_%08x -> vad_%08x\n" % (vad.Parent.dereference().offset, vad.offset))                    
+                outfd.write("vad_%08x [label = \"{ %s\\n%08x - %08x }\" shape = \"record\" color = \"blue\"];\n" % 
+                            (vad.offset,
+                             vad.name, 
+                             int(vad.StartingVpn) << 12,
+                             ((int(vad.EndingVpn) + 1) << 12) -1))
+            outfd.write("}\n")
+
+class vadwalk(vadinfo):
+    """Walk the VAD tree"""
+    
+    def render_text(self, outfd, data):
+        for pid in data:
+            outfd.write("*" * 72 + "\n")
+            outfd.write("Pid: %-6d\n" % (pid))
+            outfd.write("Address  Parent   Left     Right    Start    End      Tag  Flags")
+            for vad in data[pid]['vadlist']:
+                outfd.write("%08x %08x %08x %08x %08x %08x %-4s\n" % (vad.offset,
+                            vad.Parent.dereference().offset, vad.LeftChild.dereference().offset,        
+                            vad.RightChild.dereference().offset, 
+                            int(vad.StartingVpn) << 12,
+                            ((int(vad.EndingVpn) + 1) << 12) -1,
+                            vad.name))
