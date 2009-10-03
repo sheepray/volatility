@@ -55,7 +55,7 @@ class WindowsHiberFileSpace32(standard.FileAddressSpace):
         self.header = NewObject('_IMAGE_HIBER_HEADER', 0, baseAddressSpace)
         
         ## Is the signature right?
-        assert self.header and self.header.Signature.v() == 'hibr', "Header signature invalid"
+        assert self.header.Signature.v() == 'hibr', "Header signature invalid"
         
         # Extract processor state
         self.ProcState = NewObject("_KPROCESSOR_STATE", 2 * 4096, baseAddressSpace)

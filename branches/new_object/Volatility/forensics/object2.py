@@ -199,9 +199,31 @@ class Object(object):
         self.theType = theType
 
     def __nonzero__(self):
+        """ This method is called when we test the truth value of an
+        Object. In volatility we consider an object to have True truth
+        value only when its a valid object. Its possible for example
+        to have a Pointer object which is not valid - this will have a
+        truth value of False.
+
+        You should be testing for validity like this:
+        if X:
+           # object is valid
+
+        Do not test for validity like this:
+
+        if int(X) == 0:
+
+        or if X is None: .....
+
+        the later form is not going to work when X is a NoneObject. 
+        """
+        result = False
         if self.v():
-            return True
-        return False
+            result = True
+
+        result2 = self.vm.is_valid_address(self.offset)
+        if result != result2: debug.b()
+        return result2
 
     def __add__(self, other):
         return other + self.v()
@@ -341,22 +363,6 @@ class BitField(NativeType):
         i = NativeType.value(self)
         return (i & ( (1 << self.end_bit) - 1)) >> self.start_bit
 
-class Void(NativeType):
-    def __init__(self, theType, offset, vm, parent=None, profile=None,
-                 format_string=None, **args):
-        NativeType.__init__(self, theType, offset, vm, parent=None, profile=None)
-        self.format_string = "=L"
-
-    def cdecl(self):
-        return "0x%08X" % self.v()
-    
-    def __str__(self):
-        return "Void (0x0%08X)" % self.v()
-
-    def dereference_as(self, derefType):
-        return NewObject(derefType, self.v(), \
-                         self.vm, parent=self, profile=self.profile)
-
 class Pointer(NativeType):
     def __init__(self, theType, offset, vm, parent=None, profile=None, target=None, name=None):
         NativeType.__init__(self, theType, offset = offset, vm=vm, name=name,
@@ -385,9 +391,7 @@ class Pointer(NativeType):
         return "Pointer %s" % self.v()
 
     def __nonzero__(self):
-        if self.dereference():
-            return True
-        return False
+        return bool(self.is_valid())
 
     def __repr__(self):
         return "<pointer to [%s ]>" % (self.v())
@@ -409,6 +413,25 @@ class Pointer(NativeType):
             #if isinstance(result, CType):
             #    return result.m(attr)
             return result.__getattribute__(attr)
+
+class Void(NativeType):
+    def __init__(self, theType, offset, vm, parent=None, profile=None,
+                 format_string=None, **args):
+        NativeType.__init__(self, theType, offset, vm, parent=None, profile=None)
+        self.format_string = "=L"
+
+    def cdecl(self):
+        return "0x%08X" % self.v()
+    
+    def __str__(self):
+        return "Void (0x0%08X)" % self.v()
+
+    def __nonzero__(self):
+        return bool(self.dereference())
+
+    def dereference_as(self, derefType):
+        return NewObject(derefType, self.v(), \
+                         self.vm, parent=self)
 
 class Array(Object):
     """ An array of objects of the same size """

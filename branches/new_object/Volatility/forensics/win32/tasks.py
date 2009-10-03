@@ -34,6 +34,7 @@ from forensics.win32.datetime import read_time, windows_to_unix_time
 from forensics.win32.info import find_psactiveprocesshead, kpcr_addr
 from struct import unpack
 from forensics.addrspace import FileAddressSpace
+import forensics.debug as debug
 
 def pslist(addr_space):
     """ A Generator for _EPROCESS objects (uses _KPCR symbols) """

@@ -32,16 +32,11 @@ import forensics.commands
 import forensics.conf
 config = forensics.conf.ConfObject()
 
-## This module requires a filename to be passed by the user
-config.add_option("HIVE_OFFSET",
-                  default = None, type='int',
-                  help = "Offset to reg hive")
-
 class hivelist(forensics.commands.command):
     "Print list of registry hives"
     # Declare meta information associated with this plugin
     
-    meta_info = forensics.commands.command.meta_info 
+    meta_info = {}
     meta_info['author'] = 'Brendan Dolan-Gavitt'
     meta_info['copyright'] = 'Copyright (c) 2007,2008 Brendan Dolan-Gavitt'
     meta_info['contact'] = 'bdolangavitt@wesleyan.edu'
@@ -49,6 +44,13 @@ class hivelist(forensics.commands.command):
     meta_info['url'] = 'http://moyix.blogspot.com/'
     meta_info['os'] = 'WIN_32_XP_SP2'
     meta_info['version'] = '1.0'
+
+    def __init__(self, *args):
+        config.add_option("HIVE-OFFSET",
+                          default = None, type='int',
+                          help = "Offset to reg hive")
+        
+        forensics.commands.command.__init__(self, *args)
 
     def parser(self):
         forensics.commands.command.parser(self)

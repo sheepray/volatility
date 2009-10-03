@@ -57,6 +57,10 @@ class _UNICODE_STRING(object2.CType):
         except Exception, _e:
             return ''
 
+    def __nonzero__(self):
+        ## Unicode strings are valid if they point at a valid memory
+        return bool(self.Buffer)
+
     def __str__(self):
         return self.v()
 
@@ -95,6 +99,10 @@ class _LIST_ENTRY(object2.CType):
             seen.add(lst.offset)
 
             yield obj
+
+    def __nonzero__(self):
+        ## List entries are valid when both Flinks and Blink are valid
+        return bool(self.Flink) or bool(self.Blink)
 
     def __iter__(self):
         return self.list_of_type(self.parent.name, self.name)

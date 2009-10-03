@@ -21,7 +21,7 @@ class files(forensics.commands.command):
     def __init__(self, *args):
         config.add_option('OFFSET', short_option = 'o', default=None,
                           help='EPROCESS Offset (in hex) in physical address space',
-                          action='store', type='string')
+                          action='store', type='int')
         
         config.add_option('PID', short_option = 'p',
                           help='Get info for this Pid', default=None,
@@ -46,14 +46,8 @@ class files(forensics.commands.command):
         result = {}
         addr_space = utils.load_as()
         
-        if config.OFFSET:
-            try:
-                offset = int(self.opts.offset, 16)
-            except ValueError:
-                self.op.error("EPROCESS offset must be a hexadecimal number.")
-            
+        if config.OFFSET!=None:
             tasks = [object2.NewObject("_EPROCESS", offset, addr_space)]
-
         else:
             tasks = win32.tasks.pslist(addr_space)
         

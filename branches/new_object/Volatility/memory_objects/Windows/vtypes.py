@@ -189,12 +189,12 @@ xpsp2types = { \
   'KdVersionBlock' : [ 0x34, ['pointer', ['void']]], \
   } ], \
   '_KDDEBUGGER_DATA32' : [ 0x44, { \
-  'PsLoadedModuleList' : [ 0x70, ['unsigned long']], \
-  'PsActiveProcessHead' : [ 0x78, ['unsigned long']], \
+  'PsLoadedModuleList' : [ 0x70, ['pointer', ['void']]], \
+  'PsActiveProcessHead' : [ 0x78, ['pointer', ['void']]], \
 } ], \
   '_KDDEBUGGER_DATA64' : [ 0x44, { \
-  'PsLoadedModuleList' : [ 0x48, ['unsigned long']], \
-  'PsActiveProcessHead' : [ 0x50, ['unsigned long']], \
+  'PsLoadedModuleList' : [ 0x48, ['pointer', ['void']]], \
+  'PsActiveProcessHead' : [ 0x50, ['pointer', ['void']]], \
   'MmPfnDatabase' : [ 0xC0, ['unsigned long']], \
 } ], \
 '_DBGKD_GET_VERSION64' : [  0x2a, { \

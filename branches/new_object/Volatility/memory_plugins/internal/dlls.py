@@ -18,52 +18,37 @@ class dlllist(files.files):
     """Print list of loaded dlls for each process"""
 
     def render_text(self, outfd, data):
-        first = True
-        for pid in data:
-            if not first:
-                outfd.write("*" * 72 + "\n")
+        for task in data:
+            pid = task.UniqueProcessId
+            ## Skip unwanted processes
+            if config.PID and pid != config.PID: continue
 
-            task = data[pid]['task']
+            outfd.write("*" * 72 + "\n")
             outfd.write("%s pid: %-6d\n" % (task.ImageFileName, pid))
-            first = False
 
             if task.Peb:
                 outfd.write("Command line : %s\n" % (task.Peb.ProcessParameters.CommandLine))
                 outfd.write("%s\n" % task.Peb.CSDVersion)
                 outfd.write("\n")
-                modules = data[pid]['modules']
                 outfd.write("%-12s %-12s %s\n" % ('Base', 'Size', 'Path'))
-                for m in modules:
+                for m in self.list_modules(task):
                     outfd.write("0x%0.8x   0x%0.6x     %s\n" % (m.BaseAddress, m.SizeOfImage, m.FullDllName))
             else:
                 print task.Peb
                 outfd.write("Unable to read PEB for task.\n")
 
-    def calculate(self):
-        result = {}
-        addr_space = utils.load_as()
-        
-        if config.OFFSET:
-            try:
-                offset = int(config.OFFSET, 16)
-            except ValueError:
-                config.error("EPROCESS offset must be a hexadecimal number.")
-            
-            tasks = [object2.NewObject("_EPROCESS", offset, addr_space)]
+    def list_modules(self, task):
+        if task.UniqueProcessId and task.Peb.Ldr.InLoadOrderModuleList:
+            for l in task.Peb.Ldr.InLoadOrderModuleList.list_of_type(
+                "_LDR_MODULE", "InLoadOrderModuleList"):
+                yield l
 
+    def calculate(self):
+        addr_space = utils.load_as()
+
+        if config.OFFSET != None:
+            tasks = [object2.NewObject("_EPROCESS", config.OFFSET, addr_space)]
         else:
             tasks = win32.tasks.pslist(addr_space)
         
-        for task in tasks:
-            if task.UniqueProcessId:
-                pid = int(task.UniqueProcessId)
-                if config.PID and pid != config.PID:
-                    continue
-                
-                result[pid] = {'task': task, 'modules': []}
-
-                if task.Peb.Ldr.InLoadOrderModuleList:
-                    for l in task.Peb.Ldr.InLoadOrderModuleList.list_of_type("_LDR_MODULE", "InLoadOrderModuleList"):
-                        result[pid]['modules'].append(l)
-
-        return result
+        return tasks
