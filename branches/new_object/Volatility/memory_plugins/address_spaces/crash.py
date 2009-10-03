@@ -151,6 +151,10 @@ class WindowsCrashDumpSpace32(standard.FileAddressSpace):
             address_list.append([run[0] * 0x1000, run[1] * 0x1000])
         return address_list
 
+    def get_runs(self):
+        """This returns the crashdump runs"""
+        return self.runs
+
     def check_address_range(self, addr):
         memrange = self.get_address_range()
         if addr < memrange[0] or addr > memrange[1]:

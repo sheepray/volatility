@@ -679,66 +679,6 @@ def modscan(cmdname, argv):
     module_scan(flat_address_space, types, filename, start, end, slow) 
 
 ###################################
-#  dumpchk
-###################################
-def dump_chk(cmdname, argv):
-    """
-    Print crash dump information
-    """
-    op = get_standard_parser(cmdname)
-    opts, _args = op.parse_args(argv)
-
-    if (opts.filename is None) or (not os.path.isfile(opts.filename)) :
-        op.error("File is required")
-
-    fileAS = FileAddressSpace(opts.filename)
-    crashAS = WindowsCrashDumpSpace32(fileAS, 0, 0)
-
-    print "DUMP_HEADER32:"
-    print "MajorVersion		0x%08x"% \
-        crashAS.get_majorversion()
-    print "MinorVersion		0x%08x"% \
-        crashAS.get_minorversion()	
-    print "KdSecondaryVersion	0x%08x"% \
-        crashAS.get_kdsecondaryversion()
-    print "DirectoryTableBase	0x%08x"% \
-        crashAS.get_directorytablebase()
-    print "PfnDataBase		0x%08x"% \
-        crashAS.get_pfndatabase()
-    print "PsLoadedModuleList	0x%08x"% \
-        crashAS.get_psloadedmodulelist()
-    print "PsActiveProcessHead	0x%08x"% \
-        crashAS.get_psactiveprocesshead()
-    print "MachineImageType	0x%08x"% \
-        crashAS.get_machineimagetype()
-    print "NumberProcessors	0x%08x"% \
-        crashAS.get_numberprocessors()
-    print "BugCheckCode		0x%08x"% \
-        crashAS.get_bugcheckcode()
-    print "PaeEnabled		0x%08x"% \
-        crashAS.get_paeenabled()
-    print "KdDebuggerDataBlock	0x%08x"% \
-        crashAS.get_kddebuggerdatablock()
-    print "ProductType		0x%08x"% \
-        crashAS.get_producttype()
-    print "SuiteMask		0x%08x"% \
-        crashAS.get_suitemask()
-    print "WriterStatus		0x%08x"% \
-        crashAS.get_writerstatus()
-    
-    print 
-    print "Physical Memory Description:"
-    print "Number of runs: %d" % crashAS.get_number_of_runs()
-    print "FileOffset	Start Address	Length"
-    foffset = 0x1000
-    run = []
-    for run in crashAS.runs:
-        print "%08x	%08x	%08x" % (foffset, run[0]*0x1000, run[1]*0x1000)
-        foffset += (run[1] * 0x1000)
-    print "%08x	%08x" % (foffset-0x1000, ((run[0]+run[1]-1)*0x1000))
-
-
-###################################
 #  user dump
 ###################################
 

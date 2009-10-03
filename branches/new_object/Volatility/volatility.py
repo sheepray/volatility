@@ -76,10 +76,6 @@ modules = {
     VolatoolsModule('modscan',
             'Scan for modules',
             modscan), 
-    'dmpchk':
-    VolatoolsModule('dmpchk',
-            'Dump crash dump information',
-            dump_chk), 
     'memdmp':
     VolatoolsModule('memdmp',
             'Dump the addressable memory for a process',
