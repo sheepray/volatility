@@ -9,19 +9,11 @@ import forensics.win32 as win32
 import forensics.object2 as object2
 import forensics.commands as commands
 import forensics.conf
+import files
 
 config = forensics.conf.ConfObject()
 
-config.add_option('OFFSET', short_option = 'o', default=None,
-    help='EPROCESS Offset (in hex) in physical address space',
-    action='store', type='string')
-
-config.add_option('PID', short_option = 'p',
-    help='Get info for this Pid', default=None,
-    action='store', type='int')
-
-
-class vadinfo(commands.command):
+class vadinfo(files.files):
     """Dump the VAD info"""
 
     def render_text(self, outfd, data):

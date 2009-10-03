@@ -14,16 +14,20 @@ import forensics.conf as conf
 
 config = conf.ConfObject()
 
-config.add_option('OFFSET', short_option = 'o', default=None,
-    help='EPROCESS Offset (in hex) in physical address space',
-    action='store', type='string')
-
-config.add_option('PID', short_option = 'p',
-    help='Get info for this Pid', default=None,
-    action='store', type='int')
 
 class files(forensics.commands.command):
     """Print list of open files for each process"""
+
+    def __init__(self, *args):
+        config.add_option('OFFSET', short_option = 'o', default=None,
+                          help='EPROCESS Offset (in hex) in physical address space',
+                          action='store', type='string')
+        
+        config.add_option('PID', short_option = 'p',
+                          help='Get info for this Pid', default=None,
+                          action='store', type='int')
+        
+        forensics.commands.command.__init__(self, *args)
 
     def render_text(self, outfd, data):
         first = True

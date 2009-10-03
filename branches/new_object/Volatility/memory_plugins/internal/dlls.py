@@ -10,18 +10,11 @@ import forensics
 import forensics.win32 as win32
 import forensics.object2 as object2
 import forensics.utils as utils
+import files
 
 config = forensics.conf.ConfObject()
 
-config.add_option('OFFSET', short_option = 'o', default=None,
-    help='EPROCESS Offset (in hex) in physical address space',
-    action='store', type='string')
-
-config.add_option('PID', short_option = 'p',
-    help='Get info for this Pid', default=None,
-    action='store', type='int')
-
-class dlllist(forensics.commands.command):
+class dlllist(files.files):
     """Print list of loaded dlls for each process"""
 
     def render_text(self, outfd, data):
@@ -41,7 +34,7 @@ class dlllist(forensics.commands.command):
                 modules = data[pid]['modules']
                 outfd.write("%-12s %-12s %s\n" % ('Base', 'Size', 'Path'))
                 for m in modules:
-                    outfd.write("0x%0.8x   0x%0.6x     %s\n" % (int(m.BaseAddress), int(m.SizeOfImage), m.FullDllName))
+                    outfd.write("0x%0.8x   0x%0.6x     %s\n" % (m.BaseAddress, m.SizeOfImage, m.FullDllName))
             else:
                 print task.Peb
                 outfd.write("Unable to read PEB for task.\n")

@@ -10,18 +10,11 @@ import forensics
 import forensics.win32 as win32
 import forensics.object2 as object2
 import forensics.utils as utils
+import files
 
 config = forensics.conf.ConfObject()
 
-config.add_option('OFFSET', short_option = 'o', default=None,
-    help='EPROCESS Offset (in hex) in physical address space',
-    action='store', type='string')
-
-config.add_option('PID', short_option = 'p',
-    help='Get info for this Pid', default=None,
-    action='store', type='int')
-
-class memmap(forensics.commands.command):
+class memmap(files.files):
     """Print the memory map"""
 
     def render_text(self, outfd, data):

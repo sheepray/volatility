@@ -17,7 +17,7 @@ class sockets(forensics.commands.command):
             outfd.write("%-6s %-6s %-6s %-26s\n" % ('Pid', 'Port', 'Proto', 'Create Time'))
         
         for sock in data:
-            outfd.write("%-6s %-6s %-6s %-26s\n" % (int(sock.Pid), int(sock.LocalPort), int(sock.Protocol), sock.CreateTime))
+            outfd.write("%-6d %-6d %-6d %-26s\n" % (sock.Pid, sock.LocalPort, sock.Protocol, sock.CreateTime))
         
 
     def calculate(self):

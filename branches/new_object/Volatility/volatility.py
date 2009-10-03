@@ -160,7 +160,7 @@ def command_help(command):
     Module %s
     ---------------------------------\n""" % command.__class__.__name__)
     
-    return result + command.help()
+    return result + command.help() + "\n\n"
 
 def main():
 
@@ -195,7 +195,7 @@ def main():
             command = MemoryRegistry.PLUGIN_COMMANDS[module](config.args[1:])
 
             ## Register the help cb from the command itself
-            config.set_help_hook(Curry(command_help, command))
+            config.set_help_hook(Curry(command_help, command))            
             config.parse_options()
              
             command.execute()
