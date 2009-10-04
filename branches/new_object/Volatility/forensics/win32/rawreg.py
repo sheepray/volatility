@@ -25,9 +25,9 @@
 @contact:      bdolangavitt@wesleyan.edu
 """
 
-from forensics.object import read_value
-from forensics.object2 import NewObject
-from struct import unpack
+# from forensics.object import read_value
+import forensics.object2 as object2
+import struct
 
 ROOT_INDEX = 0x20
 LH_SIG = "lh"
@@ -65,11 +65,11 @@ VALUE_TYPES = dict(enumerate([
 ]))
 VALUE_TYPES.setdefault("REG_UNKNOWN")
 
-def get_root(address_space, profile, stable=True):
+def get_root(address_space, stable=True):
     if stable:
-        return NewObject("_CM_KEY_NODE", ROOT_INDEX, address_space, profile=profile)
+        return object2.NewObject("_CM_KEY_NODE", ROOT_INDEX, address_space)
     else:
-        return NewObject("_CM_KEY_NODE", ROOT_INDEX | 0x80000000, address_space, profile=profile)
+        return object2.NewObject("_CM_KEY_NODE", ROOT_INDEX | 0x80000000, address_space)
 
 def open_key(root, key):
     if key == []:
@@ -80,6 +80,7 @@ def open_key(root, key):
     
     keyname = key.pop(0)
     for s in subkeys(root):
+        print s.Name
         if s.Name.upper() == keyname.upper():
             return open_key(s, key)
     print "ERR: Couldn't find subkey %s of %s" % (keyname, root.Name)
@@ -97,11 +98,11 @@ def read_sklist(sk):
             ptr_off = sk.get_member_offset('List')+(i*4)
             if not sk.vm.is_valid_address(ptr_off):
                 continue
-            ssk_off = read_value(sk.vm, "unsigned int", ptr_off)
+            ssk_off = object2.NewObject("unsigned int", ptr_off, sk.vm)
             if not sk.vm.is_valid_address(ssk_off):
                 continue
             
-            ssk = NewObject("_CM_KEY_INDEX", ssk_off, sk.vm, profile=sk.profile)
+            ssk = object2.NewObject("_CM_KEY_INDEX", ssk_off, sk.vm)
             for i in read_sklist(ssk):
                 yield i
         
@@ -109,9 +110,10 @@ def read_sklist(sk):
 def subkeys(key):
     if not key.is_valid():
         return
-    if key.SubKeyCounts[0] > 0:
+    
+    if int(key.SubKeyCounts[0]) > 0:
         sk_off = key.SubKeyLists[0]
-        sk = NewObject("_CM_KEY_INDEX", sk_off, key.vm, profile=key.profile)
+        sk = object2.NewObject("_CM_KEY_INDEX", sk_off, key.vm)
         if not sk or not sk.is_valid():
             pass
         else:
@@ -119,9 +121,9 @@ def subkeys(key):
                 if i.Signature.v() == NK_SIG:
                     yield i
             
-    if key.SubKeyCounts[1] > 0:
+    if int(key.SubKeyCounts[1]) > 0:
         sk_off = key.SubKeyLists[1]
-        sk = NewObject("_CM_KEY_INDEX", sk_off, key.vm, profile=key.profile)
+        sk = object2.NewObject("_CM_KEY_INDEX", sk_off, key.vm)
         if not sk or not sk.is_valid():
             pass
         else:
@@ -151,11 +153,11 @@ def value_data(val):
     elif valtype == "REG_MULTI_SZ":
         valdata = valdata.decode('utf-16-le',"ignore").split('\0')
     elif valtype == "REG_DWORD":
-        valdata = unpack("<L", valdata)[0]
+        valdata = struct.unpack("<L", valdata)[0]
     elif valtype == "REG_DWORD_BIG_ENDIAN":
-        valdata = unpack(">L", valdata)[0]
+        valdata = struct.unpack(">L", valdata)[0]
     elif valtype == "REG_QWORD":
-        valdata = unpack("<Q", valdata)[0]
+        valdata = struct.unpack("<Q", valdata)[0]
     return (valtype, valdata)
 
 def walk(root):

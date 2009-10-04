@@ -51,7 +51,7 @@ class hivelist(forensics.commands.command):
     def __init__(self, *args):
         config.add_option("HIVE-OFFSET", short_option='o',
                           default = None, type='int',
-                          help = "Offset to reg hive")
+                          help = "Offset to registry hive")
         
         forensics.commands.command.__init__(self, *args)
 

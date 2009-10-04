@@ -38,14 +38,12 @@ from forensics.win32.hiber_addrspace import WindowsHiberFileSpace32
 from forensics.win32.crash_addrspace import WindowsCrashDumpSpace32
 from forensics.object import read_obj
 from forensics.win32.tasks import create_addr_space, process_addr_space, process_dtb, process_find_pid
-from forensics.win32.tasks import process_imagename, process_list, process_peb, process_pid, process_handle_table
+from forensics.win32.tasks import process_imagename, process_list, process_peb, process_pid
 from forensics.win32.tasks import process_vadroot
-from forensics.win32.handles import handle_entries, handle_process_id, handle_tables
 from forensics.win32.vad import vad_dump
 from forensics.win32.scan import module_scan, conn_scan, ps_scan_dot, ps_scan, socket_scan, thrd_scan
 from forensics.win32.crashdump import crash_to_dd, dd_to_crash
 import forensics.win32.meta_info as meta_info
-from forensics.win32.registry import print_entry_keys
 from forensics.win32.executable import rebuild_exe_dsk, rebuild_exe_mem
 from forensics.win32.scan2 import scan_addr_space, PoolScanProcessDot, PoolScanThreadFast2
 from forensics.win32.scan2 import PoolScanProcessFast2 
@@ -783,73 +781,6 @@ def dmp2raw(cmdname, argv):
 
 
     crash_to_dd(flat_address_space, types, opts.outfile)  
-
-
-###################################
-#  registry keys - List open registry keys
-###################################
-
-def get_open_keys(cmdname, argv):
-    """
-    Function prints a list of open keys for each process.
-    """
-    op = get_standard_parser(cmdname)
-
-    op.add_option('-o', '--offset',
-               help='EPROCESS Offset (in hex) in physical address space',
-               action='store', type='string', dest='offset')
-
-    op.add_option('-p', '--pid',
-                  help='Get info for this Pid',
-                  action='store', type='int', dest='pid')
-
-    opts, _args = op.parse_args(argv)
-
-    filename = opts.filename
-    pid = opts.pid
-
-    (addr_space, symtab, types) = load_and_identify_image(op, opts)
-    
-    
-    if not opts.offset is None:
- 
-        try:
-            offset = int(opts.offset, 16)
-        except:
-            op.error("EPROCESS offset must be a hexadecimal number.")
-        
-        try:
-            flat_address_space = FileAddressSpace(filename)
-        except:
-            op.error("Unable to open image file %s" %(filename))
-
-        ObjectTable = process_handle_table(flat_address_space, types, offset)
-
-        if addr_space.is_valid_address(ObjectTable):
-            htables = [ObjectTable]
-        
-    else:
-
-        htables = handle_tables(addr_space, types, symtab, pid)
-
-    star_line = '*'*72
-
-    for table in htables:
-        if len(htables) > 1:
-            print "%s" % star_line
-
-        process_id = handle_process_id(addr_space, types, table)
-        if process_id == None:
-            continue
-
-        print "Pid: %-6d" % (process_id)
-
-        entries = handle_entries(addr_space, types, table)
-        for hentry in entries:
-            ek = print_entry_keys(addr_space, types, hentry)
-            if ek != None:
-                print ek
-
 
 ###################################
 # procdump - Dump a process to an executable image

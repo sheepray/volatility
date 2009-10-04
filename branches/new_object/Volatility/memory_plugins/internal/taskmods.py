@@ -69,6 +69,11 @@ class dlllist(forensics.commands.command):
 class files(dlllist):
     """Print list of open files for each process"""
 
+    def __init__(self, *args):
+        dlllist.__init__(self, *args)
+        self.handle_type = 'File'
+        self.handle_obj = "_FILE_OBJECT"
+
     def render_text(self, outfd, data):
         first = True
         for pid in data:
@@ -95,10 +100,10 @@ class files(dlllist):
                 
                 # Weed out just the file handles:
                 for h in handles:
-                    if str(h.Type.Name) == 'File':
-                        filevar = object2.NewObject("_FILE_OBJECT", h.Body.offset, task.vm, parent=task, profile=task.profile)
+                    if str(h.Type.Name) == self.handle_type:
+                        var = object2.NewObject(self.handle_obj, h.Body.offset, task.vm, parent=task, profile=task.profile)
                         hlist = result.get(pid, [])
-                        hlist.append(filevar)
+                        hlist.append(var)
                         result[pid] = hlist
 
         return result

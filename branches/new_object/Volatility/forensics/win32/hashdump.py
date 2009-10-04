@@ -25,8 +25,8 @@
 @contact:      bdolangavitt@wesleyan.edu
 """
 
-from forensics.win32.rawreg import get_root, open_key, values, subkeys
-from forensics.win32.hive2 import HiveAddressSpace, HiveFileAddressSpace
+import forensics.win32.rawreg as rawreg
+import forensics.win32.hive as hive
 from Crypto.Hash import MD5, MD4
 from Crypto.Cipher import ARC4, DES
 from struct import unpack, pack
@@ -103,36 +103,36 @@ def hash_lm(pw):
 def hash_nt(pw):
     return MD4.new(pw.encode('utf-16-le')).digest()
    
-def find_control_set(sysaddr, profile):
-    root = get_root(sysaddr, profile)
+def find_control_set(sysaddr):
+    root = rawreg.get_root(sysaddr)
     if not root:
         return 1
 
-    csselect = open_key(root, ["Select"])
+    csselect = rawreg.open_key(root, ["Select"])
     if not csselect:
         return 1
 
-    for v in values(csselect):
+    for v in rawreg.values(csselect):
         if v.Name == "Current":
             return v.Data
 
-def get_bootkey(sysaddr, profile):
-    cs = find_control_set(sysaddr, profile)
+def get_bootkey(sysaddr):
+    cs = find_control_set(sysaddr)
     lsa_base = ["ControlSet%03d" % cs, "Control", "Lsa"]
     lsa_keys = ["JD", "Skew1", "GBG", "Data"]
 
-    root = get_root(sysaddr, profile)
+    root = rawreg.get_root(sysaddr)
     if not root:
         return None
 
-    lsa = open_key(root, lsa_base)
+    lsa = rawreg.open_key(root, lsa_base)
     if not lsa:
         return None
 
     bootkey = ""
     
     for lk in lsa_keys:
-        key = open_key(lsa, [lk])
+        key = rawreg.open_key(lsa, [lk])
         class_data = sysaddr.read(key.Class, key.ClassLength)
         bootkey += class_data.decode('utf-16-le').decode('hex')
     
@@ -142,19 +142,19 @@ def get_bootkey(sysaddr, profile):
     
     return bootkey_scrambled
 
-def get_hbootkey(samaddr, bootkey, profile):
+def get_hbootkey(samaddr, bootkey):
     sam_account_path = ["SAM", "Domains", "Account"]
 
-    root = get_root(samaddr, profile)
+    root = rawreg.get_root(samaddr)
     if not root:
         return None
 
-    sam_account_key = open_key(root, sam_account_path)
+    sam_account_key = rawreg.open_key(root, sam_account_path)
     if not sam_account_key:
         return None
 
     F = None
-    for v in values(sam_account_key):
+    for v in rawreg.values(sam_account_key):
         if v.Name == 'F':
             F = samaddr.read(v.Data, v.DataLength)
     if not F:
@@ -169,18 +169,18 @@ def get_hbootkey(samaddr, bootkey, profile):
     
     return hbootkey
 
-def get_user_keys(samaddr, profile):
+def get_user_keys(samaddr):
     user_key_path = ["SAM", "Domains", "Account", "Users"]
 
-    root = get_root(samaddr, profile)
+    root = rawreg.get_root(samaddr)
     if not root:
         return None
 
-    user_key = open_key(root, user_key_path)
+    user_key = rawreg.open_key(root, user_key_path)
     if not user_key:
         return None
 
-    return [k for k in subkeys(user_key) if k.Name != "Names"]
+    return [k for k in rawreg.subkeys(user_key) if k.Name != "Names"]
 
 def decrypt_single_hash(rid, hbootkey, enc_hash, lmntstr):
     (des_k1, des_k2) = sid_to_key(rid)
@@ -245,7 +245,7 @@ def get_user_hashes(user_key, hbootkey):
     samaddr = user_key.vm
     rid = int(user_key.Name, 16)
     V = None
-    for v in values(user_key):
+    for v in rawreg.values(user_key):
         if v.Name == 'V':
             V = samaddr.read(v.Data, v.DataLength)
     if not V:
@@ -271,7 +271,7 @@ def get_user_hashes(user_key, hbootkey):
 def get_user_name(user_key):
     samaddr = user_key.vm
     V = None
-    for v in values(user_key):
+    for v in rawreg.values(user_key):
         if v.Name == 'V':
             V = samaddr.read(v.Data, v.DataLength)
     if not V:
@@ -286,7 +286,7 @@ def get_user_name(user_key):
 def get_user_desc(user_key):
     samaddr = user_key.vm
     V = None
-    for v in values(user_key):
+    for v in rawreg.values(user_key):
         if v.Name == 'V':
             V = samaddr.read(v.Data, v.DataLength)
     if not V:
@@ -298,11 +298,11 @@ def get_user_desc(user_key):
     desc = V[desc_offset:desc_offset+desc_length].decode('utf-16-le')
     return desc
 
-def dump_hashes(sysaddr, samaddr, profile):
-    bootkey = get_bootkey(sysaddr, profile)
-    hbootkey = get_hbootkey(samaddr, bootkey, profile)
+def dump_hashes(sysaddr, samaddr):
+    bootkey = get_bootkey(sysaddr)
+    hbootkey = get_hbootkey(samaddr, bootkey)
 
-    for user in get_user_keys(samaddr, profile):
+    for user in get_user_keys(samaddr):
         lmhash, nthash = get_user_hashes(user, hbootkey)
         if not lmhash:
             lmhash = empty_lm
@@ -311,12 +311,12 @@ def dump_hashes(sysaddr, samaddr, profile):
         print "%s:%d:%s:%s:::" % (get_user_name(user), int(user.Name, 16),
                             lmhash.encode('hex'), nthash.encode('hex'))
 
-def dump_memory_hashes(addr_space, types, syshive, samhive, profile):
-    sysaddr = HiveAddressSpace(addr_space, types, syshive)
-    samaddr = HiveAddressSpace(addr_space, types, samhive)
-    dump_hashes(sysaddr, samaddr, profile)
+def dump_memory_hashes(addr_space, syshive, samhive):
+    sysaddr = hive.HiveAddressSpace(addr_space, syshive)
+    samaddr = hive.HiveAddressSpace(addr_space, samhive)
+    dump_hashes(sysaddr, samaddr)
 
 def dump_file_hashes(syshive_fname, samhive_fname, profile):
-    sysaddr = HiveFileAddressSpace(syshive_fname)
-    samaddr = HiveFileAddressSpace(samhive_fname)
+    sysaddr = hive.HiveFileAddressSpace(syshive_fname)
+    samaddr = hive.HiveFileAddressSpace(samhive_fname)
     dump_hashes(sysaddr, samaddr, profile)

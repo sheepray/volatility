@@ -25,19 +25,19 @@
 @contact:      bdolangavitt@wesleyan.edu
 """
 
-from struct import unpack
-from forensics.win32.rawreg import get_root, open_key, subkeys
-from forensics.win32.hive2 import HiveAddressSpace, HiveFileAddressSpace
-from forensics.win32.hashdump import get_bootkey, str_to_key
+import struct
+import forensics.win32.rawreg as rawreg
+import forensics.win32.hive as hive
+import forensics.win32.hashdump as hashdump
 from Crypto.Hash import MD5
 from Crypto.Cipher import ARC4, DES
 
-def get_lsa_key(secaddr, bootkey, profile):
-    root = get_root(secaddr, profile)
+def get_lsa_key(secaddr, bootkey):
+    root = rawreg.get_root(secaddr)
     if not root:
         return None
 
-    enc_reg_key = open_key(root, ["Policy", "PolSecretEncryptionKey"])
+    enc_reg_key = rawreg.open_key(root, ["Policy", "PolSecretEncryptionKey"])
     if not enc_reg_key:
         return None
 
@@ -71,7 +71,7 @@ def decrypt_secret(secret, key):
     for i in range(0, len(secret), 8):
         enc_block = secret[i:i+8]
         block_key = key[j:j+7]
-        des_key = str_to_key(block_key)
+        des_key = hashdump.str_to_key(block_key)
 
         des = DES.new(des_key, DES.MODE_ECB)
         decrypted_data += des.decrypt(enc_block)
@@ -80,15 +80,15 @@ def decrypt_secret(secret, key):
         if len(key[j:j+7]) < 7:
             j = len(key[j:j+7])
 
-    (dec_data_len,) = unpack("<L", decrypted_data[:4])
+    (dec_data_len,) = struct.unpack("<L", decrypted_data[:4])
     return decrypted_data[8:8+dec_data_len]
 
-def get_secret_by_name(secaddr, name, lsakey, profile):
-    root = get_root(secaddr, profile)
+def get_secret_by_name(secaddr, name, lsakey):
+    root = rawreg.get_root(secaddr)
     if not root:
         return None
     
-    enc_secret_key = open_key(root, ["Policy", "Secrets", name, "CurrVal"])
+    enc_secret_key = rawreg.open_key(root, ["Policy", "Secrets", name, "CurrVal"])
     if not enc_secret_key:
         return None
 
@@ -103,23 +103,23 @@ def get_secret_by_name(secaddr, name, lsakey, profile):
 
     return decrypt_secret(enc_secret[0xC:], lsakey)
 
-def get_secrets(sysaddr, secaddr, profile):
-    root = get_root(secaddr, profile)
+def get_secrets(sysaddr, secaddr):
+    root = rawreg.get_root(secaddr)
     if not root:
         return None
 
-    bootkey = get_bootkey(sysaddr, profile)
-    lsakey = get_lsa_key(secaddr, bootkey, profile)
+    bootkey = hashdump.get_bootkey(sysaddr)
+    lsakey = get_lsa_key(secaddr, bootkey)
     if not bootkey or not lsakey:
         return None
 
-    secrets_key = open_key(root, ["Policy", "Secrets"])
+    secrets_key = rawreg.open_key(root, ["Policy", "Secrets"])
     if not secrets_key:
         return None
     
     secrets = {}
-    for key in subkeys(secrets_key):
-        sec_val_key = open_key(key, ["CurrVal"])
+    for key in rawreg.subkeys(secrets_key):
+        sec_val_key = rawreg.open_key(key, ["CurrVal"])
         if not sec_val_key:
             continue
         
@@ -137,14 +137,14 @@ def get_secrets(sysaddr, secaddr, profile):
 
     return secrets
 
-def get_memory_secrets(addr_space, types, syshive, sechive, profile):
-    sysaddr = HiveAddressSpace(addr_space, types, syshive)
-    secaddr = HiveAddressSpace(addr_space, types, sechive)
+def get_memory_secrets(addr_space, syshive, sechive):
+    sysaddr = hive.HiveAddressSpace(addr_space, syshive)
+    secaddr = hive.HiveAddressSpace(addr_space, sechive)
 
-    return get_secrets(sysaddr, secaddr, profile)
+    return get_secrets(sysaddr, secaddr)
 
-def get_file_secrets(sysfile, secfile, profile):
-    sysaddr = HiveFileAddressSpace(sysfile)
-    secaddr = HiveFileAddressSpace(secfile)
+def get_file_secrets(sysfile, secfile):
+    sysaddr = hive.HiveFileAddressSpace(sysfile)
+    secaddr = hive.HiveFileAddressSpace(secfile)
 
-    return get_secrets(sysaddr, secaddr, profile)
+    return get_secrets(sysaddr, secaddr)

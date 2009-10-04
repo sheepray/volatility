@@ -25,16 +25,16 @@
 
 #pylint: disable-msg=C0111
 
-from forensics.win32.rawreg import get_root, open_key, values
-from forensics.win32.hive2 import HiveAddressSpace, HiveFileAddressSpace
-from forensics.win32.hashdump import get_bootkey
-from forensics.win32.lsasecrets import get_secret_by_name, get_lsa_key
+import forensics.win32.rawreg as rawreg
+import forensics.win32.hive as hive
+import forensics.win32.lsasecrets as lsasecrets
+import forensics.win32.hashdump as hashdump
 from Crypto.Hash import HMAC
 from Crypto.Cipher import ARC4
 from struct import unpack
 
-def get_nlkm(secaddr, lsakey, profile):
-    return get_secret_by_name(secaddr, 'NL$KM', lsakey, profile)
+def get_nlkm(secaddr, lsakey):
+    return lsasecrets.get_secret_by_name(secaddr, 'NL$KM', lsakey)
 
 def decrypt_hash(edata, nlkm, ch):
     hmac_md5 = HMAC.new(nlkm, ch)
@@ -69,29 +69,29 @@ def parse_decrypted_cache(dec_data, uname_len,
 
     return (username, domain, domain_name, hash)
 
-def dump_hashes(sysaddr, secaddr, profile):
-    bootkey = get_bootkey(sysaddr, profile)
+def dump_hashes(sysaddr, secaddr):
+    bootkey = hashdump.get_bootkey(sysaddr)
     if not bootkey:
         return None
 
-    lsakey = get_lsa_key(secaddr, bootkey, profile)
+    lsakey = lsasecrets.get_lsa_key(secaddr, bootkey)
     if not lsakey:
         return None
 
-    nlkm = get_nlkm(secaddr, lsakey, profile)
+    nlkm = get_nlkm(secaddr, lsakey)
     if not nlkm:
         return None
 
-    root = get_root(secaddr, profile)
+    root = rawreg.get_root(secaddr)
     if not root:
         return None
 
-    cache = open_key(root, ["Cache"])
+    cache = rawreg.open_key(root, ["Cache"])
     if not cache:
         return None
 
     hashes = []
-    for v in values(cache):
+    for v in rawreg.values(cache):
         if v.Name == "NL$Control":
             continue
         
@@ -114,18 +114,18 @@ def dump_hashes(sysaddr, secaddr, profile):
 
     return hashes 
 
-def dump_memory_hashes(addr_space, types, syshive, sechive, profile):
-    sysaddr = HiveAddressSpace(addr_space, types, syshive)
-    secaddr = HiveAddressSpace(addr_space, types, sechive)
+def dump_memory_hashes(addr_space, syshive, sechive):
+    sysaddr = hive.HiveAddressSpace(addr_space, syshive)
+    secaddr = hive.HiveAddressSpace(addr_space, sechive)
 
-    for (u, d, dn, hash) in dump_hashes(sysaddr, secaddr, profile):
+    for (u, d, dn, hash) in dump_hashes(sysaddr, secaddr):
         print "%s:%s:%s:%s" % (u.lower(), hash.encode('hex'),
                                d.lower(), dn.lower())
 
-def dump_file_hashes(syshive_fname, sechive_fname, profile):
-    sysaddr = HiveFileAddressSpace(syshive_fname)
-    secaddr = HiveFileAddressSpace(sechive_fname)
+def dump_file_hashes(syshive_fname, sechive_fname):
+    sysaddr = hive.HiveFileAddressSpace(syshive_fname)
+    secaddr = hive.HiveFileAddressSpace(sechive_fname)
 
-    for (u, d, dn, hash) in dump_hashes(sysaddr, secaddr, profile):
+    for (u, d, dn, hash) in dump_hashes(sysaddr, secaddr):
         print "%s:%s:%s:%s" % (u.lower(), hash.encode('hex'),
                                d.lower(), dn.lower())

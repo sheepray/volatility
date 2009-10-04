@@ -27,10 +27,11 @@
 #pylint: disable-msg=C0111
 
 import sys
-from forensics.win32.regtypes import regtypes
-from forensics.win32.lsasecrets import get_memory_secrets
+import forensics.win32.lsasecrets as lsasecrets
+import forensics.win32.hashdump as hashdumpmod
 import forensics.utils as utils
-import forensics.commands
+import forensics
+config = forensics.conf.ConfObject()
 
 FILTER = ''.join([(len(repr(chr(i))) == 3) and chr(i) or '.' for i in range(256)])
 
@@ -46,7 +47,7 @@ def hd(src, length=16):
     return result
 
 class lsadump(forensics.commands.command):
-    "Dump (decrypted) LSA secrets from the registry"
+    """Dump (decrypted) LSA secrets from the registry"""
     # Declare meta information associated with this plugin
     
     meta_info = forensics.commands.command.meta_info 
@@ -58,29 +59,45 @@ class lsadump(forensics.commands.command):
     meta_info['os'] = 'WIN_32_XP_SP2'
     meta_info['version'] = '1.0'
 
-    def parser(self):
-        forensics.commands.command.parser(self)
-        self.op.add_option('-y', '--sys-offset', help='SYSTEM hive offset (virtual)',
-            action='store', type='int', dest='syshive')
-        self.op.add_option('-s', '--sec-offset', help='SECURITY hive offset (virtual)',
-            action='store', type='int', dest='sechive')
-
+    def __init__(self, *args):
+        config.add_option('SYS-OFFSET', short_option='y', type='int',
+                          help='SYSTEM hive offset (virtual)')
+        config.add_option('SEC-OFFSET', short_option='s', type='int',
+                          help='SECURITY hive offset (virtual)')
+        forensics.commands.command.__init__(self, *args)
     
-    def execute(self):
+    def calculate(self):
         addr_space = utils.load_as()
 
         # In general it's not recommended to update the global types on the fly,
         # but I'm special and I know what I'm doing ;)
         # types.update(regtypes)
 
-        if not self.opts.syshive or not self.opts.sechive:
-            self.op.error("Both SYSTEM and SECURITY offsets must be provided")
+        if not config.sys_offset or not config.sec_offset:
+            config.error("Both SYSTEM and SECURITY offsets must be provided")
         
-        secrets = get_memory_secrets(addr_space, types, self.opts.syshive, self.opts.sechive)
+        secrets = lsasecrets.get_memory_secrets(addr_space, config.sys_offset, config.sec_offset)
         if not secrets:
-            print "Error: unable to read LSA secrets from registry"
-            sys.exit(1)
+            config.error("Unable to read LSA secrets from registry")
 
-        for k in secrets:
-            print k
-            print hd(secrets[k])
+    def render_text(self, outfd, data):
+        for k in data:
+            outfd.write(k + "\n")
+            outfd.write(hd(data[k]) + "\n")
+
+class hashdump(forensics.commands.command):
+    
+    def __init__(self, *args):
+        config.add_option('SYS-OFFSET', short_option='y', type='int',
+                          help='SYSTEM hive offset (virtual)')
+        config.add_option('SAM-OFFSET', short_option='s', type='int',
+                          help='SAM hive offset (virtual)')
+        forensics.commands.command.__init__(self, *args)        
+    
+    def execute(self):
+        addr_space = utils.load_as()
+
+        if not config.sys_offset or not config.sam_offset:
+            config.error("Both SYSTEM and SAM offsets must be provided")
+        
+        hashdumpmod.dump_memory_hashes(addr_space, config.sys_offset, config.sam_offset)

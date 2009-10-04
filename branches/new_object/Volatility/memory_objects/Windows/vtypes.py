@@ -360,7 +360,7 @@ xpsp2types = { \
 } ], \
 '_CM_NAME_CONTROL_BLOCK' : [  0x10, { \
   'NameLength' : [ 0xc, ['unsigned short']], \
-  'Name' : [ 0xe, ['array', 1,['unsigned short']]], \
+  'Name' : [ 0xe, ['String', dict(length=lambda x: x.NameLength)]], \
 } ], \
 '_IMAGE_DOS_HEADER' : [  0x40, { \
   'e_lfanew' : [ 0x3c, ['long']], \

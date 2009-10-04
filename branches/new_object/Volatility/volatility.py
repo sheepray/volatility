@@ -84,10 +84,6 @@ modules = {
         VolatoolsModule('dmp2raw',
                     'Convert a crash dump to a raw dump',
                     dmp2raw),
-    'regobjkeys':
-    VolatoolsModule('regkeys',
-                  'Print list of open regkeys for each process',
-                  get_open_keys),
     'procdump':
     VolatoolsModule('procdump',
                   'Dump a process to an executable sample',
@@ -114,17 +110,17 @@ def list_plugins():
     keys.sort()
     for cmdname in keys:
         command = MemoryRegistry.PLUGIN_COMMANDS[cmdname]
-        help = command.help()
+        helpline = command.help()
         ## Just put the title line (First non empty line) in this
         ## abbreviated display
         try:
-            for line in help.splitlines():
+            for line in helpline.splitlines():
                 if line:
-                    help = line
+                    helpline = line
                     break
         except:
-            help = ''
-        result += "\t\t%-15s\t%-s\n" % (cmdname, help)
+            helpline = ''
+        result += "\t\t%-15s\t%-s\n" % (cmdname, helpline)
 
     return result
 

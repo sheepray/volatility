@@ -27,12 +27,11 @@
 #pylint: disable-msg=C0111
 
 # from forensics.win32.datetime import windows_to_unix_time
-from forensics.win32.hive2 import HiveAddressSpace
+import forensics.win32.hive as hivemod
 from forensics.win32.rawreg import get_root, open_key, subkeys, values, value_data
 from forensics.object2 import Profile
-import forensics.commands
+import forensics
 import forensics.utils as utils
-import forensics.conf
 config = forensics.conf.ConfObject()
 
 ## This module requires a filename to be passed by the user
@@ -84,7 +83,7 @@ class printkey(forensics.commands.command):
         if len(self.args) == 1 and '\\' in self.args[0]:
             self.args = self.args[0].split('\\')
         
-        hive = HiveAddressSpace(addr_space, profile, hive_offset)
+        hive = hivemod.HiveAddressSpace(addr_space, hive_offset)
         root = get_root(hive, profile)
         if not root:
             print "Unable to find root key. Is the hive offset correct?"

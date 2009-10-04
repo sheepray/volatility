@@ -26,9 +26,10 @@
 """
 
 # from forensics.object import *
-from forensics.object import read_obj, read_unicode_string, get_obj_offset, read_obj_from_buf
+# from forensics.object import read_obj, read_unicode_string, get_obj_offset, read_obj_from_buf
+# from forensics.win32.scan2 import GenMemScanObject, PoolScanner, meta_info
 from forensics.object2 import NewObject
-from forensics.win32.scan2 import GenMemScanObject, PoolScanner, meta_info
+import forensics.addrspace as addrspace
 import struct
 
 FILTER = ''.join([(len(repr(chr(x))) == 3) and chr(x) or '.' for x in range(256)])
@@ -44,47 +45,47 @@ def dump(src, length=8):
         N += length
     return result
 
-class PoolScanHiveFast2(GenMemScanObject):
-    """ Scan for _CMHIVE objects """
-    def __init__(self, addr_space):
-        GenMemScanObject.__init__(self, addr_space)
-        self.pool_tag = "CM10"
-        self.pool_size = 0x4a8
-
-    class Scan(PoolScanner):
-        def __init__(self, poffset, outer):
-            PoolScanner.__init__(self, poffset, outer)
-            self.add_constraint(self.check_blocksize_equal)
-            self.add_constraint(self.check_pagedpooltype)
-            #self.add_constraint(self.check_poolindex)
-            self.add_constraint(self.check_hive_sig)
-
-        def check_pagedpooltype(self, buff, found):
-            _data_types = meta_info.DataTypes
-            pool_hdr_val = read_obj_from_buf(buff, self.data_types, \
-                ['_POOL_HEADER', 'Ulong1'],found-4)
-            if pool_hdr_val == None:
-                return False           
- 
-            PoolType = (pool_hdr_val >> 16) & 0xFFFF
-            PoolType = (PoolType & 0xFE00) >> 9 
-
-            if ((PoolType == 0) or ((PoolType % 2) == 0)):
-                return True
-            
-            return False	    
-
-        def check_hive_sig(self, buff, found):
-            sig = read_obj_from_buf(buff, self.data_types, 
-                    ['_HHIVE', 'Signature'], found+4)
-            if sig != 0xbee0bee0:
-                return False
-            else:
-                return True
-
-        def object_action(self, buff, object_offset):
-            address = self.as_offset + object_offset
-            print "%-15d %#-15x" % (address, address)
+#class PoolScanHiveFast2(GenMemScanObject):
+#    """ Scan for _CMHIVE objects """
+#    def __init__(self, addr_space):
+#        GenMemScanObject.__init__(self, addr_space)
+#        self.pool_tag = "CM10"
+#        self.pool_size = 0x4a8
+#
+#    class Scan(PoolScanner):
+#        def __init__(self, poffset, outer):
+#            PoolScanner.__init__(self, poffset, outer)
+#            self.add_constraint(self.check_blocksize_equal)
+#            self.add_constraint(self.check_pagedpooltype)
+#            #self.add_constraint(self.check_poolindex)
+#            self.add_constraint(self.check_hive_sig)
+#
+#        def check_pagedpooltype(self, buff, found):
+#            _data_types = meta_info.DataTypes
+#            pool_hdr_val = read_obj_from_buf(buff, self.data_types, \
+#                ['_POOL_HEADER', 'Ulong1'],found-4)
+#            if pool_hdr_val == None:
+#                return False           
+# 
+#            PoolType = (pool_hdr_val >> 16) & 0xFFFF
+#            PoolType = (PoolType & 0xFE00) >> 9 
+#
+#            if ((PoolType == 0) or ((PoolType % 2) == 0)):
+#                return True
+#            
+#            return False	    
+#
+#        def check_hive_sig(self, buff, found):
+#            sig = read_obj_from_buf(buff, self.data_types, 
+#                    ['_HHIVE', 'Signature'], found+4)
+#            if sig != 0xbee0bee0:
+#                return False
+#            else:
+#                return True
+#
+#        def object_action(self, buff, object_offset):
+#            address = self.as_offset + object_offset
+#            print "%-15d %#-15x" % (address, address)
 
 CI_TYPE_MASK   = 0x80000000
 CI_TYPE_SHIFT  = 0x1F
@@ -97,11 +98,11 @@ CI_OFF_SHIFT   = 0x0
 
 BLOCK_SIZE = 0x1000
 
-class HiveAddressSpace:
-    def __init__(self, baseAddressSpace, profile, hive_addr):
+class HiveAddressSpace(addrspace.BaseAddressSpace):
+    def __init__(self, baseAddressSpace, hive_addr):
+        addrspace.BaseAddressSpace.__init__(self, baseAddressSpace)
         self.base = baseAddressSpace
-        self.profile = profile
-        self.hive = NewObject("_HHIVE", hive_addr, baseAddressSpace, profile=profile)
+        self.hive = NewObject("_HHIVE", hive_addr, baseAddressSpace)
         self.baseblock = self.hive.BaseBlock.v()
         self.flat = self.hive.Flat.v() > 0
 
@@ -334,54 +335,54 @@ class HiveFileAddressSpace:
             return False
         return self.base.is_valid_address(paddr)
 
-def hive_list(flat_address_space, process_address_space, types, start):
-    """
-    Get the virtual addresses of all hives
-    """
+#def hive_list(flat_address_space, process_address_space, types, start):
+#    """
+#    Get the virtual addresses of all hives
+#    """
+#    
+#    hives_list = []
+#
+#    (offset, _)  = get_obj_offset(types, ['_CMHIVE', 'HiveList'])
+#
+#    head = read_obj(flat_address_space, types, ['_CMHIVE', 'HiveList', 'Flink'], start) - offset
+#    next = read_obj(process_address_space, types, ['_CMHIVE', 'HiveList', 'Flink'], head) - offset
+#    print hex(head), hex(next)
+#    while next != head:
+#        if not next or not process_address_space.is_valid_address(next):
+#            print "Hive list truncated"
+#            return hives_list
+#
+#        sig = hive_sig(process_address_space, types, next)
+#        if sig == 0xbee0bee0:
+#            # If the signature doesn't match, probably the list head
+#            hives_list.append(next)
+#            
+#        next = read_obj(process_address_space, types, ['_CMHIVE', 'HiveList', 'Flink'], next) - offset
+#
+#    sig = hive_sig(process_address_space, types, next)
+#    if sig == 0xbee0bee0:
+#        hives_list.append(next)
+#    return hives_list
     
-    hives_list = []
-
-    (offset, _)  = get_obj_offset(types, ['_CMHIVE', 'HiveList'])
-
-    head = read_obj(flat_address_space, types, ['_CMHIVE', 'HiveList', 'Flink'], start) - offset
-    next = read_obj(process_address_space, types, ['_CMHIVE', 'HiveList', 'Flink'], head) - offset
-    print hex(head), hex(next)
-    while next != head:
-        if not next or not process_address_space.is_valid_address(next):
-            print "Hive list truncated"
-            return hives_list
-
-        sig = hive_sig(process_address_space, types, next)
-        if sig == 0xbee0bee0:
-            # If the signature doesn't match, probably the list head
-            hives_list.append(next)
-            
-        next = read_obj(process_address_space, types, ['_CMHIVE', 'HiveList', 'Flink'], next) - offset
-
-    sig = hive_sig(process_address_space, types, next)
-    if sig == 0xbee0bee0:
-        hives_list.append(next)
-    return hives_list
-    
-def hive_fname(addr_space, types, addr):
-    """Read the hive file name from its File Object"""
-    fobjaddr = read_obj(addr_space, types, ['_CMHIVE', 'FileObject'], addr)
-    if fobjaddr:
-        fname = read_unicode_string(addr_space, types, ['_FILE_OBJECT', 'FileName'], fobjaddr)
-    else: fname = ''
-    return fname
-
-def hive_fname2(addr_space, types, addr):
-    """Read the hive file name from its FileFullPath member"""
-    return read_unicode_string(addr_space, types, ['_CMHIVE', 'FileFullPath'], addr)
-
-def hive_username(addr_space, types, addr):
-    """Get the FileUserName string for a hive"""
-    return read_unicode_string(addr_space, types, ['_CMHIVE', 'FileUserName'], addr)
-
-def hive_sig(addr_space, types, addr): 
-    """Return the signature for a hive. Should always be 0xbee0bee0"""
-    return read_obj(addr_space, types, ['_HHIVE', 'Signature'], addr)
+#def hive_fname(addr_space, types, addr):
+#    """Read the hive file name from its File Object"""
+#    fobjaddr = read_obj(addr_space, types, ['_CMHIVE', 'FileObject'], addr)
+#    if fobjaddr:
+#        fname = read_unicode_string(addr_space, types, ['_FILE_OBJECT', 'FileName'], fobjaddr)
+#    else: fname = ''
+#    return fname
+#
+#def hive_fname2(addr_space, types, addr):
+#    """Read the hive file name from its FileFullPath member"""
+#    return read_unicode_string(addr_space, types, ['_CMHIVE', 'FileFullPath'], addr)
+#
+#def hive_username(addr_space, types, addr):
+#    """Get the FileUserName string for a hive"""
+#    return read_unicode_string(addr_space, types, ['_CMHIVE', 'FileUserName'], addr)
+#
+#def hive_sig(addr_space, types, addr): 
+#    """Return the signature for a hive. Should always be 0xbee0bee0"""
+#    return read_obj(addr_space, types, ['_HHIVE', 'Signature'], addr)
 
 def find_first_hive(flat_address_space):
     sig = "CM10\xe0\xbe\xe0\xbe"
