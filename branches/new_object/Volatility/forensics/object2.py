@@ -243,6 +243,24 @@ class Object(object):
         else:
             return NotImplemented
 
+    def __lshift__(self, other):
+        return self.v() << other
+    
+    def __rshift__(self, other):
+        return self.v() >> other
+
+    def __or__(self, other):
+        return self.v() | other
+    
+    def __ror__(self, other):
+        return other | self.v()
+
+    def __and__(self, other):
+        return self.v() & other
+    
+    def __rand__(self, other):
+        return other & self
+
     def __ne__(self, other):
         return not self == other
 
@@ -684,6 +702,11 @@ class Profile:
         offset, _cls = tmp.members[member]
         
         return offset
+
+    def get_obj_size(self, name):
+        """Returns the size of a struct"""
+        tmp = self.types[name](name, None, profile=self)
+        return tmp.size()
 
     def apply_overlay(self, type_member, overlay):
         """ Update the overlay with the missing information from type.

@@ -100,10 +100,6 @@ modules = {
     VolatoolsModule('psscan2',
                   'Scan for process objects (New)',
                   psscan2),
-    'hibinfo':
-    VolatoolsModule('hibinfo',
-            'Convert hibernation file to linear raw image',
-            hibinfo), 
     }
 
 

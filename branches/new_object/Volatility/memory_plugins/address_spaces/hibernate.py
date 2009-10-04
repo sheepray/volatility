@@ -2,8 +2,6 @@
 import standard
 from forensics.object2 import NewObject
 from forensics.win32.xpress import xpress_decode
-from thirdparty.progressbar import Bar, ETA, ProgressBar, Percentage, RotatingMarker
-import cPickle as pickle
 import struct
 
 #pylint: disable-msg=C0111
@@ -55,8 +53,8 @@ class WindowsHiberFileSpace32(standard.FileAddressSpace):
         self.header = NewObject('_IMAGE_HIBER_HEADER', 0, baseAddressSpace)
         
         ## Is the signature right?
-        assert self.header.Signature.v() == 'hibr', "Header signature invalid"
-        
+        assert self.header.Signature.lower() == 'hibr', "Header signature invalid"
+
         # Extract processor state
         self.ProcState = NewObject("_KPROCESSOR_STATE", 2 * 4096, baseAddressSpace)
 
@@ -64,16 +62,23 @@ class WindowsHiberFileSpace32(standard.FileAddressSpace):
         ## need to search for it.
         self.dtb = self.ProcState.SpecialRegisters.Cr3.v()
 
-        try:
-            fd = open("/tmp/cache.bin",'rb')
-            data = pickle.load(fd)
-            self.PageDict , self.LookupCache = data
-            fd.close()
-        except (IOError, EOFError):
-            self.build_page_cache()
-            fd = open("/tmp/cache.bin",'wb')
-            pickle.dump((self.PageDict , self.LookupCache), fd, -1)
-            fd.close()
+        # This is a lengthy process, it was cached, but it may be best to delay this
+        # until it's absolutely necessary and/or convert it into a generator...
+        self.build_page_cache()
+
+        # FIXME: Remove the cacheing code until we can do hashes and check that the 
+        # data we're reading back has a chance of being right
+        # 
+        #if config.DEBUG:
+        #    try:
+        #        fd = open("/tmp/cache.bin",'rb')
+        #        data = pickle.load(fd)
+        #        self.PageDict , self.LookupCache = data
+        #        fd.close()
+        #    except (IOError, EOFError):
+        #        fd = open("/tmp/cache.bin",'wb')
+        #        pickle.dump((self.PageDict , self.LookupCache), fd, -1)
+        #        fd.close()
             
     def build_page_cache(self):
         XpressIndex = 0    
@@ -137,11 +142,6 @@ class WindowsHiberFileSpace32(standard.FileAddressSpace):
                 MemoryArrayOffset = 0
                     
     def convert_to_raw(self, ofile):
-        num_pages = self.get_number_of_pages()
-        widgets = ['Convert: ', Percentage(), ' ', \
-            Bar(marker=RotatingMarker()),' ', ETA()]
-        pbar = ProgressBar(widgets=widgets, maxval=num_pages).start()
-
         page_count = 0
         for _i, xb in enumerate(self.PageDict.keys()):
             size = self.PageDict[xb][0][1]
@@ -151,13 +151,12 @@ class WindowsHiberFileSpace32(standard.FileAddressSpace):
             else:
                 data_uz = xpress_decode(data_z)
             for page, size, offset in self.PageDict[xb]:
-                pbar.update(page_count)
                 ofile.seek(page*0x1000)
                 ofile.write(data_uz[offset*0x1000:offset*0x1000+0x1000])
                 page_count += 1
-
             del data_z, data_uz
-        pbar.finish() 
+            yield page_count
+        raise StopIteration
 
     def next_xpress(self, XpressHeader, XpressBlockSize):
         XpressHeaderOffset = XpressBlockSize + XpressHeader.offset + \
@@ -326,7 +325,6 @@ class WindowsHiberFileSpace32(standard.FileAddressSpace):
             else:
                 stuff_read = stuff_read + self.read(new_addr, 0x1000)
             new_addr = new_addr + 0x1000
-	
 
         if left_over > 0:
             ImageXpressHeader = self.get_addr(new_addr)

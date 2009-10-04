@@ -46,8 +46,8 @@ class files(forensics.commands.command):
         result = {}
         addr_space = utils.load_as()
         
-        if config.OFFSET!=None:
-            tasks = [object2.NewObject("_EPROCESS", offset, addr_space)]
+        if config.OFFSET != None:
+            tasks = [object2.NewObject("_EPROCESS", config.OFFSET, addr_space)]
         else:
             tasks = win32.tasks.pslist(addr_space)
         

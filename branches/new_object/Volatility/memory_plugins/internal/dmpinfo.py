@@ -9,7 +9,7 @@ import forensics.commands as commands
 import forensics.conf as conf
 config = conf.ConfObject()
 
-class dmpcheck(commands.command):
+class dmpinfo(commands.command):
     """Dump crash-dump information"""
     
     def calculate(self):
@@ -18,7 +18,7 @@ class dmpcheck(commands.command):
 
         result = None
         adrs = addr_space
-        while adrs is not None:
+        while adrs:
             if adrs.__class__.__name__ == 'WindowsCrashDumpSpace32':
                 result = adrs
             adrs = adrs.base
