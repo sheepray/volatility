@@ -98,10 +98,10 @@ class command:
             result = []
             for x in dir(self):
                 if x.startswith("render_"):
-                    a,b = x.split("_",1)
+                    _a, b = x.split("_", 1)
                     result.append(b)
             
-            print "Plugin %s is unable to produce output in format %r. Supported formats are %s. Please send a feature request" % (self.__class__.__name__, config.OUTPUT,result)
+            print "Plugin %s is unable to produce output in format %r. Supported formats are %s. Please send a feature request" % (self.__class__.__name__, config.OUTPUT, result)
             return
 
         func(outfd, data)

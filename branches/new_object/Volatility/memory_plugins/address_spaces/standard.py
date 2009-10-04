@@ -305,22 +305,20 @@ class IA32PagedMemory(addrspace.BaseAddressSpace):
         return True
 
     def get_available_pages(self):
-        page_list = []
         pgd_curr = self.pgd_vaddr
         for i in range(0, ptrs_per_pgd):
             start = (i * ptrs_per_pgd * ptrs_per_pte * 4)
             entry = self.read_long_phys(pgd_curr)
             pgd_curr = pgd_curr + 4
             if self.entry_present(entry) and self.page_size_flag(entry):
-                page_list.append([start, 0x400000])
+                yield [start, 0x400000]
             elif self.entry_present(entry):
                 pte_curr = entry & ~((1 << page_shift)-1)                
                 for j in range(0, ptrs_per_pte):
                     pte_entry = self.read_long_phys(pte_curr)
                     pte_curr = pte_curr + 4
                     if self.entry_present(pte_entry):
-                        page_list.append([start + j * 0x1000, 0x1000])
-        return page_list        
+                        yield [start + j * 0x1000, 0x1000]
 
 class IA32PagedMemoryPae(IA32PagedMemory):
     order = 80
@@ -397,7 +395,6 @@ class IA32PagedMemoryPae(IA32PagedMemory):
         return longlongval
 
     def get_available_pages(self):
-        page_list = []
        
         pdpi_base = self.get_pdptb(self.pgd_vaddr)
 
@@ -417,12 +414,11 @@ class IA32PagedMemoryPae(IA32PagedMemory):
                 entry = self.read_long_long_phys(pgd_curr)
                 pgd_curr = pgd_curr + 8
                 if self.entry_present(entry) and self.page_size_flag(entry):
-                    page_list.append([soffset, 0x200000])
+                    yield [soffset, 0x200000]
                 elif self.entry_present(entry):
                     pte_curr = entry & ~((1 << page_shift)-1)                
                 for k in range(0, ptrs_per_pae_pte):
                     pte_entry = self.read_long_long_phys(pte_curr)
                     pte_curr = pte_curr + 8
                     if self.entry_present(pte_entry):
-                        page_list.append([soffset + k * 0x1000, 0x1000])
-        return page_list
+                        yield [soffset + k * 0x1000, 0x1000]

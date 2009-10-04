@@ -129,6 +129,7 @@ class memmap(dlllist):
                 outfd.write("*" * 72 + "\n")
 
             task = data[pid]['task']
+            task_space = task.get_process_address_space()
             pagedata = data[pid]['pages']
             outfd.write("%s pid: %-6d\n" % (task.ImageFileName, pid))
             first = False
@@ -137,9 +138,11 @@ class memmap(dlllist):
                 outfd.write("%-12s %-12s %-12s\n" % ('Virtual', 'Physical', 'Size'))
 
                 for p in pagedata:
-                    if p[1] is None:
-                        print "0x%-10x 0x000000     0x%-12x" % (p[0], p[2])
-                    outfd.write("0x%-10x 0x%-10x 0x%-12x\n" % p)
+                    pa = task_space.vtop(p[0])
+                    if not pa:
+                        outfd.write("0x%-10x 0x000000     0x%-12x\n" % (p[0], p[1]))
+                    else:
+                        outfd.write("0x%-10x 0x%-10x 0x%-12x\n" % (p[0], pa, p[1]))
             else:
                 outfd.write("Unable to read pages for task.\n")
 
@@ -151,13 +154,8 @@ class memmap(dlllist):
             if task.UniqueProcessId:
                 pid = task.UniqueProcessId
                 if (not config.PID) or pid == config.PID:
-                    res = []
                     task_space = task.get_process_address_space()
                     pages = task_space.get_available_pages()
-                    for p in pages:
-                        pa = task_space.vtop(p[0])
-                        if pa is not None:
-                            res.append((p[0], pa, p[1]))
-                    result[pid] = {'task': task, 'pages': res}
+                    result[pid] = {'task': task, 'pages': pages}
 
         return result
