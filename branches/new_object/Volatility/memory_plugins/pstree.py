@@ -2,8 +2,7 @@
 
 from forensics.win32.tasks import pslist
 import forensics.utils as utils
-import forensics.commands
-import forensics.conf
+import forensics
 config = forensics.conf.ConfObject()
 
 config.add_option("VERBOSE", default=0, type='int',
@@ -26,21 +25,22 @@ class pstree(forensics.commands.command):
 
     def find_root(self, pid_dict, pid):
         while pid in pid_dict:
-            pid = pid_dict[pid]['inherited_from']
-            
+            pid = int(pid_dict[pid]['inherited_from'])
         return pid
 
     def render_text(self, outfd, data):
-        outfd.write("%-20s %-6s %-6s %-6s %-6s %-6s\n" %(
-            'Name','Pid','PPid','Thds','Hnds','Time'))
+        max_pad = 10
+        outfd.write("%-20s             %s %-6s %-6s %-6s %-6s %-6s\n" %(
+            'Name', " " * max_pad, 'Pid','PPid','Thds','Hnds','Time'))
 
         def draw_branch(pad, inherited_from):
             for task, task_info in data.items():
                 if task_info['inherited_from'] == inherited_from:
-                    outfd.write("%s 0x%08X:%-20s %-6d %-6d %-6d %-6d %-26s\n" % (
+                    outfd.write("%s 0x%08X:%-20s %s %-6d %-6d %-6d %-6d %-26s\n" % (
                         "." * pad,
                         task_info['eprocess'].offset,
                         task_info['image_file_name'],
+                        " " * (max_pad - pad),
                         task_info['process_id'],
                         task_info['inherited_from'],
                         task_info['active_threads'],
@@ -50,11 +50,11 @@ class pstree(forensics.commands.command):
                     if config.VERBOSE > 1:
                         try:
                             outfd.write("%s    cmd: %s\n" % (
-                                ' '*pad, task_info['command_line']))
+                                ' ' * pad, task_info['command_line']))
                             outfd.write("%s    path: %s\n" % (
-                                ' '*pad, task_info['ImagePathName']))
+                                ' ' * pad, task_info['ImagePathName']))
                             outfd.write("%s    audit: %s\n" % (
-                                ' '*pad, task_info['Audit ImageFileName']) )
+                                ' ' * pad, task_info['Audit ImageFileName']) )
                         except KeyError:
                             pass
                         
@@ -94,6 +94,6 @@ class pstree(forensics.commands.command):
 
                 task_info['Audit ImageFileName'] = task.SeAuditProcessCreationInfo.ImageFileName.Name or 'UNKNOWN'
              
-            result[task_info['process_id']] = task_info
+            result[int(task_info['process_id'])] = task_info
             
         return result
