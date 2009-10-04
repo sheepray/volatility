@@ -43,7 +43,7 @@ class command:
         of OptionParser, populates the options, and finally parses the 
         command line. Options are stored in the self.opts attribute.
         """
-
+    @classmethod
     def help(self):
         """ This function returns a string that will be displayed when a
         user lists available plugins.

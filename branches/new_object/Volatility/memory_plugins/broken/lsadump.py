@@ -46,7 +46,7 @@ def hd(src, length=16):
     return result
 
 class lsadump(forensics.commands.command):
-
+    "Dump (decrypted) LSA secrets from the registry"
     # Declare meta information associated with this plugin
     
     meta_info = forensics.commands.command.meta_info 
@@ -65,8 +65,6 @@ class lsadump(forensics.commands.command):
         self.op.add_option('-s', '--sec-offset', help='SECURITY hive offset (virtual)',
             action='store', type='int', dest='sechive')
 
-    def help(self):
-        return  "Dump (decrypted) LSA secrets from the registry"
     
     def execute(self):
         addr_space = utils.load_as()

@@ -1026,6 +1026,7 @@ def find_module(modlist, mod_addrs, addr):
         return None
 
 class ssdt(forensics.commands.command):
+    "Display SSDT entries"
     # Declare meta information associated with this plugin
     meta_info = {
         'author': 'Brendan Dolan-Gavitt',
@@ -1035,9 +1036,6 @@ class ssdt(forensics.commands.command):
         'url': 'http://moyix.blogspot.com/',
         'os': 'WIN_32_XP_SP2',
         'version': '1.0'}
-    
-    def help(self):
-        return  "Display SSDT entries"
     
     def execute(self):
         from vtypes import xpsp2types

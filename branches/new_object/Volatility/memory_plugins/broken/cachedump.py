@@ -33,7 +33,7 @@ import forensics.commands
 from vutils import load_and_identify_image
 
 class cachedump(forensics.commands.command):
-
+    "Dump (decrypted) domain hashes from the registry"
     # Declare meta information associated with this plugin
     
     meta_info = forensics.commands.command.meta_info 
@@ -52,9 +52,6 @@ class cachedump(forensics.commands.command):
         self.op.add_option('-s', '--sec-offset', help='SECURITY hive offset (virtual)',
             action='store', type='int', dest='sechive')
 
-    def help(self):
-        return  "Dump (decrypted) domain hashes from the registry"
-    
     def execute(self):
         (addr_space, _symtab, types) = load_and_identify_image(self.op, self.opts)
         

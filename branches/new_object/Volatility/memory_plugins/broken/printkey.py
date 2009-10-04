@@ -56,7 +56,7 @@ def hd(src, length=16):
     return result
 
 class printkey(forensics.commands.command):
-
+    "Print a registry key, and its subkeys and values"
     # Declare meta information associated with this plugin
     
     meta_info = forensics.commands.command.meta_info 
@@ -73,9 +73,6 @@ class printkey(forensics.commands.command):
         self.op.add_option('-o', '--hive-offset', help='Hive offset (virtual)',
             action='store', type='int', dest='hive')
 
-    def help(self):
-        return  "Print a registry key, and its subkeys and values"
-    
     def execute(self):
         addr_space = utils.load_as(self.opts)
         profile = Profile()

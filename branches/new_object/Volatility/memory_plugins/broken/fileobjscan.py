@@ -143,7 +143,8 @@ class PoolScanFileXXXX:
 
 
 class fileobjscan(forensics.commands.command):
-
+    "Scan for file objects"
+    
     # Declare meta information associated with this plugin
 
     meta_info = forensics.commands.command.meta_info
@@ -154,9 +155,6 @@ class fileobjscan(forensics.commands.command):
     meta_info['url'] = 'http://computer.forensikblog.de/en/'
     meta_info['os'] = 'WIN_32_XP_SP2'
     meta_info['version'] = '0.1'
-
-    def help(self):
-        return  "Scan for file objects"
 
     def execute(self):
         op = self.op

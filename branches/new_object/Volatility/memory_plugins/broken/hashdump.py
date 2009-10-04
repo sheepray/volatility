@@ -33,7 +33,7 @@ from vutils import load_and_identify_image
 import forensics.commands
 
 class hashdump(forensics.commands.command):
-
+    "Dump (decrypted) LM and NT hashes from the registry"
     # Declare meta information associated with this plugin
     
     meta_info = forensics.commands.command.meta_info 
@@ -52,9 +52,6 @@ class hashdump(forensics.commands.command):
         self.op.add_option('-s', '--sam-offset', help='SAM offset (virtual)',
             action='store', type='int', dest='samhive')
 
-    def help(self):
-        return  "Dump (decrypted) LM and NT hashes from the registry"
-    
     def execute(self):
         (addr_space, _symtab, types) = load_and_identify_image(self.op, self.opts)
 

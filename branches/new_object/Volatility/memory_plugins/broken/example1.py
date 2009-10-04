@@ -55,9 +55,6 @@ class pslist_ex_1(forensics.commands.command):
     # change the user help message.  This function returns a string that 
     # will be displayed when a user lists available plugins.
 
-    def help(self):
-        return  "Print list running processes"
-
     # Finally we override the forensics.commands.command.execute() method
     # which provides the plugins core functionality. Command line options
     # are accessed as attributes of self.opts. For example, the options 

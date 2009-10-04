@@ -113,7 +113,7 @@ def list_plugins():
     keys = MemoryRegistry.PLUGIN_COMMANDS.commands.keys()
     keys.sort()
     for cmdname in keys:
-        command = MemoryRegistry.PLUGIN_COMMANDS[cmdname]()
+        command = MemoryRegistry.PLUGIN_COMMANDS[cmdname]
         help = command.help()
         ## Just put the title line (First non empty line) in this
         ## abbreviated display

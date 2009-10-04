@@ -66,9 +66,6 @@ class memmap_ex_2(forensics.commands.command):
     # change the user help message.  This function returns a string that 
     # will be displayed when a user lists available plugins.
    
-    def help(self):
-        return  "Print the memory map"
-    
     # Finally we override the forensics.commands.command.execute() method
     # which provides the plugins core functionality. Command line options
     # are accessed as attributes of self.opts. For example, the options 
@@ -185,9 +182,6 @@ class usrdmp_ex_2(forensics.commands.command):
     # We need to override the forensics.commands.command.help() method to
     # change the user help message.  This function returns a string that 
     # will be displayed when a user lists available plugins.
-
-    def help(self):
-        return  "Dump the address space for a process"
 
     # Finally we override the forensics.commands.command.execute() method
     # which provides the plugins core functionality. Command line options
