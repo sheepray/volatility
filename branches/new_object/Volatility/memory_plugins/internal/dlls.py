@@ -11,6 +11,7 @@ import forensics.win32 as win32
 import forensics.object2 as object2
 import forensics.utils as utils
 import files
+import forensics.debug as debug
 
 config = forensics.conf.ConfObject()
 
@@ -52,3 +53,18 @@ class dlllist(files.files):
             tasks = win32.tasks.pslist(addr_space)
         
         return tasks
+
+class pslist(dlllist):
+    """ print all running processes by following the EPROCESS lists """
+    def render_text(self, outfd, data):
+        outfd.write("%-20s %-6s %-6s %-6s %-6s %-6s\n" % (
+            'Name', 'Pid', 'PPid', 'Thds', 'Hnds', 'Time'))
+
+        for task in data:
+            outfd.write("%-20s %-6d %-6d %-6d %-6d %-26s\n" % (
+                task.ImageFileName,
+                task.UniqueProcessId,
+                task.InheritedFromUniqueProcessId,
+                task.ActiveThreads,
+                task.ObjectTable.HandleCount,
+                task.CreateTime))

@@ -44,10 +44,6 @@ config.add_option('DEBUG', short_option = 'd', action='count',
 from vmodules import *
 
 modules = {
-    'pslist':
-    VolatoolsModule('pslist',
-                    'Print list of running processes',
-                    get_pslist),
     'strings':
     VolatoolsModule('strings',
                     'Match physical offsets to virtual addresses (may take a while, VERY verbose)',

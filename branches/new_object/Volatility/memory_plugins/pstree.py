@@ -77,10 +77,10 @@ class pstree(forensics.commands.command):
             task_info = {}
             task_info['eprocess'] = task
             task_info['image_file_name'] = task.ImageFileName or 'UNKNOWN'
-            task_info['process_id']      = task.UniqueProcessId.v() or -1
-            task_info['active_threads']  = task.ActiveThreads or -1
-            task_info['inherited_from']  = task.InheritedFromUniqueProcessId.v() or -1
-            task_info['handle_count']    = task.ObjectTable.HandleCount or -1
+            task_info['process_id']      = task.UniqueProcessId
+            task_info['active_threads']  = task.ActiveThreads
+            task_info['inherited_from']  = task.InheritedFromUniqueProcessId
+            task_info['handle_count']    = task.ObjectTable.HandleCount
             task_info['create_time']     = task.CreateTime
 
             ## Get the Process Environment Block - Note that _EPROCESS
