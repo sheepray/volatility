@@ -19,8 +19,7 @@ class modules(forensics.commands.command):
             if not header:
                 outfd.write("%-50s %-12s %-8s %s\n" % ('File', 'Base', 'Size', 'Name'))
                 header = True
-            outfd.write("%-50s 0x%0.10x 0x%0.6x %s\n" % (module.FullDllName, int(module.BaseAddress.value()), int(module.SizeOfImage), module.ModuleName))
-        
+            outfd.write("%-50s 0x%0.10x 0x%0.6x %s\n" % (module.FullDllName, module.BaseAddress, module.SizeOfImage, module.ModuleName))
 
     def calculate(self):
         addr_space = utils.load_as()
