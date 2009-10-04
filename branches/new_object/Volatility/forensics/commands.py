@@ -19,6 +19,15 @@
 
 import sys, textwrap
 from vutils import get_standard_parser 
+import forensics.conf as conf
+
+config = conf.ConfObject()
+
+config.add_option("OUTPUT", default='text',
+                  help="Output in this format (format support is module specific)")
+
+config.add_option("OUTPUT_FILE", default=None,
+                  help="write output in this file")
 
 class command:
     """ Base class for each plugin command """
@@ -34,13 +43,6 @@ class command:
         of OptionParser, populates the options, and finally parses the 
         command line. Options are stored in the self.opts attribute.
         """
-
-        if args == None:
-            return
-
-        self.cmdname = self.__class__.__name__
-        self.parser()
-        self.opts, self.args = self.op.parse_args(args)
 
     def help(self):
         """ This function returns a string that will be displayed when a
@@ -83,16 +85,23 @@ class command:
 
         ## Then we render the result in some way based on the
         ## requested output mode:
-        function_name = "render_%s" % self.opts.output
-        if not self.opts.out_file:
-            outfd = sys.stdout
+        function_name = "render_%s" % config.OUTPUT
+        if config.OUTPUT_FILE:
+            outfd = open(config.OUTPUT_FILE,'w')
         else:
-            outfd = open(self.opts.out_file,'w')
+            outfd = sys.stdout
             
         try:
             func = getattr(self, function_name)
         except AttributeError:
-            print "Plugin %s is unable to produce output in format %r. Please send a bug report" % (self.__class__.__name__, self.opts.output)
+            ## Try to find out what formats are supported
+            result = []
+            for x in dir(self):
+                if x.startswith("render_"):
+                    a,b = x.split("_",1)
+                    result.append(b)
+            
+            print "Plugin %s is unable to produce output in format %r. Supported formats are %s. Please send a feature request" % (self.__class__.__name__, config.OUTPUT,result)
             return
 
         func(outfd, data)
