@@ -32,7 +32,11 @@ import forensics
 config = forensics.conf.ConfObject()
 
 class hivelist(forensics.commands.command):
-    "Print list of registry hives"
+    """Print list of registry hives.
+
+    You must supply this module the initial offset of the hive. You
+    can obtain this by running the hivescan module first.
+    """
     # Declare meta information associated with this plugin
     
     meta_info = {}
@@ -45,7 +49,7 @@ class hivelist(forensics.commands.command):
     meta_info['version'] = '1.0'
 
     def __init__(self, *args):
-        config.add_option("HIVE-OFFSET",
+        config.add_option("HIVE-OFFSET", short_option='o',
                           default = None, type='int',
                           help = "Offset to reg hive")
         

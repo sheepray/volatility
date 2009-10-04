@@ -300,15 +300,17 @@ class ConfObject(object):
         """
         option = option.lower()
 
-        if option in self.options:
+        normalized_option = option.replace("-","_")
+        
+        if normalized_option in self.options:
             return
         
-        self.options.append(option)
+        self.options.append(normalized_option)
         
         ## If this is read only we store it in a special dict
         try:
             if args['readonly']:
-                self.readonly[option] = args['default']
+                self.readonly[normalized_option] = args['default']
             del args['readonly']
         except KeyError:
             pass
@@ -321,18 +323,18 @@ class ConfObject(object):
             except:
                 pass
             
-            self.default_opts[option] = default
+            self.default_opts[normalized_option] = default
             del args['default']
         except KeyError:
             pass
 
         try:
-            self._absolute[option] = args['absolute']
+            self._absolute[normalized_option] = args['absolute']
             del args['absolute']
         except KeyError:
             pass
 
-        self.docstrings[option] = args.get('help', None)
+        self.docstrings[normalized_option] = args.get('help', None)
 
         if short_option:
             self.optparser.add_option("-%s" % short_option, "--%s" % option, **args)
