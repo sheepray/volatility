@@ -96,17 +96,15 @@ class files(dlllist):
                 pid = task.UniqueProcessId
                 if config.PID and pid != config.PID:
                     continue
-                handles = task.handles()
-                
-                # Weed out just the file handles:
-                for h in handles:
-                    if str(h.Type.Name) == self.handle_type:
-                        var = object2.NewObject(self.handle_obj, h.Body.offset, task.vm, parent=task, profile=task.profile)
-                        hlist = result.get(pid, [])
-                        hlist.append(var)
-                        result[pid] = hlist
 
+                result[pid] = self.handle_list(task)
+                
         return result
+    
+    def handle_list(self, task):
+        for h in task.handles():
+            if str(h.Type.Name) == self.handle_type:
+                yield object2.NewObject(self.handle_obj, h.Body.offset, task.vm, parent=task, profile=task.profile)
 
 class pslist(dlllist):
     """ print all running processes by following the EPROCESS lists """
