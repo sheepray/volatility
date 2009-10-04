@@ -4,16 +4,15 @@ Created on 30 Sep 2009
 @author: Mike Auty
 '''
 
-import forensics.utils as utils
 import forensics.win32 as win32
 import forensics.object2 as object2
-import forensics.commands as commands
 import forensics.conf
-import files
+import taskmods
 
 config = forensics.conf.ConfObject()
 
-class vadinfo(files.files):
+# Inherit from dlllist just for the config options (__init__)
+class vadinfo(taskmods.dlllist):
     """Dump the VAD info"""
 
     def render_text(self, outfd, data):
@@ -75,18 +74,7 @@ class vadinfo(files.files):
 
     def calculate(self):
         result = {}
-        addr_space = utils.load_as()
-        
-        if config.OFFSET:
-            try:
-                offset = int(config.OFFSET, 16)
-            except ValueError:
-                config.error("EPROCESS offset must be a hexadecimal number.")
-            
-            tasks = [object2.NewObject("_EPROCESS", offset, addr_space)]
-
-        else:
-            tasks = win32.tasks.pslist(addr_space)
+        tasks = taskmods.dlllist.calculate(self)
         
         for task in tasks:
             if task.UniqueProcessId:

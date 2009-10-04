@@ -23,7 +23,6 @@ class sockets(forensics.commands.command):
     def calculate(self):
         addr_space = utils.load_as()
         
-        # Get the Image Datetime
         result = win32.network.determine_sockets(addr_space)
 
         return result
