@@ -30,7 +30,6 @@
 
 from forensics.object import read_obj, read_unicode_string, get_obj_offset, read_null_string
 from forensics.object2 import NewObject
-from forensics.win32.datetime import read_time, windows_to_unix_time
 from forensics.win32.info import find_psactiveprocesshead, kpcr_addr
 from struct import unpack
 from forensics.addrspace import FileAddressSpace

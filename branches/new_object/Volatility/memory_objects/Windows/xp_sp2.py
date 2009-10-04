@@ -32,6 +32,7 @@ import vmodules
 import forensics.object2 as object2
 import forensics.win32 as win32
 import vtypes
+import forensics.debug as debug
 
 class WinXPSP2(object2.Profile):
     """ A Profile for windows XP SP2 """
@@ -119,17 +120,36 @@ class WinTimeStamp(object2.NativeType):
             object2.NativeType.__init__(self, type, offset, vm, parent=parent, profile=profile,
                                         name=name, format_string="q")
 
-    def value(self):
-        """Override the value return, depending on whether we have a data field"""
-        if self.data is not None:
-            return self.data
-        return object2.NativeType.value(self)
+    def windows_to_unix_time(self, windows_time):
+        """
+        Converts Windows 64-bit time to UNIX time
+
+        @type  windows_time:  Integer
+        @param windows_time:  Windows time to convert (64-bit number)
+
+        @rtype  Integer
+        @return  UNIX time
+        """
+        if(windows_time == 0):
+            unix_time = 0
+        else:
+            unix_time = windows_time / 10000000
+            unix_time = unix_time - 11644473600
+
+        if unix_time < 0:
+            unix_time = 0
+
+        return unix_time
+
+    def as_windows_timestamp(self):
+        return object2.NativeType.v(self)
 
     def v(self):
-        return win32.datetime.windows_to_unix_time(self.value())
+        value = object2.NativeType.v(self)
+        return self.windows_to_unix_time(value)
 
     def __sub__(self, x):
-        return WinTimeStamp(value = self.value() - x.value())
+        return WinTimeStamp(value = self.as_windows_timestamp() - x.as_windows_timestamp())
 
     def __str__(self):
         return vmodules.format_time(self.v())

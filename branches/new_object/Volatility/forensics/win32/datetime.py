@@ -30,27 +30,6 @@
 
 from forensics.object import get_obj_offset, read_obj_from_buf, read_obj
 
-def windows_to_unix_time(windows_time):
-    """
-    Converts Windows 64-bit time to UNIX time
-
-    @type  windows_time:  Integer
-    @param windows_time:  Windows time to convert (64-bit number)
-
-    @rtype  Integer
-    @return  UNIX time
-    """
-    if(windows_time == 0):
-        unix_time = 0
-    else:
-        unix_time = windows_time / 10000000
-        unix_time = unix_time - 11644473600
-
-    if unix_time < 0:
-        unix_time = 0
-
-    return unix_time
-
 def read_time(addr_space, types, vaddr):
     low_time  = read_obj(addr_space, types,
                          ['_KSYSTEM_TIME', 'LowPart'], vaddr)

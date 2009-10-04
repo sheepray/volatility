@@ -32,7 +32,6 @@ import struct
 import forensics.win32 as win32
 import forensics.object2 as object2
 from forensics.object import read_obj, get_obj_offset
-from forensics.win32.datetime import read_time, windows_to_unix_time
 from socket import ntohs, inet_ntoa
 
 module_versions = { \
@@ -150,46 +149,3 @@ def determine_sockets(addr_space):
             return sockets
 
     return object2.NoneObject("Unable to determine sockets")
-
-def connection_pid(addr_space, types, connection_vaddr):
-    return read_obj(addr_space, types,
-                    ['_TCPT_OBJECT', 'Pid'], connection_vaddr)
-
-def connection_lport(addr_space, types, connection_vaddr):
-    return ntohs(read_obj(addr_space, types,
-                    ['_TCPT_OBJECT', 'LocalPort'], connection_vaddr))
-
-def connection_laddr(addr_space, types, connection_vaddr):
-    laddr = read_obj(addr_space, types,
-                    ['_TCPT_OBJECT', 'LocalIpAddress'], connection_vaddr)
-    return inet_ntoa(struct.pack('=L', laddr)) 
-
-def connection_rport(addr_space, types, connection_vaddr):
-    return ntohs(read_obj(addr_space, types,
-                    ['_TCPT_OBJECT', 'RemotePort'], connection_vaddr))
-
-def connection_raddr(addr_space, types, connection_vaddr):
-    raddr = read_obj(addr_space, types,
-                    ['_TCPT_OBJECT', 'RemoteIpAddress'], connection_vaddr)
-    return inet_ntoa(struct.pack('=L', raddr))    
-
-def socket_pid(addr_space, types, socket_vaddr):
-    return read_obj(addr_space, types,
-                    ['_ADDRESS_OBJECT', 'Pid'], socket_vaddr)
-
-def socket_protocol(addr_space, types, socket_vaddr):
-    return read_obj(addr_space, types,
-                    ['_ADDRESS_OBJECT', 'Protocol'], socket_vaddr)
-
-def socket_local_port(addr_space, types, socket_vaddr):
-    return ntohs(read_obj(addr_space, types,
-                    ['_ADDRESS_OBJECT', 'LocalPort'], socket_vaddr))
-
-def socket_create_time(addr_space, types, socket_vaddr):
-    (create_time_offset, _tmp) = get_obj_offset(types, ['_ADDRESS_OBJECT', 'CreateTime'])    
-    create_time     = read_time(addr_space, types, socket_vaddr + create_time_offset)
-    if create_time == None:
-        return None
-
-    create_time     = windows_to_unix_time(create_time)
-    return create_time

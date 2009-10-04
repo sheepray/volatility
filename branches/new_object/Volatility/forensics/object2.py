@@ -51,6 +51,9 @@ class Curry:
 
     curry(3) is the same as calling foo(a=1,b=3).
     For more information see the Oreilly Python Cookbook.
+
+    This implementation is used for old python versions since in
+    modern pythons its in the standard library (See below)
     """
     def __init__(self, function, *args, **kwargs):
         """ Initialised the curry object with the correct function."""
@@ -66,6 +69,13 @@ class Curry:
             kw = kwargs or self.kwargs
             
         return self.fun(*(self.pending+args), **kw)
+
+try:
+    ## Curry is now a standard python feature
+    import functools
+
+    Curry = functools.partial
+except: pass
 
 import traceback
 
@@ -134,22 +144,6 @@ class NoneObject(object):
     def __call__(self, *arg, **kwargs):
         return self
         
-class InvalidType(Exception):
-    def __init__(self, typename=None):
-        Exception.__init__(self)
-        self.typename = typename
-
-    def __str__(self):
-        return str(self.typename)
-
-class InvalidMember(Exception):
-    def __init__(self, typename=None, membername=None):
-        Exception.__init__(self)
-        self.typename = typename
-        self.membername = membername
-
-    def __str__(self):
-        return str(self.typename) + ":" + str(self.membername)
 
 def NewObject(theType, offset, vm, parent=None, profile=None, name=None, **kwargs):
     """ A function which instantiates the object named in theType (as
@@ -296,9 +290,6 @@ class Object(object):
         return Object(castString, self.offset, self.vm, None)
 
     def v(self):
-        return self.value()
-
-    def value(self):
         """ Do the actual reading and decoding of this member
         """
         return NoneObject("No value for %s" % self.name, self.profile.strict)
@@ -334,7 +325,7 @@ class NativeType(Object):
     def size(self):
         return struct.calcsize(self.format_string)
 
-    def value(self):
+    def v(self):
         data = self.vm.read(self.offset, self.size())
         if not data:
             return NoneObject("Unable to read %s bytes from %s" % (self.size(), self.offset))
@@ -377,8 +368,8 @@ class BitField(NativeType):
         self.start_bit = start_bit
         self.end_bit = end_bit
 
-    def value(self):
-        i = NativeType.value(self)
+    def v(self):
+        i = NativeType.v(self)
         return (i & ( (1 << self.end_bit) - 1)) >> self.start_bit
 
 class Pointer(NativeType):
@@ -559,7 +550,7 @@ class CType(Object):
 
         return result
 
-    def value(self):
+    def v(self):
         """ When a struct is evaluated we just return our offset.
         """
         return self.offset

@@ -33,8 +33,8 @@ from struct import unpack
 from forensics.object import obj_size, read_obj, read_unicode_string_p
 from forensics.win32.tasks import process_dtb, process_create_time, process_exit_status, process_exit_time, process_imagename
 from forensics.win32.tasks import process_inherited_from, process_pid
-from forensics.win32.network import connection_laddr, connection_lport, connection_pid, connection_raddr, connection_rport
-from forensics.win32.network import socket_create_time, socket_local_port, socket_pid, socket_protocol
+#from forensics.win32.network import connection_laddr, connection_lport, connection_pid, connection_raddr, connection_rport
+#from forensics.win32.network import socket_create_time, socket_local_port, socket_pid, socket_protocol
 from forensics.win32.modules import module_baseaddr, module_imagesize
 from forensics.addrspace import FileAddressSpace
 import forensics.win32.meta_info as meta_info

@@ -38,7 +38,6 @@
 from forensics.object import get_obj_offset, obj_size, read_obj
 from forensics.win32.xpress import xpress_decode
 from thirdparty.progressbar import Bar, ETA, ProgressBar, RotatingMarker, Percentage
-from forensics.win32.datetime import read_time, windows_to_unix_time
 from vtypes import xpsp2types as types
 from time import strftime, gmtime
 import struct
