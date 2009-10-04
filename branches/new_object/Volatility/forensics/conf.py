@@ -267,7 +267,8 @@ class ConfObject(object):
         ## If error() was called we catch it here
         except RuntimeError:
             opts = {}
-            args = sys.argv[1:]
+            ## This gives us as much as was parsed so far
+            args = self.optparser.largs
         
         self.optparse_opts = opts
         self.args = args

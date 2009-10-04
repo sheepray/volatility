@@ -164,9 +164,14 @@ def main():
 
     ## Parse all the options now
     config.parse_options(False)
-    try:
-        module = config.args[0]
-    except IndexError:
+    module = None
+    ## Try to find the first thing that looks like a module name
+    for m in config.args:
+        if m in MemoryRegistry.PLUGIN_COMMANDS.commands:
+            module = m
+            break
+
+    if not module:
         config.parse_options()
         config.error("You must specify something to do (try -h)")
         
