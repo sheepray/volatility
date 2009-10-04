@@ -28,9 +28,8 @@ for SP2.
 
 #pylint: disable-msg=C0111
 
-import vmodules
 import forensics.object2 as object2
-import forensics.win32 as win32
+import time
 import vtypes
 import forensics.debug as debug
 
@@ -152,7 +151,14 @@ class WinTimeStamp(object2.NativeType):
         return WinTimeStamp(value = self.as_windows_timestamp() - x.as_windows_timestamp())
 
     def __str__(self):
-        return vmodules.format_time(self.v())
+        return self._format_time(self.v())
+
+    def _format_time(self, t):
+        # Note: We do *NOT* know the Timezeone without figuring out the TimeZoneBias
+        # So we can't unilaterally say GMT or UTC or anything like that here...
+        ts = time.strftime("%a %b %d %H:%M:%S %Y",
+                           time.gmtime(t))
+        return ts
 
 LEVEL_MASK = 0xfffffff8
 
