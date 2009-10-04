@@ -139,10 +139,10 @@ class memmap(dlllist):
 
                 for p in pagedata:
                     pa = task_space.vtop(p[0])
-                    if not pa:
-                        outfd.write("0x%-10x 0x000000     0x%-12x\n" % (p[0], p[1]))
-                    else:
+                    if pa:
                         outfd.write("0x%-10x 0x%-10x 0x%-12x\n" % (p[0], pa, p[1]))
+                    #else:
+                    #    outfd.write("0x%-10x 0x000000     0x%-12x\n" % (p[0], p[1]))
             else:
                 outfd.write("Unable to read pages for task.\n")
 
