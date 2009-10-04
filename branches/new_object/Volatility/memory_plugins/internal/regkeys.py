@@ -9,7 +9,7 @@ import forensics.conf
 
 config = forensics.conf.ConfObject()
 
-class regobjkeys2(taskmods.files):
+class regobjkeys(taskmods.files):
     """Print list of open regkeys for each process"""
     
     def __init__(self, *args):
