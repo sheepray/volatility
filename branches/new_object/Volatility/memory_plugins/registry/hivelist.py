@@ -26,10 +26,9 @@
 
 #pylint: disable-msg=C0111
 
-from forensics.object2 import Profile, NewObject
+import forensics.object2 as object2
 import forensics.utils as utils
-import forensics.commands
-import forensics.conf
+import forensics
 config = forensics.conf.ConfObject()
 
 class hivelist(forensics.commands.command):
@@ -65,7 +64,6 @@ class hivelist(forensics.commands.command):
     def calculate(self):
         flat = utils.load_as(astype = 'physical')
         addr_space = utils.load_as()
-        profile = Profile()
 
         if not config.HIVE_OFFSET:
             config.error("You must specify a hive offset (--hive-offset)")
@@ -77,14 +75,15 @@ class hivelist(forensics.commands.command):
             ## the first hive in virtual address space. hmm I wish we
             ## could go from physical to virtual memroy easier.
             
-            start_hive_offset = NewObject("_CMHIVE", int(config.HIVE_OFFSET),
-                                          flat, profile=profile).HiveList.Flink.v() - 0x224
+            hive = object2.NewObject("_CMHIVE", int(config.HIVE_OFFSET), flat)
+            if hive.HiveList.Flink.v():
+                start_hive_offset = hive.HiveList.Flink.v() - 0x224
 
-            ## Now instantiate the first hive in virtual address space as normal
-            start_hive = NewObject("_CMHIVE", start_hive_offset, addr_space, profile=profile)
-            
-            for hive in start_hive.HiveList:
-                yield hive
+                ## Now instantiate the first hive in virtual address space as normal
+                start_hive = object2.NewObject("_CMHIVE", start_hive_offset, addr_space)
+
+                for hive in start_hive.HiveList:
+                    yield hive
 
         return generate_results()
 

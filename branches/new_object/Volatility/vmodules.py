@@ -38,8 +38,8 @@ from forensics.win32.hiber_addrspace import WindowsHiberFileSpace32
 from forensics.win32.crash_addrspace import WindowsCrashDumpSpace32
 from forensics.object import read_obj
 from forensics.win32.tasks import create_addr_space, process_addr_space, process_dtb, process_find_pid
-from forensics.win32.tasks import process_imagename, process_list, process_peb, process_pid, process_handle_table, process_create_time, process_handle_count
-from forensics.win32.tasks import process_inherited_from, process_num_active_threads, process_vadroot
+from forensics.win32.tasks import process_imagename, process_list, process_peb, process_pid, process_handle_table
+from forensics.win32.tasks import process_vadroot
 from forensics.win32.handles import handle_entries, handle_process_id, handle_tables
 from forensics.win32.vad import vad_dump
 from forensics.win32.scan import module_scan, conn_scan, ps_scan_dot, ps_scan, socket_scan, thrd_scan
@@ -70,59 +70,6 @@ def format_time(time):
     ts = strftime("%a %b %d %H:%M:%S %Y GMT",
                 gmtime(time))
     return ts
-
-###################################
-#  pslist - process list
-###################################
-def get_pslist(cmdname, argv):
-    """
-    Function prints a formatted table of process information for image
-    """
-    op = get_standard_parser(cmdname)
-    opts, _args = op.parse_args(argv)
-
-    (addr_space, symtab, types) = load_and_identify_image(op, opts)
-
-    all_tasks = process_list(addr_space, types, symtab)
-
-    print "%-20s %-6s %-6s %-6s %-6s %-6s" % ('Name', 'Pid', 'PPid', 'Thds', 'Hnds', 'Time')
-
-    for task in all_tasks:
-        if not addr_space.is_valid_address(task):
-            continue
-
-        image_file_name = process_imagename(addr_space, types, task)
-        if image_file_name is None:
-            image_file_name = "UNKNOWN"
-
-        process_id      = process_pid(addr_space, types, task)
-        if process_id is None:
-            process_id = -1
-
-        active_threads  = process_num_active_threads(addr_space, types, task)
-        if active_threads is None:
-            active_threads = -1
-
-        inherited_from  = process_inherited_from(addr_space, types, task)
-        if inherited_from is None:
-            inherited_from = -1
-
-        handle_count    = process_handle_count(addr_space, types, task)
-        if handle_count is None:
-            handle_count = -1
-
-        create_time     = process_create_time(addr_space, types, task)
-        if create_time is None:
-            create_time = "UNKNOWN"
-        else:
-            create_time = format_time(create_time)            
-
-        print "%-20s %-6d %-6d %-6d %-6d %-26s" % (image_file_name,
-                                                   process_id,
-                                                   inherited_from,
-                                                   active_threads,
-                                                   handle_count,
-                                                   create_time)
 
 ###################################
 #  strings - identify pid(s) associated with a string
