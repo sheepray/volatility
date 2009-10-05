@@ -26,7 +26,8 @@
 
 #pylint: disable-msg=C0111
 
-import sys
+import forensics.win32.hive as hive
+import forensics.win32.rawreg as rawreg
 import forensics.win32.lsasecrets as lsasecrets
 import forensics.win32.hashdump as hashdumpmod
 import forensics.utils as utils
@@ -101,3 +102,28 @@ class hashdump(forensics.commands.command):
             config.error("Both SYSTEM and SAM offsets must be provided")
         
         hashdumpmod.dump_memory_hashes(addr_space, config.sys_offset, config.sam_offset)
+
+class hivedump(forensics.commands.command):
+    """Prints out a hive"""
+    
+    def __init__(self, *args):
+        config.add_option('HIVE-OFFSET', short_option='o', type='int',
+                          help='Hive offset (virtual)')
+        forensics.commands.command.__init__(self, *args)        
+        
+    def calculate(self):
+        addr_space = utils.load_as()
+        
+        if not config.hive_offset:
+            config.error("A Hive offset must be provided (--hive-offset)")
+            
+        h = hive.HiveAddressSpace(addr_space, config.hive_offset)
+        return rawreg.get_root(h)
+        
+    def render_text(self, outfd, data):
+        self.print_key(outfd, 0, data)
+
+    def print_key(self, outfd, level, key):
+        outfd.write((" " * level) + str(key.Name) + "\n")
+        for k in rawreg.subkeys(key):
+            self.print_key(outfd, level + 1, k)
