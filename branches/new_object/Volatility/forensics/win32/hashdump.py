@@ -243,7 +243,7 @@ def encrypt_hashes(rid, lm_hash, nt_hash, hbootkey):
 
 def get_user_hashes(user_key, hbootkey):
     samaddr = user_key.vm
-    rid = int(user_key.Name, 16)
+    rid = int(str(user_key.Name), 16)
     V = None
     for v in rawreg.values(user_key):
         if v.Name == 'V':
@@ -308,7 +308,7 @@ def dump_hashes(sysaddr, samaddr):
             lmhash = empty_lm
         if not nthash:
             nthash = empty_nt
-        print "%s:%d:%s:%s:::" % (get_user_name(user), int(user.Name, 16),
+        print "%s:%d:%s:%s:::" % (get_user_name(user), int(str(user.Name), 16),
                             lmhash.encode('hex'), nthash.encode('hex'))
 
 def dump_memory_hashes(addr_space, syshive, samhive):

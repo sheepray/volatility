@@ -41,7 +41,7 @@ def get_lsa_key(secaddr, bootkey):
     if not enc_reg_key:
         return None
 
-    enc_reg_value = enc_reg_key.ValueList.List[0]
+    enc_reg_value = enc_reg_key.ValueList.List.dereference()[0]
     if not enc_reg_value:
         return None
 
@@ -92,7 +92,7 @@ def get_secret_by_name(secaddr, name, lsakey):
     if not enc_secret_key:
         return None
 
-    enc_secret_value = enc_secret_key.ValueList.List[0]
+    enc_secret_value = enc_secret_key.ValueList.List.dereference()[0]
     if not enc_secret_value:
         return None
 
@@ -123,7 +123,7 @@ def get_secrets(sysaddr, secaddr):
         if not sec_val_key:
             continue
         
-        enc_secret_value = sec_val_key.ValueList.List[0]
+        enc_secret_value = sec_val_key.ValueList.List.dereference()[0]
         if not enc_secret_value:
             continue
         

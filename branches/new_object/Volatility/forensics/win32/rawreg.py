@@ -80,7 +80,6 @@ def open_key(root, key):
     
     keyname = key.pop(0)
     for s in subkeys(root):
-        print s.Name
         if s.Name.upper() == keyname.upper():
             return open_key(s, key)
     print "ERR: Couldn't find subkey %s of %s" % (keyname, root.Name)

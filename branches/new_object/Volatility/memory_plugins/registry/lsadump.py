@@ -38,7 +38,7 @@ FILTER = ''.join([(len(repr(chr(i))) == 3) and chr(i) or '.' for i in range(256)
 
 def hd(src, length=16):
     N = 0
-    result = ''
+    result = '\n'
     while src:
         s, src = src[:length], src[length:]
         hexa = ' '.join(["%02X" % ord(x) for x in s])
@@ -80,6 +80,8 @@ class lsadump(forensics.commands.command):
         secrets = lsasecrets.get_memory_secrets(addr_space, config.sys_offset, config.sec_offset)
         if not secrets:
             config.error("Unable to read LSA secrets from registry")
+        
+        return secrets
 
     def render_text(self, outfd, data):
         for k in data:
