@@ -27,8 +27,7 @@
 #pylint: disable-msg=C0111
 
 from forensics.win32.scan2 import PoolScanner
-import forensics.commands
-import forensics.conf
+import forensics
 config = forensics.conf.ConfObject()
 import forensics.utils as utils
 from forensics.object2 import NewObject

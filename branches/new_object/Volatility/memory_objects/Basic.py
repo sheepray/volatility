@@ -7,7 +7,8 @@ from forensics.object2 import BitField, Pointer, Void, Array, CType
 import forensics.object2 as object2
 
 class String(object2.NativeType):
-    def __init__(self, type, offset, vm=None,
+    """Class for dealing with Strings"""
+    def __init__(self, theType, offset, vm=None,
                  length=1, parent=None, profile=None, name=None, **args):
         ## Allow length to be a callable:
         try:
@@ -16,16 +17,29 @@ class String(object2.NativeType):
             pass
         
         ## length must be an integer
-        object2.NativeType.__init__(self, type, offset, vm, parent=parent, profile=profile,
+        object2.NativeType.__init__(self, theType, offset, vm, parent=parent, profile=profile,
                             name=name, format_string="%ds" % length)
 
     def upper(self):
+        """Returns the uppercase version of the string"""
         return self.__str__().upper()
 
     def lower(self):
+        """Returns the lowercase version of the string"""
         return self.__str__().lower()
 
     def __str__(self):
         data = self.v()
         ## Make sure its null terminated:
-        return data.split("\x00")[0]
+        result = data.split("\x00")[0]
+        if not result:
+            return ""
+        return result
+    
+    def __add__(self, other):
+        """Set up mappings for concat"""
+        return str(self) + other
+    
+    def __radd__(self, other):
+        """Set up mappings for reverse concat"""
+        return other + str(self)

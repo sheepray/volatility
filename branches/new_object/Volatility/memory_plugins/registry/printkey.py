@@ -28,8 +28,7 @@
 
 # from forensics.win32.datetime import windows_to_unix_time
 import forensics.win32.hive as hivemod
-from forensics.win32.rawreg import get_root, open_key, subkeys, values, value_data
-from forensics.object2 import Profile
+import forensics.win32.rawreg as rawreg
 import forensics
 import forensics.utils as utils
 config = forensics.conf.ConfObject()
@@ -67,40 +66,42 @@ class printkey(forensics.commands.command):
     meta_info['os'] = 'WIN_32_XP_SP2'
     meta_info['version'] = '1.0'
 
-    def parser(self):
-        forensics.commands.command.parser(self)
-        self.op.add_option('-o', '--hive-offset', help='Hive offset (virtual)',
-            action='store', type='int', dest='hive')
+    def __init__(self, *args):
+        config.add_option('HIVE-OFFSET', short_option = 'o', 
+                          help='Hive offset (virtual)', type='int')
+        config.add_option('KEY', short_option = 'k',
+                          help='Registry Key', type='str')
+        forensics.commands.command.__init__(self, *args)
 
-    def execute(self):
-        addr_space = utils.load_as(self.opts)
-        profile = Profile()
+    def calculate(self):
+        addr_space = utils.load_as()
 
-        hive_offset = config.hive_offset
-        if not hive_offset:
+        if not config.hive_offset:
             config.error("No hive offset provided!")
         
-        if len(self.args) == 1 and '\\' in self.args[0]:
-            self.args = self.args[0].split('\\')
+        if not config.key:
+            config.error("No registry key specified.  Please use -k to specify one")
         
-        hive = hivemod.HiveAddressSpace(addr_space, hive_offset)
-        root = get_root(hive, profile)
+        hive = hivemod.HiveAddressSpace(addr_space, config.hive_offset)
+        root = rawreg.get_root(hive)
         if not root:
-            print "Unable to find root key. Is the hive offset correct?"
-            return
+            config.error("Unable to find root key. Is the hive offset correct?")
         
-        key = open_key(root, self.args)
-        print "Key name:", key.Name,
-        print "(Volatile)" if vol(key) else "(Stable)"
-        print "Last updated: %s" % key.LastWriteTime
-        print
-        print "Subkeys:"
-        for s in subkeys(key):
-            print "  ", s.Name, "(Volatile)" if vol(s) else "(Stable)"
-        print
-        print "Values:"
-        for v in values(key):
-            tp, dat = value_data(v)
+        key = rawreg.open_key(root, config.KEY.split('\\'))
+        return key
+
+    def render_text(self, outfd, key):
+        outfd.write("Key name: " + key.Name + "\n")
+        outfd.write("(Volatile)\n" if vol(key) else "(Stable)\n")
+        outfd.write("Last updated: %s\n" % key.LastWriteTime)
+        outfd.write("\n")
+        outfd.write("Subkeys:\n")
+        for s in rawreg.subkeys(key):
+            outfd.write("  " + s.Name + ("(Volatile)\n" if vol(s) else "(Stable)\n"))
+        outfd.write("\n")
+        outfd.write("Values:\n")
+        for v in rawreg.values(key):
+            tp, dat = rawreg.value_data(v)
             if tp == 'REG_BINARY':
                 dat = "\n" + hd(dat, length=16)
-            print "%-9s %-10s : %s %s" % (tp, v.Name, dat, "(Volatile)" if vol(v) else "(Stable)")
+            outfd.write("%-9s %-10s : %s %s\n" % (tp, v.Name, dat, "(Volatile)" if vol(v) else "(Stable)"))

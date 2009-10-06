@@ -126,6 +126,6 @@ class hivedump(forensics.commands.command):
         self.print_key(outfd, 0, data)
 
     def print_key(self, outfd, level, key):
-        outfd.write((" " * level) + str(key.Name) + "\n")
+        outfd.write((" " * level) + key.Name + "\n")
         for k in rawreg.subkeys(key):
             self.print_key(outfd, level + 1, k)
