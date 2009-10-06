@@ -89,6 +89,7 @@ class lsadump(forensics.commands.command):
             outfd.write(hd(data[k]) + "\n")
 
 class hashdump(forensics.commands.command):
+    """Dumps passwords hashes (LM/NTLM) from memory"""
     
     def __init__(self, *args):
         config.add_option('SYS-OFFSET', short_option='y', type='int',
