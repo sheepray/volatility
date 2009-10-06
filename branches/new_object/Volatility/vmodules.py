@@ -42,7 +42,7 @@ from forensics.win32.tasks import process_imagename, process_list, process_peb, 
 from forensics.win32.tasks import process_vadroot
 from forensics.win32.vad import vad_dump
 from forensics.win32.scan import module_scan, conn_scan, ps_scan_dot, ps_scan, socket_scan, thrd_scan
-from forensics.win32.crashdump import crash_to_dd, dd_to_crash
+from forensics.win32.crashdump import dd_to_crash
 import forensics.win32.meta_info as meta_info
 from forensics.win32.executable import rebuild_exe_dsk, rebuild_exe_mem
 from forensics.win32.scan2 import scan_addr_space, PoolScanProcessDot, PoolScanThreadFast2
@@ -752,35 +752,6 @@ def raw2dmp(cmdname, argv):
     (addr_space, symtab, types) = load_and_identify_image(op, opts)
         
     dd_to_crash(addr_space, types, symtab, opts)
-
-
-###################################
-#  dmp2raw - Convert a crash dump into a flat address space
-###################################
-def dmp2raw(cmdname, argv):
-    """
-    This function creates a crash dump
-    """
-    op = get_standard_parser(cmdname)
-    
-    # add extra arg for the output file
-    op.add_option('-o', '--output', help='Output file',
-                  action='store', type='string', dest='outfile')
-
-    opts, _args = op.parse_args(argv)
-
-    if (opts.outfile is None):
-        op.error("Output file is required")  
-
-    filename = opts.filename
-
-    try:
-        flat_address_space = FileAddressSpace(filename, fast=False)
-    except:
-        op.error("Unable to open image file %s" % (filename))
-
-
-    crash_to_dd(flat_address_space, types, opts.outfile)  
 
 ###################################
 # procdump - Dump a process to an executable image

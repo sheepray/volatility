@@ -32,6 +32,22 @@ class WindowsCrashDumpSpace32(standard.FileAddressSpace):
 
         self.dtb = self.header.DirectoryTableBase.v()
 
+    def convert_to_raw(self, ofile):
+        page_count = 0
+        current_file_page = 0x1000
+        for run in self.runs:
+            page, count = run
+            
+            ofile.seek(page * 0x1000)
+            for j in xrange(0, count * 0x1000, 0x1000):
+                data = self.base.read(current_file_page + j, 0x1000)
+                ofile.write(data)
+                page_count += 1
+                # If there's only one run, this leaves the user in the dark,
+                # so instead we yield for every page
+                yield page_count
+            current_file_page += (count * 0x1000)
+            
     def get_header(self):
         return self.header
 
@@ -137,6 +153,9 @@ class WindowsCrashDumpSpace32(standard.FileAddressSpace):
             for page in range(start, start + run[1]):
                 page_list.append([page * 0x1000, 0x1000])
         return page_list
+
+    def get_number_of_pages(self):
+        return len(self.get_available_pages())
 
     def get_address_range(self):
         """ This relates to the logical address range that is indexable """

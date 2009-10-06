@@ -4,12 +4,13 @@ Created on 3 Oct 2009
 @author: Mike Auty
 '''
 
+import os
 import forensics.utils as utils
 import forensics.commands as commands
 import forensics.conf as conf
 config = conf.ConfObject()
 
-class dmpinfo(commands.command):
+class crashinfo(commands.command):
     """Dump crash-dump information"""
     
     def calculate(self):
@@ -59,3 +60,28 @@ class dmpinfo(commands.command):
             outfd.write("%08x      %08x         %08x\n" % (foffset, run[0]*0x1000, run[1]*0x1000))
             foffset += (run[1] * 0x1000)
         outfd.write("%08x      %08x\n" % (foffset-0x1000, ((run[0]+run[1]-1)*0x1000)))
+
+class crashdump(crashinfo):
+    """Dumps the crashdump file to a raw file"""
+
+    def __init__(self, *args):
+        config.add_option("DUMP_FILE", short_option="D", default=None,
+                          help = "Specifies the output dump file")
+        crashinfo.__init__(self, *args)
+    
+    def render_text(self, outfd, data):
+        """Renders the text output of crashdump file dumping"""
+        if not config.DUMP_FILE:
+            config.error("crashdump requires an output file to dump the crashdump file")
+        
+        if os.path.exists(config.DUMP_FILE):
+            config.error("File " + config.DUMP_FILE + " already exists, please choose another file or delete it first")
+        
+        outfd.write("Converting crashdump file...\n")
+        
+        f = open(config.DUMP_FILE, 'wb')
+        total = data.get_number_of_pages()
+        for pagenum in data.convert_to_raw(f):
+            outfd.write("\r" + ("%08x" % pagenum) + " / " + ("%08x" % total) + " converted (" + ("%03d" % (pagenum * 100 / total)) + "%)")
+        f.close()
+        outfd.write("\n")

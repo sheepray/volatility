@@ -156,7 +156,6 @@ class WindowsHiberFileSpace32(standard.FileAddressSpace):
                 page_count += 1
             del data_z, data_uz
             yield page_count
-        raise StopIteration
 
     def next_xpress(self, XpressHeader, XpressBlockSize):
         XpressHeaderOffset = XpressBlockSize + XpressHeader.offset + \

@@ -41,7 +41,7 @@ from forensics.object2 import Curry
 config.add_option('DEBUG', short_option = 'd', action='count',
                   help = 'Debug volatility', default=0)
 
-from vmodules import *
+from vmodules import VolatoolsModule, vaddump, get_strings, psscan, thrdscan, sockscan, connscan, psscan2, procdump, raw2dmp, mem_dump, modscan
 
 modules = {
     'strings':
@@ -80,10 +80,6 @@ modules = {
         VolatoolsModule('raw2dmp',
                     'Convert a raw dump to a crash dump',
                     raw2dmp),
-    'dmp2raw':
-        VolatoolsModule('dmp2raw',
-                    'Convert a crash dump to a raw dump',
-                    dmp2raw),
     'procdump':
     VolatoolsModule('procdump',
                   'Dump a process to an executable sample',

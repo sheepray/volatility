@@ -70,13 +70,18 @@ class hibinfo(commands.command):
 class hibdump(hibinfo):
     """Dumps the hibernation file to a raw file"""
     
+    def __init__(self, *args):
+        config.add_option("DUMP_FILE", short_option="D", default=None,
+                          help = "Specifies the output dump file")
+        hibinfo.__init__(self, *args)
+    
     def render_text(self, outfd, data):
         """Renders the text output of hibneration file dumping"""
-        if not config.OUTPUT_FILE:
+        if not config.DUMP_FILE:
             config.error("Hibdump requires an output file to dump the hibernation file")
         
-        if os.path.exists(config.OUTPUT_FILE):
-            config.error("File " + config.OUTPUT_FILE + " already exists, please choose another file or delete it first")
+        if os.path.exists(config.DUMP_FILE):
+            config.error("File " + config.DUMP_FILE + " already exists, please choose another file or delete it first")
         
         outfd.write("Converting hibernation file...\n")
         
@@ -85,3 +90,4 @@ class hibdump(hibinfo):
         for pagenum in data['adrs'].convert_to_raw(f):
             outfd.write("\r" + ("%08x" % pagenum) + " / " + ("%08x" % total) + " converted (" + ("%03d" % (pagenum * 100 / total)) + "%)")
         f.close()
+        outfd.write("\n")        
