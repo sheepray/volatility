@@ -85,7 +85,7 @@ class hibdump(hibinfo):
         
         outfd.write("Converting hibernation file...\n")
         
-        f = open(config.OUTPUT_FILE, 'wb')
+        f = open(config.DUMP_FILE, 'wb')
         total = data['adrs'].get_number_of_pages()
         for pagenum in data['adrs'].convert_to_raw(f):
             outfd.write("\r" + ("%08x" % pagenum) + " / " + ("%08x" % total) + " converted (" + ("%03d" % (pagenum * 100 / total)) + "%)")

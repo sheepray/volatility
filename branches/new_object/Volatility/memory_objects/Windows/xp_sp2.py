@@ -141,10 +141,14 @@ class WinTimeStamp(object2.NativeType):
         return unix_time
 
     def as_windows_timestamp(self):
+        # Remember to return our value if we've been created explicitly,
+        # since we don't have a vm or an offset for the NativeType.v function
+        if self.data is not None:
+            return self.data
         return object2.NativeType.v(self)
 
     def v(self):
-        value = object2.NativeType.v(self)
+        value = self.as_windows_timestamp()
         return self.windows_to_unix_time(value)
 
     def __sub__(self, x):

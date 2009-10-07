@@ -417,8 +417,8 @@ class IA32PagedMemoryPae(IA32PagedMemory):
                     yield [soffset, 0x200000]
                 elif self.entry_present(entry):
                     pte_curr = entry & ~((1 << page_shift)-1)                
-                for k in range(0, ptrs_per_pae_pte):
-                    pte_entry = self.read_long_long_phys(pte_curr)
-                    pte_curr = pte_curr + 8
-                    if self.entry_present(pte_entry):
-                        yield [soffset + k * 0x1000, 0x1000]
+                    for k in range(0, ptrs_per_pae_pte):
+                        pte_entry = self.read_long_long_phys(pte_curr)
+                        pte_curr = pte_curr + 8
+                        if self.entry_present(pte_entry):
+                            yield [soffset + k * 0x1000, 0x1000]

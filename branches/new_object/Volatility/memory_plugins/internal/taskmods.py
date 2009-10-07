@@ -142,7 +142,8 @@ class memmap(dlllist):
 
                 for p in pagedata:
                     pa = task_space.vtop(p[0])
-                    if pa:
+                    # pa can be 0, according to the old memmap, but can't == None(NoneObject)
+                    if pa != None:
                         outfd.write("0x%-10x 0x%-10x 0x%-12x\n" % (p[0], pa, p[1]))
                     #else:
                     #    outfd.write("0x%-10x 0x000000     0x%-12x\n" % (p[0], p[1]))

@@ -21,7 +21,7 @@ class vadinfo(taskmods.dlllist):
             outfd.write("*" * 72 + "\n")
             outfd.write("Pid: %-6d\n" % (pid))
             for vad in data[pid]['vadlist']:
-                if vad is None:
+                if vad == None:
                     outfd.write("Error: Unknown Tag")
                 else:
                     self.write_vad_short(outfd, vad)
@@ -99,7 +99,11 @@ class vadinfo(taskmods.dlllist):
                     elif vadtype == 'Vad ':
                         vad.name = 'Vad '
                         vadlist.append(vad)
+                    elif vadtype == 'VadF':
+                        # TODO: Figure out what a VadF looks like!
+                        vadlist.append(None)
                     else:
+                        print "Vad with tag:", vadtype
                         vadlist.append(None)
                 
                 result[pid]['vadlist'] = vadlist
@@ -125,11 +129,13 @@ class vadtree(vadinfo):
             outfd.write("Pid: %-6d\n" % (pid))
             levels = {}
             for vad in data[pid]['vadlist']:
-                level = levels.get(vad.Parent.dereference().offset, -1) + 1
-                levels[vad.offset] = level
-                outfd.write(" " * level + "%08x - %08x\n" % ( 
-                            int(vad.StartingVpn) << 12,
-                            ((int(vad.EndingVpn) + 1) << 12) -1))
+                # Ignore Vads with bad tags (which we explicitly include as None)
+                if vad != None:
+                    level = levels.get(vad.Parent.dereference().offset, -1) + 1
+                    levels[vad.offset] = level
+                    outfd.write(" " * level + "%08x - %08x\n" % ( 
+                                int(vad.StartingVpn) << 12,
+                                ((int(vad.EndingVpn) + 1) << 12) -1))
 
     def render_dot(self, outfd, data):
         for pid in data:
@@ -138,13 +144,15 @@ class vadtree(vadinfo):
             outfd.write("digraph processtree {\n")
             outfd.write("graph [rankdir = \"TB\"];\n")
             for vad in data[pid]['vadlist']:
-                if vad.Parent:
-                    outfd.write("vad_%08x -> vad_%08x\n" % (vad.Parent.dereference().offset, vad.offset))                    
-                outfd.write("vad_%08x [label = \"{ %s\\n%08x - %08x }\" shape = \"record\" color = \"blue\"];\n" % 
-                            (vad.offset,
-                             vad.name, 
-                             int(vad.StartingVpn) << 12,
-                             ((int(vad.EndingVpn) + 1) << 12) -1))
+                # Ignore Vads with bad tags (which we explicitly include as None)
+                if vad != None:
+                    if vad.Parent:
+                        outfd.write("vad_%08x -> vad_%08x\n" % (vad.Parent.dereference().offset, vad.offset))                    
+                    outfd.write("vad_%08x [label = \"{ %s\\n%08x - %08x }\" shape = \"record\" color = \"blue\"];\n" % 
+                                (vad.offset,
+                                 vad.name, 
+                                 int(vad.StartingVpn) << 12,
+                                 ((int(vad.EndingVpn) + 1) << 12) -1))
             outfd.write("}\n")
 
 class vadwalk(vadinfo):
@@ -156,9 +164,11 @@ class vadwalk(vadinfo):
             outfd.write("Pid: %-6d\n" % (pid))
             outfd.write("Address  Parent   Left     Right    Start    End      Tag  Flags")
             for vad in data[pid]['vadlist']:
-                outfd.write("%08x %08x %08x %08x %08x %08x %-4s\n" % (vad.offset,
-                            vad.Parent.dereference().offset, vad.LeftChild.dereference().offset,        
-                            vad.RightChild.dereference().offset, 
-                            int(vad.StartingVpn) << 12,
-                            ((int(vad.EndingVpn) + 1) << 12) -1,
-                            vad.name))
+                # Ignore Vads with bad tags (which we explicitly include as None)
+                if vad != None:
+                    outfd.write("%08x %08x %08x %08x %08x %08x %-4s\n" % (vad.offset,
+                                vad.Parent.dereference().offset, vad.LeftChild.dereference().offset,        
+                                vad.RightChild.dereference().offset, 
+                                int(vad.StartingVpn) << 12,
+                                ((int(vad.EndingVpn) + 1) << 12) -1,
+                                vad.name))
