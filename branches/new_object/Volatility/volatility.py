@@ -46,7 +46,7 @@ from forensics.object2 import Curry
 config.add_option('DEBUG', short_option = 'd', action='count',
                   help = 'Debug volatility', default=0)
 
-from vmodules import VolatoolsModule, vaddump, get_strings, psscan, thrdscan, sockscan, connscan, psscan2, procdump, raw2dmp, mem_dump, modscan
+from vmodules import VolatoolsModule, get_strings, psscan, thrdscan, sockscan, connscan, psscan2, procdump, raw2dmp, mem_dump, modscan
 
 modules = {
     'strings':
