@@ -6,6 +6,7 @@ Created on 26 Sep 2009
 
 #pylint: disable-msg=C0111
 
+import os
 import forensics
 import forensics.win32 as win32
 import forensics.object2 as object2
@@ -163,3 +164,34 @@ class memmap(dlllist):
                     result[pid] = {'task': task, 'pages': pages}
 
         return result
+
+class memdump(memmap):
+    """Dump the addressable memory for a process"""
+    
+    def __init__(self, *args):
+        config.add_option('DUMP_DIR', short_option='D', default=None,
+                          help='Directory in which to dump the VAD files')
+        memmap.__init__(self, *args)
+
+    def render_text(self, outfd, data):
+        if config.DUMP_DIR == None:
+            config.error("Please specify a dump directory (--dump-dir)")
+        if not os.path.isdir(config.DUMP_DIR):
+            config.error(config.DUMP_DIR + " is not a directory")
+        
+        for pid in data:
+            outfd.write("*" * 72 + "\n")
+
+            task = data[pid]['task']
+            task_space = task.get_process_address_space()
+            pagedata = data[pid]['pages']
+            outfd.write("Writing %s [%-6d] to %s.dmp\n" % (task.ImageFileName, pid, str(pid)))
+
+            f = open(os.path.join(config.DUMP_DIR, str(pid) + ".dmp"), 'wb')
+            if pagedata:
+                for p in pagedata:
+                    data = task_space.read(p[0], p[1])
+                    f.write(data)
+            else:
+                outfd.write("Unable to read pages for task.\n")
+            f.close()
