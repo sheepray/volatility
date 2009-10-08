@@ -32,6 +32,11 @@
 
 #pylint: disable-msg=C0111
 
+try:
+    import psyco
+except ImportError:    
+    pass
+
 import sys, textwrap
 import forensics.registry as MemoryRegistry
 import forensics.conf
