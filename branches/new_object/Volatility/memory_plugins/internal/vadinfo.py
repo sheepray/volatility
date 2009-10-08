@@ -4,6 +4,11 @@ Created on 30 Sep 2009
 @author: Mike Auty
 '''
 
+# The source code in this file was inspired by the excellent work of
+# Brendan Dolan-Gavitt. Background information can be found in 
+# the following reference:
+# "The VAD Tree: A Process-Eye View of Physical Memory," Brendan Dolan-Gavitt
+
 import os.path
 import forensics.win32 as win32
 import forensics.object2 as object2
@@ -175,7 +180,7 @@ class vadwalk(vadinfo):
                                 ((int(vad.EndingVpn) + 1) << 12) -1,
                                 vad.name))
 
-class vaddump2(vadinfo):
+class vaddump(vadinfo):
     """Dumps out the vad sections to a file"""
 
     def __init__(self, *args):

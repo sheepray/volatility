@@ -39,8 +39,6 @@ from forensics.win32.crash_addrspace import WindowsCrashDumpSpace32
 from forensics.object import read_obj
 from forensics.win32.tasks import create_addr_space, process_addr_space, process_dtb, process_find_pid
 from forensics.win32.tasks import process_imagename, process_list, process_peb, process_pid
-from forensics.win32.tasks import process_vadroot
-from forensics.win32.vad import vad_dump
 from forensics.win32.scan import module_scan, conn_scan, ps_scan_dot, ps_scan, socket_scan, thrd_scan
 from forensics.win32.crashdump import dd_to_crash
 import forensics.win32.meta_info as meta_info
@@ -141,110 +139,6 @@ def get_strings(cmdname, argv):
             op.error("String file format invalid.")
         if reverse_map.has_key(offset & 0xFFFFF000):
             print_string(offset, reverse_map[offset & 0xFFFFF000][1:], string)
-
-
-###################################
-#  vadinfo - Dump the VAD to file
-###################################
-
-def vaddump(cmdname, argv):
-    """
-    This function dumps the vad information
-    """
-    op = get_standard_parser(cmdname)
-
-    op.add_option('-o', '--offset',
-                 help='EPROCESS Offset (in hex)',
-                  action='store', type='string', dest='offset')
-    op.add_option('-d', '--directory',
-                  help='Output directory',
-                  action='store', type='string', dest='dir')
-    op.add_option('-p', '--pid',
-                  help='Dump the VAD of the process with this Pid',
-                  action='store', type='int', dest='pid')
-
-    opts, _args = op.parse_args(argv)
-
-    if opts.filename is None:
-        op.error("vaddump -f <filename:required>")
-    else:
-        filename = opts.filename    
-
-    (addr_space, symtab, types) = load_and_identify_image(op, opts)
-    
-    if not opts.offset is None:
- 
-        try:
-            offset = int(opts.offset, 16)
-        except:
-            op.error("EPROCESS offset must be a hexadecimal number.")
-
-        try:
-            flat_address_space = FileAddressSpace(filename)
-        except:
-            op.error("Unable to open image file %s" %(filename))
-
-        directory_table_base = process_dtb(flat_address_space, types, offset)
-
-        process_address_space = create_addr_space(addr_space, directory_table_base)
-
-        image_file_name = process_imagename(flat_address_space, types, offset)
-        process_id = process_pid(flat_address_space, types, offset)
-
-        if process_address_space is None:
-            print "Error obtaining address space for process [%d]" % (process_id)
-            return
-
-        VadRoot = process_vadroot(flat_address_space, types, offset)
-
-        if VadRoot == None or not process_address_space.is_valid_address(VadRoot):
-            print "VadRoot is not valid"
-            return
-
-        vad_dump(process_address_space, types, VadRoot, image_file_name, offset, opts.dir)
-
-    else:
-        all_tasks = process_list(addr_space, types, symtab)
-
-        if not opts.pid == None:
-            all_tasks = process_find_pid(addr_space, types, symtab, all_tasks, opts.pid)
-            if len(all_tasks) == 0:
-                print "Error process [%d] not found" % opts.pid
-            
-        star_line = '*'*72
-
-        for task in all_tasks:
-
-            print "%s" % star_line
-
-            if not addr_space.is_valid_address(task):
-                print "Task address is not valid"
-                continue
-        
-            directory_table_base = process_dtb(addr_space, types, task)
-    
-            process_address_space = create_addr_space(addr_space, directory_table_base)
-
-            image_file_name = process_imagename(addr_space, types, task)
-    
-            process_id = process_pid(addr_space, types, task)
-
-            if process_address_space is None:
-                print "Error obtaining address space for process [%d]" % (process_id)
-                continue
-
-            print "Pid: %-6d" % (process_id)
-
-            VadRoot = process_vadroot(addr_space, types, task)
-
-            if VadRoot == None or not process_address_space.is_valid_address(VadRoot):
-                print "VadRoot is not valid"
-                continue
-
-            offset = process_address_space.vtop(task)
-
-            vad_dump(process_address_space, types, VadRoot, image_file_name, offset, opts.dir)
-
 
 ###################################
 #  psscan - Scan for EPROCESS objects

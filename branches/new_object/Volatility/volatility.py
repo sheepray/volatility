@@ -53,10 +53,6 @@ modules = {
     VolatoolsModule('strings',
                     'Match physical offsets to virtual addresses (may take a while, VERY verbose)',
                     get_strings),
-    'vaddump':
-            VolatoolsModule('vaddump',
-		    'Dump the Vad sections to files',
-		    vaddump),
     'psscan':
             VolatoolsModule('psscan',
 		    'Scan for EPROCESS objects',
