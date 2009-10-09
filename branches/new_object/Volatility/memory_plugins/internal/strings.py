@@ -6,6 +6,7 @@ Created on 9 Oct 2009
 
 import os
 import forensics
+import forensics.object2 as object2
 import forensics.utils as utils
 import forensics.win32 as win32
 import forensics.conf as conf
@@ -52,8 +53,12 @@ class strings(forensics.commands.command):
         # where isKernel is True or False. if isKernel is true, list is of all kernel addresses
         # ASSUMPTION: no pages mapped in kernel and userland
         reverse_map = {}
+        
+        verbfd = object2.NoneObject("Swallow output unless VERBOSE mode is enabled")
+        if config.VERBOSE:
+            verbfd = outfd
     
-        outfd.write("Calculating kernel mapping...\n")
+        verbfd.write("Calculating kernel mapping...\n")
         vpage = 0
         while vpage < 0xFFFFFFFF:
             kpage = data['addr_space'].vtop(vpage)
@@ -62,14 +67,14 @@ class strings(forensics.commands.command):
                 if not reverse_map.has_key(kpage):
                     reverse_map[kpage] = [True]
                 reverse_map[kpage].append(('kernel', vpage))
-            outfd.write("\r  Kernel [%0.8x]" % vpage)
+            verbfd.write("\r  Kernel [%0.8x]" % vpage)
             vpage += 0x1000
-        outfd.write("\n")
+        verbfd.write("\n")
     
         print "Calculating task mappings..."
         for task in data['tasks']:
             task_space = task.get_process_address_space()
-            outfd.write("  Task %d ..." % task.UniqueProcessId)
+            verbfd.write("  Task %d ..." % task.UniqueProcessId)
             vpage = 0
             try:
                 while vpage < 0xFFFFFFFF:
@@ -80,16 +85,16 @@ class strings(forensics.commands.command):
     
                         if not reverse_map[physpage][0]:
                             reverse_map[physpage].append((int(task.UniqueProcessId), vpage))
-                    outfd.write("\r  Task %d [%0.8x]" % (task.UniqueProcessId, vpage))
+                    verbfd.write("\r  Task %d [%0.8x]" % (task.UniqueProcessId, vpage))
                     vpage += 0x1000
             except:
                 continue
-            outfd.write("\n")
-        outfd.write("\n")
+            verbfd.write("\n")
+        verbfd.write("\n")
             
-        strings = open(config.STRING_FILE, "r")
+        stringlist = open(config.STRING_FILE, "r")
         
-        for stringLine in strings:
+        for stringLine in stringlist:
             (offsetString, string) = self.parse_line(stringLine)
             try:
                 offset = int(offsetString)

@@ -5,9 +5,6 @@ import forensics.utils as utils
 import forensics
 config = forensics.conf.ConfObject()
 
-config.add_option("VERBOSE", default=0, type='int',
-                  short_option='v', help='Verbose information')
-
 #pylint: disable-msg=C0111
 
 pslist_types = {

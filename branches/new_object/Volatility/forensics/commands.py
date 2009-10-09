@@ -29,6 +29,9 @@ config.add_option("OUTPUT", default='text',
 config.add_option("OUTPUT_FILE", default=None,
                   help="write output in this file")
 
+config.add_option("VERBOSE", default=0, action='count',
+                  short_option='v', help='Verbose information')
+
 class command:
     """ Base class for each plugin command """
     op = ""
