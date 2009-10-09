@@ -29,8 +29,7 @@ class procexedump(taskmods.dlllist):
         for task in tasks:
             if task.UniqueProcessId:
                 pid = task.UniqueProcessId
-                if (not config.PID) or pid == config.PID:
-                    result[pid] = {'task': task}
+                result[pid] = {'task': task}
 
         return result
 

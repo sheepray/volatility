@@ -22,18 +22,15 @@ class dlllist(forensics.commands.command):
                           help='EPROCESS Offset (in hex) in physical address space',
                           action='store', type='int')
         
-        config.add_option('PID', short_option = 'p',
-                          help='Get info for this Pid', default=None,
-                          action='store', type='int')
+        config.add_option('PIDS', short_option = 'p', default=None,
+                          help='Operate on these Process IDs (comma-separated)',
+                          action='store', type='str')
         
         forensics.commands.command.__init__(self, *args)
 
     def render_text(self, outfd, data):
         for task in data:
             pid = task.UniqueProcessId
-            ## Skip unwanted processes
-            if config.PID and pid != config.PID:
-                continue
 
             outfd.write("*" * 72 + "\n")
             outfd.write("%s pid: %-6d\n" % (task.ImageFileName, pid))
@@ -63,6 +60,15 @@ class dlllist(forensics.commands.command):
             tasks = [object2.NewObject("_EPROCESS", config.OFFSET, addr_space)]
         else:
             tasks = win32.tasks.pslist(addr_space)
+            try:
+                if config.PIDS is not None:
+                    pidlist = [int(p) for p in config.PIDS.split(',')]
+                    newtasks = [t for t in tasks if int(t.UniqueProcessId) in pidlist]
+                    # Make this a separate statement, so that if an exception occurs, no harm done
+                    tasks = newtasks
+            except (ValueError, TypeError):
+                # TODO: We should probably print a non-fatal warning here
+                pass
         
         return tasks
 

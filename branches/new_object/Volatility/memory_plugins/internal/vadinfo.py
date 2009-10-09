@@ -85,8 +85,6 @@ class vadinfo(taskmods.dlllist):
         for task in tasks:
             if task.UniqueProcessId:
                 pid = int(task.UniqueProcessId)
-                if config.PID and pid != config.PID:
-                    continue
                 
                 result[pid] = {'task': task, 'vadlist': []}
 
