@@ -5,6 +5,7 @@ Created on 8 Oct 2009
 '''
 
 import os
+import struct
 import taskmods
 import forensics
 import forensics.object2 as object2
@@ -64,17 +65,16 @@ class procexedump(taskmods.dlllist):
                 outfd.write("You can use -u to disable this check.\n")
             of.close()
 
-    def round(self, addr, align, down=True):
+    def round(self, addr, align, up=False):
         """Rounds down an address based on an alignment"""
         addr = int(addr)
         align = int(align)
         if addr % align == 0: 
             return addr
         else: 
-            if down:
-                return (addr - (addr % align))
-            else:
+            if up:
                 return (addr + (align - (addr % align)))
+            return (addr - (addr % align))
 
     def get_nt_header(self, task):
         """Returns the NT Header object for a task"""
@@ -88,7 +88,7 @@ class procexedump(taskmods.dlllist):
         nt_header, task_space = self.get_nt_header(task)
         
         sect_size = task_space.profile.get_obj_size("_IMAGE_SECTION_HEADER")
-        start_addr = int(nt_header.OptionalHeader.offset) + int(nt_header.FileHeader.SizeOfOptionalHeader) 
+        start_addr = int(nt_header.OptionalHeader.offset) + int(nt_header.FileHeader.SizeOfOptionalHeader)
         
         for i in range(nt_header.FileHeader.NumberOfSections):
             s_addr = start_addr + (i * sect_size)
@@ -169,22 +169,44 @@ class procexedump(taskmods.dlllist):
             offset, code = self.get_code(task_space, int(iba + sect.VirtualAddress), int(sect.SizeOfRawData), foa, outfd)
             yield offset, code
     
-#class procmemdump(procexedump):
-#    """Dump a process to an executable memory sample"""
-#    
-#    def get_image(self, outfd, task, sect):
-#        iba = task.Peb.ImageBaseAddress
-#        nt_header, task_space = self.get_nt_header(task)
-#
-#        sa = nt_header.OptionalHeader.SectionAlignment
-#        soh = nt_header.OptionalHeader.SizeOfHeaders
-#        shs = task_space.profile.get_obj_size('_IMAGE_SECTION_HEADER')
-#
-#        yield self.get_code(task_space, iba, nt_header.OptionalHeader.SizeOfImage, 0)
-#
-#        counter = 0
-#        for sect in self.get_sectors(task):
-#            sectheader = task_space.read(sect.offset, shs)
-#            nt_header.OptionalHeader.offset + int(soh) + (counter * shs)
-#            counter += 1
-#            yield ()
+class procmemdump(procexedump):
+    """Dump a process to an executable memory sample"""
+
+    def replace_header_field(self, sect, header, item, value):
+        """Replaces a field in a sector header"""
+        field_size = item.size()
+        start = item.offset - sect.offset
+        end = start + field_size
+        newval = struct.pack(item.format_string, int(value))
+        result = header[:start] + newval + header[end:]
+        return result
+    
+    def get_image(self, outfd, task):
+        """Outputs an executable memory image of a process"""
+        iba = task.Peb.ImageBaseAddress
+        nt_header, task_space = self.get_nt_header(task)
+
+        sa = nt_header.OptionalHeader.SectionAlignment
+        shs = task_space.profile.get_obj_size('_IMAGE_SECTION_HEADER')
+
+        yield self.get_code(task_space, int(iba), int(nt_header.OptionalHeader.SizeOfImage), 0, outfd)
+
+        prevsect = None
+        sect_sizes = []
+        for sect in self.get_sectors(task):
+            if prevsect is not None:
+                sect_sizes.append(int(sect.VirtualAddress) - int(prevsect.VirtualAddress)) 
+            prevsect = sect
+        sect_sizes.append(self.round(prevsect.Misc.VirtualSize, sa, up=True))
+
+        counter = 0
+        start_addr = int(nt_header.OptionalHeader.offset) + int(nt_header.FileHeader.SizeOfOptionalHeader) - int(iba)
+        for sect in self.get_sectors(task):
+            sectheader = task_space.read(sect.offset, shs)
+            # Change the PointerToRawData
+            sectheader = self.replace_header_field(sect, sectheader, sect.PointerToRawData, sect.VirtualAddress)
+            sectheader = self.replace_header_field(sect, sectheader, sect.SizeOfRawData, sect_sizes[counter])
+            sectheader = self.replace_header_field(sect, sectheader, sect.Misc.VirtualSize, sect_sizes[counter])
+            
+            yield (start_addr + (counter * shs), sectheader)
+            counter += 1
