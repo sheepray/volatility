@@ -36,13 +36,11 @@ from vutils import get_standard_parser, is_hiberfil, is_crash_dump, types, get_d
 from forensics.addrspace import FileAddressSpace
 from forensics.win32.hiber_addrspace import WindowsHiberFileSpace32
 from forensics.win32.crash_addrspace import WindowsCrashDumpSpace32
-from forensics.object import read_obj
-from forensics.win32.tasks import create_addr_space, process_addr_space, process_dtb, process_find_pid
-from forensics.win32.tasks import process_imagename, process_list, process_peb, process_pid
+from forensics.win32.tasks import process_addr_space
+from forensics.win32.tasks import process_list, process_pid
 from forensics.win32.scan import module_scan, conn_scan, ps_scan_dot, ps_scan, socket_scan, thrd_scan
 from forensics.win32.crashdump import dd_to_crash
 import forensics.win32.meta_info as meta_info
-from forensics.win32.executable import rebuild_exe_dsk, rebuild_exe_mem
 from forensics.win32.scan2 import scan_addr_space, PoolScanProcessDot, PoolScanThreadFast2
 from forensics.win32.scan2 import PoolScanProcessFast2 
 
@@ -537,141 +535,6 @@ def raw2dmp(cmdname, argv):
     (addr_space, symtab, types) = load_and_identify_image(op, opts)
         
     dd_to_crash(addr_space, types, symtab, opts)
-
-###################################
-# procdump - Dump a process to an executable image
-###################################
-def procdump(cmdname, argv):
-    """
-    This function dumps a process to a PE file.
-    """
-    op = get_standard_parser(cmdname)
-    op.add_option('-o', '--offset',
-                  help='EPROCESS Offset (in hex) in physcial address space',
-                  action='store', type='string', dest='offset')
-    op.add_option('-p', '--pid',
-                  help='Dump the process with this Pid',
-                  action='store', type='int', dest='pid')
-    op.add_option('-m', '--mode',
-                  help=('strategy to use when saving executable. Use "disk" to '
-                        'save using disk-based section sizes, "mem" for memory-'
-                        'based sections. (default: "mem")'),
-                  action='store', type='string', default="mem", dest='mode')
-    op.add_option('-u', '--unsafe',
-                  help='do not perform sanity checks on sections when dumping',
-                  action='store_false', default=True, dest='safe')
-    opts, _args = op.parse_args(argv)
-
-    if opts.filename is None:
-        op.error("procdump -f <filename:required>")
-    else:
-        filename = opts.filename    
-
-    if opts.mode == "disk":
-        rebuild_exe = rebuild_exe_dsk
-    elif opts.mode == "mem":
-        rebuild_exe = rebuild_exe_mem
-    else:
-        op.error('"mode" must be one of "disk" or "mem"')
-
-    (addr_space, symtab, types) = load_and_identify_image(op, opts)
-
-    if not opts.offset is None:
-        try:
-            offset = int(opts.offset, 16)
-        except:
-            op.error("EPROCESS offset must be a hexadecimal number.")
-        
-        try:
-            flat_address_space = FileAddressSpace(filename)
-        except:
-            op.error("Unable to open image file %s" % (filename))
-
-        directory_table_base = process_dtb(flat_address_space, types, offset)
-
-        process_address_space = create_addr_space(addr_space, directory_table_base)
-
-        image_file_name = process_imagename(flat_address_space, types, offset)
-        process_id = process_pid(flat_address_space, types, offset)
-
-        if process_address_space is None:
-            print "Error obtaining address space for process [%d]" % (process_id)
-            return
-        
-        peb = process_peb(flat_address_space, types, offset)
-
-        if peb == None:
-            print "Error: PEB not memory resident for process [%d]" % (process_id)
-            return
-
-        img_base = read_obj(process_address_space, types, ['_PEB', 'ImageBaseAddress'], peb)
-  
-        if img_base == None:
-            print "Error: Image base not memory resident for process [%d]" % (process_id)
-            return
-
-
-        if process_address_space.vtop(img_base) == None:
-            print "Error: Image base not memory resident for process [%d]" % (process_id)
-            return
-
-        print "Dumping %s, pid: %-6d output: %s" % (image_file_name, process_id, "executable.%d.exe" % (process_id))
-        of = open("executable.%d.exe" % (process_id), 'wb')
-        rebuild_exe(process_address_space, types, img_base, of, opts.safe)
-        of.close()
-    else:
-        all_tasks = process_list(addr_space, types, symtab)
-
-        if not opts.pid == None:
-            all_tasks = process_find_pid(addr_space, types, symtab, all_tasks, opts.pid)
-            if len(all_tasks) == 0:
-                print "Error process [%d] not found" % opts.pid
-
-        star_line = '*'*72
-
-        for task in all_tasks:
-
-            print star_line        
-
-            directory_table_base = process_dtb(addr_space, types, task)
-   
-            process_id = process_pid(addr_space, types, task)
-
-            process_address_space = create_addr_space(addr_space, directory_table_base)
-
-            if process_address_space is None:
-                print "Error obtaining address space for process [%d]" % (process_id)
-                continue
-
-            image_file_name = process_imagename(process_address_space, types, task)
-
-            peb = process_peb(process_address_space, types, task)
-            
-            if peb == None:
-                print "Error: PEB not memory resident for process [%d]" % (process_id)
-                continue
-
-            img_base = read_obj(process_address_space, types, ['_PEB', 'ImageBaseAddress'], peb)
-
-            
-            if img_base == None:
-                print "Error: Image base not memory resident for process [%d]" % (process_id)
-                continue
-
-            if process_address_space.vtop(img_base) == None:
-                print "Error: Image base not memory resident for process [%d]" % (process_id)
-                continue
-
-            print "Dumping %s, pid: %-6d output: %s" % (image_file_name, process_id, "executable.%d.exe" % (process_id))
-
-            of = open("executable.%d.exe" % (process_id), 'wb')
-            try:
-                rebuild_exe(process_address_space, types, img_base, of, opts.safe)
-            except ValueError, ve:
-                print "Unable to dump executable; sanity check failed:"
-                print "  ", ve
-                print "You can use -u to disable this check."
-            of.close()
 
 def thrdscan2(cmdname, argv):
     scanners = []
