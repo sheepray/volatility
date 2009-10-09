@@ -46,13 +46,9 @@ from forensics.object2 import Curry
 config.add_option('DEBUG', short_option = 'd', action='count',
                   help = 'Debug volatility', default=0)
 
-from vmodules import VolatoolsModule, get_strings, psscan, thrdscan, sockscan, connscan, psscan2, raw2dmp, modscan
+from vmodules import VolatoolsModule, psscan, thrdscan, sockscan, connscan, psscan2, raw2dmp, modscan
 
 modules = {
-    'strings':
-    VolatoolsModule('strings',
-                    'Match physical offsets to virtual addresses (may take a while, VERY verbose)',
-                    get_strings),
     'psscan':
             VolatoolsModule('psscan',
 		    'Scan for EPROCESS objects',

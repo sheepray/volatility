@@ -36,8 +36,6 @@ from vutils import get_standard_parser, is_hiberfil, is_crash_dump, types, get_d
 from forensics.addrspace import FileAddressSpace
 from forensics.win32.hiber_addrspace import WindowsHiberFileSpace32
 from forensics.win32.crash_addrspace import WindowsCrashDumpSpace32
-from forensics.win32.tasks import process_addr_space
-from forensics.win32.tasks import process_list, process_pid
 from forensics.win32.scan import module_scan, conn_scan, ps_scan_dot, ps_scan, socket_scan, thrd_scan
 from forensics.win32.crashdump import dd_to_crash
 import forensics.win32.meta_info as meta_info
@@ -64,79 +62,6 @@ def format_time(time):
     ts = strftime("%a %b %d %H:%M:%S %Y GMT",
                 gmtime(time))
     return ts
-
-###################################
-#  strings - identify pid(s) associated with a string
-###################################
-def print_string(offset, pidlist, string):
-    print "%d " % (offset),
-
-    print "[%s:%x" % (pidlist[0][0], pidlist[0][1] | (offset & 0xFFF)),
-    
-    for i in pidlist[1:]:
-        print " %s:%x" % (i[0], (i[1] | (offset & 0xFFF))),
-
-    print "] %s" % string,
-    
-def get_strings(cmdname, argv):
-    op = get_standard_parser(cmdname)
-
-    op.add_option('-s', '--strings', help='(required) File of form <offset>:<string>',
-                  action='store', type='string', dest='stringfile')
-    opts, _args = op.parse_args(argv)
-
-    if opts.stringfile is None:
-        op.error("String file (-s) required")
-
-    try:
-        strings = open(opts.stringfile, "r")
-    except:
-        op.error("Invalid or inaccessible file %s" % opts.stringfile)
-
-    (addr_space, symtab, types) = load_and_identify_image(op, opts)
-
-    all_tasks = process_list(addr_space, types, symtab)
-
-    # dict of form phys_page -> [isKernel, (pid1, vaddr1), (pid2, vaddr2) ...]
-    # where isKernel is True or False. if isKernel is true, list is of all kernel addresses
-    # ASSUMPTION: no pages mapped in kernel and userland
-    reverse_map = {}
-
-
-    vpage = 0
-    while vpage < 0xFFFFFFFF:
-        kpage = addr_space.vtop(vpage)
-        if not kpage is None:
-            if not reverse_map.has_key(kpage):
-                reverse_map[kpage] = [True]
-            reverse_map[kpage].append(('kernel', vpage))
-        vpage += 0x1000
-
-    for task in all_tasks:
-        process_id = process_pid(addr_space, types, task)
-        process_address_space = process_addr_space(addr_space, types, task, opts.filename)
-        vpage = 0
-        try:
-            while vpage < 0xFFFFFFFF:
-                physpage = process_address_space.vtop(vpage)
-                if not physpage is None:
-                    if not reverse_map.has_key(physpage):
-                        reverse_map[physpage] = [False]
-
-                    if not reverse_map[physpage][0]:
-                        reverse_map[physpage].append((process_id, vpage))
-                vpage += 0x1000
-        except:
-            continue
-
-    for stringLine in strings:
-        (offsetString, string) = stringLine.split(':', 1)
-        try:
-            offset = int(offsetString)
-        except:
-            op.error("String file format invalid.")
-        if reverse_map.has_key(offset & 0xFFFFF000):
-            print_string(offset, reverse_map[offset & 0xFFFFF000][1:], string)
 
 ###################################
 #  psscan - Scan for EPROCESS objects

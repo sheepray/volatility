@@ -11,7 +11,7 @@ import forensics.win32 as win32
 import forensics.conf as conf
 config = conf.ConfObject()
 
-class strings2(forensics.commands.command):
+class strings(forensics.commands.command):
     """Match physical offsets to virtual addresses (may take a while, VERY verbose)"""
     
     def __init__(self, *args):
@@ -104,4 +104,5 @@ class strings2(forensics.commands.command):
         """Parses a line of strings"""
         space_pos = stringLine[7:].index(' ') + 7
         return (stringLine[:space_pos], stringLine[space_pos + 1:])
+        # FIXME: Figure out how to determine whether strings is space separated or colon separated
         # return stringLine.split(':', 1)
