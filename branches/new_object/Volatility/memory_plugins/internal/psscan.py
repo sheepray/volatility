@@ -70,6 +70,30 @@ class DispatchHeaderCheck(ScannerCheck):
             ## Substring is not found - skip to the end of this data buffer
             return len(data) - offset
 
+class DispatchThreadHeaderCheck(DispatchHeaderCheck):
+    def __init__(self, address_space, **kwargs):
+        ## Because this checks needs to be super fast we first
+        ## instantiate the _EPROCESS and work out the offsets of the
+        ## type and size members. Then in the check we just read those
+        ## offsets directly.
+        ethread = NewObject("_ETHREAD", vm=address_space, offset=0)
+        self.type = ethread.Tcb.Header.Type
+        self.size = ethread.Tcb.Header.Size
+        self.buffer_size = max(self.size.offset, self.type.offset) + 2
+        ScannerCheck.__init__(self, address_space)
+
+    def check(self, offset):
+        data = self.address_space.read(offset + self.type.offset, self.buffer_size)
+        return data[self.type.offset] == "\x06" and data[self.size.offset] == "\x70"
+
+    def skip(self, data, offset):
+        try:
+            next = data.index("\x06", offset+1)
+            return next - self.type.offset - offset
+        except ValueError:
+            ## Substring is not found - skip to the end of this data buffer
+            return len(data) - offset
+    
 class CheckDTBAligned(ScannerCheck):
     """ Checks that _EPROCESS.Pcb.DirectoryTableBase is aligned to 0x20 """
     def check(self, offset):
@@ -105,6 +129,75 @@ class CheckSynchronization(ScannerCheck):
         if event.Size == 0x4 and event.Type == 0x1:
             return True
 
+class CheckThreadSemaphores(ScannerCheck):
+    """ Checks _ETHREAD.Tcb.SuspendSemaphore and _ETHREAD.LpcReplySemaphore """
+    def check(self, offset):
+        ethread = NewObject("_ETHREAD", vm=self.address_space,
+                             offset = offset)
+
+        pid= ethread.Cid.UniqueProcess.v()
+        if pid==0: return True
+
+        sem = ethread.Tcb.SuspendSemaphore.Header
+        if sem.Type != 0x5 or sem.Size != 0x5:
+            return False
+
+        event = ethread.LpcReplySemaphore.Header
+        if event.Size == 0x5 and event.Type == 0x5:
+            return True
+
+class CheckThreadNotificationTimer(ScannerCheck):
+    """ Checks for sane _ETHREAD.Tcb.Timer.Header """
+    def check(self, offset):
+        ethread = NewObject("_ETHREAD", vm=self.address_space,
+                            offset = offset)
+        
+        sem = ethread.Tcb.Timer.Header
+        if sem.Type == 0x8 and sem.Size == 0xa:
+            return True
+
+class CheckThreadProcess(ScannerCheck):
+    """ Check that _ETHREAD.Cid.UniqueProcess is in kernel space """
+    kernel = 0x80000000
+    def check(self, offset):
+        ethread = NewObject("_ETHREAD", vm=self.address_space,
+                            offset = offset)
+        if ethread.Cid.UniqueProcess==0 or ethread.ThreadsProcess.v() > self.kernel:
+            return True
+
+class CheckThreadStartAddress(ScannerCheck):
+    """ Checks that _ETHREAD.StartAddress is not 0 """
+    def check(self, offset):
+        ethread = NewObject("_ETHREAD", vm=self.address_space,
+                            offset = offset)
+        if ethread.Cid.UniqueProcess==0 or ethread.StartAddress.v() != 0:
+            return True
+
+class ThreadScan(BaseScanner):
+    """ Carves out _ETHREAD structures """
+    checks = [ ("DispatchThreadHeaderCheck", {}),
+               ("CheckThreadProcess", {}),
+               ("CheckThreadStartAddress", {}),
+               ("CheckThreadNotificationTimer", {}),
+               ("CheckThreadSemaphores", {})
+               ]
+
+class thrdscan(forensics.commands.command):
+    """ Scan Physical memory for _ETHREAD objects
+    """
+    def render_text(self, outfd, data):
+        ## Just grab the AS and scan it using our scanner
+        address_space = utils.load_as(astype = 'physical')
+        start = time.time()
+        outfd.write("No.  PID    TID    Offset    \n---- ------ ------ ----------\n")
+
+        for offset in ThreadScan().scan(address_space):
+            ethread = NewObject('_ETHREAD', vm=address_space, offset=offset)
+            cnt = time.time() - start
+
+            outfd.write("%4d %6d %6d 0x%0.8x\n" % (cnt, ethread.Cid.UniqueProcess,
+                                                   ethread.Cid.UniqueThread, offset))
+   
 class PSScan(BaseScanner):
     """ This scanner carves things that look like _EPROCESS structures.
 
@@ -133,19 +226,51 @@ class psscan(forensics.commands.command):
         os = 'WIN_32_XP_SP2',
         version = '1.0',
         )
-    
-    def execute(self):
+
+    def render_dot(self, outfd, data):
+        address_space = utils.load_as(astype = 'physical')
+
+        objects = set()
+        links = set()
+        
+        for offset in PSScan().scan(address_space):
+            eprocess = NewObject('_EPROCESS', vm=address_space, offset=offset)
+
+            label = "%s | %s |" % (eprocess.UniqueProcessId,
+                                                 eprocess.ImageFileName)
+            if eprocess.ExitTime:
+                label += "exited\\n%s" % eprocess.ExitTime
+                options = ' style = "filled" fillcolor = "lightgray" '
+            else:
+                label += "running"
+                options = ''
+
+            objects.add('pid%s [label="%s" shape="record" %s];\n' % (eprocess.UniqueProcessId,
+                                                             label, options))
+            links.add("pid%s -> pid%s [];\n" % (eprocess.InheritedFromUniqueProcessId,
+                                              eprocess.UniqueProcessId))
+
+        ## Now write the dot file
+        outfd.write("digraph processtree { \ngraph [rankdir = \"TB\"];\n")
+        for link in links:
+            outfd.write(link)
+
+        for obj in objects:
+            outfd.write(obj)
+        outfd.write("}")
+        
+    def render_text(self, outfd, data):
         ## Just grab the AS and scan it using our scanner
         address_space = utils.load_as(astype = 'physical')
         start = time.time()
-        print  "No.  PID    PPID   Time created             Time exited              Offset     PDB        Remarks\n"+ \
-              "---- ------ ------ ------------------------ ------------------------ ---------- ---------- ----------------\n"
+        outfd.write("No.  PID    PPID   Time created             Time exited              Offset     PDB        Remarks\n"+ \
+                    "---- ------ ------ ------------------------ ------------------------ ---------- ---------- ----------------\n")
         
         for offset in PSScan().scan(address_space):
             eprocess = NewObject('_EPROCESS', vm=address_space, offset=offset)
             cnt = time.time() - start
 
-            print "%4d %6d %6d %24s %24s 0x%0.8x 0x%0.8x %-16s" % (
+            outfd.write("%4d %6d %6d %24s %24s 0x%0.8x 0x%0.8x %-16s\n" % (
                 cnt,
                 eprocess.UniqueProcessId,
                 eprocess.InheritedFromUniqueProcessId,
@@ -153,4 +278,4 @@ class psscan(forensics.commands.command):
                 eprocess.ExitTime or '',
                 eprocess.offset,
                 eprocess.Pcb.DirectoryTableBase[0],
-                eprocess.ImageFileName)
+                eprocess.ImageFileName))

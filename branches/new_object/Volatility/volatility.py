@@ -49,14 +49,6 @@ config.add_option('DEBUG', short_option = 'd', action='count',
 from vmodules import VolatoolsModule, psscan, thrdscan, sockscan, connscan, psscan2, raw2dmp, modscan
 
 modules = {
-    'thrdscan':
-            VolatoolsModule('thrdscan',
-		    'Scan for ETHREAD objects',
-     		    thrdscan),
-    'sockscan':
-            VolatoolsModule('sockscan',
-		    'Scan for socket objects',
-		    sockscan),
     'connscan':
             VolatoolsModule('connscan',
 		    'Scan for connection objects',
@@ -135,7 +127,7 @@ def main():
 
     # Get the version information on every output from the beginning
     # Exceptionally useful for debugging/telling people what's going on
-    print "Volatile Systems Volatility Framework " + forensics.version
+    sys.stderr.write( "Volatile Systems Volatility Framework %s\n" % forensics.version)
 
     MemoryRegistry.Init()
 

@@ -49,7 +49,7 @@ class CheckSocketCreateTime(ScannerCheck):
 
         return self.condition(address_obj.CreateTime.v())
 
-class PoolScanSockFast2(PoolScanner):
+class PoolScanSockFast(PoolScanner):
     checks = [ ('PoolTagCheck', dict(tag = "TCPA")),
                ('CheckPoolSize', dict(condition = lambda x: x == 0x170)),
                ('CheckPoolType', dict(non_paged = True, free = True)),
@@ -58,7 +58,7 @@ class PoolScanSockFast2(PoolScanner):
                ('CheckPoolIndex', dict(value = 0))
                ]
     
-class sockscan2(forensics.commands.command):
+class sockscan(forensics.commands.command):
     """ Scan Physical memory for _ADDRESS_OBJECT objects (tcp sockets)
     """
 
@@ -81,7 +81,7 @@ class sockscan2(forensics.commands.command):
         print "PID    Port   Proto  Create Time                Offset \n"+ \
               "------ ------ ------ -------------------------- ----------\n"
 
-        scanner = PoolScanSockFast2()
+        scanner = PoolScanSockFast()
         for offset in scanner.scan(address_space):
             sock_obj = NewObject('_ADDRESS_OBJECT', vm=address_space,
                                  offset=offset)
