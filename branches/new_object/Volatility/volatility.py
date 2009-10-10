@@ -49,22 +49,10 @@ config.add_option('DEBUG', short_option = 'd', action='count',
 from vmodules import VolatoolsModule, psscan, thrdscan, sockscan, connscan, psscan2, raw2dmp, modscan
 
 modules = {
-    'connscan':
-            VolatoolsModule('connscan',
-		    'Scan for connection objects',
-		    connscan),
-    'modscan':
-    VolatoolsModule('modscan',
-            'Scan for modules',
-            modscan), 
     'raw2dmp':
         VolatoolsModule('raw2dmp',
                     'Convert a raw dump to a crash dump',
                     raw2dmp),
-    'psscan2':
-    VolatoolsModule('psscan2',
-                  'Scan for process objects (New)',
-                  psscan2),
     }
 
 
