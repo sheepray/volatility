@@ -49,10 +49,6 @@ config.add_option('DEBUG', short_option = 'd', action='count',
 from vmodules import VolatoolsModule, psscan, thrdscan, sockscan, connscan, psscan2, raw2dmp, modscan
 
 modules = {
-    'psscan':
-            VolatoolsModule('psscan',
-		    'Scan for EPROCESS objects',
-		    psscan),
     'thrdscan':
             VolatoolsModule('thrdscan',
 		    'Scan for ETHREAD objects',

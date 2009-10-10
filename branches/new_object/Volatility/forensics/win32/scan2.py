@@ -41,7 +41,7 @@ from forensics.win32.datetime import read_time_buf
 from forensics.win32.tasks import BLOCKSIZE
 from forensics.win32.network import inet_ntoa, ntohs
 import forensics.win32.meta_info as meta_info
-
+import forensics.debug as debug
 
 class BaseMemoryScanner:
     """ This is the actual scanner class that will be instantiated
@@ -864,11 +864,10 @@ class PoolScanner(BaseScanner):
     pool_size = 0
     pool_tag = None
     
-    def __init__(self, pool_tag=None, window_size=8, chunksize = 0x1000, constraints=None):
+    def __init__(self, pool_tag=None, window_size=8, constraints=None):
         BaseScanner.__init__(self)
         self.buffer = BufferAddressSpace()
         self.window_size = window_size
-        self.chunksize = chunksize
         self.pool_tag = self.pool_tag or pool_tag
         self.constraints = constraints or []
 
@@ -917,11 +916,18 @@ class PoolScanner(BaseScanner):
         type = self.get_pooltype(found)
         return type == 0 or (type % 2) == 1
 
-    def check_addr(self, found):
+    def check_addr(self, found, sufficient_positives):
         """ This calls all our constraints on the offset found and
         returns the number of contrainst that matched.
+
+        We shortcut the loop as soon as its obvious that there will
+        not be sufficient matches to fit the criteria. This allows for
+        an early exit and a speed boostup.
         """
         cnt = 0
+        ## Work out how many rejections we can tolerate:
+        number_of_possible_rejections = len(self.constraints) - sufficient_positives
+
         for func in self.constraints:
             ## constraints can raise for an error
             try:
@@ -929,9 +935,13 @@ class PoolScanner(BaseScanner):
             except Exception:
                 continue
             
-            if val == True:
+            if not val:
                 cnt = cnt+1
-        return cnt
+
+            if cnt > number_of_possible_rejections:
+                return False
+            
+        return True
 
     def add_constraint(self, func):
         self.constraints.append(func)
@@ -961,10 +971,42 @@ class PoolScanner(BaseScanner):
             ## Find all occurances of the pool tag in this buffer and
             ## check them:
             for found in self.pool_tag_find(self.pool_tag):
-                match_count = self.check_addr(found)
-                if match_count >= climit:
+                if self.check_addr(found, climit):
                     ## yield the offset to the start of the memory
                     ## (after the pool tag)
                     yield found + len(self.pool_tag)
+
+            self.base_offset += len(data)
+
+class ThoroughScan(PoolScanner):
+    """ A more thorough scanner which checks every byte """
+    def __init__(self, window_size=8, constraints=None):
+        BaseScanner.__init__(self)
+        self.buffer = BufferAddressSpace()
+        self.window_size = window_size
+        self.constraints = constraints or []
+
+    def scan(self, address_space):
+        self.base_offset = 0x01343780
+        ## Work out how many matches are needed
+        climit = self.climit or len(self.constraints)
+        while 1:
+            print hex(self.base_offset), hex(BLOCKSIZE)
+            data = address_space.read(self.base_offset, BLOCKSIZE)
+            if not data: break
+            
+            self.buffer.assign_buffer(data, self.base_offset)
+
+            ## Find all occurances of the pool tag in this buffer and
+            ## check them:
+            for i in range(len(data)):
+                if i % 0x1000 == 0:
+                    print hex(i+self.base_offset)
+                #if i+self.base_offset == 0x00558e80:
+                #    debug.b()
+                if self.check_addr(i, climit):
+                    ## yield the offset to the start of the memory
+                    ## (after the pool tag)
+                    yield i + self.base_offset
 
             self.base_offset += len(data)

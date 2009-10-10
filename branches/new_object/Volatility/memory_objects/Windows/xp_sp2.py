@@ -151,6 +151,9 @@ class WinTimeStamp(object2.NativeType):
         value = self.as_windows_timestamp()
         return self.windows_to_unix_time(value)
 
+    def __nonzero__(self):
+        return self.v() != 0
+
     def __sub__(self, x):
         return WinTimeStamp(value = self.as_windows_timestamp() - x.as_windows_timestamp())
 

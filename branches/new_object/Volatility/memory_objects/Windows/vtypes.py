@@ -661,7 +661,8 @@ xpsp2types = { \
 # fixups and improvements to the standard types.
 xpsp2overlays = {
     '_EPROCESS' : [ None, { \
-    'CreateTime' : [ None, ['WinTimeStamp', {}]], 
+    'CreateTime' : [ None, ['WinTimeStamp', {}]],
+    'ExitTime' : [ None, ['WinTimeStamp', {}]], 
     'InheritedFromUniqueProcessId' : [ None, ['unsigned int']],
     'ImageFileName' : [ None, ['String', dict(length=16)]],
     'UniqueProcessId' : [ None, ['unsigned int']], \
