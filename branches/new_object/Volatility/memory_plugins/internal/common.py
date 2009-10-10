@@ -39,8 +39,10 @@ class CheckPoolSize(ScannerCheck):
 
 class CheckPoolType(ScannerCheck):
     """ Check the pool type """
-    def __init__(self, address_space, non_paged = True, free = True, **kwargs):
+    def __init__(self, address_space, paged = False,
+                 non_paged = False, free = False, **kwargs):
         self.non_paged = non_paged
+        self.paged = paged
         self.free = free
         self.address_space = address_space
 
@@ -54,6 +56,9 @@ class CheckPoolType(ScannerCheck):
             return True
 
         if self.free and type == 0:
+            return True
+
+        if self.paged and (type % 2) == 0 and type > 0:
             return True
 
 class CheckPoolIndex(ScannerCheck):

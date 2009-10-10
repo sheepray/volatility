@@ -26,27 +26,25 @@
 
 #pylint: disable-msg=C0111
 
-from forensics.win32.scan2 import PoolScanner
+from forensics.win32.scan2 import PoolScanner, ScannerCheck
 import forensics
 config = forensics.conf.ConfObject()
 import forensics.utils as utils
 from forensics.object2 import NewObject
 
-class PoolScanHiveFast2(PoolScanner):
-    pool_size = 0x4a8
-    pool_tag = "CM10"
-    
-    def __init__(self):
-        PoolScanner.__init__(self)
-        self.add_constraint(self.check_blocksize_equal)
-        self.add_constraint(self.check_pagedpooltype)
-        #self.add_constraint(self.check_poolindex)
-        self.add_constraint(self.check_hive_sig)
-
-    def check_hive_sig(self, found):
-        sig = NewObject('_HHIVE', vm=self.buffer, offset=found+4).Signature.v()
+class CheckHiveSig(ScannerCheck):
+    """ Check for a registry hive signature """
+    def check(self, offset):
+        sig = NewObject('_HHIVE', vm=self.address_space, offset=offset + 4).Signature
         return sig == 0xbee0bee0
 
+class PoolScanHiveFast2(PoolScanner):
+    checks = [ ('PoolTagCheck', dict(tag = "CM10")),
+               ('CheckPoolSize', dict(condition = lambda x: x==0x4a8)),
+               ('CheckPoolType', dict(paged = True)),
+               ('CheckHiveSig', {})
+               ]
+    
 class hivescan(forensics.commands.command):
     """ Scan Physical memory for _CMHIVE objects (registry hives)
 

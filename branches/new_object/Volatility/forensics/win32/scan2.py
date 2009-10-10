@@ -853,141 +853,13 @@ class PoolScanThreadFast2(GenMemScanObject):
 from forensics.addrspace import BufferAddressSpace
 
 class BaseScanner:
-    def __init__(self):
-        self.constraints = []
-        self.climit = None
-        
-    def scan(self, address_space):
-        """ This is a generator called to scan the AS. """
-        yield NoneObject("No objects found")
-
-class PoolScanner(BaseScanner):
-    climit = None
-    pool_size = 0
-    pool_tag = None
-    
-    def __init__(self, pool_tag=None, window_size=8, constraints=None):
-        BaseScanner.__init__(self)
-        self.buffer = BufferAddressSpace()
-        self.window_size = window_size
-        self.pool_tag = self.pool_tag or pool_tag
-        self.constraints = constraints or []
-        ## Work out how many rejections we can tolerate:
-        self.error_count = 0
-
-    def object_offset(self, found):
-        """ This returns the offset of the object contained within
-        this pool allocation.
-        """
-        obj = NewObject('_POOL_HEADER', vm=self.buffer, offset=found-4)
-        return obj.offset + obj.size()
-    
-    def get_blocksize(self, found):
-        pool_hdr_val = NewObject('_POOL_HEADER', vm=self.buffer,
-                                 offset = found - 4)
-
-        return pool_hdr_val.BlockSize.v()
-
-    def check_blocksize_equal(self, found):
-        return self.get_blocksize(found) * 8 == self.pool_size
-
-    def check_blocksize_geq(self, found):
-        return self.get_blocksize(found) * 8 >= self.pool_size
-
-    def get_pooltype(self, found):
-        pool_hdr = NewObject('_POOL_HEADER', vm=self.buffer,
-                             offset = found - 4)
-        
-        return pool_hdr.PoolType.v()
-
-    def check_pagedpooltype(self, found):
-        return (self.get_pooltype(found) % 2) == 0
-
-    def check_poolindex_zero(self, found):
-        """ Checks that the pool index is zero """
-        pool_hdr = NewObject('_POOL_HEADER', vm=self.buffer,
-                             offset = found - 4)
-        
-        return pool_hdr.PoolIndex.v() == 0
-
-    def check_pooltype_nonpaged(self, found):
-        """ Returns true if pool is free or non paged """
-        type = self.get_pooltype(found)
-        return type > 0 and (type % 2) == 1
-
-    def check_pooltype_nonpaged_or_free(self, found):
-        """ Returns true if pool is free or non paged """
-        type = self.get_pooltype(found)
-        return type == 0 or (type % 2) == 1
-
-    def check_addr(self, found):
-        """ This calls all our constraints on the offset found and
-        returns the number of contrainst that matched.
-
-        We shortcut the loop as soon as its obvious that there will
-        not be sufficient matches to fit the criteria. This allows for
-        an early exit and a speed boostup.
-        """
-        cnt = 0
-        for func in self.constraints:
-            ## constraints can raise for an error
-            try:
-                val = func(found)
-            except Exception:
-                debug.b()
-                val = False
-            
-            if not val:
-                cnt = cnt+1
-
-            if cnt > self.error_count:
-                return False
-            
-        return True
-
-    def add_constraint(self, func):
-        self.constraints.append(func)
-
-    def pool_tag_find(self, tag):
-        """ An iterator over the current buffer for all tags - returns
-        AS offsets.
-        """
-        found = 0
-        while 1:
-            found = self.buffer.data.find(tag, found+1)
-            if found==-1: return
-            
-            yield found + self.base_offset
-
-    def scan(self, address_space):
-        self.base_offset = 0
-        ## Work out how many matches are needed
-        climit = self.climit or len(self.constraints)
-        found = 0
-        while 1:
-            data = address_space.read(self.base_offset, BLOCKSIZE)
-            if not data: break
-            
-            self.buffer.assign_buffer(data, self.base_offset)
-
-            ## Find all occurances of the pool tag in this buffer and
-            ## check them:
-            for found in self.pool_tag_find(self.pool_tag):
-                if self.check_addr(found):
-                    ## yield the offset to the start of the memory
-                    ## (after the pool tag)
-                    yield found + len(self.pool_tag)
-
-            self.base_offset += len(data)
-
-class ThoroughScan(BaseScanner):
     """ A more thorough scanner which checks every byte """
     checks = []
     def __init__(self, window_size=8):
-        BaseScanner.__init__(self)
         self.buffer = BufferAddressSpace(data='\x00'*1024)
         self.window_size = window_size
-
+        self.constraints = []
+        
         ## Build our constraints from the specified ScannerCheck
         ## classes:
         for class_name, args in self.checks:
@@ -1039,18 +911,17 @@ class ThoroughScan(BaseScanner):
                     ## (after the pool tag)
                     yield i + self.base_offset
 
-                ## Where should we go next? By default we go 8 byte
+                ## Where should we go next? By default we go 1 byte
                 ## ahead, but if some of the checkers have skippers,
-                ## we may actually go much farther. Checker with
+                ## we may actually go much farther. Checkers with
                 ## skippers basically tell us that there is no way
                 ## they can match anything before the skipped result,
-                ## so there is no point in trying. This optimization
-                ## is useful to really speed things up. FIXME -
-                ## currently skippers assume that the check must
-                ## match, therefore we can skip the unmatchable
-                ## region, but its possible that a scanner needs to
-                ## match only some checkers and this is not
-                ## implemented now.
+                ## so there is no point in trying them on all the data
+                ## in between. This optimization is useful to really
+                ## speed things up. FIXME - currently skippers assume
+                ## that the check must match, therefore we can skip
+                ## the unmatchable region, but its possible that a
+                ## scanner needs to match only some checkers.
                 skip = 1
                 for s in skippers:
                     skip = max(skip, s.skip(data, i))
@@ -1077,11 +948,15 @@ class ScannerCheck:
     def check(self, offset):
         return False
 
-    ## If you want to speed up the 
+    ## If you want to speed up the scanning define this method - it
+    ## will be used to skip the data which is obviously not going to
+    ## match. You will need to return the number of bytes from offset
+    ## to skip to. We take the maximum number of bytes to guarantee
+    ## that all checks have a chance of passing.
     #def skip(self, data, offset):
     #    return -1
 
-class PoolScanner(ThoroughScan):
+class PoolScanner(BaseScanner):
     ## These are the objects that follow the pool tags
     preamble = [ '_POOL_HEADER', ]
     
@@ -1092,5 +967,5 @@ class PoolScanner(ThoroughScan):
         return found + sum([self.buffer.profile.get_obj_size(c) for c in self.preamble]) - 4
 
     def scan(self, address_space):
-        for i in ThoroughScan.scan(self, address_space):
+        for i in BaseScanner.scan(self, address_space):
             yield self.object_offset(i)

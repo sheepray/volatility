@@ -37,7 +37,7 @@ from forensics.object2 import NewObject
 import forensics.debug as debug
 
 class PoolScanModuleFast2(PoolScanner):
-    preamble = ['_POOL_HEADER', '_OBJECT_HEADER' ]
+    preamble = ['_POOL_HEADER', ]
 
     checks = [ ('PoolTagCheck', dict(tag = 'MmLd')),
                ('CheckPoolSize', dict(condition = lambda x: x > 0x4c)),

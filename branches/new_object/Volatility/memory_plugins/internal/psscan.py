@@ -28,7 +28,7 @@ This module implements the slow thorough process scanning
 
 #pylint: disable-msg=C0111
 
-from forensics.win32.scan2 import ThoroughScan, ScannerCheck
+from forensics.win32.scan2 import BaseScanner, ScannerCheck
 import forensics.commands
 import time
 import forensics.conf
@@ -105,7 +105,7 @@ class CheckSynchronization(ScannerCheck):
         if event.Size == 0x4 and event.Type == 0x1:
             return True
 
-class PSScan(ThoroughScan):
+class PSScan(BaseScanner):
     """ This scanner carves things that look like _EPROCESS structures.
 
     Since the _EPROCESS does not need to be linked to the process
