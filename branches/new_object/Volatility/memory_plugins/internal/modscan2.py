@@ -28,29 +28,28 @@ This module implements the fast module scanning
 
 #pylint: disable-msg=C0111
 
-from forensics.win32.scan2 import PoolScanner
+from forensics.win32.scan2 import PoolScanner, ScannerCheck
 import forensics.commands
 import forensics.conf
 config = forensics.conf.ConfObject()
 import forensics.utils as utils
 from forensics.object2 import NewObject
+import forensics.debug as debug
 
 class PoolScanModuleFast2(PoolScanner):
-    pool_size = 0x4c
-    pool_tag = "MmLd"
-    
-    def __init__(self):
-        PoolScanner.__init__(self)
-        self.add_constraint(self.check_blocksize_geq)
-        self.add_constraint(self.check_pooltype_nonpaged_or_free)
-        self.add_constraint(self.check_poolindex_zero)
+    preamble = ['_POOL_HEADER', '_OBJECT_HEADER' ]
+
+    checks = [ ('PoolTagCheck', dict(tag = 'MmLd')),
+               ('CheckPoolSize', dict(condition = lambda x: x > 0x4c)),
+               ('CheckPoolType', dict(non_paged = True, free = True)),
+               ('CheckPoolIndex', dict(value = 0)),
+               ]
 
 class modscan2(forensics.commands.command):
     """ Scan Physical memory for _TCPT_OBJECT objects (tcp connections)
     """
 
-    # Declare meta information associated with this plugin
-    
+    # Declare meta information associated with this plugin    
     meta_info = dict(
         author = 'Brendan Dolan-Gavitt',
         copyright = 'Copyright (c) 2007,2008 Brendan Dolan-Gavitt',
@@ -77,8 +76,9 @@ class modscan2(forensics.commands.command):
         self.kernel_address_space = utils.load_as()
         
         print "%-50s %-12s %-8s %s \n" % ('File', 'Base', 'Size', 'Name')
-        
-        for offset in PoolScanModuleFast2().scan(address_space):
+
+        scanner = PoolScanModuleFast2()
+        for offset in scanner.scan(address_space):
             ldr_entry = NewObject('_LDR_DATA_TABLE_ENTRY', vm=address_space,
                                   offset = offset)
 
@@ -88,64 +88,61 @@ class modscan2(forensics.commands.command):
                    ldr_entry.SizeOfImage,
                    self.parse_string(ldr_entry.BaseDllName))
 
-class PoolScanThreadFast2(PoolScanner):
-    pool_tag = "\x54\x68\x72\xE5"
-    pool_size = 0x278
-    
-    ## Kernel address range
+class CheckThreads(ScannerCheck):
+    """ Check sanity of _ETHREAD """
     kernel = 0x80000000
-    thread = None
     
-    def __init__(self):
-        PoolScanner.__init__(self)
-        self.add_constraint(self.check_blocksize_geq)
-        self.add_constraint(self.check_pooltype_nonpaged_or_free)
-        self.add_constraint(self.check_poolindex_zero)
-        self.add_constraint(self.check_threads_process)
-        self.add_constraint(self.check_start_address)
-        self.add_constraint(self.check_semaphores)
-
-    def object_offset(self, found):
-        offset = PoolScanner.object_offset(self, found)        
-        extra = self.buffer.profile.get_obj_offset("_OBJECT_HEADER", "Body")
+    def check(self, found):
+        start_of_object = self.address_space.profile.get_obj_size("_POOL_HEADER") +\
+                          self.address_space.profile.get_obj_size("_OBJECT_HEADER") - 4
         
-        return extra + offset
+        thread = NewObject('_ETHREAD', vm=self.address_space,
+                           offset=found + start_of_object)
 
-    def check_threads_process(self, found):
-        self.thread = NewObject('_ETHREAD', vm=self.buffer,
-                           offset=self.object_offset(found))
-
-        return self.thread.Cid.UniqueProcess.v()==0 or \
-               self.thread.ThreadsProcess.v() > self.kernel
-
-    def check_start_address(self, found):
-        return self.thread.Cid.UniqueProcess.v() == 0 or \
-               self.thread.StartAddress != 0
-
-    def check_semaphores(self, found):
-        if self.thread.Tcb.SuspendSemaphore.Header.Size.v() != 0x05 and \
-           self.thread.Tcb.SuspendSemaphore.Header.Size.v() != 0x05:
+        if thread.Cid.UniqueProcess.v()!=0 and \
+           thread.ThreadsProcess.v() <= self.kernel:
             return False
 
-        if self.thread.LpcReplySemaphore.Header.Size.v() != 5 and \
-           self.thread.LpcReplySemaphore.Header.Type.v() != 5:
+        ## check the start address
+        if thread.Cid.UniqueProcess.v() != 0 and \
+           thread.StartAddress == 0:
             return False
 
+        ## Check the Semaphores
+        if thread.Tcb.SuspendSemaphore.Header.Size != 0x05 and \
+               thread.Tcb.SuspendSemaphore.Header.Size != 0x05:
+            return False
+        
+        if thread.LpcReplySemaphore.Header.Size != 5 and \
+               thread.LpcReplySemaphore.Header.Type != 5:
+            return False
+        
         return True
+
+class PoolScanThreadFast2(PoolScanner):
+    """ Carve out threat objects using the pool tag """
+    preamble = ['_POOL_HEADER', '_OBJECT_HEADER' ]
+
+    checks = [ ('PoolTagCheck', dict(tag = '\x54\x68\x72\xe5')),
+               ('CheckPoolSize', dict(condition = lambda x: x >= 0x278)),
+               ('CheckPoolType', dict(non_paged = True, free = True)),
+               ('CheckPoolIndex', dict(value = 0)),
+               ('CheckThreads', {} ),
+               ]
 
 class thrdscan2(modscan2):
     def execute(self):
         ## Here we scan the physical address space
         address_space = utils.load_as(astype = 'physical')
 
-        ## We need the kernel_address_space later
-        self.kernel_address_space = utils.load_as()
-        
         print "No.  PID    TID    Offset    \n"+ \
               "---- ------ ------ ----------\n"
 
         scanner = PoolScanThreadFast2()
-        for _offset in scanner.scan(address_space):
-            print "%6d %6d 0x%0.8x" % (scanner.thread.Cid.UniqueProcess,
-                                       scanner.thread.Cid.UniqueThread,
-                                       scanner.thread.offset)
+        for found in scanner.scan(address_space):
+            thread = NewObject('_ETHREAD', vm=address_space,
+                               offset=found)
+            
+            print "%6d %6d 0x%0.8x" % (thread.Cid.UniqueProcess,
+                                       thread.Cid.UniqueThread,
+                                       thread.offset)

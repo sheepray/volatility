@@ -62,16 +62,17 @@ class BaseAddressSpace:
 
     def is_valid_address(self, addr):
         """ Tell us if the address is valid """
-
+        return True
+    
 ## This is a specialised AS for use internally - Its used to provide
 ## transparent support for a string buffer so types can be
 ## instantiated off the buffer.
 class BufferAddressSpace(BaseAddressSpace):
-    def __init__(self, **kwargs):
+    def __init__(self, base_offset = 0, data = '', **kwargs):
         BaseAddressSpace.__init__(self, None, **kwargs)
         self.fname = "Buffer"
-        self.data = ''
-        self.base_offset = 0
+        self.data = data
+        self.base_offset = base_offset
 
     def assign_buffer(self, data, base_offset=0):
         self.base_offset = base_offset
@@ -83,10 +84,9 @@ class BufferAddressSpace(BaseAddressSpace):
 
         return True
         
-    def read(self, addr, len):
+    def read(self, addr, length):
         offset = addr - self.base_offset
-        
-        return self.data[offset: offset+len]
+        return self.data[offset: offset+length]
         
 ## Maintained for backward compatibility do not use in new code
 class FileAddressSpace:

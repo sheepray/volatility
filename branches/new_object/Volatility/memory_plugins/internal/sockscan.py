@@ -28,30 +28,36 @@ This module implements the fast socket scanning
 
 #pylint: disable-msg=C0111
 
-from forensics.win32.scan2 import PoolScanner
+from forensics.win32.scan2 import PoolScanner, ScannerCheck
 import forensics.commands
 import forensics.conf
 config = forensics.conf.ConfObject()
 import forensics.utils as utils
 from forensics.object2 import NewObject
+import forensics.debug as debug
+
+class CheckSocketCreateTime(ScannerCheck):
+    """ Check that _ADDRESS_OBJECT.CreateTime makes sense """
+    def __init__(self, address_space, condition = lambda x: x, **kwargs):
+        self.condition  = condition
+        self.address_space = address_space
+
+    def check(self, offset):
+        start_of_object = self.address_space.profile.get_obj_size("_POOL_HEADER") - 4
+        address_obj = NewObject('_ADDRESS_OBJECT', vm=self.address_space,
+                                offset=offset + start_of_object)
+
+        return self.condition(address_obj.CreateTime.v())
 
 class PoolScanSockFast2(PoolScanner):
-    pool_size = 0x170
-    pool_tag = "TCPA"
+    checks = [ ('PoolTagCheck', dict(tag = "TCPA")),
+               ('CheckPoolSize', dict(condition = lambda x: x == 0x170)),
+               ('CheckPoolType', dict(non_paged = True, free = True)),
+               ## Valid sockets have time > 0
+               ('CheckSocketCreateTime', dict(condition = lambda x: x > 0)),
+               ('CheckPoolIndex', dict(value = 0))
+               ]
     
-    def __init__(self):
-        PoolScanner.__init__(self)
-        self.add_constraint(self.check_blocksize_equal)
-        self.add_constraint(self.check_pooltype_nonpaged_or_free)
-        self.add_constraint(self.check_socket_create_time)
-        self.add_constraint(self.check_poolindex_zero)
-
-    def check_socket_create_time(self, found):
-        soffset = self.object_offset(found)
-        address_obj = NewObject('_ADDRESS_OBJECT', vm=self.buffer, offset=soffset)
-        
-        return address_obj.CreateTime.v() > 0
-
 class sockscan2(forensics.commands.command):
     """ Scan Physical memory for _ADDRESS_OBJECT objects (tcp sockets)
     """
@@ -75,8 +81,11 @@ class sockscan2(forensics.commands.command):
         print "PID    Port   Proto  Create Time                Offset \n"+ \
               "------ ------ ------ -------------------------- ----------\n"
 
-        for offset in PoolScanSockFast2().scan(address_space):
-            sock_obj = NewObject('_ADDRESS_OBJECT', vm=address_space, offset=offset)
+        scanner = PoolScanSockFast2()
+        for offset in scanner.scan(address_space):
+            sock_obj = NewObject('_ADDRESS_OBJECT', vm=address_space,
+                                 offset=offset)
+            
             print "%-6d %-6d %-6d %-26s 0x%0.8x" % (sock_obj.Pid, sock_obj.LocalPort,
                                                     sock_obj.Protocol, \
                                                     sock_obj.CreateTime, sock_obj.offset)

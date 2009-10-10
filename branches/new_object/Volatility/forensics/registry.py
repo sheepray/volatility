@@ -313,7 +313,7 @@ PLUGIN_COMMANDS = None
 OBJECT_CLASSES = None
 AS_CLASSES = None
 PROFILES = None
-
+SCANNER_CHECKS = None
 
 ## This is required for late initialization to avoid dependency nightmare.
 def Init():
@@ -341,6 +341,10 @@ def Init():
     global PROFILES
     PROFILES = VolatilityObjectRegistry(object2.Profile)
 
+    import forensics.win32.scan2 as scan2
+    global SCANNER_CHECKS
+    SCANNER_CHECKS = VolatilityObjectRegistry(scan2.ScannerCheck)
+    
     if config.INFO:
         print_info()
         sys.exit(0)

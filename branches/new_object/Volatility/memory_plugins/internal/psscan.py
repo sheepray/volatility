@@ -28,71 +28,95 @@ This module implements the slow thorough process scanning
 
 #pylint: disable-msg=C0111
 
-from forensics.win32.scan2 import ThoroughScan
+from forensics.win32.scan2 import ThoroughScan, ScannerCheck
 import forensics.commands
+import time
 import forensics.conf
 config = forensics.conf.ConfObject()
 import forensics.utils as utils
 from forensics.object2 import NewObject
 import forensics.debug as debug
 
-class PSScan(ThoroughScan):
-    def __init__(self):
-        ThoroughScan.__init__(self)
-        self.add_constraint(self.check_dispatch_header_fast)
-        self.add_constraint(self.check_dispatch_header)
-        self.add_constraint(self.check_dtb_aligned)
-        self.add_constraint(self.check_thread_list)
-        self.add_constraint(self.check_synchronization)
+class DispatchHeaderCheck(ScannerCheck):
+    """ A very fast check for an _EPROCESS.Pcb.Header.
 
-    def check_dispatch_header_fast(self, offset):
-        """ A Real fast first level checker for _EPROCESS process
-        headers
-        """
-        ## We need to determine the offsets of the headers
+    This check assumes that the type and size of
+    _EPROCESS.Pcb.Header are unsigned chars, but allows their
+    offsets to be determined from vtypes (so they could change
+    between OS versions).
+    """
+    order = 10
+    
+    def __init__(self, address_space, **kwargs):
+        ## Because this checks needs to be super fast we first
+        ## instantiate the _EPROCESS and work out the offsets of the
+        ## type and size members. Then in the check we just read those
+        ## offsets directly.
+        eprocess = NewObject("_EPROCESS", vm=address_space, offset=0)
+        self.type = eprocess.Pcb.Header.Type
+        self.size = eprocess.Pcb.Header.Size
+        self.buffer_size = max(self.size.offset, self.type.offset) + 2
+        ScannerCheck.__init__(self, address_space)
+
+    def check(self, offset):
+        data = self.address_space.read(offset + self.type.offset, self.buffer_size)
+        return data[self.type.offset] == "\x03" and data[self.size.offset] == "\x1b"
+
+    def skip(self, data, offset):
         try:
-            header = self.buffer.read(self.base_offset + offset + self.header_offset,
-                                      4)
-            if header[0] != "\x03" or header[2] != '\x1b':
-                return False
+            next = data.index("\x03", offset+1)
+            return next - self.type.offset - offset
+        except ValueError:
+            ## Substring is not found - skip to the end of this data buffer
+            return len(data) - offset
 
-        except AttributeError:
-            eprocess = NewObject('_EPROCESS', vm=self.buffer,
-                                 offset = self.base_offset)
-            
-            self.header_offset = eprocess.Pcb.Header.offset - eprocess.offset
-
-        return True
-
-    def check_dispatch_header(self, offset):
-        self.eprocess = NewObject('_EPROCESS', vm=self.buffer,
-                                  offset = self.base_offset + offset)
+class CheckDTBAligned(ScannerCheck):
+    """ Checks that _EPROCESS.Pcb.DirectoryTableBase is aligned to 0x20 """
+    def check(self, offset):
+        eprocess = NewObject("_EPROCESS", vm=self.address_space,
+                             offset = offset)
         
-        header = self.eprocess.Pcb.Header
-        return header.Type == 0x03 and \
-                   header.Size == 0x1b
-        
-    def check_dtb_aligned(self, offset):
-        dtb_offset = self.eprocess.Pcb.DirectoryTableBase[0].v()
-        if dtb_offset % 0x20 == 0:
-            return True
+        return eprocess.Pcb.DirectoryTableBase[0].v() % 0x20 == 0
 
-    def check_thread_list(self, offset):
+class CheckThreadList(ScannerCheck):
+    """ Checks that _EPROCESS thread list points to the kernel Address Space """
+    def check(self, offset):
+        eprocess = NewObject("_EPROCESS", vm=self.address_space,
+                             offset = offset)
         kernel = 0x80000000
-        list_head = self.eprocess.ThreadListHead
+        
+        list_head = eprocess.ThreadListHead
 
         if list_head.Flink.v() > kernel and \
-           list_head.Blink > kernel:
+               list_head.Blink > kernel:
             return True
 
-    def check_synchronization(self, offset):
-        event = self.eprocess.WorkingSetLock.Event.Header
+class CheckSynchronization(ScannerCheck):
+    """ Checks that _EPROCESS.WorkingSetLock and _EPROCESS.AddressCreationLock look valid """
+    def check(self, offset):
+        eprocess = NewObject("_EPROCESS", vm=self.address_space,
+                             offset = offset)
+        
+        event = eprocess.WorkingSetLock.Event.Header
         if event.Type != 0x1 or event.Size != 0x4:
             return False
 
-        event = self.eprocess.AddressCreationLock.Event.Header
+        event = eprocess.AddressCreationLock.Event.Header
         if event.Size == 0x4 and event.Type == 0x1:
             return True
+
+class PSScan(ThoroughScan):
+    """ This scanner carves things that look like _EPROCESS structures.
+
+    Since the _EPROCESS does not need to be linked to the process
+    list, this scanner is useful to recover terminated or cloaked
+    processes.
+    """
+    checks = [ ("DispatchHeaderCheck", {}),
+               ("CheckDTBAligned", {}),
+               ("CheckThreadList", {}),
+               ("CheckSynchronization", {})
+               ]
         
 class psscan(forensics.commands.command):
     """ Scan Physical memory for _ADDRESS_OBJECT objects (tcp sockets)
@@ -113,14 +137,14 @@ class psscan(forensics.commands.command):
     def execute(self):
         ## Just grab the AS and scan it using our scanner
         address_space = utils.load_as(astype = 'physical')
-
-        cnt = 0
+        start = time.time()
         print  "No.  PID    PPID   Time created             Time exited              Offset     PDB        Remarks\n"+ \
               "---- ------ ------ ------------------------ ------------------------ ---------- ---------- ----------------\n"
         
         for offset in PSScan().scan(address_space):
             eprocess = NewObject('_EPROCESS', vm=address_space, offset=offset)
-            cnt += 1
+            cnt = time.time() - start
+
             print "%4d %6d %6d %24s %24s 0x%0.8x 0x%0.8x %-16s" % (
                 cnt,
                 eprocess.UniqueProcessId,

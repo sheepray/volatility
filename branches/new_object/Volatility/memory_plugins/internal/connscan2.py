@@ -28,28 +28,23 @@ This module implements the fast connection scanning
 
 #pylint: disable-msg=C0111
 
-from forensics.win32.scan2 import PoolScanner
+from forensics.win32.scan2 import PoolScanner, ScannerCheck
 import forensics.conf
 config = forensics.conf.ConfObject()
 import forensics.utils as utils
 from forensics.object2 import NewObject
+import forensics.debug as debug
 
 class PoolScanConnFast2(PoolScanner):
-    pool_size = 0x198
-    pool_tag = "TCPT"
-    
-    def __init__(self):
-        PoolScanner.__init__(self)
-        self.add_constraint(self.check_blocksize_geq)
-        self.add_constraint(self.check_pooltype_nonpaged_or_free)
-        self.add_constraint(self.check_poolindex_zero)
+    checks = [ ('PoolTagCheck', dict(tag = "TCPT")),
+               ('CheckPoolSize', dict(condition = lambda x: x >= 0x198)),
+               ('CheckPoolType', dict(non_paged=True, free=True)),
+               ('CheckPoolIndex', dict(value = 0)),
+               ]
 
 class connscan2(forensics.commands.command):
     """ Scan Physical memory for _TCPT_OBJECT objects (tcp connections)
     """
-
-    # Declare meta information associated with this plugin
-    
     meta_info = dict(
         author = 'Brendan Dolan-Gavitt',
         copyright = 'Copyright (c) 2007,2008 Brendan Dolan-Gavitt',
@@ -67,8 +62,13 @@ class connscan2(forensics.commands.command):
         print "Local Address             Remote Address            Pid   \n"+ \
               "------------------------- ------------------------- ------ \n"
 
-        for offset in PoolScanConnFast2().scan(address_space):
-            tcp_obj = NewObject('_TCPT_OBJECT', vm=address_space, offset=offset)
+        ## We make a new scanner
+        scanner = PoolScanConnFast2()
+        for offset in scanner.scan(address_space):
+            ## This yields the pool offsets - we want the actual object
+            tcp_obj = NewObject('_TCPT_OBJECT', vm=address_space,
+                                offset=offset)
+            
             local = "%s:%s" % (tcp_obj.LocalIpAddress, tcp_obj.LocalPort)
             remote = "%s:%s" % (tcp_obj.RemoteIpAddress, tcp_obj.RemotePort)
             print "%-25s %-25s %-6d" % (local, remote, tcp_obj.Pid)

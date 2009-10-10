@@ -38,10 +38,12 @@ from time import gmtime, strftime
 #from forensics.object import read_obj_from_buf, read_string, obj_size, get_obj_offset
 from forensics.object2 import NewObject, NoneObject
 from forensics.win32.datetime import read_time_buf
-from forensics.win32.tasks import BLOCKSIZE
 from forensics.win32.network import inet_ntoa, ntohs
 import forensics.win32.meta_info as meta_info
 import forensics.debug as debug
+import forensics.registry as registry
+
+BLOCKSIZE = 1024*1024*10
 
 class BaseMemoryScanner:
     """ This is the actual scanner class that will be instantiated
@@ -870,6 +872,8 @@ class PoolScanner(BaseScanner):
         self.window_size = window_size
         self.pool_tag = self.pool_tag or pool_tag
         self.constraints = constraints or []
+        ## Work out how many rejections we can tolerate:
+        self.error_count = 0
 
     def object_offset(self, found):
         """ This returns the offset of the object contained within
@@ -916,7 +920,7 @@ class PoolScanner(BaseScanner):
         type = self.get_pooltype(found)
         return type == 0 or (type % 2) == 1
 
-    def check_addr(self, found, sufficient_positives):
+    def check_addr(self, found):
         """ This calls all our constraints on the offset found and
         returns the number of contrainst that matched.
 
@@ -925,20 +929,18 @@ class PoolScanner(BaseScanner):
         an early exit and a speed boostup.
         """
         cnt = 0
-        ## Work out how many rejections we can tolerate:
-        number_of_possible_rejections = len(self.constraints) - sufficient_positives
-
         for func in self.constraints:
             ## constraints can raise for an error
             try:
                 val = func(found)
             except Exception:
-                continue
+                debug.b()
+                val = False
             
             if not val:
                 cnt = cnt+1
 
-            if cnt > number_of_possible_rejections:
+            if cnt > self.error_count:
                 return False
             
         return True
@@ -971,42 +973,124 @@ class PoolScanner(BaseScanner):
             ## Find all occurances of the pool tag in this buffer and
             ## check them:
             for found in self.pool_tag_find(self.pool_tag):
-                if self.check_addr(found, climit):
+                if self.check_addr(found):
                     ## yield the offset to the start of the memory
                     ## (after the pool tag)
                     yield found + len(self.pool_tag)
 
             self.base_offset += len(data)
 
-class ThoroughScan(PoolScanner):
+class ThoroughScan(BaseScanner):
     """ A more thorough scanner which checks every byte """
-    def __init__(self, window_size=8, constraints=None):
+    checks = []
+    def __init__(self, window_size=8):
         BaseScanner.__init__(self)
-        self.buffer = BufferAddressSpace()
+        self.buffer = BufferAddressSpace(data='\x00'*1024)
         self.window_size = window_size
-        self.constraints = constraints or []
+
+        ## Build our constraints from the specified ScannerCheck
+        ## classes:
+        for class_name, args in self.checks:
+            check = registry.SCANNER_CHECKS[class_name](self.buffer, **args)
+            self.constraints.append(check)
+            
+        self.error_count = 0
+
+    def check_addr(self, found):
+        """ This calls all our constraints on the offset found and
+        returns the number of contrainst that matched.
+
+        We shortcut the loop as soon as its obvious that there will
+        not be sufficient matches to fit the criteria. This allows for
+        an early exit and a speed boostup.
+        """
+        cnt = 0
+        for check in self.constraints:
+            ## constraints can raise for an error
+            try:
+                val = check.check(found)
+            except Exception:
+                debug.b()
+                val = False
+            
+            if not val:
+                cnt = cnt+1
+
+            if cnt > self.error_count:
+                return False
+            
+        return True
 
     def scan(self, address_space):
-        self.base_offset = 0x01343780
-        ## Work out how many matches are needed
-        climit = self.climit or len(self.constraints)
+        self.base_offset = 0
+        ## Which checks also have skippers?
+        skippers = [ c for c in self.constraints if hasattr(c, "skip") ]
         while 1:
-            print hex(self.base_offset), hex(BLOCKSIZE)
             data = address_space.read(self.base_offset, BLOCKSIZE)
             if not data: break
             
             self.buffer.assign_buffer(data, self.base_offset)
-
+            i = 0
             ## Find all occurances of the pool tag in this buffer and
             ## check them:
-            for i in range(len(data)):
-                if i % 0x1000 == 0:
-                    print hex(i+self.base_offset)
-                #if i+self.base_offset == 0x00558e80:
-                #    debug.b()
-                if self.check_addr(i, climit):
+            while i < len(data):
+                if self.check_addr(i + self.base_offset):
                     ## yield the offset to the start of the memory
                     ## (after the pool tag)
                     yield i + self.base_offset
 
+                ## Where should we go next? By default we go 8 byte
+                ## ahead, but if some of the checkers have skippers,
+                ## we may actually go much farther. Checker with
+                ## skippers basically tell us that there is no way
+                ## they can match anything before the skipped result,
+                ## so there is no point in trying. This optimization
+                ## is useful to really speed things up. FIXME -
+                ## currently skippers assume that the check must
+                ## match, therefore we can skip the unmatchable
+                ## region, but its possible that a scanner needs to
+                ## match only some checkers and this is not
+                ## implemented now.
+                skip = 1
+                for s in skippers:
+                    skip = max(skip, s.skip(data, i))
+
+                i += skip
+
             self.base_offset += len(data)
+
+
+class ScannerCheck:
+    """ A scanner check is a special class which is invoked on an AS to check for a specific condition.
+
+    The main method is def check(self, offset):
+    This will return True if the condition is true or False otherwise.
+
+    This class is the base class for all checks.
+    """
+    def __init__(self, address_space, **kwargs):
+        self.address_space = address_space
+
+    def object_offset(self, offset):
+        return offset
+
+    def check(self, offset):
+        return False
+
+    ## If you want to speed up the 
+    #def skip(self, data, offset):
+    #    return -1
+
+class PoolScanner(ThoroughScan):
+    ## These are the objects that follow the pool tags
+    preamble = [ '_POOL_HEADER', ]
+    
+    def object_offset(self, found):
+        """ This returns the offset of the object contained within
+        this pool allocation.
+        """
+        return found + sum([self.buffer.profile.get_obj_size(c) for c in self.preamble]) - 4
+
+    def scan(self, address_space):
+        for i in ThoroughScan.scan(self, address_space):
+            yield self.object_offset(i)

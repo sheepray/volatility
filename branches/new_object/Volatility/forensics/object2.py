@@ -184,13 +184,14 @@ def NewObject(theType, offset, vm, parent=None, profile=None, name=None, **kwarg
 class Object(object):        
     def __init__(self, theType, offset, vm, parent=None, profile=None, name=None):
         self.vm = vm
-        self.members = {}
         self.parent = parent
-        self.extra_members = {}
         self.profile = profile or vm.profile
         self.offset = offset
         self.name = name
         self.theType = theType
+        
+    def rebase(self, offset):
+        return self.__class__(self.theType, offset, vm=self.vm)
 
     def __nonzero__(self):
         """ This method is called when we test the truth value of an
@@ -321,6 +322,9 @@ class NativeType(Object):
         Object.__init__(self, theType, offset, vm, parent=parent,
                         profile=profile, name=name)
         self.format_string = format_string
+
+    def rebase(self, offset):
+        return self.__class__(None, offset, self.vm, format_string=self.format_string)
 
     def size(self):
         return struct.calcsize(self.format_string)
