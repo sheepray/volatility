@@ -6,17 +6,22 @@ config.add_option("DEBUG", short_option='d', default = 0,
                   action = 'count',
                   help = "Debug volatility")
 
+import sys
 import pdb
 
 def debug(msg, level=1):
+    """Outputs a debugging message"""
     if config.DEBUG >= level:
         print msg
 
 def b():
-    pdb.set_trace()
+    """Enters the debugger at the call point"""
+    trace()
 
 def trace():
+    """Enters the debugger at the call point"""
     pdb.set_trace()
 
 def post_mortem():
+    """Provides a command line interface to python after an exception's occurred"""
     pdb.post_mortem(t = sys.exc_info()[2])
