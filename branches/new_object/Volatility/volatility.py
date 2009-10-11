@@ -44,9 +44,7 @@ import volatility.registry as MemoryRegistry
 import volatility.conf as conf
 config = conf.ConfObject()
 import volatility.object2 as object2
-
-config.add_option('DEBUG', short_option = 'd', action='count',
-                  help = 'Debug volatility', default=0)
+import volatility.debug as debug
 
 def list_plugins():
     result = "\n\tSupported Plugin Commands:\n\n"
@@ -98,7 +96,7 @@ def main():
     # Exceptionally useful for debugging/telling people what's going on
     sys.stderr.write( "Volatile Systems Volatility Framework %s\n" % volatility.version)
 
-    if sys.version_info < (2, 6, 0):
+    if sys.version_info < (2, 5, 0):
         sys.stderr.write("Volatiltiy requires python version 2.6, please upgrade your python installation.")
         sys.exit(1)
 
@@ -142,5 +140,4 @@ if __name__ == "__main__":
     except Exception, ex:
         print ex
         if config.DEBUG:
-            import pdb
-            pdb.post_mortem(t = sys.exc_info()[2])
+            debug.post_mortem()

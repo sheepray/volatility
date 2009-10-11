@@ -553,17 +553,11 @@ class JKIA32PagedMemoryPae(JKIA32PagedMemory):
         Returns True if addr maps to a valid location in physical,
         otherwise False.
         '''
-        if addr == None:
-            return False
-        try:    
-            phyaddr = self.vtop(addr)
-        except:
-            return False
-        if phyaddr == None:
-            return False
-        if not self.base.is_valid_address(phyaddr):
-            return False
-        return True
+        phyaddr = self.vtop(addr)
+        if phyaddr:
+            return self.base.is_valid_address(phyaddr)
+
+        return False
 
     def get_available_pages(self):
         '''

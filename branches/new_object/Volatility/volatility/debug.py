@@ -1,9 +1,10 @@
 """ General debugging framework """
-import forensics.conf
-config = forensics.conf.ConfObject()
-config.add_option("DEBUG", short_option='d', default = False,
-                  action = 'store_true',
-                  help = "Debug this build")
+import volatility.conf
+config = volatility.conf.ConfObject()
+
+config.add_option("DEBUG", short_option='d', default = 0,
+                  action = 'count',
+                  help = "Debug volatility")
 
 import pdb
 
@@ -16,3 +17,6 @@ def b():
 
 def trace():
     pdb.set_trace()
+
+def post_mortem():
+    pdb.post_mortem(t = sys.exc_info()[2])
