@@ -8,9 +8,8 @@ This page documents the things we want to accomplish in the 1.4 branch, so we ca
 = Details =
 
 TODO Items:
-  # Move Volatility into its own namespace, eg "volatility"
   # Examine performance/profiling and possibly develop C modules for some parts
-  # Fix up the installer (setup.py)
+  # Add in py2exe support to installer
   # Binary builds for some platforms (eg, Windows)?
   # Merge Linux branch into main
   # Documentation, documentation, documentation!
