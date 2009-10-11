@@ -36,6 +36,9 @@ import forensics.utils as utils
 from forensics.object2 import NewObject
 
 class PoolScanFile(PoolScanner):
+    ## We dont want any preamble - the offsets should be those of the
+    ## _POOL_HEADER directly.
+    preamble = []
     checks = [ ('PoolTagCheck', dict(tag = "Fil\xe5")),
                ('CheckPoolSize', dict(condition = lambda x: x >= 0x98)),
                ('CheckPoolType', dict(non_paged = True)),
@@ -73,18 +76,26 @@ class filescan2(forensics.commands.command):
         self.kernel_address_space = utils.load_as()
 
         for offset in PoolScanFile().scan(address_space):
-            ## We have 8 bytes are the POOL header (what are they?)
+            pool_obj = NewObject("_POOL_HEADER", vm=address_space,
+                                 offset = offset)
+            
+            ## We work out the _FILE_OBJECT from the end of the
+            ## allocation (bottom up).
+            file_obj = NewObject("_FILE_OBJECT", vm=address_space,
+                                 offset = offset + pool_obj.BlockSize * 8 - \
+                                 address_space.profile.get_obj_size("_FILE_OBJECT")
+                                 )
+
+            ## The _OBJECT_HEADER is immediately below the _FILE_OBJECT
             object_obj = NewObject("_OBJECT_HEADER", vm=address_space,
-                                   offset = offset + 8)
+                                   offset = file_obj.offset - \
+                                   address_space.profile.get_obj_size("_OBJECT_HEADER")
+                                   )
 
             ## Skip unallocated objects
-            if object_obj.Type == 0xbad0b0b0: continue
+            if object_obj.Type == 0xbad0b0b0:
+                continue
 
-            ## The file object is right after the object_obj
-            file_obj = NewObject("_FILE_OBJECT", vm=address_space,
-                                 offset = object_obj.offset + object_obj.size()
-                                 )
-            
             Name = self.parse_string(file_obj.FileName)
             ## If the string is not reachable we skip it
             if not Name: continue
