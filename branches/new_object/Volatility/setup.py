@@ -1,14 +1,47 @@
 #/usr/bin/env python
 
 from distutils.core import setup
-from distutils.extension import Extension
+import volatility
+import sys
 
-setup( name         = "Volatility",
-       version      = "GC1",
-       description  = "Volatility -- Volatile memory framwork",
-       author       = "AAron Walters",
-       author_email = "awalters@volatilesystems.com",  
-       url          = "http://www.volatilesystems.com",
-       license      = "GPL",
-       packages     = ["forensics", "forensics.win32","memory_plugins","memory_objects","memory_objects.Windows","thirdparty"],
-       )
+py2exe_available = True
+try:
+    import py2exe #pylint: disable-msg=W0611
+except ImportError:
+    py2exe_available = False
+
+opts = {}
+
+opts['name']         = "volatility"
+opts['version']      = volatility.version
+opts['description']  = "Volatility -- Volatile memory framwork"
+opts['author']       = "AAron Walters"
+opts['author_email'] = "awalters@volatilesystems.com"  
+opts['url']          = "http://www.volatilesystems.com"
+opts['license']      = "GPL"
+opts['packages']     = ["volatility", 
+                       "volatility.win32", 
+                       "volatility.linux", 
+                       "memory_plugins",
+                       "memory_plugins.address_spaces",
+                       "memory_plugins.internal",
+                       "memory_plugins.registry",
+                       "memory_objects",
+                       "memory_objects.Windows"]
+
+if py2exe_available:
+    py2exe_distdir = 'dist/py2exe'
+    opts['windows'] = [{ 'script': 'volatility.py',
+#                          'icon_resources': [(1, 'resources/py.ico')]
+                      }]
+    opts['options'] = {'py2exe':{'optimize': 2,
+                                 'includes': '',
+                                 'dist_dir': py2exe_distdir,
+                                }
+                      }
+
+distrib = setup(**opts)
+
+if 'py2exe' in sys.argv:
+    # Any py2exe specific files or things that need doing can go in here
+    pass
