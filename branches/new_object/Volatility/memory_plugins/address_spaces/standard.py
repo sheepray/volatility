@@ -4,6 +4,7 @@ import volatility.addrspace as addrspace
 import volatility.object2 as object2 
 import volatility.conf
 config = volatility.conf.ConfObject()
+import volatility.debug as debug
 
 #pylint: disable-msg=C0111
 
@@ -11,6 +12,9 @@ config = volatility.conf.ConfObject()
 config.add_option("FILENAME", default = None,
                   short_option = 'f',
                   help = "Filename to use when opening an image")
+
+config.add_option("USE-OLD-AS", action="store_true", default=False, 
+                  help = "Use the legacy address spaces")
 
 class FileAddressSpace(addrspace.BaseAddressSpace):
     """ This is a direct file AS.
@@ -90,13 +94,17 @@ config.add_option("DTB", type='int', default=0,
                   help = "DTB Address")
 
 class IA32PagedMemory(addrspace.BaseAddressSpace):
-    """ We accept an optional arg called dtb to force us to use a
+    """ Legacy x86 non PAE address space (to use specify --use_old_as)
+
+    We accept an optional arg called dtb to force us to use a
     specific dtb. If not provided, we try to find it from our base
     AS, and failing that we search for it.
     """
     order = 90
     pae = False
     def __init__(self, base, dtb=0, astype = None, **kwargs):
+        assert config.USE_OLD_AS, "Module disabled"
+        
         addrspace.BaseAddressSpace.__init__(self, base, **kwargs)
         assert astype != 'physical', "User requested physical AS"
         
@@ -320,6 +328,8 @@ class IA32PagedMemory(addrspace.BaseAddressSpace):
                         yield [start + j * 0x1000, 0x1000]
 
 class IA32PagedMemoryPae(IA32PagedMemory):
+    """ Legacy x86 PAE address space (to use specify --use_old_as)
+    """
     order = 80
     pae = True
     def __init__(self, base, **kwargs):

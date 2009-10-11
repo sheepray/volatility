@@ -124,7 +124,7 @@ def main():
     try:
         if module in MemoryRegistry.PLUGIN_COMMANDS.commands:
             command = MemoryRegistry.PLUGIN_COMMANDS[module](config.args[1:])
-
+            
             ## Register the help cb from the command itself
             config.set_help_hook(object2.Curry(command_help, command))            
             config.parse_options()
@@ -143,4 +143,4 @@ if __name__ == "__main__":
         print ex
         if config.DEBUG:
             import pdb
-            pdb.post_mortem()
+            pdb.post_mortem(t = sys.exc_info()[2])
