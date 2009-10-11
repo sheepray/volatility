@@ -29,9 +29,8 @@ This module implements the slow thorough process scanning
 #pylint: disable-msg=C0111
 
 from forensics.win32.scan2 import BaseScanner, ScannerCheck
-import forensics.commands
+import forensics
 import time
-import forensics.conf
 config = forensics.conf.ConfObject()
 import forensics.utils as utils
 from forensics.object2 import NewObject
@@ -135,8 +134,9 @@ class CheckThreadSemaphores(ScannerCheck):
         ethread = NewObject("_ETHREAD", vm=self.address_space,
                              offset = offset)
 
-        pid= ethread.Cid.UniqueProcess.v()
-        if pid==0: return True
+        pid = ethread.Cid.UniqueProcess.v()
+        if pid == 0:
+            return True
 
         sem = ethread.Tcb.SuspendSemaphore.Header
         if sem.Type != 0x5 or sem.Size != 0x5:
@@ -162,7 +162,7 @@ class CheckThreadProcess(ScannerCheck):
     def check(self, offset):
         ethread = NewObject("_ETHREAD", vm=self.address_space,
                             offset = offset)
-        if ethread.Cid.UniqueProcess==0 or ethread.ThreadsProcess.v() > self.kernel:
+        if ethread.Cid.UniqueProcess == 0 or ethread.ThreadsProcess.v() > self.kernel:
             return True
 
 class CheckThreadStartAddress(ScannerCheck):
@@ -170,7 +170,7 @@ class CheckThreadStartAddress(ScannerCheck):
     def check(self, offset):
         ethread = NewObject("_ETHREAD", vm=self.address_space,
                             offset = offset)
-        if ethread.Cid.UniqueProcess==0 or ethread.StartAddress.v() != 0:
+        if ethread.Cid.UniqueProcess == 0 or ethread.StartAddress.v() != 0:
             return True
 
 class ThreadScan(BaseScanner):
@@ -183,8 +183,7 @@ class ThreadScan(BaseScanner):
                ]
 
 class thrdscan(forensics.commands.command):
-    """ Scan Physical memory for _ETHREAD objects
-    """
+    """ Scan Physical memory for _ETHREAD objects"""
     def render_text(self, outfd, data):
         ## Just grab the AS and scan it using our scanner
         address_space = utils.load_as(astype = 'physical')
@@ -212,8 +211,7 @@ class PSScan(BaseScanner):
                ]
         
 class psscan(forensics.commands.command):
-    """ Scan Physical memory for _ADDRESS_OBJECT objects (tcp sockets)
-    """
+    """ Scan Physical memory for _EPROCESS objects"""
 
     # Declare meta information associated with this plugin
     

@@ -29,8 +29,7 @@ This module implements the fast module scanning
 #pylint: disable-msg=C0111
 
 from forensics.win32.scan2 import PoolScanner, ScannerCheck
-import forensics.commands
-import forensics.conf
+import forensics
 config = forensics.conf.ConfObject()
 import forensics.utils as utils
 from forensics.object2 import NewObject
@@ -46,7 +45,7 @@ class PoolScanModuleFast2(PoolScanner):
                ]
 
 class modscan2(forensics.commands.command):
-    """ Scan Physical memory for _TCPT_OBJECT objects (tcp connections)
+    """ Scan Physical memory for _LDR_DATA_TABLE_ENTRY objects
     """
 
     # Declare meta information associated with this plugin    
