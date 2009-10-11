@@ -1,0 +1,24 @@
+#summary Style Guide for coding on Volatility
+
+= Introduction =
+
+Here's a brief guide to coding styles for adding to volatility.  They mostly follow [http://www.python.org/dev/peps/pep-0008 PEP 8], and also pylint (although with certain rules ignored including C0111, C0103, C0301, W0511, R0201, R0903 and W0142).  The reasoning behind each decision should be given after the guideline.
+
+Please note, this is just a guideline, and if anyone feels like changing any of these, please do.  If everyone's happy, then someone can remove this paragraph.  If you have any additions you'd like to make, again please make them.
+
+= Details =
+
+ * Spacing: 4 space indents, no tabs.
+   * Consistency, PEP8
+ * Multiple statements on one line are discouraged.
+   * PEP8
+ * Always try to use if x == None rather than if x is None
+   * The New Object model overrides equivalence, allowing NoneObjects to be equal to None
+ * Importing specific objects or functions is discouraged.
+   * It pollutes the namespace and causes confusion.  Previous versions of volatility allowed people to import functions from files they weren't defined in.
+ * "from blah import `*`" is *strongly* discouraged.
+   * Again, namespace pollution and inappropriate imports.
+ * Module names should be lower case, Class names should be CamelCase, function names should be lower_case_with_underscores).
+   * PEP8 using most historically common style (hence function names aren't mixedCase).
+ * Whitespace on either side of all operators, and a space after all commas.
+   * PEP8, clarity.
