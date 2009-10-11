@@ -22,3 +22,5 @@ Please note, this is just a guideline, and if anyone feels like changing any of 
    * PEP8 using most historically common style (hence function names aren't mixedCase).
  * Whitespace on either side of all operators, and a space after all commas.
    * PEP8, clarity.
+ * No need for docstrings on __init__, since they're implicit.
+   * Pylint, obvious.
