@@ -8,11 +8,6 @@ This page documents the things we want to accomplish in the 1.4 branch, so we ca
 = Details =
 
 TODO Items:
-  # Merge in scudette's code:
-    * Flexible output
-    * Object model improvements
-    * Flexible and extensible address spaces
-  # Convert core modules to plugins (i.e., get rid of vmodules!)
   # Move Volatility into its own namespace, eg "volatility"
   # Examine performance/profiling and possibly develop C modules for some parts
   # Fix up the installer (setup.py)
