@@ -353,6 +353,12 @@ class NativeType(Object):
     def __str__(self):
         return "%s" % (self.v())
 
+    def __lt__(self, other):
+        return self.v() < other
+
+    def __gt__(self, other):
+        return self.v() > other
+
     def __repr__(self):
         return " [%s]: %s" % (self.theType, self.v())
 
