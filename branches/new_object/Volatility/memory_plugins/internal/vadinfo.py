@@ -10,12 +10,12 @@ Created on 30 Sep 2009
 # "The VAD Tree: A Process-Eye View of Physical Memory," Brendan Dolan-Gavitt
 
 import os.path
-import forensics.win32 as win32
-import forensics.object2 as object2
-import forensics.conf
+import volatility.win32 as win32
+import volatility.object2 as object2
+import volatility.conf
 import taskmods
 
-config = forensics.conf.ConfObject()
+config = volatility.conf.ConfObject()
 
 # Inherit from dlllist just for the config options (__init__)
 class vadinfo(taskmods.dlllist):

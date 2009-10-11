@@ -29,17 +29,17 @@
 @organization: Volatile Systems
 """
 
-from forensics.object2 import NewObject
+import volatility.object2 as object2
 
 def info_systime(addr_space, theProfile, symtab):
     xtime_vaddr = symtab.lookup('xtime')
-    timespec = NewObject('timespec', xtime_vaddr, addr_space, \
+    timespec = object2.NewObject('timespec', xtime_vaddr, addr_space, \
                         None, theProfile)
     return timespec
 
 def info_timezone(addr_space, theProfile, symtab):
     sys_tz_vaddr = symtab.lookup('sys_tz')
-    sys_tz = NewObject('timezone', sys_tz_vaddr, addr_space, \
+    sys_tz = object2.NewObject('timezone', sys_tz_vaddr, addr_space, \
                         None, theProfile)
     return sys_tz
 
@@ -56,11 +56,11 @@ def info_cpus(addr_space, theProfile, symtab):
 def info_system_utsname(addr_space, theProfile, symtab):
     system_utsname_vaddr = symtab.lookup('system_utsname')
     if system_utsname_vaddr != None:
-        system_utsname = NewObject('new_utsname', system_utsname_vaddr, addr_space, None, theProfile)
+        system_utsname = object2.NewObject('new_utsname', system_utsname_vaddr, addr_space, None, theProfile)
 
     elif symtab.lookup('init_uts_ns') != None:
         init_uts_ns_vaddr = symtab.lookup('init_uts_ns')
-        system_utsname = NewObject('new_utsname', init_uts_ns_vaddr, addr_space, None, theProfile)
+        system_utsname = object2.NewObject('new_utsname', init_uts_ns_vaddr, addr_space, None, theProfile)
     else:
         system_utsname = None
     return system_utsname

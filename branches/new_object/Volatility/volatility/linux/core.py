@@ -1,8 +1,8 @@
 """ An impelentation of a Core file address space for memory analysis
 of core files.
 """
-from forensics.object2 import Profile, NewObject
-from forensics.addrspace import FileAddressSpace
+import volatility.object2 as object2
+import volatility.addrspace as addrspace
 import sys
 
 #pylint: disable-msg=C0111
@@ -61,16 +61,15 @@ elf_types = {
     } ],
 }
 
-class CoreAddressSpace(FileAddressSpace):
+class CoreAddressSpace(addrspace.FileAddressSpace):
     offset_index = 0
     
     def __init__(self, fname, mode='rb', fast=False):
-        FileAddressSpace.__init__(self, fname, mode=mode, fast=fast)
+        addrspace.FileAddressSpace.__init__(self, fname, mode=mode, fast=fast)
         
         ## Parse the headers:
-        address_space = FileAddressSpace(fname)
-        profile = Profile(abstract_types=elf_types)
-        header = NewObject('Elf32_Ehdr', 0, address_space, profile=profile)
+        address_space = addrspace.FileAddressSpace(fname)
+        header = object2.NewObject('Elf32_Ehdr', 0, address_space)
 
         ## Create a sorted list of virtual offsets
         self.offsets = []

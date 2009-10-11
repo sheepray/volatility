@@ -37,11 +37,13 @@ try:
 except ImportError:    
     pass
 
-import sys, textwrap
-import forensics.registry as MemoryRegistry
-import forensics.conf
-config = forensics.conf.ConfObject()
-from forensics.object2 import Curry
+import sys
+import textwrap
+import volatility
+import volatility.registry as MemoryRegistry
+import volatility.conf as conf
+config = conf.ConfObject()
+import volatility.object2 as object2
 
 config.add_option('DEBUG', short_option = 'd', action='count',
                   help = 'Debug volatility', default=0)
@@ -94,7 +96,7 @@ def main():
 
     # Get the version information on every output from the beginning
     # Exceptionally useful for debugging/telling people what's going on
-    sys.stderr.write( "Volatile Systems Volatility Framework %s\n" % forensics.version)
+    sys.stderr.write( "Volatile Systems Volatility Framework %s\n" % volatility.version)
 
     MemoryRegistry.Init()
 
@@ -120,11 +122,11 @@ def main():
             command = MemoryRegistry.PLUGIN_COMMANDS[module](config.args[1:])
 
             ## Register the help cb from the command itself
-            config.set_help_hook(Curry(command_help, command))            
+            config.set_help_hook(object2.Curry(command_help, command))            
             config.parse_options()
              
             command.execute()
-    except forensics.utils.AddrSpaceError, e:
+    except volatility.utils.AddrSpaceError, e:
         print e
 
 if __name__ == "__main__":

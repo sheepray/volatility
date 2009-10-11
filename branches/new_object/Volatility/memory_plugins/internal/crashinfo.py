@@ -5,9 +5,9 @@ Created on 3 Oct 2009
 '''
 
 import os
-import forensics.utils as utils
-import forensics.commands as commands
-import forensics.conf as conf
+import volatility.utils as utils
+import volatility.commands as commands
+import volatility.conf as conf
 config = conf.ConfObject()
 
 class crashinfo(commands.command):

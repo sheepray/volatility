@@ -28,14 +28,15 @@ This module implements the fast module scanning
 
 #pylint: disable-msg=C0111
 
-from forensics.win32.scan2 import PoolScanner, ScannerCheck
-import forensics
-config = forensics.conf.ConfObject()
-import forensics.utils as utils
-from forensics.object2 import NewObject
-import forensics.debug as debug
+import volatility.win32.scan2 as scan2
+import volatility.commands as commands
+import volatility.conf as conf
+config = conf.ConfObject()
+import volatility.utils as utils
+import volatility.object2 as object2
+import volatility.debug as debug
 
-class PoolScanModuleFast2(PoolScanner):
+class PoolScanModuleFast2(scan2.PoolScanner):
     preamble = ['_POOL_HEADER', ]
 
     checks = [ ('PoolTagCheck', dict(tag = 'MmLd')),
@@ -44,7 +45,7 @@ class PoolScanModuleFast2(PoolScanner):
                ('CheckPoolIndex', dict(value = 0)),
                ]
 
-class modscan2(forensics.commands.command):
+class modscan2(commands.command):
     """ Scan Physical memory for _LDR_DATA_TABLE_ENTRY objects
     """
 
@@ -78,7 +79,7 @@ class modscan2(forensics.commands.command):
 
         scanner = PoolScanModuleFast2()
         for offset in scanner.scan(address_space):
-            ldr_entry = NewObject('_LDR_DATA_TABLE_ENTRY', vm=address_space,
+            ldr_entry = object2.NewObject('_LDR_DATA_TABLE_ENTRY', vm=address_space,
                                   offset = offset)
 
             print "%-50s 0x%010x 0x%06x %s" % \
@@ -87,7 +88,7 @@ class modscan2(forensics.commands.command):
                    ldr_entry.SizeOfImage,
                    self.parse_string(ldr_entry.BaseDllName))
 
-class CheckThreads(ScannerCheck):
+class CheckThreads(scan2.ScannerCheck):
     """ Check sanity of _ETHREAD """
     kernel = 0x80000000
     
@@ -95,7 +96,7 @@ class CheckThreads(ScannerCheck):
         start_of_object = self.address_space.profile.get_obj_size("_POOL_HEADER") +\
                           self.address_space.profile.get_obj_size("_OBJECT_HEADER") - 4
         
-        thread = NewObject('_ETHREAD', vm=self.address_space,
+        thread = object2.NewObject('_ETHREAD', vm=self.address_space,
                            offset=found + start_of_object)
 
         if thread.Cid.UniqueProcess.v()!=0 and \
@@ -118,7 +119,7 @@ class CheckThreads(ScannerCheck):
         
         return True
 
-class PoolScanThreadFast2(PoolScanner):
+class PoolScanThreadFast2(scan2.PoolScanner):
     """ Carve out threat objects using the pool tag """
     preamble = ['_POOL_HEADER', '_OBJECT_HEADER' ]
 
@@ -139,7 +140,7 @@ class thrdscan2(modscan2):
 
         scanner = PoolScanThreadFast2()
         for found in scanner.scan(address_space):
-            thread = NewObject('_ETHREAD', vm=address_space,
+            thread = object2.NewObject('_ETHREAD', vm=address_space,
                                offset=found)
             
             print "%6d %6d 0x%0.8x" % (thread.Cid.UniqueProcess,

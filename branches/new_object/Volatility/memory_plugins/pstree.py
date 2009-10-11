@@ -1,9 +1,10 @@
 """pstree example file"""
 
-from forensics.win32.tasks import pslist
-import forensics.utils as utils
-import forensics
-config = forensics.conf.ConfObject()
+import volatility.win32.tasks as tasks
+import volatility.utils as utils
+import volatility.commands as commands
+import volatility.conf as conf
+config = conf.ConfObject()
 
 #pylint: disable-msg=C0111
 
@@ -17,7 +18,7 @@ pslist_types = {
     } ],
     }
 
-class pstree(forensics.commands.command):
+class pstree(commands.command):
     """Print process list as a tree"""    
 
     def find_root(self, pid_dict, pid):
@@ -70,7 +71,7 @@ class pstree(forensics.commands.command):
         addr_space = utils.load_as()
         addr_space.profile.add_types(pslist_types)
 
-        for task in pslist(addr_space):
+        for task in tasks.pslist(addr_space):
             task_info = {}
             task_info['eprocess'] = task
             task_info['image_file_name'] = task.ImageFileName or 'UNKNOWN'

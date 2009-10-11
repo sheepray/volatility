@@ -30,7 +30,7 @@
 """
 
 import struct
-from forensics.addrspace import BufferAddressSpace
+import volatility.addrspace as addrspace
 
 builtin_types = { \
     'int' : (4, 'l'), \
@@ -114,7 +114,7 @@ def read_unicode_string_buf(data, virt_addr_space, types, member_list, doffset):
     by a pointer in a buffer (e.g. in pool scanners)
     '''       
     
-    phys_addr_space = BufferAddressSpace(data)
+    phys_addr_space = addrspace.BufferAddressSpace(data)
     return read_unicode_string_p(phys_addr_space, virt_addr_space, types, member_list, doffset)
 
 def read_unicode_string_p(phys_addr_space, virt_addr_space, types, member_list, phys_addr):
@@ -157,7 +157,7 @@ def read_string(addr_space, types, member_list, vaddr, max_length=256):
     return val    
     
 def read_string_buf(data, types, member_list, vaddr, max_length=256):
-    addr_space = BufferAddressSpace(data)
+    addr_space = addrspace.BufferAddressSpace(data)
     return read_string(addr_space, types, member_list, vaddr, max_length=256)
 
 def read_null_string(addr_space, types, member_list, vaddr, max_length=256):
@@ -227,5 +227,5 @@ def read_obj(addr_space, types, member_list, vaddr):
 
 
 def read_obj_from_buf(data, types, member_list, doffset):
-    addr_space = BufferAddressSpace(data)
+    addr_space = addrspace.BufferAddressSpace(data)
     return read_obj(addr_space, types, member_list, doffset)

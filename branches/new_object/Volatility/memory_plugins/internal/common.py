@@ -1,13 +1,13 @@
 """ This plugin contains CORE classes used by lots of other plugins """
-from forensics.win32.scan2 import ScannerCheck
-from forensics.object2 import NewObject
-import forensics.debug as debug
+import volatility.win32.scan2 as scan2
+import volatility.object2 as object2
+import volatility.debug as debug
 
 #pylint: disable-msg=C0111
 
 ## The following are checks for pool scanners.
 
-class PoolTagCheck(ScannerCheck):
+class PoolTagCheck(scan2.ScannerCheck):
     """ This scanner checks for the occurance of a pool tag """
     def __init__(self, address_space, tag=None, **kwargs):
         self.tag = tag
@@ -25,21 +25,21 @@ class PoolTagCheck(ScannerCheck):
         data = self.address_space.read(offset, len(self.tag))
         return data == self.tag
 
-class CheckPoolSize(ScannerCheck):
+class CheckPoolSize(scan2.ScannerCheck):
     """ Check pool block size """
     def __init__(self, address_space, condition=lambda x: x==8, **kwargs):
         self.condition = condition
         self.address_space = address_space
 
     def check(self, offset):
-        pool_hdr = NewObject('_POOL_HEADER', vm=self.address_space,
+        pool_hdr = object2.NewObject('_POOL_HEADER', vm=self.address_space,
                              offset = offset - 4)
         
         block_size = pool_hdr.BlockSize.v()
         
         return self.condition(block_size * 8)
 
-class CheckPoolType(ScannerCheck):
+class CheckPoolType(scan2.ScannerCheck):
     """ Check the pool type """
     def __init__(self, address_space, paged = False,
                  non_paged = False, free = False, **kwargs):
@@ -49,7 +49,7 @@ class CheckPoolType(ScannerCheck):
         self.address_space = address_space
 
     def check(self, offset):
-        pool_hdr = NewObject('_POOL_HEADER', vm=self.address_space,
+        pool_hdr = object2.NewObject('_POOL_HEADER', vm=self.address_space,
                              offset = offset - 4)
         
         ptype = pool_hdr.PoolType.v()
@@ -63,14 +63,14 @@ class CheckPoolType(ScannerCheck):
         if self.paged and (ptype % 2) == 0 and ptype > 0:
             return True
 
-class CheckPoolIndex(ScannerCheck):
+class CheckPoolIndex(scan2.ScannerCheck):
     """ Checks the pool index """
     def __init__(self, address_space, value=0, **kwargs):
         self.value = value
         self.address_space = address_space
 
     def check(self, offset):
-        pool_hdr = NewObject('_POOL_HEADER', vm=self.address_space,
+        pool_hdr = object2.NewObject('_POOL_HEADER', vm=self.address_space,
                              offset = offset - 4)
 
         return pool_hdr.PoolIndex == self.value

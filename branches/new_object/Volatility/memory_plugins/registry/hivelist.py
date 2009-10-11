@@ -26,12 +26,13 @@
 
 #pylint: disable-msg=C0111
 
-import forensics.object2 as object2
-import forensics.utils as utils
-import forensics
-config = forensics.conf.ConfObject()
+import volatility.object2 as object2
+import volatility.utils as utils
+import volatility.commands as commands
+import volatility.conf as conf
+config = conf.ConfObject()
 
-class hivelist(forensics.commands.command):
+class hivelist(commands.command):
     """Print list of registry hives.
 
     You must supply this module the initial offset of the hive. You
@@ -53,10 +54,7 @@ class hivelist(forensics.commands.command):
                           default = None, type='int',
                           help = "Offset to registry hive")
         
-        forensics.commands.command.__init__(self, *args)
-
-    def parser(self):
-        forensics.commands.command.parser(self)
+        commands.command.__init__(self, *args)
 
     def render_text(self, outfd, result):
         outfd.write("Address      Name\n")

@@ -28,10 +28,10 @@ for SP2.
 
 #pylint: disable-msg=C0111
 
-import forensics.object2 as object2
+import volatility.object2 as object2
 import time
 import vtypes
-import forensics.debug as debug
+import volatility.debug as debug
 
 class WinXPSP2(object2.Profile):
     """ A Profile for windows XP SP2 """

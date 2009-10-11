@@ -1,9 +1,9 @@
 """ An AS for processing crash dumps """
 import standard
 import struct
-from forensics.object2 import NewObject
-import forensics.conf
-config = forensics.conf.ConfObject()
+import volatility.object2 as object2
+import volatility.conf
+config = volatility.conf.ConfObject()
 
 #pylint: disable-msg=C0111
 
@@ -25,7 +25,7 @@ class WindowsCrashDumpSpace32(standard.FileAddressSpace):
         self.offset = 0 # config.OFFSET
         self.fname = ''
 
-        self.header = NewObject("_DMP_HEADER", self.offset, baseAddressSpace)
+        self.header = object2.NewObject("_DMP_HEADER", self.offset, baseAddressSpace)
 
         self.runs = [ (x.BasePage.v(), x.PageCount.v()) \
                       for x in self.header.PhysicalMemoryBlockBuffer.Run ]

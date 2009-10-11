@@ -1,6 +1,6 @@
 """ General debugging framework """
-import forensics.conf
-config = forensics.conf.ConfObject()
+import volatility.conf as conf
+config = conf.ConfObject()
 import pdb
 
 def debug(msg, level=1):

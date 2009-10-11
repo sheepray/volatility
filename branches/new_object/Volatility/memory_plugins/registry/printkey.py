@@ -26,12 +26,13 @@
 
 #pylint: disable-msg=C0111
 
-# from forensics.win32.datetime import windows_to_unix_time
-import forensics.win32.hive as hivemod
-import forensics.win32.rawreg as rawreg
-import forensics
-import forensics.utils as utils
-config = forensics.conf.ConfObject()
+# from volatility.win32.datetime import windows_to_unix_time
+import volatility.win32.hive as hivemod
+import volatility.win32.rawreg as rawreg
+import volatility.utils as utils
+import volatility.commands as commands
+import volatility.conf as conf
+config = conf.ConfObject()
 
 ## This module requires a filename to be passed by the user
 #config.add_option("HIVE-OFFSET", default = 0, type='int',
@@ -53,11 +54,11 @@ def hd(src, length=16):
         N += length
     return result
 
-class printkey(forensics.commands.command):
+class printkey(commands.command):
     "Print a registry key, and its subkeys and values"
     # Declare meta information associated with this plugin
     
-    meta_info = forensics.commands.command.meta_info 
+    meta_info = commands.command.meta_info 
     meta_info['author'] = 'Brendan Dolan-Gavitt'
     meta_info['copyright'] = 'Copyright (c) 2007,2008 Brendan Dolan-Gavitt'
     meta_info['contact'] = 'bdolangavitt@wesleyan.edu'
@@ -71,7 +72,7 @@ class printkey(forensics.commands.command):
                           help='Hive offset (virtual)', type='int')
         config.add_option('KEY', short_option = 'k',
                           help='Registry Key', type='str')
-        forensics.commands.command.__init__(self, *args)
+        commands.command.__init__(self, *args)
 
     def calculate(self):
         addr_space = utils.load_as()

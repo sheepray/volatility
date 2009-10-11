@@ -32,10 +32,10 @@ import sys
 # sys.path.append(".")
 # sys.path.append("..")
 
-import forensics.registry as MemoryRegistry
-import forensics.addrspace as addrspace
 import struct
-import forensics.debug as debug
+import volatility.registry as MemoryRegistry
+import volatility.addrspace as addrspace
+import volatility.debug as debug
 
 class Curry:
     """ This class makes a curried object available for simple inlined functions.

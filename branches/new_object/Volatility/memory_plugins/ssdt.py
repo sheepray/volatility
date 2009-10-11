@@ -26,11 +26,11 @@
 from operator import itemgetter
 from bisect import bisect_right
 
-from forensics.object2 import NewObject
-from forensics.win32.tasks import pslist
-from forensics.win32.modules import lsmod
-import forensics.commands
-import forensics.utils as utils
+import volatility.object2 as object2
+import volatility.win32.tasks as tasks
+import volatility.win32.modules as modules
+import volatility.commands as commands
+import volatility.utils as utils
 
 #pylint: disable-msg=C0111
 
@@ -1034,7 +1034,7 @@ def find_module(modlist, mod_addrs, addr):
     else:
         return None
 
-class ssdt(forensics.commands.command):
+class ssdt(commands.command):
     "Display SSDT entries"
     # Declare meta information associated with this plugin
     meta_info = {
@@ -1055,13 +1055,13 @@ class ssdt(forensics.commands.command):
         # addr_space.profile.apply_overlay("????", ssdt_overlay)
         
         ## Get a sorted list of module addresses
-        mods = dict( (mod.BaseAddress.v(), mod) for mod in lsmod(addr_space) )
+        mods = dict( (mod.BaseAddress.v(), mod) for mod in modules.lsmod(addr_space) )
         mod_addrs = sorted(mods.keys())
 
         # Gather up all SSDTs referenced by threads
         print "Gathering all referenced SSDTs from KTHREADs..."
         ssdts = set()
-        for proc in pslist(addr_space):
+        for proc in tasks.pslist(addr_space):
             for thread in proc.ThreadListHead.list_of_type("_ETHREAD", "ThreadListEntry"):
                 ssdt_obj = thread.Tcb.ServiceTable.dereference()
                 ssdts.add(ssdt_obj)
@@ -1078,7 +1078,7 @@ class ssdt(forensics.commands.command):
         tables_with_vm = []
         for idx, table, n in tables:
             found = False
-            for p in pslist(addr_space):
+            for p in tasks.pslist(addr_space):
                 ## This is the process address space
                 ps_ad = p.get_process_address_space()
                 ## Is the table accessible from the process AS?
@@ -1096,7 +1096,7 @@ class ssdt(forensics.commands.command):
             print "SSDT[%d] at %x with %d entries" % (idx, table, n)
             if vm.is_valid_address(table):
                 for i in range(n):
-                    syscall_addr = NewObject('unsigned long', table+(i*4), vm).v()
+                    syscall_addr = object2.NewObject('unsigned long', table+(i*4), vm).v()
                     try:
                         syscall_name = xpsp2_syscalls[idx][i]
                     except IndexError:

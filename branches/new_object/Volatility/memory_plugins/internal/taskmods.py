@@ -7,14 +7,15 @@ Created on 26 Sep 2009
 #pylint: disable-msg=C0111
 
 import os
-import forensics
-import forensics.win32 as win32
-import forensics.object2 as object2
-import forensics.utils as utils
+import volatility.conf as conf
+import volatility.commands as commands
+import volatility.win32 as win32
+import volatility.object2 as object2
+import volatility.utils as utils
 
-config = forensics.conf.ConfObject()
+config = conf.ConfObject()
 
-class dlllist(forensics.commands.command):
+class dlllist(commands.command):
     """Print list of loaded dlls for each process"""
 
     def __init__(self, *args):
@@ -26,7 +27,7 @@ class dlllist(forensics.commands.command):
                           help='Operate on these Process IDs (comma-separated)',
                           action='store', type='str')
         
-        forensics.commands.command.__init__(self, *args)
+        commands.command.__init__(self, *args)
 
     def render_text(self, outfd, data):
         for task in data:

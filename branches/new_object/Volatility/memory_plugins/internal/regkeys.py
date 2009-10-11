@@ -5,9 +5,9 @@ Created on 4 Oct 2009
 '''
 
 import taskmods
-import forensics.conf
+import volatility.conf
 
-config = forensics.conf.ConfObject()
+config = volatility.conf.ConfObject()
 
 class regobjkeys(taskmods.files):
     """Print list of open regkeys for each process"""

@@ -29,8 +29,7 @@
 @organization: Volatile Systems
 """
 
-from forensics.object2 import NewObject
-# from forensics.linked_list import list_do
+import volatility.object2 as object2
 
 # Defines
 
@@ -57,7 +56,7 @@ def process_list(addr_space, types, symtab, theProfile):
         init_task_vaddr = symtab.lookup('init_task')
         if init_task_vaddr == None:
             return []
-        init_task = NewObject('task_struct', init_task_vaddr, addr_space, \
+        init_task = object2.NewObject('task_struct', init_task_vaddr, addr_space, \
             None, theProfile)       
         # list_do(init_task, ['tasks', 'next'], task_list.append, profile=theProfile)
     return task_list
@@ -143,7 +142,7 @@ def task_fds(task, addr_space, types, symtab, theProfile):
     if task.m('files').v() != None and task.m('files').v() != 0:
         files_vaddr = task.m('files').v()
         
-        files = NewObject('files_struct', files_vaddr, addr_space, \
+        files = object2.NewObject('files_struct', files_vaddr, addr_space, \
                 None, theProfile)
 
         if files == None:
@@ -157,21 +156,21 @@ def task_fds(task, addr_space, types, symtab, theProfile):
             filep = addr_space.read_long_virt(filep)
             
             if (filep):
-                fileinfo = NewObject('file', filep, addr_space, \
+                fileinfo = object2.NewObject('file', filep, addr_space, \
                     None, theProfile)
 
                 dentry = fileinfo.m('f_dentry').v()
                 if dentry == 0:
                     continue
 
-                dentry = NewObject('dentry', dentry, addr_space, \
+                dentry = object2.NewObject('dentry', dentry, addr_space, \
                     None, theProfile)
 
                 if dentry == None:
                     continue
                 inode = dentry.m('d_inode').v()
 
-                inode = NewObject('inode', inode, addr_space, \
+                inode = object2.NewObject('inode', inode, addr_space, \
                     None, theProfile)
 
                 out.append((i, filep, dentry, inode))

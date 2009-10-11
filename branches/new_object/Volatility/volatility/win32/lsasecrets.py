@@ -26,9 +26,9 @@
 """
 
 import struct
-import forensics.win32.rawreg as rawreg
-import forensics.win32.hive as hive
-import forensics.win32.hashdump as hashdump
+import volatility.win32.rawreg as rawreg
+import volatility.win32.hive as hive
+import volatility.win32.hashdump as hashdump
 from Crypto.Hash import MD5
 from Crypto.Cipher import ARC4, DES
 

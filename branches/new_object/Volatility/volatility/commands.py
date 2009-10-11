@@ -19,7 +19,7 @@
 
 import sys, textwrap
 import optparse 
-import forensics.conf as conf
+import volatility.conf as conf
 
 config = conf.ConfObject()
 

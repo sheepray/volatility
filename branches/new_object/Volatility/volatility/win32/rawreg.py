@@ -25,7 +25,7 @@
 @contact:      bdolangavitt@wesleyan.edu
 """
 
-import forensics.object2 as object2
+import volatility.object2 as object2
 import struct
 
 ROOT_INDEX = 0x20

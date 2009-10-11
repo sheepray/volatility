@@ -3,8 +3,8 @@ OS's
 """
 # FIXME: It's currently important these are imported here, otherwise
 # they don't show up in the MemoryObjects registry
-from forensics.object2 import BitField, Pointer, Void, Array, CType
-import forensics.object2 as object2
+from volatility.object2 import BitField, Pointer, Void, Array, CType
+import volatility.object2 as object2
 
 class String(object2.NativeType):
     """Class for dealing with Strings"""

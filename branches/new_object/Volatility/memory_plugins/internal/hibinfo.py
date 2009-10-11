@@ -5,10 +5,10 @@ Created on 3 Oct 2009
 '''
 
 import os
-import forensics.utils as utils
-import forensics.object2 as object2 
-import forensics.commands as commands
-import forensics.conf as conf
+import volatility.utils as utils
+import volatility.object2 as object2 
+import volatility.commands as commands
+import volatility.conf as conf
 config = conf.ConfObject()
 
 config.add_option("OUTPUT_FILE", short_option="O", default=None,

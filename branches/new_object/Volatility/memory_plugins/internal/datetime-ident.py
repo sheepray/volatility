@@ -4,14 +4,14 @@ Created on 20 Sep 2009
 @author: Mike Auty
 '''
 
-import forensics.object2 as object2
-import forensics.win32 as win32
-import forensics.utils as utils
-import forensics.commands
+import volatility.object2 as object2
+import volatility.win32 as win32
+import volatility.utils as utils
+import volatility.commands as commands
 
 #pylint: disable-msg=C0111
 
-class datetime(forensics.commands.command):
+class datetime(commands.command):
     """Get date/time information for image"""
     def render_text(self, outfd, data):
         """Renders the calculated data as text to outfd"""

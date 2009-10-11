@@ -7,9 +7,9 @@ Created on 8 Oct 2009
 import os
 import struct
 import taskmods
-import forensics
-import forensics.object2 as object2
-config = forensics.conf.ConfObject()
+import volatility.conf as conf
+import volatility.object2 as object2
+config = conf.ConfObject()
 
 class procexedump(taskmods.dlllist):
     """Dump a process to an executable file sample"""

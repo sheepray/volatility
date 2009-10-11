@@ -28,15 +28,15 @@ This module implements the fast socket scanning
 
 #pylint: disable-msg=C0111
 
-from forensics.win32.scan2 import PoolScanner, ScannerCheck
-import forensics.commands
-import forensics.conf
-config = forensics.conf.ConfObject()
-import forensics.utils as utils
-from forensics.object2 import NewObject
-import forensics.debug as debug
+import volatility.win32.scan2 as scan2
+import volatility.commands as commands
+import volatility.conf as conf
+config = conf.ConfObject()
+import volatility.utils as utils
+import volatility.object2 as object2
+import volatility.debug as debug
 
-class CheckSocketCreateTime(ScannerCheck):
+class CheckSocketCreateTime(scan2.ScannerCheck):
     """ Check that _ADDRESS_OBJECT.CreateTime makes sense """
     def __init__(self, address_space, condition = lambda x: x, **kwargs):
         self.condition  = condition
@@ -44,12 +44,12 @@ class CheckSocketCreateTime(ScannerCheck):
 
     def check(self, offset):
         start_of_object = self.address_space.profile.get_obj_size("_POOL_HEADER") - 4
-        address_obj = NewObject('_ADDRESS_OBJECT', vm=self.address_space,
+        address_obj = object2.NewObject('_ADDRESS_OBJECT', vm=self.address_space,
                                 offset=offset + start_of_object)
 
         return self.condition(address_obj.CreateTime.v())
 
-class PoolScanSockFast(PoolScanner):
+class PoolScanSockFast(scan2.PoolScanner):
     checks = [ ('PoolTagCheck', dict(tag = "TCPA")),
                ('CheckPoolSize', dict(condition = lambda x: x == 0x170)),
                ('CheckPoolType', dict(non_paged = True, free = True)),
@@ -58,7 +58,7 @@ class PoolScanSockFast(PoolScanner):
                ('CheckPoolIndex', dict(value = 0))
                ]
     
-class sockscan(forensics.commands.command):
+class sockscan(commands.command):
     """ Scan Physical memory for _ADDRESS_OBJECT objects (tcp sockets)
     """
 
@@ -83,7 +83,7 @@ class sockscan(forensics.commands.command):
 
         scanner = PoolScanSockFast()
         for offset in scanner.scan(address_space):
-            sock_obj = NewObject('_ADDRESS_OBJECT', vm=address_space,
+            sock_obj = object2.NewObject('_ADDRESS_OBJECT', vm=address_space,
                                  offset=offset)
             
             print "%-6d %-6d %-6d %-26s 0x%0.8x" % (sock_obj.Pid, sock_obj.LocalPort,

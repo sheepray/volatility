@@ -5,14 +5,14 @@ Created on 9 Oct 2009
 '''
 
 import os
-import forensics
-import forensics.object2 as object2
-import forensics.utils as utils
-import forensics.win32 as win32
-import forensics.conf as conf
+import volatility.commands as commands
+import volatility.object2 as object2
+import volatility.utils as utils
+import volatility.win32 as win32
+import volatility.conf as conf
 config = conf.ConfObject()
 
-class strings(forensics.commands.command):
+class strings(commands.command):
     """Match physical offsets to virtual addresses (may take a while, VERY verbose)"""
     
     def __init__(self, *args):
@@ -22,7 +22,7 @@ class strings(forensics.commands.command):
         config.add_option('PIDS', short_option = 'p', default=None,
                           help='Operate on these Process IDs (comma-separated)',
                           action='store', type='str')
-        forensics.commands.command.__init__(self, *args)
+        commands.command.__init__(self, *args)
     
     def calculate(self):
         """Calculates the physical to virtual address mapping"""

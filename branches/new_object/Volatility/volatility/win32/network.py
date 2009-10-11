@@ -28,8 +28,8 @@
 
 #pylint: disable-msg=C0111
 
-import forensics.win32 as win32
-import forensics.object2 as object2
+import volatility.win32 as win32
+import volatility.object2 as object2
 
 module_versions = { \
 'MP' : { \

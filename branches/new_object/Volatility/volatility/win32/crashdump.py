@@ -29,9 +29,6 @@
 
 #pylint: disable-msg=C0111
 
-import os
-import struct
-
 #from forensics.object import get_obj_offset
 #from forensics.win32.info import find_psactiveprocesshead
 #from forensics.win32.info import find_psloadedmodulelist

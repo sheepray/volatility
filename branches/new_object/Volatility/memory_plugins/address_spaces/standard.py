@@ -1,10 +1,9 @@
 """ These are standard address spaces supported by Volatility """
 import struct
-import forensics.addrspace as addrspace
-import forensics.object2 as object2 
-import forensics.conf
-config = forensics.conf.ConfObject()
-from forensics.debug import b
+import volatility.addrspace as addrspace
+import volatility.object2 as object2 
+import volatility.conf
+config = volatility.conf.ConfObject()
 
 #pylint: disable-msg=C0111
 

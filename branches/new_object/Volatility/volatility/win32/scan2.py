@@ -39,8 +39,9 @@
 # from forensics.win32.datetime import read_time_buf
 # from forensics.win32.network import inet_ntoa, ntohs
 # import forensics.win32.meta_info as meta_info
-import forensics.debug as debug
-import forensics.registry as registry
+import volatility.debug as debug
+import volatility.registry as registry
+import volatility.addrspace as addrspace
 
 BLOCKSIZE = 1024*1024*10
 
@@ -849,13 +850,11 @@ BLOCKSIZE = 1024*1024*10
 ########### framework. The old framework was based on PyFlag's
 ########### scanning framework which is probably too complex for this.
 
-from forensics.addrspace import BufferAddressSpace
-
 class BaseScanner(object):
     """ A more thorough scanner which checks every byte """
     checks = []
     def __init__(self, window_size=8):
-        self.buffer = BufferAddressSpace(data='\x00'*1024)
+        self.buffer = addrspace.BufferAddressSpace(data='\x00'*1024)
         self.window_size = window_size
         self.constraints = []
         

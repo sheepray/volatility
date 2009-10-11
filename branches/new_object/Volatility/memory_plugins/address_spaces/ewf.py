@@ -5,8 +5,8 @@ import standard
 
 from ctypes import CDLL, c_char_p, c_int, pointer, c_ulonglong, c_ulong, create_string_buffer
 import ctypes.util
-import forensics.conf
-config = forensics.conf.ConfObject()
+import volatility.conf
+config = volatility.conf.ConfObject()
 
 possible_names = ['libewf-1', 'ewf', ]
 for name in possible_names:

@@ -59,11 +59,10 @@
 @organization: Volatile Systems.
 """
 
-from forensics.addrspace import FileAddressSpace
-from forensics.object import read_string, read_obj, get_obj_offset, read_null_string, obj_size
-from forensics.linux.tasks import task_state_string
 from socket import ntohs
 from time import gmtime, strftime
+import volatility.addrspace as addrspace
+import volatility.linux.tasks as tasks
 import struct
 import socket
 import re
@@ -108,7 +107,7 @@ class ScanObject:
 
         if fast == True:
             try:
-                self.fast_address_space = FileAddressSpace(self.addr_space.fname, fast=True)
+                self.fast_address_space = addrspace.FileAddressSpace(self.addr_space.fname, fast=True)
             except:
                 print "Unable to open fast address space %s" % (self.addr_space.fname)
                 return
@@ -275,7 +274,7 @@ def task_dump(address, _cnt, obj):
                    ['task_struct', 'uid'], address)
     task_state =  read_obj(obj.addr_space, obj.types,
                    ['task_struct', 'state'], address)
-    ts_string = task_state_string(task_state)
+    ts_string = tasks.task_state_string(task_state)
    
     comm = read_null_string(obj.addr_space, obj.types, \
                 ['task_struct', 'comm'], address)

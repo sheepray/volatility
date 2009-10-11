@@ -26,26 +26,27 @@
 
 #pylint: disable-msg=C0111
 
-from forensics.win32.scan2 import PoolScanner, ScannerCheck
-import forensics
-config = forensics.conf.ConfObject()
-import forensics.utils as utils
-from forensics.object2 import NewObject
+import volatility.win32.scan2 as scan2
+import volatility.object2 as object2
+import volatility.utils as utils
+import volatility.commands as commands
+import volatility.conf as conf
+config = conf.ConfObject()
 
-class CheckHiveSig(ScannerCheck):
+class CheckHiveSig(scan2.ScannerCheck):
     """ Check for a registry hive signature """
     def check(self, offset):
-        sig = NewObject('_HHIVE', vm=self.address_space, offset=offset + 4).Signature
+        sig = object2.NewObject('_HHIVE', vm=self.address_space, offset=offset + 4).Signature
         return sig == 0xbee0bee0
 
-class PoolScanHiveFast2(PoolScanner):
+class PoolScanHiveFast2(scan2.PoolScanner):
     checks = [ ('PoolTagCheck', dict(tag = "CM10")),
                ('CheckPoolSize', dict(condition = lambda x: x==0x4a8)),
                ('CheckPoolType', dict(paged = True)),
                ('CheckHiveSig', {})
                ]
     
-class hivescan(forensics.commands.command):
+class hivescan(commands.command):
     """ Scan Physical memory for _CMHIVE objects (registry hives)
 
     You will need to obtain these offsets to feed into the hivelist command.

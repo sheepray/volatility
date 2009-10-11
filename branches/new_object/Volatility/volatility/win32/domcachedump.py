@@ -25,10 +25,10 @@
 
 #pylint: disable-msg=C0111
 
-import forensics.win32.rawreg as rawreg
-import forensics.win32.hive as hive
-import forensics.win32.lsasecrets as lsasecrets
-import forensics.win32.hashdump as hashdump
+import volatility.win32.rawreg as rawreg
+import volatility.win32.hive as hive
+import volatility.win32.lsasecrets as lsasecrets
+import volatility.win32.hashdump as hashdump
 from Crypto.Hash import HMAC
 from Crypto.Cipher import ARC4
 from struct import unpack

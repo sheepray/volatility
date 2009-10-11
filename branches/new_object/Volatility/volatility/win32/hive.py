@@ -28,8 +28,8 @@
 # from forensics.object import *
 # from forensics.object import read_obj, read_unicode_string, get_obj_offset, read_obj_from_buf
 # from forensics.win32.scan2 import GenMemScanObject, PoolScanner, meta_info
-from forensics.object2 import NewObject
-import forensics.addrspace as addrspace
+import volatility.object2 as object2
+import volatility.addrspace as addrspace
 import struct
 
 FILTER = ''.join([(len(repr(chr(x))) == 3) and chr(x) or '.' for x in range(256)])
@@ -49,7 +49,7 @@ class HiveAddressSpace(addrspace.BaseAddressSpace):
     def __init__(self, baseAddressSpace, hive_addr):
         addrspace.BaseAddressSpace.__init__(self, baseAddressSpace)
         self.base = baseAddressSpace
-        self.hive = NewObject("_HHIVE", hive_addr, baseAddressSpace)
+        self.hive = object2.NewObject("_HHIVE", hive_addr, baseAddressSpace)
         self.baseblock = self.hive.BaseBlock.v()
         self.flat = self.hive.Flat.v() > 0
 

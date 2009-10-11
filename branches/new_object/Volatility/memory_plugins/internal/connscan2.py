@@ -28,21 +28,22 @@ This module implements the fast connection scanning
 
 #pylint: disable-msg=C0111
 
-from forensics.win32.scan2 import PoolScanner, ScannerCheck
-import forensics.conf
-config = forensics.conf.ConfObject()
-import forensics.utils as utils
-from forensics.object2 import NewObject
-import forensics.debug as debug
+import volatility.win32.scan2 as scan2
+import volatility.commands as commands
+import volatility.conf as conf
+config = conf.ConfObject()
+import volatility.utils as utils
+import volatility.object2 as object2
+import volatility.debug as debug
 
-class PoolScanConnFast2(PoolScanner):
+class PoolScanConnFast2(scan2.PoolScanner):
     checks = [ ('PoolTagCheck', dict(tag = "TCPT")),
                ('CheckPoolSize', dict(condition = lambda x: x >= 0x198)),
                ('CheckPoolType', dict(non_paged=True, free=True)),
                ('CheckPoolIndex', dict(value = 0)),
                ]
 
-class connscan2(forensics.commands.command):
+class connscan2(commands.command):
     """ Scan Physical memory for _TCPT_OBJECT objects (tcp connections)
     """
     meta_info = dict(
@@ -66,7 +67,7 @@ class connscan2(forensics.commands.command):
         scanner = PoolScanConnFast2()
         for offset in scanner.scan(address_space):
             ## This yields the pool offsets - we want the actual object
-            tcp_obj = NewObject('_TCPT_OBJECT', vm=address_space,
+            tcp_obj = object2.NewObject('_TCPT_OBJECT', vm=address_space,
                                 offset=offset)
             
             local = "%s:%s" % (tcp_obj.LocalIpAddress, tcp_obj.LocalPort)

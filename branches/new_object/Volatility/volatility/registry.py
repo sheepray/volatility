@@ -40,9 +40,9 @@ classes in the same plugin and have them all automatically loaded.
 """
 
 import os, sys, imp
-import forensics.conf
-config = forensics.conf.ConfObject()
-import forensics.debug as debug
+import volatility.conf as conf
+config = conf.ConfObject()
+import volatility.debug as debug
 
 config.add_option("INFO", default=None, action="store_true",
                   help = "Print information about all registered objects")
@@ -324,23 +324,23 @@ def Init():
     LOCK = 1
 
     ## Register all shell commands:
-    import forensics.commands as commands
+    import volatility.commands as commands
     global PLUGIN_COMMANDS
     PLUGIN_COMMANDS = VolatilityCommandRegistry(commands.command)
 
     ## Register all the derived objects
-    import forensics.object2 as object2
+    import volatility.object2 as object2
     global OBJECT_CLASSES
     OBJECT_CLASSES = VolatilityObjectRegistry(object2.Object)
 
-    import forensics.addrspace as addrspace
+    import volatility.addrspace as addrspace
     global AS_CLASSES
     AS_CLASSES = VolatilityObjectRegistry(addrspace.BaseAddressSpace)
 
     global PROFILES
     PROFILES = VolatilityObjectRegistry(object2.Profile)
 
-    import forensics.win32.scan2 as scan2
+    import volatility.win32.scan2 as scan2
     global SCANNER_CHECKS
     SCANNER_CHECKS = VolatilityObjectRegistry(scan2.ScannerCheck)
     

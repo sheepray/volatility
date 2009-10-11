@@ -25,8 +25,8 @@
 @contact:      bdolangavitt@wesleyan.edu
 """
 
-import forensics.win32.rawreg as rawreg
-import forensics.win32.hive as hive
+import volatility.win32.rawreg as rawreg
+import volatility.win32.hive as hive
 from Crypto.Hash import MD5, MD4
 from Crypto.Cipher import ARC4, DES
 from struct import unpack, pack

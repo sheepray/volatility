@@ -6,11 +6,11 @@ Created on 25 Sep 2009
 
 #pylint: disable-msg=C0111
 
-import forensics.commands
-import forensics.win32 as win32
-import forensics.utils as utils
+import volatility.commands as commands
+import volatility.win32 as win32
+import volatility.utils as utils
 
-class connections(forensics.commands.command):
+class connections(commands.command):
     """
     Print list of open connections
     ------------------------------
@@ -24,7 +24,7 @@ class connections(forensics.commands.command):
     """
 
     def __init__(self, args=None):
-        forensics.commands.command.__init__(self, args)
+        commands.command.__init__(self, args)
 
     def render_text(self, outfd, data):
         if len(data):

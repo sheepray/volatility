@@ -25,13 +25,13 @@
 
 #pylint: disable-msg=C0111
 
-from forensics.win32.info import kpcr_addr
-from forensics.object2 import NewObject
+import volatility.win32.info as info
+import volatility.object2 as object2
 
 def lsmod(addr_space):
     """ A Generator for modules (uses _KPCR symbols) """
     ## Locate the kpcr struct - this is hard coded right now
-    kpcr = NewObject("_KPCR", kpcr_addr, addr_space)
+    kpcr = object2.NewObject("_KPCR", info.kpcr_addr, addr_space)
 
     ## Try to dereference the KdVersionBlock as a 64 bit struct
     DebuggerDataList = kpcr.KdVersionBlock.dereference_as("_DBGKD_GET_VERSION64").DebuggerDataList
@@ -40,12 +40,12 @@ def lsmod(addr_space):
         offset = DebuggerDataList.dereference().v()
         ## This is a pointer to a _KDDEBUGGER_DATA64 struct. We only
         ## care about the PsActiveProcessHead entry:
-        tmp = NewObject("_KDDEBUGGER_DATA64", offset,
+        tmp = object2.NewObject("_KDDEBUGGER_DATA64", offset,
                         addr_space).PsLoadedModuleList
 
         if not tmp.is_valid():
             ## Ok maybe its a 32 bit struct
-            tmp = NewObject("_KDDEBUGGER_DATA32", offset,
+            tmp = object2.NewObject("_KDDEBUGGER_DATA32", offset,
                             addr_space).PsLoadedModuleList
 
         ## Try to iterate over the process list in PsActiveProcessHead

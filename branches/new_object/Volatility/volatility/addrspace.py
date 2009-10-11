@@ -35,8 +35,8 @@ import os
 import struct
 import registry
 
-import forensics.conf
-config = forensics.conf.ConfObject()
+import volatility.conf as conf
+config = conf.ConfObject()
 
 ## By default load the profile that the user asked for
 config.add_option("PROFILE", default='WinXPSP2',

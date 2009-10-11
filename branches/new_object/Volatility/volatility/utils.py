@@ -1,7 +1,7 @@
-import forensics.registry as registry
-import forensics.conf
-config = forensics.conf.ConfObject()
-import forensics.debug as debug
+import volatility.registry as registry
+import volatility.conf as conf
+config = conf.ConfObject()
+import volatility.debug as debug
 
 #pylint: disable-msg=C0111
 

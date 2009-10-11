@@ -28,15 +28,15 @@
 
 #pylint: disable-msg=C0111
 
-from forensics.object2 import NewObject
-from forensics.win32.info import kpcr_addr
-import forensics.debug as debug
+import volatility.object2 as object2
+import volatility.win32.info as info
+import volatility.debug as debug
 
 def pslist(addr_space):
     """ A Generator for _EPROCESS objects (uses _KPCR symbols) """
     ## Locate the kpcr struct - this is hard coded right now
-    kpcr = NewObject("_KPCR",
-                     offset=kpcr_addr,
+    kpcr = object2.NewObject("_KPCR",
+                     offset=info.kpcr_addr,
                      vm=addr_space)
 
     ## Try to dereference the KdVersionBlock as a 64 bit struct

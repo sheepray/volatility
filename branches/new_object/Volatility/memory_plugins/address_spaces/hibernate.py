@@ -1,7 +1,7 @@
 """ A Hiber file Address Space """
 import standard
-from forensics.object2 import NewObject
-from forensics.win32.xpress import xpress_decode
+import volatility.object2 as object2
+import volatility.win32.xpress as xpress
 import struct
 
 #pylint: disable-msg=C0111
@@ -50,13 +50,13 @@ class WindowsHiberFileSpace32(standard.FileAddressSpace):
         self.MemRangeCnt = 0
         self.offset = 0
         # Extract header information
-        self.header = NewObject('_IMAGE_HIBER_HEADER', 0, baseAddressSpace)
+        self.header = object2.NewObject('_IMAGE_HIBER_HEADER', 0, baseAddressSpace)
         
         ## Is the signature right?
         assert self.header.Signature.lower() == 'hibr', "Header signature invalid"
 
         # Extract processor state
-        self.ProcState = NewObject("_KPROCESSOR_STATE", 2 * 4096, baseAddressSpace)
+        self.ProcState = object2.NewObject("_KPROCESSOR_STATE", 2 * 4096, baseAddressSpace)
 
         ## This is a pointer to the page table - any ASs above us dont
         ## need to search for it.
@@ -82,16 +82,16 @@ class WindowsHiberFileSpace32(standard.FileAddressSpace):
             
     def build_page_cache(self):
         XpressIndex = 0    
-        XpressHeader = NewObject("_IMAGE_XPRESS_HEADER",
-                                 (self.header.FirstTablePage + 1) * 4096, \
-                                 self.base)
+        XpressHeader = object2.NewObject("_IMAGE_XPRESS_HEADER",
+                                         (self.header.FirstTablePage + 1) * 4096, \
+                                         self.base)
         
         XpressBlockSize = self.get_xpress_block_size(XpressHeader)
 
         MemoryArrayOffset = self.header.FirstTablePage * 4096
 
         while MemoryArrayOffset:
-            MemoryArray = NewObject('_MEMORY_RANGE_ARRAY', MemoryArrayOffset, self.base)
+            MemoryArray = object2.NewObject('_MEMORY_RANGE_ARRAY', MemoryArrayOffset, self.base)
 
             EntryCount = MemoryArray.MemArrayLink.EntryCount.v()
             for i in MemoryArray.RangeTable:
@@ -149,7 +149,7 @@ class WindowsHiberFileSpace32(standard.FileAddressSpace):
             if size == 0x10000:
                 data_uz = data_z
             else:
-                data_uz = xpress_decode(data_z)
+                data_uz = xpress.xpress_decode(data_z)
             for page, size, offset in self.PageDict[xb]:
                 ofile.seek(page*0x1000)
                 ofile.write(data_uz[offset*0x1000:offset*0x1000+0x1000])
@@ -177,7 +177,7 @@ class WindowsHiberFileSpace32(standard.FileAddressSpace):
             if XpressHeaderOffset - original_offset > 10240:
                 return None, None
 
-        XpressHeader = NewObject("_IMAGE_XPRESS_HEADER", XpressHeaderOffset, self.base)
+        XpressHeader = object2.NewObject("_IMAGE_XPRESS_HEADER", XpressHeaderOffset, self.base)
         XpressBlockSize = self.get_xpress_block_size(XpressHeader)
         
         return XpressHeader, XpressBlockSize
@@ -248,7 +248,7 @@ class WindowsHiberFileSpace32(standard.FileAddressSpace):
             if BlockSize == 0x10000:
                 data_uz = data_read
             else:
-                data_uz = xpress_decode(data_read)
+                data_uz = xpress.xpress_decode(data_read)
 
                 self.PageCache.put(baddr, data_uz)
                 

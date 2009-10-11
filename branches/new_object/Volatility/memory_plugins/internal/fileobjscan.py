@@ -26,16 +26,15 @@
 @organization: http://computer.forensikblog.de/en/
 """
 
-import os
-from forensics.win32.scan2 import PoolScanner
-import forensics.commands
-import forensics.debug as debug
-import forensics.conf
-config = forensics.conf.ConfObject()
-import forensics.utils as utils
-from forensics.object2 import NewObject
+import volatility.win32.scan2 as scan2
+import volatility.commands as commands
+import volatility.debug as debug
+import volatility.conf
+config = volatility.conf.ConfObject()
+import volatility.utils as utils
+import volatility.object2 as object2
 
-class PoolScanFile(PoolScanner):
+class PoolScanFile(scan2.PoolScanner):
     ## We dont want any preamble - the offsets should be those of the
     ## _POOL_HEADER directly.
     preamble = []
@@ -45,7 +44,7 @@ class PoolScanFile(PoolScanner):
                ('CheckPoolIndex', dict(value = 0)),
                ]
 
-class filescan2(forensics.commands.command):
+class filescan2(commands.command):
     """ Scan Physical memory for _FILE_OBJECT pool allocations
     """
     # Declare meta information associated with this plugin
@@ -76,18 +75,18 @@ class filescan2(forensics.commands.command):
         self.kernel_address_space = utils.load_as()
 
         for offset in PoolScanFile().scan(address_space):
-            pool_obj = NewObject("_POOL_HEADER", vm=address_space,
+            pool_obj = object2.NewObject("_POOL_HEADER", vm=address_space,
                                  offset = offset)
             
             ## We work out the _FILE_OBJECT from the end of the
             ## allocation (bottom up).
-            file_obj = NewObject("_FILE_OBJECT", vm=address_space,
+            file_obj = object2.NewObject("_FILE_OBJECT", vm=address_space,
                                  offset = offset + pool_obj.BlockSize * 8 - \
                                  address_space.profile.get_obj_size("_FILE_OBJECT")
                                  )
 
             ## The _OBJECT_HEADER is immediately below the _FILE_OBJECT
-            object_obj = NewObject("_OBJECT_HEADER", vm=address_space,
+            object_obj = object2.NewObject("_OBJECT_HEADER", vm=address_space,
                                    offset = file_obj.offset - \
                                    address_space.profile.get_obj_size("_OBJECT_HEADER")
                                    )
