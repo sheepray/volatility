@@ -25,9 +25,6 @@
 @contact:      bdolangavitt@wesleyan.edu
 """
 
-# from forensics.object import *
-# from forensics.object import read_obj, read_unicode_string, get_obj_offset, read_obj_from_buf
-# from forensics.win32.scan2 import GenMemScanObject, PoolScanner, meta_info
 import volatility.object2 as object2
 import volatility.addrspace as addrspace
 import struct

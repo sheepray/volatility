@@ -28,7 +28,7 @@ This module implements the fast module scanning
 
 #pylint: disable-msg=C0111
 
-import volatility.win32.scan2 as scan2
+import volatility.scan as scan
 import volatility.commands as commands
 import volatility.conf as conf
 config = conf.ConfObject()
@@ -36,7 +36,7 @@ import volatility.utils as utils
 import volatility.object2 as object2
 import volatility.debug as debug
 
-class PoolScanModuleFast2(scan2.PoolScanner):
+class PoolScanModuleFast2(scan.PoolScanner):
     preamble = ['_POOL_HEADER', ]
 
     checks = [ ('PoolTagCheck', dict(tag = 'MmLd')),
@@ -88,7 +88,7 @@ class modscan2(commands.command):
                    ldr_entry.SizeOfImage,
                    self.parse_string(ldr_entry.BaseDllName))
 
-class CheckThreads(scan2.ScannerCheck):
+class CheckThreads(scan.ScannerCheck):
     """ Check sanity of _ETHREAD """
     kernel = 0x80000000
     
@@ -119,7 +119,7 @@ class CheckThreads(scan2.ScannerCheck):
         
         return True
 
-class PoolScanThreadFast2(scan2.PoolScanner):
+class PoolScanThreadFast2(scan.PoolScanner):
     """ Carve out threat objects using the pool tag """
     preamble = ['_POOL_HEADER', '_OBJECT_HEADER' ]
 

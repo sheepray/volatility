@@ -26,20 +26,20 @@
 
 #pylint: disable-msg=C0111
 
-import volatility.win32.scan2 as scan2
+import volatility.scan as scan
 import volatility.object2 as object2
 import volatility.utils as utils
 import volatility.commands as commands
 import volatility.conf as conf
 config = conf.ConfObject()
 
-class CheckHiveSig(scan2.ScannerCheck):
+class CheckHiveSig(scan.ScannerCheck):
     """ Check for a registry hive signature """
     def check(self, offset):
         sig = object2.NewObject('_HHIVE', vm=self.address_space, offset=offset + 4).Signature
         return sig == 0xbee0bee0
 
-class PoolScanHiveFast2(scan2.PoolScanner):
+class PoolScanHiveFast2(scan.PoolScanner):
     checks = [ ('PoolTagCheck', dict(tag = "CM10")),
                ('CheckPoolSize', dict(condition = lambda x: x==0x4a8)),
                ('CheckPoolType', dict(paged = True)),

@@ -340,9 +340,9 @@ def Init():
     global PROFILES
     PROFILES = VolatilityObjectRegistry(object2.Profile)
 
-    import volatility.win32.scan2 as scan2
+    import volatility.scan as scan
     global SCANNER_CHECKS
-    SCANNER_CHECKS = VolatilityObjectRegistry(scan2.ScannerCheck)
+    SCANNER_CHECKS = VolatilityObjectRegistry(scan.ScannerCheck)
     
     if config.INFO:
         print_info()

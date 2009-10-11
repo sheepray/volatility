@@ -28,7 +28,7 @@ This module implements the slow thorough process scanning
 
 #pylint: disable-msg=C0111
 
-import volatility.win32.scan2 as scan2
+import volatility.scan as scan
 import volatility.conf as conf
 import volatility.commands as commands
 import time
@@ -37,7 +37,7 @@ import volatility.utils as utils
 import volatility.object2 as object2
 import volatility.debug as debug
 
-class DispatchHeaderCheck(scan2.ScannerCheck):
+class DispatchHeaderCheck(scan.ScannerCheck):
     """ A very fast check for an _EPROCESS.Pcb.Header.
 
     This check assumes that the type and size of
@@ -56,7 +56,7 @@ class DispatchHeaderCheck(scan2.ScannerCheck):
         self.type = eprocess.Pcb.Header.Type
         self.size = eprocess.Pcb.Header.Size
         self.buffer_size = max(self.size.offset, self.type.offset) + 2
-        scan2.ScannerCheck.__init__(self, address_space)
+        scan.ScannerCheck.__init__(self, address_space)
 
     def check(self, offset):
         data = self.address_space.read(offset + self.type.offset, self.buffer_size)
@@ -80,7 +80,7 @@ class DispatchThreadHeaderCheck(DispatchHeaderCheck):
         self.type = ethread.Tcb.Header.Type
         self.size = ethread.Tcb.Header.Size
         self.buffer_size = max(self.size.offset, self.type.offset) + 2
-        scan2.ScannerCheck.__init__(self, address_space)
+        scan.ScannerCheck.__init__(self, address_space)
 
     def check(self, offset):
         data = self.address_space.read(offset + self.type.offset, self.buffer_size)
@@ -94,7 +94,7 @@ class DispatchThreadHeaderCheck(DispatchHeaderCheck):
             ## Substring is not found - skip to the end of this data buffer
             return len(data) - offset
     
-class CheckDTBAligned(scan2.ScannerCheck):
+class CheckDTBAligned(scan.ScannerCheck):
     """ Checks that _EPROCESS.Pcb.DirectoryTableBase is aligned to 0x20 """
     def check(self, offset):
         eprocess = object2.NewObject("_EPROCESS", vm=self.address_space,
@@ -102,7 +102,7 @@ class CheckDTBAligned(scan2.ScannerCheck):
         
         return eprocess.Pcb.DirectoryTableBase[0].v() % 0x20 == 0
 
-class CheckThreadList(scan2.ScannerCheck):
+class CheckThreadList(scan.ScannerCheck):
     """ Checks that _EPROCESS thread list points to the kernel Address Space """
     def check(self, offset):
         eprocess = object2.NewObject("_EPROCESS", vm=self.address_space,
@@ -115,7 +115,7 @@ class CheckThreadList(scan2.ScannerCheck):
                list_head.Blink > kernel:
             return True
 
-class CheckSynchronization(scan2.ScannerCheck):
+class CheckSynchronization(scan.ScannerCheck):
     """ Checks that _EPROCESS.WorkingSetLock and _EPROCESS.AddressCreationLock look valid """
     def check(self, offset):
         eprocess = object2.NewObject("_EPROCESS", vm=self.address_space,
@@ -129,7 +129,7 @@ class CheckSynchronization(scan2.ScannerCheck):
         if event.Size == 0x4 and event.Type == 0x1:
             return True
 
-class CheckThreadSemaphores(scan2.ScannerCheck):
+class CheckThreadSemaphores(scan.ScannerCheck):
     """ Checks _ETHREAD.Tcb.SuspendSemaphore and _ETHREAD.LpcReplySemaphore """
     def check(self, offset):
         ethread = object2.NewObject("_ETHREAD", vm=self.address_space,
@@ -147,7 +147,7 @@ class CheckThreadSemaphores(scan2.ScannerCheck):
         if event.Size == 0x5 and event.Type == 0x5:
             return True
 
-class CheckThreadNotificationTimer(scan2.ScannerCheck):
+class CheckThreadNotificationTimer(scan.ScannerCheck):
     """ Checks for sane _ETHREAD.Tcb.Timer.Header """
     def check(self, offset):
         ethread = object2.NewObject("_ETHREAD", vm=self.address_space,
@@ -157,7 +157,7 @@ class CheckThreadNotificationTimer(scan2.ScannerCheck):
         if sem.Type == 0x8 and sem.Size == 0xa:
             return True
 
-class CheckThreadProcess(scan2.ScannerCheck):
+class CheckThreadProcess(scan.ScannerCheck):
     """ Check that _ETHREAD.Cid.UniqueProcess is in kernel space """
     kernel = 0x80000000
     def check(self, offset):
@@ -166,7 +166,7 @@ class CheckThreadProcess(scan2.ScannerCheck):
         if ethread.Cid.UniqueProcess == 0 or ethread.ThreadsProcess.v() > self.kernel:
             return True
 
-class CheckThreadStartAddress(scan2.ScannerCheck):
+class CheckThreadStartAddress(scan.ScannerCheck):
     """ Checks that _ETHREAD.StartAddress is not 0 """
     def check(self, offset):
         ethread = object2.NewObject("_ETHREAD", vm=self.address_space,
@@ -174,7 +174,7 @@ class CheckThreadStartAddress(scan2.ScannerCheck):
         if ethread.Cid.UniqueProcess == 0 or ethread.StartAddress.v() != 0:
             return True
 
-class ThreadScan(scan2.BaseScanner):
+class ThreadScan(scan.BaseScanner):
     """ Carves out _ETHREAD structures """
     checks = [ ("DispatchThreadHeaderCheck", {}),
                ("CheckThreadProcess", {}),
@@ -198,7 +198,7 @@ class thrdscan(commands.command):
             outfd.write("%4d %6d %6d 0x%0.8x\n" % (cnt, ethread.Cid.UniqueProcess,
                                                    ethread.Cid.UniqueThread, offset))
    
-class PSScan(scan2.BaseScanner):
+class PSScan(scan.BaseScanner):
     """ This scanner carves things that look like _EPROCESS structures.
 
     Since the _EPROCESS does not need to be linked to the process

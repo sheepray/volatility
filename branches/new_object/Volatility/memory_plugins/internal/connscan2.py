@@ -28,7 +28,7 @@ This module implements the fast connection scanning
 
 #pylint: disable-msg=C0111
 
-import volatility.win32.scan2 as scan2
+import volatility.scan as scan
 import volatility.commands as commands
 import volatility.conf as conf
 config = conf.ConfObject()
@@ -36,7 +36,7 @@ import volatility.utils as utils
 import volatility.object2 as object2
 import volatility.debug as debug
 
-class PoolScanConnFast2(scan2.PoolScanner):
+class PoolScanConnFast2(scan.PoolScanner):
     checks = [ ('PoolTagCheck', dict(tag = "TCPT")),
                ('CheckPoolSize', dict(condition = lambda x: x >= 0x198)),
                ('CheckPoolType', dict(non_paged=True, free=True)),

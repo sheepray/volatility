@@ -26,7 +26,7 @@
 @organization: http://computer.forensikblog.de/en/
 """
 
-import volatility.win32.scan2 as scan2
+import volatility.scan as scan
 import volatility.commands as commands
 import volatility.debug as debug
 import volatility.conf
@@ -34,7 +34,7 @@ config = volatility.conf.ConfObject()
 import volatility.utils as utils
 import volatility.object2 as object2
 
-class PoolScanFile(scan2.PoolScanner):
+class PoolScanFile(scan.PoolScanner):
     ## We dont want any preamble - the offsets should be those of the
     ## _POOL_HEADER directly.
     preamble = []

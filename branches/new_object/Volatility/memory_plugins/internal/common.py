@@ -1,5 +1,5 @@
 """ This plugin contains CORE classes used by lots of other plugins """
-import volatility.win32.scan2 as scan2
+import volatility.scan as scan
 import volatility.object2 as object2
 import volatility.debug as debug
 
@@ -7,7 +7,7 @@ import volatility.debug as debug
 
 ## The following are checks for pool scanners.
 
-class PoolTagCheck(scan2.ScannerCheck):
+class PoolTagCheck(scan.ScannerCheck):
     """ This scanner checks for the occurance of a pool tag """
     def __init__(self, address_space, tag=None, **kwargs):
         self.tag = tag
@@ -25,7 +25,7 @@ class PoolTagCheck(scan2.ScannerCheck):
         data = self.address_space.read(offset, len(self.tag))
         return data == self.tag
 
-class CheckPoolSize(scan2.ScannerCheck):
+class CheckPoolSize(scan.ScannerCheck):
     """ Check pool block size """
     def __init__(self, address_space, condition=lambda x: x==8, **kwargs):
         self.condition = condition
@@ -39,7 +39,7 @@ class CheckPoolSize(scan2.ScannerCheck):
         
         return self.condition(block_size * 8)
 
-class CheckPoolType(scan2.ScannerCheck):
+class CheckPoolType(scan.ScannerCheck):
     """ Check the pool type """
     def __init__(self, address_space, paged = False,
                  non_paged = False, free = False, **kwargs):
@@ -63,7 +63,7 @@ class CheckPoolType(scan2.ScannerCheck):
         if self.paged and (ptype % 2) == 0 and ptype > 0:
             return True
 
-class CheckPoolIndex(scan2.ScannerCheck):
+class CheckPoolIndex(scan.ScannerCheck):
     """ Checks the pool index """
     def __init__(self, address_space, value=0, **kwargs):
         self.value = value

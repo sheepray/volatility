@@ -28,7 +28,7 @@ This module implements the fast socket scanning
 
 #pylint: disable-msg=C0111
 
-import volatility.win32.scan2 as scan2
+import volatility.scan as scan
 import volatility.commands as commands
 import volatility.conf as conf
 config = conf.ConfObject()
@@ -36,7 +36,7 @@ import volatility.utils as utils
 import volatility.object2 as object2
 import volatility.debug as debug
 
-class CheckSocketCreateTime(scan2.ScannerCheck):
+class CheckSocketCreateTime(scan.ScannerCheck):
     """ Check that _ADDRESS_OBJECT.CreateTime makes sense """
     def __init__(self, address_space, condition = lambda x: x, **kwargs):
         self.condition  = condition
@@ -49,7 +49,7 @@ class CheckSocketCreateTime(scan2.ScannerCheck):
 
         return self.condition(address_obj.CreateTime.v())
 
-class PoolScanSockFast(scan2.PoolScanner):
+class PoolScanSockFast(scan.PoolScanner):
     checks = [ ('PoolTagCheck', dict(tag = "TCPA")),
                ('CheckPoolSize', dict(condition = lambda x: x == 0x170)),
                ('CheckPoolType', dict(non_paged = True, free = True)),
