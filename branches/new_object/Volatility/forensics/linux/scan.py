@@ -67,7 +67,6 @@ from time import gmtime, strftime
 import struct
 import socket
 import re
-from vutils import PrintWithDefaults
 
 class Scan:
     def __init__(self, addr_space, beg, end, collect=False):
@@ -290,6 +289,19 @@ def task_dump(address, _cnt, obj):
                        ts_string,
                        comm),defaults)
 
+def PrintWithDefaults(format, args, defaults=None):
+    if defaults is None:
+        defaults = {}
+    argslist = list(args)
+    if len(defaults) > 0:
+        for index, item in enumerate(argslist):
+            if item == None:
+                if index in defaults:
+                    argslist[index] = defaults[index]
+        args = tuple(argslist)
+   
+    output = format % args
+    print output
 
 def task_scan(addr_space, types, filename, beg, end, slow):
     
