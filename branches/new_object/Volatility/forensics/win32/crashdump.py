@@ -32,20 +32,18 @@
 import os
 import struct
 
-from vutils import is_crash_dump
-from thirdparty.progressbar import Bar, ETA, Percentage, ProgressBar, RotatingMarker
-from forensics.object import read_obj, get_obj_offset
-from forensics.win32.info import find_psactiveprocesshead
-from forensics.win32.info import find_psloadedmodulelist
-from forensics.win32.info import find_mmpfndatabase
-from forensics.win32.info import find_kddebuggerdatablock
-from forensics.win32.info import find_systemtime
-from forensics.win32.info import find_suitemask
+#from forensics.object import get_obj_offset
+#from forensics.win32.info import find_psactiveprocesshead
+#from forensics.win32.info import find_psloadedmodulelist
+#from forensics.win32.info import find_mmpfndatabase
+#from forensics.win32.info import find_kddebuggerdatablock
+#from forensics.win32.info import find_systemtime
+#from forensics.win32.info import find_suitemask
 
-from forensics.win32.tasks import process_list
-from forensics.win32.tasks import process_addr_space
-from forensics.win32.tasks import peb_number_processors
-from forensics.win32.tasks import process_peb
+#from forensics.win32.tasks import process_list
+#from forensics.win32.tasks import process_addr_space
+#from forensics.win32.tasks import peb_number_processors
+#from forensics.win32.tasks import process_peb
 
 #from forensics.win32.tasks import *
 
@@ -567,163 +565,116 @@ num_of_runs = 0x00000001
 base_page = 0x00000000
 pae_enabled = 0x01
 
-def find_numberprocessors(addr_space, types):
-
-    NumberOfProcessorsDict = dict()
-    all_tasks = process_list(addr_space, types)
-
-    for task in all_tasks:
-
-        if not addr_space.is_valid_address(task):
-            continue
-        
-        process_address_space = process_addr_space(addr_space, types, task, addr_space.base.fname)
-        if process_address_space is None:
-            continue
-                            
-        peb = process_peb(addr_space, types, task)
-
-        try:
-            if not process_address_space.is_valid_address(peb):
-                continue
-        except:
-            continue
-
-        NumberOfProcessors = peb_number_processors(process_address_space, types, peb)
-        if NumberOfProcessors in NumberOfProcessorsDict:
-            NumberOfProcessorsDict[NumberOfProcessors] += 1
-        else:
-            NumberOfProcessorsDict[NumberOfProcessors] = 1
-
-    MaxNumberOfProcessors = max([ (NumberOfProcessorsDict[x], x) for x in NumberOfProcessorsDict])[1]
-
-    return MaxNumberOfProcessors
-
-def write_char_phys(value, member_list, hdr, types):
-
-    (offset, _current_type) = get_obj_offset(types, member_list)
-    new_hdr = hdr[:offset] + struct.pack('=B', value) + hdr[offset+1:]
-    return new_hdr
-
-def write_long_phys(value, member_list, hdr, types):
-
-    (offset, _current_type) = get_obj_offset(types, member_list) 
-    new_hdr = hdr[:offset] + struct.pack('=L', value) + hdr[offset+4:]
-    return new_hdr
-    
-def write_long_long_phys(value, member_list, hdr, types):
-
-    (offset, _current_type) = get_obj_offset(types, member_list) 
-    new_hdr = hdr[:offset] + struct.pack('=Q', value) + hdr[offset+8:]
-    return new_hdr
-
-def dd_to_crash(addr_space, types, _symbol_table, opts):
-
-    outfile = opts.outfile
-    filename = opts.filename
-
-    DirectoryTableBaseValue = addr_space.pgd_vaddr
-
-    PsActiveProcessHead = find_psactiveprocesshead(addr_space, types)
-
-    PsLoadedModuleList = find_psloadedmodulelist(addr_space, types)
-
-    MmPfnDatabase = find_mmpfndatabase(addr_space, types)
-   
-    KdDebuggerDataBlock = find_kddebuggerdatablock(addr_space, types)
-
-    NumberOfProcessors = find_numberprocessors(addr_space, types)
-
-    SuiteMask = find_suitemask(addr_space, types)
-
-    SystemTime = find_systemtime(addr_space, types)
-
-    num_pages = os.path.getsize(filename)/4096
-
-    new_hdr = write_long_phys(DirectoryTableBaseValue, ['_DMP_HEADER', 'DirectoryTableBase'], dump_hdr, types)
-    new_hdr = write_long_phys(PsLoadedModuleList, ['_DMP_HEADER', 'PsLoadedModuleList'], new_hdr, types)
-    new_hdr = write_long_phys(PsActiveProcessHead, ['_DMP_HEADER', 'PsActiveProcessHead'], new_hdr, types)
-    new_hdr = write_long_phys(KdDebuggerDataBlock, ['_DMP_HEADER', 'KdDebuggerDataBlock'], new_hdr, types)
-    new_hdr = write_long_phys(NumberOfProcessors, ['_DMP_HEADER', 'NumberProcessors'], new_hdr, types)
-    new_hdr = write_long_phys(MmPfnDatabase, ['_DMP_HEADER', 'PfnDataBase'], new_hdr, types)
-    new_hdr = write_long_phys(SuiteMask, ['_DMP_HEADER', 'SuiteMask'], new_hdr, types)
-    new_hdr = write_long_long_phys(SystemTime, ['_DMP_HEADER', 'SystemTime'], new_hdr, types)
-
-    if addr_space.pae == True:
-        new_hdr = write_char_phys(pae_enabled, ['_DMP_HEADER', 'PaeEnabled'], new_hdr, types)
-
-    new_hdr = new_hdr[:100] + struct.pack('=L', num_of_runs) + \
-                             struct.pack('=L', num_pages) + \
-			     struct.pack('=L', 0x00000000)  + \
-			     struct.pack('=L', num_pages) + \
-                             new_hdr[116:]
-
-    MI = open(outfile, 'wb')
-    MI.write("%s" % new_hdr)
-
-    FILEOPEN = open(filename, 'rb')
- 
-    offset = 0
-    end = os.path.getsize(filename)
-
-    widgets = ['Convert: ', Percentage(), ' ', Bar(marker=RotatingMarker()),
-                       ' ', ETA()]
-    pbar = ProgressBar(widgets=widgets, maxval=end).start()
-
-    while offset <= end:
-        fdata = FILEOPEN.read(0x1000)
-        if fdata == None:
-            break
-        MI.write("%s"%fdata)
-        pbar.update(offset)
-        offset += 0x1000
-	 
-    pbar.finish()
-    print
-
-    FILEOPEN.close()
-    MI.close()
-
-    return 
-
-def crash_numberofpages(address_space, types, vaddr):
-    return read_obj(address_space, types,
-         ['_DMP_HEADER', 'PhysicalMemoryBlockBuffer', 'NumberOfPages'], vaddr)
-
-def crash_to_dd(addr_space, types, output_file):
-
-    if is_crash_dump(addr_space.fname) == False:
-        print "Error: Crash dump file required as input"
-        return
-        
-    NumberOfPages = crash_numberofpages(addr_space, types, 0)
-
-    out = open(output_file, "wb")
-
-    NumberOfRuns = read_obj(addr_space, types,
-        ['_DMP_HEADER', 'PhysicalMemoryBlockBuffer', 'NumberOfRuns'], 0)
-   
-
-    run_base = ['_DMP_HEADER', 'PhysicalMemoryBlockBuffer', 'Run']
-
-    widgets = ['Convert: ', Percentage(), ' ', Bar(marker=RotatingMarker()),
-                       ' ', ETA()]
-    pbar = ProgressBar(widgets=widgets, maxval=NumberOfPages).start()
-    pages_written = 0
-
-    current_file_page = 0x1000
-    for i in xrange(NumberOfRuns):
-        BasePage  = read_obj(addr_space, types, run_base + [i, 'BasePage'], 0)
-        PageCount = read_obj(addr_space, types, run_base + [i, 'PageCount'], 0)
-        out.seek(BasePage * 0x1000)
-        for j in xrange(0, PageCount*0x1000, 0x1000):
-            data = addr_space.read(current_file_page + j, 0x1000)
-            out.write(data)
-            pbar.update(pages_written)
-            pages_written += 1
-        current_file_page += (PageCount * 0x1000)
-    pbar.finish()
-    print
-    out.close()
-
-    return
+#def find_numberprocessors(addr_space, types):
+#
+#    NumberOfProcessorsDict = dict()
+#    all_tasks = process_list(addr_space, types)
+#
+#    for task in all_tasks:
+#
+#        if not addr_space.is_valid_address(task):
+#            continue
+#        
+#        process_address_space = process_addr_space(addr_space, types, task, addr_space.base.fname)
+#        if process_address_space is None:
+#            continue
+#                            
+#        peb = process_peb(addr_space, types, task)
+#
+#        try:
+#            if not process_address_space.is_valid_address(peb):
+#                continue
+#        except:
+#            continue
+#
+#        NumberOfProcessors = peb_number_processors(process_address_space, types, peb)
+#        if NumberOfProcessors in NumberOfProcessorsDict:
+#            NumberOfProcessorsDict[NumberOfProcessors] += 1
+#        else:
+#            NumberOfProcessorsDict[NumberOfProcessors] = 1
+#
+#    MaxNumberOfProcessors = max([ (NumberOfProcessorsDict[x], x) for x in NumberOfProcessorsDict])[1]
+#
+#    return MaxNumberOfProcessors
+#
+#def write_char_phys(value, member_list, hdr, types):
+#
+#    (offset, _current_type) = get_obj_offset(types, member_list)
+#    new_hdr = hdr[:offset] + struct.pack('=B', value) + hdr[offset+1:]
+#    return new_hdr
+#
+#def write_long_phys(value, member_list, hdr, types):
+#
+#    (offset, _current_type) = get_obj_offset(types, member_list) 
+#    new_hdr = hdr[:offset] + struct.pack('=L', value) + hdr[offset+4:]
+#    return new_hdr
+#    
+#def write_long_long_phys(value, member_list, hdr, types):
+#
+#    (offset, _current_type) = get_obj_offset(types, member_list) 
+#    new_hdr = hdr[:offset] + struct.pack('=Q', value) + hdr[offset+8:]
+#    return new_hdr
+#
+#def dd_to_crash(addr_space, types, _symbol_table, opts):
+#
+#    outfile = opts.outfile
+#    filename = opts.filename
+#
+#    DirectoryTableBaseValue = addr_space.pgd_vaddr
+#
+#    PsActiveProcessHead = find_psactiveprocesshead(addr_space, types)
+#
+#    PsLoadedModuleList = find_psloadedmodulelist(addr_space, types)
+#
+#    MmPfnDatabase = find_mmpfndatabase(addr_space, types)
+#   
+#    KdDebuggerDataBlock = find_kddebuggerdatablock(addr_space, types)
+#
+#    NumberOfProcessors = find_numberprocessors(addr_space, types)
+#
+#    SuiteMask = find_suitemask(addr_space, types)
+#
+#    SystemTime = find_systemtime(addr_space, types)
+#
+#    num_pages = os.path.getsize(filename)/4096
+#
+#    new_hdr = write_long_phys(DirectoryTableBaseValue, ['_DMP_HEADER', 'DirectoryTableBase'], dump_hdr, types)
+#    new_hdr = write_long_phys(PsLoadedModuleList, ['_DMP_HEADER', 'PsLoadedModuleList'], new_hdr, types)
+#    new_hdr = write_long_phys(PsActiveProcessHead, ['_DMP_HEADER', 'PsActiveProcessHead'], new_hdr, types)
+#    new_hdr = write_long_phys(KdDebuggerDataBlock, ['_DMP_HEADER', 'KdDebuggerDataBlock'], new_hdr, types)
+#    new_hdr = write_long_phys(NumberOfProcessors, ['_DMP_HEADER', 'NumberProcessors'], new_hdr, types)
+#    new_hdr = write_long_phys(MmPfnDatabase, ['_DMP_HEADER', 'PfnDataBase'], new_hdr, types)
+#    new_hdr = write_long_phys(SuiteMask, ['_DMP_HEADER', 'SuiteMask'], new_hdr, types)
+#    new_hdr = write_long_long_phys(SystemTime, ['_DMP_HEADER', 'SystemTime'], new_hdr, types)
+#
+#    if addr_space.pae == True:
+#        new_hdr = write_char_phys(pae_enabled, ['_DMP_HEADER', 'PaeEnabled'], new_hdr, types)
+#
+#    new_hdr = new_hdr[:100] + struct.pack('=L', num_of_runs) + \
+#                             struct.pack('=L', num_pages) + \
+#			     struct.pack('=L', 0x00000000)  + \
+#			     struct.pack('=L', num_pages) + \
+#                             new_hdr[116:]
+#
+#    MI = open(outfile, 'wb')
+#    MI.write("%s" % new_hdr)
+#
+#    FILEOPEN = open(filename, 'rb')
+# 
+#    offset = 0
+#    end = os.path.getsize(filename)
+#
+#    while offset <= end:
+#        fdata = FILEOPEN.read(0x1000)
+#        if fdata == None:
+#            break
+#        MI.write("%s"%fdata)
+#        # progress.update(offset)
+#        offset += 0x1000
+#	 
+#    print
+#
+#    FILEOPEN.close()
+#    MI.close()
+#
+#    return 

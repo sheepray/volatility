@@ -59,7 +59,7 @@ def parse_decrypted_cache(dec_data, uname_len,
     pad = 2 * ( ( domain_len / 2 ) % 2 )
     domain_name_off = domain_off + domain_len + pad
 
-    hash = dec_data[:0x10]
+    hashh = dec_data[:0x10]
     username = dec_data[uname_off:uname_off+uname_len]
     username = username.decode('utf-16-le')
     domain = dec_data[domain_off:domain_off+domain_len]
@@ -67,7 +67,7 @@ def parse_decrypted_cache(dec_data, uname_len,
     domain_name = dec_data[domain_name_off:domain_name_off+domain_name_len]
     domain_name = domain_name.decode('utf-16-le')
 
-    return (username, domain, domain_name, hash)
+    return (username, domain, domain_name, hashh)
 
 def dump_hashes(sysaddr, secaddr):
     bootkey = hashdump.get_bootkey(sysaddr)
@@ -107,10 +107,10 @@ def dump_hashes(sysaddr, secaddr):
         dec_data = decrypt_hash(enc_data, nlkm, ch)
 
         (username, domain, domain_name,
-            hash) = parse_decrypted_cache(dec_data, uname_len,
+            hashh) = parse_decrypted_cache(dec_data, uname_len,
                     domain_len, domain_name_len)
 
-        hashes.append((username, domain, domain_name, hash))
+        hashes.append((username, domain, domain_name, hashh))
 
     return hashes 
 
@@ -118,14 +118,14 @@ def dump_memory_hashes(addr_space, syshive, sechive):
     sysaddr = hive.HiveAddressSpace(addr_space, syshive)
     secaddr = hive.HiveAddressSpace(addr_space, sechive)
 
-    for (u, d, dn, hash) in dump_hashes(sysaddr, secaddr):
-        print "%s:%s:%s:%s" % (u.lower(), hash.encode('hex'),
+    for (u, d, dn, hashh) in dump_hashes(sysaddr, secaddr):
+        print "%s:%s:%s:%s" % (u.lower(), hashh.encode('hex'),
                                d.lower(), dn.lower())
 
 def dump_file_hashes(syshive_fname, sechive_fname):
     sysaddr = hive.HiveFileAddressSpace(syshive_fname)
     secaddr = hive.HiveFileAddressSpace(sechive_fname)
 
-    for (u, d, dn, hash) in dump_hashes(sysaddr, secaddr):
-        print "%s:%s:%s:%s" % (u.lower(), hash.encode('hex'),
+    for (u, d, dn, hashh) in dump_hashes(sysaddr, secaddr):
+        print "%s:%s:%s:%s" % (u.lower(), hashh.encode('hex'),
                                d.lower(), dn.lower())

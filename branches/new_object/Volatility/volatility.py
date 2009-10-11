@@ -46,25 +46,6 @@ from forensics.object2 import Curry
 config.add_option('DEBUG', short_option = 'd', action='count',
                   help = 'Debug volatility', default=0)
 
-from vmodules import VolatoolsModule, psscan, thrdscan, sockscan, connscan, psscan2, raw2dmp, modscan
-
-modules = {
-    'raw2dmp':
-        VolatoolsModule('raw2dmp',
-                    'Convert a raw dump to a crash dump',
-                    raw2dmp),
-    }
-
-
-def list_modules():
-    result = "\n\tSupported Internel Commands:\n\n"
-    keys = modules.keys()
-    keys.sort()
-    for mod in keys:
-        result += "\t\t%-15s\t%-s\n" % (mod, modules[mod].desc())
-        
-    return result
-
 def list_plugins():
     result = "\n\tSupported Plugin Commands:\n\n"
     keys = MemoryRegistry.PLUGIN_COMMANDS.commands.keys()
@@ -95,8 +76,6 @@ def usage(progname):
     print "\tusage: %s cmd [cmd_opts]\n" % (progname)
     print "\tRun command cmd with options cmd_opts"
     print "\tFor help on a specific command, run '%s cmd --help'" % (progname)
-    print
-    list_modules()
     print
     list_plugins()
     print
@@ -132,20 +111,12 @@ def main():
         config.parse_options()
         config.error("You must specify something to do (try -h)")
         
-    if module not in modules and \
-           module not in MemoryRegistry.PLUGIN_COMMANDS.commands:
+    if module not in MemoryRegistry.PLUGIN_COMMANDS.commands:
         config.parse_options()        
         config.error("Invalid module [%s]." % (module))
 
     try:
-        if module in modules:
-            command = modules[module]
-            config.set_help_hook(Curry(command_help, command))
-            config.parse_options()
-            
-            command.execute(module, config.args[1:])
-            
-        elif module in MemoryRegistry.PLUGIN_COMMANDS.commands:
+        if module in MemoryRegistry.PLUGIN_COMMANDS.commands:
             command = MemoryRegistry.PLUGIN_COMMANDS[module](config.args[1:])
 
             ## Register the help cb from the command itself
@@ -158,7 +129,6 @@ def main():
 
 if __name__ == "__main__":
     config.set_usage(usage = "Volatility - A memory forensics analysis platform.")
-    config.add_help_hook(list_modules)
     config.add_help_hook(list_plugins)
     
     try:
@@ -168,4 +138,3 @@ if __name__ == "__main__":
         if config.DEBUG:
             import pdb
             pdb.post_mortem()
-

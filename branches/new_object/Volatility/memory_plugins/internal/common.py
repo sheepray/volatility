@@ -1,7 +1,9 @@
 """ This plugin contains CORE classes used by lots of other plugins """
-from forensics.win32.scan2 import PoolScanner, ScannerCheck
+from forensics.win32.scan2 import ScannerCheck
 from forensics.object2 import NewObject
 import forensics.debug as debug
+
+#pylint: disable-msg=C0111
 
 ## The following are checks for pool scanners.
 
@@ -50,15 +52,15 @@ class CheckPoolType(ScannerCheck):
         pool_hdr = NewObject('_POOL_HEADER', vm=self.address_space,
                              offset = offset - 4)
         
-        type = pool_hdr.PoolType.v()
+        ptype = pool_hdr.PoolType.v()
 
-        if self.non_paged and (type % 2) == 1:
+        if self.non_paged and (ptype % 2) == 1:
             return True
 
-        if self.free and type == 0:
+        if self.free and ptype == 0:
             return True
 
-        if self.paged and (type % 2) == 0 and type > 0:
+        if self.paged and (ptype % 2) == 0 and ptype > 0:
             return True
 
 class CheckPoolIndex(ScannerCheck):

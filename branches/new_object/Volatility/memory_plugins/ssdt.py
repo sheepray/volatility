@@ -46,6 +46,15 @@ ssdt_types = {
 } ],
 }
 
+ssdt_overlay = {
+  '_KTHREAD' : [ None, {
+    'ServiceTable' : [ 0xe0, ['pointer', ['_SERVICE_DESCRIPTOR_TABLE']]],
+} ],
+  '_ETHREAD' : [ None, {
+    'ThreadListEntry' : [ 0x22c, ['_LIST_ENTRY']],
+} ],                
+}
+
 # Derived using:
 #   dps nt!KiServiceTable L 11c
 #   dps win32k!W32pServiceTable L 29b
@@ -1038,14 +1047,13 @@ class ssdt(forensics.commands.command):
         'version': '1.0'}
     
     def execute(self):
-        from vtypes import xpsp2types
         
-        xpsp2types['_ETHREAD'][1]['ThreadListEntry'] = [ 0x22c, ['_LIST_ENTRY']]
-        xpsp2types['_KTHREAD'][1]['ServiceTable']  = [ 0xe0, ['pointer', ['_SERVICE_DESCRIPTOR_TABLE']]]
-
         addr_space = utils.load_as()
         addr_space.profile.add_types(ssdt_types)
 
+        # FIXME: Allow overlaying of single new members for structs
+        # addr_space.profile.apply_overlay("????", ssdt_overlay)
+        
         ## Get a sorted list of module addresses
         mods = dict( (mod.BaseAddress.v(), mod) for mod in lsmod(addr_space) )
         mod_addrs = sorted(mods.keys())

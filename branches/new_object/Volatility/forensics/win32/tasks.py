@@ -28,11 +28,8 @@
 
 #pylint: disable-msg=C0111
 
-from forensics.object import read_obj, read_unicode_string, get_obj_offset, read_null_string
 from forensics.object2 import NewObject
-from forensics.win32.info import find_psactiveprocesshead, kpcr_addr
-from struct import unpack
-from forensics.addrspace import FileAddressSpace
+from forensics.win32.info import kpcr_addr
 import forensics.debug as debug
 
 def pslist(addr_space):
@@ -60,184 +57,12 @@ def pslist(addr_space):
             yield l
     else:
         raise RuntimeError("Unable to find PsActiveProcessHead - is this image supported?")
-
-def process_list(addr_space, types, symbol_table=None):
-    """
-    Get the virtual addresses of all Windows processes
-    """
-    plist = []
-    
-    PsActiveProcessHead = find_psactiveprocesshead(addr_space, types)
-
-    if not PsActiveProcessHead is None:
-        (offset, _tmp)  = get_obj_offset(types, ['_EPROCESS', 'ActiveProcessLinks'])
-
-        first_process = PsActiveProcessHead - offset
-
-        current = read_obj(addr_space, types, ['_EPROCESS', 'ActiveProcessLinks', 'Flink'],
-                           first_process)
-        if current is None:
-            print "Unable to read beginning of process list 0x%x. Try a different DTB?" % (first_process)
-            return plist
-        
-        this_process = current - offset
-        
-        while current != PsActiveProcessHead:
-            Type =  read_obj(addr_space, types, ['_EPROCESS', 'Pcb', 'Header', 'Type'], this_process)
-
-            if not Type == 0x03:
-                break
-            plist.append(this_process)
-
-            current = read_obj(addr_space, types, ['_EPROCESS', 'ActiveProcessLinks', 'Flink'],
-                               this_process)
-            if current == None:
-                plist.append(this_process)
-                break
-
-            this_process = current - offset
-
-    return plist
-
-
-def process_find_pid(addr_space, types, symbol_table, all_tasks, pid):
-    """
-    Find process offset with this pid in the task list
-    """
-    match_tasks = []
-
-    for task in all_tasks:
-        process_id = process_pid(addr_space, types, task)
-        if process_id == pid:
-            match_tasks.append(task)
-
-    return match_tasks
     
 # Blocksize was chosen to make it aligned
 # on 8 bytes
 # Optimized by Michael Cohen
 
 BLOCKSIZE = 1024 * 1024 * 10
-
-def find_dtb(addr_space, types):
-    """
-    Find the Idle dtb (DTB Feeling lucky)
-    """
-   
-    try:
-        flat_address_space = FileAddressSpace(addr_space.name, fast=True)
-    except:
-        print "Unable to open image file %s" % addr_space.name
-        return None
-
-    offset = 0
-    while 1:
-        data = flat_address_space.fread(BLOCKSIZE)
-        found = 0
-        if not data:
-            break
-
-        while 1:
-            found = data.find("\x03\x00\x1b\x00", found+1)
-            if found >= 0:
-                (type, size) = unpack('=HH', data[found:found+4])
-                if process_imagename(addr_space, types, offset+found).find('Idle') != -1:
-                    return process_dtb(addr_space, types, offset+found)
-
-            else:
-                break
-            
-        offset += len(data)
-
-    return None
-
-
-def process_imagename(addr_space, types, task_vaddr):
-    return read_null_string(addr_space, types,
-                            ['_EPROCESS', 'ImageFileName'], task_vaddr)
-
-def process_dtb(addr_space, types, task_vaddr):
-    return read_obj(addr_space, types,
-                    ['_EPROCESS', 'Pcb', 'DirectoryTableBase', 0], task_vaddr)
-
-def process_vadroot(addr_space, types, task_vaddr):
-    return read_obj(addr_space, types,
-                        ['_EPROCESS', 'VadRoot'], task_vaddr)
-
-def process_pid(addr_space, types, task_vaddr):
-    return read_obj(addr_space, types,
-                    ['_EPROCESS', 'UniqueProcessId'], task_vaddr)
-
-def process_num_active_threads(addr_space, types, task_vaddr):
-    return  read_obj(addr_space, types,
-                     ['_EPROCESS', 'ActiveThreads'], task_vaddr)
-
-def process_exit_status(addr_space, types, task_vaddr):
-    return  read_obj(addr_space, types,
-                         ['_EPROCESS', 'ExitStatus'], task_vaddr)
-
-def process_inherited_from(addr_space, types, task_vaddr):
-    return read_obj(addr_space, types,
-                    ['_EPROCESS', 'InheritedFromUniqueProcessId'], task_vaddr)
-
-def process_handle_table(addr_space, types, task_vaddr):
-    return read_obj(addr_space, types,
-                    ['_EPROCESS', 'ObjectTable'], task_vaddr)
-
-def process_handle_count(addr_space, types, task_vaddr):
-    object_table =  read_obj(addr_space, types,
-                             ['_EPROCESS', 'ObjectTable'], task_vaddr)
-
-    if object_table is None or not addr_space.is_valid_address(object_table):
-        return None
-    else:
-        try:
-            handle_count = read_obj(addr_space, types,
-                                    ['_HANDLE_TABLE', 'HandleCount'], object_table)
-        except:
-            return None
-
-    return handle_count
-
-
-def process_create_time(addr_space, types, task_vaddr):
-    (create_time_offset, _tmp) = get_obj_offset(types, ['_EPROCESS', 'CreateTime'])    
-    create_time     = read_time(addr_space, types, task_vaddr + create_time_offset)
-
-    if create_time is None:
-        return None
-    
-    create_time     = windows_to_unix_time(create_time)
-    return create_time
-
-def process_exit_time(addr_space, types, task_vaddr):
-    (exit_time_offset, _tmp) = get_obj_offset(types, ['_EPROCESS', 'ExitTime'])    
-    exit_time     = read_time(addr_space, types, task_vaddr + exit_time_offset)
-    if exit_time is None:
-        return None
-    exit_time     = windows_to_unix_time(exit_time)
-    return exit_time
-
-def process_addr_space(kaddr_space, types, task_vaddr, _fname=None):
-    directory_table_base =  read_obj(kaddr_space, types,
-                                     ['_EPROCESS', 'Pcb', 'DirectoryTableBase', 0], task_vaddr)
-
-    try:
-        #process_address_space = type(kaddr_space)(fname, directory_table_base)
-        process_address_space = kaddr_space.__class__(kaddr_space.base, directory_table_base)
-    except:
-        return None
-
-    return process_address_space
-
-
-def process_peb(addr_space, types, task_vaddr):
-    return read_obj(addr_space, types,
-                    ['_EPROCESS', 'Peb'], task_vaddr)
-
-def process_threadlisthead(addr_space, types, task_vaddr):
-    return read_obj(addr_space, types,
-                    ['_EPROCESS', 'ThreadListHead', 'Flink'], task_vaddr)
 
 def create_addr_space(kaddr_space, directory_table_base):
 
@@ -247,54 +72,3 @@ def create_addr_space(kaddr_space, directory_table_base):
         return None
 
     return process_address_space
-
-def peb_number_processors(process_address_space, types, peb_vaddr):
-    return read_obj(process_address_space, types,
-                                  ['_PEB', 'NumberOfProcessors'], peb_vaddr)
-
-def peb_csdversion(process_address_space, types, peb_vaddr):
-    return read_unicode_string(process_address_space, types,
-                                  ['_PEB', 'CSDVersion'], peb_vaddr)
-
-def module_path(process_address_space, types, module_vaddr):
-    return read_unicode_string(process_address_space, types,
-                    ['_LDR_DATA_TABLE_ENTRY', 'FullDllName'], module_vaddr)    
-def module_size(process_address_space, types, module_vaddr):
-    return read_obj(process_address_space, types,
-                    ['_LDR_DATA_TABLE_ENTRY', 'SizeOfImage'], module_vaddr)
-
-def module_base(process_address_space, types, module_vaddr):
-    return read_obj(process_address_space, types,
-                    ['_LDR_DATA_TABLE_ENTRY', 'DllBase'], module_vaddr)
-
-def find_csdversion(addr_space, types):
-
-    CSDVersionDict = dict()
-    all_tasks = process_list(addr_space, types)
-
-    for task in all_tasks:
-
-        if not addr_space.is_valid_address(task):
-            continue
-        
-        process_address_space = process_addr_space(addr_space, types, task)
-        if process_address_space is None:
-            continue
-                            
-        peb = process_peb(addr_space, types, task)
-
-        try:
-            if not process_address_space.is_valid_address(peb):
-                continue
-        except:
-            continue
-
-        CSDVersion = peb_csdversion(process_address_space, types, peb)
-        if CSDVersion in CSDVersionDict:
-            CSDVersionDict[CSDVersion] += 1
-        else:
-            CSDVersionDict[CSDVersion] = 1
-
-    MaxCSDVersion = max([ (CSDVersionDict[x], x) for x in CSDVersionDict])[1]
-
-    return MaxCSDVersion

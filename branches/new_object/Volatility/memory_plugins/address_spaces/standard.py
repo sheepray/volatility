@@ -2,7 +2,6 @@
 import struct
 import forensics.addrspace as addrspace
 import forensics.object2 as object2 
-from vsyms import nopae_syms
 import forensics.conf
 config = forensics.conf.ConfObject()
 from forensics.debug import b
@@ -110,7 +109,8 @@ class IA32PagedMemory(addrspace.BaseAddressSpace):
         self.pgd_vaddr = dtb or config.DTB or self.load_dtb()
 
         ## Finally we have to have a valid PsLoadedModuleList
-        assert self.is_valid_address(nopae_syms.lookup('PsLoadedModuleList')), "PsLoadedModuleList not valid Address"
+        # FIXME: !!!!! Remove Hardcoded HACK!!!!
+        assert self.is_valid_address(0x8055a420), "PsLoadedModuleList not valid Address"
 
     def load_dtb(self):
         try:

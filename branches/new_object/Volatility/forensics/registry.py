@@ -279,7 +279,7 @@ class VolatilityObjectRegistry(MemoryRegistry):
 
 
 def print_info():
-    for k,v in globals().items():
+    for k, v in globals().items():
         if isinstance(v, MemoryRegistry):
             print "\n"
             print "%s" % k
@@ -296,7 +296,7 @@ def print_info():
                 max_length = max(len(cls.__name__), max_length)
 
             ## Sort the result
-            def cmp(x,y):
+            def cmp(x,  y):
                 if x[0] < y[0]:
                     return -1
                 else: return 1
@@ -337,7 +337,6 @@ def Init():
     global AS_CLASSES
     AS_CLASSES = VolatilityObjectRegistry(addrspace.BaseAddressSpace)
 
-    import forensics.object2 as object2
     global PROFILES
     PROFILES = VolatilityObjectRegistry(object2.Profile)
 

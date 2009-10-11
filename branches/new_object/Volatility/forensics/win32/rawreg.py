@@ -25,7 +25,6 @@
 @contact:      bdolangavitt@wesleyan.edu
 """
 
-# from forensics.object import read_value
 import forensics.object2 as object2
 import struct
 

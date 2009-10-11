@@ -33,12 +33,10 @@
 
 import os
 import struct
-import object2
 import registry
 
 import forensics.conf
 config = forensics.conf.ConfObject()
-from forensics.debug import b, debug
 
 ## By default load the profile that the user asked for
 config.add_option("PROFILE", default='WinXPSP2',

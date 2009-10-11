@@ -28,11 +28,8 @@
 
 #pylint: disable-msg=C0111
 
-import struct
 import forensics.win32 as win32
 import forensics.object2 as object2
-from forensics.object import read_obj, get_obj_offset
-from socket import ntohs, inet_ntoa
 
 module_versions = { \
 'MP' : { \

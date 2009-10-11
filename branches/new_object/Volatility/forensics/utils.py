@@ -1,7 +1,7 @@
 import forensics.registry as registry
 import forensics.conf
 config = forensics.conf.ConfObject()
-from forensics.debug import debug, b
+import forensics.debug as debug
 
 #pylint: disable-msg=C0111
 
@@ -9,17 +9,17 @@ def load_as(**kwargs):
     base_as = None
     error = AddrSpaceError()
     while 1:
-        debug("Voting round")
+        debug.debug("Voting round")
         found = False
         for cls in registry.AS_CLASSES.classes:
-            debug("Trying %s " % cls)
+            debug.debug("Trying %s " % cls)
             try:
                 base_as = cls(base_as, **kwargs)
-                debug("Succeeded instantiating %s" % base_as)
+                debug.debug("Succeeded instantiating %s" % base_as)
                 found = True
                 break
             except AssertionError, e:
-                debug("Failed instantiating %s: %s" % (cls.__name__, e), 2) 
+                debug.debug("Failed instantiating %s: %s" % (cls.__name__, e), 2) 
                 error.append_reason(cls.__name__, e) 
                 continue
 

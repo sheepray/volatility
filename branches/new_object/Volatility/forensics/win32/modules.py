@@ -25,7 +25,6 @@
 
 #pylint: disable-msg=C0111
 
-from forensics.object import read_obj, read_unicode_string
 from forensics.win32.info import kpcr_addr
 from forensics.object2 import NewObject
 
@@ -54,28 +53,3 @@ def lsmod(addr_space):
         for l in tmp.dereference_as("_LIST_ENTRY").list_of_type(
             "_LDR_MODULE", "InLoadOrderModuleList"):
             yield l
-
-def module_imagename(address_space, types, module_vaddr):
-    return read_unicode_string(address_space, types,
-        ['_LDR_DATA_TABLE_ENTRY', 'FullDllName'], module_vaddr)
-
-def module_modulename(address_space, types, module_vaddr):
-    return read_unicode_string(address_space, types,
-        ['_LDR_DATA_TABLE_ENTRY', 'BaseDllName'], module_vaddr)
-
-def module_imagesize(address_space, types, module_vaddr):
-    return read_obj(address_space, types,
-        ['_LDR_DATA_TABLE_ENTRY', 'SizeOfImage'], module_vaddr)
-
-def module_baseaddr(address_space, types, module_vaddr):
-    return read_obj(address_space, types,
-        ['_LDR_DATA_TABLE_ENTRY', 'DllBase'], module_vaddr)
-
-def module_find_baseaddr(addr_space, types, modules, name):
-    for module in modules:
-        module_name = module_imagename(addr_space, types, module)
-        if module_name is None:
-            continue
-
-        if module_name.find(name) != -1:
-            return module_baseaddr(addr_space, types, module)

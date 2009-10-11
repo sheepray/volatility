@@ -8,7 +8,6 @@ import forensics.object2 as object2
 import forensics.win32 as win32
 import forensics.utils as utils
 import forensics.commands
-import vmodules
 
 #pylint: disable-msg=C0111
 

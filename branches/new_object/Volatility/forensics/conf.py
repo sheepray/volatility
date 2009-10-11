@@ -69,7 +69,6 @@ configuration information:
    
 """    
 import ConfigParser, optparse, os, sys
-import forensics, pdb
 
 class PyFlagOptionParser(optparse.OptionParser):
     final = False
