@@ -121,7 +121,7 @@ def main():
 
     try:
         if module in MemoryRegistry.PLUGIN_COMMANDS.commands:
-            command = MemoryRegistry.PLUGIN_COMMANDS[module](config.args[1:])
+            command = MemoryRegistry.PLUGIN_COMMANDS[module]()
             
             ## Register the help cb from the command itself
             config.set_help_hook(object2.Curry(command_help, command))            

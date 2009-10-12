@@ -120,6 +120,7 @@ class filescan(commands.command):
                          object_obj.HandleCount, AccessStr, Name))
 
 class PoolScanDriver(PoolScanFile):
+    """ Scanner for _DRIVER_OBJECT """
     ## No preamble
     checks = [ ('PoolTagCheck', dict(tag = "Dri\xf6")),
                ('CheckPoolSize', dict(condition = lambda x: x == 0xf8)),
@@ -129,7 +130,6 @@ class PoolScanDriver(PoolScanFile):
 
 class driverscan(filescan):
     "Scan for driver objects _DRIVER_OBJECT "
-    # Declare meta information associated with this plugin
     def calculate(self):
         ## Just grab the AS and scan it using our scanner
         address_space = utils.load_as(astype='physical')
@@ -188,3 +188,81 @@ class driverscan(filescan):
                    self.parse_string(extension_obj.ServiceKeyName),
                    self.parse_string(object_name_info_obj.Name),
                    self.parse_string(driver_obj.DriverName))
+
+class PoolScanMutant(PoolScanDriver):
+    """ Scanner for Mutants _KMUTANT """
+    checks = [ ('PoolTagCheck', dict(tag = "Mut\xe1")),
+               ('CheckPoolSize', dict(condition = lambda x: x >= 0x40)),
+               ('CheckPoolType', dict(non_paged = True)),
+               ('CheckPoolIndex', dict(value = 0)),
+               ]
+
+
+class mutantscan(filescan):
+    "Scan for mutant objects _KMUTANT "
+    def __init__(self):
+        config.add_option("SILENT", short_option='s', default=False,
+                          action='store_true', help='suppress less meaningful results')
+        filescan.__init__(self)
+
+    def calculate(self):
+        ## Just grab the AS and scan it using our scanner
+        address_space = utils.load_as(astype='physical')
+
+        ## Will need the kernel AS for later:
+        self.kernel_address_space = utils.load_as()
+
+        for offset in PoolScanMutant().scan(address_space):
+            pool_obj = object2.NewObject("_POOL_HEADER", vm=address_space,
+                                 offset = offset)
+            
+            ## We work out the _DRIVER_OBJECT from the end of the
+            ## allocation (bottom up).
+            mutant = object2.NewObject(
+                "_KMUTANT", vm=address_space,
+                offset = offset + pool_obj.BlockSize * 8 -\
+                address_space.profile.get_obj_size("_KMUTANT"))
+            
+            ## The _OBJECT_HEADER is immediately below the _KMUTANT
+            object_obj = object2.NewObject(
+                "_OBJECT_HEADER", vm=address_space,
+                offset = mutant.offset - \
+                address_space.profile.get_obj_size("_OBJECT_HEADER")
+                )
+
+            ## Skip unallocated objects
+            ##if object_obj.Type == 0xbad0b0b0:
+            ##   continue
+
+            ## Now we need to work out the _OBJECT_NAME_INFO object
+            object_name_info_obj = object2.NewObject("_OBJECT_NAME_INFO", vm=address_space,
+                                                     offset = object_obj.offset - \
+                                                     object_obj.NameInfoOffset.v()
+                                                     )
+
+            if config.SILENT:
+                if object_obj.NameInfoOffset == 0:
+                    continue
+            
+            yield (object_obj, mutant, object_name_info_obj)
+
+        
+    def render_text(self, outfd, data):
+        print "%-10s %-10s %4s %4s %6s %-10s %-10s %s" % \
+              ('Phys.Addr.', 'Obj Type', '#Ptr', '#Hnd', 'Signal',\
+               'Thread', 'CID', 'Name')
+        
+        for object_obj, mutant, object_name_info_obj in data:
+            if mutant.OwnerThread.v() > 0x80000000:
+                thread = object2.NewObject("_ETHREAD", vm = self.kernel_address_space,
+                                   offset = mutant.OwnerThread.v())
+                CID = "%s:%s" % (thread.Cid.UniqueProcess, thread.Cid.UniqueThread)
+            else:
+                CID = ""
+            
+            print "0x%08x 0x%08x %4d %4d %6d 0x%08x %-10s %s" % \
+                  (mutant.offset, object_obj.Type, object_obj.PointerCount,
+                   object_obj.HandleCount, mutant.Header.SignalState, \
+                   mutant.OwnerThread.v(), CID,
+                   self.parse_string(object_name_info_obj.Name)
+                   )
