@@ -53,6 +53,23 @@ class dlllist(commands.command):
                 "_LDR_MODULE", "InLoadOrderModuleList"):
                 yield l
 
+    def filter_tasks(self, tasks):
+        """ Reduce the tasks based on the user selectable PIDS parameter.
+
+        Returns a reduced list or the full list if config.PIDS not specified.
+        """
+        try:
+            if config.PIDS:
+                pidlist = [int(p) for p in config.PIDS.split(',')]
+                newtasks = [t for t in tasks if int(t.UniqueProcessId) in pidlist]
+                # Make this a separate statement, so that if an exception occurs, no harm done
+                tasks = newtasks
+        except (ValueError, TypeError):
+            # TODO: We should probably print a non-fatal warning here
+            pass
+        
+        return tasks
+
     def calculate(self):
         """Produces a list of processes, or just a single process based on an OFFSET"""
         addr_space = utils.load_as()
@@ -60,16 +77,7 @@ class dlllist(commands.command):
         if config.OFFSET != None:
             tasks = [obj.Object("_EPROCESS", config.OFFSET, addr_space)]
         else:
-            tasks = win32.tasks.pslist(addr_space)
-            try:
-                if config.PIDS is not None:
-                    pidlist = [int(p) for p in config.PIDS.split(',')]
-                    newtasks = [t for t in tasks if int(t.UniqueProcessId) in pidlist]
-                    # Make this a separate statement, so that if an exception occurs, no harm done
-                    tasks = newtasks
-            except (ValueError, TypeError):
-                # TODO: We should probably print a non-fatal warning here
-                pass
+            tasks = self.filter_tasks(win32.tasks.pslist(addr_space))
         
         return tasks
 
@@ -84,35 +92,29 @@ class files(dlllist):
 
     def render_text(self, outfd, data):
         first = True
-        for pid in data:
+        for pid, handles in data:
             if not first:
                 outfd.write("*" * 72 + "\n")
             outfd.write("Pid: %-6d\n" % pid)
             first = False
             
-            handles = data[pid]
             for h in handles:
                 if h.FileName:
                     outfd.write("%-6s %-40s\n" % ("File", h.FileName))
 
     def calculate(self):
         result = {}
-        tasks = dlllist.calculate(self)
+        tasks = self.filter_tasks(dlllist.calculate(self))
         
         for task in tasks:
             if task.ObjectTable.HandleTableList:
                 pid = task.UniqueProcessId
-                if config.PID and pid != config.PID:
-                    continue
-
-                result[pid] = self.handle_list(task)
+                yield pid, self.handle_list(task)
                 
-        return result
-    
     def handle_list(self, task):
         for h in task.handles():
             if str(h.Type.Name) == self.handle_type:
-                yield obj.Object(self.handle_obj, h.Body.offset, task.vm, parent=task, profile=task.profile)
+                yield obj.Object(self.handle_obj, h.Body.offset, task.vm, parent=task)
 
 class pslist(dlllist):
     """ print all running processes by following the EPROCESS lists """
@@ -135,13 +137,11 @@ class memmap(dlllist):
 
     def render_text(self, outfd, data):
         first = True
-        for pid in data:
+        for pid, task, pagedata in data:
             if not first:
                 outfd.write("*" * 72 + "\n")
 
-            task = data[pid]['task']
             task_space = task.get_process_address_space()
-            pagedata = data[pid]['pages']
             outfd.write("%s pid: %-6d\n" % (task.ImageFileName, pid))
             first = False
 
@@ -160,17 +160,14 @@ class memmap(dlllist):
 
     def calculate(self):
         result = {}
-        tasks = dlllist.calculate(self)
+        tasks = self.filter_tasks(dlllist.calculate(self))
         
         for task in tasks:
             if task.UniqueProcessId:
                 pid = task.UniqueProcessId
-                if (not config.PID) or pid == config.PID:
-                    task_space = task.get_process_address_space()
-                    pages = task_space.get_available_pages()
-                    result[pid] = {'task': task, 'pages': pages}
-
-        return result
+                task_space = task.get_process_address_space()
+                pages = task_space.get_available_pages()
+                yield pid, task, pages
 
 class memdump(memmap):
     """Dump the addressable memory for a process"""
@@ -186,12 +183,10 @@ class memdump(memmap):
         if not os.path.isdir(config.DUMP_DIR):
             config.error(config.DUMP_DIR + " is not a directory")
         
-        for pid in data:
+        for pid, task, pagedata in data:
             outfd.write("*" * 72 + "\n")
 
-            task = data[pid]['task']
             task_space = task.get_process_address_space()
-            pagedata = data[pid]['pages']
             outfd.write("Writing %s [%-6d] to %s.dmp\n" % (task.ImageFileName, pid, str(pid)))
 
             f = open(os.path.join(config.DUMP_DIR, str(pid) + ".dmp"), 'wb')
