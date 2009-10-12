@@ -42,6 +42,11 @@ config = conf.ConfObject()
 config.add_option("PROFILE", default='WinXPSP2',
                   help = "Name of the profile to load")
 
+## Make sure the profiles are cached so we only parse it once. This is
+## important since it allows one module to update the profile for
+## another module.
+PROFILES = {}
+
 class BaseAddressSpace:
     """ This is the base class of all Address Spaces. """
     def __init__(self, base, **kwargs):
@@ -50,7 +55,11 @@ class BaseAddressSpace:
         """
         self.base = base
         ## Load the required profile
-        self.profile = registry.PROFILES[config.PROFILE]()
+        try:
+            self.profile = PROFILES[config.PROFILE]
+        except KeyError:
+            self.profile = registry.PROFILES[config.PROFILE]()
+            PROFILES[config.PROFILE] = self.profile
 
     def read(self, addr, len):
         """ Read some date from a certain offset """

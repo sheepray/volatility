@@ -476,33 +476,42 @@ class Array(Object):
 
         self.current = self.target(offset=offset, vm=vm, parent=self,
                                        name= name)
-        
-    def __iter__(self):
-        self.position = 0
-        return self
+        if self.current.size()==0:
+            ## It is an error to have a zero sized element
+            debug.debug("Array with 0 sized members???", level=10)
+            debug.b()
 
     def size(self):
         return self.count * self.current.size()
 
-    def next(self):
-        # We do *NOT* stop on a NULL Pointer being returned,
-        # but *do* want to stop on a NoneObject or any other duff value
-        # so we specifically must use == rather than is when testing None
-        # (in order to catch the NoneObject too)
-        if (self.current == None) or self.position >= self.count:
-            raise StopIteration()
-        
-        offset = self.original_offset + self.position * self.current.size()
-        self.position += 1
+    def __iter__(self):
+        ## This method is better than the __iter__/next method as it
+        ## is reentrant
+        for position in range(0,self.count):
+            # We do *NOT* stop on a NULL Pointer being returned,
+            # but *do* want to stop on a NoneObject or any other duff value
+            # so we specifically must use == rather than is when testing None
+            # (in order to catch the NoneObject too)
+            
+            ## MC: Do we actually want to stop on a NoneObject? its
+            ## entirely possible that this array contains a bunch of
+            ## pointers and some of them may not be valid (or paged
+            ## in). This should not stop us though we just return the
+            ## invalid pointers to our callers.
+            if (self.current == None):
+                return
 
-        ## Instantiate the target here:
-        if self.vm.is_valid_address(offset):
-            return self.target(offset = offset, vm=self.vm,
-                               parent=self,
-                               name="%s %s" % (self.name, self.position))
-        else:
-            return NoneObject("Array %s, Invalid position %s" % (self.name, self.position),
-                              self.profile.strict)
+            offset = self.original_offset + position * self.current.size()
+            self.position += 1
+
+            ## Instantiate the target here:
+            if self.vm.is_valid_address(offset):
+                yield self.target(offset = offset, vm=self.vm,
+                                  parent=self,
+                                  name="%s %s" % (self.name, self.position))
+            else:
+                yield NoneObject("Array %s, Invalid position %s" % (self.name, self.position),
+                                 self.profile.strict)
         
     def __str__(self):
         return "Array (len=%s of %s)\n" % (self.count, self.current.name)
@@ -569,7 +578,7 @@ class CType(Object):
         try:
             offset, cls = self.members[attr]
         except KeyError:
-            return NoneObject("Struct %s has no member %s" % (self.name, attr))
+            #return NoneObject("Struct %s has no member %s" % (self.name, attr))
             raise AttributeError("Struct %s has no member %s" % (self.name, attr))
 
         try:
@@ -614,30 +623,42 @@ class Profile:
     
     def __init__(self, strict=False):
         self.types = {}
+        self.typeDict = {}
+        self.overlayDict = {}
         self.strict = strict
         
+        self.add_types(self.abstract_types, self.overlay)
+
+    def add_types(self, abstract_types, overlay=None):
+        overlay = overlay or {}
+
+        ## we merge the abstract_types with self.typeDict and then recompile
+        ## the whole thing again. This is essential because
+        ## definitions may have changed as a result of this call, and
+        ## we store curried objects (which might keep their previous
+        ## definitions).
+        for k,v in abstract_types.items():
+            original = self.typeDict.get(k,[0, {}])
+            original[1].update(v[1])
+            if v[0]:
+                original[0] = v[0]
+            self.typeDict[k] = original
+
+        for k,v in overlay.items():
+            original = self.overlayDict.get(k,[None, {}])
+            original[1].update(v[1])
+            if v[0]:
+                original[0] = v[0]
+            self.overlayDict[k] = original
+
         # Load the native types
+        self.types = {}
         for nt, value in self.native_types.items():
             if type(value) == list:
                 self.types[nt] = Curry(NativeType, nt, format_string=value[1])
 
-        self.import_typeset(self.abstract_types, self.overlay)
-
-        # Load the abstract data types
-    def import_typeset(self, abstract_types, overlay=None):
-        if overlay is None:
-            overlay = {}
-        for name, _value in abstract_types.items():
-            self.import_type(name, abstract_types, overlay)
-
-    def import_type(self, ctype, typeDict, overlay):
-        """ Parses the abstract_types by converting their string
-        representations to class instances.
-        """
-        self.types[ctype] = self.convert_members(ctype, typeDict, overlay)
-
-    def add_types(self, addDict):
-        self.import_typeset(addDict)
+        for name in self.typeDict.keys():
+            self.types[name] = self.convert_members(name, self.typeDict, self.overlayDict)
         
     def list_to_type(self, name, typeList, typeDict=None):
         """ Parses a specification list and returns a VType object.
@@ -758,7 +779,7 @@ class Profile:
 
         We return a list of CTypeMember objects. 
         """
-        ctype = self.apply_overlay(typeDict[cname], overlay.get(cname))
+        ctype = self.apply_overlay(typeDict[cname], overlay.get(cname))        
         members = {}
         size = ctype[0]
         for k, v in ctype[1].items():

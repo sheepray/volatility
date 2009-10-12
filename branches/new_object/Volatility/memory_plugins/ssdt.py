@@ -31,6 +31,7 @@ import volatility.win32.tasks as tasks
 import volatility.win32.modules as modules
 import volatility.commands as commands
 import volatility.utils as utils
+import volatility.debug as debug
 
 #pylint: disable-msg=C0111
 
@@ -44,15 +45,12 @@ ssdt_types = {
     'ServiceLimit' : [0x8, ['long']],
     'ArgumentTable' : [0xc, ['pointer', ['unsigned char']]],
 } ],
-}
-
-ssdt_overlay = {
+  '_ETHREAD' : [ None, {
+    'ThreadListEntry' : [ 0x22c, ['_LIST_ENTRY']],
+} ],
   '_KTHREAD' : [ None, {
     'ServiceTable' : [ 0xe0, ['pointer', ['_SERVICE_DESCRIPTOR_TABLE']]],
 } ],
-  '_ETHREAD' : [ None, {
-    'ThreadListEntry' : [ 0x22c, ['_LIST_ENTRY']],
-} ],                
 }
 
 # Derived using:
@@ -1046,8 +1044,7 @@ class ssdt(commands.command):
         'os': 'WIN_32_XP_SP2',
         'version': '1.0'}
     
-    def execute(self):
-        
+    def execute(self):        
         addr_space = utils.load_as()
         addr_space.profile.add_types(ssdt_types)
 
@@ -1068,7 +1065,7 @@ class ssdt(commands.command):
 
         # Get a list of *unique* SSDT entries. Typically we see only two.
         tables = set()
-        
+
         for ssdt_obj in ssdts:
             for i, desc in enumerate(ssdt_obj.Descriptors):
                 if desc.is_valid() and desc.ServiceLimit != 0:
