@@ -162,11 +162,11 @@ class vadwalk(vadinfo):
     """Walk the VAD tree"""
     
     def render_text(self, outfd, data):
-        for pid in data:
+        for pid, result in data:
             outfd.write("*" * 72 + "\n")
             outfd.write("Pid: %-6d\n" % (pid))
             outfd.write("Address  Parent   Left     Right    Start    End      Tag  Flags\n")
-            for vad in data[pid]['vadlist']:
+            for vad in result['vadlist']:
                 # Ignore Vads with bad tags (which we explicitly include as None)
                 if vad != None:
                     outfd.write("%08x %08x %08x %08x %08x %08x %-4s\n" % (vad.offset,
