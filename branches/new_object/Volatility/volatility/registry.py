@@ -87,8 +87,16 @@ class MemoryRegistry:
         
         ## Recurse over all the plugin directories recursively
         for path in plugins.split(':'):
-            path = os.path.normpath(os.path.join(os.path.dirname(__file__),
-                                                 os.path.join("..", path)))
+            # Given it's a colon separated list, currently providing absolute paths on windows are impossible
+            if path.startswith('/'):
+                path = os.path.abspath(path)
+            else:
+                # Take the executable path
+                relbase = sys.argv[0]
+                if hasattr(sys, "frozen") or hasattr(sys, "importers") or imp.is_frozen("__main__"):
+                    # Use the actual executable path if the script's frozen (running within py2exe)
+                    relbase = sys.executable  
+                path = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(relbase)), path))
             for dirpath, _dirnames, filenames in os.walk(path):
                 sys.path.append(dirpath)
                 
