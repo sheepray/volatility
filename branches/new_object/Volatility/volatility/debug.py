@@ -1,6 +1,7 @@
 """ General debugging framework """
 import volatility.conf
 config = volatility.conf.ConfObject()
+import sys
 
 config.add_option("DEBUG", short_option='d', default = 0,
                   action = 'count',

@@ -23,10 +23,10 @@ class vadinfo(taskmods.dlllist):
 
     def render_text(self, outfd, data):
         
-        for pid in data:
+        for pid, result in data:
             outfd.write("*" * 72 + "\n")
             outfd.write("Pid: %-6d\n" % (pid))
-            for vad in data[pid]['vadlist']:
+            for vad in result['vadlist']:
                 if vad == None:
                     outfd.write("Error: Unknown Tag")
                 else:
@@ -79,14 +79,12 @@ class vadinfo(taskmods.dlllist):
             outfd.write("Extended information available\n")
 
     def calculate(self):
-        result = {}
         tasks = taskmods.dlllist.calculate(self)
         
         for task in tasks:
             if task.UniqueProcessId:
                 pid = int(task.UniqueProcessId)
-                
-                result[pid] = {'task': task, 'vadlist': []}
+                result = {'task': task, 'vadlist': []}
 
                 task_space = task.get_process_address_space()
 
@@ -111,10 +109,9 @@ class vadinfo(taskmods.dlllist):
                         # print "Vad with tag:", vadtype
                         vadlist.append(None)
                 
-                result[pid]['vadlist'] = vadlist
-                    
-        return sorted(result)
-    
+                result['vadlist'] = vadlist
+                yield pid, result
+
     def accumulate_vads(self, root):
         """Traverses the Vad Tree based on Left and Right children"""
         leftside = []
@@ -133,7 +130,7 @@ class vadtree(vadinfo):
             outfd.write("*" * 72 + "\n")
             outfd.write("Pid: %-6d\n" % (pid))
             levels = {}
-            for vad in data[pid]['vadlist']:
+            for vad in result['vadlist']:
                 # Ignore Vads with bad tags (which we explicitly include as None)
                 if vad != None:
                     level = levels.get(vad.Parent.dereference().offset, -1) + 1

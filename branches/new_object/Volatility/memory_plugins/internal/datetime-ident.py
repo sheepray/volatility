@@ -8,6 +8,7 @@ import volatility.object2 as object2
 import volatility.win32 as win32
 import volatility.utils as utils
 import volatility.commands as commands
+import volatility.debug as debug
 
 #pylint: disable-msg=C0111
 

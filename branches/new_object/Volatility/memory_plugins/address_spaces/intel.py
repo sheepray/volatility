@@ -36,7 +36,9 @@ class JKIA32PagedMemory(addrspace.BaseAddressSpace):
     """
     order = 70
     cache = False
-
+    pae = False
+    paging_address_space = True
+    
     def __init__(self, base, dtb=0, astype = None, **kwargs):
         ## We allow users to disable us in favour of the old legacy
         ## modules.
@@ -49,7 +51,10 @@ class JKIA32PagedMemory(addrspace.BaseAddressSpace):
         assert base, "No base Address Space"
 
         ## We can not stack on someone with a dtb
-        assert not hasattr(base, 'dtb'), "Can not stack over another paging address space"
+        try:
+            assert not base.paging_address_space, "Can not stack over another paging address space"
+        except AttributeError: pass
+        
         self.dtb = dtb or config.DTB or self.load_dtb()
         self.base = base
 
@@ -347,6 +352,8 @@ class JKIA32PagedMemoryPae(JKIA32PagedMemory):
     at http://support.amd.com/us/Processor_TechDocs/24593.pdf.
     """
     order = 80        
+    pae = True
+    
     def _cache_values(self):
         buf = self.base.read(self.dtb, 0x20)
         if buf is None:
