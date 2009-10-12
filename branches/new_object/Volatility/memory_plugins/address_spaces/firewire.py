@@ -15,10 +15,11 @@ import volatility.addrspace as addrspace
 import volatility.conf
 config = volatility.conf.ConfObject()
 
-config.add_option("BUS", type='int', default=None,
-                  help="Specifies which bus to use for firewire transfer")
-config.add_option("NODE", type='int', default=None,
-                  help="Specifies which node on the firewire bus to use")
+if firewire_available:
+    config.add_option("BUS", type='int', default=None,
+                      help="Specifies which bus to use for firewire transfer")
+    config.add_option("NODE", type='int', default=None,
+                      help="Specifies which node on the firewire bus to use")
 
 class FirewireAddressSpace(addrspace.BaseAddressSpace):
     """A physical layer address space that provides access via firewire"""
