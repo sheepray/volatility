@@ -19,24 +19,24 @@ opts['author']       = "AAron Walters"
 opts['author_email'] = "awalters@volatilesystems.com"  
 opts['url']          = "http://www.volatilesystems.com"
 opts['license']      = "GPL"
-opts['packages']     = ["volatility", 
-                       "volatility.win32", 
-                       "volatility.linux", 
-                       "memory_plugins",
-                       "memory_plugins.address_spaces",
-                       "memory_plugins.internal",
-                       "memory_plugins.registry",
-                       "memory_objects",
-                       "memory_objects.Windows"]
+opts['scripts']      = ["volatility.py"]
+opts['packages']     = ["volatility",
+                        "volatility.win32",
+                        "memory_plugins",
+                        "memory_plugins.internal",
+                        "memory_plugins.registry",
+                        "memory_objects",
+                        "memory_objects.Windows",
+                        ]
 
 if py2exe_available:
     py2exe_distdir = 'dist/py2exe'
-    opts['windows'] = [{ 'script': 'volatility.py',
+    opts['console'] = [{ 'script': 'volatility.py',
 #                          'icon_resources': [(1, 'resources/py.ico')]
                       }]
     opts['options'] = {'py2exe':{'optimize': 2,
-                                 'includes': '',
                                  'dist_dir': py2exe_distdir,
+                                 'packages': opts['packages'],
                                 }
                       }
 
