@@ -4,7 +4,6 @@ from distutils.core import setup
 import volatility
 import sys
 import os
-import glob
 
 py2exe_available = True
 try:
@@ -13,9 +12,13 @@ except ImportError:
     py2exe_available = False
 
 def find_py_files(topdirs):
+    """Lists all python files under any topdir from the topdirs lists.
+    
+       Returns an appropriate list for data_files,
+       with source and destination directories the same"""
     ret = []
     for topdir in topdirs:
-        for r, ds, fs in os.walk(topdir):
+        for r, _ds, fs in os.walk(topdir):
             ret.append((r, [ os.path.join(r, f) for f in fs if f.endswith('.py')]))
     return ret
 
