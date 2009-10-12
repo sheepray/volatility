@@ -329,16 +329,16 @@ def Init():
     PLUGIN_COMMANDS = VolatilityCommandRegistry(commands.command)
 
     ## Register all the derived objects
-    import volatility.obj as obj
+    import volatility.obj as objmod
     global OBJECT_CLASSES
-    OBJECT_CLASSES = VolatilityObjectRegistry(obj.Object)
+    OBJECT_CLASSES = VolatilityObjectRegistry(objmod.Object)
 
     import volatility.addrspace as addrspace
     global AS_CLASSES
     AS_CLASSES = VolatilityObjectRegistry(addrspace.BaseAddressSpace)
 
     global PROFILES
-    PROFILES = VolatilityObjectRegistry(obj.Profile)
+    PROFILES = VolatilityObjectRegistry(objmod.Profile)
 
     import volatility.scan as scan
     global SCANNER_CHECKS

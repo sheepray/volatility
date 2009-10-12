@@ -1048,9 +1048,6 @@ class ssdt(commands.command):
         addr_space = utils.load_as()
         addr_space.profile.add_types(ssdt_types)
 
-        # FIXME: Allow overlaying of single new members for structs
-        # addr_space.profile.apply_overlay("????", ssdt_overlay)
-        
         ## Get a sorted list of module addresses
         mods = dict( (mod.BaseAddress.v(), mod) for mod in modules.lsmod(addr_space) )
         mod_addrs = sorted(mods.keys())

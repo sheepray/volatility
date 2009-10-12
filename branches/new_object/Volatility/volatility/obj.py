@@ -233,7 +233,7 @@ class BaseObject(object):
         return -self.v()
     
     def __eq__(self, other):
-        if isinstance(other, Object):
+        if isinstance(other, BaseObject):
             return (self.__class__ == other.__class__) and (self.offset == other.offset)
         else:
             return NotImplemented
@@ -487,17 +487,14 @@ class Array(BaseObject):
     def __iter__(self):
         ## This method is better than the __iter__/next method as it
         ## is reentrant
-        for position in range(0,self.count):
-            # We do *NOT* stop on a NULL Pointer being returned,
-            # but *do* want to stop on a NoneObject or any other duff value
-            # so we specifically must use == rather than is when testing None
-            # (in order to catch the NoneObject too)
+        for position in range(0, self.count):
             
-            ## MC: Do we actually want to stop on a NoneObject? its
+            ## We don't want to stop on a NoneObject.  Its
             ## entirely possible that this array contains a bunch of
             ## pointers and some of them may not be valid (or paged
             ## in). This should not stop us though we just return the
-            ## invalid pointers to our callers.
+            ## invalid pointers to our callers.  It's up to the callers
+            ## to do what they want with the array.
             if (self.current == None):
                 return
 
@@ -637,15 +634,15 @@ class Profile:
         ## definitions may have changed as a result of this call, and
         ## we store curried objects (which might keep their previous
         ## definitions).
-        for k,v in abstract_types.items():
-            original = self.typeDict.get(k,[0, {}])
+        for k, v in abstract_types.items():
+            original = self.typeDict.get(k, [0, {}])
             original[1].update(v[1])
             if v[0]:
                 original[0] = v[0]
             self.typeDict[k] = original
 
-        for k,v in overlay.items():
-            original = self.overlayDict.get(k,[None, {}])
+        for k, v in overlay.items():
+            original = self.overlayDict.get(k, [None, {}])
             original[1].update(v[1])
             if v[0]:
                 original[0] = v[0]
@@ -793,7 +790,7 @@ class Profile:
         members = {}
         size = ctype[0]
         for k, v in ctype[1].items():
-            if v[0]==None:
+            if v[0] == None:
                 print "Error - %s has no offset in object %s. Check that vtypes has a concerete definition for it." % (k, cname)
             members[k] = (v[0], self.list_to_type(k, v[1], typeDict))
 
@@ -813,10 +810,10 @@ if __name__ == '__main__':
     class ObjectTests(unittest.TestCase):
         """ Tests the object implementation. """
 
-        def make_object(self, obj, offset, type, data):
+        def make_object(self, objct, offset, type, data):
             address_space = addrspace.BufferAddressSpace(data)
             profile = Profile(abstract_types=type)
-            o = Object(obj, offset, address_space, profile=profile)
+            o = Object(objct, offset, address_space, profile=profile)
             
             return o
         
