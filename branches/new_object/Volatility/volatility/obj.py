@@ -75,7 +75,8 @@ try:
     import functools
 
     Curry = functools.partial
-except: pass
+except:
+    pass
 
 import traceback
 
@@ -217,7 +218,8 @@ class BaseObject(object):
             result = True
 
         result2 = self.vm.is_valid_address(self.offset)
-        if result != result2: debug.b()
+        if result != result2:
+            debug.b()
         return result2
 
     def __add__(self, other):
@@ -543,7 +545,7 @@ class CType(BaseObject):
     def __init__(self, theType, offset, vm, parent=None, profile=None, members=None, name=None, size=0):
         """ This must be instantiated with a dict of members. The keys
         are the offsets, the values are Curried Object classes that
-        will be instanitated when accessed.
+        will be instantiated when accessed.
         """
         if not members:
             raise RuntimeError()
@@ -598,7 +600,7 @@ class CType(BaseObject):
             pass
 
         try:
-            return object.__getattribute__(self, "_"+attr)(attr)
+            return object.__getattribute__(self, "_" + attr)(attr)
         except:
             pass
         
