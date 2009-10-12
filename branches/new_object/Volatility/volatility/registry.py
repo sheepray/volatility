@@ -331,7 +331,7 @@ def Init():
     ## Register all the derived objects
     import volatility.obj as objmod
     global OBJECT_CLASSES
-    OBJECT_CLASSES = VolatilityObjectRegistry(objmod.Object)
+    OBJECT_CLASSES = VolatilityObjectRegistry(objmod.BaseObject)
 
     import volatility.addrspace as addrspace
     global AS_CLASSES
