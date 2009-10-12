@@ -10,7 +10,6 @@ Created on 30 Sep 2009
 # "The VAD Tree: A Process-Eye View of Physical Memory," Brendan Dolan-Gavitt
 
 import os.path
-import volatility.win32 as win32
 import volatility.win32.vad as win32vad
 import volatility.object2 as object2
 import volatility.conf
@@ -91,7 +90,7 @@ class vadinfo(taskmods.dlllist):
 
                 task_space = task.get_process_address_space()
 
-                vadroot = object2.NewObject("_MMVAD_LONG", task.VadRoot, task_space)
+                vadroot = object2.NewObject("_MMVAD_SHORT", task.VadRoot, task_space)
                 vadlist = []
                 for vad in self.accumulate_vads(vadroot):
                     # We're going to abuse the name field to store the tag because whilst it should be a part of the structure
@@ -102,9 +101,7 @@ class vadinfo(taskmods.dlllist):
                     elif vadtype == 'VadS':
                         vadlist.append(object2.NewObject("_MMVAD_SHORT", vad.offset, task_space, name="VadS"))
                     elif vadtype == 'Vad ':
-                        vad.name = 'Vad '
-                        vadlist.append(vad)
-#                        vadlist.append(object2.NewObject("_MMVAD_LONG", vad.offset, task_space, name="VadS"))
+                        vadlist.append(object2.NewObject("_MMVAD", vad.offset, task_space, name="Vad "))
                     elif vadtype == 'VadF':
                         # TODO: Figure out what a VadF looks like!
                         vad.name = 'VadF'
