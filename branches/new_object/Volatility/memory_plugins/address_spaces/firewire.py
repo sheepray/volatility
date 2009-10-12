@@ -4,22 +4,9 @@ Created on 12 Oct 2009
 @author: Mike Auty
 '''
 
-firewire_available = False
-try:
-    import firewire
-    firewire_available = True
-except ImportError:
-    firewire_available = False 
-
 import volatility.addrspace as addrspace
 import volatility.conf
 config = volatility.conf.ConfObject()
-
-if firewire_available:
-    config.add_option("BUS", type='int', default=None,
-                      help="Specifies which bus to use for firewire transfer")
-    config.add_option("NODE", type='int', default=None,
-                      help="Specifies which node on the firewire bus to use")
 
 class FirewireAddressSpace(addrspace.BaseAddressSpace):
     """A physical layer address space that provides access via firewire"""
@@ -27,7 +14,6 @@ class FirewireAddressSpace(addrspace.BaseAddressSpace):
     ## We should be *almost* the AS of last resort
     order = 99
     def __init__(self, base, layered=False, **kargs):
-        assert firewire_available, "Pythonraw1394 not available"
         addrspace.BaseAddressSpace.__init__(self, base, **kargs)
         assert base == None or layered, 'Must be first Address Space'
         bus = config.BUS
@@ -107,3 +93,12 @@ class FirewireAddressSpace(addrspace.BaseAddressSpace):
     def get_available_addresses(self):
         """Returns a list of available addresses"""
         return self.intervals(0, self.size)
+
+try:
+    import firewire
+    config.add_option("BUS", type='int', default=None,
+                      help="Specifies which bus to use for firewire transfer")
+    config.add_option("NODE", type='int', default=None,
+                      help="Specifies which node on the firewire bus to use")
+except ImportError:
+    FirewireAddressSpace = None
