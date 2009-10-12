@@ -181,7 +181,7 @@ def Object(theType, offset, vm, parent=None, profile=None, name=None, **kwargs):
     ## This is a serious error.
     debug.debug("Cant find object %s in profile %s???" % (theType, profile), level = 5)
 
-class Object(object):        
+class BaseObject(object):        
     def __init__(self, theType, offset, vm, parent=None, profile=None, name=None):
         self.vm = vm
         self.parent = parent
@@ -316,10 +316,10 @@ class Object(object):
         return "[%s %s] @ 0x%08X" % (self.__class__.__name__, self.name or '',
                                      self.offset)
 
-class NativeType(Object):
+class NativeType(BaseObject):
     def __init__(self, theType, offset, vm, parent=None, profile=None,
                  format_string=None, name=None, **args):
-        Object.__init__(self, theType, offset, vm, parent=parent,
+        BaseObject.__init__(self, theType, offset, vm, parent=parent,
                         profile=profile, name=name)
         self.format_string = format_string
 
@@ -372,7 +372,7 @@ class NativeType(Object):
 class BitField(NativeType):
     def __init__(self, theType, offset, vm, parent=None, profile=None,
                  start_bit=0, end_bit=32, name=None, **args):
-        Object.__init__(self, theType, offset, vm, parent=parent,
+        BaseObject.__init__(self, theType, offset, vm, parent=parent,
                         profile=profile, name=name)
         self.format_string = 'L'
         self.start_bit = start_bit
@@ -452,12 +452,12 @@ class Void(NativeType):
         return Object(derefType, self.v(), \
                          self.vm, parent=self)
 
-class Array(Object):
+class Array(BaseObject):
     """ An array of objects of the same size """
     def __init__(self, targetType=None, offset=0, vm=None, parent=None,
                  profile=None, count=1, name=None, target=None):
         ## Instantiate the first object on the offset:
-        Object.__init__(self, targetType, offset, vm,
+        BaseObject.__init__(self, targetType, offset, vm,
                         parent=parent, profile=profile,
                         name=name)
         try:
@@ -541,7 +541,7 @@ class Array(Object):
             return NoneObject("Array %s invalid member %s" % (self.name, pos),
                               self.profile.strict)
         
-class CType(Object):
+class CType(BaseObject):
     """ A CType is an object which represents a c struct """
     def __init__(self, theType, offset, vm, parent=None, profile=None, members=None, name=None, size=0):
         """ This must be instantiated with a dict of members. The keys
@@ -551,7 +551,7 @@ class CType(Object):
         if not members:
             raise RuntimeError()
         
-        Object.__init__(self, theType, offset, vm, parent=parent, profile = profile, name=name)
+        BaseObject.__init__(self, theType, offset, vm, parent=parent, profile = profile, name=name)
         self.members = members
         self.offset = offset
         self.struct_size = size
