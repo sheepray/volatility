@@ -130,7 +130,7 @@ class vadtree(vadinfo):
     """Walk the VAD tree and display in tree format"""
     
     def render_text(self, outfd, data):
-        for pid in data:
+        for pid, result in data:
             outfd.write("*" * 72 + "\n")
             outfd.write("Pid: %-6d\n" % (pid))
             levels = {}
