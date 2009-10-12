@@ -288,7 +288,7 @@ class BaseObject(object):
                          self.vm, parent=self)
 
     def cast(self, castString):
-        return Object(castString, self.offset, self.vm, None)
+        return Object(castString, self.offset, self.vm)
 
     def v(self):
         """ Do the actual reading and decoding of this member
