@@ -47,6 +47,9 @@ import volatility.debug as debug
 config.add_option("INFO", default=None, action="store_true",
                   help = "Print information about all registered objects")
 
+config.add_option("PLUGINS", default=None,
+                  help = "Additional plugin directories to use (colon separated)")
+
 ## Define the parameters we need:
 PLUGINS = "memory_plugins:memory_objects"
 
@@ -75,8 +78,15 @@ class MemoryRegistry:
         self.class_names = []
         self.order = []
         
+        # Setup initial plugin directories
+        plugins = PLUGINS
+        
+        # Add in additional plugins
+        if config.PLUGINS is not None:
+            plugins += ":" + config.PLUGINS 
+        
         ## Recurse over all the plugin directories recursively
-        for path in PLUGINS.split(':'):
+        for path in plugins.split(':'):
             path = os.path.normpath(os.path.join(os.path.dirname(__file__),
                                                  os.path.join("..", path)))
             for dirpath, _dirnames, filenames in os.walk(path):
@@ -296,13 +306,14 @@ def print_info():
                 max_length = max(len(cls.__name__), max_length)
 
             ## Sort the result
-            def cmp(x,  y):
+            def cmp(x, y):
                 if x[0] < y[0]:
                     return -1
-                else: return 1
+                else:
+                    return 1
             result.sort(cmp)
 
-            fmt= "%%-%ds - %%-15s" % max_length
+            fmt = "%%-%ds - %%-15s" % max_length
             for x in result:
                 print fmt % x
 
