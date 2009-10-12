@@ -26,9 +26,9 @@ class FirewireAddressSpace(addrspace.BaseAddressSpace):
     
     ## We should be *almost* the AS of last resort
     order = 99
-    def __init__(self, base, layered=False, *args):
+    def __init__(self, base, layered=False, **kargs):
         assert firewire_available, "Pythonraw1394 not available"
-        addrspace.BaseAddressSpace.__init__(self, *args)
+        addrspace.BaseAddressSpace.__init__(self, base, **kargs)
         assert base == None or layered, 'Must be first Address Space'
         bus = config.BUS
         node = config.NODE
