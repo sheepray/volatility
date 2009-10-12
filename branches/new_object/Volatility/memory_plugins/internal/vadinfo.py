@@ -11,9 +11,11 @@ Created on 30 Sep 2009
 
 import os.path
 import volatility.win32 as win32
+import volatility.win32.vad as win32vad
 import volatility.object2 as object2
 import volatility.conf
 import taskmods
+import volatility.debug as debug
 
 config = volatility.conf.ConfObject()
 
@@ -40,13 +42,14 @@ class vadinfo(taskmods.dlllist):
         """Renders a text version of a Short Vad"""
         outfd.write("VAD node @%08x Start %08x End %08x Tag %4s\n" % (vad.offset, int(vad.StartingVpn) << 12, ((int(vad.EndingVpn) + 1) << 12) - 1, vad.name))
         Flags = int(vad.Flags)
-        outfd.write("Flags: " + ", ".join(win32.vad.get_bit_flags(Flags,'_MMVAD_FLAGS')) + "\n")
-        outfd.write("Commit Charge: %d Protection: %x\n" % (Flags & win32.vad.get_mask_flag('_MMVAD_FLAGS', 'CommitCharge'), (Flags & win32.vad.get_mask_flag('_MMVAD_FLAGS', 'Protection')) >> 24))
+        outfd.write("Flags: " + ", ".join(win32vad.get_bit_flags(Flags,'_MMVAD_FLAGS')) + "\n")
+        outfd.write("Commit Charge: %d Protection: %x\n" % (Flags & win32vad.get_mask_flag('_MMVAD_FLAGS', 'CommitCharge'), (Flags & win32vad.get_mask_flag('_MMVAD_FLAGS', 'Protection')) >> 24))
     
     def write_vad_control(self, outfd, vad):
         """Renders a text version of a (non-short) Vad's control information"""
         CA = vad.ControlArea
         if not CA:
+            #debug.b()
             return
 
         outfd.write("ControlArea @%08x Segment %08x\n" % (CA.dereference().offset, CA.Segment))
@@ -56,7 +59,7 @@ class vadinfo(taskmods.dlllist):
         outfd.write("FlushInProgressCount:      %10d NumberOfUserReferences: %10d\n" % (CA.FlushInProgressCount, CA.NumberOfUserReferences))
         
         Flags = int(CA.Flags)
-        outfd.write("Flags: " + ", ".join(win32.vad.get_bit_flags(Flags,'_MMSECTION_FLAGS')) + "\n")
+        outfd.write("Flags: " + ", ".join(win32vad.get_bit_flags(Flags,'_MMSECTION_FLAGS')) + "\n")
 
         if CA.FilePointer:
             outfd.write("FileObject @%08x           , Name: %s\n" % (CA.FilePointer.dereference().offset, CA.FilePointer.FileName))
@@ -71,10 +74,10 @@ class vadinfo(taskmods.dlllist):
         outfd.write("First prototype PTE: %08x Last contiguous PTE: %08x\n" % (vad.FirstPrototypePte, vad.LastContiguousPte))
         
         Flags = int(vad.Flags2) 
-        outfd.write("Flags2: " + ", ".join(win32.vad.get_bit_flags(Flags,'_MMVAD_FLAGS2')) + "\n")
-        outfd.write("File offset: %08x\n" % (Flags & win32.vad.get_mask_flag('_MMVAD_FLAGS2','FileOffset')))
+        outfd.write("Flags2: " + ", ".join(win32vad.get_bit_flags(Flags,'_MMVAD_FLAGS2')) + "\n")
+        outfd.write("File offset: %08x\n" % (Flags & win32vad.get_mask_flag('_MMVAD_FLAGS2','FileOffset')))
         
-        if (Flags and Flags & win32.vad.get_mask_flag('_MMVAD_FLAGS2','LongVad')):
+        if (Flags and Flags & win32vad.get_mask_flag('_MMVAD_FLAGS2','LongVad')):
             # FIXME: Add in the extra bits, after deciding on names for u3 and u4
             outfd.write("Extended information available\n")
 
@@ -88,7 +91,7 @@ class vadinfo(taskmods.dlllist):
 
                 task_space = task.get_process_address_space()
 
-                vadroot = object2.NewObject("_MMVAD_SHORT", task.VadRoot, task_space)
+                vadroot = object2.NewObject("_MMVAD_LONG", task.VadRoot, task_space)
                 vadlist = []
                 for vad in self.accumulate_vads(vadroot):
                     # We're going to abuse the name field to store the tag because whilst it should be a part of the structure
@@ -101,6 +104,7 @@ class vadinfo(taskmods.dlllist):
                     elif vadtype == 'Vad ':
                         vad.name = 'Vad '
                         vadlist.append(vad)
+#                        vadlist.append(object2.NewObject("_MMVAD_LONG", vad.offset, task_space, name="VadS"))
                     elif vadtype == 'VadF':
                         # TODO: Figure out what a VadF looks like!
                         vad.name = 'VadF'

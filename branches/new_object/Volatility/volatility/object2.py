@@ -569,6 +569,7 @@ class CType(Object):
         try:
             offset, cls = self.members[attr]
         except KeyError:
+            return NoneObject("Struct %s has no member %s" % (self.name, attr))
             raise AttributeError("Struct %s has no member %s" % (self.name, attr))
 
         try:
