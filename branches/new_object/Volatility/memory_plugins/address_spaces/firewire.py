@@ -4,6 +4,7 @@ Created on 12 Oct 2009
 @author: Mike Auty
 '''
 
+import urlparse
 import volatility.addrspace as addrspace
 import volatility.conf
 config = volatility.conf.ConfObject()
@@ -16,8 +17,10 @@ class FirewireAddressSpace(addrspace.BaseAddressSpace):
     def __init__(self, base, layered=False, **kargs):
         addrspace.BaseAddressSpace.__init__(self, base, **kargs)
         assert base == None or layered, 'Must be first Address Space'
-        bus = config.BUS
-        node = config.NODE
+        (scheme, netloc, path, _, _, _) = urlparse.urlparse(config.LOCATION)
+        assert scheme == 'firewire', 'Not a firewire URN'
+        bus = int(netloc)
+        node = int(path)
         assert bus is not None and node is not None, 'Bus and Node must be specified'
 
         self._node = None
@@ -96,9 +99,5 @@ class FirewireAddressSpace(addrspace.BaseAddressSpace):
 
 try:
     import firewire
-    config.add_option("BUS", type='int', default=None,
-                      help="Specifies which bus to use for firewire transfer")
-    config.add_option("NODE", type='int', default=None,
-                      help="Specifies which node on the firewire bus to use")
 except ImportError:
     FirewireAddressSpace = None

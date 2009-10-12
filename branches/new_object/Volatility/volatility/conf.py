@@ -70,6 +70,8 @@ configuration information:
 """    
 import ConfigParser, optparse, os, sys
 
+default_config = "/etc/volatilityrc"
+
 class PyFlagOptionParser(optparse.OptionParser):
     final = False
     help_hooks = []
@@ -184,7 +186,7 @@ class ConfObject(object):
         """ This is a singleton object kept in the class """
         if not ConfObject.initialised:
             self.optparser.add_option("-h", "--help", action="store_true", default=False,
-                            help="list all available options and their default values. Default values may be set in the configuration file /var/tmp/build/pyflag/etc/pyflagrc")
+                            help="list all available options and their default values. Default values may be set in the configuration file (" + default_config + ")")
 
             ConfObject.initialised = True
 
@@ -406,9 +408,8 @@ class ConfObject(object):
         raise AttributeError("Parameter %s is not configured - try setting it on the command line (-h for help)" % attr)
 
 config = ConfObject()
-config_file = "/etc/volatilityrc"
-if os.access(config_file, os.R_OK):
-    config.add_file(config_file)
+if os.access(default_config, os.R_OK):
+    config.add_file(default_config)
 else:
     config.add_file("volatilityrc")
 

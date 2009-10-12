@@ -42,6 +42,9 @@ config = conf.ConfObject()
 config.add_option("PROFILE", default='WinXPSP2',
                   help = "Name of the profile to load")
 
+config.add_option("LOCATION", default=None, short_option='l',
+                  help = "A URN location from which to load an address space")
+
 ## Make sure the profiles are cached so we only parse it once. This is
 ## important since it allows one module to update the profile for
 ## another module.

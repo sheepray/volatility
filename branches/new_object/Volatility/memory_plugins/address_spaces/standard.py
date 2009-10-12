@@ -5,14 +5,12 @@ import volatility.obj as obj
 import volatility.conf
 config = volatility.conf.ConfObject()
 import volatility.debug as debug
+import urlparse
+import os
 
 #pylint: disable-msg=C0111
 
 ## This module requires a filename to be passed by the user
-config.add_option("FILENAME", default = None,
-                  short_option = 'f',
-                  help = "Filename to use when opening an image")
-
 config.add_option("USE-OLD-AS", action="store_true", default=False, 
                   help = "Use the legacy address spaces")
 
@@ -33,9 +31,9 @@ class FileAddressSpace(addrspace.BaseAddressSpace):
     def __init__(self, base, layered=False, **kwargs):
         addrspace.BaseAddressSpace.__init__(self, base, **kwargs)
         assert base == None or layered, 'Must be first Address Space'
-        filename = config.FILENAME
-        assert filename, 'Filename must be specified'
-        self.name = filename
+        (scheme, _, path, _, _, _) = urlparse.urlparse(config.LOCATION)
+        assert scheme == 'file' and os.path.exists(path), 'Filename must be specified and exist'
+        self.name = path
         self.fname = self.name
         self.mode = 'rb'
         self.fhandle = open(self.fname, self.mode)
