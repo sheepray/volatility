@@ -17,7 +17,7 @@ def debug(msg, level=1):
 
 def b():
     """Enters the debugger at the call point"""
-    trace()
+    pdb.set_trace()
 
 def trace():
     """Enters the debugger at the call point"""

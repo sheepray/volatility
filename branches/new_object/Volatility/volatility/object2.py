@@ -32,7 +32,7 @@ import sys
 # sys.path.append(".")
 # sys.path.append("..")
 
-import struct
+import struct, copy
 import volatility.registry as MemoryRegistry
 import volatility.addrspace as addrspace
 import volatility.debug as debug
@@ -649,6 +649,7 @@ class Profile:
             original[1].update(v[1])
             if v[0]:
                 original[0] = v[0]
+                
             self.overlayDict[k] = original
 
         # Load the native types
@@ -658,7 +659,11 @@ class Profile:
                 self.types[nt] = Curry(NativeType, nt, format_string=value[1])
 
         for name in self.typeDict.keys():
-            self.types[name] = self.convert_members(name, self.typeDict, self.overlayDict)
+            ## We need to protect our virgin overlay dict here - since
+            ## the following functions modify it, we need to make a
+            ## deep copy:
+            self.types[name] = self.convert_members(
+                name, self.typeDict, copy.deepcopy(self.overlayDict))
         
     def list_to_type(self, name, typeList, typeDict=None):
         """ Parses a specification list and returns a VType object.
@@ -686,9 +691,14 @@ class Profile:
 
         ## This is of the form [ 'pointer' , [ 'foobar' ]]
         if typeList[0] == 'pointer':
+            try:
+                target = typeList[1]
+            except IndexError:
+                raise RuntimeError("Syntax Error in pointer type defintion for name %s" % name)
+            
             return Curry(Pointer, None,
                          name = name,
-                         target=self.list_to_type(name, typeList[1], typeDict))
+                         target=self.list_to_type(name, target, typeDict))
 
         ## This is an array: [ 'array', count, ['foobar'] ]
         if typeList[0] == 'array':
@@ -749,7 +759,7 @@ class Profile:
         elif type(overlay)==list:
             if len(overlay) != len(type_member):
                 return overlay
-            
+
             for i in range(len(overlay)):
                 if overlay[i] == None:
                     overlay[i] = type_member[i]
@@ -779,7 +789,7 @@ class Profile:
 
         We return a list of CTypeMember objects. 
         """
-        ctype = self.apply_overlay(typeDict[cname], overlay.get(cname))        
+        ctype = self.apply_overlay(typeDict[cname], overlay.get(cname))
         members = {}
         size = ctype[0]
         for k, v in ctype[1].items():
