@@ -43,7 +43,7 @@ import volatility
 import volatility.registry as MemoryRegistry
 import volatility.conf as conf
 config = conf.ConfObject()
-import volatility.object2 as object2
+import volatility.obj as obj
 import volatility.debug as debug
 
 def list_plugins():
@@ -124,7 +124,7 @@ def main():
             command = MemoryRegistry.PLUGIN_COMMANDS[module]()
             
             ## Register the help cb from the command itself
-            config.set_help_hook(object2.Curry(command_help, command))            
+            config.set_help_hook(obj.Curry(command_help, command))            
             config.parse_options()
              
             command.execute()

@@ -1,6 +1,6 @@
 """ This plugin contains CORE classes used by lots of other plugins """
 import volatility.scan as scan
-import volatility.object2 as object2
+import volatility.obj as obj
 import volatility.debug as debug
 
 #pylint: disable-msg=C0111
@@ -32,7 +32,7 @@ class CheckPoolSize(scan.ScannerCheck):
         self.address_space = address_space
 
     def check(self, offset):
-        pool_hdr = object2.NewObject('_POOL_HEADER', vm=self.address_space,
+        pool_hdr = obj.Object('_POOL_HEADER', vm=self.address_space,
                              offset = offset - 4)
         
         block_size = pool_hdr.BlockSize.v()
@@ -49,7 +49,7 @@ class CheckPoolType(scan.ScannerCheck):
         self.address_space = address_space
 
     def check(self, offset):
-        pool_hdr = object2.NewObject('_POOL_HEADER', vm=self.address_space,
+        pool_hdr = obj.Object('_POOL_HEADER', vm=self.address_space,
                              offset = offset - 4)
         
         ptype = pool_hdr.PoolType.v()
@@ -70,7 +70,7 @@ class CheckPoolIndex(scan.ScannerCheck):
         self.address_space = address_space
 
     def check(self, offset):
-        pool_hdr = object2.NewObject('_POOL_HEADER', vm=self.address_space,
+        pool_hdr = obj.Object('_POOL_HEADER', vm=self.address_space,
                              offset = offset - 4)
 
         return pool_hdr.PoolIndex == self.value

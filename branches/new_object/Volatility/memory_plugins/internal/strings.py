@@ -6,7 +6,7 @@ Created on 9 Oct 2009
 
 import os
 import volatility.commands as commands
-import volatility.object2 as object2
+import volatility.obj as obj
 import volatility.utils as utils
 import volatility.win32 as win32
 import volatility.conf as conf
@@ -54,7 +54,7 @@ class strings(commands.command):
         # ASSUMPTION: no pages mapped in kernel and userland
         reverse_map = {}
         
-        verbfd = object2.NoneObject("Swallow output unless VERBOSE mode is enabled")
+        verbfd = obj.NoneObject("Swallow output unless VERBOSE mode is enabled")
         if config.VERBOSE:
             verbfd = outfd
     

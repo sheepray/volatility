@@ -33,7 +33,7 @@ import volatility.commands as commands
 import volatility.conf as conf
 config = conf.ConfObject()
 import volatility.utils as utils
-import volatility.object2 as object2
+import volatility.obj as obj
 import volatility.debug as debug
 
 class CheckSocketCreateTime(scan.ScannerCheck):
@@ -44,7 +44,7 @@ class CheckSocketCreateTime(scan.ScannerCheck):
 
     def check(self, offset):
         start_of_object = self.address_space.profile.get_obj_size("_POOL_HEADER") - 4
-        address_obj = object2.NewObject('_ADDRESS_OBJECT', vm=self.address_space,
+        address_obj = obj.Object('_ADDRESS_OBJECT', vm=self.address_space,
                                 offset=offset + start_of_object)
 
         return self.condition(address_obj.CreateTime.v())
@@ -83,7 +83,7 @@ class sockscan(commands.command):
 
         scanner = PoolScanSockFast()
         for offset in scanner.scan(address_space):
-            sock_obj = object2.NewObject('_ADDRESS_OBJECT', vm=address_space,
+            sock_obj = obj.Object('_ADDRESS_OBJECT', vm=address_space,
                                  offset=offset)
             
             print "%-6d %-6d %-6d %-26s 0x%0.8x" % (sock_obj.Pid, sock_obj.LocalPort,

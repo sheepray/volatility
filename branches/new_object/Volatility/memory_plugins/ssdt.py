@@ -26,7 +26,7 @@
 from operator import itemgetter
 from bisect import bisect_right
 
-import volatility.object2 as object2
+import volatility.obj as obj
 import volatility.win32.tasks as tasks
 import volatility.win32.modules as modules
 import volatility.commands as commands
@@ -1093,7 +1093,7 @@ class ssdt(commands.command):
             print "SSDT[%d] at %x with %d entries" % (idx, table, n)
             if vm.is_valid_address(table):
                 for i in range(n):
-                    syscall_addr = object2.NewObject('unsigned long', table+(i*4), vm).v()
+                    syscall_addr = obj.Object('unsigned long', table+(i*4), vm).v()
                     try:
                         syscall_name = xpsp2_syscalls[idx][i]
                     except IndexError:

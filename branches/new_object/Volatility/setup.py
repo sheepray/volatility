@@ -6,7 +6,7 @@ import sys
 
 py2exe_available = True
 try:
-    import py2exe #pylint: disable-msg=W0611
+    import py2exe #pylint: disable-msg=W0611,F0401
 except ImportError:
     py2exe_available = False
 

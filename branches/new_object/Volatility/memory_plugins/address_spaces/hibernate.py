@@ -1,6 +1,6 @@
 """ A Hiber file Address Space """
 import standard
-import volatility.object2 as object2
+import volatility.obj as obj
 import volatility.win32.xpress as xpress
 import struct
 
@@ -50,13 +50,13 @@ class WindowsHiberFileSpace32(standard.FileAddressSpace):
         self.MemRangeCnt = 0
         self.offset = 0
         # Extract header information
-        self.header = object2.NewObject('_IMAGE_HIBER_HEADER', 0, baseAddressSpace)
+        self.header = obj.Object('_IMAGE_HIBER_HEADER', 0, baseAddressSpace)
         
         ## Is the signature right?
         assert self.header.Signature.lower() == 'hibr', "Header signature invalid"
 
         # Extract processor state
-        self.ProcState = object2.NewObject("_KPROCESSOR_STATE", 2 * 4096, baseAddressSpace)
+        self.ProcState = obj.Object("_KPROCESSOR_STATE", 2 * 4096, baseAddressSpace)
 
         ## This is a pointer to the page table - any ASs above us dont
         ## need to search for it.
@@ -82,7 +82,7 @@ class WindowsHiberFileSpace32(standard.FileAddressSpace):
             
     def build_page_cache(self):
         XpressIndex = 0    
-        XpressHeader = object2.NewObject("_IMAGE_XPRESS_HEADER",
+        XpressHeader = obj.Object("_IMAGE_XPRESS_HEADER",
                                          (self.header.FirstTablePage + 1) * 4096, \
                                          self.base)
         
@@ -91,7 +91,7 @@ class WindowsHiberFileSpace32(standard.FileAddressSpace):
         MemoryArrayOffset = self.header.FirstTablePage * 4096
 
         while MemoryArrayOffset:
-            MemoryArray = object2.NewObject('_MEMORY_RANGE_ARRAY', MemoryArrayOffset, self.base)
+            MemoryArray = obj.Object('_MEMORY_RANGE_ARRAY', MemoryArrayOffset, self.base)
 
             EntryCount = MemoryArray.MemArrayLink.EntryCount.v()
             for i in MemoryArray.RangeTable:
@@ -177,7 +177,7 @@ class WindowsHiberFileSpace32(standard.FileAddressSpace):
             if XpressHeaderOffset - original_offset > 10240:
                 return None, None
 
-        XpressHeader = object2.NewObject("_IMAGE_XPRESS_HEADER", XpressHeaderOffset, self.base)
+        XpressHeader = obj.Object("_IMAGE_XPRESS_HEADER", XpressHeaderOffset, self.base)
         XpressBlockSize = self.get_xpress_block_size(XpressHeader)
         
         return XpressHeader, XpressBlockSize

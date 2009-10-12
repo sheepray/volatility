@@ -10,7 +10,7 @@ import os
 import volatility.conf as conf
 import volatility.commands as commands
 import volatility.win32 as win32
-import volatility.object2 as object2
+import volatility.obj as obj
 import volatility.utils as utils
 
 config = conf.ConfObject()
@@ -58,7 +58,7 @@ class dlllist(commands.command):
         addr_space = utils.load_as()
 
         if config.OFFSET != None:
-            tasks = [object2.NewObject("_EPROCESS", config.OFFSET, addr_space)]
+            tasks = [obj.Object("_EPROCESS", config.OFFSET, addr_space)]
         else:
             tasks = win32.tasks.pslist(addr_space)
             try:
@@ -112,7 +112,7 @@ class files(dlllist):
     def handle_list(self, task):
         for h in task.handles():
             if str(h.Type.Name) == self.handle_type:
-                yield object2.NewObject(self.handle_obj, h.Body.offset, task.vm, parent=task, profile=task.profile)
+                yield obj.Object(self.handle_obj, h.Body.offset, task.vm, parent=task, profile=task.profile)
 
 class pslist(dlllist):
     """ print all running processes by following the EPROCESS lists """

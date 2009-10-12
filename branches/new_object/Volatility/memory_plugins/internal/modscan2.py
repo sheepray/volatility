@@ -33,7 +33,7 @@ import volatility.commands as commands
 import volatility.conf as conf
 config = conf.ConfObject()
 import volatility.utils as utils
-import volatility.object2 as object2
+import volatility.obj as obj
 import volatility.debug as debug
 
 class PoolScanModuleFast2(scan.PoolScanner):
@@ -79,7 +79,7 @@ class modscan2(commands.command):
 
         scanner = PoolScanModuleFast2()
         for offset in scanner.scan(address_space):
-            ldr_entry = object2.NewObject('_LDR_DATA_TABLE_ENTRY', vm=address_space,
+            ldr_entry = obj.Object('_LDR_DATA_TABLE_ENTRY', vm=address_space,
                                   offset = offset)
 
             print "%-50s 0x%010x 0x%06x %s" % \
@@ -96,7 +96,7 @@ class CheckThreads(scan.ScannerCheck):
         start_of_object = self.address_space.profile.get_obj_size("_POOL_HEADER") +\
                           self.address_space.profile.get_obj_size("_OBJECT_HEADER") - 4
         
-        thread = object2.NewObject('_ETHREAD', vm=self.address_space,
+        thread = obj.Object('_ETHREAD', vm=self.address_space,
                            offset=found + start_of_object)
 
         if thread.Cid.UniqueProcess.v()!=0 and \
@@ -140,7 +140,7 @@ class thrdscan2(modscan2):
 
         scanner = PoolScanThreadFast2()
         for found in scanner.scan(address_space):
-            thread = object2.NewObject('_ETHREAD', vm=address_space,
+            thread = obj.Object('_ETHREAD', vm=address_space,
                                offset=found)
             
             print "%6d %6d 0x%0.8x" % (thread.Cid.UniqueProcess,

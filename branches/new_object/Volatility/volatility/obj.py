@@ -145,7 +145,7 @@ class NoneObject(object):
         return self
         
 
-def NewObject(theType, offset, vm, parent=None, profile=None, name=None, **kwargs):
+def Object(theType, offset, vm, parent=None, profile=None, name=None, **kwargs):
     """ A function which instantiates the object named in theType (as
     a string) from the type in profile passing optional args of
     kwargs.
@@ -284,7 +284,7 @@ class Object(object):
         return NoneObject("Cant derenference %s" % self.name, self.profile.strict)
 
     def dereference_as(self, derefType):
-        return NewObject(derefType, self.v(), \
+        return Object(derefType, self.v(), \
                          self.vm, parent=self)
 
     def cast(self, castString):
@@ -389,7 +389,7 @@ class Pointer(NativeType):
         self.format_string = "=L"
         
         if theType:
-            self.target = Curry(NewObject, theType)
+            self.target = Curry(Object, theType)
         else:
             self.target = target
 
@@ -449,7 +449,7 @@ class Void(NativeType):
         return bool(self.dereference())
 
     def dereference_as(self, derefType):
-        return NewObject(derefType, self.v(), \
+        return Object(derefType, self.v(), \
                          self.vm, parent=self)
 
 class Array(Object):
@@ -470,7 +470,7 @@ class Array(Object):
         self.position = 0
         self.original_offset = offset
         if targetType:
-            self.target = Curry(NewObject, targetType)
+            self.target = Curry(Object, targetType)
         else:
             self.target = target
 
@@ -680,7 +680,7 @@ class Profile:
 
             if type(args)==dict:
                 ## We have a list of the form [ ClassName, dict(.. args ..) ]
-                return Curry(NewObject, theType=typeList[0], name=name,
+                return Curry(Object, theType=typeList[0], name=name,
                              **args)
         except (TypeError, IndexError), _e:
             pass
@@ -711,7 +711,7 @@ class Profile:
             return Curry(self.types[typeList[0]], name=name)
 
         ## Does it refer to a type which will be defined in future? in
-        ## this case we just curry the NewObject function to provide
+        ## this case we just curry the Object function to provide
         ## it on demand. This allows us to define structures
         ## recursively.
         ##if typeList[0] in typeDict:
@@ -722,7 +722,7 @@ class Profile:
                 args = {}
             
             obj_name = typeList[0]
-            return Curry(NewObject, obj_name, name=name, **args)
+            return Curry(Object, obj_name, name=name, **args)
 
         ## If we get here we have no idea what this list is
         #raise RuntimeError("Error in parsing list %s" % (typeList))
@@ -816,7 +816,7 @@ if __name__ == '__main__':
         def make_object(self, obj, offset, type, data):
             address_space = addrspace.BufferAddressSpace(data)
             profile = Profile(abstract_types=type)
-            o = NewObject(obj, offset, address_space, profile=profile)
+            o = Object(obj, offset, address_space, profile=profile)
             
             return o
         

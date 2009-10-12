@@ -25,7 +25,7 @@
 @contact:      bdolangavitt@wesleyan.edu
 """
 
-import volatility.object2 as object2
+import volatility.obj as obj
 import struct
 
 ROOT_INDEX = 0x20
@@ -66,9 +66,9 @@ VALUE_TYPES.setdefault("REG_UNKNOWN")
 
 def get_root(address_space, stable=True):
     if stable:
-        return object2.NewObject("_CM_KEY_NODE", ROOT_INDEX, address_space)
+        return obj.Object("_CM_KEY_NODE", ROOT_INDEX, address_space)
     else:
-        return object2.NewObject("_CM_KEY_NODE", ROOT_INDEX | 0x80000000, address_space)
+        return obj.Object("_CM_KEY_NODE", ROOT_INDEX | 0x80000000, address_space)
 
 def open_key(root, key):
     if key == []:
@@ -96,11 +96,11 @@ def read_sklist(sk):
             ptr_off = sk.get_member_offset('List')+(i*4)
             if not sk.vm.is_valid_address(ptr_off):
                 continue
-            ssk_off = object2.NewObject("unsigned int", ptr_off, sk.vm)
+            ssk_off = obj.Object("unsigned int", ptr_off, sk.vm)
             if not sk.vm.is_valid_address(ssk_off):
                 continue
             
-            ssk = object2.NewObject("_CM_KEY_INDEX", ssk_off, sk.vm)
+            ssk = obj.Object("_CM_KEY_INDEX", ssk_off, sk.vm)
             for i in read_sklist(ssk):
                 yield i
         
@@ -111,7 +111,7 @@ def subkeys(key):
     
     if int(key.SubKeyCounts[0]) > 0:
         sk_off = key.SubKeyLists[0]
-        sk = object2.NewObject("_CM_KEY_INDEX", sk_off, key.vm)
+        sk = obj.Object("_CM_KEY_INDEX", sk_off, key.vm)
         if not sk or not sk.is_valid():
             pass
         else:
@@ -121,7 +121,7 @@ def subkeys(key):
             
     if int(key.SubKeyCounts[1]) > 0:
         sk_off = key.SubKeyLists[1]
-        sk = object2.NewObject("_CM_KEY_INDEX", sk_off, key.vm)
+        sk = obj.Object("_CM_KEY_INDEX", sk_off, key.vm)
         if not sk or not sk.is_valid():
             pass
         else:

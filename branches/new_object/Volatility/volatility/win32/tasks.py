@@ -28,14 +28,14 @@
 
 #pylint: disable-msg=C0111
 
-import volatility.object2 as object2
+import volatility.obj as obj
 import volatility.win32.info as info
 import volatility.debug as debug
 
 def pslist(addr_space):
     """ A Generator for _EPROCESS objects (uses _KPCR symbols) """
     ## Locate the kpcr struct - this is hard coded right now
-    kpcr = object2.NewObject("_KPCR",
+    kpcr = obj.Object("_KPCR",
                      offset=info.kpcr_addr,
                      vm=addr_space)
 

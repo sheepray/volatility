@@ -11,7 +11,7 @@ Created on 30 Sep 2009
 
 import os.path
 import volatility.win32.vad as win32vad
-import volatility.object2 as object2
+import volatility.obj as obj
 import volatility.conf
 import taskmods
 import volatility.debug as debug
@@ -90,22 +90,22 @@ class vadinfo(taskmods.dlllist):
 
                 task_space = task.get_process_address_space()
 
-                vadroot = object2.NewObject("_MMVAD_SHORT", task.VadRoot, task_space)
+                vadroot = obj.Object("_MMVAD_SHORT", task.VadRoot, task_space)
                 vadlist = []
                 for vad in self.accumulate_vads(vadroot):
                     # We're going to abuse the name field to store the tag because whilst it should be a part of the structure
                     # it appears before the pointer's address (ie, the start of the structure)
-                    vadtype = str(object2.NativeType("Bytes", vad.offset - 4, task_space, format_string = "4s"))
+                    vadtype = str(obj.NativeType("Bytes", vad.offset - 4, task_space, format_string = "4s"))
                     if vadtype == 'Vadl':
-                        vadlist.append(object2.NewObject("_MMVAD_LONG", vad.offset, task_space, name="Vadl"))
+                        vadlist.append(obj.Object("_MMVAD_LONG", vad.offset, task_space, name="Vadl"))
                     elif vadtype == 'VadS':
-                        vadlist.append(object2.NewObject("_MMVAD_SHORT", vad.offset, task_space, name="VadS"))
+                        vadlist.append(obj.Object("_MMVAD_SHORT", vad.offset, task_space, name="VadS"))
                     elif vadtype == 'Vad ':
-                        vadlist.append(object2.NewObject("_MMVAD", vad.offset, task_space, name="Vad "))
+                        vadlist.append(obj.Object("_MMVAD", vad.offset, task_space, name="Vad "))
                     elif vadtype == 'VadF':
                         # TODO: Figure out what a VadF looks like!
                         vad.name = 'VadF'
-                        vadlist.append(object2.NewObject("_MMVAD_SHORT", vad.offset, task_space, name="VadF"))
+                        vadlist.append(obj.Object("_MMVAD_SHORT", vad.offset, task_space, name="VadF"))
                     else:
                         # print "Vad with tag:", vadtype
                         vadlist.append(None)

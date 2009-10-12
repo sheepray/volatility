@@ -28,18 +28,18 @@ for SP2.
 
 #pylint: disable-msg=C0111
 
-import volatility.object2 as object2
+import volatility.obj as obj
 import time
 import vtypes
 import volatility.debug as debug
 
-class WinXPSP2(object2.Profile):
+class WinXPSP2(obj.Profile):
     """ A Profile for windows XP SP2 """
     native_types = vtypes.x86_native_types_32bit
     abstract_types = vtypes.xpsp2types
     overlay = vtypes.xpsp2overlays
 
-class _UNICODE_STRING(object2.CType):
+class _UNICODE_STRING(obj.CType):
     """Class representing a _UNICODE_STRING
 
     Adds the following behavior:
@@ -64,7 +64,7 @@ class _UNICODE_STRING(object2.CType):
     def __str__(self):
         return self.v()
 
-class _LIST_ENTRY(object2.CType):
+class _LIST_ENTRY(obj.CType):
     """ Adds iterators for _LIST_ENTRY types """
     def list_of_type(self, type, member, forward=True):
         if not self.is_valid():
@@ -83,7 +83,7 @@ class _LIST_ENTRY(object2.CType):
         
         while 1:            
             ## Instantiate the object
-            obj = object2.NewObject(type, offset = lst.offset - offset,
+            obj = obj.Object(type, offset = lst.offset - offset,
                                     vm=self.vm,
                                     parent=self.parent,
                                     profile=self.profile, name=type)
@@ -107,7 +107,7 @@ class _LIST_ENTRY(object2.CType):
     def __iter__(self):
         return self.list_of_type(self.parent.name, self.name)
 
-class WinTimeStamp(object2.NativeType):
+class WinTimeStamp(obj.NativeType):
     def __init__(self, type=None, offset=None, vm=None, value=None,
                  parent=None, profile=None, name=None, **args):
         ## This allows us to have a WinTimeStamp object with a
@@ -116,7 +116,7 @@ class WinTimeStamp(object2.NativeType):
         if value:
             self.data = value
         else:
-            object2.NativeType.__init__(self, type, offset, vm, parent=parent, profile=profile,
+            obj.NativeType.__init__(self, type, offset, vm, parent=parent, profile=profile,
                                         name=name, format_string="q")
 
     def windows_to_unix_time(self, windows_time):
@@ -145,7 +145,7 @@ class WinTimeStamp(object2.NativeType):
         # since we don't have a vm or an offset for the NativeType.v function
         if self.data is not None:
             return self.data
-        return object2.NativeType.v(self)
+        return obj.NativeType.v(self)
 
     def v(self):
         value = self.as_windows_timestamp()
@@ -170,7 +170,7 @@ class WinTimeStamp(object2.NativeType):
 LEVEL_MASK = 0xfffffff8
 
 
-class _EPROCESS(object2.CType):
+class _EPROCESS(obj.CType):
     """ An extensive _EPROCESS with bells and whistles """
     def _Peb(self, _attr):
         """ Returns a _PEB object which is using the process address space.
@@ -182,13 +182,13 @@ class _EPROCESS(object2.CType):
         process_ad = self.get_process_address_space()
         if process_ad:
             offset =  self.m("Peb").v()
-            peb = object2.NewObject("_PEB", offset, vm=process_ad, profile=self.profile,
+            peb = obj.Object("_PEB", offset, vm=process_ad, profile=self.profile,
                                     name = "Peb", parent=self)
 
             if peb.is_valid():
                 return peb
 
-        return object2.NoneObject("Peb not found")
+        return obj.NoneObject("Peb not found")
             
     def get_process_address_space(self):
         """ Gets a process address space for a task given in _EPROCESS """
@@ -204,7 +204,7 @@ class _EPROCESS(object2.CType):
         and iterates over them.
 
         """
-        table = object2.Array("_HANDLE_TABLE_ENTRY", offset=offset, vm=self.vm,
+        table = obj.Array("_HANDLE_TABLE_ENTRY", offset=offset, vm=self.vm,
                               count=0x200, parent=self, profile=self.profile)
         for t in table:
             offset = t.dereference_as('unsigned int')
@@ -219,7 +219,7 @@ class _EPROCESS(object2.CType):
                 ## OK We got to the bottom table, we just resolve
                 ## objects here:
                 offset = int(offset) & ~0x00000007
-                obj = object2.NewObject("_OBJECT_HEADER", offset, self.vm,
+                obj = obj.Object("_OBJECT_HEADER", offset, self.vm,
                                         parent=self, profile=self.profile)
                 try:
                     if obj.Type.Name:
@@ -251,7 +251,7 @@ class _EPROCESS(object2.CType):
 
 import socket, struct
 
-class _TCPT_OBJECT(object2.CType):
+class _TCPT_OBJECT(obj.CType):
     def _RemoteIpAddress(self, attr):
         return socket.inet_ntoa(struct.pack("<I", self.m(attr).v()))
     

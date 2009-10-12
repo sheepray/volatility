@@ -33,7 +33,7 @@ import volatility.commands as commands
 import volatility.conf as conf
 config = conf.ConfObject()
 import volatility.utils as utils
-import volatility.object2 as object2
+import volatility.obj as obj
 import volatility.debug as debug
 
 class PoolScanConnFast2(scan.PoolScanner):
@@ -67,7 +67,7 @@ class connscan2(commands.command):
         scanner = PoolScanConnFast2()
         for offset in scanner.scan(address_space):
             ## This yields the pool offsets - we want the actual object
-            tcp_obj = object2.NewObject('_TCPT_OBJECT', vm=address_space,
+            tcp_obj = obj.Object('_TCPT_OBJECT', vm=address_space,
                                 offset=offset)
             
             local = "%s:%s" % (tcp_obj.LocalIpAddress, tcp_obj.LocalPort)

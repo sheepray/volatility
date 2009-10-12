@@ -1,7 +1,7 @@
 """ An impelentation of a Core file address space for memory analysis
 of core files.
 """
-import volatility.object2 as object2
+import volatility.obj as obj
 import volatility.addrspace as addrspace
 import sys
 
@@ -69,7 +69,7 @@ class CoreAddressSpace(addrspace.FileAddressSpace):
         
         ## Parse the headers:
         address_space = addrspace.FileAddressSpace(fname)
-        header = object2.NewObject('Elf32_Ehdr', 0, address_space)
+        header = obj.Object('Elf32_Ehdr', 0, address_space)
 
         ## Create a sorted list of virtual offsets
         self.offsets = []

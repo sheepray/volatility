@@ -29,7 +29,7 @@
 
 #pylint: disable-msg=C0111
 
-import volatility.object2 as object2
+import volatility.obj as obj
 
 def file_pathname(file, addr_space, theProfile):
 
@@ -46,7 +46,7 @@ def file_pathname(file, addr_space, theProfile):
     if vfsmnt_addr == 0:
         return None
 
-    vfsmnt = object2.NewObject('vfsmount', vfsmnt_addr, addr_space, \
+    vfsmnt = obj.Object('vfsmount', vfsmnt_addr, addr_space, \
         None, theProfile)
        
 
@@ -72,7 +72,7 @@ def file_pathname(file, addr_space, theProfile):
 
         d_parent = tmp_dentry.m('d_parent').v()
 
-        parent = object2.NewObject('dentry', d_parent, addr_space, \
+        parent = obj.Object('dentry', d_parent, addr_space, \
             None, theProfile)
 
         if tmp_dentry == parent:

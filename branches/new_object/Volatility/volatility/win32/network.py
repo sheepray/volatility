@@ -29,7 +29,7 @@
 #pylint: disable-msg=C0111
 
 import volatility.win32 as win32
-import volatility.object2 as object2
+import volatility.obj as obj
 
 module_versions = { \
 'MP' : { \
@@ -85,23 +85,23 @@ def determine_connections(addr_space):
     for m in all_modules:
         if str(m.ModuleName).lower() == 'tcpip.sys':
             for attempt in module_versions:
-                table_size = object2.NewObject(
+                table_size = obj.Object(
                     "unsigned long",
                     offset = m.BaseAddress + \
                              module_versions[attempt]['SizeOff'][0],
                     vm = addr_space)
                 
-                table_addr = object2.NewObject(
+                table_addr = obj.Object(
                     "unsigned long",
                     offset = m.BaseAddress + \
                              module_versions[attempt]['TCBTableOff'][0],
                     vm = addr_space)
                 
                 if int(table_size) > 0:
-                    table = object2.Array(
+                    table = obj.Array(
                         offset = table_addr, vm = addr_space,
                         count = table_size, 
-                        target = object2.Curry(object2.Pointer, '_TCPT_OBJECT'))
+                        target = obj.Curry(obj.Pointer, '_TCPT_OBJECT'))
 
                     for entry in table:
                         conn = entry.dereference()
@@ -110,7 +110,7 @@ def determine_connections(addr_space):
                             conn = conn.Next
             return connections
 
-    return object2.NoneObject("Unable to determine connections")
+    return obj.NoneObject("Unable to determine connections")
 
 def determine_sockets(addr_space):
     """Determines all sockets for each module"""
@@ -120,23 +120,23 @@ def determine_sockets(addr_space):
     for m in all_modules:
         if str(m.ModuleName).lower() == 'tcpip.sys':
             for attempt in module_versions:
-                table_size = object2.NewObject(
+                table_size = obj.Object(
                     "unsigned long",
                     offset = m.BaseAddress + \
                              module_versions[attempt]['AddrObjTableSizeOffset'][0],
                     vm = addr_space)
                 
-                table_addr = object2.NewObject(
+                table_addr = obj.Object(
                     "unsigned long",
                     offset = m.BaseAddress + \
                              module_versions[attempt]['AddrObjTableOffset'][0],
                     vm = addr_space)
                 
                 if int(table_size) > 0:
-                    table = object2.Array(
+                    table = obj.Array(
                         offset = table_addr, vm = addr_space,
                         count = table_size,
-                        target = object2.Curry(object2.Pointer, "_ADDRESS_OBJECT"))
+                        target = obj.Curry(obj.Pointer, "_ADDRESS_OBJECT"))
                     
                     for entry in table:
                         sock = entry.dereference()
@@ -145,4 +145,4 @@ def determine_sockets(addr_space):
                             sock = sock.Next
             return sockets
 
-    return object2.NoneObject("Unable to determine sockets")
+    return obj.NoneObject("Unable to determine sockets")

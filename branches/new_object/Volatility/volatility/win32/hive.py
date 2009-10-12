@@ -25,7 +25,7 @@
 @contact:      bdolangavitt@wesleyan.edu
 """
 
-import volatility.object2 as object2
+import volatility.obj as obj
 import volatility.addrspace as addrspace
 import struct
 
@@ -46,7 +46,7 @@ class HiveAddressSpace(addrspace.BaseAddressSpace):
     def __init__(self, baseAddressSpace, hive_addr):
         addrspace.BaseAddressSpace.__init__(self, baseAddressSpace)
         self.base = baseAddressSpace
-        self.hive = object2.NewObject("_HHIVE", hive_addr, baseAddressSpace)
+        self.hive = obj.Object("_HHIVE", hive_addr, baseAddressSpace)
         self.baseblock = self.hive.BaseBlock.v()
         self.flat = self.hive.Flat.v() > 0
 

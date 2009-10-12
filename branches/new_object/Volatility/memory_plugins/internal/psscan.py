@@ -34,7 +34,7 @@ import volatility.commands as commands
 import time
 config = conf.ConfObject()
 import volatility.utils as utils
-import volatility.object2 as object2
+import volatility.obj as obj
 import volatility.debug as debug
 
 class DispatchHeaderCheck(scan.ScannerCheck):
@@ -52,7 +52,7 @@ class DispatchHeaderCheck(scan.ScannerCheck):
         ## instantiate the _EPROCESS and work out the offsets of the
         ## type and size members. Then in the check we just read those
         ## offsets directly.
-        eprocess = object2.NewObject("_EPROCESS", vm=address_space, offset=0)
+        eprocess = obj.Object("_EPROCESS", vm=address_space, offset=0)
         self.type = eprocess.Pcb.Header.Type
         self.size = eprocess.Pcb.Header.Size
         self.buffer_size = max(self.size.offset, self.type.offset) + 2
@@ -76,7 +76,7 @@ class DispatchThreadHeaderCheck(DispatchHeaderCheck):
         ## instantiate the _EPROCESS and work out the offsets of the
         ## type and size members. Then in the check we just read those
         ## offsets directly.
-        ethread = object2.NewObject("_ETHREAD", vm=address_space, offset=0)
+        ethread = obj.Object("_ETHREAD", vm=address_space, offset=0)
         self.type = ethread.Tcb.Header.Type
         self.size = ethread.Tcb.Header.Size
         self.buffer_size = max(self.size.offset, self.type.offset) + 2
@@ -97,7 +97,7 @@ class DispatchThreadHeaderCheck(DispatchHeaderCheck):
 class CheckDTBAligned(scan.ScannerCheck):
     """ Checks that _EPROCESS.Pcb.DirectoryTableBase is aligned to 0x20 """
     def check(self, offset):
-        eprocess = object2.NewObject("_EPROCESS", vm=self.address_space,
+        eprocess = obj.Object("_EPROCESS", vm=self.address_space,
                              offset = offset)
         
         return eprocess.Pcb.DirectoryTableBase[0].v() % 0x20 == 0
@@ -105,7 +105,7 @@ class CheckDTBAligned(scan.ScannerCheck):
 class CheckThreadList(scan.ScannerCheck):
     """ Checks that _EPROCESS thread list points to the kernel Address Space """
     def check(self, offset):
-        eprocess = object2.NewObject("_EPROCESS", vm=self.address_space,
+        eprocess = obj.Object("_EPROCESS", vm=self.address_space,
                              offset = offset)
         kernel = 0x80000000
         
@@ -118,7 +118,7 @@ class CheckThreadList(scan.ScannerCheck):
 class CheckSynchronization(scan.ScannerCheck):
     """ Checks that _EPROCESS.WorkingSetLock and _EPROCESS.AddressCreationLock look valid """
     def check(self, offset):
-        eprocess = object2.NewObject("_EPROCESS", vm=self.address_space,
+        eprocess = obj.Object("_EPROCESS", vm=self.address_space,
                              offset = offset)
         
         event = eprocess.WorkingSetLock.Event.Header
@@ -132,7 +132,7 @@ class CheckSynchronization(scan.ScannerCheck):
 class CheckThreadSemaphores(scan.ScannerCheck):
     """ Checks _ETHREAD.Tcb.SuspendSemaphore and _ETHREAD.LpcReplySemaphore """
     def check(self, offset):
-        ethread = object2.NewObject("_ETHREAD", vm=self.address_space,
+        ethread = obj.Object("_ETHREAD", vm=self.address_space,
                              offset = offset)
 
         pid = ethread.Cid.UniqueProcess.v()
@@ -150,7 +150,7 @@ class CheckThreadSemaphores(scan.ScannerCheck):
 class CheckThreadNotificationTimer(scan.ScannerCheck):
     """ Checks for sane _ETHREAD.Tcb.Timer.Header """
     def check(self, offset):
-        ethread = object2.NewObject("_ETHREAD", vm=self.address_space,
+        ethread = obj.Object("_ETHREAD", vm=self.address_space,
                             offset = offset)
         
         sem = ethread.Tcb.Timer.Header
@@ -161,7 +161,7 @@ class CheckThreadProcess(scan.ScannerCheck):
     """ Check that _ETHREAD.Cid.UniqueProcess is in kernel space """
     kernel = 0x80000000
     def check(self, offset):
-        ethread = object2.NewObject("_ETHREAD", vm=self.address_space,
+        ethread = obj.Object("_ETHREAD", vm=self.address_space,
                             offset = offset)
         if ethread.Cid.UniqueProcess == 0 or ethread.ThreadsProcess.v() > self.kernel:
             return True
@@ -169,7 +169,7 @@ class CheckThreadProcess(scan.ScannerCheck):
 class CheckThreadStartAddress(scan.ScannerCheck):
     """ Checks that _ETHREAD.StartAddress is not 0 """
     def check(self, offset):
-        ethread = object2.NewObject("_ETHREAD", vm=self.address_space,
+        ethread = obj.Object("_ETHREAD", vm=self.address_space,
                             offset = offset)
         if ethread.Cid.UniqueProcess == 0 or ethread.StartAddress.v() != 0:
             return True
@@ -192,7 +192,7 @@ class thrdscan(commands.command):
         outfd.write("No.  PID    TID    Offset    \n---- ------ ------ ----------\n")
 
         for offset in ThreadScan().scan(address_space):
-            ethread = object2.NewObject('_ETHREAD', vm=address_space, offset=offset)
+            ethread = obj.Object('_ETHREAD', vm=address_space, offset=offset)
             cnt = time.time() - start
 
             outfd.write("%4d %6d %6d 0x%0.8x\n" % (cnt, ethread.Cid.UniqueProcess,
@@ -233,7 +233,7 @@ class psscan(commands.command):
         links = set()
         
         for offset in PSScan().scan(address_space):
-            eprocess = object2.NewObject('_EPROCESS', vm=address_space, offset=offset)
+            eprocess = obj.Object('_EPROCESS', vm=address_space, offset=offset)
 
             label = "%s | %s |" % (eprocess.UniqueProcessId,
                                                  eprocess.ImageFileName)
@@ -266,7 +266,7 @@ class psscan(commands.command):
                     "---- ------ ------ ------------------------ ------------------------ ---------- ---------- ----------------\n")
         
         for offset in PSScan().scan(address_space):
-            eprocess = object2.NewObject('_EPROCESS', vm=address_space, offset=offset)
+            eprocess = obj.Object('_EPROCESS', vm=address_space, offset=offset)
             cnt = time.time() - start
 
             outfd.write("%4d %6d %6d %24s %24s 0x%0.8x 0x%0.8x %-16s\n" % (

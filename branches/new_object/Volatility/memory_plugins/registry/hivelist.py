@@ -26,7 +26,7 @@
 
 #pylint: disable-msg=C0111
 
-import volatility.object2 as object2
+import volatility.obj as obj
 import volatility.utils as utils
 import volatility.commands as commands
 import volatility.conf as conf
@@ -77,12 +77,12 @@ class hivelist(commands.command):
             ## the first hive in virtual address space. hmm I wish we
             ## could go from physical to virtual memroy easier.
             
-            hive = object2.NewObject("_CMHIVE", int(config.HIVE_OFFSET), flat)
+            hive = obj.Object("_CMHIVE", int(config.HIVE_OFFSET), flat)
             if hive.HiveList.Flink.v():
                 start_hive_offset = hive.HiveList.Flink.v() - 0x224
 
                 ## Now instantiate the first hive in virtual address space as normal
-                start_hive = object2.NewObject("_CMHIVE", start_hive_offset, addr_space)
+                start_hive = obj.Object("_CMHIVE", start_hive_offset, addr_space)
 
                 for hive in start_hive.HiveList:
                     yield hive

@@ -3,10 +3,10 @@ OS's
 """
 # FIXME: It's currently important these are imported here, otherwise
 # they don't show up in the MemoryObjects registry
-from volatility.object2 import BitField, Pointer, Void, Array, CType
-import volatility.object2 as object2
+from volatility.obj import BitField, Pointer, Void, Array, CType
+import volatility.obj as obj
 
-class String(object2.NativeType):
+class String(obj.NativeType):
     """Class for dealing with Strings"""
     def __init__(self, theType, offset, vm=None,
                  length=1, parent=None, profile=None, name=None, **args):
@@ -17,7 +17,7 @@ class String(object2.NativeType):
             pass
         
         ## length must be an integer
-        object2.NativeType.__init__(self, theType, offset, vm, parent=parent, profile=profile,
+        obj.NativeType.__init__(self, theType, offset, vm, parent=parent, profile=profile,
                             name=name, format_string="%ds" % length)
 
     def upper(self):

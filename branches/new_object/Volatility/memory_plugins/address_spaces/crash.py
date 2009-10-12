@@ -1,7 +1,7 @@
 """ An AS for processing crash dumps """
 import standard
 import struct
-import volatility.object2 as object2
+import volatility.obj as obj
 import volatility.conf
 config = volatility.conf.ConfObject()
 
@@ -25,7 +25,7 @@ class WindowsCrashDumpSpace32(standard.FileAddressSpace):
         self.offset = 0 # config.OFFSET
         self.fname = ''
 
-        self.header = object2.NewObject("_DMP_HEADER", self.offset, baseAddressSpace)
+        self.header = obj.Object("_DMP_HEADER", self.offset, baseAddressSpace)
 
         self.runs = [ (x.BasePage.v(), x.PageCount.v()) \
                       for x in self.header.PhysicalMemoryBlockBuffer.Run ]

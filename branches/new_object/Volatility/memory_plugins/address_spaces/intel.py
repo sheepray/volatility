@@ -2,7 +2,7 @@
 """
 import struct
 import volatility.addrspace as addrspace
-import volatility.object2 as object2 
+import volatility.obj as obj 
 import volatility.conf
 config = volatility.conf.ConfObject()
 import volatility.debug as debug
@@ -112,7 +112,7 @@ class JKIA32PagedMemory(addrspace.BaseAddressSpace):
                 found = data.find("\x03\x00\x1b\x00", found+1)
                 if found >= 0:
                     # (_type, _size) = unpack('=HH', data[found:found+4])
-                    proc = object2.NewObject("_EPROCESS",
+                    proc = obj.Object("_EPROCESS",
                                              offset = offset+found,
                                              vm=self.base)
 

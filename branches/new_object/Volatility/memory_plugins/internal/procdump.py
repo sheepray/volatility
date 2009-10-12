@@ -8,7 +8,7 @@ import os
 import struct
 import taskmods
 import volatility.conf as conf
-import volatility.object2 as object2
+import volatility.obj as obj
 config = conf.ConfObject()
 
 class procexedump(taskmods.dlllist):
@@ -78,8 +78,8 @@ class procexedump(taskmods.dlllist):
     def get_nt_header(self, task):
         """Returns the NT Header object for a task"""
         task_space = task.get_process_address_space()
-        dos_header = object2.NewObject("_IMAGE_DOS_HEADER", task.Peb.ImageBaseAddress, task_space)
-        nt_header = object2.NewObject("_IMAGE_NT_HEADERS", task.Peb.ImageBaseAddress + int(dos_header.e_lfanew), task_space)
+        dos_header = obj.Object("_IMAGE_DOS_HEADER", task.Peb.ImageBaseAddress, task_space)
+        nt_header = obj.Object("_IMAGE_NT_HEADERS", task.Peb.ImageBaseAddress + int(dos_header.e_lfanew), task_space)
         return nt_header, task_space
 
     def get_sectors(self, task):
@@ -91,7 +91,7 @@ class procexedump(taskmods.dlllist):
         
         for i in range(nt_header.FileHeader.NumberOfSections):
             s_addr = start_addr + (i * sect_size)
-            sect = object2.NewObject("_IMAGE_SECTION_HEADER", s_addr, task_space)
+            sect = obj.Object("_IMAGE_SECTION_HEADER", s_addr, task_space)
             if not config.UNSAFE:
                 self.sanity_check_section(sect, nt_header.OptionalHeader.SizeOfImage)
             yield sect

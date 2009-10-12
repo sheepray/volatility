@@ -4,7 +4,7 @@ Created on 20 Sep 2009
 @author: Mike Auty
 '''
 
-import volatility.object2 as object2
+import volatility.obj as obj
 import volatility.win32 as win32
 import volatility.utils as utils
 import volatility.commands as commands
@@ -29,7 +29,7 @@ class datetime(commands.command):
 
     def get_image_datetime(self, addr_space):
         """Returns the image datetime"""
-        k = object2.NewObject("_KUSER_SHARED_DATA",
+        k = obj.Object("_KUSER_SHARED_DATA",
                               offset=win32.info.KUSER_SHARED_DATA,
                               vm=addr_space)
         
@@ -87,4 +87,4 @@ class ident(datetime):
                 
                 return str(result)
             
-        return object2.NoneObject("Unable to find version")
+        return obj.NoneObject("Unable to find version")

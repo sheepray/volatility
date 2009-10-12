@@ -6,7 +6,7 @@ Created on 3 Oct 2009
 
 import os
 import volatility.utils as utils
-import volatility.object2 as object2 
+import volatility.obj as obj 
 import volatility.commands as commands
 import volatility.conf as conf
 config = conf.ConfObject()
@@ -28,12 +28,12 @@ class hibinfo(commands.command):
                 sr = adrs.ProcState.SpecialRegisters
 
                 entrysize = adrs.profile.get_obj_size("_KGDTENTRY")
-                entry = object2.NewObject("_KGDTENTRY", sr.Gdtr.Base + ((0x3B >> 3) * entrysize), addr_space) 
+                entry = obj.Object("_KGDTENTRY", sr.Gdtr.Base + ((0x3B >> 3) * entrysize), addr_space) 
                 NtTibAddress = (entry.BaseLow) | (entry.BaseMid << (2 * 8)) | (entry.BaseHigh << (3 * 8))
 
-                teb = object2.NoneObject("NtTibAddress out of range")
+                teb = obj.NoneObject("NtTibAddress out of range")
                 if not ((NtTibAddress == 0) or (NtTibAddress > 0x80000000)):
-                    teb = object2.NewObject("_TEB", NtTibAddress, addr_space)
+                    teb = obj.Object("_TEB", NtTibAddress, addr_space)
                 
                 result = {'header': adrs.get_header(),
                           'sr': sr,
