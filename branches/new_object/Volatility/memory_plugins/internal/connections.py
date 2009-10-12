@@ -8,6 +8,7 @@ Created on 25 Sep 2009
 
 import volatility.commands as commands
 import volatility.win32 as win32
+import volatility.win32.network as network
 import volatility.utils as utils
 
 class connections(commands.command):
@@ -39,6 +40,6 @@ class connections(commands.command):
     def calculate(self):
         addr_space = utils.load_as()
         
-        result = win32.network.determine_connections(addr_space)
+        result = network.determine_connections(addr_space)
 
         return result

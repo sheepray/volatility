@@ -146,23 +146,22 @@ class NoneObject(object):
         return self
         
 
-def Object(theType, offset, vm, parent=None, profile=None, name=None, **kwargs):
+def Object(theType, offset, vm, parent=None, name=None, **kwargs):
     """ A function which instantiates the object named in theType (as
     a string) from the type in profile passing optional args of
     kwargs.
     """
     name = name or theType
     offset = int(offset)
-    profile = profile or vm.profile
     
     ## If we cant instantiate the object here, we just error out:
     if not vm.is_valid_address(offset):
         return NoneObject("Invalid Address 0x%08X, instantiating %s"\
-                          % (offset, name), strict=profile.strict)
+                          % (offset, name), strict=vm.profile.strict)
 
-    if theType in profile.types:
-        result = profile.types[theType](offset=offset, vm=vm, name=name,
-                                        parent=parent)
+    if theType in vm.profile.types:
+        result = vm.profile.types[theType](offset=offset, vm=vm, name=name,
+                                           parent=parent)
         return result
     
 
@@ -180,13 +179,13 @@ def Object(theType, offset, vm, parent=None, profile=None, name=None, **kwargs):
 
     ## If we get here we have no idea what the type is supposed to be? 
     ## This is a serious error.
-    debug.debug("Cant find object %s in profile %s???" % (theType, profile), level = 5)
+    debug.debug("Cant find object %s in profile %s???" % (theType, vm.profile), level = 5)
 
 class BaseObject(object):        
-    def __init__(self, theType, offset, vm, parent=None, profile=None, name=None):
+    def __init__(self, theType, offset, vm, parent=None, name=None):
         self.vm = vm
         self.parent = parent
-        self.profile = profile or vm.profile
+        self.profile = vm.profile
         self.offset = offset
         self.name = name
         self.theType = theType
@@ -319,10 +318,9 @@ class BaseObject(object):
                                      self.offset)
 
 class NativeType(BaseObject):
-    def __init__(self, theType, offset, vm, parent=None, profile=None,
+    def __init__(self, theType, offset, vm, parent=None,
                  format_string=None, name=None, **args):
-        BaseObject.__init__(self, theType, offset, vm, parent=parent,
-                        profile=profile, name=name)
+        BaseObject.__init__(self, theType, offset, vm, parent=parent, name=name)
         self.format_string = format_string
 
     def rebase(self, offset):
@@ -372,10 +370,10 @@ class NativeType(BaseObject):
 
 
 class BitField(NativeType):
-    def __init__(self, theType, offset, vm, parent=None, profile=None,
+    """ A class splitting an integer into a bunch of bit. """
+    def __init__(self, theType, offset, vm, parent=None, 
                  start_bit=0, end_bit=32, name=None, **args):
-        BaseObject.__init__(self, theType, offset, vm, parent=parent,
-                        profile=profile, name=name)
+        BaseObject.__init__(self, theType, offset, vm, parent=parent, name=name)
         self.format_string = 'L'
         self.start_bit = start_bit
         self.end_bit = end_bit
@@ -436,9 +434,9 @@ class Pointer(NativeType):
             return result.__getattribute__(attr)
 
 class Void(NativeType):
-    def __init__(self, theType, offset, vm, parent=None, profile=None,
+    def __init__(self, theType, offset, vm, parent=None,
                  format_string=None, **args):
-        NativeType.__init__(self, theType, offset, vm, parent=None, profile=None)
+        NativeType.__init__(self, theType, offset, vm, parent=None)
         self.format_string = "=L"
 
     def cdecl(self):
@@ -457,11 +455,10 @@ class Void(NativeType):
 class Array(BaseObject):
     """ An array of objects of the same size """
     def __init__(self, targetType=None, offset=0, vm=None, parent=None,
-                 profile=None, count=1, name=None, target=None):
+                 count=1, name=None, target=None):
         ## Instantiate the first object on the offset:
         BaseObject.__init__(self, targetType, offset, vm,
-                        parent=parent, profile=profile,
-                        name=name)
+                        parent=parent, name=name)
         try:
             count = count(parent)
         except TypeError, _e:
@@ -550,7 +547,7 @@ class CType(BaseObject):
         if not members:
             raise RuntimeError()
         
-        BaseObject.__init__(self, theType, offset, vm, parent=parent, profile = profile, name=name)
+        BaseObject.__init__(self, theType, offset, vm, parent=parent, name=name)
         self.members = members
         self.offset = offset
         self.struct_size = size
@@ -608,8 +605,6 @@ class CType(BaseObject):
     
 ## Profiles are the interface for creating/interpreting
 ## objects
-
-## This option allows us to load a different profile if needed.
 
 class Profile:
     """ A profile is a collection of types relating to a certain
@@ -730,20 +725,24 @@ class Profile:
 
     def get_obj_offset(self, name, member):
         """ Returns a members offset within the struct """
-        tmp = self.types[name](name, None, profile=self)
+        class dummy:
+            profile = self
+        tmp = self.types[name](name, dummy())
         offset, _cls = tmp.members[member]
         
         return offset
 
     def get_obj_size(self, name):
         """Returns the size of a struct"""
-        tmp = self.types[name](name, None, profile=self)
+        class dummy:
+            profile = self
+        tmp = self.types[name](name, dummy())
         return tmp.size()
 
     def apply_overlay(self, type_member, overlay):
         """ Update the overlay with the missing information from type.
 
-        Basically if overlay has None in any alot it gets applied from vtype.
+        Basically if overlay has None in any slot it gets applied from vtype.
         """
         if not overlay:
             return type_member

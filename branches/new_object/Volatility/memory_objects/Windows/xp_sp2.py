@@ -86,7 +86,7 @@ class _LIST_ENTRY(obj.CType):
             item = obj.Object(type, offset = lst.offset - offset,
                                     vm=self.vm,
                                     parent=self.parent,
-                                    profile=self.profile, name=type)
+                                    name=type)
 
 
             if forward:
@@ -109,14 +109,14 @@ class _LIST_ENTRY(obj.CType):
 
 class WinTimeStamp(obj.NativeType):
     def __init__(self, type=None, offset=None, vm=None, value=None,
-                 parent=None, profile=None, name=None, **args):
+                 parent=None, name=None, **args):
         ## This allows us to have a WinTimeStamp object with a
         ## predetermined value
         self.data = None
         if value:
             self.data = value
         else:
-            obj.NativeType.__init__(self, type, offset, vm, parent=parent, profile=profile,
+            obj.NativeType.__init__(self, type, offset, vm, parent=parent, 
                                         name=name, format_string="q")
 
     def windows_to_unix_time(self, windows_time):
@@ -182,7 +182,7 @@ class _EPROCESS(obj.CType):
         process_ad = self.get_process_address_space()
         if process_ad:
             offset =  self.m("Peb").v()
-            peb = obj.Object("_PEB", offset, vm=process_ad, profile=self.profile,
+            peb = obj.Object("_PEB", offset, vm=process_ad, 
                                     name = "Peb", parent=self)
 
             if peb.is_valid():
@@ -205,7 +205,7 @@ class _EPROCESS(obj.CType):
 
         """
         table = obj.Array("_HANDLE_TABLE_ENTRY", offset=offset, vm=self.vm,
-                              count=0x200, parent=self, profile=self.profile)
+                              count=0x200, parent=self)
         for t in table:
             offset = t.dereference_as('unsigned int')
             if not offset.is_valid():
@@ -220,7 +220,7 @@ class _EPROCESS(obj.CType):
                 ## objects here:
                 offset = int(offset) & ~0x00000007
                 item = obj.Object("_OBJECT_HEADER", offset, self.vm,
-                                        parent=self, profile=self.profile)
+                                        parent=self)
                 try:
                     if item.Type.Name:
                         yield item

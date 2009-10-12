@@ -86,7 +86,7 @@ def determine_connections(addr_space):
         if str(m.ModuleName).lower() == 'tcpip.sys':
             for attempt in module_versions:
                 table_size = obj.Object(
-                    "unsigned long",
+                    "long",
                     offset = m.BaseAddress + \
                              module_versions[attempt]['SizeOff'][0],
                     vm = addr_space)
@@ -97,7 +97,7 @@ def determine_connections(addr_space):
                              module_versions[attempt]['TCBTableOff'][0],
                     vm = addr_space)
                 
-                if int(table_size) > 0:
+                if table_size > 0:
                     table = obj.Array(
                         offset = table_addr, vm = addr_space,
                         count = table_size, 
