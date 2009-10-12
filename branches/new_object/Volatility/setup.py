@@ -42,8 +42,11 @@ if py2exe_available:
     opts['options'] = {'py2exe':{'optimize': 2,
                                  'dist_dir': py2exe_distdir,
                                  'packages': opts['packages'] + ['socket', 'ctypes', 'Crypto.Cipher'],
+                                 # This, along with zipfile = None, ensures a single binary
+                                 'bundle_files': 1,
                                 }
                       }
+    opts['zipfile'] = None
 
 distrib = setup(**opts)
 
