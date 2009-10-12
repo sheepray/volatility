@@ -254,8 +254,8 @@ class psscan(commands.command):
         for link in links:
             outfd.write(link)
 
-        for obj in objects:
-            outfd.write(obj)
+        for item in objects:
+            outfd.write(item)
         outfd.write("}")
         
     def render_text(self, outfd, data):

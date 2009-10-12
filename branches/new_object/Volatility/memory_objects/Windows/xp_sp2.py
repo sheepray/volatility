@@ -83,22 +83,22 @@ class _LIST_ENTRY(obj.CType):
         
         while 1:            
             ## Instantiate the object
-            obj = obj.Object(type, offset = lst.offset - offset,
+            item = obj.Object(type, offset = lst.offset - offset,
                                     vm=self.vm,
                                     parent=self.parent,
                                     profile=self.profile, name=type)
 
 
             if forward:
-                lst = obj.m(member).Flink.dereference()
+                lst = item.m(member).Flink.dereference()
             else:
-                lst = obj.m(member).Blink.dereference()
+                lst = item.m(member).Blink.dereference()
 
             if not lst.is_valid() or lst.offset in seen:
                 return
             seen.add(lst.offset)
 
-            yield obj
+            yield item
 
     def __nonzero__(self):
         ## List entries are valid when both Flinks and Blink are valid
@@ -219,11 +219,11 @@ class _EPROCESS(obj.CType):
                 ## OK We got to the bottom table, we just resolve
                 ## objects here:
                 offset = int(offset) & ~0x00000007
-                obj = obj.Object("_OBJECT_HEADER", offset, self.vm,
+                item = obj.Object("_OBJECT_HEADER", offset, self.vm,
                                         parent=self, profile=self.profile)
                 try:
-                    if obj.Type.Name:
-                        yield obj
+                    if item.Type.Name:
+                        yield item
 
                 except Exception, _e:
                     pass

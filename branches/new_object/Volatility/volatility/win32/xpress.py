@@ -127,10 +127,11 @@ def xpress_decode(inputBuffer):
     return recombine(outputBuffer)
 
 try:
-    import pyxpress
+    import pyxpress #pylint: disable-msg=F0401
 
     xpress_decode = pyxpress.decode
-except ImportError: pass
+except ImportError:
+    pass
 
 if __name__ == "__main__":
     import sys

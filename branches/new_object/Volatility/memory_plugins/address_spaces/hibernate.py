@@ -16,9 +16,9 @@ class Store:
         self.seq = []
         self.size = 0
 
-    def put(self, key, obj):
-        self.cache[key] = obj
-        self.size += len(obj)
+    def put(self, key, item):
+        self.cache[key] = item
+        self.size += len(item)
         
         self.seq.append(key)
         if len(self.seq) >= self.limit:
