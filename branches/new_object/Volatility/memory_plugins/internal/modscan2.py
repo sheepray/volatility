@@ -68,25 +68,27 @@ class modscan2(commands.command):
         return self.kernel_address_space.read(
             string_offset, string_length).decode("utf16","ignore")
     
-    def execute(self):
+    def calculate(self):
         ## Here we scan the physical address space
         address_space = utils.load_as(astype = 'physical')
 
         ## We need the kernel_address_space later
         self.kernel_address_space = utils.load_as()
-        
-        print "%-50s %-12s %-8s %s \n" % ('File', 'Base', 'Size', 'Name')
 
         scanner = PoolScanModuleFast2()
         for offset in scanner.scan(address_space):
             ldr_entry = obj.Object('_LDR_DATA_TABLE_ENTRY', vm=address_space,
                                   offset = offset)
+            yield ldr_entry
 
-            print "%-50s 0x%010x 0x%06x %s" % \
-                  (self.parse_string(ldr_entry.FullDllName),
-                   ldr_entry.DllBase,
-                   ldr_entry.SizeOfImage,
-                   self.parse_string(ldr_entry.BaseDllName))
+    def render_text(self, outfd, data):
+        outfd.write("%-50s %-12s %-8s %s \n" % ('File', 'Base', 'Size', 'Name'))
+        for ldr_entry in data:
+            outfd.write("%-50s 0x%010x 0x%06x %s\n" % \
+                        (self.parse_string(ldr_entry.FullDllName),
+                         ldr_entry.DllBase,
+                         ldr_entry.SizeOfImage,
+                         self.parse_string(ldr_entry.BaseDllName)))
 
 class CheckThreads(scan.ScannerCheck):
     """ Check sanity of _ETHREAD """
@@ -131,18 +133,27 @@ class PoolScanThreadFast2(scan.PoolScanner):
                ]
 
 class thrdscan2(modscan2):
-    def execute(self):
+    """Scan physical memory for _ETHREAD objects"""
+    def calculate(self):
         ## Here we scan the physical address space
         address_space = utils.load_as(astype = 'physical')
-
-        print "No.  PID    TID    Offset    \n"+ \
-              "---- ------ ------ ----------\n"
 
         scanner = PoolScanThreadFast2()
         for found in scanner.scan(address_space):
             thread = obj.Object('_ETHREAD', vm=address_space,
                                offset=found)
             
-            print "%6d %6d 0x%0.8x" % (thread.Cid.UniqueProcess,
-                                       thread.Cid.UniqueThread,
-                                       thread.offset)
+            yield thread
+            
+    def render_text(self, outfd, data):
+        outfd.write("PID    TID    Offset    \n"+ \
+                    "------ ------ ----------\n")
+        
+        for thread in data:
+            outfd.write("%6d %6d 0x%0.8x\n" % (thread.Cid.UniqueProcess,
+                                             thread.Cid.UniqueThread,
+                                             thread.offset))
+            
+        
+
+        
