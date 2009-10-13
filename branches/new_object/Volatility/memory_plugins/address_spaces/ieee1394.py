@@ -18,13 +18,13 @@ class FirewireAddressSpace(addrspace.BaseAddressSpace):
         addrspace.BaseAddressSpace.__init__(self, base, **kargs)
         assert base == None or layered, 'Must be first Address Space'
         try:
-            (scheme, netloc, path, _, _, _) = urlparse.urlparse(config.LOCATION)
-        except AttributeError:
+            (scheme, _netloc, path, _, _, _) = urlparse.urlparse(config.LOCATION)
+            assert scheme == 'firewire', 'Not a firewire URN'
+            location = [x for x in path.split('/') if x != '' ]
+            bus = int(location[0])
+            node = int(location[1])
+        except (AttributeError, ValueError):
             assert False, "Unable to parse %s as a URL" % config.LOCATION
-            
-        assert scheme == 'firewire', 'Not a firewire URN'
-        bus = int(netloc)
-        node = int(path)
         assert bus is not None and node is not None, 'Bus and Node must be specified'
 
         self._node = None
@@ -33,6 +33,8 @@ class FirewireAddressSpace(addrspace.BaseAddressSpace):
             self._node = h[bus][node]
         except IndexError:
             assert False, "Firewire node " + str(node) + " on bus " + str(bus) + " was not accessible"
+        except IOError, e:
+            assert False, "Firewire device IO error - " + str(e)
         
         # We have a list of exclusions because we know that trying to read anything in these sections
         # will cause the target machine to bluescreen
@@ -64,20 +66,20 @@ class FirewireAddressSpace(addrspace.BaseAddressSpace):
         eend = e[1]
         
         # e and range overlap
-        if not (eend < start or estart > end):
+        if (eend < start or estart > end):
             # Ignore this exclusions
-            return self.intervals(exclusions[1:], start, end, accumulator)
+            return self._intervals(exclusions[1:], start, end, accumulator)
         if estart < start:
             if eend < end: 
                 # Covers the start of the remaining length
-                return self.intervals(exclusions[1:], eend, end, accumulator)
+                return self._intervals(exclusions[1:], eend, end, accumulator)
             else:
                 # Covers the entire remaining area
                 return accumulator
         else:
             if eend < end:
                 # Covers a section of the remaining length
-                return self.intervals(exclusions[1:], eend, end, accumulator + [(start, estart)])
+                return self._intervals(exclusions[1:], eend, end, accumulator + [(start, estart)])
             else:
                 # Covers the end of the remaining length
                 return accumulator + [(start, estart)]
@@ -90,7 +92,16 @@ class FirewireAddressSpace(addrspace.BaseAddressSpace):
         ints = self.intervals(offset, offset + length)
         output = "\x00" * length
         for i in ints:
-            output = output[: i[0] - self.offset] + self._node.read(i[1] - i[0], i[0]) + output[i[1] - self.offset:] 
+            if i[1] > i[0]:
+                # node.read won't work on 0 byte
+                try:
+                    readdata = self._node.read(i[0], i[1] - i[0])
+                    # I'm not sure why, but sometimes readdata comes out longer than the requested size
+                    # We just truncate it to the right length
+                    output = output[: i[0] - offset] + readdata[:i[1] - i[0]] + output[i[1] - offset:]
+                except IOError:
+                    raise RuntimeError("Failed to read from firewire device")
+        assert len(output) == length, "Firewire read lengths failed to match"
         return output
     
     def get_address_range(self):
