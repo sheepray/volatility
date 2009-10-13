@@ -31,7 +31,11 @@ class FileAddressSpace(addrspace.BaseAddressSpace):
     def __init__(self, base, layered=False, **kwargs):
         addrspace.BaseAddressSpace.__init__(self, base, **kwargs)
         assert base == None or layered, 'Must be first Address Space'
-        (scheme, _, path, _, _, _) = urlparse.urlparse(config.LOCATION)
+        try:
+            (scheme, _, path, _, _, _) = urlparse.urlparse(config.LOCATION)
+        except AttributeError:
+            assert False, "Unable to parse %s as a URL" % config.LOCATION
+
         assert scheme == 'file' and os.path.exists(path), 'Filename must be specified and exist'
         self.name = path
         self.fname = self.name

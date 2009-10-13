@@ -17,7 +17,11 @@ class FirewireAddressSpace(addrspace.BaseAddressSpace):
     def __init__(self, base, layered=False, **kargs):
         addrspace.BaseAddressSpace.__init__(self, base, **kargs)
         assert base == None or layered, 'Must be first Address Space'
-        (scheme, netloc, path, _, _, _) = urlparse.urlparse(config.LOCATION)
+        try:
+            (scheme, netloc, path, _, _, _) = urlparse.urlparse(config.LOCATION)
+        except AttributeError:
+            assert False, "Unable to parse %s as a URL" % config.LOCATION
+            
         assert scheme == 'firewire', 'Not a firewire URN'
         bus = int(netloc)
         node = int(path)

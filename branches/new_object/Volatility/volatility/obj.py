@@ -401,7 +401,7 @@ class Pointer(NativeType):
         offset = self.v()
         if self.vm.is_valid_address(offset):
             result = self.target(offset=offset, vm=self.vm, parent=self.parent,
-                                 profile=self.profile, name=self.name)
+                                 name=self.name)
             return result
         else:
             return NoneObject("Pointer %s invalid" % self.name, self.profile.strict)
@@ -539,7 +539,7 @@ class Array(BaseObject):
         
 class CType(BaseObject):
     """ A CType is an object which represents a c struct """
-    def __init__(self, theType, offset, vm, parent=None, profile=None, members=None, name=None, size=0):
+    def __init__(self, theType, offset, vm, parent=None, members=None, name=None, size=0):
         """ This must be instantiated with a dict of members. The keys
         are the offsets, the values are Curried Object classes that
         will be instantiated when accessed.
@@ -560,7 +560,7 @@ class CType(BaseObject):
                                      self.offset)
     def __repr__(self):
         result = ''
-        for k, _v in self.members.items():
+        for k in self.members.keys():
             result += " %s -\n %s\n" % ( k, self.m(k))
 
         return result

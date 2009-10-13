@@ -68,60 +68,21 @@ configuration information:
    configuration
    
 """    
-import ConfigParser, optparse, os, sys
+import ConfigParser, optparse, os, sys, pdb
 
 default_config = "/etc/volatilityrc"
 
 class PyFlagOptionParser(optparse.OptionParser):
     final = False
     help_hooks = []
-    
-    def _process_long_opt(self, rargs, values):
-        arg = rargs.pop(0)
 
-        # Value explicitly attached to arg?  Pretend it's the next
-        # argument.
-        if "=" in arg:
-            (opt, next_arg) = arg.split("=", 1)
-            rargs.insert(0, next_arg)
-            had_explicit_value = True
-        else:
-            opt = arg
-            had_explicit_value = False
-
+    def _process_args(self, largs, rargs, values):
         try:
-            opt = self._match_long_opt(opt)
-        except optparse.BadOptionError:
-            ## we are here because we dont recognise this option.  Its
-            ## possible that it has not been defined yet so unless
-            ## this is our final run we just ignore it.
+            return optparse.OptionParser._process_args(self, largs, rargs, values)
+        except (optparse.BadOptionError, optparse.OptionValueError), err:
             if self.final:
-                raise
-            
-            return None
-        
-        option = self._long_opt[opt]
-        if option.takes_value():
-            nargs = option.nargs
-            if len(rargs) < nargs:
-                if nargs == 1:
-                    self.error(("%s option requires an argument") % opt)
-                else:
-                    self.error(("%s option requires %d arguments") % (opt, nargs))
-            elif nargs == 1:
-                value = rargs.pop(0)
-            else:
-                value = tuple(rargs[0:nargs])
-                del rargs[0:nargs]
+                raise err
 
-        elif had_explicit_value:
-            self.error(("%s option does not take a value") % opt)
-
-        else:
-            value = None
-
-        option.process(opt, value, values, self)
-    
     def error(self, msg):
         ## We cant emit errors about missing parameters until we are
         ## sure that all modules have registered all their parameters
@@ -378,6 +339,13 @@ class ConfObject(object):
         try:
             return self.opts[attr.lower()]
         except KeyError:
+            pass
+
+        ## Has it already been parsed?
+        try:
+            tmp= getattr(self.optparser.values, attr.lower())
+            if tmp: return tmp
+        except AttributeError:
             pass
 
         ## Was it given in the environment?
