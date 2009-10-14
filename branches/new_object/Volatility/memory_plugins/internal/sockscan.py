@@ -74,18 +74,19 @@ class sockscan(commands.command):
         version = '1.0',
         )
     
-    def execute(self):
+    def calculate(self):
         ## Just grab the AS and scan it using our scanner
         address_space = utils.load_as(astype = 'physical')
-        
-        print "PID    Port   Proto  Create Time                Offset \n"+ \
-              "------ ------ ------ -------------------------- ----------\n"
-
         scanner = PoolScanSockFast()
         for offset in scanner.scan(address_space):
-            sock_obj = obj.Object('_ADDRESS_OBJECT', vm=address_space,
-                                 offset=offset)
-            
-            print "%-6d %-6d %-6d %-26s 0x%0.8x" % (sock_obj.Pid, sock_obj.LocalPort,
-                                                    sock_obj.Protocol, \
-                                                    sock_obj.CreateTime, sock_obj.offset)
+            yield obj.Object('_ADDRESS_OBJECT', vm=address_space, offset=offset)        
+    
+    def render_text(self, outfd, data):
+        
+        outfd.write("PID    Port   Proto  Create Time                Offset \n"+ \
+                    "------ ------ ------ -------------------------- ----------\n")
+
+        for sock_obj in data:
+            outfd.write("%-6d %-6d %-6d %-26s 0x%0.8x\n" % (sock_obj.Pid, sock_obj.LocalPort,
+                                                            sock_obj.Protocol, \
+                                                            sock_obj.CreateTime, sock_obj.offset))

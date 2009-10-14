@@ -44,7 +44,6 @@ class dlllist(commands.command):
                 for m in self.list_modules(task):
                     outfd.write("0x%0.8x   0x%0.6x     %s\n" % (m.BaseAddress, m.SizeOfImage, m.FullDllName))
             else:
-                print task.Peb
                 outfd.write("Unable to read PEB for task.\n")
 
     def list_modules(self, task):

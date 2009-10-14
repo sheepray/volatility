@@ -71,7 +71,7 @@ class strings(commands.command):
             vpage += 0x1000
         verbfd.write("\n")
     
-        print "Calculating task mappings..."
+        verbfd.write("Calculating task mappings...\n")
         for task in data['tasks']:
             task_space = task.get_process_address_space()
             verbfd.write("  Task %d ..." % task.UniqueProcessId)

@@ -99,13 +99,17 @@ class hashdump(commands.command):
                           help='SAM hive offset (virtual)')
         commands.command.__init__(self, *args)        
     
-    def execute(self):
+    def calculate(self):
         addr_space = utils.load_as()
 
         if not config.sys_offset or not config.sam_offset:
             config.error("Both SYSTEM and SAM offsets must be provided")
         
-        hashdumpmod.dump_memory_hashes(addr_space, config.sys_offset, config.sam_offset)
+        return hashdumpmod.dump_memory_hashes(addr_space, config.sys_offset, config.sam_offset)
+
+    def render_text(self, outfd, data):
+        for d in data:
+            outfd.write(d + "\n")
 
 class hivedump(commands.command):
     """Prints out a hive"""

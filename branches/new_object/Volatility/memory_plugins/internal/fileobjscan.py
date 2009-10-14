@@ -176,18 +176,19 @@ class driverscan(filescan):
 
         
     def render_text(self, outfd, data):
-        print "%-10s %-10s %4s %4s %-10s %6s %-20s %s" % \
-              ('Phys.Addr.', 'Obj Type', '#Ptr', '#Hnd', \
-               'Start', 'Size', 'Service key', 'Name')
+        """Renders the text-based output"""
+        outfd.write("%-10s %-10s %4s %4s %-10s %6s %-20s %s\n" % \
+                    ('Phys.Addr.', 'Obj Type', '#Ptr', '#Hnd', \
+                     'Start', 'Size', 'Service key', 'Name'))
         
         for object_obj, driver_obj, extension_obj, object_name_info_obj in data:
-            print "0x%08x 0x%08x %4d %4d 0x%08x %6d %-20s %-12s %s" % \
-                  (driver_obj.offset, object_obj.Type, object_obj.PointerCount,
-                   object_obj.HandleCount,
-                   driver_obj.DriverStart, driver_obj.DriverSize,\
-                   self.parse_string(extension_obj.ServiceKeyName),
-                   self.parse_string(object_name_info_obj.Name),
-                   self.parse_string(driver_obj.DriverName))
+            outfd.write("0x%08x 0x%08x %4d %4d 0x%08x %6d %-20s %-12s %s\n" % \
+                        (driver_obj.offset, object_obj.Type, object_obj.PointerCount,
+                         object_obj.HandleCount,
+                         driver_obj.DriverStart, driver_obj.DriverSize,\
+                         self.parse_string(extension_obj.ServiceKeyName),
+                         self.parse_string(object_name_info_obj.Name),
+                         self.parse_string(driver_obj.DriverName)))
 
 class PoolScanMutant(PoolScanDriver):
     """ Scanner for Mutants _KMUTANT """
@@ -248,9 +249,10 @@ class mutantscan(filescan):
 
         
     def render_text(self, outfd, data):
-        print "%-10s %-10s %4s %4s %6s %-10s %-10s %s" % \
-              ('Phys.Addr.', 'Obj Type', '#Ptr', '#Hnd', 'Signal',\
-               'Thread', 'CID', 'Name')
+        """Renders the output"""
+        outfd.write("%-10s %-10s %4s %4s %6s %-10s %-10s %s\n" % \
+                    ('Phys.Addr.', 'Obj Type', '#Ptr', '#Hnd', 'Signal',\
+                     'Thread', 'CID', 'Name'))
         
         for object_obj, mutant, object_name_info_obj in data:
             if mutant.OwnerThread.v() > 0x80000000:
@@ -260,9 +262,9 @@ class mutantscan(filescan):
             else:
                 CID = ""
             
-            print "0x%08x 0x%08x %4d %4d %6d 0x%08x %-10s %s" % \
-                  (mutant.offset, object_obj.Type, object_obj.PointerCount,
-                   object_obj.HandleCount, mutant.Header.SignalState, \
-                   mutant.OwnerThread.v(), CID,
-                   self.parse_string(object_name_info_obj.Name)
-                   )
+            outfd.write("0x%08x 0x%08x %4d %4d %6d 0x%08x %-10s %s\n" % \
+                        (mutant.offset, object_obj.Type, object_obj.PointerCount,
+                         object_obj.HandleCount, mutant.Header.SignalState, \
+                         mutant.OwnerThread.v(), CID,
+                         self.parse_string(object_name_info_obj.Name)
+                         ))

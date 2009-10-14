@@ -148,7 +148,7 @@ class getsids(taskmods.dlllist):
         """Renders the sids as text"""
         for task in data:
             if not task.Token.is_valid():
-                print "%s (%d): Token unreadable" % (task.ImageFileName, int(task.UniqueProcessId))
+                outfd.write("%s (%d): Token unreadable\n" % (task.ImageFileName, int(task.UniqueProcessId)))
                 continue
             tok = obj.Object('_TOKEN', task.Token.Value & ~0x7, task.vm)
 

@@ -64,10 +64,13 @@ class hivescan(commands.command):
         version = '1.0',
         )
     
-    def execute(self):
+    def calculate(self):
         ## Just grab the AS and scan it using our scanner
         address_space = utils.load_as(astype = 'physical')
-        
-        print "%-15s %-15s" % ("Offset", "(hex)")
-        for offset in PoolScanHiveFast2().scan(address_space):
-            print "%-15s 0x%08X" % (offset, offset)
+
+        return PoolScanHiveFast2().scan(address_space)
+
+    def render_text(self, outfd, data):
+        outfd.write("%-15s %-15s\n" % ("Offset", "(hex)"))
+        for offset in data:
+            outfd.write("%-15s 0x%08X\n" % (offset, offset))

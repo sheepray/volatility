@@ -308,15 +308,15 @@ def dump_hashes(sysaddr, samaddr):
             lmhash = empty_lm
         if not nthash:
             nthash = empty_nt
-        print "%s:%d:%s:%s:::" % (get_user_name(user), int(str(user.Name), 16),
-                            lmhash.encode('hex'), nthash.encode('hex'))
+        yield "%s:%d:%s:%s:::" % (get_user_name(user), int(str(user.Name), 16),
+                                  lmhash.encode('hex'), nthash.encode('hex'))
 
 def dump_memory_hashes(addr_space, syshive, samhive):
     sysaddr = hive.HiveAddressSpace(addr_space, syshive)
     samaddr = hive.HiveAddressSpace(addr_space, samhive)
-    dump_hashes(sysaddr, samaddr)
+    return dump_hashes(sysaddr, samaddr)
 
 def dump_file_hashes(syshive_fname, samhive_fname, profile):
     sysaddr = hive.HiveFileAddressSpace(syshive_fname)
     samaddr = hive.HiveFileAddressSpace(samhive_fname)
-    dump_hashes(sysaddr, samaddr, profile)
+    return dump_hashes(sysaddr, samaddr, profile)

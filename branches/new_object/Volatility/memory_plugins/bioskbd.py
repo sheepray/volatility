@@ -30,8 +30,7 @@ class bioskbd(commands.command):
         """Prints out an ascii printable character"""
         if c in '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ[]{};\'#:@~,./<>?!"$%^&*()_+-=`\\|':
             return c
-        return "."
-        
+        return "." 
     
     def calculate(self):
         """Calculate returns the results of the bios keyboard reading"""

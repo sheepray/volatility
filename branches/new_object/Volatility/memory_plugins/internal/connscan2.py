@@ -56,20 +56,23 @@ class connscan2(commands.command):
         version = '1.0',
         )
     
-    def execute(self):
+    def calculate(self):
         ## Just grab the AS and scan it using our scanner
         address_space = utils.load_as(astype = 'physical')
 
-        print "Local Address             Remote Address            Pid   \n"+ \
-              "------------------------- ------------------------- ------ \n"
-
-        ## We make a new scanner
         scanner = PoolScanConnFast2()
         for offset in scanner.scan(address_space):
             ## This yields the pool offsets - we want the actual object
             tcp_obj = obj.Object('_TCPT_OBJECT', vm=address_space,
                                 offset=offset)
-            
+            yield tcp_obj
+
+    def render_text(self, outfd, data):
+        outfd.write("Local Address             Remote Address            Pid   \n"+ \
+                    "------------------------- ------------------------- ------ \n")
+
+        ## We make a new scanner
+        for tcp_obj in data:
             local = "%s:%s" % (tcp_obj.LocalIpAddress, tcp_obj.LocalPort)
             remote = "%s:%s" % (tcp_obj.RemoteIpAddress, tcp_obj.RemotePort)
-            print "%-25s %-25s %-6d" % (local, remote, tcp_obj.Pid)
+            outfd.write("%-25s %-25s %-6d\n" % (local, remote, tcp_obj.Pid))

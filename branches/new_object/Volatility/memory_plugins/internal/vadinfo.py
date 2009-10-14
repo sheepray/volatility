@@ -193,7 +193,7 @@ class vaddump(vadinfo):
             config.error(config.DUMP_DIR + " is not a directory")
 
         for pid in data:
-            print "Pid", pid
+            outfd.write("Pid " + str(int(pid)) + "\n")
             # Get the task and all process specific information
             task = data[pid].get('task', None)
             task_space = task.get_process_address_space()

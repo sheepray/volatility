@@ -27,7 +27,7 @@ class PoolTagCheck(scan.ScannerCheck):
 
 class CheckPoolSize(scan.ScannerCheck):
     """ Check pool block size """
-    def __init__(self, address_space, condition=lambda x: x==8, **kwargs):
+    def __init__(self, address_space, condition=(lambda x: x == 8), **kwargs):
         self.condition = condition
         self.address_space = address_space
 
