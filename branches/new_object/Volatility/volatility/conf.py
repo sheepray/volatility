@@ -256,6 +256,40 @@ class ConfObject(object):
             except AttributeError:
                 pass
 
+    def remove_option(self, option):
+        """ Removes options both from the config file parser and the
+            command line parser
+        
+            This should only by used on options *before* they have been read,
+            otherwise things could get very confusing.
+        """
+        option = option.lower()
+
+        normalized_option = option.replace("-","_")
+        
+        if normalized_option not in self.options:
+            return
+
+        self.options.remove(normalized_option)
+        
+        if normalized_option in self.readonly:
+            del self.readonly[normalized_option]
+
+        if normalized_option in self.default_opts:
+            del self.default_opts[normalized_option]
+
+        if normalized_option in self._absolute:
+            del self._absolute[normalized_option]
+            
+        del self.docstrings[normalized_option]
+
+        self.optparser.remove_option("--%s" % option)
+        
+        try:
+            self.parse_options(False)
+        except AttributeError:
+            pass
+
     def add_option(self, option, short_option=None, **args):
         """ Adds options both to the config file parser and the
         command line parser
@@ -343,8 +377,9 @@ class ConfObject(object):
 
         ## Has it already been parsed?
         try:
-            tmp= getattr(self.optparser.values, attr.lower())
-            if tmp: return tmp
+            tmp = getattr(self.optparser.values, attr.lower())
+            if tmp:
+                return tmp
         except AttributeError:
             pass
 
