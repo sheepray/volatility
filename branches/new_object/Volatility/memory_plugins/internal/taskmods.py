@@ -60,7 +60,7 @@ class dlllist(commands.command):
         try:
             if config.PIDS:
                 pidlist = [int(p) for p in config.PIDS.split(',')]
-                newtasks = [t for t in tasks if int(t.UniqueProcessId) in pidlist]
+                newtasks = [t for t in tasks if t.UniqueProcessId in pidlist]
                 # Make this a separate statement, so that if an exception occurs, no harm done
                 tasks = newtasks
         except (ValueError, TypeError):

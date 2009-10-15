@@ -242,8 +242,10 @@ class JKIA32PagedMemory(addrspace.BaseAddressSpace):
         The 'pad' parameter controls whether unavailable bytes 
         are padded with zeros.
         """
-        ret = ''
+        vaddr, length = int(vaddr), int(length)
         
+        ret = ''
+
         while length > 0:
             chunk_len = min(length, 0x1000 - (vaddr % 0x1000))
 

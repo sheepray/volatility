@@ -100,7 +100,7 @@ class CheckDTBAligned(scan.ScannerCheck):
         eprocess = obj.Object("_EPROCESS", vm=self.address_space,
                              offset = offset)
         
-        return eprocess.Pcb.DirectoryTableBase[0].v() % 0x20 == 0
+        return eprocess.Pcb.DirectoryTableBase[0] % 0x20 == 0
 
 class CheckThreadList(scan.ScannerCheck):
     """ Checks that _EPROCESS thread list points to the kernel Address Space """
@@ -111,7 +111,7 @@ class CheckThreadList(scan.ScannerCheck):
         
         list_head = eprocess.ThreadListHead
 
-        if list_head.Flink.v() > kernel and \
+        if list_head.Flink > kernel and \
                list_head.Blink > kernel:
             return True
 
@@ -135,7 +135,7 @@ class CheckThreadSemaphores(scan.ScannerCheck):
         ethread = obj.Object("_ETHREAD", vm=self.address_space,
                              offset = offset)
 
-        pid = ethread.Cid.UniqueProcess.v()
+        pid = ethread.Cid.UniqueProcess
         if pid == 0:
             return True
 
@@ -163,7 +163,7 @@ class CheckThreadProcess(scan.ScannerCheck):
     def check(self, offset):
         ethread = obj.Object("_ETHREAD", vm=self.address_space,
                             offset = offset)
-        if ethread.Cid.UniqueProcess == 0 or ethread.ThreadsProcess.v() > self.kernel:
+        if ethread.Cid.UniqueProcess == 0 or ethread.ThreadsProcess > self.kernel:
             return True
 
 class CheckThreadStartAddress(scan.ScannerCheck):
@@ -171,7 +171,7 @@ class CheckThreadStartAddress(scan.ScannerCheck):
     def check(self, offset):
         ethread = obj.Object("_ETHREAD", vm=self.address_space,
                             offset = offset)
-        if ethread.Cid.UniqueProcess == 0 or ethread.StartAddress.v() != 0:
+        if ethread.Cid.UniqueProcess == 0 or ethread.StartAddress != 0:
             return True
 
 class ThreadScan(scan.BaseScanner):

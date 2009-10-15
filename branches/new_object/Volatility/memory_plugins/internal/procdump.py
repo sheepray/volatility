@@ -42,7 +42,7 @@ class procexedump(taskmods.dlllist):
             outfd.write("Dumping %s, pid: %-6d output: %s\n" % (task.ImageFileName, pid, "executable." + str(pid) + ".exe"))
             of = open(os.path.join(config.DUMP_DIR, "executable." + str(pid) + ".exe"), 'wb')
             try:
-                for chunk in self.get_image(outfd, task.get_process_address_space(), task.Peb.ImageBaseAddress.v()):
+                for chunk in self.get_image(outfd, task.get_process_address_space(), task.Peb.ImageBaseAddress):
                     offset, code = chunk
                     of.seek(offset)
                     of.write(code)
@@ -54,8 +54,6 @@ class procexedump(taskmods.dlllist):
 
     def round(self, addr, align, up=False):
         """Rounds down an address based on an alignment"""
-        addr = int(addr)
-        align = int(align)
         if addr % align == 0: 
             return addr
         else: 
@@ -69,7 +67,7 @@ class procexedump(taskmods.dlllist):
                                 vm=addr_space)
         
         nt_header = obj.Object("_IMAGE_NT_HEADERS",
-                               offset = base_addr + dos_header.e_lfanew.v(),
+                               offset = base_addr + dos_header.e_lfanew,
                                vm=addr_space)
         
         return nt_header
@@ -77,13 +75,13 @@ class procexedump(taskmods.dlllist):
     def get_sections(self, addr_space, nt_header):
         """Returns the sectors from a process"""
         sect_size = addr_space.profile.get_obj_size("_IMAGE_SECTION_HEADER")
-        start_addr = int(nt_header.OptionalHeader.offset) + int(nt_header.FileHeader.SizeOfOptionalHeader)
+        start_addr = nt_header.OptionalHeader.offset + nt_header.FileHeader.SizeOfOptionalHeader
         
         for i in range(nt_header.FileHeader.NumberOfSections):
             s_addr = start_addr + (i * sect_size)
             sect = obj.Object("_IMAGE_SECTION_HEADER", s_addr, addr_space)
             if not config.UNSAFE:
-                self.sanity_check_section(sect, nt_header.OptionalHeader.SizeOfImage.v())
+                self.sanity_check_section(sect, nt_header.OptionalHeader.SizeOfImage)
             yield sect
 
     def sanity_check_section(self, sect, image_size):
@@ -144,20 +142,19 @@ class procexedump(taskmods.dlllist):
         nt_header = self.get_nt_header(addr_space=addr_space,
                                        base_addr=base_addr)
 
-        soh = nt_header.OptionalHeader.SizeOfHeaders.v()
+        soh = nt_header.OptionalHeader.SizeOfHeaders
         header = addr_space.read(base_addr, soh)
         yield (0, header)
         
         fa = nt_header.OptionalHeader.FileAlignment
         for sect in self.get_sections(addr_space, nt_header):
             foa = self.round(sect.PointerToRawData, fa)
-            if foa != int(sect.PointerToRawData):
+            if foa != sect.PointerToRawData:
                 outfd.write("Warning: section start on disk not aligned to file alignment.\n")
-                outfd.write("Warning: adjusted section start from %x to %x.\n" % (int(sect.PointerToRawData), foa))
-            offset, code = self.get_code(addr_space,
-                                         base_addr + sect.VirtualAddress.v(),
-                                         sect.SizeOfRawData.v(), foa, outfd)
-            yield offset, code
+                outfd.write("Warning: adjusted section start from %x to %x.\n" % (sect.PointerToRawData, foa))
+            yield self.get_code(addr_space,
+                                base_addr + sect.VirtualAddress,
+                                sect.SizeOfRawData, foa, outfd)
     
 class procmemdump(procexedump):
     """Dump a process to an executable memory sample"""
@@ -178,18 +175,18 @@ class procmemdump(procexedump):
         sa = nt_header.OptionalHeader.SectionAlignment
         shs = addr_space.profile.get_obj_size('_IMAGE_SECTION_HEADER')
 
-        yield self.get_code(addr_space, int(base_addr), int(nt_header.OptionalHeader.SizeOfImage), 0, outfd)
+        yield self.get_code(addr_space, base_addr, nt_header.OptionalHeader.SizeOfImage, 0, outfd)
 
         prevsect = None
         sect_sizes = []
         for sect in self.get_sections(addr_space, nt_header):
             if prevsect is not None:
-                sect_sizes.append(int(sect.VirtualAddress) - int(prevsect.VirtualAddress)) 
+                sect_sizes.append(sect.VirtualAddress - prevsect.VirtualAddress) 
             prevsect = sect
         sect_sizes.append(self.round(prevsect.Misc.VirtualSize, sa, up=True))
 
         counter = 0
-        start_addr = int(nt_header.OptionalHeader.offset) + int(nt_header.FileHeader.SizeOfOptionalHeader) - int(base_addr)
+        start_addr = nt_header.OptionalHeader.offset + nt_header.FileHeader.SizeOfOptionalHeader - base_addr
         for sect in self.get_sections(addr_space, nt_header):
             sectheader = addr_space.read(sect.offset, shs)
             # Change the PointerToRawData

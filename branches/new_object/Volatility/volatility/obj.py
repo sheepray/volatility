@@ -202,7 +202,8 @@ class BaseObject(object):
         """
         ## Search for the attribute of the proxied object
         proxied = self.proxied(attr)
-        if not proxied: raise
+        if not proxied:
+            raise AttributeError
         
         return getattr(proxied, attr)
 
@@ -326,7 +327,7 @@ class NumericProxyMixIn(object):
     """ This MixIn implements the numeric protocol """
     _specials = [
         '__add__', '__sub__', '__mul__', '__floordiv__', '__mod__', '__divmod__', '__pow__', '__lshift__', '__rshift__', '__and__', '__xor__', '__div__', '__truediv__', '__radd__', '__rsub__', '__rmul__', '__rdiv__', '__rtruediv__', '__rfloordiv__', '__rmod__', '__rdivmod__', '__rpow__', '__rlshift__', '__rrshift__', '__rand__', '__rxor__', '__ror__', '__neg__', '__pos__', '__abs__', '__invert__', '__int__', '__long__', '__float__', '__oct__', '__hex__',
-        '__lt__', '__le__', '__eq__', '__ne__', '__ge__', '__gt__',
+        '__lt__', '__le__', '__eq__', '__ne__', '__ge__', '__gt__', '__index__',
         ]
 
 

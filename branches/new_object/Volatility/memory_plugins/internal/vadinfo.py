@@ -39,10 +39,9 @@ class vadinfo(taskmods.dlllist):
 
     def write_vad_short(self, outfd, vad):
         """Renders a text version of a Short Vad"""
-        outfd.write("VAD node @%08x Start %08x End %08x Tag %4s\n" % (vad.offset, int(vad.StartingVpn) << 12, ((int(vad.EndingVpn) + 1) << 12) - 1, vad.name))
-        Flags = int(vad.Flags)
-        outfd.write("Flags: " + ", ".join(win32vad.get_bit_flags(Flags,'_MMVAD_FLAGS')) + "\n")
-        outfd.write("Commit Charge: %d Protection: %x\n" % (Flags & win32vad.get_mask_flag('_MMVAD_FLAGS', 'CommitCharge'), (Flags & win32vad.get_mask_flag('_MMVAD_FLAGS', 'Protection')) >> 24))
+        outfd.write("VAD node @%08x Start %08x End %08x Tag %4s\n" % (vad.offset, vad.StartingVpn << 12, (vad.EndingVpn + 1) << 12) - 1, vad.name)
+        outfd.write("Flags: " + ", ".join(win32vad.get_bit_flags(vad.Flags,'_MMVAD_FLAGS')) + "\n")
+        outfd.write("Commit Charge: %d Protection: %x\n" % (vad.Flags & win32vad.get_mask_flag('_MMVAD_FLAGS', 'CommitCharge'), (vad.Flags & win32vad.get_mask_flag('_MMVAD_FLAGS', 'Protection')) >> 24))
     
     def write_vad_control(self, outfd, vad):
         """Renders a text version of a (non-short) Vad's control information"""
@@ -57,8 +56,7 @@ class vadinfo(taskmods.dlllist):
         outfd.write("NumberOfMappedViews:       %10d NumberOfSubsections:    %10d\n" % (CA.NumberOfMappedViews, CA.NumberOfSubsections))
         outfd.write("FlushInProgressCount:      %10d NumberOfUserReferences: %10d\n" % (CA.FlushInProgressCount, CA.NumberOfUserReferences))
         
-        Flags = int(CA.Flags)
-        outfd.write("Flags: " + ", ".join(win32vad.get_bit_flags(Flags,'_MMSECTION_FLAGS')) + "\n")
+        outfd.write("Flags: " + ", ".join(win32vad.get_bit_flags(CA.Flags,'_MMSECTION_FLAGS')) + "\n")
 
         if CA.FilePointer:
             outfd.write("FileObject @%08x           , Name: %s\n" % (CA.FilePointer.dereference().offset, CA.FilePointer.FileName))
@@ -72,11 +70,10 @@ class vadinfo(taskmods.dlllist):
         """Renders a text version of a Long Vad"""
         outfd.write("First prototype PTE: %08x Last contiguous PTE: %08x\n" % (vad.FirstPrototypePte, vad.LastContiguousPte))
         
-        Flags = int(vad.Flags2) 
-        outfd.write("Flags2: " + ", ".join(win32vad.get_bit_flags(Flags,'_MMVAD_FLAGS2')) + "\n")
-        outfd.write("File offset: %08x\n" % (Flags & win32vad.get_mask_flag('_MMVAD_FLAGS2','FileOffset')))
+        outfd.write("Flags2: " + ", ".join(win32vad.get_bit_flags(vad.Flags2,'_MMVAD_FLAGS2')) + "\n")
+        outfd.write("File offset: %08x\n" % (vad.Flags2 & win32vad.get_mask_flag('_MMVAD_FLAGS2','FileOffset')))
         
-        if (Flags and Flags & win32vad.get_mask_flag('_MMVAD_FLAGS2','LongVad')):
+        if (vad.Flags2 != None and vad.Flags2 & win32vad.get_mask_flag('_MMVAD_FLAGS2','LongVad')):
             # FIXME: Add in the extra bits, after deciding on names for u3 and u4
             outfd.write("Extended information available\n")
 
@@ -85,7 +82,7 @@ class vadinfo(taskmods.dlllist):
         
         for task in tasks:
             if task.UniqueProcessId:
-                pid = int(task.UniqueProcessId)
+                pid = task.UniqueProcessId
                 result = {'task': task, 'vadlist': []}
 
                 task_space = task.get_process_address_space()
@@ -137,8 +134,8 @@ class vadtree(vadinfo):
                     level = levels.get(vad.Parent.dereference().offset, -1) + 1
                     levels[vad.offset] = level
                     outfd.write(" " * level + "%08x - %08x\n" % ( 
-                                int(vad.StartingVpn) << 12,
-                                ((int(vad.EndingVpn) + 1) << 12) -1))
+                                vad.StartingVpn << 12,
+                                ((vad.EndingVpn + 1) << 12) -1))
 
     def render_dot(self, outfd, data):
         for pid in data:
@@ -154,8 +151,8 @@ class vadtree(vadinfo):
                     outfd.write("vad_%08x [label = \"{ %s\\n%08x - %08x }\" shape = \"record\" color = \"blue\"];\n" % 
                                 (vad.offset,
                                  vad.name, 
-                                 int(vad.StartingVpn) << 12,
-                                 ((int(vad.EndingVpn) + 1) << 12) -1))
+                                 vad.StartingVpn << 12,
+                                 ((vad.EndingVpn + 1) << 12) -1))
             outfd.write("}\n")
 
 class vadwalk(vadinfo):
@@ -172,8 +169,8 @@ class vadwalk(vadinfo):
                     outfd.write("%08x %08x %08x %08x %08x %08x %-4s\n" % (vad.offset,
                                 vad.Parent.dereference().offset or 0 , vad.LeftChild.dereference().offset or 0,
                                 vad.RightChild.dereference().offset or 0,
-                                int(vad.StartingVpn) << 12,
-                                ((int(vad.EndingVpn) + 1) << 12) -1,
+                                vad.StartingVpn << 12,
+                                ((vad.EndingVpn + 1) << 12) -1,
                                 vad.name))
 
 class vaddump(vadinfo):
@@ -193,7 +190,7 @@ class vaddump(vadinfo):
             config.error(config.DUMP_DIR + " is not a directory")
 
         for pid in data:
-            outfd.write("Pid " + str(int(pid)) + "\n")
+            outfd.write("Pid " + str(pid) + "\n")
             # Get the task and all process specific information
             task = data[pid].get('task', None)
             task_space = task.get_process_address_space()
@@ -207,8 +204,8 @@ class vaddump(vadinfo):
                     continue
 
                 # Find the start and end range
-                start = int(vad.StartingVpn) << 12
-                end = ((int(vad.EndingVpn) + 1) << 12) - 1
+                start = vad.StartingVpn << 12
+                end = ((vad.EndingVpn + 1) << 12) - 1
                 if start > 0xFFFFFFFF or end > (0xFFFFFFFF << 12):
                     continue
 

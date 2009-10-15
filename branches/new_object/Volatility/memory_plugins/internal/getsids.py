@@ -156,7 +156,7 @@ class getsids(taskmods.dlllist):
                 sid = sa.Sid.dereference()
                 for i in sid.IdentifierAuthority.Value:
                     id_auth = i 
-                sid_string = "S-" + "-".join(str(i) for i in (sid.Revision, id_auth) + tuple(sid.SubAuthority))
+                sid_string = "S-" + "-".join(str(int(i)) for i in (sid.Revision, id_auth) + tuple(sid.SubAuthority))
                 if sid_string in well_known_sids:
                     sid_name = " (%s)" % well_known_sids[sid_string]
                 else:
@@ -166,4 +166,4 @@ class getsids(taskmods.dlllist):
                     else:
                         sid_name = ""
                 
-                outfd.write("%s (%d): %s%s\n" % (task.ImageFileName, int(task.UniqueProcessId), sid_string, sid_name))
+                outfd.write("%s (%d): %s%s\n" % (task.ImageFileName, task.UniqueProcessId, sid_string, sid_name))

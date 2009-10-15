@@ -60,11 +60,12 @@ class filescan(commands.command):
     def parse_string(self, unicode_obj):
         ## We need to do this because the unicode_obj buffer is in
         ## kernel_address_space
-        string_length = unicode_obj.Length.v()
-        string_offset = unicode_obj.Buffer.v()            
+        string_length = unicode_obj.Length
+        string_offset = unicode_obj.Buffer            
 
         string = self.kernel_address_space.read(string_offset, string_length)
-        if not string: return ''
+        if not string: 
+            return ''
         return string[:255].decode("utf16","ignore").encode("utf8","ignore")
 
     def calculate(self):
@@ -169,7 +170,7 @@ class driverscan(filescan):
             ## Now we need to work out the _OBJECT_NAME_INFO object
             object_name_info_obj = obj.Object("_OBJECT_NAME_INFO", vm=address_space,
                                                  offset = object_obj.offset - \
-                                                 object_obj.NameInfoOffset.v()
+                                                 object_obj.NameInfoOffset
                                                  )
             
             yield (object_obj, driver_obj, extension_obj, object_name_info_obj)
@@ -238,7 +239,7 @@ class mutantscan(filescan):
             ## Now we need to work out the _OBJECT_NAME_INFO object
             object_name_info_obj = obj.Object("_OBJECT_NAME_INFO", vm=address_space,
                                                      offset = object_obj.offset - \
-                                                     object_obj.NameInfoOffset.v()
+                                                     object_obj.NameInfoOffset
                                                      )
 
             if config.SILENT:
@@ -255,9 +256,9 @@ class mutantscan(filescan):
                      'Thread', 'CID', 'Name'))
         
         for object_obj, mutant, object_name_info_obj in data:
-            if mutant.OwnerThread.v() > 0x80000000:
+            if mutant.OwnerThread > 0x80000000:
                 thread = obj.Object("_ETHREAD", vm = self.kernel_address_space,
-                                   offset = mutant.OwnerThread.v())
+                                   offset = mutant.OwnerThread)
                 CID = "%s:%s" % (thread.Cid.UniqueProcess, thread.Cid.UniqueThread)
             else:
                 CID = ""
@@ -265,6 +266,6 @@ class mutantscan(filescan):
             outfd.write("0x%08x 0x%08x %4d %4d %6d 0x%08x %-10s %s\n" % \
                         (mutant.offset, object_obj.Type, object_obj.PointerCount,
                          object_obj.HandleCount, mutant.Header.SignalState, \
-                         mutant.OwnerThread.v(), CID,
+                         mutant.OwnerThread, CID,
                          self.parse_string(object_name_info_obj.Name)
                          ))
