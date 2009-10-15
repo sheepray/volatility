@@ -28,11 +28,11 @@
 
 #pylint: disable-msg=C0111
 
-import sys
-# sys.path.append(".")
-# sys.path.append("..")
+import sys, pdb
+sys.path.append(".")
+sys.path.append("..")
 
-import struct, copy
+import struct, copy, operator
 import volatility.registry as MemoryRegistry
 import volatility.addrspace as addrspace
 import volatility.debug as debug
@@ -193,6 +193,19 @@ class BaseObject(object):
     def rebase(self, offset):
         return self.__class__(self.theType, offset, vm=self.vm)
 
+    def proxied(self, attr):
+        return None
+
+    def __getattr__(self, attr):
+        """ This is only useful for proper methods (not ones that
+        start with __ )
+        """
+        ## Search for the attribute of the proxied object
+        proxied = self.proxied(attr)
+        if not proxied: raise
+        
+        return getattr(proxied, attr)
+
     def __nonzero__(self):
         """ This method is called when we test the truth value of an
         Object. In volatility we consider an object to have True truth
@@ -221,44 +234,11 @@ class BaseObject(object):
             debug.b()
         return result2
 
-    def __add__(self, other):
-        return other + self.v()
-
-    def __mul__(self, other):
-        return other * self.v()
-
-    def __sub__(self, other):
-        return -other + self.v()
-
-    def __neg__(self):
-        return -self.v()
-    
-    def __eq__(self, other):
-        if isinstance(other, BaseObject):
-            return (self.__class__ == other.__class__) and (self.offset == other.offset)
-        else:
-            return NotImplemented
-
-    def __lshift__(self, other):
-        return self.v() << other
-    
-    def __rshift__(self, other):
-        return self.v() >> other
-
-    def __or__(self, other):
-        return self.v() | other
-    
-    def __ror__(self, other):
-        return other | self.v()
-
-    def __and__(self, other):
-        return self.v() & other
-    
-    def __rand__(self, other):
-        return other & self
-
-    def __ne__(self, other):
-        return not self == other
+#    def __eq__(self, other):
+#        if isinstance(other, BaseObject):
+#            return (self.__class__ == other.__class__) and (self.offset == other.offset)
+#        else:
+#            return NotImplemented
 
     def __hash__(self):
         return hash(self.name) ^ hash(self.offset)
@@ -317,7 +297,42 @@ class BaseObject(object):
         return "[%s %s] @ 0x%08X" % (self.__class__.__name__, self.name or '',
                                      self.offset)
 
-class NativeType(BaseObject):
+def CreateMixIn(mixin):
+    def make_method(name):
+        def method(self, *args, **kw):
+            proxied = self.proxied(name)
+            try:
+                ## Try to coerce the other in case its also a proxied
+                ## class
+                args = list(args)
+                args[0] = args[0].proxied(name)
+            except (AttributeError, IndexError):
+                pass
+
+            try:
+                method = getattr(operator, name)
+                args = [proxied] + args
+            except AttributeError:
+                method = getattr(proxied, name)
+            
+            return method(*args, **kw)
+        
+        return method
+    
+    for name in mixin._specials:
+        setattr(mixin, name, make_method(name))
+
+class NumericProxyMixIn(object):
+    """ This MixIn implements the numeric protocol """
+    _specials = [
+        '__add__', '__sub__', '__mul__', '__floordiv__', '__mod__', '__divmod__', '__pow__', '__lshift__', '__rshift__', '__and__', '__xor__', '__div__', '__truediv__', '__radd__', '__rsub__', '__rmul__', '__rdiv__', '__rtruediv__', '__rfloordiv__', '__rmod__', '__rdivmod__', '__rpow__', '__rlshift__', '__rrshift__', '__rand__', '__rxor__', '__ror__', '__neg__', '__pos__', '__abs__', '__invert__', '__int__', '__long__', '__float__', '__oct__', '__hex__',
+        '__lt__', '__le__', '__eq__', '__ne__', '__ge__', '__gt__',
+        ]
+
+
+CreateMixIn(NumericProxyMixIn)
+
+class NativeType(BaseObject, NumericProxyMixIn):
     def __init__(self, theType, offset, vm, parent=None,
                  format_string=None, name=None, **args):
         BaseObject.__init__(self, theType, offset, vm, parent=parent, name=name)
@@ -325,6 +340,9 @@ class NativeType(BaseObject):
 
     def rebase(self, offset):
         return self.__class__(None, offset, self.vm, format_string=self.format_string)
+
+    def proxied(self, attr):
+        return self.v()
 
     def size(self):
         return struct.calcsize(self.format_string)
@@ -341,33 +359,8 @@ class NativeType(BaseObject):
     def cdecl(self):
         return self.name
 
-    def __int__(self):
-        return self.v()
-
-    def __eq__(self, other):
-        return self.v() == other
-
-    def __hex__(self):
-        return hex(self.v())
-
-    def __str__(self):
-        return "%s" % (self.v())
-
-    def __lt__(self, other):
-        return self.v() < other
-
-    def __gt__(self, other):
-        return self.v() > other
-
     def __repr__(self):
         return " [%s]: %s" % (self.theType, self.v())
-
-    def __and__(self, other):
-        return int(self) & other
-
-    def __mod__(self, other):
-        return int(self) % other
-
 
 class BitField(NativeType):
     """ A class splitting an integer into a bunch of bit. """
@@ -418,9 +411,6 @@ class Pointer(NativeType):
     def __str__(self):
         target = self.dereference()
         return "<%s pointer to [0x%08X]>" % (target.__class__.__name__, self.v())
-
-    def __int__(self):
-        return self.v()
 
     def __getattribute__(self, attr):
         try:
@@ -807,17 +797,45 @@ class Profile:
 if __name__ == '__main__':
     ## If called directly we run unit tests on this stuff
     import unittest
+    import volatility.registry as registry
+    import volatility.conf as conf
+    config = conf.ConfObject()
+
+    config.parse_options()
+    registry.Init()
 
     class ObjectTests(unittest.TestCase):
         """ Tests the object implementation. """
-
-        def make_object(self, objct, offset, type, data):
-            address_space = addrspace.BufferAddressSpace(data)
-            profile = Profile(abstract_types=type)
-            o = Object(objct, offset, address_space, profile=profile)
+        def test001ProxyObject(self):
+            ## Check the proxying of various objects
+            test_data = "hello world"
+            address_space = addrspace.BufferAddressSpace(data=test_data)
+            o = Object('String', offset=0, vm=address_space, length=len(test_data))
             
-            return o
-        
+            print o.find("world"), o.upper(), o.lower()
+
+            o = Object('unsigned int', offset=0, vm=address_space, length=len(test_data))
+            O = o.v()
+            print type(o), type(O)
+            self.assertEqual(o,O)
+            self.assertEqual(o + 5 ,O + 5)
+            self.assertEqual(o + o ,O + O)
+            self.assertEqual(o * 2 ,O * 2)
+
+            self.assertEqual(o > 5 ,O > 5)
+            self.assertEqual(o < 1819043181 ,O < 1819043181)
+            self.assertEqual(o <= 1819043181 ,O <= 1819043181)
+            self.assertEqual(o == 1819043181 ,O == 1819043181)
+            self.assertEqual(o < o ,O < O)
+
+            self.assertEqual(o / 4 ,O / 4)
+            self.assertEqual(o << 2 ,O << 2)
+            self.assertEqual(o >> 2 ,O >> 2)
+            self.assertEqual(o / 3 ,O / 3)
+            self.assertEqual(float(o) ,float(O))
+            
+            print o, o+5, o * 2, o / 2, o << 3, o & 0xFF, o + o
+
         def test01SimpleStructHandling(self):
             """ Test simple struct handling """
             mytype = {
@@ -829,8 +847,10 @@ if __name__ == '__main__':
                 }
 
             test_data = "ABAD\x06\x00\x00\x00\x02\x00\xff\xff"
-
-            o = self.make_object('HEADER', 0, mytype, test_data)
+            address_space = addrspace.BufferAddressSpace(data=test_data)
+            address_space.profile.add_types(mytype)
+            
+            o = Object('HEADER', offset=0, vm=address_space)
             ## Can we decode ints?
             self.assertEqual(o.Size.v(), 6)
             self.assertEqual(int(o.Size), 6)
@@ -871,20 +891,24 @@ if __name__ == '__main__':
 
             test_data = '\x01\x00\x00\x00\x00\x00\x00\x00\x1c\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\\\x00\x00\x00\\\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x02\x00\x00\x00\x03\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x1c\x00\x00\x00\x1c\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x05\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
 
-            o = self.make_object('_HANDLE_TABLE', 0, mytype, test_data)
+            address_space = addrspace.BufferAddressSpace(data=test_data)
+            address_space.profile.add_types(mytype)
+            
+            o = Object('_HANDLE_TABLE', offset=0, vm=address_space)
 
             self.assertEqual(o.TableCode, 1)
             self.assertEqual(o.UniqueProcessId, 0x1c)
             self.assertEqual(o.UniqueProcessId.dereference(), 0x5c)
             self.assertEqual(o.UniqueProcessId.dereference_as("unsigned int"), 0x5c)
 
-            n = o.HandleTableList.next
+            return
+            n = o.HandleTableList.Flink
             self.assertEqual(n.TableCode, 3)
             self.assertEqual(n.HandleCount, 5)
 
             ## Make sure next.prev == o
-            self.assertEqual(n.HandleTableList.prev, o)
-            self.assertEqual(n.HandleTableList.prev.TableCode, 1)
+            self.assertEqual(n.HandleTableList.Blink, o)
+            self.assertEqual(n.HandleTableList.Blink.TableCode, 1)
             
     suite = unittest.makeSuite(ObjectTests)
     res = unittest.TextTestRunner(verbosity=2).run(suite)

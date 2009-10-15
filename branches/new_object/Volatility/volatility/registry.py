@@ -47,11 +47,8 @@ import volatility.debug as debug
 config.add_option("INFO", default=None, action="store_true",
                   help = "Print information about all registered objects")
 
-config.add_option("PLUGINS", default=None,
+config.add_option("PLUGINS", default="./memory_plugins:./memory_objects",
                   help = "Additional plugin directories to use (colon separated)")
-
-## Define the parameters we need:
-PLUGINS = "memory_plugins:memory_objects"
 
 class MemoryRegistry:
     """ Main class to register classes derived from a given parent
@@ -79,12 +76,8 @@ class MemoryRegistry:
         self.order = []
         
         # Setup initial plugin directories
-        plugins = PLUGINS
-        
-        # Add in additional plugins
-        if config.PLUGINS is not None:
-            plugins += ":" + config.PLUGINS 
-        
+        plugins = config.PLUGINS
+                
         ## Recurse over all the plugin directories recursively
         for path in plugins.split(':'):
             # Given it's a colon separated list, currently providing absolute paths on windows are impossible
@@ -333,6 +326,7 @@ OBJECT_CLASSES = None
 AS_CLASSES = None
 PROFILES = None
 SCANNER_CHECKS = None
+EVENTS = None
 
 ## This is required for late initialization to avoid dependency nightmare.
 def Init():

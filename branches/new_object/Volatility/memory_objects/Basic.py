@@ -5,6 +5,7 @@ OS's
 # they don't show up in the MemoryObjects registry
 from volatility.obj import BitField, Pointer, Void, Array, CType
 import volatility.obj as obj
+import pdb
 
 class String(obj.NativeType):
     """Class for dealing with Strings"""
@@ -20,14 +21,10 @@ class String(obj.NativeType):
         obj.NativeType.__init__(self, theType, offset, vm, parent=parent, profile=profile,
                             name=name, format_string="%ds" % length)
 
-    def upper(self):
-        """Returns the uppercase version of the string"""
-        return self.__str__().upper()
-
-    def lower(self):
-        """Returns the lowercase version of the string"""
-        return self.__str__().lower()
-
+    def proxied(self, name):
+        """ Return an object to be proxied """
+        return self.__str__()
+    
     def __str__(self):
         data = self.v()
         ## Make sure its null terminated:
