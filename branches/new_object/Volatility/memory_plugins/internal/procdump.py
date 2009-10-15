@@ -42,7 +42,7 @@ class procexedump(taskmods.dlllist):
             outfd.write("Dumping %s, pid: %-6d output: %s\n" % (task.ImageFileName, pid, "executable." + str(pid) + ".exe"))
             of = open(os.path.join(config.DUMP_DIR, "executable." + str(pid) + ".exe"), 'wb')
             try:
-                for chunk in self.get_image(outfd, task.get_process_address_space(), task.Peb.ImageBaseAddress):
+                for chunk in self.get_image(outfd, task.get_process_address_space(), task.Peb.ImageBaseAddress.v()):
                     offset, code = chunk
                     of.seek(offset)
                     of.write(code)
@@ -65,8 +65,13 @@ class procexedump(taskmods.dlllist):
 
     def get_nt_header(self, addr_space, base_addr):
         """Returns the NT Header object for a task"""
-        dos_header = obj.Object("_IMAGE_DOS_HEADER", base_addr, addr_space)
-        nt_header = obj.Object("_IMAGE_NT_HEADERS", base_addr + int(dos_header.e_lfanew), addr_space)
+        dos_header = obj.Object("_IMAGE_DOS_HEADER", offset = base_addr,
+                                vm=addr_space)
+        
+        nt_header = obj.Object("_IMAGE_NT_HEADERS",
+                               offset = base_addr + dos_header.e_lfanew.v(),
+                               vm=addr_space)
+        
         return nt_header
 
     def get_sections(self, addr_space, nt_header):
@@ -78,20 +83,19 @@ class procexedump(taskmods.dlllist):
             s_addr = start_addr + (i * sect_size)
             sect = obj.Object("_IMAGE_SECTION_HEADER", s_addr, addr_space)
             if not config.UNSAFE:
-                self.sanity_check_section(sect, nt_header.OptionalHeader.SizeOfImage)
+                self.sanity_check_section(sect, nt_header.OptionalHeader.SizeOfImage.v())
             yield sect
 
     def sanity_check_section(self, sect, image_size):
         """Sanity checks address boundaries"""
         # Note: all addresses here are RVAs
-        image_size = int(image_size)
-        if int(sect.VirtualAddress) > image_size:
+        if sect.VirtualAddress > image_size:
             raise ValueError('VirtualAddress %08x is past the end of image.' %
                                     sect.VirtualAddress)
-        if int(sect.Misc.VirtualSize) > image_size:
+        if sect.Misc.VirtualSize > image_size:
             raise ValueError('VirtualSize %08x is larger than image size.' %
                                     sect.Misc.VirtualSize)
-        if int(sect.SizeOfRawData) > image_size:
+        if sect.SizeOfRawData > image_size:
             raise ValueError('SizeOfRawData %08x is larger than image size.' %
                                     sect.SizeOfRawData)
         
@@ -137,9 +141,10 @@ class procexedump(taskmods.dlllist):
 
     def get_image(self, outfd, addr_space, base_addr):
         """Outputs an executable disk image of a process"""
-        nt_header = self.get_nt_header(addr_space, base_addr)
+        nt_header = self.get_nt_header(addr_space=addr_space,
+                                       base_addr=base_addr)
 
-        soh = nt_header.OptionalHeader.SizeOfHeaders
+        soh = nt_header.OptionalHeader.SizeOfHeaders.v()
         header = addr_space.read(base_addr, soh)
         yield (0, header)
         
@@ -149,7 +154,9 @@ class procexedump(taskmods.dlllist):
             if foa != int(sect.PointerToRawData):
                 outfd.write("Warning: section start on disk not aligned to file alignment.\n")
                 outfd.write("Warning: adjusted section start from %x to %x.\n" % (int(sect.PointerToRawData), foa))
-            offset, code = self.get_code(addr_space, int(base_addr + sect.VirtualAddress), int(sect.SizeOfRawData), foa, outfd)
+            offset, code = self.get_code(addr_space,
+                                         base_addr + sect.VirtualAddress.v(),
+                                         sect.SizeOfRawData.v(), foa, outfd)
             yield offset, code
     
 class procmemdump(procexedump):

@@ -148,5 +148,5 @@ class verinfo(procdump.procexedump):
                                     output[key] = aval
                 for key in output:
                     outfd.write("  " + key + " : " + output[key] + "\n")
-            except pefile.PEFormatError:
+            except pefile.PEFormatError,e:
                 outfd.write("  Unable to read PE information from module\n")
