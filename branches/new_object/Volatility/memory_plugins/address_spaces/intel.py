@@ -298,11 +298,10 @@ class JKIA32PagedMemory(addrspace.BaseAddressSpace):
             phyaddr = self.vtop(addr)
         except:
             return False
+
         if phyaddr == None:
             return False
-        if not self.base.is_valid_address(phyaddr):
-            return False
-        return True
+        return self.base.is_valid_address(phyaddr)
 
     def get_available_pages(self):
         '''
@@ -361,20 +360,6 @@ class JKIA32PagedMemoryPae(JKIA32PagedMemory):
         else:
             self.pdpte_cache = struct.unpack('<'+'Q' * 4, buf)
         
-    def entry_present(self, entry):
-        '''
-        Returns whether or not the 'P' (Present) flag is on 
-        in the given entry
-        '''
-        return (entry & 1) == 1
-
-    def page_size_flag(self, entry):
-        '''
-        Returns whether or not the 'PS' (Page Size) flag is on
-        in the given entry
-        '''
-        return (entry & (1 << 7)) == (1 << 7)
-
     def pdpte_index(self, vaddr):
         '''
         Compute the Page Directory Pointer Table index using the
@@ -472,99 +457,16 @@ class JKIA32PagedMemoryPae(JKIA32PagedMemory):
 
         return self.get_phys_addr(vaddr, pte)
 
-
-    def __read_chunk(self, vaddr, length):
-        """
-        Read 'length' bytes from the virtual address 'vaddr'.
-        If vaddr does not have a valid mapping, return None.
-
-        This function should not be called from outside this class
-        as it doesn't take page breaks into account. That is,
-        the bytes at virtual addresses 0x1fff and 0x2000 are not
-        guarenteed to be contigious. Calling functions are responsible
-        for determining contiguious blocks.
-        """
-        paddr = self.vtop(vaddr)
-        if paddr is None:
-            return None
-
-        if not self.base.is_valid_address(paddr):
-            return None
-
-        return self.base.read(paddr, length)
-
-
-    def __read_bytes(self, vaddr, length, pad):
-        '''
-        Read 'length' bytes from the virtual address 'vaddr'.
-        The 'pad' parameter controls whether unavailable bytes 
-        are padded with zeros.
-        '''
-        ret = ''
-        
-        while length > 0:
-            chunk_len = min(length, 0x1000 - (vaddr % 0x1000))
-
-            buf = self.__read_chunk(vaddr, chunk_len)
-            if buf is None:
-                if pad:
-                    buf = '\x00' * chunk_len
-                else:
-                    return None
-
-            ret    += buf
-            vaddr  += chunk_len
-            length -= chunk_len
-
-        return ret
-        
-
-    def read(self, vaddr, length):
-        '''
-        Read and return 'length' bytes from the virtual address 'vaddr'. 
-        If any part of that block is unavailable, return None.
-        '''
-        return self.__read_bytes(vaddr, length, pad = False)
-
-    def zread(self, vaddr, length):
-        '''
-        Read and return 'length' bytes from the virtual address 'vaddr'. 
-        If any part of that block is unavailable, pad it with zeros.
-        '''
-        return self.__read_bytes(vaddr, length, pad = True)
-
-    def read_long_phys(self, addr):
-        '''
-        Returns an unsigned 32-bit integer from the address addr in
-        physical memory. If unable to read from that location, returns None.
-        '''
-        string = self.base.read(addr, 4)
-        if not string:
-            return None
-        (longval, ) =  struct.unpack('<L', string)
-        return longval
-
     def read_long_long_phys(self, addr):
         '''
         Returns an unsigned 64-bit integer from the address addr in
         physical memory. If unable to read from that location, returns None.
         '''
-        string = self.base.read(addr,8)
+        string = self.base.read(addr, 8)
         if not string:
             return None
         (longlongval, ) = struct.unpack('<Q', string)
         return longlongval
-
-    def is_valid_address(self, addr):
-        '''
-        Returns True if addr maps to a valid location in physical,
-        otherwise False.
-        '''
-        phyaddr = self.vtop(addr)
-        if phyaddr:
-            return self.base.is_valid_address(phyaddr)
-
-        return False
 
     def get_available_pages(self):
         '''
@@ -578,7 +480,7 @@ class JKIA32PagedMemoryPae(JKIA32PagedMemory):
         # PDEs and PTEs we must test.
 
         page_list = []
-        for pdpte in range(0,4):
+        for pdpte in range(0, 4):
             vaddr = pdpte << 30
             pdpte_value = self.get_pdpte(vaddr)
             if not self.entry_present(pdpte_value):
