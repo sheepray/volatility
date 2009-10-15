@@ -40,7 +40,7 @@ class procexedump(taskmods.dlllist):
                 continue
 
             outfd.write("Dumping %s, pid: %-6d output: %s\n" % (task.ImageFileName, pid, "executable." + str(pid) + ".exe"))
-            of = open(os.path.join(config.DUMP_DIR, "executable." + str(pid) + ".exe"), 'wb')
+            of = open(os.path.join(config.DUMP_DIR, "executable." + str(int(pid)) + ".exe"), 'wb')
             try:
                 for chunk in self.get_image(outfd, task.get_process_address_space(), task.Peb.ImageBaseAddress):
                     offset, code = chunk
