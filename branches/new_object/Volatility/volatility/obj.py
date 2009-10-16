@@ -29,8 +29,9 @@
 #pylint: disable-msg=C0111
 
 import sys, pdb
-sys.path.append(".")
-sys.path.append("..")
+if __name__ == '__main__':
+    sys.path.append(".")
+    sys.path.append("..")
 
 import struct, copy, operator
 import volatility.registry as MemoryRegistry
@@ -294,9 +295,13 @@ class BaseObject(object):
             value_dict[k] = self.m(k).v()
         return value_dict
 
-    def __str__(self):
+    def __repr__(self):
         return "[%s %s] @ 0x%08X" % (self.__class__.__name__, self.name or '',
                                      self.offset)
+
+    def d(self):
+        """Display diagnostic information"""
+        return self.__repr__()
 
 def CreateMixIn(mixin):
     def make_method(name):
@@ -327,7 +332,7 @@ class NumericProxyMixIn(object):
     """ This MixIn implements the numeric protocol """
     _specials = [
         '__add__', '__sub__', '__mul__', '__floordiv__', '__mod__', '__divmod__', '__pow__', '__lshift__', '__rshift__', '__and__', '__xor__', '__div__', '__truediv__', '__radd__', '__rsub__', '__rmul__', '__rdiv__', '__rtruediv__', '__rfloordiv__', '__rmod__', '__rdivmod__', '__rpow__', '__rlshift__', '__rrshift__', '__rand__', '__rxor__', '__ror__', '__neg__', '__pos__', '__abs__', '__invert__', '__int__', '__long__', '__float__', '__oct__', '__hex__',
-        '__lt__', '__le__', '__eq__', '__ne__', '__ge__', '__gt__', '__index__',
+        '__lt__', '__le__', '__eq__', '__ne__', '__ge__', '__gt__', '__index__', '__str__',
         ]
 
 
@@ -362,6 +367,10 @@ class NativeType(BaseObject, NumericProxyMixIn):
 
     def __repr__(self):
         return " [%s]: %s" % (self.theType, self.v())
+    
+    def d(self):
+        return " [%s %s | %s]: %s" % (self.__class__.__name__, self.name or '',
+                                      self.theType, self.v())
 
 class BitField(NativeType):
     """ A class splitting an integer into a bunch of bit. """
@@ -407,11 +416,12 @@ class Pointer(NativeType):
         return bool(self.is_valid())
 
     def __repr__(self):
-        return "<pointer to [%s ]>" % (self.v())
-
-    def __str__(self):
         target = self.dereference()
         return "<%s pointer to [0x%08X]>" % (target.__class__.__name__, self.v())
+
+    def d(self):
+        target = self.dereference()
+        return "<%s %s pointer to [0x%08x]>"  % (target.__class__.__name__, self.name or '', self.v()) 
 
     def __getattribute__(self, attr):
         try:
@@ -433,8 +443,11 @@ class Void(NativeType):
     def cdecl(self):
         return "0x%08X" % self.v()
     
-    def __str__(self):
+    def __repr__(self):
         return "Void (0x0%08X)" % self.v()
+
+    def d(self):
+        return "Void[%s %s] (0x0%08X)" % (self.__class__.__name__, self.name or '', self.v())
 
     def __nonzero__(self):
         return bool(self.dereference())
@@ -500,12 +513,13 @@ class Array(BaseObject):
                 yield NoneObject("Array %s, Invalid position %s" % (self.name, self.position),
                                  self.profile.strict)
         
-    def __str__(self):
-        return "Array (len=%s of %s)\n" % (self.count, self.current.name)
-
     def __repr__(self):
         result = [ x.__str__() for x in self ]
-        return "<Array %s >" % (",".join(result))
+        return "<Array %s>" % (",".join(result))
+
+    def d(self):
+        result = [ x.__str__() for x in self ]
+        return "<Array[%s %s] %s>" % (self.__class__.__name__, self.name or '', ",".join(result))
 
     def __eq__(self, other):
         if self.count != len(other):
@@ -546,11 +560,11 @@ class CType(BaseObject):
     def size(self):
         return self.struct_size
 
-    def __str__(self):
+    def __repr__(self):
         return "[%s %s] @ 0x%08X" % (self.__class__.__name__, self.name or '', 
                                      self.offset)
-    def __repr__(self):
-        result = ''
+    def d(self):
+        result = self.__repr__() + "\n"
         for k in self.members.keys():
             result += " %s -\n %s\n" % ( k, self.m(k))
 
@@ -818,22 +832,22 @@ if __name__ == '__main__':
             o = Object('unsigned int', offset=0, vm=address_space, length=len(test_data))
             O = o.v()
             print type(o), type(O)
-            self.assertEqual(o,O)
-            self.assertEqual(o + 5 ,O + 5)
-            self.assertEqual(o + o ,O + O)
-            self.assertEqual(o * 2 ,O * 2)
+            self.assertEqual(o, O)
+            self.assertEqual(o + 5, O + 5)
+            self.assertEqual(o + o, O + O)
+            self.assertEqual(o * 2, O * 2)
 
-            self.assertEqual(o > 5 ,O > 5)
-            self.assertEqual(o < 1819043181 ,O < 1819043181)
-            self.assertEqual(o <= 1819043181 ,O <= 1819043181)
-            self.assertEqual(o == 1819043181 ,O == 1819043181)
-            self.assertEqual(o < o ,O < O)
+            self.assertEqual(o > 5, O > 5)
+            self.assertEqual(o < 1819043181, O < 1819043181)
+            self.assertEqual(o <= 1819043181, O <= 1819043181)
+            self.assertEqual(o == 1819043181, O == 1819043181)
+            self.assertEqual(o < o, O < O)
 
-            self.assertEqual(o / 4 ,O / 4)
-            self.assertEqual(o << 2 ,O << 2)
-            self.assertEqual(o >> 2 ,O >> 2)
-            self.assertEqual(o / 3 ,O / 3)
-            self.assertEqual(float(o) ,float(O))
+            self.assertEqual(o / 4, O / 4)
+            self.assertEqual(o << 2, O << 2)
+            self.assertEqual(o >> 2, O >> 2)
+            self.assertEqual(o / 3, O / 3)
+            self.assertEqual(float(o), float(O))
             
             print o, o+5, o * 2, o / 2, o << 3, o & 0xFF, o + o
 
