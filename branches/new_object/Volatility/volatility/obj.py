@@ -146,7 +146,6 @@ class NoneObject(object):
     def __call__(self, *arg, **kwargs):
         return self
         
-
 def Object(theType, offset, vm, parent=None, name=None, **kwargs):
     """ A function which instantiates the object named in theType (as
     a string) from the type in profile passing optional args of
@@ -168,15 +167,12 @@ def Object(theType, offset, vm, parent=None, name=None, **kwargs):
 
     # Need to check for any derived object types that may be 
     # found in the global memory registry.
-    try:
-        if theType in MemoryRegistry.OBJECT_CLASSES.objects:
-            return MemoryRegistry.OBJECT_CLASSES[theType](
-                theType,
-                offset,
-                vm = vm, parent=parent, name=name,
-                **kwargs)
-    except AttributeError:
-        pass
+    if theType in MemoryRegistry.OBJECT_CLASSES.objects:
+        return MemoryRegistry.OBJECT_CLASSES[theType](
+            theType,
+            offset,
+            vm = vm, parent=parent, name=name,
+            **kwargs)
 
     ## If we get here we have no idea what the type is supposed to be? 
     ## This is a serious error.
@@ -334,7 +330,16 @@ def CreateMixIn(mixin):
 class NumericProxyMixIn(object):
     """ This MixIn implements the numeric protocol """
     _specials = [
-        '__add__', '__sub__', '__mul__', '__floordiv__', '__mod__', '__divmod__', '__pow__', '__lshift__', '__rshift__', '__and__', '__xor__', '__div__', '__truediv__', '__radd__', '__rsub__', '__rmul__', '__rdiv__', '__rtruediv__', '__rfloordiv__', '__rmod__', '__rdivmod__', '__rpow__', '__rlshift__', '__rrshift__', '__rand__', '__rxor__', '__ror__', '__neg__', '__pos__', '__abs__', '__invert__', '__int__', '__long__', '__float__', '__oct__', '__hex__',
+        ## Number protocols
+        '__add__', '__sub__', '__mul__', '__floordiv__', '__mod__', '__divmod__',
+        '__pow__', '__lshift__', '__rshift__', '__and__', '__xor__', '__div__',
+        '__truediv__', '__radd__', '__rsub__', '__rmul__', '__rdiv__', '__rtruediv__',
+        '__rfloordiv__', '__rmod__', '__rdivmod__', '__rpow__', '__rlshift__',
+        '__rrshift__', '__rand__', '__rxor__', '__ror__', '__neg__', '__pos__',
+        '__abs__', '__invert__', '__int__', '__long__', '__float__', '__oct__',
+        '__hex__',
+
+        ## Comparisons
         '__lt__', '__le__', '__eq__', '__ne__', '__ge__', '__gt__', '__index__',
         ]
 
@@ -544,7 +549,7 @@ class Array(BaseObject):
         else:
             return NoneObject("Array %s invalid member %s" % (self.name, pos),
                               self.profile.strict)
-        
+    
 class CType(BaseObject):
     """ A CType is an object which represents a c struct """
     def __init__(self, theType, offset, vm, parent=None, members=None, name=None, size=0):
@@ -582,6 +587,7 @@ class CType(BaseObject):
         try:
             offset, cls = self.members[attr]
         except KeyError:
+            ## hmm - tough choice - should we raise or should we not
             #return NoneObject("Struct %s has no member %s" % (self.name, attr))
             raise AttributeError("Struct %s has no member %s" % (self.name, attr))
 
@@ -839,6 +845,7 @@ if __name__ == '__main__':
             self.assertEqual(o + 5, O + 5)
             self.assertEqual(o + o, O + O)
             self.assertEqual(o * 2, O * 2)
+            self.assertEqual(o * o ,O * O)
 
             self.assertEqual(o > 5, O > 5)
             self.assertEqual(o < 1819043181, O < 1819043181)

@@ -22,27 +22,33 @@ config = volatility.conf.ConfObject()
 class vadinfo(taskmods.dlllist):
     """Dump the VAD info"""
 
-    def render_text(self, outfd, data):
-        
-        for pid, result in data:
+    def render_text(self, outfd,data):
+        for task in data:
             outfd.write("*" * 72 + "\n")
-            outfd.write("Pid: %-6d\n" % (pid))
-            for vad in result['vadlist']:
+            outfd.write("Pid: %-6d\n" % (task.UniqueProcessId))
+            for vad in task.VadRoot.traverse():
                 if vad == None:
-                    outfd.write("Error: Unknown Tag")
+                    outfd.write("Error: %s" % vad)
                 else:
                     self.write_vad_short(outfd, vad)
-                    if vad.name != 'VadS':
+                    try:
                         self.write_vad_control(outfd, vad)
+                    except AttributeError: pass
+                    try:
                         self.write_vad_ext(outfd, vad)
+                    except AttributeError: pass
+                    
                 outfd.write("\n")
 
     def write_vad_short(self, outfd, vad):
         """Renders a text version of a Short Vad"""
-        outfd.write("VAD node @%08x Start %08x End %08x Tag %4s\n" % (vad.offset, vad.StartingVpn << 12, (vad.EndingVpn + 1) << 12) - 1, vad.name)
-        outfd.write("Flags: " + ", ".join(win32vad.get_bit_flags(vad.Flags,'_MMVAD_FLAGS')) + "\n")
-        outfd.write("Commit Charge: %d Protection: %x\n" % (vad.Flags & win32vad.get_mask_flag('_MMVAD_FLAGS', 'CommitCharge'), (vad.Flags & win32vad.get_mask_flag('_MMVAD_FLAGS', 'Protection')) >> 24))
-    
+        outfd.write("VAD node @%08x Start %08x End %08x Tag %4s\n" % (
+            vad.offset, vad.StartingVpn << 12, ((vad.EndingVpn + 1) << 12) - 1, vad.Tag))
+        outfd.write("Flags: %s\n" % vad.Flags)
+        outfd.write("Commit Charge: %d Protection: %x\n" % (
+            vad.Flags.CommitCharge,
+            vad.Flags.Protection >> 24))
+
     def write_vad_control(self, outfd, vad):
         """Renders a text version of a (non-short) Vad's control information"""
         CA = vad.ControlArea
@@ -56,7 +62,7 @@ class vadinfo(taskmods.dlllist):
         outfd.write("NumberOfMappedViews:       %10d NumberOfSubsections:    %10d\n" % (CA.NumberOfMappedViews, CA.NumberOfSubsections))
         outfd.write("FlushInProgressCount:      %10d NumberOfUserReferences: %10d\n" % (CA.FlushInProgressCount, CA.NumberOfUserReferences))
         
-        outfd.write("Flags: " + ", ".join(win32vad.get_bit_flags(CA.Flags,'_MMSECTION_FLAGS')) + "\n")
+        outfd.write("Flags: %s\n" % CA.Flags)
 
         if CA.FilePointer:
             outfd.write("FileObject @%08x           , Name: %s\n" % (CA.FilePointer.dereference().offset, CA.FilePointer.FileName))
@@ -70,67 +76,23 @@ class vadinfo(taskmods.dlllist):
         """Renders a text version of a Long Vad"""
         outfd.write("First prototype PTE: %08x Last contiguous PTE: %08x\n" % (vad.FirstPrototypePte, vad.LastContiguousPte))
         
-        outfd.write("Flags2: " + ", ".join(win32vad.get_bit_flags(vad.Flags2,'_MMVAD_FLAGS2')) + "\n")
-        outfd.write("File offset: %08x\n" % (vad.Flags2 & win32vad.get_mask_flag('_MMVAD_FLAGS2','FileOffset')))
+        outfd.write("Flags2: %s\n" % vad.Flags2)
+        outfd.write("File offset: %08x\n" % vad.Flags2.FileOffset)
         
-        if (vad.Flags2 != None and vad.Flags2 & win32vad.get_mask_flag('_MMVAD_FLAGS2','LongVad')):
+        if (vad.Flags2.v() and vad.Flags2.LongVad):
             # FIXME: Add in the extra bits, after deciding on names for u3 and u4
             outfd.write("Extended information available\n")
-
-    def calculate(self):
-        tasks = taskmods.dlllist.calculate(self)
-        
-        for task in tasks:
-            if task.UniqueProcessId:
-                pid = task.UniqueProcessId
-                result = {'task': task, 'vadlist': []}
-
-                task_space = task.get_process_address_space()
-
-                vadroot = obj.Object("_MMVAD_SHORT", task.VadRoot, task_space)
-                vadlist = []
-                for vad in self.accumulate_vads(vadroot):
-                    # We're going to abuse the name field to store the tag because whilst it should be a part of the structure
-                    # it appears before the pointer's address (ie, the start of the structure)
-                    vadtype = str(obj.NativeType("Bytes", vad.offset - 4, task_space, format_string = "4s"))
-                    if vadtype == 'Vadl':
-                        vadlist.append(obj.Object("_MMVAD_LONG", vad.offset, task_space, name="Vadl"))
-                    elif vadtype == 'VadS':
-                        vadlist.append(obj.Object("_MMVAD_SHORT", vad.offset, task_space, name="VadS"))
-                    elif vadtype == 'Vad ':
-                        vadlist.append(obj.Object("_MMVAD", vad.offset, task_space, name="Vad "))
-                    elif vadtype == 'VadF':
-                        # TODO: Figure out what a VadF looks like!
-                        vad.name = 'VadF'
-                        vadlist.append(obj.Object("_MMVAD_SHORT", vad.offset, task_space, name="VadF"))
-                    else:
-                        # print "Vad with tag:", vadtype
-                        vadlist.append(None)
-                
-                result['vadlist'] = vadlist
-                yield pid, result
-
-    def accumulate_vads(self, root):
-        """Traverses the Vad Tree based on Left and Right children"""
-        leftside = []
-        rightside = []
-        if root.LeftChild:
-            leftside = self.accumulate_vads(root.LeftChild.dereference())
-        if root.RightChild:
-            rightside = self.accumulate_vads(root.RightChild.dereference())
-        return [root] + leftside + rightside
     
 class vadtree(vadinfo):
     """Walk the VAD tree and display in tree format"""
     
     def render_text(self, outfd, data):
-        for pid, result in data:
+        for task in data:
             outfd.write("*" * 72 + "\n")
-            outfd.write("Pid: %-6d\n" % (pid))
+            outfd.write("Pid: %-6d\n" % (task.UniqueProcessId))
             levels = {}
-            for vad in result['vadlist']:
-                # Ignore Vads with bad tags (which we explicitly include as None)
-                if vad != None:
+            for vad in task.VadRoot.traverse():
+                if vad:                    
                     level = levels.get(vad.Parent.dereference().offset, -1) + 1
                     levels[vad.offset] = level
                     outfd.write(" " * level + "%08x - %08x\n" % ( 
@@ -138,40 +100,43 @@ class vadtree(vadinfo):
                                 ((vad.EndingVpn + 1) << 12) -1))
 
     def render_dot(self, outfd, data):
-        for pid in data:
+        for task in data:
             outfd.write("/" + "*" * 72 + "/\n")
-            outfd.write("/* Pid: %-6d */\n" % (pid))
+            outfd.write("/* Pid: %-6d */\n" % (task.UniqueProcessId))
             outfd.write("digraph processtree {\n")
             outfd.write("graph [rankdir = \"TB\"];\n")
-            for vad in data[pid]['vadlist']:
-                # Ignore Vads with bad tags (which we explicitly include as None)
-                if vad != None:
+            for vad in task.VadRoot.traverse():
+                if vad:
                     if vad.Parent:
                         outfd.write("vad_%08x -> vad_%08x\n" % (vad.Parent.dereference().offset, vad.offset))                    
-                    outfd.write("vad_%08x [label = \"{ %s\\n%08x - %08x }\" shape = \"record\" color = \"blue\"];\n" % 
-                                (vad.offset,
-                                 vad.name, 
-                                 vad.StartingVpn << 12,
-                                 ((vad.EndingVpn + 1) << 12) -1))
+                    outfd.write("vad_%08x [label = \"{ %s\\n%08x - %08x }\""
+                                "shape = \"record\" color = \"blue\"];\n" % (
+                        vad.offset,
+                        vad.Tag, 
+                        vad.StartingVpn << 12,
+                        ((vad.EndingVpn + 1) << 12) -1))
+                    
             outfd.write("}\n")
 
 class vadwalk(vadinfo):
     """Walk the VAD tree"""
     
     def render_text(self, outfd, data):
-        for pid, result in data:
+        for task in data:
             outfd.write("*" * 72 + "\n")
-            outfd.write("Pid: %-6d\n" % (pid))
+            outfd.write("Pid: %-6d\n" % (task.UniqueProcessId))
             outfd.write("Address  Parent   Left     Right    Start    End      Tag  Flags\n")
-            for vad in result['vadlist']:
+            for vad in task.VadRoot.traverse():
                 # Ignore Vads with bad tags (which we explicitly include as None)
-                if vad != None:
-                    outfd.write("%08x %08x %08x %08x %08x %08x %-4s\n" % (vad.offset,
-                                vad.Parent.dereference().offset or 0 , vad.LeftChild.dereference().offset or 0,
-                                vad.RightChild.dereference().offset or 0,
-                                vad.StartingVpn << 12,
-                                ((vad.EndingVpn + 1) << 12) -1,
-                                vad.name))
+                if vad:
+                    outfd.write("%08x %08x %08x %08x %08x %08x %-4s\n" % (
+                        vad.offset,
+                        vad.Parent.dereference().offset or 0,
+                        vad.LeftChild.dereference().offset or 0,
+                        vad.RightChild.dereference().offset or 0,
+                        vad.StartingVpn << 12,
+                        ((vad.EndingVpn + 1) << 12) -1,
+                        vad.Tag))
 
 class vaddump(vadinfo):
     """Dumps out the vad sections to a file"""
@@ -230,3 +195,4 @@ class vaddump(vadinfo):
                     outfd.write("Writing VAD for " + ("%s.%x.%08x-%08x.dmp" % (name, offset, start, end)) + "\n")
                 f.write(range_data)
                 f.close()
+

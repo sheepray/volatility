@@ -98,6 +98,6 @@ def get_bit_flags(value, flags):
         raise Exception('Invalid flags ' + flags)
     bit_dict = vad_flags[flags] 
     for (k, v) in bit_dict.items():
-        if ((v[1] == 0x1) and ((( 1 << (v[0])) & value) > 0)):
+        if ((v[1] == 0x1) and ((value & ( 1 << (v[0]))) > 0)):
             matches.append(k)
     return matches

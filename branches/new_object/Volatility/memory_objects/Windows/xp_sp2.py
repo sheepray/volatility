@@ -193,9 +193,13 @@ class _EPROCESS(obj.CType):
     def get_process_address_space(self):
         """ Gets a process address space for a task given in _EPROCESS """
         directory_table_base = self.Pcb.DirectoryTableBase[0].v()
+
+        try:
+            process_as = self.vm.__class__(self.vm.base, dtb = directory_table_base)
+        except AssertionError,e:
+            return obj.NoneObject("Unable to get process AS")
         
-        process_as = self.vm.__class__(self.vm.base, dtb = directory_table_base)
-        process_as.name = "Process"
+        process_as.name = "Process %s" % self.UniqueProcessId
 
         return process_as
 
@@ -257,3 +261,69 @@ class _TCPT_OBJECT(obj.CType):
     
     def _LocalIpAddress(self, attr):
         return socket.inet_ntoa(struct.pack("<I", self.m(attr).v()))
+
+
+## This is an object which provides access to the VAD tree.
+class _MMVAD(obj.CType):
+    ## parent is the containing _EPROCESS right now
+    def __new__(self, type, offset, vm, parent, **args):
+        ## Find the tag (4 bytes below the current offset). This can
+        ## not have ourselves as a target.
+        switch = {"Vadl": '_MMVAD_LONG',
+                  'VadS': '_MMVAD_SHORT',
+                  'Vad ': '_MMVAD_LONG',
+                  'VadF': '_MMVAD_SHORT',
+                  }
+
+        ## All VADs are done in the process AS - so we might need to
+        ## switch Address spaces now. We do this by instantiating an
+        ## _EPROCESS over our parent, and having it give us the
+        ## correct AS
+        if vm.name.startswith("Kernel"):
+            eprocess = obj.Object("_EPROCESS", offset=parent.offset, vm=vm)
+            vm = eprocess.get_process_address_space()
+            if not vm:
+                return vm
+            
+        ## What type is this struct?
+        tag = vm.read(offset - 4, 4)
+        type = switch.get(tag)
+        
+        if not type:
+            return obj.NoneObject("Tag %s not knowns" % tag)
+
+        ## Note that since we were called from __new__ we can return a
+        ## completely different object here (including
+        ## NoneObject). This also means that we can not add any
+        ## specialist methods to the _MMVAD class.
+        result = obj.Object(type, offset=offset, vm=vm, parent=parent, **args)
+        result.Tag = tag
+
+        return result
+
+class _MMVAD_SHORT(obj.CType):
+    def traverse(self, visited = None):
+        """ Traverse the VAD tree by generating all the left items,
+        then the right items.
+
+        We try to be tolerant of cycles by storing all offsets visited.
+        """
+        if visited == None:
+            visited = set()
+
+        ## We try to prevent loops here
+        if self.offset in visited:
+            return
+        
+        yield self
+
+        for c in self.LeftChild.traverse(visited=visited):
+            visited.add(c.offset)
+            yield c
+            
+        for c in self.RightChild.traverse(visited=visited):
+            visited.add(c.offset)
+            yield c
+
+class _MMVAD_LONG(_MMVAD_SHORT):
+    pass

@@ -38,6 +38,7 @@ class JKIA32PagedMemory(addrspace.BaseAddressSpace):
     cache = False
     pae = False
     paging_address_space = True
+    name = 'Kernel AS'
     
     def __init__(self, base, dtb=0, astype = None, **kwargs):
         ## We allow users to disable us in favour of the old legacy
