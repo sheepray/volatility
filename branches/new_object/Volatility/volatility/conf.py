@@ -68,7 +68,10 @@ configuration information:
    configuration
    
 """    
-import ConfigParser, optparse, os, sys, pdb
+import ConfigParser
+import optparse
+import os
+import sys
 
 default_config = "/etc/volatilityrc"
 

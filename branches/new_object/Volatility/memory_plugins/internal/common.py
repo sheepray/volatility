@@ -116,7 +116,6 @@ class Flags(obj.NativeType):
         if not range:
             return obj.NoneObject("Mask %s not known" % attr)
 
-        value = self.v()
         bits = 2**range[1] - 1
         mask = bits << range[0]
 

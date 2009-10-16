@@ -22,9 +22,9 @@
 @license:      GNU General Public License 2.0 or later
 @contact:      awalters@volatilesystems.com,bdolangavitt@wesleyan.edu
 @organization: Volatile Systems
-"""
 
-"""Tool: This tool generates a crash dump from a image of ram
+  Tool: This tool generates a crash dump from a image of ram
+
 """
 
 #pylint: disable-msg=C0111

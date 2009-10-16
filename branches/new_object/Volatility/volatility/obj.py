@@ -28,7 +28,7 @@
 
 #pylint: disable-msg=C0111
 
-import sys, pdb
+import sys
 if __name__ == '__main__':
     sys.path.append(".")
     sys.path.append("..")
@@ -350,6 +350,7 @@ class NativeType(BaseObject, NumericProxyMixIn):
     def __init__(self, theType, offset, vm, parent=None,
                  format_string=None, name=None, **args):
         BaseObject.__init__(self, theType, offset, vm, parent=parent, name=name)
+        NumericProxyMixIn.__init__(self)
         self.format_string = format_string
 
     def rebase(self, offset):
@@ -384,7 +385,7 @@ class BitField(NativeType):
     """ A class splitting an integer into a bunch of bit. """
     def __init__(self, theType, offset, vm, parent=None, 
                  start_bit=0, end_bit=32, name=None, **args):
-        BaseObject.__init__(self, theType, offset, vm, parent=parent, name=name)
+        NativeType.__init__(self, theType, offset, vm, parent=parent, name=name)
         self.format_string = 'L'
         self.start_bit = start_bit
         self.end_bit = end_bit
@@ -821,12 +822,11 @@ class Profile:
 if __name__ == '__main__':
     ## If called directly we run unit tests on this stuff
     import unittest
-    import volatility.registry as registry
     import volatility.conf as conf
     config = conf.ConfObject()
 
     config.parse_options()
-    registry.Init()
+    MemoryRegistry.Init()
 
     class ObjectTests(unittest.TestCase):
         """ Tests the object implementation. """
@@ -845,7 +845,7 @@ if __name__ == '__main__':
             self.assertEqual(o + 5, O + 5)
             self.assertEqual(o + o, O + O)
             self.assertEqual(o * 2, O * 2)
-            self.assertEqual(o * o ,O * O)
+            self.assertEqual(o * o, O * O)
 
             self.assertEqual(o > 5, O > 5)
             self.assertEqual(o < 1819043181, O < 1819043181)

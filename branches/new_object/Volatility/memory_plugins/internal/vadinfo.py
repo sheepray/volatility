@@ -10,8 +10,6 @@ Created on 30 Sep 2009
 # "The VAD Tree: A Process-Eye View of Physical Memory," Brendan Dolan-Gavitt
 
 import os.path
-import volatility.win32.vad as win32vad
-import volatility.obj as obj
 import volatility.conf
 import taskmods
 import volatility.debug as debug
@@ -33,10 +31,12 @@ class vadinfo(taskmods.dlllist):
                     self.write_vad_short(outfd, vad)
                     try:
                         self.write_vad_control(outfd, vad)
-                    except AttributeError: pass
+                    except AttributeError:
+                        pass
                     try:
                         self.write_vad_ext(outfd, vad)
-                    except AttributeError: pass
+                    except AttributeError:
+                        pass
                     
                 outfd.write("\n")
 

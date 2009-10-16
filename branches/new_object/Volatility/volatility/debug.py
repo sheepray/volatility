@@ -7,7 +7,6 @@ config.add_option("DEBUG", short_option='d', default = 0,
                   action = 'count',
                   help = "Debug volatility")
 
-import sys
 import pdb
 
 def debug(msg, level=1):

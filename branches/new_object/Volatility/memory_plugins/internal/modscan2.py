@@ -60,6 +60,10 @@ class modscan2(commands.command):
         version = '1.0',
         )
 
+    def __init__(self, *args):
+        commands.command.__init__(self, *args)
+        self.kernel_address_space = None
+
     def parse_string(self, unicode_obj):
         ## We need to do this because the unicode_obj buffer is in
         ## kernel_address_space

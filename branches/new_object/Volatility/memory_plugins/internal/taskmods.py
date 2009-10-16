@@ -102,7 +102,6 @@ class files(dlllist):
                     outfd.write("%-6s %-40s\n" % ("File", h.FileName))
 
     def calculate(self):
-        result = {}
         tasks = self.filter_tasks(dlllist.calculate(self))
         
         for task in tasks:
@@ -158,7 +157,6 @@ class memmap(dlllist):
                 outfd.write("Unable to read pages for task.\n")
 
     def calculate(self):
-        result = {}
         tasks = self.filter_tasks(dlllist.calculate(self))
         
         for task in tasks:

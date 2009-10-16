@@ -25,14 +25,13 @@
 @license:      GNU General Public License 2.0 or later
 @contact:      awalters@volatilesystems.com
 @organization: Volatile Systems
-"""
 
-""" Alias for all address spaces """
+   Alias for all address spaces 
+
+"""
 
 #pylint: disable-msg=C0111
 
-import os
-import struct
 import registry
 
 import volatility.conf as conf
@@ -64,13 +63,13 @@ class BaseAddressSpace:
             self.profile = registry.PROFILES[config.PROFILE]()
             PROFILES[config.PROFILE] = self.profile
 
-    def read(self, addr, len):
+    def read(self, addr, length):
         """ Read some date from a certain offset """
 
     def get_available_addresses(self):
         """ Return a list of address ranges covered by this AS """
 
-    def is_valid_address(self, addr):
+    def is_valid_address(self, _addr):
         """ Tell us if the address is valid """
         return True
     
@@ -97,43 +96,3 @@ class BufferAddressSpace(BaseAddressSpace):
     def read(self, addr, length):
         offset = addr - self.base_offset
         return self.data[offset: offset+length]
-        
-## Maintained for backward compatibility do not use in new code
-class FileAddressSpace:
-    def __init__(self, fname, mode='rb', fast=False):
-        self.fname = fname
-        self.name = fname
-        self.fhandle = open(fname, mode)
-        self.fsize = os.path.getsize(fname)
-
-        if fast == True:
-            self.fast_fhandle = open(fname, mode)
-
-    def fread(self, len):
-        return self.fast_fhandle.read(len)
-
-    def read(self, addr, len):
-        self.fhandle.seek(addr)        
-        return self.fhandle.read(len)    
-
-    def zread(self, addr, len):
-        return self.read(addr, len)
-
-    def read_long(self, addr):
-        string = self.read(addr, 4)
-        (longval, ) =  struct.unpack('=L', string)
-        return longval
-
-    def get_address_range(self):
-        return [0, self.fsize-1]
-
-    def get_available_addresses(self):
-        return [0, self.get_address_range()]
-
-    def is_valid_address(self, addr):
-        if addr == None:
-            return False
-        return addr < self.fsize - 1
-
-    def close(self):
-        self.fhandle.close()

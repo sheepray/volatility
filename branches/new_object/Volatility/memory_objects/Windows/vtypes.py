@@ -824,9 +824,9 @@ xpsp2overlays = {
 }
 
 
-xpsp2overlays['_MMVAD_SHORT']= [ None, {
+xpsp2overlays['_MMVAD_SHORT'] = [ None, {
     'Flags': [ None, ['Flags',
-                      {'bitmap': {
+  {'bitmap': {
     'PhysicalMapping': 0x13,
     'ImageMap': 0x14,
     'UserPhysicalPages': 0x15,
@@ -836,20 +836,18 @@ xpsp2overlays['_MMVAD_SHORT']= [ None, {
     'MemCommit': 0x1E,
     'PrivateMemory': 0x1f,
     },
-                       'maskmap': {
+  'maskmap': {
     'CommitCharge' : [0x0, 0x13], 
     'Protection' : [0x18, 0x5],
     }
-                       }
-                      ]
-               ],
+  } ] ],
     } ]
 
 xpsp2overlays['_MMVAD_LONG'] = [ None, {
     'Flags': xpsp2overlays['_MMVAD_SHORT'][1]['Flags'],
     
     'Flags2': [ None, ['Flags',
-                       {'bitmap': {
+  {'bitmap': {
     'SecNoChange' : 0x18,
     'OneSecured' : 0x19,
     'MultipleSecured' : 0x1a,
@@ -859,10 +857,8 @@ xpsp2overlays['_MMVAD_LONG'] = [ None, {
     'Inherit' : 0x1e,
     'CopyOnWrite' : 0x1f,
     },
-                        'maskmap': {
+  'maskmap': {
     'FileOffset' : [0x0, 0x18], 
     }
-                        }
-                       ]
-                ]
-    }]
+  } ] ],
+    } ]

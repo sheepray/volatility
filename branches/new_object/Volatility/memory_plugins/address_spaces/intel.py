@@ -85,7 +85,6 @@ class JKIA32PagedMemory(addrspace.BaseAddressSpace):
         else:
             self.pde_cache = struct.unpack('<'+'L' * 0x400, buf)
 
-
     def load_dtb(self):
         try:
             ## Try to be lazy and see if someone else found dtb for

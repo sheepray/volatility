@@ -196,7 +196,7 @@ class _EPROCESS(obj.CType):
 
         try:
             process_as = self.vm.__class__(self.vm.base, dtb = directory_table_base)
-        except AssertionError,e:
+        except AssertionError, _e:
             return obj.NoneObject("Unable to get process AS")
         
         process_as.name = "Process %s" % self.UniqueProcessId
@@ -266,7 +266,7 @@ class _TCPT_OBJECT(obj.CType):
 ## This is an object which provides access to the VAD tree.
 class _MMVAD(obj.CType):
     ## parent is the containing _EPROCESS right now
-    def __new__(self, type, offset, vm, parent, **args):
+    def __new__(cls, theType, offset, vm, parent, **args):
         ## Find the tag (4 bytes below the current offset). This can
         ## not have ourselves as a target.
         switch = {"Vadl": '_MMVAD_LONG',
@@ -287,16 +287,16 @@ class _MMVAD(obj.CType):
             
         ## What type is this struct?
         tag = vm.read(offset - 4, 4)
-        type = switch.get(tag)
+        theType = switch.get(tag)
         
-        if not type:
+        if not theType:
             return obj.NoneObject("Tag %s not knowns" % tag)
 
         ## Note that since we were called from __new__ we can return a
         ## completely different object here (including
         ## NoneObject). This also means that we can not add any
         ## specialist methods to the _MMVAD class.
-        result = obj.Object(type, offset=offset, vm=vm, parent=parent, **args)
+        result = obj.Object(theType, offset=offset, vm=vm, parent=parent, **args)
         result.Tag = tag
 
         return result

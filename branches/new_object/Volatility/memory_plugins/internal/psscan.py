@@ -76,11 +76,11 @@ class DispatchThreadHeaderCheck(DispatchHeaderCheck):
         ## instantiate the _EPROCESS and work out the offsets of the
         ## type and size members. Then in the check we just read those
         ## offsets directly.
+        DispatchHeaderCheck.__init__(self, address_space, **kwargs)
         ethread = obj.Object("_ETHREAD", vm=address_space, offset=0)
         self.type = ethread.Tcb.Header.Type
         self.size = ethread.Tcb.Header.Size
         self.buffer_size = max(self.size.offset, self.type.offset) + 2
-        scan.ScannerCheck.__init__(self, address_space)
 
     def check(self, offset):
         data = self.address_space.read(offset + self.type.offset, self.buffer_size)
@@ -185,18 +185,20 @@ class ThreadScan(scan.BaseScanner):
 
 class thrdscan(commands.command):
     """ Scan Physical memory for _ETHREAD objects"""
+    def calculate(self):
+        address_space = utils.load_as(astype = 'physical')
+        for offset in ThreadScan().scan(address_space):
+            yield obj.Object('_ETHREAD', vm=address_space, offset=offset)
+    
     def render_text(self, outfd, data):
         ## Just grab the AS and scan it using our scanner
-        address_space = utils.load_as(astype = 'physical')
         start = time.time()
         outfd.write("No.  PID    TID    Offset    \n---- ------ ------ ----------\n")
 
-        for offset in ThreadScan().scan(address_space):
-            ethread = obj.Object('_ETHREAD', vm=address_space, offset=offset)
+        for ethread in data:
             cnt = time.time() - start
-
             outfd.write("%4d %6d %6d 0x%0.8x\n" % (cnt, ethread.Cid.UniqueProcess,
-                                                   ethread.Cid.UniqueThread, offset))
+                                                   ethread.Cid.UniqueThread, ethread.offset))
    
 class PSScan(scan.BaseScanner):
     """ This scanner carves things that look like _EPROCESS structures.
@@ -226,15 +228,17 @@ class psscan(commands.command):
         version = '1.0',
         )
 
-    def render_dot(self, outfd, data):
+    def calculate(self):
         address_space = utils.load_as(astype = 'physical')
 
+        for offset in PSScan().scan(address_space):
+            yield obj.Object('_EPROCESS', vm=address_space, offset=offset)
+
+    def render_dot(self, outfd, data):
         objects = set()
         links = set()
         
-        for offset in PSScan().scan(address_space):
-            eprocess = obj.Object('_EPROCESS', vm=address_space, offset=offset)
-
+        for eprocess in data:
             label = "%s | %s |" % (eprocess.UniqueProcessId,
                                                  eprocess.ImageFileName)
             if eprocess.ExitTime:
@@ -260,13 +264,11 @@ class psscan(commands.command):
         
     def render_text(self, outfd, data):
         ## Just grab the AS and scan it using our scanner
-        address_space = utils.load_as(astype = 'physical')
         start = time.time()
         outfd.write("No.  PID    PPID   Time created             Time exited              Offset     PDB        Remarks\n"+ \
                     "---- ------ ------ ------------------------ ------------------------ ---------- ---------- ----------------\n")
         
-        for offset in PSScan().scan(address_space):
-            eprocess = obj.Object('_EPROCESS', vm=address_space, offset=offset)
+        for eprocess in data:
             cnt = time.time() - start
 
             outfd.write("%4d %6d %6d %24s %24s 0x%0.8x 0x%0.8x %-16s\n" % (

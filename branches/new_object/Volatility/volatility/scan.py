@@ -56,6 +56,7 @@ class BaseScanner(object):
             check = registry.SCANNER_CHECKS[class_name](self.buffer, **args)
             self.constraints.append(check)
             
+        self.base_offset = None
         self.error_count = 0
 
     def check_addr(self, found):
@@ -89,7 +90,8 @@ class BaseScanner(object):
         skippers = [ c for c in self.constraints if hasattr(c, "skip") ]
         while 1:
             data = address_space.read(self.base_offset, BLOCKSIZE)
-            if not data: break
+            if not data:
+                break
             
             self.buffer.assign_buffer(data, self.base_offset)
             i = 0

@@ -8,7 +8,7 @@ import volatility.conf as conf
 import urlparse
 import os
 ## This is required to ensure that LOCATION is defined here
-import volatility.addrspace
+import volatility.addrspace as addrspace #pylint: disable-msg=W0611
 
 config = conf.ConfObject()
 

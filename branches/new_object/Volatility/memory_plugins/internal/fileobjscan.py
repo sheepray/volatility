@@ -35,6 +35,7 @@ import volatility.utils as utils
 import volatility.obj as obj
 
 class PoolScanFile(scan.PoolScanner):
+    """PoolScanner for File objects"""
     ## We dont want any preamble - the offsets should be those of the
     ## _POOL_HEADER directly.
     preamble = []
@@ -57,7 +58,12 @@ class filescan(commands.command):
     meta_info['os'] = 'WIN_32_XP_SP2'
     meta_info['version'] = '0.1'
 
+    def __init__(self, *args):
+        commands.command.__init__(self, *args)
+        self.kernel_address_space = None
+
     def parse_string(self, unicode_obj):
+        """Unicode string parser"""
         ## We need to do this because the unicode_obj buffer is in
         ## kernel_address_space
         string_length = unicode_obj.Length
@@ -98,7 +104,8 @@ class filescan(commands.command):
 
             Name = self.parse_string(file_obj.FileName)
             ## If the string is not reachable we skip it
-            if not Name: continue
+            if not Name:
+                continue
 
             yield (object_obj, file_obj, Name)
 
