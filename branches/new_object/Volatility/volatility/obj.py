@@ -295,6 +295,9 @@ class BaseObject(object):
             value_dict[k] = self.m(k).v()
         return value_dict
 
+    def __str__(self):
+        return str(self.v())
+
     def __repr__(self):
         return "[%s %s] @ 0x%08X" % (self.__class__.__name__, self.name or '',
                                      self.offset)
@@ -332,7 +335,7 @@ class NumericProxyMixIn(object):
     """ This MixIn implements the numeric protocol """
     _specials = [
         '__add__', '__sub__', '__mul__', '__floordiv__', '__mod__', '__divmod__', '__pow__', '__lshift__', '__rshift__', '__and__', '__xor__', '__div__', '__truediv__', '__radd__', '__rsub__', '__rmul__', '__rdiv__', '__rtruediv__', '__rfloordiv__', '__rmod__', '__rdivmod__', '__rpow__', '__rlshift__', '__rrshift__', '__rand__', '__rxor__', '__ror__', '__neg__', '__pos__', '__abs__', '__invert__', '__int__', '__long__', '__float__', '__oct__', '__hex__',
-        '__lt__', '__le__', '__eq__', '__ne__', '__ge__', '__gt__', '__index__', '__str__',
+        '__lt__', '__le__', '__eq__', '__ne__', '__ge__', '__gt__', '__index__',
         ]
 
 
