@@ -47,7 +47,7 @@ import volatility.debug as debug
 config.add_option("INFO", default=None, action="store_true",
                   help = "Print information about all registered objects")
 
-config.add_option("PLUGINS", default="./memory_plugins:./memory_objects",
+config.add_option("PLUGINS", default="./plugins",
                   help = "Additional plugin directories to use (colon separated)")
 
 class MemoryRegistry:

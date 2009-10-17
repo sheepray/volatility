@@ -54,7 +54,8 @@ class JKIA32PagedMemory(addrspace.BaseAddressSpace):
         ## We can not stack on someone with a dtb
         try:
             assert not base.paging_address_space, "Can not stack over another paging address space"
-        except AttributeError: pass
+        except AttributeError:
+            pass
         
         self.dtb = dtb or config.DTB or self.load_dtb()
         self.base = base
