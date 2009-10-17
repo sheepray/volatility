@@ -4,7 +4,7 @@ import volatility.addrspace as addrspace
 import volatility.obj as obj 
 import volatility.conf
 config = volatility.conf.ConfObject()
-import volatility.debug as debug
+import volatility.debug as debug #pylint: disable-msg=W0611
 import urlparse
 import os
 

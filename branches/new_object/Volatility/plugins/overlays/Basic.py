@@ -3,9 +3,9 @@ OS's
 """
 # FIXME: It's currently important these are imported here, otherwise
 # they don't show up in the MemoryObjects registry
-from volatility.obj import BitField, Pointer, Void, Array, CType
+from volatility.obj import BitField, Pointer, Void, Array, CType #pylint: disable-msg=W0611
 import volatility.obj as obj
-import pdb
+import volatility.debug as debug #pylint: disable-msg=W0611
 
 class String(obj.NativeType):
     """Class for dealing with Strings"""

@@ -31,7 +31,7 @@ for SP2.
 import volatility.obj as obj
 import time
 import vtypes
-import volatility.debug as debug
+import volatility.debug as debug #pylint: disable-msg=W0611
 
 class WinXPSP2(obj.Profile):
     """ A Profile for windows XP SP2 """

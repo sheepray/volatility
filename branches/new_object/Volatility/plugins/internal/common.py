@@ -1,7 +1,7 @@
 """ This plugin contains CORE classes used by lots of other plugins """
 import volatility.scan as scan
 import volatility.obj as obj
-import volatility.debug as debug
+import volatility.debug as debug #pylint: disable-msg=W0611
 
 #pylint: disable-msg=C0111
 
@@ -10,8 +10,8 @@ import volatility.debug as debug
 class PoolTagCheck(scan.ScannerCheck):
     """ This scanner checks for the occurance of a pool tag """
     def __init__(self, address_space, tag=None, **kwargs):
+        scan.ScannerCheck.__init__(self, address_space, **kwargs)
         self.tag = tag
-        self.address_space = address_space
 
     def skip(self, data, offset):
         try:
@@ -28,8 +28,8 @@ class PoolTagCheck(scan.ScannerCheck):
 class CheckPoolSize(scan.ScannerCheck):
     """ Check pool block size """
     def __init__(self, address_space, condition=(lambda x: x == 8), **kwargs):
+        scan.ScannerCheck.__init__(self, address_space, **kwargs)
         self.condition = condition
-        self.address_space = address_space
 
     def check(self, offset):
         pool_hdr = obj.Object('_POOL_HEADER', vm=self.address_space,
@@ -43,10 +43,10 @@ class CheckPoolType(scan.ScannerCheck):
     """ Check the pool type """
     def __init__(self, address_space, paged = False,
                  non_paged = False, free = False, **kwargs):
+        scan.ScannerCheck.__init__(self, address_space, **kwargs)
         self.non_paged = non_paged
         self.paged = paged
         self.free = free
-        self.address_space = address_space
 
     def check(self, offset):
         pool_hdr = obj.Object('_POOL_HEADER', vm=self.address_space,
@@ -66,8 +66,8 @@ class CheckPoolType(scan.ScannerCheck):
 class CheckPoolIndex(scan.ScannerCheck):
     """ Checks the pool index """
     def __init__(self, address_space, value=0, **kwargs):
+        scan.ScannerCheck.__init__(self, address_space, **kwargs)
         self.value = value
-        self.address_space = address_space
 
     def check(self, offset):
         pool_hdr = obj.Object('_POOL_HEADER', vm=self.address_space,

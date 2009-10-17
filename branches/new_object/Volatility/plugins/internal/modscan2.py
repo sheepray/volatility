@@ -34,7 +34,7 @@ import volatility.conf as conf
 config = conf.ConfObject()
 import volatility.utils as utils
 import volatility.obj as obj
-import volatility.debug as debug
+import volatility.debug as debug #pylint: disable-msg=W0611
 
 class PoolScanModuleFast2(scan.PoolScanner):
     preamble = ['_POOL_HEADER', ]

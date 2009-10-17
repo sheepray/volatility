@@ -12,7 +12,7 @@ Created on 30 Sep 2009
 import os.path
 import volatility.conf
 import taskmods
-import volatility.debug as debug
+import volatility.debug as debug #pylint: disable-msg=W0611
 
 config = volatility.conf.ConfObject()
 

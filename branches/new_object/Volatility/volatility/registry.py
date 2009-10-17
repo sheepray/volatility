@@ -42,7 +42,7 @@ classes in the same plugin and have them all automatically loaded.
 import os, sys, imp
 import volatility.conf as conf
 config = conf.ConfObject()
-import volatility.debug as debug
+import volatility.debug as debug #pylint: disable-msg=W0611
 
 config.add_option("INFO", default=None, action="store_true",
                   help = "Print information about all registered objects")

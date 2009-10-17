@@ -34,13 +34,13 @@ import volatility.conf as conf
 config = conf.ConfObject()
 import volatility.utils as utils
 import volatility.obj as obj
-import volatility.debug as debug
+import volatility.debug as debug #pylint: disable-msg=W0611
 
 class CheckSocketCreateTime(scan.ScannerCheck):
     """ Check that _ADDRESS_OBJECT.CreateTime makes sense """
     def __init__(self, address_space, condition = lambda x: x, **kwargs):
+        scan.ScannerCheck.__init__(self, address_space, **kwargs)
         self.condition  = condition
-        self.address_space = address_space
 
     def check(self, offset):
         start_of_object = self.address_space.profile.get_obj_size("_POOL_HEADER") - 4

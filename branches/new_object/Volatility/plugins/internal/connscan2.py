@@ -34,7 +34,7 @@ import volatility.conf as conf
 config = conf.ConfObject()
 import volatility.utils as utils
 import volatility.obj as obj
-import volatility.debug as debug
+import volatility.debug as debug #pylint: disable-msg=W0611
 
 class PoolScanConnFast2(scan.PoolScanner):
     checks = [ ('PoolTagCheck', dict(tag = "TCPT")),

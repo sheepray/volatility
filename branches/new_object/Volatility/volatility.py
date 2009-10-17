@@ -33,7 +33,7 @@
 #pylint: disable-msg=C0111
 
 try:
-    import psyco
+    import psyco #pylint: disable-msg=W0611
 except ImportError:    
     pass
 

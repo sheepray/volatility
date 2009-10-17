@@ -31,7 +31,7 @@ import volatility.win32.tasks as tasks
 import volatility.win32.modules as modules
 import volatility.commands as commands
 import volatility.utils as utils
-import volatility.debug as debug
+import volatility.debug as debug #pylint: disable-msg=W0611
 
 #pylint: disable-msg=C0111
 
