@@ -1,7 +1,7 @@
 #labels Featured
 = Introduction =
 
-This page contains documents as part of the Volatility Documentation Project (VDP).  These documents are contributed by various members of the Volatility community.  New contributions are always welcome.
+This page contains links to documents that are part of the Volatility Documentation Project (VDP).  These documents are contributed by various members of the Volatility community.  New contributions are always welcome.
 
 
 = Installation =
@@ -19,3 +19,8 @@ This page contains documents as part of the Volatility Documentation Project (VD
 
   * [http://volatility.googlecode.com/files/VolReport%28win%29_%20Simple%20Aggregation%20for%20Volatility%20Output.pdf VolReport(win)]
       * [http://volatility.googlecode.com/files/vol-Report%28win%29.zip VolReport Batch Script]
+
+= Other Tools =
+
+  * [http://forensiczone.blogspot.com/2009/10/walk-through-volatility-batch-file.html Walk-Through with Volatility Batch File Maker and Procdump]
+      * [http://forensiczone.blogspot.com/2009/10/volatility-batch-file-maker.html Volatility Batch File Maker]
