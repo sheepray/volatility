@@ -14,6 +14,31 @@ import os
 config.add_option("USE-OLD-AS", action="store_true", default=False, 
                   help = "Use the legacy address spaces")
 
+def write_callback(option, _opt_str, _value, parser, *_args, **_kwargs):
+    """Callback function to ensure that write support is only enabled if user repeats a long string
+    
+       This call back checks whether the user really wants write support and then either enables it
+       (for all future parses) by changing the option to store_true, or disables it permanently
+       by ensuring all future attempts to store the value store_false.
+    """
+    if not hasattr(parser.values, 'write'):
+        # We don't want to use config.outfile, since this should always be seen by the user
+        option.dest = "write"
+        option.action = "store_false"
+        parser.values.write = False
+        for _ in range(3):
+            testphrase = "Yes, I want to enable write support"
+            response = raw_input("Write support requested.  Please type \"" + testphrase +
+                                 "\" below precisely (case-sensitive):\n")
+            if response == testphrase:
+                option.action = "store_true"
+                parser.values.write = True
+                return
+        print "Write support disabled."
+
+config.add_option("WRITE", short_option='w', action="callback", default=False,
+                  help = "Enable write support", callback=write_callback)
+
 class FileAddressSpace(addrspace.BaseAddressSpace):
     """ This is a direct file AS.
 
@@ -74,6 +99,12 @@ class FileAddressSpace(addrspace.BaseAddressSpace):
     def close(self):
         self.fhandle.close()
 
+    def write(self, addr, data):
+        if not config.WRITE:
+            return False
+        self.fhandle.seek(addr)
+        return self.fhandle.write(data)
+
 BLOCKSIZE = 1024 * 1024 * 10
 
 ## This stuff needs to go in the profile
@@ -95,7 +126,63 @@ ptrs_page = 2048
 config.add_option("DTB", type='int', default=0,
                   help = "DTB Address")
 
-class IA32PagedMemory(addrspace.BaseAddressSpace):
+class WritablePagedMemory(addrspace.BaseAddressSpace):
+    """
+    Mixin class that can be used to add write functionality
+    to any standard address space that supports write() and
+    vtop().
+    """
+    def __init__(self, base, **kwargs):
+        assert self.__class__.__name__ != 'WritablePagedMemory', "Abstract Class - Never for instantiation directly"
+        addrspace.BaseAddressSpace.__init__(self, base)
+    
+    def write(self, vaddr, buf):
+        if not config.WRITE:
+            return False
+        
+        length = len(buf)
+        first_block = 0x1000 - vaddr % 0x1000
+        full_blocks = ((length + (vaddr % 0x1000)) / 0x1000) - 1
+        left_over = (length + vaddr) % 0x1000
+        
+        paddr = self.vtop(vaddr)
+        if paddr == None:        
+            return None
+        
+        if length < first_block:
+            self.base.write(paddr, buf)
+            return
+
+        self.base.write(paddr, buf[:first_block])
+        buf = buf[first_block:]
+
+        new_vaddr = vaddr + first_block
+        for _i in range(0, full_blocks):
+            paddr = self.vtop(new_vaddr)
+            if paddr == None:
+                raise Exception("Failed to write to page at %#x" % new_vaddr)
+            self.base.write(paddr, buf[:0x1000])
+            new_vaddr = new_vaddr + 0x1000
+            buf = buf[0x1000:]
+
+        if left_over > 0:
+            paddr = self.vtop(new_vaddr)
+            if paddr == None:
+                raise Exception("Failed to write to page at %#x" % new_vaddr)
+            assert len(buf) == left_over
+            self.base.write(paddr, buf)
+
+    def write_long_phys(self, addr, val):
+        if not config.WRITE:
+            return False
+        buf = struct.pack('=L', val)
+        return self.base.write(addr, buf)
+    
+    def vtop(self, addr):
+        """Abstract function that converts virtual (paged) addresses to physical addresses"""
+        pass
+
+class IA32PagedMemory(addrspace.BaseAddressSpace, WritablePagedMemory):
     """ Legacy x86 non PAE address space (to use specify --use_old_as)
 
     We accept an optional arg called dtb to force us to use a
@@ -107,6 +194,7 @@ class IA32PagedMemory(addrspace.BaseAddressSpace):
     def __init__(self, base, dtb=0, astype = None, **kwargs):
         assert config.USE_OLD_AS, "Module disabled"
         
+        WritablePagedMemory.__init__(self, base)
         addrspace.BaseAddressSpace.__init__(self, base, **kwargs)
         assert astype != 'physical', "User requested physical AS"
         

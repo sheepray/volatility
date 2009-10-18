@@ -91,18 +91,32 @@ class FirewireAddressSpace(addrspace.BaseAddressSpace):
         """
         ints = self.intervals(offset, offset + length)
         output = "\x00" * length
-        for i in ints:
-            if i[1] > i[0]:
-                # node.read won't work on 0 byte
-                try:
+        try:
+            for i in ints:
+                if i[1] > i[0]:
+                    # node.read won't work on 0 byte
                     readdata = self._node.read(i[0], i[1] - i[0])
                     # I'm not sure why, but sometimes readdata comes out longer than the requested size
                     # We just truncate it to the right length
                     output = output[: i[0] - offset] + readdata[:i[1] - i[0]] + output[i[1] - offset:]
-                except IOError:
-                    raise RuntimeError("Failed to read from firewire device")
+        except IOError:
+            raise RuntimeError("Failed to read from firewire device")
         assert len(output) == length, "Firewire read lengths failed to match"
         return output
+
+    def write(self, offset, data):
+        """Writes a specified size in bytes"""
+        if not config.WRITE:
+            return False
+        
+        ints = self.intervals(offset, offset + len(data))
+        try:
+            for i in ints:
+                if i[1] > i[0]:
+                    self._node.write(i[0], data)
+        except IOError:
+            raise RuntimeError("Failed to write to the firewire device")
+        return
     
     def get_address_range(self):
         """Returns the size of the address range"""

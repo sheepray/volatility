@@ -74,17 +74,17 @@ class WindowsCrashDumpSpace32(standard.FileAddressSpace):
             return False
         return True
 
-    def read(self, addr, len):
+    def read(self, addr, length):
         first_block = 0x1000 - addr % 0x1000
-        full_blocks = ((len + (addr % 0x1000)) / 0x1000) - 1
-        left_over = (len + addr) % 0x1000
+        full_blocks = ((length + (addr % 0x1000)) / 0x1000) - 1
+        left_over = (length + addr) % 0x1000
 
         baddr = self.get_addr(addr)
         if baddr == None:
             return None
 
-        if len < first_block:
-            stuff_read = self.base.read(baddr, len)
+        if length < first_block:
+            stuff_read = self.base.read(baddr, length)
             return stuff_read
 
         stuff_read = self.base.read(baddr, first_block)
@@ -103,6 +103,10 @@ class WindowsCrashDumpSpace32(standard.FileAddressSpace):
             stuff_read = stuff_read + self.base.read(baddr, left_over)
             
         return stuff_read    
+
+    def write(self, vaddr, buf):
+        baddr = self.get_addr(vaddr)
+        return standard.WritablePagedMemory.write(self, baddr, buf)
 
     def zread(self, vaddr, length):
         first_block = 0x1000 - vaddr % 0x1000

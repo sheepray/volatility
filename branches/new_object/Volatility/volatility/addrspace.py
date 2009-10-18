@@ -73,6 +73,11 @@ class BaseAddressSpace:
         """ Tell us if the address is valid """
         return True
     
+    def write(self, _addr, _buf):
+        if not config.WRITE:
+            return False
+        raise NotImplementedError("Write support for this type of Address Space has not been implemented")
+    
 ## This is a specialised AS for use internally - Its used to provide
 ## transparent support for a string buffer so types can be
 ## instantiated off the buffer.
@@ -96,3 +101,9 @@ class BufferAddressSpace(BaseAddressSpace):
     def read(self, addr, length):
         offset = addr - self.base_offset
         return self.data[offset: offset+length]
+    
+    def write(self, addr, data):
+        if not config.WRITE:
+            return False
+        self.data = self.data[:addr] + data + self.data[addr + len(data):]
+        return True

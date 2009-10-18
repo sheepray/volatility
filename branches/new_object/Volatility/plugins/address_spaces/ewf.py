@@ -105,5 +105,10 @@ class EWFAddressSpace(standard.FileAddressSpace):
     def is_valid_address(self, addr):
         return True
 
+    def write(self, _addr, _buf):
+        if not config.WRITE:
+            return False
+        raise NotImplementedError("Write support is not yet implemented for EWF files")
+
 if not libewf:
     del EWFAddressSpace

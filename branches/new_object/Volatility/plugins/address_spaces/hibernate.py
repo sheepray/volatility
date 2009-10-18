@@ -2,7 +2,10 @@
 import standard
 import volatility.obj as obj
 import volatility.win32.xpress as xpress
+import volatility.conf as conf
 import struct
+
+config = conf.ConfObject()
 
 #pylint: disable-msg=C0111
 
@@ -363,6 +366,11 @@ class WindowsHiberFileSpace32(standard.FileAddressSpace):
 
     def close(self):
         self.base.close()
+
+    def write(self, _addr, _buf):
+        if not config.WRITE:
+            return False
+        raise NotImplementedError("Writing to hibernation files has not been implemented yet")
 
 #    def get_version(self):
 #

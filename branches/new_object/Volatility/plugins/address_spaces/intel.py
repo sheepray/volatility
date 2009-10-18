@@ -1,6 +1,7 @@
 """ This is Jesse Kornblum's patch to clean up the standard AS's.
 """
 import struct
+import standard
 import volatility.addrspace as addrspace
 import volatility.obj as obj 
 import volatility.conf
@@ -12,7 +13,7 @@ BLOCKSIZE = 1024 * 1024 * 10
 config.add_option("CACHE_DTB", action="store_false", default=True, 
                   help = "Cache virtual to physical mappings")
 
-class JKIA32PagedMemory(addrspace.BaseAddressSpace):
+class JKIA32PagedMemory(addrspace.BaseAddressSpace, standard.WritablePagedMemory):
     """ Standard x86 32 bit non PAE address space.
     
     Provides an address space for IA32 paged memory, aka the x86 
@@ -44,7 +45,7 @@ class JKIA32PagedMemory(addrspace.BaseAddressSpace):
         ## We allow users to disable us in favour of the old legacy
         ## modules.
         assert not config.USE_OLD_AS, "Module disabled"
-        
+        standard.WritablePagedMemory.__init__(self, base)
         addrspace.BaseAddressSpace.__init__(self, base, **kwargs)
         assert astype != 'physical', "User requested physical AS"
 
