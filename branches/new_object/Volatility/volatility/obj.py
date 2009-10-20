@@ -204,6 +204,13 @@ class BaseObject(object):
         
         return getattr(proxied, attr)
 
+    def __setattr__(self, attr, value):
+        try:
+            object.__setattr__(self, attr, value)
+        except AttributeError:
+            pass
+            # print "Will set {0} to {1}".format(attr, value)
+
     def __nonzero__(self):
         """ This method is called when we test the truth value of an
         Object. In volatility we consider an object to have True truth
