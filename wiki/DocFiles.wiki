@@ -6,21 +6,27 @@ This page contains links to documents that are part of the Volatility Documentat
 
 = Installation =
 
-  * [http://volatility.googlecode.com/files/install.pdf Installation Manual (Windows)]
-  * [http://volatility.googlecode.com/files/VolatilitySVN.pdf SVN Manual (Windows)]
-  * [http://volatility.googlecode.com/files/volatility-linux-installv1.pdf Installation Manual (Linux)]
-  * [http://volatility.googlecode.com/files/install%20plugins.pdf Installing Plugins (Windows)]
+  * [http://volatility.googlecode.com/files/install.pdf Installation Manual (Windows)] (pdf)
+  * [http://volatility.googlecode.com/files/VolatilitySVN.pdf SVN Manual (Windows)] (pdf)
+  * [http://volatility.googlecode.com/files/volatility-linux-installv1.pdf Installation Manual (Linux)] (pdf)
+  * [http://volatility.googlecode.com/files/install%20plugins.pdf Installing Plugins (Windows)] (pdf)
+  * [http://bad-robot.blogspot.com/2009/03/instalando-framework-volatility-en.html Instalando framework Volatility en Linux] (external link)
+  * [http://neosysforensics.blogspot.com/2009/07/modificando-volatility.html Modificando Volatility (Changing Volatility)] (external link)
 
 = Usage =
 
-  * [http://volatility.googlecode.com/files/Pretty%20Process%20Mapping.pdf Pretty Process Mapping]
+  * [http://volatility.googlecode.com/files/Pretty%20Process%20Mapping.pdf Pretty Process Mapping] (pdf)
 
 = Reporting =
 
-  * [http://volatility.googlecode.com/files/VolReport%28win%29_%20Simple%20Aggregation%20for%20Volatility%20Output.pdf VolReport(win)]
-      * [http://volatility.googlecode.com/files/vol-Report%28win%29.zip VolReport Batch Script]
+  * [http://volatility.googlecode.com/files/VolReport%28win%29_%20Simple%20Aggregation%20for%20Volatility%20Output.pdf VolReport(win)] (pdf)
+      * [http://volatility.googlecode.com/files/vol-Report%28win%29.zip VolReport Batch Script] (zip)
 
 = Other Tools =
 
-  * [http://forensiczone.blogspot.com/2009/10/walk-through-volatility-batch-file.html Walk-Through with Volatility Batch File Maker and Procdump]
-      * [http://forensiczone.blogspot.com/2009/10/volatility-batch-file-maker.html Volatility Batch File Maker]
+  * [http://forensiczone.blogspot.com/2009/10/walk-through-volatility-batch-file.html Walk-Through with Volatility Batch File Maker and Procdump] (external link)
+      * [http://forensiczone.blogspot.com/2009/10/volatility-batch-file-maker.html Volatility Batch File Maker] (external link)
+
+= Case Studies =
+  * [http://neosysforensics.blogspot.com/2009/03/analisis-de-un-caso-real.html Análisis de un caso ¿real?] (external link)
+  * [http://neosysforensics.blogspot.com/2009/05/analisis-de-un-caso-real-2.html Análisis de un caso ¿real?, #2] (external link)
