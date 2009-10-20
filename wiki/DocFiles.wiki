@@ -10,7 +10,7 @@ This page contains links to documents that are part of the Volatility Documentat
   * [http://volatility.googlecode.com/files/VolatilitySVN.pdf SVN Manual (Windows)] (pdf)
   * [http://volatility.googlecode.com/files/volatility-linux-installv1.pdf Installation Manual (Linux)] (pdf)
   * [http://volatility.googlecode.com/files/install%20plugins.pdf Installing Plugins (Windows)] (pdf)
-  * [http://bad-robot.blogspot.com/2009/03/instalando-framework-volatility-en.html Instalando framework Volatility en Linux] (external link)
+  * [http://neosysforensics.blogspot.com/2009/03/tuneando-volatility.html Tuneando Volatility (Linux)] (external link)
   * [http://neosysforensics.blogspot.com/2009/07/modificando-volatility.html Modificando Volatility (Changing Volatility)] (external link)
 
 = Usage =
