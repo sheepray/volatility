@@ -267,7 +267,7 @@ class BaseObject(object):
         return self.vm.is_valid_address(self.offset)
 
     def dereference(self):
-        return NoneObject("Cant derenference %s" % self.name, self.profile.strict)
+        return NoneObject("Cant derenference {0}".format(self.name), self.profile.strict)
 
     def dereference_as(self, derefType):
         return Object(derefType, self.v(), \
@@ -279,7 +279,10 @@ class BaseObject(object):
     def v(self):
         """ Do the actual reading and decoding of this member
         """
-        return NoneObject("No value for %s" % self.name, self.profile.strict)
+        return NoneObject("No value for {0}".format(self.name), self.profile.strict)
+
+    def __format__(self, formatspec):
+        return format(self.v(), formatspec)
 
     def get_member_names(self):
         return False
@@ -348,6 +351,9 @@ class NumericProxyMixIn(object):
 
         ## Comparisons
         '__lt__', '__le__', '__eq__', '__ne__', '__ge__', '__gt__', '__index__',
+        
+        ## Formatting
+        '__format__',
         ]
 
 
@@ -383,6 +389,9 @@ class NativeType(BaseObject, NumericProxyMixIn):
 
     def __repr__(self):
         return " [%s]: %s" % (self.theType, self.v())
+    
+    def __format__(self, formatspec):
+        return format(self.v(), formatspec)
     
     def d(self):
         return " [%s %s | %s]: %s" % (self.__class__.__name__, self.name or '',

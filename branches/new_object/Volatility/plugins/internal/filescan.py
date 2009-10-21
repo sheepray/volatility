@@ -110,9 +110,8 @@ class filescan(commands.command):
             yield (object_obj, file_obj, Name)
 
     def render_text(self, outfd, data):
-        outfd.write("%-10s %-10s %4s %4s %6s %s\n" % \
-                    ('Phys.Addr.', 'Obj Type', '#Ptr', '#Hnd', 'Access',\
-                     'Name'))
+        outfd.write("{0:10} {1:10} {2:4} {3:4} {4:6} {5}\n".format(
+                     'Phys.Addr.', 'Obj Type', '#Ptr', '#Hnd', 'Access', 'Name'))
 
         for object_obj, file_obj, Name in data:
             ## Make a nicely formatted ACL string
@@ -123,8 +122,8 @@ class filescan(commands.command):
                         ((file_obj.SharedWrite > 0 and "w") or '-') + \
                         ((file_obj.SharedDelete > 0 and "d") or '-')
 
-            outfd.write("0x%08x 0x%08x %4d %4d %6s %s\n" % \
-                        (object_obj.offset, object_obj.Type, object_obj.PointerCount,
+            outfd.write("0x{0:08x} 0x{1:08x} {2:4} {3:4} {4:6} {5}\n".format(
+                         object_obj.offset, object_obj.Type, object_obj.PointerCount,
                          object_obj.HandleCount, AccessStr, Name))
 
 class PoolScanDriver(PoolScanFile):
@@ -185,15 +184,15 @@ class driverscan(filescan):
         
     def render_text(self, outfd, data):
         """Renders the text-based output"""
-        outfd.write("%-10s %-10s %4s %4s %-10s %6s %-20s %s\n" % \
-                    ('Phys.Addr.', 'Obj Type', '#Ptr', '#Hnd', \
+        outfd.write("{0:10} {1:10} {2:4} {3:4} {4:10} {5:>6} {6:20} {7}\n".format(
+                     'Phys.Addr.', 'Obj Type', '#Ptr', '#Hnd',
                      'Start', 'Size', 'Service key', 'Name'))
         
         for object_obj, driver_obj, extension_obj, object_name_info_obj in data:
-            outfd.write("0x%08x 0x%08x %4d %4d 0x%08x %6d %-20s %-12s %s\n" % \
-                        (driver_obj.offset, object_obj.Type, object_obj.PointerCount,
+            outfd.write("0x{0:08x} 0x{1:08x} {2:4} {3:4} 0x{4:08x} {5:6} {6:20} {7:12} {8}\n".format(
+                         driver_obj.offset, object_obj.Type, object_obj.PointerCount,
                          object_obj.HandleCount,
-                         driver_obj.DriverStart, driver_obj.DriverSize,\
+                         driver_obj.DriverStart, driver_obj.DriverSize,
                          self.parse_string(extension_obj.ServiceKeyName),
                          self.parse_string(object_name_info_obj.Name),
                          self.parse_string(driver_obj.DriverName)))
@@ -258,21 +257,21 @@ class mutantscan(filescan):
         
     def render_text(self, outfd, data):
         """Renders the output"""
-        outfd.write("%-10s %-10s %4s %4s %6s %-10s %-10s %s\n" % \
-                    ('Phys.Addr.', 'Obj Type', '#Ptr', '#Hnd', 'Signal',\
+        outfd.write("{0:10} {1:10} {2:4} {3:4} {4:6} {5:10} {6:10} {7}\n".format(
+                     'Phys.Addr.', 'Obj Type', '#Ptr', '#Hnd', 'Signal', 
                      'Thread', 'CID', 'Name'))
         
         for object_obj, mutant, object_name_info_obj in data:
             if mutant.OwnerThread > 0x80000000:
                 thread = obj.Object("_ETHREAD", vm = self.kernel_address_space,
                                    offset = mutant.OwnerThread)
-                CID = "%s:%s" % (thread.Cid.UniqueProcess, thread.Cid.UniqueThread)
+                CID = "{0}:{1}".format(thread.Cid.UniqueProcess, thread.Cid.UniqueThread)
             else:
                 CID = ""
             
-            outfd.write("0x%08x 0x%08x %4d %4d %6d 0x%08x %-10s %s\n" % \
-                        (mutant.offset, object_obj.Type, object_obj.PointerCount,
-                         object_obj.HandleCount, mutant.Header.SignalState, \
+            outfd.write("0x{0:08x} 0x{1:08x} {2:4} {3:4} {4:6} 0x{5:08x} {6:10} {7}\n".format(
+                         mutant.offset, object_obj.Type, object_obj.PointerCount,
+                         object_obj.HandleCount, mutant.Header.SignalState,
                          mutant.OwnerThread, CID,
                          self.parse_string(object_name_info_obj.Name)
                          ))

@@ -89,7 +89,7 @@ class verinfo(procdump.procexedump):
                 else:
                     module_pattern = re.compile(config.PATTERN)
             except sre_constants.error, e:
-                config.error('Regular expression parsing error: %s' % e)
+                config.error('Regular expression parsing error: {0}'.format(e))
 
         if config.OFFSET is not None:
             if not addr_space.is_valid_address(config.OFFSET):

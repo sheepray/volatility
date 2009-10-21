@@ -22,13 +22,13 @@ class regobjkeys(taskmods.files):
         for pid in data:
             if not first:
                 outfd.write("*" * 72 + "\n")
-            outfd.write("Pid: %-6d\n" % pid)
+            outfd.write("Pid: {0:6}\n".format(pid))
             first = False
             
             handles = data[pid]
             for h in handles:
                 keyname = self.full_key_name(h)
-                outfd.write("%-6s %-40s\n" % ("Key", keyname))
+                outfd.write("{0:6} {1:40}\n".format("Key", keyname))
                 
     def full_key_name(self, handle):
         """Returns the full name of a registry key based on its CM_KEY_BODY handle"""

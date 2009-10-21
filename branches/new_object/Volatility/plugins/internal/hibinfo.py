@@ -54,18 +54,18 @@ class hibinfo(commands.command):
         peb = data['peb']
         
         outfd.write("IMAGE_HIBER_HEADER:\n")
-        outfd.write(" Signature: %s\n" % hdr.Signature)
-        outfd.write(" SystemTime: %s\n" % hdr.SystemTime)
+        outfd.write(" Signature: {0}\n".format(hdr.Signature))
+        outfd.write(" SystemTime: {0}\n".format(hdr.SystemTime))
         
         outfd.write("\nControl registers flags\n")
-        outfd.write(" CR0: %08x\n" % sr.Cr0)
-        outfd.write(" CR0[PAGING]: %d\n" % ((sr.Cr0 >> 31) & 1) )
-        outfd.write(" CR3: %08x\n" % sr.Cr3)
-        outfd.write(" CR4: %08x\n" % sr.Cr4)
-        outfd.write(" CR4[PSE]: %d\n" % ((sr.Cr4 >> 4) & 1) )
-        outfd.write(" CR4[PAE]: %d\n" % ((sr.Cr4 >> 5) & 1) )
+        outfd.write(" CR0: {0:08x}\n".format(sr.Cr0))
+        outfd.write(" CR0[PAGING]: {0}\n".format((sr.Cr0 >> 31) & 1) )
+        outfd.write(" CR3: {0:08x}\n".format(sr.Cr3))
+        outfd.write(" CR4: {0:08x}\n".format(sr.Cr4))
+        outfd.write(" CR4[PSE]: {0}\n".format((sr.Cr4 >> 4) & 1) )
+        outfd.write(" CR4[PAE]: {0}\n".format((sr.Cr4 >> 5) & 1) )
 
-        outfd.write("\nWindows Version is %d.%d (%d)\n\n" % (peb.OSMajorVersion, peb.OSMinorVersion, peb.OSBuildNumber))
+        outfd.write("\nWindows Version is {0}.{1} ({2})\n\n".format(peb.OSMajorVersion, peb.OSMinorVersion, peb.OSBuildNumber))
         
 class hibdump(hibinfo):
     """Dumps the hibernation file to a raw file"""
@@ -88,6 +88,6 @@ class hibdump(hibinfo):
         f = open(config.DUMP_FILE, 'wb')
         total = data['adrs'].get_number_of_pages()
         for pagenum in data['adrs'].convert_to_raw(f):
-            outfd.write("\r" + ("%08x" % pagenum) + " / " + ("%08x" % total) + " converted (" + ("%03d" % (pagenum * 100 / total)) + "%)")
+            outfd.write("\r" + ("{0:08x}".format(pagenum)) + " / " + ("{0:08x}".format(total)) + " converted (" + ("{0:03d}".format(pagenum * 100 / total)) + "%)")
         f.close()
         outfd.write("\n")        

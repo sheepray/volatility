@@ -28,13 +28,13 @@ class pstree(commands.command):
 
     def render_text(self, outfd, data):
         max_pad = 10
-        outfd.write("%-20s             %s %-6s %-6s %-6s %-6s %-6s\n" %(
+        outfd.write("{0:20}             {1} {2:6} {3:6} {4:6} {5:6} {6:6}\n".format(
             'Name', " " * max_pad, 'Pid','PPid','Thds','Hnds','Time'))
 
         def draw_branch(pad, inherited_from):
             for task, task_info in data.items():
                 if task_info['inherited_from'] == inherited_from:
-                    outfd.write("%s 0x%08X:%-20s %s %-6d %-6d %-6d %-6d %-26s\n" % (
+                    outfd.write("{0} 0x{1:08X}:{2:20} {3} {4:6} {5:6} {6:6} {7:6} {8:26}\n".format(
                         "." * pad,
                         task_info['eprocess'].offset,
                         task_info['image_file_name'],
@@ -47,11 +47,11 @@ class pstree(commands.command):
 
                     if config.VERBOSE > 1:
                         try:
-                            outfd.write("%s    cmd: %s\n" % (
+                            outfd.write("{0}    cmd: {1}\n".format(
                                 ' ' * pad, task_info['command_line']))
-                            outfd.write("%s    path: %s\n" % (
+                            outfd.write("{0}    path: {1}\n".format(
                                 ' ' * pad, task_info['ImagePathName']))
-                            outfd.write("%s    audit: %s\n" % (
+                            outfd.write("{0}    audit: {1}\n".format(
                                 ' ' * pad, task_info['Audit ImageFileName']) )
                         except KeyError:
                             pass

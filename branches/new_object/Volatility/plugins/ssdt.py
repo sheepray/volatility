@@ -1044,7 +1044,7 @@ class ssdt(commands.command):
         'os': 'WIN_32_XP_SP2',
         'version': '1.0'}
     
-    def execute(self):        
+    def calculate(self):        
         addr_space = utils.load_as()
         addr_space.profile.add_types(ssdt_types)
 
@@ -1085,9 +1085,13 @@ class ssdt(commands.command):
                 # Any VM is equally bad...
                 tables_with_vm.append( (idx, table, n, addr_space) )
 
-        # Print out the entries for each table
         for idx, table, n, vm in sorted(tables_with_vm, key=itemgetter(0)):
-            print "SSDT[%d] at %x with %d entries" % (idx, table, n)
+            yield idx, table, n, vm, mods, mod_addrs
+
+    def render_text(self, outfd, data):
+        # Print out the entries for each table
+        for idx, table, n, vm, mods, mod_addrs in data:
+            outfd.write("SSDT[{0}] at {1:x} with {2} entries\n".format(idx, table, n))
             if vm.is_valid_address(table):
                 for i in range(n):
                     syscall_addr = obj.Object('unsigned long', table+(i*4), vm).v()
@@ -1102,9 +1106,9 @@ class ssdt(commands.command):
                     else:
                         syscall_modname = "UNKNOWN"
 
-                    print "  Entry %#06x: %#x (%s) owned by %s" % (idx*0x1000+i,
+                    outfd.write("  Entry {0:#06x}: {1:#x} ({2}) owned by {3}\n".format(idx*0x1000+i,
                                                                        syscall_addr,
                                                                        syscall_name,
-                                                                       syscall_modname)
+                                                                       syscall_modname))
             else:
-                print "  [SSDT not resident at 0x%08X ]" % table
+                outfd.write("  [SSDT not resident at 0x{0:08X} ]\n".format(table))

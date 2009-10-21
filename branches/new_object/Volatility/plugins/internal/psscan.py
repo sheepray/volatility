@@ -64,8 +64,8 @@ class DispatchHeaderCheck(scan.ScannerCheck):
 
     def skip(self, data, offset):
         try:
-            next = data.index("\x03", offset+1)
-            return next - self.type.offset - offset
+            nextval = data.index("\x03", offset+1)
+            return nextval - self.type.offset - offset
         except ValueError:
             ## Substring is not found - skip to the end of this data buffer
             return len(data) - offset
@@ -88,8 +88,8 @@ class DispatchThreadHeaderCheck(DispatchHeaderCheck):
 
     def skip(self, data, offset):
         try:
-            next = data.index("\x06", offset+1)
-            return next - self.type.offset - offset
+            nextval = data.index("\x06", offset+1)
+            return nextval - self.type.offset - offset
         except ValueError:
             ## Substring is not found - skip to the end of this data buffer
             return len(data) - offset
@@ -196,9 +196,9 @@ class thrdscan(commands.command):
         outfd.write("No.  PID    TID    Offset    \n---- ------ ------ ----------\n")
 
         for ethread in data:
-            cnt = time.time() - start
-            outfd.write("%4d %6d %6d 0x%0.8x\n" % (cnt, ethread.Cid.UniqueProcess,
-                                                   ethread.Cid.UniqueThread, ethread.offset))
+            cnt = str(time.time() - start)
+            outfd.write("{0:4.4} {1:6} {2:6} 0x{3:08x}\n".format(cnt, ethread.Cid.UniqueProcess,
+                                                                ethread.Cid.UniqueThread, ethread.offset))
    
 class PSScan(scan.BaseScanner):
     """ This scanner carves things that look like _EPROCESS structures.
@@ -239,19 +239,19 @@ class psscan(commands.command):
         links = set()
         
         for eprocess in data:
-            label = "%s | %s |" % (eprocess.UniqueProcessId,
-                                                 eprocess.ImageFileName)
+            label = "{0} | {1} |".format(eprocess.UniqueProcessId,
+                                         eprocess.ImageFileName)
             if eprocess.ExitTime:
-                label += "exited\\n%s" % eprocess.ExitTime
+                label += "exited\\n{0}".format(eprocess.ExitTime)
                 options = ' style = "filled" fillcolor = "lightgray" '
             else:
                 label += "running"
                 options = ''
 
-            objects.add('pid%s [label="%s" shape="record" %s];\n' % (eprocess.UniqueProcessId,
-                                                             label, options))
-            links.add("pid%s -> pid%s [];\n" % (eprocess.InheritedFromUniqueProcessId,
-                                              eprocess.UniqueProcessId))
+            objects.add('pid{0} [label="{1}" shape="record" {2}];\n'.format(eprocess.UniqueProcessId,
+                                                                            label, options))
+            links.add("pid{0} -> pid{1} [];\n".format(eprocess.InheritedFromUniqueProcessId,
+                                                      eprocess.UniqueProcessId))
 
         ## Now write the dot file
         outfd.write("digraph processtree { \ngraph [rankdir = \"TB\"];\n")
@@ -269,9 +269,9 @@ class psscan(commands.command):
                     "---- ------ ------ ------------------------ ------------------------ ---------- ---------- ----------------\n")
         
         for eprocess in data:
-            cnt = time.time() - start
+            cnt = "{0}".format(time.time() - start)
 
-            outfd.write("%4d %6d %6d %24s %24s 0x%0.8x 0x%0.8x %-16s\n" % (
+            outfd.write("{0:4.4} {1:6} {2:6} {3:24} {4:24} 0x{5:08x} 0x{6:08x} {7:16}\n".format(
                 cnt,
                 eprocess.UniqueProcessId,
                 eprocess.InheritedFromUniqueProcessId,

@@ -24,7 +24,7 @@ class bioskbd(commands.command):
         """Displays the character codes"""
         outfd.write("Ascii     Scancode\n")
         for c, s in data:
-            outfd.write("%c (0x%02x)   0x%02x\n" % (self.format_char(c), ord(c), s))
+            outfd.write("{0} (0x{1:02x})   0x{2:02x}\n".format(self.format_char(c), ord(c), s))
     
     def format_char(self, c):
         """Prints out an ascii printable character"""

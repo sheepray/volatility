@@ -73,6 +73,6 @@ class connscan2(commands.command):
 
         ## We make a new scanner
         for tcp_obj in data:
-            local = "%s:%s" % (tcp_obj.LocalIpAddress, tcp_obj.LocalPort)
-            remote = "%s:%s" % (tcp_obj.RemoteIpAddress, tcp_obj.RemotePort)
-            outfd.write("%-25s %-25s %-6d\n" % (local, remote, tcp_obj.Pid))
+            local = "{0}:{1}".format(tcp_obj.LocalIpAddress, tcp_obj.LocalPort)
+            remote = "{0}:{1}".format(tcp_obj.RemoteIpAddress, tcp_obj.RemotePort)
+            outfd.write("{0:25} {1:25} {2:6}\n".format(local, remote, tcp_obj.Pid))

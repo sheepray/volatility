@@ -71,6 +71,6 @@ class hivescan(commands.command):
         return PoolScanHiveFast2().scan(address_space)
 
     def render_text(self, outfd, data):
-        outfd.write("%-15s %-15s\n" % ("Offset", "(hex)"))
+        outfd.write("{0:15} {1:15}\n".format("Offset", "(hex)"))
         for offset in data:
-            outfd.write("%-15s 0x%08X\n" % (offset, offset))
+            outfd.write("{0:<15} 0x{1:08X}\n".format(offset, offset))

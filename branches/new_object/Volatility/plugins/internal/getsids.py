@@ -148,7 +148,7 @@ class getsids(taskmods.dlllist):
         """Renders the sids as text"""
         for task in data:
             if not task.Token.is_valid():
-                outfd.write("%s (%d): Token unreadable\n" % (task.ImageFileName, int(task.UniqueProcessId)))
+                outfd.write("{0} ({1}): Token unreadable\n".format(task.ImageFileName, int(task.UniqueProcessId)))
                 continue
             tok = obj.Object('_TOKEN', task.Token.Value & ~0x7, task.vm)
 
@@ -158,12 +158,12 @@ class getsids(taskmods.dlllist):
                     id_auth = i 
                 sid_string = "S-" + "-".join(str(i) for i in (sid.Revision, id_auth) + tuple(sid.SubAuthority))
                 if sid_string in well_known_sids:
-                    sid_name = " (%s)" % well_known_sids[sid_string]
+                    sid_name = " ({0})".format(well_known_sids[sid_string])
                 else:
                     sid_name_re = find_sid_re(sid_string, well_known_sid_re)
                     if sid_name_re:
-                        sid_name = " (%s)" % sid_name_re
+                        sid_name = " ({0})".format(sid_name_re)
                     else:
                         sid_name = ""
                 
-                outfd.write("%s (%d): %s%s\n" % (task.ImageFileName, task.UniqueProcessId, sid_string, sid_name))
+                outfd.write("{0} ({1}): {2}{3}\n".format(task.ImageFileName, task.UniqueProcessId, sid_string, sid_name))

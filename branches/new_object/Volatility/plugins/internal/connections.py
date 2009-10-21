@@ -28,12 +28,12 @@ class connections(commands.command):
 
     def render_text(self, outfd, data):
         if len(data):
-            outfd.write("%-25s %-25s %-6s\n" % ('Local Address', 'Remote Address', 'Pid'))
+            outfd.write("{0:25} {1:25} {2:6}\n".format('Local Address', 'Remote Address', 'Pid'))
 
         for conn in data:
-            local = "%s:%s" % (conn.LocalIpAddress, conn.LocalPort)
-            remote = "%s:%s" % (conn.RemoteIpAddress, conn.RemotePort)
-            outfd.write("%-25s %-25s %-6d\n" % (local, remote, conn.Pid))
+            local = "{0}:{1}".format(conn.LocalIpAddress, conn.LocalPort)
+            remote = "{0}:{1}".format(conn.RemoteIpAddress, conn.RemotePort)
+            outfd.write("{0:25} {1:25} {2:6}\n".format(local, remote, conn.Pid))
         
 
     def calculate(self):

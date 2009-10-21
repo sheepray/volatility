@@ -33,13 +33,13 @@ class procexedump(taskmods.dlllist):
             outfd.write("*" * 72 + "\n")
             task_space = task.get_process_address_space()
             if task.Peb == None:
-                outfd.write("Error: PEB not memory resident for process [%d]\n" % (pid))
+                outfd.write("Error: PEB not memory resident for process [{0}]\n".format(pid))
                 continue
             if task.Peb.ImageBaseAddress == None or task_space == None or task_space.vtop(task.Peb.ImageBaseAddress) == None:
-                outfd.write("Error: ImageBaseAddress not memory resident for process [%d]\n" % (pid))
+                outfd.write("Error: ImageBaseAddress not memory resident for process [{0}]\n".format(pid))
                 continue
 
-            outfd.write("Dumping %s, pid: %-6d output: %s\n" % (task.ImageFileName, pid, "executable." + str(pid) + ".exe"))
+            outfd.write("Dumping {0}, pid: {1:6} output: {2}\n".format(task.ImageFileName, pid, "executable." + str(pid) + ".exe"))
             of = open(os.path.join(config.DUMP_DIR, "executable." + str(pid) + ".exe"), 'wb')
             try:
                 for chunk in self.get_image(outfd, task.get_process_address_space(), task.Peb.ImageBaseAddress):
@@ -88,14 +88,11 @@ class procexedump(taskmods.dlllist):
         """Sanity checks address boundaries"""
         # Note: all addresses here are RVAs
         if sect.VirtualAddress > image_size:
-            raise ValueError('VirtualAddress %08x is past the end of image.' %
-                                    sect.VirtualAddress)
+            raise ValueError('VirtualAddress {0:08x} is past the end of image.'.format(sect.VirtualAddress))
         if sect.Misc.VirtualSize > image_size:
-            raise ValueError('VirtualSize %08x is larger than image size.' %
-                                    sect.Misc.VirtualSize)
+            raise ValueError('VirtualSize {0:08x} is larger than image size.'.format(sect.Misc.VirtualSize))
         if sect.SizeOfRawData > image_size:
-            raise ValueError('SizeOfRawData %08x is larger than image size.' %
-                                    sect.SizeOfRawData)
+            raise ValueError('SizeOfRawData {0:08x} is larger than image size.'.format(sect.SizeOfRawData))
         
     def get_code(self, addr_space, data_start, data_size, offset, outfd):
         """Returns a single section of re-created data from a file image"""
@@ -110,13 +107,13 @@ class procexedump(taskmods.dlllist):
         if data_size < first_block:
             data_read = addr_space.zread(data_start, data_size)
             if paddr == None:
-                outfd.write("Memory Not Accessible: Virtual Address: 0x%x File Offset: 0x%x Size: 0x%x\n" % (data_start, offset, data_size))
+                outfd.write("Memory Not Accessible: Virtual Address: 0x{0:x} File Offset: 0x{1:x} Size: 0x{2:x}\n".format(data_start, offset, data_size))
             code += data_read
             return (offset, code)
                 
         data_read = addr_space.zread(data_start, first_block)
         if paddr == None:
-            outfd.write("Memory Not Accessible: Virtual Address: 0x%x File Offset: 0x%x Size: 0x%x\n" % (data_start, offset, first_block))
+            outfd.write("Memory Not Accessible: Virtual Address: 0x{0:x} File Offset: 0x{1:x} Size: 0x{2:x}\n".format(data_start, offset, first_block))
         code += data_read
     
         # The middle part of the read
@@ -125,7 +122,7 @@ class procexedump(taskmods.dlllist):
         for _i in range(0, full_blocks):
             data_read = addr_space.zread(new_vaddr, 0x1000)
             if addr_space.vtop(new_vaddr) == None:
-                outfd.write("Memory Not Accessible: Virtual Address: 0x%x File Offset: 0x%x Size: 0x%x\n" % (new_vaddr, offset, 0x1000))
+                outfd.write("Memory Not Accessible: Virtual Address: 0x{0:x} File Offset: 0x{1:x} Size: 0x{2:x}\n".format(new_vaddr, offset, 0x1000))
             code += data_read
             new_vaddr = new_vaddr + 0x1000        
     
@@ -133,7 +130,7 @@ class procexedump(taskmods.dlllist):
         if left_over > 0:
             data_read = addr_space.zread(new_vaddr, left_over)
             if addr_space.vtop(new_vaddr) == None:
-                outfd.write("Memory Not Accessible: Virtual Address: 0x%x File Offset: 0x%x Size: 0x%x\n" % (new_vaddr, offset, left_over))       
+                outfd.write("Memory Not Accessible: Virtual Address: 0x{0:x} File Offset: 0x{1:x} Size: 0x{2:x}\n".format(new_vaddr, offset, left_over))       
             code += data_read
         return (offset, code)
 
@@ -151,7 +148,7 @@ class procexedump(taskmods.dlllist):
             foa = self.round(sect.PointerToRawData, fa)
             if foa != sect.PointerToRawData:
                 outfd.write("Warning: section start on disk not aligned to file alignment.\n")
-                outfd.write("Warning: adjusted section start from %x to %x.\n" % (sect.PointerToRawData, foa))
+                outfd.write("Warning: adjusted section start from {0} to {1}.\n".format(sect.PointerToRawData, foa))
             yield self.get_code(addr_space,
                                 base_addr + sect.VirtualAddress,
                                 sect.SizeOfRawData, foa, outfd)

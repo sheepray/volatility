@@ -61,7 +61,7 @@ class hivelist(commands.command):
 
         for hive in result:
             name = hive.FileFullPath.v() or "[no name]"
-            outfd.write("%#X  %s\n" % (hive.offset, name))
+            outfd.write("{0:#X}  {1}\n".format(hive.offset, name))
     
     def calculate(self):
         flat = utils.load_as(astype = 'physical')

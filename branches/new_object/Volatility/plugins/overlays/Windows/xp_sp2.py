@@ -61,6 +61,9 @@ class _UNICODE_STRING(obj.CType):
         ## Unicode strings are valid if they point at a valid memory
         return bool(self.Buffer)
 
+    def __format__(self, formatspec):
+        return format(self.v(), formatspec)
+
     def __str__(self):
         return self.v()
 
@@ -160,6 +163,9 @@ class WinTimeStamp(obj.NativeType):
     def __str__(self):
         return self._format_time(self.v())
 
+    def __format__(self, formatspec):
+        return format(self.__str__(), formatspec)
+
     def _format_time(self, t):
         # Note: We do *NOT* know the Timezeone without figuring out the TimeZoneBias
         # So we can't unilaterally say GMT or UTC or anything like that here...
@@ -199,7 +205,7 @@ class _EPROCESS(obj.CType):
         except AssertionError, _e:
             return obj.NoneObject("Unable to get process AS")
         
-        process_as.name = "Process %s" % self.UniqueProcessId
+        process_as.name = "Process {0}".format(self.UniqueProcessId)
 
         return process_as
 
@@ -290,7 +296,7 @@ class _MMVAD(obj.CType):
         theType = switch.get(tag)
         
         if not theType:
-            return obj.NoneObject("Tag %s not knowns" % tag)
+            return obj.NoneObject("Tag {0} not knowns".format(tag))
 
         ## Note that since we were called from __new__ we can return a
         ## completely different object here (including

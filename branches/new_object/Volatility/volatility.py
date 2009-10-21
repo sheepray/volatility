@@ -96,7 +96,7 @@ def main():
     # Exceptionally useful for debugging/telling people what's going on
     sys.stderr.write( "Volatile Systems Volatility Framework %s\n" % volatility.version)
 
-    if sys.version_info < (2, 5, 0):
+    if sys.version_info < (2, 6, 0):
         sys.stderr.write("Volatiltiy requires python version 2.6, please upgrade your python installation.")
         sys.exit(1)
 

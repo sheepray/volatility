@@ -19,7 +19,7 @@ class String(obj.NativeType):
         
         ## length must be an integer
         obj.NativeType.__init__(self, theType, offset, vm, parent=parent, profile=profile,
-                            name=name, format_string="%ds" % length)
+                            name=name, format_string="{0}s".format(length))
 
     def proxied(self, name):
         """ Return an object to be proxied """
@@ -33,6 +33,9 @@ class String(obj.NativeType):
             return ""
         return result
     
+    def __format__(self, formatspec):
+        return format(self.__str__(), formatspec)
+    
     def __add__(self, other):
         """Set up mappings for concat"""
         return str(self) + other
@@ -40,3 +43,51 @@ class String(obj.NativeType):
     def __radd__(self, other):
         """Set up mappings for reverse concat"""
         return other + str(self)
+
+class Flags(obj.NativeType):
+    """ This object decodes each flag into a string """
+    ## This dictionary maps each bit to a String
+    bitmap = {}
+
+    ## This dictionary maps a string mask name to a bit range
+    ## consisting of a list of start, width bits
+    maskmap = {}
+
+    def __init__(self, targetType=None, offset=0, vm=None, parent=None,
+                 bitmap=None, name=None, maskmap=None, target="unsigned long",
+                 **args):
+        if bitmap:
+            self.bitmap = bitmap
+
+        if maskmap:
+            self.maskmap = maskmap
+
+        self.target = obj.Object(target, offset=offset, vm=vm, parent=parent)
+        obj.NativeType.__init__(self, targetType, offset, vm, parent, **args)
+
+    def v(self):
+        return self.target.v()
+
+    def __str__(self):
+        result = []
+        value = self.v()
+        keys = self.bitmap.keys()
+        keys.sort()
+        for k in keys:
+            if value & (1 << self.bitmap[k]):
+                result.append(k)
+
+        return ', '.join(result)
+
+    def __format__(self, formatspec):
+        return format(self.__str__(), formatspec)
+
+    def __getattr__(self, attr):
+        maprange = self.maskmap.get(attr)
+        if not maprange:
+            return obj.NoneObject("Mask {0} not known".format(attr))
+
+        bits = 2**maprange[1] - 1
+        mask = bits << maprange[0]
+
+        return self.v() & mask

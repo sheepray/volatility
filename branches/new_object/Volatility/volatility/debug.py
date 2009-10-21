@@ -1,7 +1,6 @@
 """ General debugging framework """
 import volatility.conf
 config = volatility.conf.ConfObject()
-import sys
 
 config.add_option("DEBUG", short_option='d', default = 0,
                   action = 'count',
@@ -24,4 +23,4 @@ def trace():
 
 def post_mortem():
     """Provides a command line interface to python after an exception's occurred"""
-    pdb.post_mortem(t = sys.exc_info()[2])
+    pdb.post_mortem()

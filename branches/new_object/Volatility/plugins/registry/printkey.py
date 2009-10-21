@@ -48,9 +48,9 @@ def hd(src, length=16):
     result = ''
     while src:
         s, src = src[:length], src[length:]
-        hexa = ' '.join(["%02X" % ord(k) for k in s])
+        hexa = ' '.join(["{0:02X}".format(ord(k)) for k in s])
         s = s.translate(FILTER)
-        result += "%04X   %-*s   %s\n" % (N, length*3, hexa, s)
+        result += "{0:04X}   {2:{1}}   {3}\n".format(N, length*3, hexa, s)
         N += length
     return result
 
@@ -94,7 +94,7 @@ class printkey(commands.command):
     def render_text(self, outfd, key):
         outfd.write("Key name: " + key.Name + "\n")
         outfd.write("(Volatile)\n" if vol(key) else "(Stable)\n")
-        outfd.write("Last updated: %s\n" % key.LastWriteTime)
+        outfd.write("Last updated: {0}\n".format(key.LastWriteTime))
         outfd.write("\n")
         outfd.write("Subkeys:\n")
         for s in rawreg.subkeys(key):
@@ -105,4 +105,4 @@ class printkey(commands.command):
             tp, dat = rawreg.value_data(v)
             if tp == 'REG_BINARY':
                 dat = "\n" + hd(dat, length=16)
-            outfd.write("%-9s %-10s : %s %s\n" % (tp, v.Name, dat, "(Volatile)" if vol(v) else "(Stable)"))
+            outfd.write("{0:9} {1:10} : {2} {3}\n".format(tp, v.Name, dat, "(Volatile)" if vol(v) else "(Stable)"))

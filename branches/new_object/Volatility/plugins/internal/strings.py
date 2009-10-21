@@ -67,14 +67,14 @@ class strings(commands.command):
                 if not reverse_map.has_key(kpage):
                     reverse_map[kpage] = [True]
                 reverse_map[kpage].append(('kernel', vpage))
-            verbfd.write("\r  Kernel [%0.8x]" % vpage)
+            verbfd.write("\r  Kernel [{0:08x}]".format(vpage))
             vpage += 0x1000
         verbfd.write("\n")
     
         verbfd.write("Calculating task mappings...\n")
         for task in data['tasks']:
             task_space = task.get_process_address_space()
-            verbfd.write("  Task %d ..." % task.UniqueProcessId)
+            verbfd.write("  Task {0} ...".format(task.UniqueProcessId))
             vpage = 0
             try:
                 while vpage < 0xFFFFFFFF:
@@ -85,7 +85,7 @@ class strings(commands.command):
     
                         if not reverse_map[physpage][0]:
                             reverse_map[physpage].append((int(task.UniqueProcessId), vpage))
-                    verbfd.write("\r  Task %d [%0.8x]" % (task.UniqueProcessId, vpage))
+                    verbfd.write("\r  Task {0} [{1:08x}]".format(task.UniqueProcessId, vpage))
                     vpage += 0x1000
             except:
                 continue
@@ -101,9 +101,9 @@ class strings(commands.command):
             except (ValueError, TypeError):
                 config.error("String file format invalid.")
             if reverse_map.has_key(offset & 0xFFFFF000):
-                outfd.write("%0.8x [" % offset)
-                outfd.write(' '.join(["%s:%x" % (pid[0], pid[1] | (offset & 0xFFF)) for pid in reverse_map[offset & 0xFFFFF000][1:]]))
-                outfd.write("] %s\n" % string.strip())
+                outfd.write("{0:08x} [".format(offset))
+                outfd.write(' '.join(["{0}:{1}".format(pid[0], pid[1] | (offset & 0xFFF)) for pid in reverse_map[offset & 0xFFFFF000][1:]]))
+                outfd.write("] {0}\n".format(string.strip()))
 
     def parse_line(self, stringLine):
         """Parses a line of strings"""

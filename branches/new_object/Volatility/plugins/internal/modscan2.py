@@ -86,10 +86,10 @@ class modscan2(commands.command):
             yield ldr_entry
 
     def render_text(self, outfd, data):
-        outfd.write("%-50s %-12s %-8s %s \n" % ('File', 'Base', 'Size', 'Name'))
+        outfd.write("{0:50} {1:12} {2:8} {3}\n".format('File', 'Base', 'Size', 'Name'))
         for ldr_entry in data:
-            outfd.write("%-50s 0x%010x 0x%06x %s\n" % \
-                        (self.parse_string(ldr_entry.FullDllName),
+            outfd.write("{0:50} 0x{1:010x} 0x{2:06x} {3}\n".format(
+                         self.parse_string(ldr_entry.FullDllName),
                          ldr_entry.DllBase,
                          ldr_entry.SizeOfImage,
                          self.parse_string(ldr_entry.BaseDllName)))
@@ -154,9 +154,9 @@ class thrdscan2(modscan2):
                     "------ ------ ----------\n")
         
         for thread in data:
-            outfd.write("%6d %6d 0x%0.8x\n" % (thread.Cid.UniqueProcess,
-                                             thread.Cid.UniqueThread,
-                                             thread.offset))
+            outfd.write("{0:6} {1:6} 0x{2:08x}\n".format(thread.Cid.UniqueProcess,
+                                                         thread.Cid.UniqueThread,
+                                                         thread.offset))
             
         
 

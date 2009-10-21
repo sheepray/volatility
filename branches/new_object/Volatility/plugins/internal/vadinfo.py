@@ -23,10 +23,10 @@ class vadinfo(taskmods.dlllist):
     def render_text(self, outfd,data):
         for task in data:
             outfd.write("*" * 72 + "\n")
-            outfd.write("Pid: %-6d\n" % (task.UniqueProcessId))
+            outfd.write("Pid: {0:6}\n".format(task.UniqueProcessId))
             for vad in task.VadRoot.traverse():
                 if vad == None:
-                    outfd.write("Error: %s" % vad)
+                    outfd.write("Error: {0}".format(vad))
                 else:
                     self.write_vad_short(outfd, vad)
                     try:
@@ -42,10 +42,10 @@ class vadinfo(taskmods.dlllist):
 
     def write_vad_short(self, outfd, vad):
         """Renders a text version of a Short Vad"""
-        outfd.write("VAD node @%08x Start %08x End %08x Tag %4s\n" % (
+        outfd.write("VAD node @{0:08x} Start {1:08x} End {2:08x} Tag {3:4}\n".format(
             vad.offset, vad.StartingVpn << 12, ((vad.EndingVpn + 1) << 12) - 1, vad.Tag))
-        outfd.write("Flags: %s\n" % vad.Flags)
-        outfd.write("Commit Charge: %d Protection: %x\n" % (
+        outfd.write("Flags: {0}\n".format(vad.Flags))
+        outfd.write("Commit Charge: {0} Protection: {1:x}\n".format(
             vad.Flags.CommitCharge,
             vad.Flags.Protection >> 24))
 
@@ -56,28 +56,28 @@ class vadinfo(taskmods.dlllist):
             #debug.b()
             return
 
-        outfd.write("ControlArea @%08x Segment %08x\n" % (CA.dereference().offset, CA.Segment))
-        outfd.write("Dereference list: Flink %08x, Blink %08x\n" % (CA.DereferenceList.Flink, CA.DereferenceList.Blink))
-        outfd.write("NumberOfSectionReferences: %10d NumberOfPfnReferences:  %10d\n" % (CA.NumberOfSectionReferences, CA.NumberOfPfnReferences))
-        outfd.write("NumberOfMappedViews:       %10d NumberOfSubsections:    %10d\n" % (CA.NumberOfMappedViews, CA.NumberOfSubsections))
-        outfd.write("FlushInProgressCount:      %10d NumberOfUserReferences: %10d\n" % (CA.FlushInProgressCount, CA.NumberOfUserReferences))
+        outfd.write("ControlArea @{0:08x} Segment {1:08x}\n".format(CA.dereference().offset, CA.Segment))
+        outfd.write("Dereference list: Flink {0:08x}, Blink {1:08x}\n".format(CA.DereferenceList.Flink, CA.DereferenceList.Blink))
+        outfd.write("NumberOfSectionReferences: {0:10} NumberOfPfnReferences:  {1:10}\n".format(CA.NumberOfSectionReferences, CA.NumberOfPfnReferences))
+        outfd.write("NumberOfMappedViews:       {0:10} NumberOfSubsections:    {1:10}\n".format(CA.NumberOfMappedViews, CA.NumberOfSubsections))
+        outfd.write("FlushInProgressCount:      {0:10} NumberOfUserReferences: {1:10}\n".format(CA.FlushInProgressCount, CA.NumberOfUserReferences))
         
-        outfd.write("Flags: %s\n" % CA.Flags)
+        outfd.write("Flags: {0}\n".format(CA.Flags))
 
         if CA.FilePointer:
-            outfd.write("FileObject @%08x           , Name: %s\n" % (CA.FilePointer.dereference().offset, CA.FilePointer.FileName))
+            outfd.write("FileObject @{0:08x}           , Name: {1}\n".format(CA.FilePointer.dereference().offset, CA.FilePointer.FileName))
         else:
             outfd.write("FileObject: none\n")
 
-        outfd.write("WaitingForDeletion Event: %08x\n" % CA.WaitingForDeletion)
-        outfd.write("ModifiedWriteCount: %8d NumberOfSystemCacheViews: %8d\n" % (CA.ModifiedWriteCount, CA.NumberOfSystemCacheViews))
+        outfd.write("WaitingForDeletion Event: {0:08x}\n".format(CA.WaitingForDeletion))
+        outfd.write("ModifiedWriteCount: {0:8} NumberOfSystemCacheViews: {1:8}\n".format(CA.ModifiedWriteCount, CA.NumberOfSystemCacheViews))
     
     def write_vad_ext(self, outfd, vad):
         """Renders a text version of a Long Vad"""
-        outfd.write("First prototype PTE: %08x Last contiguous PTE: %08x\n" % (vad.FirstPrototypePte, vad.LastContiguousPte))
+        outfd.write("First prototype PTE: {0:08x} Last contiguous PTE: {1:08x}\n".format(vad.FirstPrototypePte, vad.LastContiguousPte))
         
-        outfd.write("Flags2: %s\n" % vad.Flags2)
-        outfd.write("File offset: %08x\n" % vad.Flags2.FileOffset)
+        outfd.write("Flags2: {0}\n".format(vad.Flags2))
+        outfd.write("File offset: {0:08x}\n".format(vad.Flags2.FileOffset))
         
         if (vad.Flags2.v() and vad.Flags2.LongVad):
             # FIXME: Add in the extra bits, after deciding on names for u3 and u4
@@ -89,28 +89,28 @@ class vadtree(vadinfo):
     def render_text(self, outfd, data):
         for task in data:
             outfd.write("*" * 72 + "\n")
-            outfd.write("Pid: %-6d\n" % (task.UniqueProcessId))
+            outfd.write("Pid: {0:6}\n".format(task.UniqueProcessId))
             levels = {}
             for vad in task.VadRoot.traverse():
                 if vad:                    
                     level = levels.get(vad.Parent.dereference().offset, -1) + 1
                     levels[vad.offset] = level
-                    outfd.write(" " * level + "%08x - %08x\n" % ( 
+                    outfd.write(" " * level + "{0:08x} - {1:08x}\n".format( 
                                 vad.StartingVpn << 12,
                                 ((vad.EndingVpn + 1) << 12) -1))
 
     def render_dot(self, outfd, data):
         for task in data:
             outfd.write("/" + "*" * 72 + "/\n")
-            outfd.write("/* Pid: %-6d */\n" % (task.UniqueProcessId))
+            outfd.write("/* Pid: {0:6} */\n".format(task.UniqueProcessId))
             outfd.write("digraph processtree {\n")
             outfd.write("graph [rankdir = \"TB\"];\n")
             for vad in task.VadRoot.traverse():
                 if vad:
                     if vad.Parent:
-                        outfd.write("vad_%08x -> vad_%08x\n" % (vad.Parent.dereference().offset, vad.offset))                    
-                    outfd.write("vad_%08x [label = \"{ %s\\n%08x - %08x }\""
-                                "shape = \"record\" color = \"blue\"];\n" % (
+                        outfd.write("vad_{0:08x} -> vad_{1:08x}\n".format(vad.Parent.dereference().offset, vad.offset))                    
+                    outfd.write("vad_{0:08x} [label = \"{{ {1}\\n{2:08x} - {3:08x} }}\""
+                                "shape = \"record\" color = \"blue\"];\n".format(
                         vad.offset,
                         vad.Tag, 
                         vad.StartingVpn << 12,
@@ -124,12 +124,12 @@ class vadwalk(vadinfo):
     def render_text(self, outfd, data):
         for task in data:
             outfd.write("*" * 72 + "\n")
-            outfd.write("Pid: %-6d\n" % (task.UniqueProcessId))
+            outfd.write("Pid: {0:6}\n".format(task.UniqueProcessId))
             outfd.write("Address  Parent   Left     Right    Start    End      Tag  Flags\n")
             for vad in task.VadRoot.traverse():
                 # Ignore Vads with bad tags (which we explicitly include as None)
                 if vad:
-                    outfd.write("%08x %08x %08x %08x %08x %08x %-4s\n" % (
+                    outfd.write("{0:08x} {1:08x} {2:08x} {3:08x} {4:08x} {5:08x} {6:4}\n".format(
                         vad.offset,
                         vad.Parent.dereference().offset or 0,
                         vad.LeftChild.dereference().offset or 0,
@@ -175,7 +175,7 @@ class vaddump(vadinfo):
                     continue
 
                 # Open the file and initialize the data
-                f = open(os.path.join(config.DUMP_DIR, "%s.%x.%08x-%08x.dmp" % (name, offset, start, end)), 'wb')
+                f = open(os.path.join(config.DUMP_DIR, "{0}.{1:x}.{2:08x}-{3:08x}.dmp".format(name, offset, start, end)), 'wb')
                 range_data = ""
                 num_pages = (end - start + 1) >> 12
 
@@ -192,7 +192,7 @@ class vaddump(vadinfo):
                         range_data = range_data + page_read
 
                 if config.VERBOSE:
-                    outfd.write("Writing VAD for " + ("%s.%x.%08x-%08x.dmp" % (name, offset, start, end)) + "\n")
+                    outfd.write("Writing VAD for " + ("{0}.{1:x}.{2:08x}-{3:08x}.dmp".format(name, offset, start, end)) + "\n")
                 f.write(range_data)
                 f.close()
 

@@ -35,31 +35,31 @@ class crashinfo(commands.command):
         hdr = data.get_header()
         
         outfd.write("DUMP_HEADER32:\n")
-        outfd.write(" Majorversion:         0x%08x (%s)\n" % (hdr.MajorVersion, hdr.MajorVersion))
-        outfd.write(" Minorversion:         0x%08x (%s)\n" % (hdr.MinorVersion, hdr.MinorVersion))
-        outfd.write(" KdSecondaryVersion    0x%08x\n" % hdr.KdSecondaryVersion)
-        outfd.write(" DirectoryTableBase    0x%08x\n" % hdr.DirectoryTableBase)
-        outfd.write(" PfnDataBase           0x%08x\n" % hdr.PfnDataBase)
-        outfd.write(" PsLoadedModuleList    0x%08x\n" % hdr.PsLoadedModuleList)
-        outfd.write(" PsActiveProcessHead   0x%08x\n" % hdr.PsActiveProcessHead)
-        outfd.write(" MachineImageType      0x%08x\n" % hdr.MachineImageType)
-        outfd.write(" NumberProcessors      0x%08x\n" % hdr.NumberProcessors)
-        outfd.write(" BugCheckCode          0x%08x\n" % hdr.BugCheckCode)
-        outfd.write(" PaeEnabled            0x%08x\n" % hdr.PaeEnabled)
-        outfd.write(" KdDebuggerDataBlock   0x%08x\n" % hdr.KdDebuggerDataBlock)
-        outfd.write(" ProductType           0x%08x\n" % hdr.ProductType)
-        outfd.write(" SuiteMask             0x%08x\n" % hdr.SuiteMask)
-        outfd.write(" WriterStatus          0x%08x\n" % hdr.WriterStatus)
+        outfd.write(" Majorversion:         0x{0:08x} ({1})\n".format(hdr.MajorVersion, hdr.MajorVersion))
+        outfd.write(" Minorversion:         0x{0:08x} ({1})\n".format(hdr.MinorVersion, hdr.MinorVersion))
+        outfd.write(" KdSecondaryVersion    0x{0:08x}\n".format(hdr.KdSecondaryVersion))
+        outfd.write(" DirectoryTableBase    0x{0:08x}\n".format(hdr.DirectoryTableBase))
+        outfd.write(" PfnDataBase           0x{0:08x}\n".format(hdr.PfnDataBase))
+        outfd.write(" PsLoadedModuleList    0x{0:08x}\n".format(hdr.PsLoadedModuleList))
+        outfd.write(" PsActiveProcessHead   0x{0:08x}\n".format(hdr.PsActiveProcessHead))
+        outfd.write(" MachineImageType      0x{0:08x}\n".format(hdr.MachineImageType))
+        outfd.write(" NumberProcessors      0x{0:08x}\n".format(hdr.NumberProcessors))
+        outfd.write(" BugCheckCode          0x{0:08x}\n".format(hdr.BugCheckCode))
+        outfd.write(" PaeEnabled            0x{0:08x}\n".format(hdr.PaeEnabled))
+        outfd.write(" KdDebuggerDataBlock   0x{0:08x}\n".format(hdr.KdDebuggerDataBlock))
+        outfd.write(" ProductType           0x{0:08x}\n".format(hdr.ProductType))
+        outfd.write(" SuiteMask             0x{0:08x}\n".format(hdr.SuiteMask))
+        outfd.write(" WriterStatus          0x{0:08x}\n".format(hdr.WriterStatus))
  
         outfd.write("\nPhysical Memory Description:\n")
-        outfd.write("Number of runs: %d\n" % len(data.get_runs()))
+        outfd.write("Number of runs: {0}\n".format(len(data.get_runs())))
         outfd.write("FileOffset    Start Address    Length\n")
         foffset = 0x1000
         run = []
         for run in data.get_runs():
-            outfd.write("%08x      %08x         %08x\n" % (foffset, run[0]*0x1000, run[1]*0x1000))
+            outfd.write("{0:08x}      {1:08x}         {2:08x}\n".format(foffset, run[0]*0x1000, run[1]*0x1000))
             foffset += (run[1] * 0x1000)
-        outfd.write("%08x      %08x\n" % (foffset-0x1000, ((run[0]+run[1]-1)*0x1000)))
+        outfd.write("{0:08x}      {1:08x}\n".format(foffset-0x1000, ((run[0]+run[1]-1)*0x1000)))
 
 class crashdump(crashinfo):
     """Dumps the crashdump file to a raw file"""
@@ -82,6 +82,6 @@ class crashdump(crashinfo):
         f = open(config.DUMP_FILE, 'wb')
         total = data.get_number_of_pages()
         for pagenum in data.convert_to_raw(f):
-            outfd.write("\r" + ("%08x" % pagenum) + " / " + ("%08x" % total) + " converted (" + ("%03d" % (pagenum * 100 / total)) + "%)")
+            outfd.write("\r" + ("{0:08x}".format(pagenum)) + " / " + ("{0:08x}".format(total)) + " converted (" + ("{0:03}".format(pagenum * 100 / total)) + "%)")
         f.close()
         outfd.write("\n")

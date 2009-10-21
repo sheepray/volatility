@@ -34,15 +34,15 @@ class dlllist(commands.command):
             pid = task.UniqueProcessId
 
             outfd.write("*" * 72 + "\n")
-            outfd.write("%s pid: %-6d\n" % (task.ImageFileName, pid))
+            outfd.write("{0} pid: {1:6}\n".format(task.ImageFileName, pid))
 
             if task.Peb:
-                outfd.write("Command line : %s\n" % (task.Peb.ProcessParameters.CommandLine))
-                outfd.write("%s\n" % task.Peb.CSDVersion)
+                outfd.write("Command line : {0}\n".format(task.Peb.ProcessParameters.CommandLine))
+                outfd.write("{0}\n".format(task.Peb.CSDVersion))
                 outfd.write("\n")
-                outfd.write("%-12s %-12s %s\n" % ('Base', 'Size', 'Path'))
+                outfd.write("{0:12} {1:12} {2}\n".format('Base', 'Size', 'Path'))
                 for m in self.list_modules(task):
-                    outfd.write("0x%0.8x   0x%0.6x     %s\n" % (m.BaseAddress, m.SizeOfImage, m.FullDllName))
+                    outfd.write("0x{0:08x}   0x{1:06x}     {2}\n".format(m.BaseAddress, m.SizeOfImage, m.FullDllName))
             else:
                 outfd.write("Unable to read PEB for task.\n")
 
@@ -94,12 +94,12 @@ class files(dlllist):
         for pid, handles in data:
             if not first:
                 outfd.write("*" * 72 + "\n")
-            outfd.write("Pid: %-6d\n" % pid)
+            outfd.write("Pid: {0:6}\n".format(pid))
             first = False
             
             for h in handles:
                 if h.FileName:
-                    outfd.write("%-6s %-40s\n" % ("File", h.FileName))
+                    outfd.write("{0:6} {1:40}\n".format("File", h.FileName))
 
     def calculate(self):
         tasks = self.filter_tasks(dlllist.calculate(self))
@@ -117,11 +117,11 @@ class files(dlllist):
 class pslist(dlllist):
     """ print all running processes by following the EPROCESS lists """
     def render_text(self, outfd, data):
-        outfd.write("%-20s %-6s %-6s %-6s %-6s %-6s\n" % (
+        outfd.write("{0:20} {1:6} {2:6} {3:6} {4:6} {5:6}\n".format(
             'Name', 'Pid', 'PPid', 'Thds', 'Hnds', 'Time'))
 
         for task in data:
-            outfd.write("%-20s %-6d %-6d %-6d %-6d %-26s\n" % (
+            outfd.write("{0:20} {1:6} {2:6} {3:6} {4:6} {5:26}\n".format(
                 task.ImageFileName,
                 task.UniqueProcessId,
                 task.InheritedFromUniqueProcessId,
@@ -140,19 +140,19 @@ class memmap(dlllist):
                 outfd.write("*" * 72 + "\n")
 
             task_space = task.get_process_address_space()
-            outfd.write("%s pid: %-6d\n" % (task.ImageFileName, pid))
+            outfd.write("{0} pid: {1:6}\n".format(task.ImageFileName, pid))
             first = False
 
             if pagedata:
-                outfd.write("%-12s %-12s %-12s\n" % ('Virtual', 'Physical', 'Size'))
+                outfd.write("{0:12} {1:12} {2:12}\n".format('Virtual', 'Physical', 'Size'))
 
                 for p in pagedata:
                     pa = task_space.vtop(p[0])
                     # pa can be 0, according to the old memmap, but can't == None(NoneObject)
                     if pa != None:
-                        outfd.write("0x%-10x 0x%-10x 0x%-12x\n" % (p[0], pa, p[1]))
+                        outfd.write("0x{0:10x} 0x{1:10x} 0x{2:12x}\n".format(p[0], pa, p[1]))
                     #else:
-                    #    outfd.write("0x%-10x 0x000000     0x%-12x\n" % (p[0], p[1]))
+                    #    outfd.write("0x{0:10x} 0x000000     0x{1:12x}\n".format(p[0], p[1]))
             else:
                 outfd.write("Unable to read pages for task.\n")
 
@@ -184,7 +184,7 @@ class memdump(memmap):
             outfd.write("*" * 72 + "\n")
 
             task_space = task.get_process_address_space()
-            outfd.write("Writing %s [%-6d] to %s.dmp\n" % (task.ImageFileName, pid, str(pid)))
+            outfd.write("Writing {0} [{1:6}] to {2}.dmp\n".format(task.ImageFileName, pid, str(pid)))
 
             f = open(os.path.join(config.DUMP_DIR, str(pid) + ".dmp"), 'wb')
             if pagedata:

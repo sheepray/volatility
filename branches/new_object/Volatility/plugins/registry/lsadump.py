@@ -42,9 +42,9 @@ def hd(src, length=16):
     result = '\n'
     while src:
         s, src = src[:length], src[length:]
-        hexa = ' '.join(["%02X" % ord(x) for x in s])
+        hexa = ' '.join(["{0:02X}".format(ord(x)) for x in s])
         s = s.translate(FILTER)
-        result += "%04X   %-*s   %s\n" % (N, length*3, hexa, s)
+        result += "{0:04X}   {2:{1}}   {3}\n".format(N, length*3, hexa, s)
         N += length
     return result
 

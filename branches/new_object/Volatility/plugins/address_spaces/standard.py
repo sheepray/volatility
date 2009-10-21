@@ -59,7 +59,7 @@ class FileAddressSpace(addrspace.BaseAddressSpace):
         try:
             (scheme, _, path, _, _, _) = urlparse.urlparse(config.LOCATION)
         except AttributeError:
-            assert False, "Unable to parse %s as a URL" % config.LOCATION
+            assert False, "Unable to parse {0} as a URL".format(config.LOCATION)
 
         assert scheme == 'file' and os.path.exists(path), 'Filename must be specified and exist'
         self.name = path
@@ -160,7 +160,7 @@ class WritablePagedMemory(addrspace.BaseAddressSpace):
         for _i in range(0, full_blocks):
             paddr = self.vtop(new_vaddr)
             if paddr == None:
-                raise Exception("Failed to write to page at %#x" % new_vaddr)
+                raise Exception("Failed to write to page at {0:#x}".format(new_vaddr))
             self.base.write(paddr, buf[:0x1000])
             new_vaddr = new_vaddr + 0x1000
             buf = buf[0x1000:]
@@ -168,7 +168,7 @@ class WritablePagedMemory(addrspace.BaseAddressSpace):
         if left_over > 0:
             paddr = self.vtop(new_vaddr)
             if paddr == None:
-                raise Exception("Failed to write to page at %#x" % new_vaddr)
+                raise Exception("Failed to write to page at {0:#x}".format(new_vaddr))
             assert len(buf) == left_over
             self.base.write(paddr, buf)
 

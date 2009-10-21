@@ -16,7 +16,7 @@ class datetime(commands.command):
     """Get date/time information for image"""
     def render_text(self, outfd, data):
         """Renders the calculated data as text to outfd"""
-        outfd.write("Image local date and time: %s\n" % data['ImageDatetime'])
+        outfd.write("Image local date and time: {0}\n".format(data['ImageDatetime']))
 
     def calculate(self):
         result = {}
@@ -42,11 +42,11 @@ class ident(datetime):
     
     def render_text(self, outfd, data):
         """Renders the calculated data as text to outfd"""
-        outfd.write("              Image Name: %s\n" % data['ImageName'])
-        outfd.write("              Image Type: %s\n" % data['ImageType'])
-        outfd.write("                 VM Type: %s\n" % data['ImagePAE'])
-        outfd.write("                     DTB: %s\n" % data['ImageDTB'])
-        outfd.write("                Datetime: %s\n" % data['ImageDatetime'])
+        outfd.write("              Image Name: {0}\n".format(data['ImageName']))
+        outfd.write("              Image Type: {0}\n".format(data['ImageType']))
+        outfd.write("                 VM Type: {0}\n".format(data['ImagePAE']))
+        outfd.write("                     DTB: {0}\n".format(data['ImageDTB']))
+        outfd.write("                Datetime: {0}\n".format(data['ImageDatetime']))
     
     def calculate(self):
         result = {}

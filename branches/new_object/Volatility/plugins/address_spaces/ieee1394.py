@@ -24,7 +24,7 @@ class FirewireAddressSpace(addrspace.BaseAddressSpace):
             bus = int(location[0])
             node = int(location[1])
         except (AttributeError, ValueError):
-            assert False, "Unable to parse %s as a URL" % config.LOCATION
+            assert False, "Unable to parse {0} as a URL".format(config.LOCATION)
         assert bus is not None and node is not None, 'Bus and Node must be specified'
 
         self._node = None
