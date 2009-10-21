@@ -167,10 +167,10 @@ class HiveAddressSpace(addrspace.BaseAddressSpace):
                 paddr = paddr - 4
                 data = self.base.read(paddr, BLOCK_SIZE)
             else:
-                print "No mapping found for index %x, filling with NULLs" % i
+                print "No mapping found for index {0:x}, filling with NULLs".format(i)
 
             if not data:
-                print "Physical layer returned None for index %x, filling with NULL" % i
+                print "Physical layer returned None for index {0:x}, filling with NULL".format(i)
                 data = '\0' * BLOCK_SIZE
 
             outf.write(data)
@@ -201,10 +201,10 @@ class HiveAddressSpace(addrspace.BaseAddressSpace):
             if not data:
                 bad_blocks_mem += 1
 
-        print "%d bytes in hive." % length
-        print "%d blocks not loaded by CM, %d blocks paged out, %d total blocks." % (bad_blocks_reg, bad_blocks_mem, total_blocks)
+        print "{0} bytes in hive.".format(length)
+        print "{0} blocks not loaded by CM, {1} blocks paged out, {2} total blocks.".format(bad_blocks_reg, bad_blocks_mem, total_blocks)
         if total_blocks:
-            print "Total of %.2f%% of hive unreadable." % (((bad_blocks_reg+bad_blocks_mem)/float(total_blocks))*100)
+            print "Total of {0:.2f}% of hive unreadable.".format(((bad_blocks_reg+bad_blocks_mem)/float(total_blocks))*100)
         
         return (bad_blocks_reg, bad_blocks_mem, total_blocks)
 

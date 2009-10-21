@@ -99,11 +99,11 @@ class NoneObject(object):
     def __str__(self):
         ## If we are strict we blow up here
         if self.strict:
-            result = "Error: %s\n%s" % (self.reason, self.bt)
+            result = "Error: {0} n{1}".format(self.reason, self.bt)
             print result
             sys.exit(0)
         else:
-            return "Error: %s" % (self.reason)
+            return "Error: {0}".format(self.reason)
 
     ## Behave like an empty set
     def __iter__(self):
@@ -156,8 +156,8 @@ def Object(theType, offset, vm, parent=None, name=None, **kwargs):
     
     ## If we cant instantiate the object here, we just error out:
     if not vm.is_valid_address(offset):
-        return NoneObject("Invalid Address 0x%08X, instantiating %s"\
-                          % (offset, name), strict=vm.profile.strict)
+        return NoneObject("Invalid Address 0x{0:08X}, instantiating {1}".format(offset, name),
+                          strict=vm.profile.strict)
 
     if theType in vm.profile.types:
         result = vm.profile.types[theType](offset=offset, vm=vm, name=name,
@@ -176,7 +176,7 @@ def Object(theType, offset, vm, parent=None, name=None, **kwargs):
 
     ## If we get here we have no idea what the type is supposed to be? 
     ## This is a serious error.
-    debug.debug("Cant find object %s in profile %s???" % (theType, vm.profile), level = 5)
+    debug.debug("Cant find object {0} in profile {1}???".format(theType, vm.profile), level = 3)
 
 class BaseObject(object):        
     def __init__(self, theType, offset, vm, parent=None, name=None):
@@ -255,7 +255,7 @@ class BaseObject(object):
         return self.get_member(memname)
 
     def get_member(self, memname):
-        raise AttributeError("No member %s" % memname)
+        raise AttributeError("No member {0}".format(memname))
 
     def get_member_offset(self, memname, relative=False):
         return self.offset
@@ -305,7 +305,7 @@ class BaseObject(object):
         return str(self.v())
 
     def __repr__(self):
-        return "[%s %s] @ 0x%08X" % (self.__class__.__name__, self.name or '',
+        return "[{0} {1}] @ 0x{2:08X}".format(self.__class__.__name__, self.name or '',
                                      self.offset)
 
     def d(self):
@@ -378,7 +378,7 @@ class NativeType(BaseObject, NumericProxyMixIn):
     def v(self):
         data = self.vm.read(self.offset, self.size())
         if not data:
-            return NoneObject("Unable to read %s bytes from %s" % (self.size(), self.offset))
+            return NoneObject("Unable to read {0} bytes from {1}".format(self.size(), self.offset))
         
         (val, ) = struct.unpack(self.format_string, data)
                 
@@ -388,14 +388,14 @@ class NativeType(BaseObject, NumericProxyMixIn):
         return self.name
 
     def __repr__(self):
-        return " [%s]: %s" % (self.theType, self.v())
+        return " [{0}]: {1}".format(self.theType, self.v())
     
     def __format__(self, formatspec):
         return format(self.v(), formatspec)
     
     def d(self):
-        return " [%s %s | %s]: %s" % (self.__class__.__name__, self.name or '',
-                                      self.theType, self.v())
+        return " [{0} {1} | {2}]: {3}".format(self.__class__.__name__, self.name or '',
+                                              self.theType, self.v())
 
 class BitField(NativeType):
     """ A class splitting an integer into a bunch of bit. """
@@ -432,21 +432,21 @@ class Pointer(NativeType):
                                  name=self.name)
             return result
         else:
-            return NoneObject("Pointer %s invalid" % self.name, self.profile.strict)
+            return NoneObject("Pointer {0} invalid".format(self.name), self.profile.strict)
 
     def cdecl(self):
-        return "Pointer %s" % self.v()
+        return "Pointer {0}".format(self.v())
 
     def __nonzero__(self):
         return bool(self.is_valid())
 
     def __repr__(self):
         target = self.dereference()
-        return "<%s pointer to [0x%08X]>" % (target.__class__.__name__, self.v())
+        return "<{0} pointer to [0x{1:08X}]>".format(target.__class__.__name__, self.v())
 
     def d(self):
         target = self.dereference()
-        return "<%s %s pointer to [0x%08x]>"  % (target.__class__.__name__, self.name or '', self.v()) 
+        return "<{0} {1} pointer to [0x{2:08X}]>".format(target.__class__.__name__, self.name or '', self.v()) 
 
     def __getattribute__(self, attr):
         try:
@@ -466,13 +466,13 @@ class Void(NativeType):
         self.format_string = "=L"
 
     def cdecl(self):
-        return "0x%08X" % self.v()
+        return "0x{0:08X}".format(self.v())
     
     def __repr__(self):
-        return "Void (0x0%08X)" % self.v()
+        return "Void (0x{0:08X})".format(self.v())
 
     def d(self):
-        return "Void[%s %s] (0x0%08X)" % (self.__class__.__name__, self.name or '', self.v())
+        return "Void[{0} {1}] (0x{2:08X})".format(self.__class__.__name__, self.name or '', self.v())
 
     def __nonzero__(self):
         return bool(self.dereference())
@@ -533,18 +533,18 @@ class Array(BaseObject):
             if self.vm.is_valid_address(offset):
                 yield self.target(offset = offset, vm=self.vm,
                                   parent=self,
-                                  name="%s %s" % (self.name, self.position))
+                                  name="{0} {1}".format(self.name, self.position))
             else:
-                yield NoneObject("Array %s, Invalid position %s" % (self.name, self.position),
+                yield NoneObject("Array {0}, Invalid position {1}".format(self.name, self.position),
                                  self.profile.strict)
         
     def __repr__(self):
         result = [ x.__str__() for x in self ]
-        return "<Array %s>" % (",".join(result))
+        return "<Array {0}>".format(",".join(result))
 
     def d(self):
         result = [ x.__str__() for x in self ]
-        return "<Array[%s %s] %s>" % (self.__class__.__name__, self.name or '', ",".join(result))
+        return "<Array[{0} {1}] {2}>".format(self.__class__.__name__, self.name or '', ",".join(result))
 
     def __eq__(self, other):
         if self.count != len(other):
@@ -564,7 +564,7 @@ class Array(BaseObject):
             return self.target(offset = offset,
                                vm=self.vm, parent=self)
         else:
-            return NoneObject("Array %s invalid member %s" % (self.name, pos),
+            return NoneObject("Array {0} invalid member {1}".format(self.name, pos),
                               self.profile.strict)
     
 class CType(BaseObject):
@@ -586,12 +586,12 @@ class CType(BaseObject):
         return self.struct_size
 
     def __repr__(self):
-        return "[%s %s] @ 0x%08X" % (self.__class__.__name__, self.name or '', 
+        return "[{0} {1}] @ 0x{2:08X}".format(self.__class__.__name__, self.name or '', 
                                      self.offset)
     def d(self):
         result = self.__repr__() + "\n"
         for k in self.members.keys():
-            result += " %s -\n %s\n" % ( k, self.m(k))
+            result += " {0} -\n {1}\n".format( k, self.m(k))
 
         return result
 
@@ -605,8 +605,8 @@ class CType(BaseObject):
             offset, cls = self.members[attr]
         except KeyError:
             ## hmm - tough choice - should we raise or should we not
-            #return NoneObject("Struct %s has no member %s" % (self.name, attr))
-            raise AttributeError("Struct %s has no member %s" % (self.name, attr))
+            #return NoneObject("Struct {0} has no member {1}".format(self.name, attr))
+            raise AttributeError("Struct {0} has no member {1}".format(self.name, attr))
 
         try:
             ## If offset is specified as a callable its an absolute
@@ -719,7 +719,7 @@ class Profile:
             try:
                 target = typeList[1]
             except IndexError:
-                raise RuntimeError("Syntax Error in pointer type defintion for name %s" % name)
+                raise RuntimeError("Syntax Error in pointer type defintion for name {0}".format(name))
             
             return Curry(Pointer, None,
                          name = name,
@@ -750,8 +750,8 @@ class Profile:
             return Curry(Object, obj_name, name=name, **args)
 
         ## If we get here we have no idea what this list is
-        #raise RuntimeError("Error in parsing list %s" % (typeList))
-        print "Warning - Unable to find a type for %s, assuming int" % typeList[0]
+        #raise RuntimeError("Error in parsing list {0}".format(typeList))
+        print "Warning - Unable to find a type for {0}, assuming int".format(typeList[0])
         return Curry(self.types['int'], name=name)
 
     def get_obj_offset(self, name, member):
@@ -823,7 +823,7 @@ class Profile:
         size = ctype[0]
         for k, v in ctype[1].items():
             if v[0] == None:
-                print "Error - %s has no offset in object %s. Check that vtypes has a concerete definition for it." % (k, cname)
+                print "Error - {0} has no offset in object {1}. Check that vtypes has a concerete definition for it.".format(k, cname)
             members[k] = (v[0], self.list_to_type(k, v[1], typeDict))
 
         ## Allow the plugins to over ride the class constructor here

@@ -105,8 +105,8 @@ class MemoryRegistry:
                                 try:
                                     #open the plugin file
                                     fd = open(path, "r")
-                                except Exception, e:
-                                    print "Unable to open plugin file '%s': %s" % (filename, e)
+                                except IOError, e:
+                                    print "Unable to open plugin file '{0}': {1}".format(filename, e)
                                     continue
 
                                 #load the module into our namespace
@@ -117,8 +117,8 @@ class MemoryRegistry:
                                         module = sys.modules[module_name]
                                     except KeyError:
                                         module = imp.load_source(module_name, dirpath + os.path.sep + filename, fd)
-                                except Exception, e:
-                                    print "*** Unable to load module %s: %s" % (module_name, e)
+                                except ImportError, e:
+                                    print "*** Unable to load module {0}: {1}".format(module_name, e)
                                     continue
 
                                 fd.close()
@@ -126,14 +126,14 @@ class MemoryRegistry:
                                 #Is this module active?
                                 try:
                                     if module.hidden:
-                                        print "*** Will not load Module %s: Module Hidden"% (module_name)
+                                        print "*** Will not load Module {0}: Module Hidden".format(module_name)
                                         continue
                                 except AttributeError:
                                     pass
                                 
                                 try:
                                     if not module.active:
-                                        print "*** Will not load Module %s: Module not active" % (module_name)
+                                        print "*** Will not load Module {0}: Module not active".format(module_name)
                                         continue
                                 except AttributeError:
                                     pass
@@ -164,7 +164,7 @@ class MemoryRegistry:
                                         try:
                                             self.check_class(Class)
                                         except AttributeError, e:
-                                            print "Failed to load %s '%s': %s" % (ParentClass, cls, e)
+                                            print "Failed to load {0} '{1}': {2}".format(ParentClass, cls, e)
                                             continue
 
                                         ## Add the class to ourselves:
@@ -175,7 +175,7 @@ class MemoryRegistry:
                                     continue
 
                         except TypeError, e:
-                            print "Could not compile module %s: %s" % (module_name, e)
+                            print "Could not compile module {0}: {1}".format(module_name, e)
                             continue
 
     def add_class(self, _ParentClass, _module_desc, _cls, Class, filename):
@@ -187,7 +187,7 @@ class MemoryRegistry:
             self.filenames[self.get_name(Class)] = filename
             try:
                 self.order.append(Class.order)
-            except:
+            except AttributeError:
                 self.order.append(10)
 
     def check_class(self, Class):
@@ -221,13 +221,13 @@ class MemoryRegistry:
                 sys.modules[load_as] = module
                 return
 
-        raise ImportError("No module by name %s" % name)
+        raise ImportError("No module by name {0}".format(name))
 
     def get_name(self, cls):
         try:
             return cls.name
         except AttributeError:
-            return ("%s" % cls).split(".")[-1]
+            return ("{0}".format(cls)).split(".")[-1]
 
     def filename(self, cls_name):
         return self.filenames.get(cls_name, "Unknown")
@@ -244,9 +244,9 @@ class VolatilityCommandRegistry(MemoryRegistry):
     
         for cls in self.classes:
             ## The name of the class is the command name
-            command = ("%s" % cls).split('.')[-1]
+            command = ("{0}".format(cls)).split('.')[-1]
             try:
-                raise Exception("Command %s has already been defined by %s" % (command, self.commands[command]))
+                raise Exception("Command {0} has already been defined by {1}".format(command, self.commands[command]))
             except KeyError:
                 self.commands[command] = cls
 
@@ -264,12 +264,12 @@ class VolatilityObjectRegistry(MemoryRegistry):
         def sort_function(x, y):
             try:
                 a = x.order
-            except:
+            except AttributeError:
                 a = 10
             
             try:
                 b = y.order
-            except:
+            except AttributeError:
                 b = 10
             
             if a < b:
@@ -284,7 +284,7 @@ class VolatilityObjectRegistry(MemoryRegistry):
             ## The name of the class is the object name
             obj = cls.__name__.split('.')[-1]
             try:
-                raise Exception("Object %s has already been defined by %s" % (obj, self.objects[obj]))
+                raise Exception("Object {0} has already been defined by {1}".format(obj, self.objects[obj]))
             except KeyError:
                 self.objects[obj] = cls
 
@@ -293,7 +293,7 @@ def print_info():
     for k, v in globals().items():
         if isinstance(v, MemoryRegistry):
             print "\n"
-            print "%s" % k
+            print "{0}".format(k)
             print "-" * len(k)
 
             result = []
@@ -301,22 +301,16 @@ def print_info():
             for cls in v.classes:
                 try:
                     doc = cls.__doc__.strip().splitlines()[0]
-                except:
+                except AttributeError:
                     doc = 'No docs'
                 result.append((cls.__name__, doc))
                 max_length = max(len(cls.__name__), max_length)
 
             ## Sort the result
-            def cmp(x, y):
-                if x[0] < y[0]:
-                    return -1
-                else:
-                    return 1
-            result.sort(cmp)
+            result.sort(key=lambda x: x[0])
 
-            fmt = "%%-%ds - %%-15s" % max_length
             for x in result:
-                print fmt % x
+                print "{0:{2}} - {1:15}".format(x[0], x[1], max_length)
 
 
 

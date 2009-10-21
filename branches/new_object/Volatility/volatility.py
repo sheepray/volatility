@@ -62,7 +62,7 @@ def list_plugins():
                     break
         except:
             helpline = ''
-        result += "\t\t%-15s\t%-s\n" % (cmdname, helpline)
+        result += "\t\t{0:15}\t{1}\n".format(cmdname, helpline)
 
     return result
 
@@ -73,9 +73,9 @@ def usage(progname):
     print "\tThis is free software; see the source for copying conditions."
     print "\tThere is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."
     print ""
-    print "\tusage: %s cmd [cmd_opts]\n" % (progname)
+    print "\tusage: {0} cmd [cmd_opts]\n".format(progname)
     print "\tRun command cmd with options cmd_opts"
-    print "\tFor help on a specific command, run '%s cmd --help'" % (progname)
+    print "\tFor help on a specific command, run '{0} cmd --help'".format(progname)
     print
     list_plugins()
     print
@@ -85,8 +85,8 @@ def usage(progname):
 def command_help(command):
     result = textwrap.dedent("""
     ---------------------------------
-    Module %s
-    ---------------------------------\n""" % command.__class__.__name__)
+    Module {0}
+    ---------------------------------\n""".format(command.__class__.__name__))
     
     return result + command.help() + "\n\n"
 
@@ -94,7 +94,7 @@ def main():
 
     # Get the version information on every output from the beginning
     # Exceptionally useful for debugging/telling people what's going on
-    sys.stderr.write( "Volatile Systems Volatility Framework %s\n" % volatility.version)
+    sys.stderr.write( "Volatile Systems Volatility Framework {0}\n".format(volatility.version))
 
     if sys.version_info < (2, 6, 0):
         sys.stderr.write("Volatiltiy requires python version 2.6, please upgrade your python installation.")
@@ -117,7 +117,7 @@ def main():
         
     if module not in MemoryRegistry.PLUGIN_COMMANDS.commands:
         config.parse_options()        
-        config.error("Invalid module [%s]." % (module))
+        config.error("Invalid module [{0}].".format(module))
 
     try:
         if module in MemoryRegistry.PLUGIN_COMMANDS.commands:

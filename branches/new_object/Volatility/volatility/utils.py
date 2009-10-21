@@ -12,14 +12,14 @@ def load_as(**kwargs):
         debug.debug("Voting round")        
         found = False
         for cls in registry.AS_CLASSES.classes:
-            debug.debug("Trying %s " % cls)
+            debug.debug("Trying {0} ".format(cls))
             try:
                 base_as = cls(base_as, **kwargs)
-                debug.debug("Succeeded instantiating %s" % base_as)
+                debug.debug("Succeeded instantiating {0}".format(base_as))
                 found = True
                 break
             except AssertionError, e:
-                debug.debug("Failed instantiating %s: %s" % (cls.__name__, e), 2) 
+                debug.debug("Failed instantiating {0}: {1}".format(cls.__name__, e), 2) 
                 error.append_reason(cls.__name__, e) 
                 continue
 
@@ -37,7 +37,7 @@ class AddrSpaceError(Exception):
     """Address Space Exception, so we can catch and deal with it in the main program"""
     def __init__(self):
         self.reasons = []
-        Exception.__init__(self, "No suitable address space maping found")
+        Exception.__init__(self, "No suitable address space mapping found")
     
     def append_reason(self, driver, reason):
         self.reasons.append((driver, reason))
@@ -45,6 +45,6 @@ class AddrSpaceError(Exception):
     def __str__(self):
         result = Exception.__str__(self) + "\nTried to open image as:\n"
         for k, v in self.reasons:
-            result += " %s: %s\n" % (k, v)
+            result += " {0}: {1}\n".format(k, v)
 
         return result

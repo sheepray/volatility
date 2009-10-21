@@ -187,7 +187,7 @@ class ConfObject(object):
                     self.cnf_opts[k] = v
                     
             except IOError:
-                print "Unable to open %s" % f
+                print "Unable to open {0}".format(f)
 
         ConfObject._filename = filename
 
@@ -249,8 +249,8 @@ class ConfObject(object):
                 ## Populate the metavars with the default values:
                     for opt in self.optparser.option_list:
                         try:
-                            opt.metavar = "%s" % (getattr(self, opt.dest) or
-                                                  opt.dest.upper())
+                            opt.metavar = "{0}".format((getattr(self, opt.dest) or
+                                                        opt.dest.upper()))
                         except Exception, _e:
                             pass
 
@@ -286,7 +286,7 @@ class ConfObject(object):
             
         del self.docstrings[normalized_option]
 
-        self.optparser.remove_option("--%s" % option)
+        self.optparser.remove_option("--{0}".format(option))
         
         try:
             self.parse_options(False)
@@ -336,9 +336,9 @@ class ConfObject(object):
         self.docstrings[normalized_option] = args.get('help', None)
 
         if short_option:
-            self.optparser.add_option("-%s" % short_option, "--%s" % option, **args)
+            self.optparser.add_option("-{0}".format(short_option), "--{0}".format(option), **args)
         else:
-            self.optparser.add_option("--%s" % option, **args)
+            self.optparser.add_option("--{0}".format(option), **args)
             
         ## update the command line parser
 
@@ -411,7 +411,7 @@ class ConfObject(object):
         except AttributeError:
             pass
         
-        raise AttributeError("Parameter %s is not configured - try setting it on the command line (-h for help)" % attr)
+        raise AttributeError("Parameter {0} is not configured - try setting it on the command line (-h for help)".format(attr))
 
 config = ConfObject()
 if os.access(default_config, os.R_OK):

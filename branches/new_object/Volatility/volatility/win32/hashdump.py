@@ -118,7 +118,7 @@ def find_control_set(sysaddr):
 
 def get_bootkey(sysaddr):
     cs = find_control_set(sysaddr)
-    lsa_base = ["ControlSet%03d" % cs, "Control", "Lsa"]
+    lsa_base = ["ControlSet{0:03}".format(cs), "Control", "Lsa"]
     lsa_keys = ["JD", "Skew1", "GBG", "Data"]
 
     root = rawreg.get_root(sysaddr)
@@ -308,8 +308,8 @@ def dump_hashes(sysaddr, samaddr):
             lmhash = empty_lm
         if not nthash:
             nthash = empty_nt
-        yield "%s:%d:%s:%s:::" % (get_user_name(user), int(str(user.Name), 16),
-                                  lmhash.encode('hex'), nthash.encode('hex'))
+        yield "{0}:{1}:{2}:{3}:::".format(get_user_name(user), int(str(user.Name), 16),
+                                          lmhash.encode('hex'), nthash.encode('hex'))
 
 def dump_memory_hashes(addr_space, syshive, samhive):
     sysaddr = hive.HiveAddressSpace(addr_space, syshive)

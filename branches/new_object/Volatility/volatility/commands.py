@@ -53,7 +53,7 @@ class command:
         """
         try:
             return textwrap.dedent(cls.__doc__)
-        except:
+        except AttributeError:
             return ""
 
     def calculate(self):
@@ -78,7 +78,7 @@ class command:
         A plugin command may override this function in order to extend 
         the standard parser. 
         """
-        op = optparse.OptionParser(usage='%s [options] (see --help)' % (self.cmdname))
+        op = optparse.OptionParser(usage='{0} [options] (see --help)'.format(self.cmdname))
         op.add_option('-f', '--file', help='(required) XP SP2 Image file',
                       action='store',
                       type='string', dest='filename')
@@ -102,7 +102,7 @@ class command:
 
         ## Then we render the result in some way based on the
         ## requested output mode:
-        function_name = "render_%s" % config.OUTPUT
+        function_name = "render_{0}".format(config.OUTPUT)
         if config.OUTPUT_FILE:
             outfd = open(config.OUTPUT_FILE,'w')
         else:
@@ -118,14 +118,14 @@ class command:
                     _a, b = x.split("_", 1)
                     result.append(b)
             
-            print "Plugin %s is unable to produce output in format %r. Supported formats are %s. Please send a feature request" % (self.__class__.__name__, config.OUTPUT, result)
+            print "Plugin {0} is unable to produce output in format {1}. Supported formats are {2}. Please send a feature request".format(self.__class__.__name__, config.OUTPUT, result)
             return
 
         func(outfd, data)
 
 ## Event handlers do stuff in response to certain events
-class EventHandler:
-    def startup(self):
-        """ This method gets called after all options are parsed, but
-        before commands are executed
-        """
+#class EventHandler:
+#    def startup(self):
+#        """ This method gets called after all options are parsed, but
+#        before commands are executed
+#        """
