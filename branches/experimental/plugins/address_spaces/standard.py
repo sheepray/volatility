@@ -1,5 +1,6 @@
 """ These are standard address spaces supported by Volatility """
 import struct
+import xml.etree.cElementTree as etree
 import volatility.addrspace as addrspace
 import volatility.obj as obj 
 import volatility.conf
@@ -71,11 +72,12 @@ class FileAddressSpace(addrspace.BaseAddressSpace):
         self.offset = 0
 
     def render_xml(self):
-        result = "  <address_space type='{0:s}' name='{0:s}'>\n".format(self.__class__.__name__,
-                                                                        self.name)
-        result += "     <file location='{0:s}' />\n".format(config.LOCATION)
-        result += "   </address_space>\n"
-
+        """Renders the Address Space as XML"""
+        result = etree.Element('address_space', {'type': self.__class__.__name__,
+                                                 'name': self.name})
+        location = etree.Element('location')
+        location.text = config.LOCATION
+        result.append(location)
         return result
     
     def fread(self, length):

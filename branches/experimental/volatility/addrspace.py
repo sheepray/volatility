@@ -74,7 +74,7 @@ class BaseAddressSpace:
         return True
 
     def render_xml(self):
-        return ''
+        return None
     
     def write(self, _addr, _buf):
         if not config.WRITE:

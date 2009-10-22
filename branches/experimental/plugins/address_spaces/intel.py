@@ -2,6 +2,7 @@
 """
 import struct
 import standard
+import xml.etree.cElementTree as etree
 import volatility.addrspace as addrspace
 import volatility.obj as obj 
 import volatility.conf
@@ -87,13 +88,13 @@ class JKIA32PagedMemory(addrspace.BaseAddressSpace, standard.WritablePagedMemory
             self.pde_cache = struct.unpack('<'+'L' * 0x400, buf)
 
     def render_xml(self):
-        result = "  <address_space type='{0:s}' name='{1:s}'>\n".format(
-            self.__class__.__name__,
-            self.name)
+        """Renders the Address Space as XML"""
+        result = etree.Element('address_space', {'type': self.__class__.__name__,
+                                                 'name': self.name})
         
         if self.base:
-            result += self.base.render_xml()
-        result += "   </address_space>\n"
+            if self.base.render_xml():
+                result.append(self.base.render_xml())
 
         return result
 

@@ -22,8 +22,8 @@ class Table:
 class UI:
     """ An abstract class for outputting volatility data.
     """
-    def __init__(self):
-        self.outfd = config.OUTPUT_FILE
+    def __init__(self, outfd = None):
+        self.outfd = outfd
         if not self.outfd:
             self.outfd = sys.stdout
 

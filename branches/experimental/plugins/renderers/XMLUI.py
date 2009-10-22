@@ -4,6 +4,7 @@
 
 ## FIXME - this is currently very rough - we need to discuss how we
 ## export, what needs to be exported and what schema to use.
+import xml.etree.cElementTree as etree
 import volatility.UI as UI
 import pdb
 
@@ -25,25 +26,30 @@ class Table(UI.Table):
     """
     def __init__(self, headings, output, format, name=''):
         UI.Table.__init__(self, headings=headings, output=output, format=format)
-        self.output.write("<collection name='{0:s}'>\n".format(name))
+        self.root = etree.Element('collection', {'name': name})
 
     def row(self, *args):
         ## Format each item according to its format string
-        self.output.write("   <collection type='row'>\n")
+        collection = etree.Element("collection", {'type': 'row'})
 
         for i in range(len(args)):
-            self.output.write("      <item name='{0:s}'>\n".format(self.headings[i]))
+            item = etree.Element("item", {'name': self.headings[i]})
             try:
                 ## Try to have the object format itself for XML:
-                self.output.write("{0:XML}\n".format(args[i]))
-            except ValueError:
+                rendered = args[i].render_xml()
+            except AttributeError:
                 ## Nope it cant do that so use 's' formatter instead
-                self.output.write("{0:s}\n".format(args[i]))
-            self.output.write("      </item>\n")                
-        self.output.write("   </collection>\n")
+                rendered = None
+            if rendered:
+                item.append(rendered)
+            else:
+                item.text = str(args[i])
+            collection.append(item)                
+
+        self.root.append(collection)
 
     def __del__(self):
-        self.output.write("</collection>\n")    
+        self.output.write(etree.tostring(self.root))
 
 class xml(UI.UI):
     """ Renders plugin output in XML. Simplifies data interchange with other tools. """

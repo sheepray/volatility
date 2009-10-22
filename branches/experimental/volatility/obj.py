@@ -35,6 +35,7 @@ if __name__ == '__main__':
 
 import re
 import struct, copy, operator
+import xml.etree.cElementTree as etree
 import volatility.registry as MemoryRegistry
 import volatility.addrspace as addrspace
 import volatility.debug as debug
@@ -294,17 +295,9 @@ class BaseObject(object):
 
         the later form is not going to work when X is a NoneObject. 
         """
-        result2 = self.vm.is_valid_address(self.offset)
-        return result2
+        result = self.vm.is_valid_address(self.offset)
+        return result
     
-        result = False
-        if self.v():
-            result = True
-
-        if result != result2:
-            debug.b()
-        return result2
-
 #    def __eq__(self, other):
 #        if isinstance(other, BaseObject):
 #            return (self.__class__ == other.__class__) and (self.offset == other.offset)
@@ -348,25 +341,20 @@ class BaseObject(object):
         return NoneObject("No value for {0}".format(self.name), self.profile.strict)
 
     def __format__(self, formatspec):
-        if formatspec == "X":
-            return self.render_xml()
-
         return format(self.v(), formatspec)
 
     def render_xml(self):
         """ Return a representation of this object in XML """
-        result = "<object name='{0:s}' type='{1:s}' offset='{2:d}'>\n".format(
-            self.name, self.theType, self.offset)
+        result = etree.Element('object', {'name'   : self.name,
+                                          'type'   : self.theType,
+                                          'offset' : str(self.offset)})
 
         ## Now output the info about the VM
-        result += self.vm.render_xml()
-
-        result += "</object>"
+        vm_elem = self.vm.render_xml()
+        if vm_elem:
+            result.append(vm_elem)
 
         return result
-
-    def get_member_names(self):
-        return False
 
     def get_bytes(self, amount=None):
         if amount == None:
@@ -376,18 +364,12 @@ class BaseObject(object):
 
         return self.vm.read(self.offset, amount)
 
-    def get_values(self):
-        value_dict = {}
-        for k in self.get_member_names():
-            value_dict[k] = self.m(k).v()
-        return value_dict
-
     def __str__(self):
         return str(self.v())
 
     def __repr__(self):
         return "[{0} {1}] @ 0x{2:08X}".format(self.__class__.__name__, self.name or '',
-                                     self.offset)
+                                              self.offset)
 
     def d(self):
         """Display diagnostic information"""
@@ -470,18 +452,6 @@ class NativeType(BaseObject, NumericProxyMixIn):
 
     def __repr__(self):
         return " [{0}]: {1}".format(self.theType, self.v())
-    
-    def __format__(self, formatspec):
-        if formatspec == "XML":
-            return self.render_xml()
-
-        try:
-            return format(self.v(), formatspec)
-        except ValueError:
-            ## By default if a method doesnt exist we return the str
-            ## method (for example otherwise doing an 's' formatter on
-            ## an int would fail).
-            return format(str(self.v()), ">"+formatspec)
     
     def d(self):
         return " [{0} {1} | {2}]: {3}".format(self.__class__.__name__, self.name or '',

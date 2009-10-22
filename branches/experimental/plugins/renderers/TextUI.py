@@ -2,8 +2,8 @@
 import volatility.UI as UI
 
 class Table(UI.Table):
-    ## Default formatter is just "s"
-    default_formatter = 's'
+    ## Default formatter is just ""
+    default_formatter = ''
     max_column_width = 20
 
     ## We cache a few rows before we print them so we can get a better
@@ -23,7 +23,7 @@ class Table(UI.Table):
         row = []
         for i in range(len(args)):
             format = self.format.get(self.headings[i], self.default_formatter)
-            item = "{{0:{0:s}}}".format(format).format(args[i])
+            item = "{{0:{0}}}".format(format).format(args[i])
             self.column_widths[i] = max(self.column_widths[i], len(item))
             row.append(args[i])
             
@@ -35,7 +35,7 @@ class Table(UI.Table):
         for row in self.row_cache:
             for i in range(len(row)):
                 format = self.format.get(self.headings[i], self.default_formatter)
-                item = "{{0:{1:d}{0:s}}}  ".format(format, self.column_widths[i]).format(row[i])
+                item = "{{0:{1:d}{0}}}  ".format(format, self.column_widths[i]).format(row[i])
                 
                 self.output.write(item)
 

@@ -104,12 +104,12 @@ class command:
 
     def render_xml(self, outfd, data):
         """ Render using the generic rendering method and the text renderer """
-        ui = registry.UI_RENDERERS["xml"]()
+        ui = registry.UI_RENDERERS["xml"](outfd)
         return self.render(data, ui)
         
     def render_text(self, outfd, data):
         """ Render using the generic rendering method and the text renderer """
-        ui = registry.UI_RENDERERS["text"]()
+        ui = registry.UI_RENDERERS["text"](outfd)
         return self.render(data, ui)
 
     def execute(self):
@@ -122,6 +122,7 @@ class command:
         function_name = "render_{0}".format(config.OUTPUT)
         if config.OUTPUT_FILE:
             outfd = open(config.OUTPUT_FILE,'w')
+            # TODO: We should probably check that this won't blat over an existing file 
         else:
             outfd = sys.stdout
             
