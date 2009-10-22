@@ -230,14 +230,8 @@ class BaseObject(object):
 
         the later form is not going to work when X is a NoneObject. 
         """
-        result = False
-        if self.v():
-            result = True
-
-        result2 = self.vm.is_valid_address(self.offset)
-        if result != result2:
-            debug.b()
-        return result2
+        result = self.vm.is_valid_address(self.offset)
+        return result
 
 #    def __eq__(self, other):
 #        if isinstance(other, BaseObject):
@@ -284,9 +278,6 @@ class BaseObject(object):
     def __format__(self, formatspec):
         return format(self.v(), formatspec)
 
-    def get_member_names(self):
-        return False
-
     def get_bytes(self, amount=None):
         if amount == None:
             # FIXME: Figure out what self.size() should be?
@@ -294,12 +285,6 @@ class BaseObject(object):
             pass
 
         return self.vm.read(self.offset, amount)
-
-    def get_values(self):
-        value_dict = {}
-        for k in self.get_member_names():
-            value_dict[k] = self.m(k).v()
-        return value_dict
 
     def __str__(self):
         return str(self.v())
