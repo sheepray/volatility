@@ -84,6 +84,75 @@ import traceback
 def get_bt_string(_e=None):    
     return ''.join(traceback.format_stack()[:-3])
 
+def parse_formatspec(formatspec):
+    alignment_chars = ['<', '>', '=', '^']
+    sign_chars = ['+', '-', ' ', '(']
+    fill = align = sign = ""
+    altform = False 
+    minwidth = precision = -1
+    formtype = "" # Default
+    
+    speclen = len(formatspec)
+    index = 0
+    
+    # If the second char is an alignment_char,
+    # parse the fill char
+    if index + 1 < speclen and formatspec[index+1] in alignment_chars:
+        align = formatspec[index+1]
+        fill = formatspec[index]
+        index += 2
+    elif index < speclen and formatspec[index] in alignment_chars:
+        align = formatspec[index]
+        index += 1
+    
+    # Parse the sign operators
+    if index < speclen and formatspec[index] in sign_chars:
+        sign = formatspec[index]
+        index += 1
+        if index < speclen and formatspec[index] == ')':
+            index  += 1
+
+    # Check the alternate form operator
+    if index < speclen and formatspec[index] == '#':
+        altform = True
+        index += 1
+
+    # Backwards compatibility with 0 for alignment and fill
+    if fill == "" and index < speclen and formatspec[index] == '0':
+        fill = "0"
+        if align == '':
+            align = '='
+        index += 1
+    
+    def get_num(string, index):
+        result = -1
+        strlen = len(string)
+        resstr = ""
+        while index < strlen and string[index] in range(10):
+            resstr += string[index]
+            index += 1
+        if resstr != "":
+            result = int(resstr)
+        return result, index
+    
+    minwidth, index = get_num(formatspec, index)
+    
+    # Deal with precision
+    if index < speclen and formatspec[index] == '.':
+        index += 1
+        previndex = index
+        precision, index = get_num(formatspec, index)
+        if previndex == index:
+            raise ValueError("Format specifier missing precision")
+        
+    if index + 1 < speclen:
+        raise ValueError("Invalid conversion specification")
+    else:
+        if index < speclen:
+            formtype = formatspec[index]
+    
+    return (fill, align, sign, altform, minwidth, precision, formtype)
+
 class NoneObject(object):
     """ A magical object which is like None but swallows bad
     dereferences, __getattribute__, iterators etc to return itself.
@@ -113,9 +182,6 @@ class NoneObject(object):
         return 0
 
     def __format__(self, formatspec):
-        if formatspec == 'r':
-            return self.__str__()
-        
         return format('-', "->"+formatspec)
     
     def next(self):
