@@ -1,0 +1,93 @@
+""" This file defines some basic types which might be useful for many
+OS's
+"""
+# FIXME: It's currently important these are imported here, otherwise
+# they don't show up in the MemoryObjects registry
+from volatility.obj import BitField, Pointer, Void, Array, CType #pylint: disable-msg=W0611
+import volatility.obj as obj
+import volatility.debug as debug #pylint: disable-msg=W0611
+
+class String(obj.NativeType):
+    """Class for dealing with Strings"""
+    def __init__(self, theType, offset, vm=None,
+                 length=1, parent=None, profile=None, name=None, **args):
+        ## Allow length to be a callable:
+        try:
+            length = length(parent)
+        except:
+            pass
+        
+        ## length must be an integer
+        obj.NativeType.__init__(self, theType, offset, vm, parent=parent, profile=profile,
+                            name=name, format_string="{0}s".format(length))
+
+    def proxied(self, name):
+        """ Return an object to be proxied """
+        return self.__str__()
+    
+    def __str__(self):
+        data = self.v()
+        ## Make sure its null terminated:
+        result = data.split("\x00")[0]
+        if not result:
+            return ""
+        return result
+    
+    def __format__(self, formatspec):
+        return format(self.__str__(), formatspec)
+    
+    def __add__(self, other):
+        """Set up mappings for concat"""
+        return str(self) + other
+    
+    def __radd__(self, other):
+        """Set up mappings for reverse concat"""
+        return other + str(self)
+
+class Flags(obj.NativeType):
+    """ This object decodes each flag into a string """
+    ## This dictionary maps each bit to a String
+    bitmap = {}
+
+    ## This dictionary maps a string mask name to a bit range
+    ## consisting of a list of start, width bits
+    maskmap = {}
+
+    def __init__(self, targetType=None, offset=0, vm=None, parent=None,
+                 bitmap=None, name=None, maskmap=None, target="unsigned long",
+                 **args):
+        if bitmap:
+            self.bitmap = bitmap
+
+        if maskmap:
+            self.maskmap = maskmap
+
+        self.target = obj.Object(target, offset=offset, vm=vm, parent=parent)
+        obj.NativeType.__init__(self, targetType, offset, vm, parent, **args)
+
+    def v(self):
+        return self.target.v()
+
+    def __str__(self):
+        result = []
+        value = self.v()
+        keys = self.bitmap.keys()
+        keys.sort()
+        for k in keys:
+            if value & (1 << self.bitmap[k]):
+                result.append(k)
+
+        return ', '.join(result)
+
+    def __format__(self, formatspec):
+        return format(self.__str__(), formatspec)
+
+    def __getattr__(self, attr):
+        maprange = self.maskmap.get(attr)
+        if not maprange:
+            return obj.NoneObject("Mask {0} not known".format(attr))
+
+        bits = 2**maprange[1] - 1
+        mask = bits << maprange[0]
+
+        return self.v() & mask
