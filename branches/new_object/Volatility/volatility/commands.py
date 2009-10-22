@@ -20,6 +20,7 @@
 import sys, textwrap
 import optparse 
 import volatility.conf as conf
+import volatility.registry as registry
 
 config = conf.ConfObject()
 
@@ -94,6 +95,22 @@ class command:
                       help='(output filename to write results onto - default stdout)') 
 
         self.op = op 
+
+    def render(self, data, ui):
+        """ This function is called to render the output using the
+        generic UI methods
+        """
+        raise RuntimeError("Generic rendering is not implemented for this command")
+
+    def render_xml(self, outfd, data):
+        """ Render using the generic rendering method and the text renderer """
+        ui = registry.UI_RENDERERS["xml"]()
+        return self.render(data, ui)
+        
+    def render_text(self, outfd, data):
+        """ Render using the generic rendering method and the text renderer """
+        ui = registry.UI_RENDERERS["text"]()
+        return self.render(data, ui)
 
     def execute(self):
         """ Executes the plugin command."""

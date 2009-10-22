@@ -70,6 +70,14 @@ class FileAddressSpace(addrspace.BaseAddressSpace):
         self.fsize = self.fhandle.tell()
         self.offset = 0
 
+    def render_xml(self):
+        result = "  <address_space type='{0:s}' name='{0:s}'>\n".format(self.__class__.__name__,
+                                                                        self.name)
+        result += "     <file location='{0:s}' />\n".format(config.LOCATION)
+        result += "   </address_space>\n"
+
+        return result
+    
     def fread(self, length):
         return self.fhandle.read(length)
 

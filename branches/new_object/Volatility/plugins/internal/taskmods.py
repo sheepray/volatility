@@ -116,18 +116,18 @@ class files(dlllist):
 
 class pslist(dlllist):
     """ print all running processes by following the EPROCESS lists """
-    def render_text(self, outfd, data):
-        outfd.write("{0:20} {1:6} {2:6} {3:6} {4:6} {5:6}\n".format(
-            'Name', 'Pid', 'PPid', 'Thds', 'Hnds', 'Time'))
-
+    def render_text(self, *args):
+        commands.command.render_text(self, *args)
+        
+    def render(self, data, ui):
+        table = ui.table('Name', 'Pid', 'PPid', 'Thds', 'Hnds', 'Time')
         for task in data:
-            outfd.write("{0:20} {1:6} {2:6} {3:6} {4:6} {5:26}\n".format(
-                task.ImageFileName,
-                task.UniqueProcessId,
-                task.InheritedFromUniqueProcessId,
-                task.ActiveThreads,
-                task.ObjectTable.HandleCount,
-                task.CreateTime))
+            table.row(task.ImageFileName,
+                      task.UniqueProcessId,
+                      task.InheritedFromUniqueProcessId,
+                      task.ActiveThreads,
+                      task.ObjectTable.HandleCount,
+                      task.CreateTime)
 
 # Inherit from files just for the config options (__init__)
 class memmap(dlllist):

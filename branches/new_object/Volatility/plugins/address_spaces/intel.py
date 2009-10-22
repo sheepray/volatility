@@ -39,7 +39,6 @@ class JKIA32PagedMemory(addrspace.BaseAddressSpace, standard.WritablePagedMemory
     cache = False
     pae = False
     paging_address_space = True
-    name = 'Kernel AS'
     
     def __init__(self, base, dtb=0, astype = None, **kwargs):
         ## We allow users to disable us in favour of the old legacy
@@ -73,7 +72,7 @@ class JKIA32PagedMemory(addrspace.BaseAddressSpace, standard.WritablePagedMemory
 
         # Reserved for future use
         #self.pagefile = config.PAGEFILE
-
+        self.name = 'Kernel AS'
 
     def _cache_values(self):
         '''
@@ -86,6 +85,17 @@ class JKIA32PagedMemory(addrspace.BaseAddressSpace, standard.WritablePagedMemory
             self.cache = False
         else:
             self.pde_cache = struct.unpack('<'+'L' * 0x400, buf)
+
+    def render_xml(self):
+        result = "  <address_space type='{0:s}' name='{1:s}'>\n".format(
+            self.__class__.__name__,
+            self.name)
+        
+        if self.base:
+            result += self.base.render_xml()
+        result += "   </address_space>\n"
+
+        return result
 
     def load_dtb(self):
         try:

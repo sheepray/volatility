@@ -72,6 +72,9 @@ class BaseAddressSpace:
     def is_valid_address(self, _addr):
         """ Tell us if the address is valid """
         return True
+
+    def render_xml(self):
+        return ''
     
     def write(self, _addr, _buf):
         if not config.WRITE:

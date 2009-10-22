@@ -321,6 +321,7 @@ AS_CLASSES = None
 PROFILES = None
 SCANNER_CHECKS = None
 EVENTS = None
+UI_RENDERERS = None
 
 ## This is required for late initialization to avoid dependency nightmare.
 def Init():
@@ -350,6 +351,10 @@ def Init():
     import volatility.scan as scan
     global SCANNER_CHECKS
     SCANNER_CHECKS = VolatilityObjectRegistry(scan.ScannerCheck)
+
+    import volatility.UI as UI
+    global UI_RENDERERS
+    UI_RENDERERS = VolatilityObjectRegistry(UI.UI)
     
     if config.INFO:
         print_info()

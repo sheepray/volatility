@@ -112,6 +112,12 @@ class NoneObject(object):
     def __len__(self):
         return 0
 
+    def __format__(self, formatspec):
+        if formatspec == 'r':
+            return self.__str__()
+        
+        return format('-', "->"+formatspec)
+    
     def next(self):
         raise StopIteration()
 
@@ -230,11 +236,13 @@ class BaseObject(object):
 
         the later form is not going to work when X is a NoneObject. 
         """
+        result2 = self.vm.is_valid_address(self.offset)
+        return result2
+    
         result = False
         if self.v():
             result = True
 
-        result2 = self.vm.is_valid_address(self.offset)
         if result != result2:
             debug.b()
         return result2
@@ -282,7 +290,22 @@ class BaseObject(object):
         return NoneObject("No value for {0}".format(self.name), self.profile.strict)
 
     def __format__(self, formatspec):
+        if formatspec == "X":
+            return self.render_xml()
+
         return format(self.v(), formatspec)
+
+    def render_xml(self):
+        """ Return a representation of this object in XML """
+        result = "<object name='{0:s}' type='{1:s}' offset='{2:d}'>\n".format(
+            self.name, self.theType, self.offset)
+
+        ## Now output the info about the VM
+        result += self.vm.render_xml()
+
+        result += "</object>"
+
+        return result
 
     def get_member_names(self):
         return False
@@ -391,7 +414,16 @@ class NativeType(BaseObject, NumericProxyMixIn):
         return " [{0}]: {1}".format(self.theType, self.v())
     
     def __format__(self, formatspec):
-        return format(self.v(), formatspec)
+        if formatspec == "XML":
+            return self.render_xml()
+
+        try:
+            return format(self.v(), formatspec)
+        except ValueError:
+            ## By default if a method doesnt exist we return the str
+            ## method (for example otherwise doing an 's' formatter on
+            ## an int would fail).
+            return format(str(self.v()), ">"+formatspec)
     
     def d(self):
         return " [{0} {1} | {2}]: {3}".format(self.__class__.__name__, self.name or '',
