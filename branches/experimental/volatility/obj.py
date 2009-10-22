@@ -33,6 +33,7 @@ if __name__ == '__main__':
     sys.path.append(".")
     sys.path.append("..")
 
+import re
 import struct, copy, operator
 import volatility.registry as MemoryRegistry
 import volatility.addrspace as addrspace
@@ -85,73 +86,59 @@ def get_bt_string(_e=None):
     return ''.join(traceback.format_stack()[:-3])
 
 def parse_formatspec(formatspec):
-    alignment_chars = ['<', '>', '=', '^']
-    sign_chars = ['+', '-', ' ', '(']
     fill = align = sign = ""
     altform = False 
     minwidth = precision = -1
     formtype = "" # Default
     
-    speclen = len(formatspec)
-    index = 0
-    
-    # If the second char is an alignment_char,
-    # parse the fill char
-    if index + 1 < speclen and formatspec[index+1] in alignment_chars:
-        align = formatspec[index+1]
-        fill = formatspec[index]
-        index += 2
-    elif index < speclen and formatspec[index] in alignment_chars:
-        align = formatspec[index]
-        index += 1
-    
-    # Parse the sign operators
-    if index < speclen and formatspec[index] in sign_chars:
-        sign = formatspec[index]
-        index += 1
-        if index < speclen and formatspec[index] == ')':
-            index  += 1
+    # Format specifier regular expression
+    regexp = "\A(.[<>=^]|[<>=^])?([-+ ]|\(\))?(#?)(0?)(\d*)(\.\d+)?(.)?\Z"
 
-    # Check the alternate form operator
-    if index < speclen and formatspec[index] == '#':
-        altform = True
-        index += 1
+    match = re.search(regexp, formatspec)
+    
+    if match is None:
+        raise ValueError("Invalid format specification")
+    
+    if match.group(1):
+        fillalign = match.group(1)
+        if len(fillalign) > 1:
+            fill = fillalign[0]
+            align = fillalign[1]
+        elif fillalign:
+            align = fillalign
 
-    # Backwards compatibility with 0 for alignment and fill
-    if fill == "" and index < speclen and formatspec[index] == '0':
-        fill = "0"
-        if align == '':
-            align = '='
-        index += 1
-    
-    def get_num(string, index):
-        result = -1
-        strlen = len(string)
-        resstr = ""
-        while index < strlen and string[index] in range(10):
-            resstr += string[index]
-            index += 1
-        if resstr != "":
-            result = int(resstr)
-        return result, index
-    
-    minwidth, index = get_num(formatspec, index)
-    
-    # Deal with precision
-    if index < speclen and formatspec[index] == '.':
-        index += 1
-        previndex = index
-        precision, index = get_num(formatspec, index)
-        if previndex == index:
-            raise ValueError("Format specifier missing precision")
-        
-    if index + 1 < speclen:
-        raise ValueError("Invalid conversion specification")
-    else:
-        if index < speclen:
-            formtype = formatspec[index]
+    if match.group(2):
+        sign = match.group(2)
+    if match.group(3):
+        altform = len(match.group(3)) > 0
+    if len(match.group(4)):
+        if fill == "":
+            fill = "0"
+            if align == "":
+                align = "="
+    if match.group(5):
+        minwidth = int(match.group(5))
+    if match.group(6):
+        precision = int(match.group(6)[1:])
+    if match.group(7):
+        formtype = match.group(7)
     
     return (fill, align, sign, altform, minwidth, precision, formtype)
+
+def create_formatspec(format_tuple):
+    if len(format_tuple) != 7:
+        raise ValueError("Format tuple is incorrect length")
+    
+    (fill, align, sign, altform, minwidth, precision, formtype) = format_tuple
+    
+    formatspec = fill + align + sign
+    if sign == '(':
+        formatspec += ')'
+    if altform:
+        formatspec += '#'
+    formatspec += str(minwidth) + '.' + str(precision) + formtype
+
+    return formatspec
 
 class NoneObject(object):
     """ A magical object which is like None but swallows bad
@@ -182,7 +169,12 @@ class NoneObject(object):
         return 0
 
     def __format__(self, formatspec):
-        return format('-', "->"+formatspec)
+        spec = parse_formatspec(formatspec)
+        speclist = list(spec)
+        speclist[0], speclist[1] = "-", ">"
+        spec = tuple(speclist)
+        formatspec = create_formatspec(spec)
+        return format('-', formatspec)
     
     def next(self):
         raise StopIteration()
