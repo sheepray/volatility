@@ -17,3 +17,10 @@ TODO Items:
     * Convert existing linux scan to new scan engine
     * Write linux plugins
   # Documentation, documentation, documentation!
+
+== Miscellaneous Todo ==
+
+  * Use the object framework to read resources/version information rather than pefile
+  * Write a raw2dump plugin (possibly dependent on write support)
+  * Convert over some malware plugins
+  * Have a go at overwriting hashes in memory (definitely dependent on write support)
