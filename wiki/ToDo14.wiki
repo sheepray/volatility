@@ -24,3 +24,4 @@ TODO Items:
   * Write a raw2dump plugin (possibly dependent on write support)
   * Convert over some malware plugins
   * Have a go at overwriting hashes in memory (definitely dependent on write support)
+  * Give the code a complete sweep and check license and copyrights are all correct
