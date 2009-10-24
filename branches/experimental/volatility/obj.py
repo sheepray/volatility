@@ -162,6 +162,10 @@ class NoneObject(object):
         else:
             return "Error: {0}".format(self.reason)
 
+    def write(self, data):
+        """Write procedure only ever returns False"""
+        return False
+
     ## Behave like an empty set
     def __iter__(self):
         return self
@@ -257,6 +261,10 @@ class BaseObject(object):
 
     def proxied(self, attr):
         return None
+
+    def write(self, value):
+        """Function for writing the object back to disk"""
+        pass
 
     def __getattr__(self, attr):
         """ This is only useful for proper methods (not ones that
@@ -429,6 +437,11 @@ class NativeType(BaseObject, NumericProxyMixIn):
         NumericProxyMixIn.__init__(self)
         self.format_string = format_string
 
+    def write(self, data):
+        """Writes the data back into the address space"""
+        output = struct.pack(self.format_string, data)
+        return self.vm.write(self.offset, output)
+
     def rebase(self, offset):
         return self.__class__(None, offset, self.vm, format_string=self.format_string)
 
@@ -469,6 +482,10 @@ class BitField(NativeType):
     def v(self):
         i = NativeType.v(self)
         return (i & ( (1 << self.end_bit) - 1)) >> self.start_bit
+
+    def write(self, data):
+        data = data << self.start_bit
+        return NativeType.write(self, data)
 
 class Pointer(NativeType):
     def __init__(self, theType, offset, vm, parent=None, profile=None, target=None, name=None):
@@ -641,6 +658,7 @@ class CType(BaseObject):
         self.members = members
         self.offset = offset
         self.struct_size = size
+        self.__initialized = True
 
     def size(self):
         return self.struct_size
@@ -693,6 +711,19 @@ class CType(BaseObject):
             pass
         
         return self.m(attr)
+
+    def __setattr__(self, attr, value):
+        """Change underlying members"""
+        # Special magic to allow initialization
+        if not self.__dict__.has_key('_CType__initialized'):  # this test allows attributes to be set in the __init__ method
+            return BaseObject.__setattr__(self, attr, value)
+        elif self.__dict__.has_key(attr):       # any normal attributes are handled normally
+            return BaseObject.__setattr__(self, attr, value)
+        else:
+            if config.WRITE:
+                obj = self.m(attr)
+                if not obj.write(value):
+                    raise ValueError("Error writing value to member " + attr)
     
 ## Profiles are the interface for creating/interpreting
 ## objects

@@ -66,6 +66,8 @@ class FileAddressSpace(addrspace.BaseAddressSpace):
         self.name = path
         self.fname = self.name
         self.mode = 'rb'
+        if config.WRITE:
+            self.mode += '+'
         self.fhandle = open(self.fname, self.mode)
         self.fhandle.seek(0, 2)
         self.fsize = self.fhandle.tell()
@@ -112,8 +114,12 @@ class FileAddressSpace(addrspace.BaseAddressSpace):
     def write(self, addr, data):
         if not config.WRITE:
             return False
-        self.fhandle.seek(addr)
-        return self.fhandle.write(data)
+        try:
+            self.fhandle.seek(addr)
+            self.fhandle.write(data)
+        except IOError:
+            return False
+        return True
 
 BLOCKSIZE = 1024 * 1024 * 10
 
@@ -149,7 +155,7 @@ class WritablePagedMemory(addrspace.BaseAddressSpace):
     def write(self, vaddr, buf):
         if not config.WRITE:
             return False
-        
+       
         length = len(buf)
         first_block = 0x1000 - vaddr % 0x1000
         full_blocks = ((length + (vaddr % 0x1000)) / 0x1000) - 1
@@ -157,11 +163,10 @@ class WritablePagedMemory(addrspace.BaseAddressSpace):
         
         paddr = self.vtop(vaddr)
         if paddr == None:        
-            return None
+            return False
         
         if length < first_block:
-            self.base.write(paddr, buf)
-            return
+            return self.base.write(paddr, buf)
 
         self.base.write(paddr, buf[:first_block])
         buf = buf[first_block:]
@@ -171,7 +176,8 @@ class WritablePagedMemory(addrspace.BaseAddressSpace):
             paddr = self.vtop(new_vaddr)
             if paddr == None:
                 raise Exception("Failed to write to page at {0:#x}".format(new_vaddr))
-            self.base.write(paddr, buf[:0x1000])
+            if not self.base.write(paddr, buf[:0x1000]):
+                return False
             new_vaddr = new_vaddr + 0x1000
             buf = buf[0x1000:]
 
@@ -180,7 +186,7 @@ class WritablePagedMemory(addrspace.BaseAddressSpace):
             if paddr == None:
                 raise Exception("Failed to write to page at {0:#x}".format(new_vaddr))
             assert len(buf) == left_over
-            self.base.write(paddr, buf)
+            return self.base.write(paddr, buf)
 
     def write_long_phys(self, addr, val):
         if not config.WRITE:
