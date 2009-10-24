@@ -137,7 +137,11 @@ def create_formatspec(format_tuple):
         formatspec += ')'
     if altform:
         formatspec += '#'
-    formatspec += str(minwidth) + '.' + str(precision) + formtype
+    if minwidth >= 0:
+        formatspec += str(minwidth)
+    if precision >= 0:
+        formatspec += '.' + str(precision)
+    formatspec += formtype
 
     return formatspec
 
