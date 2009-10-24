@@ -74,7 +74,7 @@ class verinfo(procdump.procexedump):
                           help="Offset of the module to print the version information for")
         config.add_option('PATTERN', short_option="p", default=None,
                           help='dump modules matching REGEX')
-        config.add_option('IGNORE_CASE', short_option='i', action='store_true',
+        config.add_option('IGNORE-CASE', short_option='i', action='store_true',
                       help='ignore case in pattern match', default=False)
     
     def calculate(self):

@@ -420,7 +420,7 @@ else:
     config.add_file("volatilityrc")
 
 try:
-    config.add_option("CONF_FILE", default=os.environ['HOME']+'/.volatilityrc',
+    config.add_option("CONF-FILE", default=os.environ['HOME']+'/.volatilityrc',
                       help = "User based configuration file")
 
     config.add_file(config.CONF_FILE)

@@ -11,7 +11,7 @@ import volatility.commands as commands
 import volatility.conf as conf
 config = conf.ConfObject()
 
-config.add_option("OUTPUT_FILE", short_option="O", default=None,
+config.add_option("OUTPUT-FILE", short_option="O", default=None,
                   help = "Specifies the output file")
 
 class hibinfo(commands.command):
@@ -71,7 +71,7 @@ class hibdump(hibinfo):
     """Dumps the hibernation file to a raw file"""
     
     def __init__(self, *args):
-        config.add_option("DUMP_FILE", short_option="D", default=None,
+        config.add_option("DUMP-FILE", short_option="D", default=None,
                           help = "Specifies the output dump file")
         hibinfo.__init__(self, *args)
     
