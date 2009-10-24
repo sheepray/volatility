@@ -116,7 +116,7 @@ class FirewireAddressSpace(addrspace.BaseAddressSpace):
                     self._node.write(i[0], data)
         except IOError:
             raise RuntimeError("Failed to write to the firewire device")
-        return
+        return True
     
     def get_address_range(self):
         """Returns the size of the address range"""
