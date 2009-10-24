@@ -8,9 +8,7 @@ This page documents the things we want to accomplish in the 1.4 branch, so we ca
 = Details =
 
 TODO Items:
-  # Add (difficult to enable) write support
-    # Add difficult to enable write support for ASes
-    # Add layered write support to new object model
+  # Test write support
   # Examine performance/profiling and possibly develop C modules for some parts
   # Sort out Linux code
     * Convert existing linux code to new object framework
