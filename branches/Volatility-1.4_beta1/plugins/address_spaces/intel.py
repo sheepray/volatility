@@ -10,7 +10,7 @@ import volatility.debug as debug #pylint: disable-msg=W0611
 
 BLOCKSIZE = 1024 * 1024 * 10
 
-config.add_option("CACHE_DTB", action="store_false", default=True, 
+config.add_option("CACHE-DTB", action="store_false", default=True, 
                   help = "Cache virtual to physical mappings")
 
 class JKIA32PagedMemory(addrspace.BaseAddressSpace, standard.WritablePagedMemory):

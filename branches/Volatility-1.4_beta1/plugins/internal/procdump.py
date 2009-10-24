@@ -15,7 +15,7 @@ class procexedump(taskmods.dlllist):
     """Dump a process to an executable file sample"""
     
     def __init__(self, *args):
-        config.add_option('DUMP_DIR', short_option='D', default=None,
+        config.add_option('DUMP-DIR', short_option='D', default=None,
                           help='Directory in which to dump the VAD files')
         config.add_option("UNSAFE", short_option="u", default=0, type='int',
                           help='Bypasses certain sanity checks when creating image')

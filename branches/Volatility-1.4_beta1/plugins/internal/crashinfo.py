@@ -65,7 +65,7 @@ class crashdump(crashinfo):
     """Dumps the crashdump file to a raw file"""
 
     def __init__(self, *args):
-        config.add_option("DUMP_FILE", short_option="D", default=None,
+        config.add_option("DUMP-FILE", short_option="D", default=None,
                           help = "Specifies the output dump file")
         crashinfo.__init__(self, *args)
     

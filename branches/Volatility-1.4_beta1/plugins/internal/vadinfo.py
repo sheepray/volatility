@@ -142,7 +142,7 @@ class vaddump(vadinfo):
     """Dumps out the vad sections to a file"""
 
     def __init__(self, *args):
-        config.add_option('DUMP_DIR', short_option='D', default=None,
+        config.add_option('DUMP-DIR', short_option='D', default=None,
                           help='Directory in which to dump the VAD files')
         config.add_option('VERBOSE', short_option='v', default=False, type='bool',
                           help='Print verbose progress information')

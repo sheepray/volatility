@@ -26,7 +26,7 @@ config = conf.ConfObject()
 config.add_option("OUTPUT", default='text',
                   help="Output in this format (format support is module specific)")
 
-config.add_option("OUTPUT_FILE", default=None,
+config.add_option("OUTPUT-FILE", default=None,
                   help="write output in this file")
 
 config.add_option("VERBOSE", default=0, action='count',
@@ -66,34 +66,6 @@ class command:
         some data, the function should return a generator.
         """
 
-    def parser(self):
-        """ This method defines a parser for this plugin command. It is used
-	to create an instance of OptionParser and populate its options. The
-	OptionParser instances in stored in self.op. By default, it simply 
-	calls the standard parser. The standard parser provides the following 
-        command line options:
-	  '-f', '--file', '(required) Image file'
-	  '-b', '--base', '(optional) Physical offset (in hex) of DTB'
-	  '-t', '--type', '(optional) Identify the image type'
-        A plugin command may override this function in order to extend 
-        the standard parser. 
-        """
-        op = optparse.OptionParser(usage='{0} [options] (see --help)'.format(self.cmdname))
-        op.add_option('-f', '--file', help='(required) XP SP2 Image file',
-                      action='store',
-                      type='string', dest='filename')
-        op.add_option('-b', '--base',
-                      help='(optional, otherwise best guess is made) Physical offset (in hex) of directory table base',
-                      action='store', type='string', dest='base')
-        op.add_option('-t', '--type',
-                      help='(optional, default="auto") Identify the image type (pae, nopae, auto)',
-                      action='store', type='string', dest='type')   
-        op.add_option('-H', '--output', default = 'text',
-                      help='(optional, default="text") Output format (xml, html, sql)')
-        op.add_option('-O', '--out_file', default=None,
-                      help='(output filename to write results onto - default stdout)') 
-
-        self.op = op 
 
     def execute(self):
         """ Executes the plugin command."""
@@ -105,6 +77,7 @@ class command:
         function_name = "render_{0}".format(config.OUTPUT)
         if config.OUTPUT_FILE:
             outfd = open(config.OUTPUT_FILE,'w')
+            # TODO: We should probably check that this won't blat over an existing file 
         else:
             outfd = sys.stdout
             
