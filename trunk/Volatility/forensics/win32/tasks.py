@@ -260,36 +260,30 @@ def process_ldrs(process_address_space, types, peb_vaddr):
         print "Unable to read ldr for peb 0x%x" % (peb_vaddr)
         return module_list
 
-    first_module = read_obj(process_address_space, types,
+    this_module = read_obj(process_address_space, types,
                             ['_PEB_LDR_DATA', 'InLoadOrderModuleList', 'Flink'],
                             ldr)
+    first_module = this_module
 
-    if first_module is None:
+    if this_module is None:
         print "Unable to read first module for ldr 0x%x" % (ldr)
         return module_list        
     
-    this_module = first_module
-
-    next_module = read_obj(process_address_space, types,
-                         ['_LDR_DATA_TABLE_ENTRY', 'InLoadOrderLinks', 'Flink'],
-                           this_module)
-
-    if next_module is None:
-        print "ModuleList Truncated, unable to read module at 0x%x\n" % (this_module)        
-        return module_list
-    
-    while next_module != first_module:
+    while this_module not in module_list:
         module_list.append(this_module)
-        if not process_address_space.is_valid_address(next_module):
-            print "ModuleList Truncated, unable to read module at 0x%x\n" % (next_module)
+        if not process_address_space.is_valid_address(this_module):
+            print "ModuleList Truncated, unable to read module at 0x%x\n" % (this_module)
             return module_list
-        prev_module = this_module
-        this_module = next_module
-        next_module = read_obj(process_address_space, types,
+        this_module = read_obj(process_address_space, types,
                          ['_LDR_DATA_TABLE_ENTRY', 'InLoadOrderLinks', 'Flink'],
                          this_module)
 
-        
+    if this_module != first_module:
+        print "ModuleList contained a loop, the last entry displayed linked back to item number %d in the list\n" % (module_list.index(this_module))
+    else:
+        # Remove the last module but one (its base should be 0x0)
+        module_list = module_list[:-1]
+
     return module_list
 
 
