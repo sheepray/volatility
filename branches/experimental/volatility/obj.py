@@ -87,11 +87,13 @@ def get_bt_string(_e=None):
     return ''.join(traceback.format_stack()[:-3])
 
 def parse_formatspec(formatspec):
-    fill = align = sign = ""
-    altform = False 
-    minwidth = precision = -1
-    formtype = "" # Default
-    
+    result = {'fill': '',
+              'align': '',
+              'sign': '',
+              'altform': False,
+              'minwidth': -1,
+              'precision': -1,
+              'formtype': ''}
     # Format specifier regular expression
     regexp = "\A(.[<>=^]|[<>=^])?([-+ ]|\(\))?(#?)(0?)(\d*)(\.\d+)?(.)?\Z"
 
@@ -103,45 +105,40 @@ def parse_formatspec(formatspec):
     if match.group(1):
         fillalign = match.group(1)
         if len(fillalign) > 1:
-            fill = fillalign[0]
-            align = fillalign[1]
+            result['fill'] = fillalign[0]
+            result['align'] = fillalign[1]
         elif fillalign:
-            align = fillalign
+            result['align'] = fillalign
 
     if match.group(2):
-        sign = match.group(2)
+        result['sign'] = match.group(2)
     if match.group(3):
-        altform = len(match.group(3)) > 0
+        result['altform'] = len(match.group(3)) > 0
     if len(match.group(4)):
-        if fill == "":
-            fill = "0"
-            if align == "":
-                align = "="
+        if result['fill'] == "":
+            result['fill'] = "0"
+            if result['align'] == "":
+                result['align'] = "="
     if match.group(5):
-        minwidth = int(match.group(5))
+        result['minwidth'] = int(match.group(5))
     if match.group(6):
-        precision = int(match.group(6)[1:])
+        result['precision'] = int(match.group(6)[1:])
     if match.group(7):
-        formtype = match.group(7)
+        result['formtype'] = match.group(7)
     
-    return (fill, align, sign, altform, minwidth, precision, formtype)
+    return result
 
-def create_formatspec(format_tuple):
-    if len(format_tuple) != 7:
-        raise ValueError("Format tuple is incorrect length")
-    
-    (fill, align, sign, altform, minwidth, precision, formtype) = format_tuple
-    
-    formatspec = fill + align + sign
-    if sign == '(':
+def create_formatspec(format):
+    formatspec = format.get('fill','') + format.get('align', '') + format.get('sign', '')
+    if format.get('sign', '') == '(':
         formatspec += ')'
-    if altform:
+    if format.get('altform', False):
         formatspec += '#'
-    if minwidth >= 0:
-        formatspec += str(minwidth)
-    if precision >= 0:
-        formatspec += '.' + str(precision)
-    formatspec += formtype
+    if format.get('minwidth', -1) >= 0:
+        formatspec += str(format['minwidth'])
+    if format.get('precision', -1) >= 0:
+        formatspec += '.' + str(format['precision'])
+    formatspec += format.get('formtype', '')
 
     return formatspec
 
@@ -179,9 +176,7 @@ class NoneObject(object):
 
     def __format__(self, formatspec):
         spec = parse_formatspec(formatspec)
-        speclist = list(spec)
-        speclist[0], speclist[1] = "-", ">"
-        spec = tuple(speclist)
+        spec['fill'], spec['align'] = "-", ">"
         formatspec = create_formatspec(spec)
         return format('-', formatspec)
     
