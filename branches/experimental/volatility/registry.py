@@ -244,7 +244,7 @@ class VolatilityCommandRegistry(MemoryRegistry):
     
         for cls in self.classes:
             ## The name of the class is the command name
-            command = ("{0}".format(cls)).split('.')[-1]
+            command = cls.__name__.split('.')[-1]
             try:
                 raise Exception("Command {0} has already been defined by {1}".format(command, self.commands[command]))
             except KeyError:

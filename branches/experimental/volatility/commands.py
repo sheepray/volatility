@@ -33,7 +33,7 @@ config.add_option("OUTPUT-FILE", default=None,
 config.add_option("VERBOSE", default=0, action='count',
                   short_option='v', help='Verbose information')
 
-class command:
+class command(object):
     """ Base class for each plugin command """
     op = ""
     opts = ""
