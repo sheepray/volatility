@@ -86,61 +86,88 @@ import traceback
 def get_bt_string(_e=None):    
     return ''.join(traceback.format_stack()[:-3])
 
-def parse_formatspec(formatspec):
-    result = {'fill': '',
-              'align': '',
-              'sign': '',
-              'altform': False,
-              'minwidth': -1,
-              'precision': -1,
-              'formtype': ''}
-    # Format specifier regular expression
-    regexp = "\A(.[<>=^]|[<>=^])?([-+ ]|\(\))?(#?)(0?)(\d*)(\.\d+)?(.)?\Z"
+class FormatSpec(object):
+    def __init__(self, string = '', **kwargs):
+        self.fill = ''
+        self.align = ''
+        self.sign = ''
+        self.altform = False
+        self.minwidth = -1
+        self.precision = -1
+        self.formtype = ''
 
-    match = re.search(regexp, formatspec)
+        if string != '':
+            self.from_string(string)
+
+        # Ensure we parse the remaining arguments after the string to that they override
+        self.from_specs(**kwargs)
+
+    def from_specs(self, fill=None, align=None, sign=None, altform=None, minwidth=None, precision=None, formtype=None):
+        ## Allow setting individual elements using kwargs 
+        if fill is not None:
+            self.fill = fill 
+        if align is not None:
+            self.align = align
+        if sign is not None:
+            self.sign = sign
+        if altform is not None:
+            self.altform = altform 
+        if minwidth is not None:
+            self.minwidth = minwidth
+        if precision is not None:
+            self.precision = precision
+        if formtype is not None:
+            self.formtype = formtype
+
+    def from_string(self, formatspec):
+        # Format specifier regular expression
+        regexp = "\A(.[<>=^]|[<>=^])?([-+ ]|\(\))?(#?)(0?)(\d*)(\.\d+)?(.)?\Z"
     
-    if match is None:
-        raise ValueError("Invalid format specification")
+        match = re.search(regexp, formatspec)
+        
+        if match is None:
+            raise ValueError("Invalid format specification")
+        
+        if match.group(1):
+            fillalign = match.group(1)
+            if len(fillalign) > 1:
+                self.fill = fillalign[0]
+                self.align = fillalign[1]
+            elif fillalign:
+                self.align = fillalign
     
-    if match.group(1):
-        fillalign = match.group(1)
-        if len(fillalign) > 1:
-            result['fill'] = fillalign[0]
-            result['align'] = fillalign[1]
-        elif fillalign:
-            result['align'] = fillalign
+        if match.group(2):
+            self.sign = match.group(2)
+        if match.group(3):
+            self.altform = len(match.group(3)) > 0
+        if len(match.group(4)):
+            if self.fill == "":
+                self.fill = "0"
+                if self.align == "":
+                    self.align = "="
+        if match.group(5):
+            self.minwidth = int(match.group(5))
+        if match.group(6):
+            self.precision = int(match.group(6)[1:])
+        if match.group(7):
+            self.formtype = match.group(7)
 
-    if match.group(2):
-        result['sign'] = match.group(2)
-    if match.group(3):
-        result['altform'] = len(match.group(3)) > 0
-    if len(match.group(4)):
-        if result['fill'] == "":
-            result['fill'] = "0"
-            if result['align'] == "":
-                result['align'] = "="
-    if match.group(5):
-        result['minwidth'] = int(match.group(5))
-    if match.group(6):
-        result['precision'] = int(match.group(6)[1:])
-    if match.group(7):
-        result['formtype'] = match.group(7)
+    def to_string(self):
+        formatspec = self.fill + self.align + self.sign
+        if self.sign == '(':
+            formatspec += ')'
+        if self.altform:
+            formatspec += '#'
+        if self.minwidth >= 0:
+            formatspec += str(self.minwidth)
+        if self.precision >= 0:
+            formatspec += '.' + str(self.precision)
+        formatspec += self.formtype
     
-    return result
+        return formatspec
 
-def create_formatspec(format):
-    formatspec = format.get('fill','') + format.get('align', '') + format.get('sign', '')
-    if format.get('sign', '') == '(':
-        formatspec += ')'
-    if format.get('altform', False):
-        formatspec += '#'
-    if format.get('minwidth', -1) >= 0:
-        formatspec += str(format['minwidth'])
-    if format.get('precision', -1) >= 0:
-        formatspec += '.' + str(format['precision'])
-    formatspec += format.get('formtype', '')
-
-    return formatspec
+    def __str__(self):
+        return self.to_string()
 
 class NoneObject(object):
     """ A magical object which is like None but swallows bad
@@ -175,10 +202,8 @@ class NoneObject(object):
         return 0
 
     def __format__(self, formatspec):
-        spec = parse_formatspec(formatspec)
-        spec['fill'], spec['align'] = "-", ">"
-        formatspec = create_formatspec(spec)
-        return format('-', formatspec)
+        spec = FormatSpec(string=formatspec, fill="-", align=">")
+        return format('-', str(spec))
     
     def next(self):
         raise StopIteration()
@@ -1040,6 +1065,6 @@ if __name__ == '__main__':
             ## Make sure next.prev == o
             self.assertEqual(n.HandleTableList.Blink, o)
             self.assertEqual(n.HandleTableList.Blink.TableCode, 1)
-            
+                        
     suite = unittest.makeSuite(ObjectTests)
     res = unittest.TextTestRunner(verbosity=2).run(suite)
