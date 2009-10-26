@@ -26,13 +26,13 @@
 
 #pylint: disable-msg=C0111
 
+import hivescan as hs
 import volatility.obj as obj
 import volatility.utils as utils
-import volatility.commands as commands
 import volatility.conf as conf
 config = conf.ConfObject()
 
-class hivelist(commands.command):
+class hivelist(hs.hivescan):
     """Print list of registry hives.
 
     You must supply this module the initial offset of the hive. You
@@ -54,7 +54,7 @@ class hivelist(commands.command):
                           default = None, type='int',
                           help = "Offset to registry hive")
         
-        commands.command.__init__(self, *args)
+        hs.hivescan.__init__(self, *args)
 
     def render_text(self, outfd, result):
         outfd.write("Address      Name\n")
@@ -67,8 +67,10 @@ class hivelist(commands.command):
         flat = utils.load_as(astype = 'physical')
         addr_space = utils.load_as()
 
-        if not config.HIVE_OFFSET:
-            config.error("You must specify a hive offset (--hive-offset)")
+        hives = hs.hivescan.calculate(self)
+
+        if config.HIVE_OFFSET:
+            hives = [config.HIVE_OFFSET]
 
         def generate_results():
             ## The first hive is normally given in physical address space
@@ -76,16 +78,16 @@ class hivelist(commands.command):
             ## then read the Flink of the list to locate the address of
             ## the first hive in virtual address space. hmm I wish we
             ## could go from physical to virtual memroy easier.
-            
-            hive = obj.Object("_CMHIVE", int(config.HIVE_OFFSET), flat)
-            if hive.HiveList.Flink.v():
-                start_hive_offset = hive.HiveList.Flink.v() - 0x224
-
-                ## Now instantiate the first hive in virtual address space as normal
-                start_hive = obj.Object("_CMHIVE", start_hive_offset, addr_space)
-
-                for hive in start_hive.HiveList:
-                    yield hive
+            for offset in hives:
+                hive = obj.Object("_CMHIVE", int(offset), flat)
+                if hive.HiveList.Flink.v():
+                    start_hive_offset = hive.HiveList.Flink.v() - 0x224
+    
+                    ## Now instantiate the first hive in virtual address space as normal
+                    start_hive = obj.Object("_CMHIVE", start_hive_offset, addr_space)
+    
+                    for hive in start_hive.HiveList:
+                        yield hive
 
         return generate_results()
 
