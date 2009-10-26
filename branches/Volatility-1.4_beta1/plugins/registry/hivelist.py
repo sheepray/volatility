@@ -59,9 +59,13 @@ class hivelist(hs.hivescan):
     def render_text(self, outfd, result):
         outfd.write("Address      Name\n")
 
+        hive_offsets = []
+
         for hive in result:
-            name = hive.FileFullPath.v() or "[no name]"
-            outfd.write("{0:#X}  {1}\n".format(hive.offset, name))
+            if hive.offset not in hive_offsets:
+                name = hive.FileFullPath.v() or "[no name]"
+                outfd.write("{0:#X}  {1}\n".format(hive.offset, name))
+                hive_offsets.append(hive.offset)
     
     def calculate(self):
         flat = utils.load_as(astype = 'physical')
