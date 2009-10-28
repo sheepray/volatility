@@ -54,8 +54,8 @@ xpsp2types = { \
     'Blink' : [ 0x4, ['pointer', ['_LIST_ENTRY']]], \
 } ], \
   '_KUSER_SHARED_DATA' : [ 0x338, { \
-    'SystemTime' : [ 0x14, ['_KSYSTEM_TIME']], \
-    'TimeZoneBias' : [ 0x20, ['_KSYSTEM_TIME']], \
+    'SystemTime' : [ 0x14, ['WinTimeStamp', dict(tz=lambda x: x.TimeZoneBias)]], \
+    'TimeZoneBias' : [ 0x20, ['WinTimeStamp']], \
     'SuiteMask' : [ 0x2d0, ['unsigned long']], \
     'NumberOfPhysicalPages' : [ 0x2e8, ['unsigned long']], \
 } ], \
@@ -264,18 +264,20 @@ xpsp2types = { \
 '_KEVENT' : [  0x10, { \
   'Header' : [ 0x0, ['_DISPATCHER_HEADER']], \
 } ], \
-    '_DISPATCHER_HEADER' : [  0x10, { 
-      'Type' : [ 0x0, ['unsigned char']], 
-      'Absolute' : [ 0x1, ['unsigned char']],
-      'Size' : [ 0x2, ['unsigned char']], 
-      'Inserted' : [0x3, ['unsigned char']],
-      'SignalState' : [ 0x4, ['long']],
-      'WaitListHead' : [ 0x8, ['_LIST_ENTRY']],
-    } ],
+'_DISPATCHER_HEADER' : [  0x10, { 
+  'Type' : [ 0x0, ['unsigned char']], 
+  'Absolute' : [ 0x1, ['unsigned char']],
+  'Size' : [ 0x2, ['unsigned char']], 
+  'Inserted' : [0x3, ['unsigned char']],
+  'SignalState' : [ 0x4, ['long']],
+  'WaitListHead' : [ 0x8, ['_LIST_ENTRY']],
+} ], \
 '_ETHREAD' : [  0x258, { \
   'Tcb' : [ 0x0, ['_KTHREAD']], \
   'Cid' : [ 0x1ec, ['_CLIENT_ID']], \
   'LpcReplySemaphore' : [ 0x1f4, ['_KSEMAPHORE']], \
+  'CreateTime' : [ 0x1c0, ['ThreadCreateTimeStamp']],  # Note, this is not a WinTimeStamp, it needs to be >> 3
+  'ExitTime' : [ 0x1c8, ['WinTimeStamp']], \
   'ThreadsProcess' : [ 0x220, ['pointer', ['_EPROCESS']]], \
   'StartAddress' : [ 0x224, ['pointer', ['void']]], \
 } ], \

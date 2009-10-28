@@ -193,12 +193,17 @@ class thrdscan(commands.command):
     def render_text(self, outfd, data):
         ## Just grab the AS and scan it using our scanner
         start = time.time()
-        outfd.write("No.  PID    TID    Offset    \n---- ------ ------ ----------\n")
+        outfd.write("PID    TID    Create Time               Exit Time                 Offset    \n" + \
+                    "------ ------ ------------------------- ------------------------- ----------\n")
 
         for ethread in data:
             cnt = str(time.time() - start)
-            outfd.write("{0:4.4} {1:6} {2:6} 0x{3:08x}\n".format(cnt, ethread.Cid.UniqueProcess,
-                                                                ethread.Cid.UniqueThread, ethread.offset))
+            outfd.write("{1:6} {2:6} {3: <25} {4: <25} 0x{5:08x}\n".format(cnt, 
+                                                                           ethread.Cid.UniqueProcess,
+                                                                           ethread.Cid.UniqueThread,
+                                                                           ethread.CreateTime or '',
+                                                                           ethread.ExitTime or '',
+                                                                           ethread.offset))
    
 class PSScan(scan.BaseScanner):
     """ This scanner carves things that look like _EPROCESS structures.
@@ -265,13 +270,13 @@ class psscan(commands.command):
     def render_text(self, outfd, data):
         ## Just grab the AS and scan it using our scanner
         start = time.time()
-        outfd.write("No.  PID    PPID   Time created             Time exited              Offset     PDB        Remarks\n"+ \
-                    "---- ------ ------ ------------------------ ------------------------ ---------- ---------- ----------------\n")
+        outfd.write("PID    PPID   Time created             Time exited              Offset     PDB        Remarks\n"+ \
+                    "------ ------ ------------------------ ------------------------ ---------- ---------- ----------------\n")
         
         for eprocess in data:
             cnt = "{0}".format(time.time() - start)
 
-            outfd.write("{0:4.4} {1:6} {2:6} {3:24} {4:24} 0x{5:08x} 0x{6:08x} {7:16}\n".format(
+            outfd.write("{1:6} {2:6} {3:24} {4:24} 0x{5:08x} 0x{6:08x} {7:16}\n".format(
                 cnt,
                 eprocess.UniqueProcessId,
                 eprocess.InheritedFromUniqueProcessId,

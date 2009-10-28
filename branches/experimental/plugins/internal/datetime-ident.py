@@ -16,24 +16,20 @@ class datetime(commands.command):
     """Get date/time information for image"""
     def render_text(self, outfd, data):
         """Renders the calculated data as text to outfd"""
-        outfd.write("Image local date and time: {0}\n".format(data['ImageDatetime']))
+        outfd.write("Image date and time: {0}\n".format(data['ImageDatetime']))
 
     def calculate(self):
         result = {}
         addr_space = utils.load_as()
         
         # Get the Image Datetime
-        result['ImageDatetime'] = self.get_image_datetime(addr_space)
-
-        return result
-
-    def get_image_datetime(self, addr_space):
-        """Returns the image datetime"""
         k = obj.Object("_KUSER_SHARED_DATA",
                               offset=win32.info.KUSER_SHARED_DATA,
                               vm=addr_space)
         
-        return k.SystemTime - k.TimeZoneBias
+        result['ImageDatetime'] = k.SystemTime
+
+        return result
 
 class ident(datetime):
     """ Identify information for the image """
@@ -72,7 +68,11 @@ class ident(datetime):
         result['ImageDTB'] = hex(addr_space.load_dtb())
         
         # Get the Image Datetime
-        result['ImageDatetime'] = self.get_image_datetime(addr_space)
+        k = obj.Object("_KUSER_SHARED_DATA",
+                              offset=win32.info.KUSER_SHARED_DATA,
+                              vm=addr_space)
+        
+        result['ImageDatetime'] = k.SystemTime
 
         return result
 

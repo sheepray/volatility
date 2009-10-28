@@ -29,7 +29,7 @@ for SP2.
 #pylint: disable-msg=C0111
 
 import volatility.obj as obj
-import time
+import datetime
 import vtypes
 import volatility.debug as debug #pylint: disable-msg=W0611
 
@@ -110,17 +110,56 @@ class _LIST_ENTRY(obj.CType):
     def __iter__(self):
         return self.list_of_type(self.parent.name, self.name)
 
+class OffsetTzInfo(datetime.tzinfo):
+    
+    def __init__(self, offset=None, *args, **kwargs):
+        """Accepts offset in seconds"""
+        self.offset = offset 
+        datetime.tzinfo.__init__(self, *args, **kwargs)
+    
+    def set_offset(self, offset):
+        self.offset = offset
+    
+    def utcoffset(self, dt):
+        if self.offset is None:
+            return None
+        return datetime.timedelta(seconds=self.offset) + self.dst(dt)
+    
+    def dst(self, _dt):
+        """We almost certainly can't know about DST, so we say it's always off"""
+        # FIXME: Maybe we can know or make guesses about DST? 
+        return datetime.timedelta(0)
+    
+    def tzname(self, _dt):
+        """Return a useful timezone name"""
+        if self.offset is None:
+            return "UNKNOWN"
+        return None
+
 class WinTimeStamp(obj.NativeType):
-    def __init__(self, type=None, offset=None, vm=None, value=None,
+    
+    def __init__(self, theType=None, offset=None, vm=None, tz=None,
                  parent=None, name=None, **args):
-        ## This allows us to have a WinTimeStamp object with a
-        ## predetermined value
-        self.data = None
-        if value:
-            self.data = value
-        else:
-            obj.NativeType.__init__(self, type, offset, vm, parent=parent, 
-                                        name=name, format_string="q")
+        obj.NativeType.__init__(self, theType, offset, vm, parent=parent, 
+                                name=name, format_string="q")
+        # TZ will be the timezone Bias in seconds
+        # Localtime = UTC - Bias
+        # Localtime = UTC + Offset
+        # This should be explicitly set to 0 for any known UTC values
+        # If it's a lambda object, call it with the parent
+        try:
+            tz = tz(parent)
+        except TypeError:
+            pass
+
+        # If it's a WinTimeStamp convert it to seconds
+        # and change it from a Bias to a UTC offset (+ to -)
+        try:
+            tz = -tz.as_windows_timestamp() / 10000000
+        except AttributeError:
+            pass
+
+        self.tz = OffsetTzInfo(tz) 
 
     def windows_to_unix_time(self, windows_time):
         """
@@ -144,10 +183,6 @@ class WinTimeStamp(obj.NativeType):
         return unix_time
 
     def as_windows_timestamp(self):
-        # Remember to return our value if we've been created explicitly,
-        # since we don't have a vm or an offset for the NativeType.v function
-        if self.data is not None:
-            return self.data
         return obj.NativeType.v(self)
 
     def v(self):
@@ -157,24 +192,31 @@ class WinTimeStamp(obj.NativeType):
     def __nonzero__(self):
         return self.v() != 0
 
-    def __sub__(self, x):
-        return WinTimeStamp(value = self.as_windows_timestamp() - x.as_windows_timestamp())
-
     def __str__(self):
         return self._format_time(self.v())
 
-    def __format__(self, formatspec):
-        return format(self.__str__(), formatspec)
+    def get_as_datetime(self):
+        dt = datetime.datetime(1970, 1, 1).fromtimestamp(self.v())
+        dt = dt.replace(tzinfo=self.tz)
+        return dt
 
-    def _format_time(self, t):
-        # Note: We do *NOT* know the Timezeone without figuring out the TimeZoneBias
-        # So we can't unilaterally say GMT or UTC or anything like that here...
-        ts = time.strftime("%a %b %d %H:%M:%S %Y",
-                           time.gmtime(t))
-        return ts
+    def __format__(self, formatspec):
+        """Datetimes tend to come out at a maximum of 25 characters:
+           XXXX-XX-XX XX:XX:XX+XX:XX
+           
+           This is also the place to specify how to format the datetime
+        """
+        return format("{0}".format(self.get_as_datetime()), formatspec)
 
 LEVEL_MASK = 0xfffffff8
 
+class ThreadCreateTimeStamp(WinTimeStamp):
+    
+    def __init__(self, *args, **kwargs):
+        WinTimeStamp.__init__(self, *args,  **kwargs)
+    
+    def as_windows_timestamp(self):
+        return obj.NativeType.v(self) >> 3
 
 class _EPROCESS(obj.CType):
     """ An extensive _EPROCESS with bells and whistles """
@@ -235,7 +277,7 @@ class _EPROCESS(obj.CType):
                     if item.Type.Name:
                         yield item
 
-                except Exception, _e:
+                except AttributeError:
                     pass
         
     def handles(self):
