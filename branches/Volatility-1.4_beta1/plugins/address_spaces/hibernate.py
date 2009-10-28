@@ -92,7 +92,7 @@ class WindowsHiberFileSpace32(standard.FileAddressSpace):
             return self.header.FirstTablePage
         for i in range(10):
             if self.base.read(i*PAGE_SIZE, 8) == "\x81\x81xpress":
-                return (i*PAGE_SIZE)-1
+                return i-1
         return None
 
     def build_page_cache(self):
