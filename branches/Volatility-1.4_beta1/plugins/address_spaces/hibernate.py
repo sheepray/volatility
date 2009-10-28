@@ -56,7 +56,9 @@ class WindowsHiberFileSpace32(standard.FileAddressSpace):
         self.header = obj.Object('_IMAGE_HIBER_HEADER', 0, baseAddressSpace)
         
         ## Is the signature right?
-        assert self.header.Signature.lower() == 'hibr', "Header signature invalid"
+        # assert self.header.Signature.lower() == 'hibr', "Header signature invalid"
+        headers = [baseAddressSpace.read(i*PAGE_SIZE, 8) for i in range(10)]
+        assert any(buf == "\x81\x81xpress" for buf in headers), "No xpress signature found"
 
         # Extract processor state
         self.ProcState = obj.Object("_KPROCESSOR_STATE", 2 * 4096, baseAddressSpace)
@@ -300,22 +302,22 @@ class WindowsHiberFileSpace32(standard.FileAddressSpace):
 
         return result
 
-    def zread(self, addr, len):
-        raise RuntimeError("Unimplemented")
+    def zread(self, addr, length):
+        raise NotImplementedError("Hibernation zread is not yet implemented")
         first_block = 0x1000 - addr % 0x1000
-        full_blocks = ((len + (addr % 0x1000)) / 0x1000) - 1
-        left_over = (len + addr) % 0x1000
+        full_blocks = ((length + (addr % 0x1000)) / 0x1000) - 1
+        left_over = (length + addr) % 0x1000
 
         self.check_address_range(addr)
 
         ImageXpressHeader = self.get_addr(addr)
         if ImageXpressHeader == None:
-            if len < first_block:
-                return ('\0' * len)
+            if length < first_block:
+                return ('\0' * length)
             stuff_read = ('\0' * first_block) 
         else:
-            if len < first_block:
-                return self.read(addr, len)
+            if length < first_block:
+                return self.read(addr, length)
             stuff_read = self.read(addr, first_block)
        
         new_addr = addr + first_block

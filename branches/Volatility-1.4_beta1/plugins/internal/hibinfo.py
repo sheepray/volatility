@@ -42,7 +42,7 @@ class hibinfo(commands.command):
             adrs = adrs.base
         
         if result is None:
-            config.error("Memory Image could not be identified as a hibernation file")
+            config.error("Memory Image could not be identified or did not contain hiberation information")
         
         return result
             
