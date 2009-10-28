@@ -296,7 +296,8 @@ class BaseObject(object):
         """
         ## Search for the attribute of the proxied object
         proxied = self.proxied(attr)
-        if not proxied:
+        # Don't do a __nonzero__ check on proxied or things like '' will fail
+        if proxied is None:
             raise AttributeError
         
         return getattr(proxied, attr)
