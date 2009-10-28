@@ -18,7 +18,6 @@
 
 
 import sys, textwrap
-import optparse 
 import volatility.conf as conf
 
 config = conf.ConfObject()

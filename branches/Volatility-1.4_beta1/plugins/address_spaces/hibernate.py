@@ -56,9 +56,11 @@ class WindowsHiberFileSpace32(standard.FileAddressSpace):
         self.header = obj.Object('_IMAGE_HIBER_HEADER', 0, baseAddressSpace)
         
         ## Is the signature right?
-        # assert self.header.Signature.lower() == 'hibr', "Header signature invalid"
-        headers = [baseAddressSpace.read(i*PAGE_SIZE, 8) for i in range(10)]
-        assert any(buf == "\x81\x81xpress" for buf in headers), "No xpress signature found"
+        if self.header.Signature.lower() not in ['hibr', 'wake']:
+            self.header = obj.NoneObject("Invalid hibernation header")
+        
+        # Check it's definitely a hibernation file
+        assert self._get_first_table_page() is not None, "No xpress signature found"
 
         # Extract processor state
         self.ProcState = obj.Object("_KPROCESSOR_STATE", 2 * 4096, baseAddressSpace)
@@ -84,16 +86,24 @@ class WindowsHiberFileSpace32(standard.FileAddressSpace):
         #        fd = open("/tmp/cache.bin",'wb')
         #        pickle.dump((self.PageDict , self.LookupCache), fd, -1)
         #        fd.close()
-            
+
+    def _get_first_table_page(self):
+        if self.header != None:
+            return self.header.FirstTablePage
+        for i in range(10):
+            if self.base.read(i*PAGE_SIZE, 8) == "\x81\x81xpress":
+                return (i*PAGE_SIZE)-1
+        return None
+
     def build_page_cache(self):
         XpressIndex = 0    
         XpressHeader = obj.Object("_IMAGE_XPRESS_HEADER",
-                                         (self.header.FirstTablePage + 1) * 4096, \
+                                         (self._get_first_table_page() + 1) * 4096, \
                                          self.base)
         
         XpressBlockSize = self.get_xpress_block_size(XpressHeader)
 
-        MemoryArrayOffset = self.header.FirstTablePage * 4096
+        MemoryArrayOffset = self._get_first_table_page() * 4096
 
         while MemoryArrayOffset:
             MemoryArray = obj.Object('_MEMORY_RANGE_ARRAY', MemoryArrayOffset, self.base)
