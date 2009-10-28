@@ -134,6 +134,9 @@ class NoneObject(object):
     def __eq__(self, other):
         return (other is None)
 
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
     ## Make us subscriptable obj[j]
     def __getitem__(self, item):
         return self
