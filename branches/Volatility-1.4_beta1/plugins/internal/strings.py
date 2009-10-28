@@ -2,6 +2,10 @@
 Created on 9 Oct 2009
 
 @author: Mike Auty
+
+# Copyright (C) 2007,2008 Volatile Systems
+# Copyright (C) 2009 Timothy D. Morgan (strings optimization)
+
 '''
 
 import os
@@ -31,83 +35,121 @@ class strings(commands.command):
         
         data = {}
         
-        data['addr_space'] = utils.load_as()
+        addr_space = utils.load_as()
 
-        data['tasks'] = win32.tasks.pslist(data['addr_space'])
+        tasks = win32.tasks.pslist(addr_space)
 
         try:
             if config.PIDS is not None:
                 pidlist = [int(p) for p in config.PIDS.split(',')]
-                newtasks = [t for t in data['tasks'] if int(t.UniqueProcessId) in pidlist]
-                data['tasks'] = newtasks
+                tasks = [t for t in tasks if int(t.UniqueProcessId) in pidlist]
         except (ValueError, TypeError):
             # TODO: We should probably print a non-fatal warning here
             pass
-                    
-        return data
+        
+        return addr_space, tasks
 
     def render_text(self, outfd, data):
         """Runs through the text file outputting which string appears where"""
 
-        # dict of form phys_page -> [isKernel, (pid1, vaddr1), (pid2, vaddr2) ...]
-        # where isKernel is True or False. if isKernel is true, list is of all kernel addresses
-        # ASSUMPTION: no pages mapped in kernel and userland
-        reverse_map = {}
-        
-        verbfd = obj.NoneObject("Swallow output unless VERBOSE mode is enabled")
+        addr_space, tasks = data
+
+        stringlist = open(config.STRING_FILE, "r")
+
+        verbfd = None
         if config.VERBOSE:
             verbfd = outfd
-    
-        verbfd.write("Calculating kernel mapping...\n")
-        vpage = 0
-        while vpage < 0xFFFFFFFF:
-            kpage = data['addr_space'].vtop(vpage)
-            if not kpage is None:
-                # Write the status inside the check for None, so we don't output too often
-                if not reverse_map.has_key(kpage):
-                    reverse_map[kpage] = [True]
-                reverse_map[kpage].append(('kernel', vpage))
-            verbfd.write("\r  Kernel [{0:08x}]".format(vpage))
-            vpage += 0x1000
-        verbfd.write("\n")
-    
-        verbfd.write("Calculating task mappings...\n")
-        for task in data['tasks']:
-            task_space = task.get_process_address_space()
-            verbfd.write("  Task {0} ...".format(task.UniqueProcessId))
-            vpage = 0
-            try:
-                while vpage < 0xFFFFFFFF:
-                    physpage = task_space.vtop(vpage)
-                    if not physpage is None:
-                        if not reverse_map.has_key(physpage):
-                            reverse_map[physpage] = [False]
-    
-                        if not reverse_map[physpage][0]:
-                            reverse_map[physpage].append((int(task.UniqueProcessId), vpage))
-                    verbfd.write("\r  Task {0} [{1:08x}]".format(task.UniqueProcessId, vpage))
-                    vpage += 0x1000
-            except:
-                continue
-            verbfd.write("\n")
-        verbfd.write("\n")
-            
-        stringlist = open(config.STRING_FILE, "r")
-        
+
+        # Before we bother to start parsing the image, check to make sure the strings
+        # are specified correctly
+        parsedStrings = []
         for stringLine in stringlist:
             (offsetString, string) = self.parse_line(stringLine)
             try:
                 offset = int(offsetString)
-            except (ValueError, TypeError):
+            except ValueError:
                 config.error("String file format invalid.")
+            parsedStrings.append((offset, string))
+
+        reverse_map = self.get_reverse_map(addr_space, tasks, verbfd)
+
+        for (offset, string) in parsedStrings:
             if reverse_map.has_key(offset & 0xFFFFF000):
                 outfd.write("{0:08x} [".format(offset))
-                outfd.write(' '.join(["{0}:{1}".format(pid[0], pid[1] | (offset & 0xFFF)) for pid in reverse_map[offset & 0xFFFFF000][1:]]))
+                outfd.write(' '.join(["{0}:{1:08x}".format(pid[0], pid[1] | (offset & 0xFFF)) for pid in reverse_map[offset & 0xFFFFF000][1:]]))
                 outfd.write("] {0}\n".format(string.strip()))
+
+    def get_reverse_map(self, addr_space, tasks, verbfd=None):
+        """Generates a reverse mapping from physical addresses to the kernel and/or tasks
+        
+           Returns:
+           dict of form phys_page -> [isKernel, (pid1, vaddr1), (pid2, vaddr2) ...]
+           where isKernel is True or False. if isKernel is true, list is of all kernel addresses
+        """
+        
+        if verbfd is None:
+            verbfd = obj.NoneObject("Swallow output unless VERBOSE mode is enabled")
+        
+        # ASSUMPTION: no pages mapped in kernel and userland
+        # XXX: Can we eliminate the above assumption?  It seems like the only change needed for
+        #      that would be to store a boolean with each pid/vaddr pair...
+        #
+        # XXX: The following code still fails to represent information about larger pages in
+        #      the final output.  The output implies that addresses in a large page are
+        #      really stored in one or more 4k pages.  This is no different from the old
+        #      version of the code, but in this version it could be corrected easily by
+        #      recording vpage instead of vpage+i in the reverse map. -- TDM
+        reverse_map = {}
+        
+        verbfd.write("Calculating kernel mapping...\n")
+        available_pages = addr_space.get_available_pages()
+        for (vpage, vpage_size) in available_pages:
+            kpage = addr_space.vtop(vpage)
+            for i in range(0, vpage_size, 0x1000):
+                # Since the output will always be mutable, we don't need to reinsert into the list
+                pagelist = reverse_map.get(kpage + i, None)
+                if pagelist is None:
+                    pagelist = [True]
+                    reverse_map[kpage + i] = pagelist
+                pagelist.append(('kernel', vpage + i))
+                verbfd.write("\r  Kernel [{0:08x}]".format(vpage))
+        verbfd.write("\n")
+    
+        verbfd.write("Calculating task mappings...\n")
+        for task in tasks:
+            task_space = task.get_process_address_space()
+            verbfd.write("  Task {0} ...".format(task.UniqueProcessId))
+            process_id = int(task.UniqueProcessId)
+            try:
+                available_pages = task_space.get_available_pages()
+                for (vpage, vpage_size) in available_pages:
+                    physpage = task_space.vtop(vpage)
+                    for i in range(0, vpage_size, 0x1000):
+                        # Since the output will always be mutable, we don't need to reinsert into the list
+                        pagelist = reverse_map.get(physpage + i, None)
+                        if pagelist is None:
+                            pagelist = [False]
+                            reverse_map[physpage + i] = pagelist
+                        if not pagelist[0]:
+                            pagelist.append((process_id, vpage + i))
+    
+                    verbfd.write("\r  Task {0} [{1:08x}]".format(process_id, vpage))
+            except (AttributeError, ValueError, TypeError):
+                # Handle most errors, but not all of them
+                continue
+            verbfd.write("\n")
+        verbfd.write("\n")
+        return reverse_map
 
     def parse_line(self, stringLine):
         """Parses a line of strings"""
-        space_pos = stringLine[7:].index(' ') + 7
-        return (stringLine[:space_pos], stringLine[space_pos + 1:])
-        # FIXME: Figure out how to determine whether strings is space separated or colon separated
-        # return stringLine.split(':', 1)
+        # Remove any leading spaces to handle nasty strings output
+        stringLine = stringLine.lstrip()
+        maxlen = len(stringLine)
+        split_char = ' '
+        for char in [' ', ':']:
+            charpos = stringLine.find(char)
+            if charpos < maxlen and charpos > 0:
+                split_char = char
+                maxlen = charpos
+        return tuple(stringLine.split(split_char, 1))
