@@ -29,9 +29,12 @@ for SP2.
 #pylint: disable-msg=C0111
 
 import volatility.obj as obj
-import time
+import datetime
 import vtypes
+import volatility.timefmt as timefmt
 import volatility.debug as debug #pylint: disable-msg=W0611
+import volatility.conf as conf
+config = conf.ConfObject()
 
 class WinXPSP2(obj.Profile):
     """ A Profile for windows XP SP2 """
@@ -111,16 +114,12 @@ class _LIST_ENTRY(obj.CType):
         return self.list_of_type(self.parent.name, self.name)
 
 class WinTimeStamp(obj.NativeType):
-    def __init__(self, type=None, offset=None, vm=None, value=None,
-                 parent=None, name=None, **args):
-        ## This allows us to have a WinTimeStamp object with a
-        ## predetermined value
-        self.data = None
-        if value:
-            self.data = value
-        else:
-            obj.NativeType.__init__(self, type, offset, vm, parent=parent, 
-                                        name=name, format_string="q")
+    
+    def __init__(self, theType=None, offset=None, vm=None,
+                 parent=None, name=None, is_utc=False, **args):
+        self.is_utc = is_utc
+        obj.NativeType.__init__(self, theType, offset, vm, parent=parent, 
+                                name=name, format_string="q")
 
     def windows_to_unix_time(self, windows_time):
         """
@@ -144,10 +143,6 @@ class WinTimeStamp(obj.NativeType):
         return unix_time
 
     def as_windows_timestamp(self):
-        # Remember to return our value if we've been created explicitly,
-        # since we don't have a vm or an offset for the NativeType.v function
-        if self.data is not None:
-            return self.data
         return obj.NativeType.v(self)
 
     def v(self):
@@ -157,21 +152,24 @@ class WinTimeStamp(obj.NativeType):
     def __nonzero__(self):
         return self.v() != 0
 
-    def __sub__(self, x):
-        return WinTimeStamp(value = self.as_windows_timestamp() - x.as_windows_timestamp())
-
     def __str__(self):
         return self._format_time(self.v())
 
-    def __format__(self, formatspec):
-        return format(self.__str__(), formatspec)
+    def as_datetime(self):
+        dt = datetime.datetime(1970, 1, 1).fromtimestamp(self.v())
+        if self.is_utc:
+            # Only do dt.replace when dealing with UTC
+            dt = dt.replace(tzinfo=timefmt.UTC())
+        return dt
 
-    def _format_time(self, t):
-        # Note: We do *NOT* know the Timezeone without figuring out the TimeZoneBias
-        # So we can't unilaterally say GMT or UTC or anything like that here...
-        ts = time.strftime("%a %b %d %H:%M:%S %Y",
-                           time.gmtime(t))
-        return ts
+    def __format__(self, formatspec):
+        """Datetimes tend to come out at a maximum of 25 characters:
+           XXXX-XX-XX XX:XX:XX+XX:XX
+           
+           This is also the place to specify how to format the datetime
+        """
+        dt = self.as_datetime()
+        return format(timefmt.display_datetime(dt), formatspec)
 
 LEVEL_MASK = 0xfffffff8
 
@@ -235,7 +233,7 @@ class _EPROCESS(obj.CType):
                     if item.Type.Name:
                         yield item
 
-                except Exception, _e:
+                except AttributeError:
                     pass
         
     def handles(self):
