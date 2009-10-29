@@ -4,6 +4,7 @@ Created on 20 Sep 2009
 @author: Mike Auty
 '''
 
+import volatility.timefmt as timefmt
 import volatility.obj as obj
 import volatility.win32 as win32
 import volatility.utils as utils
@@ -16,18 +17,25 @@ class datetime(commands.command):
     """Get date/time information for image"""
     def render_text(self, outfd, data):
         """Renders the calculated data as text to outfd"""
-        outfd.write("Image date and time: {0}\n".format(data['ImageDatetime']))
+        dt = data['ImageDatetime'].as_datetime()
+
+        outfd.write("Image date and time       : {0}\n".format(data['ImageDatetime']))
+        outfd.write("Image local date and time : {0}\n".format(timefmt.display_datetime(dt, data['ImageTz'])))
 
     def calculate(self):
-        result = {}
         addr_space = utils.load_as()
-        
+
+        return self.get_image_time(addr_space)
+
+    def get_image_time(self, addr_space):
         # Get the Image Datetime
+        result = {}
         k = obj.Object("_KUSER_SHARED_DATA",
                               offset=win32.info.KUSER_SHARED_DATA,
                               vm=addr_space)
         
         result['ImageDatetime'] = k.SystemTime
+        result['ImageTz'] = timefmt.OffsetTzInfo(-k.TimeZoneBias.as_windows_timestamp() / 10000000)
 
         return result
 
@@ -38,11 +46,15 @@ class ident(datetime):
     
     def render_text(self, outfd, data):
         """Renders the calculated data as text to outfd"""
+        
+        dt = data['ImageDatetime'].as_datetime()
+
         outfd.write("              Image Name: {0}\n".format(data['ImageName']))
         outfd.write("              Image Type: {0}\n".format(data['ImageType']))
         outfd.write("                 VM Type: {0}\n".format(data['ImagePAE']))
         outfd.write("                     DTB: {0}\n".format(data['ImageDTB']))
         outfd.write("                Datetime: {0}\n".format(data['ImageDatetime']))
+        outfd.write("          Local Datetime: {0}\n".format(timefmt.display_datetime(dt, data['ImageTz'])))
     
     def calculate(self):
         result = {}
@@ -68,11 +80,7 @@ class ident(datetime):
         result['ImageDTB'] = hex(addr_space.load_dtb())
         
         # Get the Image Datetime
-        k = obj.Object("_KUSER_SHARED_DATA",
-                              offset=win32.info.KUSER_SHARED_DATA,
-                              vm=addr_space)
-        
-        result['ImageDatetime'] = k.SystemTime
+        result.update(self.get_image_time(addr_space))
 
         return result
 

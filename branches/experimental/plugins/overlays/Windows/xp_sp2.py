@@ -31,7 +31,10 @@ for SP2.
 import volatility.obj as obj
 import datetime
 import vtypes
+import volatility.timefmt as timefmt
 import volatility.debug as debug #pylint: disable-msg=W0611
+import volatility.conf as conf
+config = conf.ConfObject()
 
 class WinXPSP2(obj.Profile):
     """ A Profile for windows XP SP2 """
@@ -110,56 +113,13 @@ class _LIST_ENTRY(obj.CType):
     def __iter__(self):
         return self.list_of_type(self.parent.name, self.name)
 
-class OffsetTzInfo(datetime.tzinfo):
-    
-    def __init__(self, offset=None, *args, **kwargs):
-        """Accepts offset in seconds"""
-        self.offset = offset 
-        datetime.tzinfo.__init__(self, *args, **kwargs)
-    
-    def set_offset(self, offset):
-        self.offset = offset
-    
-    def utcoffset(self, dt):
-        if self.offset is None:
-            return None
-        return datetime.timedelta(seconds=self.offset) + self.dst(dt)
-    
-    def dst(self, _dt):
-        """We almost certainly can't know about DST, so we say it's always off"""
-        # FIXME: Maybe we can know or make guesses about DST? 
-        return datetime.timedelta(0)
-    
-    def tzname(self, _dt):
-        """Return a useful timezone name"""
-        if self.offset is None:
-            return "UNKNOWN"
-        return None
-
 class WinTimeStamp(obj.NativeType):
     
-    def __init__(self, theType=None, offset=None, vm=None, tz=None,
-                 parent=None, name=None, **args):
+    def __init__(self, theType=None, offset=None, vm=None,
+                 parent=None, name=None, is_utc=False, **args):
+        self.is_utc = is_utc
         obj.NativeType.__init__(self, theType, offset, vm, parent=parent, 
                                 name=name, format_string="q")
-        # TZ will be the timezone Bias in seconds
-        # Localtime = UTC - Bias
-        # Localtime = UTC + Offset
-        # This should be explicitly set to 0 for any known UTC values
-        # If it's a lambda object, call it with the parent
-        try:
-            tz = tz(parent)
-        except TypeError:
-            pass
-
-        # If it's a WinTimeStamp convert it to seconds
-        # and change it from a Bias to a UTC offset (+ to -)
-        try:
-            tz = -tz.as_windows_timestamp() / 10000000
-        except AttributeError:
-            pass
-
-        self.tz = OffsetTzInfo(tz) 
 
     def windows_to_unix_time(self, windows_time):
         """
@@ -195,9 +155,11 @@ class WinTimeStamp(obj.NativeType):
     def __str__(self):
         return self._format_time(self.v())
 
-    def get_as_datetime(self):
+    def as_datetime(self):
         dt = datetime.datetime(1970, 1, 1).fromtimestamp(self.v())
-        dt = dt.replace(tzinfo=self.tz)
+        if self.is_utc:
+            # Only do dt.replace when dealing with UTC
+            dt = dt.replace(tzinfo=timefmt.UTC())
         return dt
 
     def __format__(self, formatspec):
@@ -206,7 +168,8 @@ class WinTimeStamp(obj.NativeType):
            
            This is also the place to specify how to format the datetime
         """
-        return format("{0}".format(self.get_as_datetime()), formatspec)
+        dt = self.as_datetime()
+        return format(timefmt.display_datetime(dt), formatspec)
 
 LEVEL_MASK = 0xfffffff8
 

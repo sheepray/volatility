@@ -54,7 +54,7 @@ xpsp2types = { \
     'Blink' : [ 0x4, ['pointer', ['_LIST_ENTRY']]], \
 } ], \
   '_KUSER_SHARED_DATA' : [ 0x338, { \
-    'SystemTime' : [ 0x14, ['WinTimeStamp', dict(tz=lambda x: x.TimeZoneBias)]], \
+    'SystemTime' : [ 0x14, ['WinTimeStamp', dict(is_utc=True)]], \
     'TimeZoneBias' : [ 0x20, ['WinTimeStamp']], \
     'SuiteMask' : [ 0x2d0, ['unsigned long']], \
     'NumberOfPhysicalPages' : [ 0x2e8, ['unsigned long']], \
