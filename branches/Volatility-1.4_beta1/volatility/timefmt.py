@@ -67,9 +67,12 @@ def display_datetime(dt, custom_tz=None):
         dt = dt.astimezone(custom_tz)
     elif config.TZ is not None:
         if isinstance(config.TZ, str):
+            secs = time.mktime(dt.timetuple())
             os.environ['TZ'] = config.TZ
             time.tzset()
-            return time.strftime(timeformat, dt.timetuple())
+            # Remove the %z which appears not to work
+            timeformat = timeformat[:-2]
+            return time.strftime(timeformat, time.localtime(secs))
         else:
             dt = dt.astimezone(config.tz)
     return ("{0:" + timeformat + "}").format(dt)
@@ -96,7 +99,7 @@ def tz_from_string(_option, _opt_str, value, parser):
                     config.error("Unknown display timezone specified")
             else:
                 if not hasattr(time, 'tzset'):
-                    config.error("This operating system doesn't support tzset, please install pytz")
+                    config.error("This operating system doesn't support tzset, please either specify an offset (eg. +1000) or install pytz")
                 timezone = value
         parser.values.tz = timezone
 
