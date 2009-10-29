@@ -4,7 +4,7 @@ Created on 28 Oct 2009
 @author: Mike Auty
 '''
 
-import os, time
+import os, time, calendar
 import datetime
 import volatility.conf as conf
 try:
@@ -67,7 +67,7 @@ def display_datetime(dt, custom_tz=None):
         dt = dt.astimezone(custom_tz)
     elif config.TZ is not None:
         if isinstance(config.TZ, str):
-            secs = time.mktime(dt.timetuple())
+            secs = calendar.timegm(dt.timetuple())
             os.environ['TZ'] = config.TZ
             time.tzset()
             # Remove the %z which appears not to work

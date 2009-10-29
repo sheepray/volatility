@@ -153,21 +153,17 @@ class WinTimeStamp(obj.NativeType):
         return self.v() != 0
 
     def __str__(self):
-        return self._format_time(self.v())
+        return "{0}".format(self)
 
     def as_datetime(self):
-        dt = datetime.datetime(1970, 1, 1).fromtimestamp(self.v())
+        dt = datetime.datetime.utcfromtimestamp(self.v())
         if self.is_utc:
             # Only do dt.replace when dealing with UTC
             dt = dt.replace(tzinfo=timefmt.UTC())
         return dt
 
     def __format__(self, formatspec):
-        """Datetimes tend to come out at a maximum of 25 characters:
-           XXXX-XX-XX XX:XX:XX+XX:XX
-           
-           This is also the place to specify how to format the datetime
-        """
+        """Formats the datetime according to the timefmt module"""
         dt = self.as_datetime()
         return format(timefmt.display_datetime(dt), formatspec)
 
