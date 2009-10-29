@@ -4,6 +4,7 @@ Created on 28 Oct 2009
 @author: Mike Auty
 '''
 
+import os, time
 import datetime
 import volatility.conf as conf
 try:
@@ -65,7 +66,15 @@ def display_datetime(dt, custom_tz=None):
     if custom_tz is not None:
         dt = dt.astimezone(custom_tz)
     elif config.TZ is not None:
-        dt = dt.astimezone(config.tz)
+        if isinstance(config.TZ, str):
+            secs = time.mktime(dt.timetuple())
+            os.environ['TZ'] = config.TZ
+            time.tzset()
+            # Remove the %z which appears not to work
+            timeformat = timeformat[:-2]
+            return time.strftime(timeformat, time.localtime(secs))
+        else:
+            dt = dt.astimezone(config.tz)
     return ("{0:" + timeformat + "}").format(dt)
 
 def tz_from_string(_option, _opt_str, value, parser):
@@ -89,7 +98,9 @@ def tz_from_string(_option, _opt_str, value, parser):
                 except pytz.UnknownTimeZoneError:
                     config.error("Unknown display timezone specified")
             else:
-                config.error("Please install pytz or specify your timestamp as an offset (eg. +1000)")
+                if not hasattr(time, 'tzset'):
+                    config.error("This operating system doesn't support tzset, please either specify an offset (eg. +1000) or install pytz")
+                timezone = value
         parser.values.tz = timezone
 
 config.add_option("TZ", action="callback", callback=tz_from_string,
