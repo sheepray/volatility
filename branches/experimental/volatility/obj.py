@@ -362,7 +362,7 @@ class BaseObject(object):
         return self.vm.is_valid_address(self.offset)
 
     def dereference(self):
-        return NoneObject("Cant derenference {0}".format(self.name), self.profile.strict)
+        return NoneObject("Can't dereference {0}".format(self.name), self.profile.strict)
 
     def dereference_as(self, derefType):
         return Object(derefType, self.v(), \
@@ -600,7 +600,6 @@ class Array(BaseObject):
         
         self.count = int(count)
 
-        self.position = 0
         self.original_offset = offset
         if targetType:
             self.target = Curry(Object, targetType)
@@ -632,15 +631,14 @@ class Array(BaseObject):
                 return
 
             offset = self.original_offset + position * self.current.size()
-            self.position += 1
 
             ## Instantiate the target here:
             if self.vm.is_valid_address(offset):
                 yield self.target(offset = offset, vm=self.vm,
                                   parent=self,
-                                  name="{0} {1}".format(self.name, self.position))
+                                  name="{0} {1}".format(self.name, position))
             else:
-                yield NoneObject("Array {0}, Invalid position {1}".format(self.name, self.position),
+                yield NoneObject("Array {0}, Invalid position {1}".format(self.name, position),
                                  self.profile.strict)
         
     def __repr__(self):
