@@ -276,6 +276,8 @@ xpsp2types = { \
   'Tcb' : [ 0x0, ['_KTHREAD']], \
   'Cid' : [ 0x1ec, ['_CLIENT_ID']], \
   'LpcReplySemaphore' : [ 0x1f4, ['_KSEMAPHORE']], \
+  'CreateTime' : [ 0x1c0, ['ThreadCreateTimeStamp']],  # Note, this is not a WinTimeStamp, it needs to be >> 3
+  'ExitTime' : [ 0x1c8, ['WinTimeStamp']], \
   'ThreadsProcess' : [ 0x220, ['pointer', ['_EPROCESS']]], \
   'StartAddress' : [ 0x224, ['pointer', ['void']]], \
 } ], \

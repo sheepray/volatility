@@ -169,6 +169,13 @@ class WinTimeStamp(obj.NativeType):
 
 LEVEL_MASK = 0xfffffff8
 
+class ThreadCreateTimeStamp(WinTimeStamp):
+    
+    def __init__(self, *args, **kwargs):
+        WinTimeStamp.__init__(self, *args,  **kwargs)
+    
+    def as_windows_timestamp(self):
+        return obj.NativeType.v(self) >> 3
 
 class _EPROCESS(obj.CType):
     """ An extensive _EPROCESS with bells and whistles """

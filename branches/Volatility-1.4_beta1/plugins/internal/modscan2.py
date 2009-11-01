@@ -150,13 +150,15 @@ class thrdscan2(modscan2):
             yield thread
             
     def render_text(self, outfd, data):
-        outfd.write("PID    TID    Offset    \n"+ \
-                    "------ ------ ----------\n")
+        outfd.write("PID    TID    Create Time               Exit Time                 Offset    \n"+ \
+                    "------ ------ ------------------------- ------------------------- ----------\n")
         
         for thread in data:
-            outfd.write("{0:6} {1:6} 0x{2:08x}\n".format(thread.Cid.UniqueProcess,
-                                                         thread.Cid.UniqueThread,
-                                                         thread.offset))
+            outfd.write("{0:6} {1:6} {2: <25} {3: <25} 0x{4:08x}\n".format(thread.Cid.UniqueProcess,
+                                                                           thread.Cid.UniqueThread,
+                                                                           thread.CreateTime or '',
+                                                                           thread.ExitTime or '',
+                                                                           thread.offset))
             
         
 
