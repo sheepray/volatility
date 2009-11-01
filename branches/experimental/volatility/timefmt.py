@@ -62,19 +62,19 @@ class UTC(datetime.tzinfo):
 def display_datetime(dt, custom_tz=None):
     """Returns a string from a datetime according to the display TZ (or a custom one"""
     timeformat = "%Y-%m-%d %H:%M:%S %Z%z"
-    
-    if custom_tz is not None:
-        dt = dt.astimezone(custom_tz)
-    elif config.TZ is not None:
-        if isinstance(config.TZ, str):
-            secs = calendar.timegm(dt.timetuple())
-            os.environ['TZ'] = config.TZ
-            time.tzset()
-            # Remove the %z which appears not to work
-            timeformat = timeformat[:-2]
-            return time.strftime(timeformat, time.localtime(secs))
-        else:
-            dt = dt.astimezone(config.tz)
+    if dt.tzinfo is not None and dt.tzinfo.utcoffset(dt) is not None:
+        if custom_tz is not None:
+            dt = dt.astimezone(custom_tz)
+        elif config.TZ is not None:
+            if isinstance(config.TZ, str):
+                secs = calendar.timegm(dt.timetuple())
+                os.environ['TZ'] = config.TZ
+                time.tzset()
+                # Remove the %z which appears not to work
+                timeformat = timeformat[:-2]
+                return time.strftime(timeformat, time.localtime(secs))
+            else:
+                dt = dt.astimezone(config.tz)
     return ("{0:" + timeformat + "}").format(dt)
 
 def tz_from_string(_option, _opt_str, value, parser):

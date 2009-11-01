@@ -31,11 +31,10 @@ This module implements the slow thorough process scanning
 import volatility.scan as scan
 import volatility.conf as conf
 import volatility.commands as commands
-import time
-config = conf.ConfObject()
 import volatility.utils as utils
 import volatility.obj as obj
 import volatility.debug as debug #pylint: disable-msg=W0611
+config = conf.ConfObject()
 
 class DispatchHeaderCheck(scan.ScannerCheck):
     """ A very fast check for an _EPROCESS.Pcb.Header.
@@ -192,14 +191,11 @@ class thrdscan(commands.command):
     
     def render_text(self, outfd, data):
         ## Just grab the AS and scan it using our scanner
-        start = time.time()
         outfd.write("PID    TID    Create Time               Exit Time                 Offset    \n" + \
                     "------ ------ ------------------------- ------------------------- ----------\n")
 
         for ethread in data:
-            cnt = str(time.time() - start)
-            outfd.write("{1:6} {2:6} {3: <25} {4: <25} 0x{5:08x}\n".format(cnt, 
-                                                                           ethread.Cid.UniqueProcess,
+            outfd.write("{0:6} {1:6} {2: <25} {3: <25} 0x{4:08x}\n".format(ethread.Cid.UniqueProcess,
                                                                            ethread.Cid.UniqueThread,
                                                                            ethread.CreateTime or '',
                                                                            ethread.ExitTime or '',
@@ -269,15 +265,11 @@ class psscan(commands.command):
         
     def render_text(self, outfd, data):
         ## Just grab the AS and scan it using our scanner
-        start = time.time()
         outfd.write("PID    PPID   Time created             Time exited              Offset     PDB        Remarks\n"+ \
                     "------ ------ ------------------------ ------------------------ ---------- ---------- ----------------\n")
         
         for eprocess in data:
-            cnt = "{0}".format(time.time() - start)
-
-            outfd.write("{1:6} {2:6} {3:24} {4:24} 0x{5:08x} 0x{6:08x} {7:16}\n".format(
-                cnt,
+            outfd.write("{0:6} {1:6} {2:24} {3:24} 0x{4:08x} 0x{5:08x} {6:16}\n".format(
                 eprocess.UniqueProcessId,
                 eprocess.InheritedFromUniqueProcessId,
                 eprocess.CreateTime or '',
