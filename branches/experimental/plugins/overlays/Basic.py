@@ -14,7 +14,7 @@ class String(obj.NativeType):
         ## Allow length to be a callable:
         try:
             length = length(parent)
-        except:
+        except TypeError:
             pass
         
         ## length must be an integer
@@ -91,3 +91,28 @@ class Flags(obj.NativeType):
         mask = bits << maprange[0]
 
         return self.v() & mask
+    
+class Enumeration(obj.NativeType):
+    """Enumeration class for handling multiple possible meanings for a single value"""
+
+    def __init__(self, targetType=None, offset=0, vm=None, parent=None,
+                 choices=None, name=None, target="unsigned long",
+                 **args):
+        self.choices = {}
+        if choices:
+            self.choices = choices
+
+        self.target = obj.Object(target, offset=offset, vm=vm, parent=parent)
+        obj.NativeType.__init__(self, targetType, offset, vm, parent, **args)
+
+    def v(self):
+        return self.target.v()
+
+    def __str__(self):
+        value = self.v()
+        if value in self.choices.keys():
+            return self.choices[value]
+        return 'Unknown choice ' + str(value)
+
+    def __format__(self, formatspec):
+        return format(self.__str__(), formatspec)
