@@ -61,11 +61,11 @@ class BaseScanner(object):
 
     def check_addr(self, found):
         """ This calls all our constraints on the offset found and
-        returns the number of contrainst that matched.
+        returns the number of contraints that matched.
 
         We shortcut the loop as soon as its obvious that there will
         not be sufficient matches to fit the criteria. This allows for
-        an early exit and a speed boostup.
+        an early exit and a speed boost.
         """
         cnt = 0
         for check in self.constraints:

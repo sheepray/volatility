@@ -6,13 +6,16 @@ Created on 13 Oct 2009
 
 import re
 import sre_constants
-import pefile
+import struct
 import procdump
 import volatility.win32 as win32
 import volatility.obj as obj
 import volatility.utils as utils
+import volatility.addrspace as addrspace
 import volatility.conf as conf
 config = conf.ConfObject()
+
+MAX_STRING_BYTES = 260
 
 ver_types = {
 '_IMAGE_RESOURCE_DIRECTORY' : [ 0x12, {
@@ -29,7 +32,7 @@ ver_types = {
   'DataOffset' : [ 0x4, ['unsigned long']],                                           
 } ],
 '_IMAGE_RESOURCE_DATA_ENTRY' : [0x10, {
-  'Offset' : [0x0, ['unsigned long']],
+  'DataOffset' : [0x0, ['unsigned long']],
   'Size' : [0x4, ['unsigned long']],
   'CodePage' : [0x8, ['unsigned long']],
   'Reserved' : [0xc, ['unsigned long']],                                  
@@ -38,7 +41,224 @@ ver_types = {
   'Length': [0x0, ['unsigned short']],
   'Value' : [0x2, ['array', lambda x: x.Length, ['unsigned short']]],
 } ],
+'_VS_VERSION_INFO' : [0x26, {
+  'Length': [0x0, ['unsigned short']],
+  'ValueLength': [0x2, ['unsigned short']],
+  'Type': [0x4, ['unsigned short']],
+  'Key': [0x6, ['array', len("VS_VERSION_INFO "), ['unsigned short']]],
+  'FileInfo': [lambda x: (((x.Key.offset + x.Key.size() + 3) / 4) * 4), ['_VS_FIXEDFILEINFO']],
+} ],
+'VerStruct' : [0x26, {
+  'Length': [0x0, ['unsigned short']],
+  'ValueLength': [0x2, ['unsigned short']],
+  'Type': [0x4, ['unsigned short']],
+  'Key': [0x6, ['array', MAX_STRING_BYTES, ['unsigned short']]],
+} ],
+'_VS_FIXEDFILEINFO': [0x34, {
+  'Signature': [0x0, ['unsigned long']],
+  'StructVer': [0x4, ['unsigned long']],
+  'FileVerMS': [0x8, ['unsigned long']],
+  'FileVerLS': [0xC, ['unsigned long']],
+  'ProdVerMS': [0x10, ['unsigned long']],
+  'ProdVerLS': [0x14, ['unsigned long']],
+  'FileFlagsMask': [0x18, ['unsigned long']],
+  'FileFlags': [0x1C, ['unsigned long']],
+  'FileOS': [0x20, ['Enumeration', {'choices': {
+    0x0: 'Unknown',
+    0x10000: 'DOS',
+    0x20000: 'OS/2 16-bit',
+    0x30000: 'OS/2 32-bit',
+    0x40000: 'Windows NT',
+    0x1: 'Windows 16-bit',
+    0x2: 'Presentation Manager 16-bit',
+    0x3: 'Presentation Manager 32-bit',
+    0x4: 'Windows 32-bit',
+    0x10001: 'Windows 16-bit running on DOS',
+    0x10004: 'Windows 32-bit running on DOS',
+    0x20002: 'Presentation Manager running on OS/2 (16-bit)',
+    0x30003: 'Presentation Manager running on OS/2 (32-bit)',
+    0x40004: 'Windows NT',
+                                                  }} ]],
+  'FileType': [0x24, ['Enumeration', {'choices': {
+    0x0: 'Unknown',
+    0x1: 'Application',
+    0x2: 'Dynamic Link Library',
+    0x3: 'Driver',
+    0x4: 'Font',
+    0x5: 'Virtual Device',
+    0x7: 'Static Library',
+                                                  }} ]],
+  'FileSubType': [0x28, ['unsigned long']],
+  'FileDate': [0x2C, ['WinTimeStamp']],
+} ],
 }
+
+class VerStruct(obj.CType):
+    """Generic Version Structure"""
+
+    def _determine_key(self, findend=False):
+        """Determines the string value for or end location of the key"""
+        if self.Key != None:
+            name = None
+            for n in self.Key:
+                if n == None:
+                    return n
+                # If the letter's valid, then deal with it
+                if n == 0:
+                    if findend:
+                        return n.offset + n.size()
+                    name = self.vm.read(self.Key.offset, n.offset - self.Key.offset).decode("utf16","ignore").encode("ascii",'backslashreplace')
+                    break
+            return name
+        return self.Key
+
+    def get_key(self):
+        """Returns the VerStruct Name"""
+        return self._determine_key()
+
+    def offset_pad(self, offset):
+        """Pads an offset to a 32-bit alignment"""
+        return (((offset + 3) / 4) * 4)
+
+    def get_children(self):
+        """Returns the available children"""
+        offset = self.offset_pad(self._determine_key(True))
+        if self.ValueLength > 0:
+            # Nasty hardcoding unicode (length*2) length in here, 
+            # but what else can we do?
+            return self.vm.read(offset, self.ValueLength*2)
+        else:
+            return self._recurse_children(offset)
+            
+    def _recurse_children(self, offset):
+        """Recurses thorugh the available children"""
+        while offset < self.offset + self.Length:
+            item = obj.Object("VerStruct", offset=offset, vm=self.vm, parent=self)
+            if item.Length < 1 or item.get_key() == None:
+                raise StopIteration("Could not recover a key for a child at offset {0}".format(item.offset))
+            yield item.get_key(), item.get_children()
+            offset = self.offset_pad(offset + item.Length)
+        raise StopIteration("No children")
+
+class _VS_VERSION_INFO(VerStruct):
+    """Version Information"""
+    
+    def get_children(self):
+        """Recurses through the children of a Version Info records"""
+        offset = self.offset_pad(self.FileInfo.offset + self.ValueLength)
+        return self._recurse_children(offset)
+
+class _VS_FIXEDFILEINFO(obj.CType):
+    """Fixed (language and codepage independent) information"""
+ 
+    def file_version(self):
+        """Returns the file version"""
+        return self.get_version(self.FileVerMS) + "." + self.get_version(self.FileVerLS) 
+    
+    def product_version(self):
+        """Returns the product version"""
+        return self.get_version(self.ProdVerMS) + "." + self.get_version(self.ProdVerLS) 
+    
+    def get_version(self, value):
+        """Returns a version in four parts"""
+        version = []
+        for i in range(2):
+            version = [(value >> (i*16)) & 0xFFFF] + version
+        return '.'.join([str(x) for x in version])
+    
+    def file_type(self):
+        """Returns the type of the file"""
+        ftype = str(self.FileType)
+        choices = None
+        if self.FileType == 'Driver':
+            choices = {
+                       0x0: 'Unknown',
+                       0x1: 'Printer',
+                       0x2: 'Keyboard',
+                       0x3: 'Language',
+                       0x4: 'Display',
+                       0x5: 'Mouse',
+                       0x6: 'Network',
+                       0x7: 'System',
+                       0x8: 'Installable',
+                       0x9: 'Sound',
+                       0xA: 'Comms',
+                       0xB: 'Input Method',
+                       0xC: 'Versioned Printer',
+                       }
+        elif self.FileType == 'Font':
+            choices = {
+                       0x1: 'Raster',
+                       0x2: 'Vector',
+                       0x3: 'Truetype',
+                       }
+        if choices != None:
+            subtype = obj.Object('Enumeration', 0x28, vm=self.vm, parent=self, choices=choices)
+            ftype += " (" + str(subtype) + ")"
+        
+        return ftype
+
+    def flags(self):
+        """Returns the file's flags"""
+        data = struct.pack('=L', self.FileFlags & self.FileFlagsMask)
+        addr_space = addrspace.BufferAddressSpace(0, data)
+        bitmap = {'Debug': 0,
+                  'Prerelease': 1,
+                  'Patched': 2,
+                  'Private Build': 3,
+                  'Info Inferred': 4,
+                  'Special Build' : 5,
+                 }
+        return obj.Object('Flags', offset=0, vm=addr_space, bitmap=bitmap)
+
+    def v(self):
+        """Returns the value of the structure"""
+        val = ("File version    : {0}\n" + 
+               "Product version : {1}\n" + 
+               "Flags           : {2}\n" + 
+               "OS              : {3}\n" + 
+               "File Type       : {4}\n" + 
+               "File Date       : {5}").format(self.file_version(), self.product_version(),
+                                                 self.flags(), self.FileOS, self.file_type(), self.FileDate or '')
+        return val
+
+class _IMAGE_RESOURCE_DIR_STRING_U(obj.CType):
+    """Handles Unicode-esque strings in IMAGE_RESOURCE_DIRECTORY structures"""
+    # This is very similar to a UNICODE object, perhaps they should be merged somehow?
+    def v(self):
+        """Value function for _IMAGE_RESOURCE_DIR_STRING_U"""
+        try:
+            length = self.Length.v()
+            if length > 1024:
+                length = 0
+            data = self.vm.read(self.Value.offset, length)
+            return data.decode("utf16","ignore").encode("ascii",'backslashreplace')
+        except Exception, _e:
+            return ''
+
+class _IMAGE_RESOURCE_DIRECTORY(obj.CType):
+    """Handles Directory Entries"""
+    def __init__(self, theType=None, offset=None, vm=None, parent=None, *args, **kwargs):
+        self.sectoffset = offset
+        obj.CType.__init__(self, theType=theType, offset=offset, vm=vm, parent=parent, *args, **kwargs)
+
+    def get_entries(self):
+        """Gets a tree of the entries from the top level IRD"""
+        for irde in self.Entries:
+            if irde != None:
+                if irde.Name & 0x80000000:
+                    # Points to a Name object
+                    name = obj.Object("_IMAGE_RESOURCE_DIR_STRING_U", (irde.Name & 0x7FFFFFFF) + self.sectoffset, vm=self.vm, parent=irde)
+                else:
+                    name = int(irde.Name)
+                if irde.DataOffset & 0x80000000:
+                    # We're another DIRECTORY
+                    retobj = obj.Object("_IMAGE_RESOURCE_DIRECTORY", (irde.DataOffset & 0x7FFFFFFF) + self.sectoffset, vm=self.vm, parent=irde)
+                    retobj.sectoffset = self.sectoffset
+                else:
+                    # We're a DATA_ENTRY
+                    retobj = obj.Object("_IMAGE_RESOURCE_DATA_ENTRY", irde.DataOffset + self.sectoffset, vm=self.vm, parent=irde)
+                yield (name, bool(irde.DataOffset & 0x80000000), retobj)
 
 resource_types = { 
  'RT_CURSOR'       : 1,
@@ -113,6 +333,12 @@ class verinfo(procdump.procexedump):
         array = ''.join([chr(x) for x in section.Name]) + "\x00"
         return array[:array.index("\x00")]
 
+    def display_unicode(self, string):
+        """Renders a UTF16 string"""
+        if string is None:
+            return ''
+        return string.decode("utf16","ignore").encode("ascii",'backslashreplace')
+
     def render_text(self, outfd, data):
         """Renders the text"""
         for s, m in data:
@@ -121,32 +347,40 @@ class verinfo(procdump.procexedump):
             if not s.is_valid_address(m.BaseAddress):
                 outfd.write("  Disk image not resident in memory\n")
                 continue
+    
+            nt_header = self.get_nt_header(addr_space=s,
+                                           base_addr=m.BaseAddress)
+            # header = s.read(m.BaseAddress, nt_header.OptionalHeader.SizeOfHeaders)
             
-            # Using pefile is probably cheating a bit, and the initial elements
-            # of a new object resource reader are present (_IMAGE_RESOURCE_DIRECTORY, etc)
-            # So perhaps one day we can convert this over, but for now, we'll just build the image
-            # then analyze it
-            data = ""
-            debugmsg = obj.NoneObject()
-            if config.DEBUG > 2:
-                debugmsg = outfd
-            for o, c in self.get_image(debugmsg, s, m.BaseAddress):
-                if len(data) < o:
-                    data = data + ("\x00" * (o - len(data))) + c
-                else:
-                    data = data[:o] + c + data[o + len(c):]
-            try:
-                pedata = pefile.PE(data=data) 
-                
-                output = {}
-                if hasattr(pedata, 'FileInfo'):
-                    for entry in pedata.FileInfo:
-                        if hasattr(entry, 'StringTable'):
-                            for st_entry in entry.StringTable:
-                                for key, val in st_entry.entries.items():
-                                    aval = val.encode("ascii",'backslashreplace')
-                                    output[key] = aval
-                for key in output:
-                    outfd.write("  " + key + " : " + output[key] + "\n")
-            except pefile.PEFormatError:
-                outfd.write("  Unable to read PE information from module\n")
+            for sect in self.get_sections(s, nt_header):
+                if self.get_section_name(sect) == '.rsrc':
+                    root = obj.Object("_IMAGE_RESOURCE_DIRECTORY", m.BaseAddress + sect.VirtualAddress, s)
+                    for rname, rentry, rdata in root.get_entries():
+                        # We're a VERSION resource and we have subelements
+                        if rname == resource_types['RT_VERSION'] and rentry:
+                            for sname, sentry, sdata in rdata.get_entries():
+                                # We're the single sub element of the VERSION
+                                if sname == 1 and sentry:
+                                    # Get the string tables
+                                    self._render_verinfo(outfd, sdata, m, s)
+
+    def _render_verinfo(self, outfd, sdata, m, s):
+        """Renders remaining version information"""
+        for _stname, stentry, stdata in sdata.get_entries():
+            if not stentry:
+                vinfo = obj.Object("_VS_VERSION_INFO", offset=(stdata.DataOffset + m.BaseAddress), vm=s)
+                outfd.write("  File version    : {0}\n".format(vinfo.FileInfo.file_version())) 
+                outfd.write("  Product version : {0}\n".format(vinfo.FileInfo.product_version())) 
+                outfd.write("  Flags           : {0}\n".format(vinfo.FileInfo.flags())) 
+                outfd.write("  OS              : {0}\n".format(vinfo.FileInfo.FileOS)) 
+                outfd.write("  File Type       : {0}\n".format(vinfo.FileInfo.file_type())) 
+                outfd.write("  File Date       : {0}\n".format(vinfo.FileInfo.FileDate or ''))
+                for name, children in vinfo.get_children():
+                    if name == 'StringFileInfo':
+                        for _codepage, strings in children:
+                            for string, value in strings:
+                                # Make sure value isn't a generator, and we've a subtree to deal with
+                                if isinstance(value, type(strings)):
+                                    outfd.write("  {0} : Subtrees not yet implemented\n".format(string))
+                                else:
+                                    outfd.write("  {0} : {1}\n".format(string, self.display_unicode(value)))
