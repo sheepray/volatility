@@ -99,7 +99,11 @@ class VerStruct(obj.CType):
     def _determine_key(self, findend=False):
         """Determines the string value for or end location of the key"""
         if self.Key != None:
+            name = None
             for n in self.Key:
+                if n == None:
+                    return n
+                # If the letter's valid, then deal with it
                 if n == 0:
                     if findend:
                         return n.offset + n.size()
@@ -130,10 +134,11 @@ class VerStruct(obj.CType):
         """Recurses thorugh the available children"""
         while offset < self.offset + self.Length:
             item = obj.Object("VerStruct", offset=offset, vm=self.vm, parent=self)
-            if item.Length < 1:
-                raise AttributeError("Version Information structure had 0 length")
+            if item.Length < 1 or item.get_key() == None:
+                raise StopIteration("Could not recover a key for a child at offset {0}".format(item.offset))
             yield item.get_key(), item.get_children()
             offset = self.offset_pad(offset + item.Length)
+        raise StopIteration("No children")
 
 class _VS_VERSION_INFO(VerStruct):
     """Version Information"""
@@ -330,6 +335,8 @@ class verinfo(procdump.procexedump):
 
     def display_unicode(self, string):
         """Renders a UTF16 string"""
+        if string is None:
+            return ''
         return string.decode("utf16","ignore").encode("ascii",'backslashreplace')
 
     def render_text(self, outfd, data):
@@ -372,4 +379,8 @@ class verinfo(procdump.procexedump):
                     if name == 'StringFileInfo':
                         for _codepage, strings in children:
                             for string, value in strings:
-                                outfd.write("  " + string + " : " + self.display_unicode(value) + "\n")
+                                # Make sure value isn't a generator, and we've a subtree to deal with
+                                if isinstance(value, type(strings)):
+                                    outfd.write("  {0} : Subtrees not yet implemented\n".format(string))
+                                else:
+                                    outfd.write("  {0} : {1}\n".format(string, self.display_unicode(value)))
