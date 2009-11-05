@@ -8,7 +8,6 @@ This page documents the things we want to accomplish in the 1.4 branch, so we ca
 = Details =
 
 TODO Items:
-  # Test write support
   # Examine performance/profiling and possibly develop C modules for some parts
   # Sort out Linux code
     * Convert existing linux code to new object framework
@@ -18,7 +17,6 @@ TODO Items:
 
 == Miscellaneous Todo ==
 
-  * Use the object framework to read resources/version information rather than pefile
   * Write a raw2dump plugin (possibly dependent on write support)
   * Convert over some malware plugins
   * Have a go at overwriting hashes in memory (definitely dependent on write support)
