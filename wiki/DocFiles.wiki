@@ -10,6 +10,7 @@ This page contains links to documents that are part of the Volatility Documentat
   * [http://volatility.googlecode.com/files/VolatilitySVN.pdf SVN Manual (Windows)] (pdf)
   * [http://volatility.googlecode.com/files/volatility-linux-installv1.pdf Installation Manual (Linux)] (pdf)
   * [http://volatility.googlecode.com/files/install%20plugins.pdf Installing Plugins (Windows)] (pdf)
+  * [http://volatility.googlecode.com/files/Installing%20Volatility%20in%20Snow%20Leopard.pdf Mac OSX Install Manual] (pdf)
   * [http://neosysforensics.blogspot.com/2009/03/tuneando-volatility.html Tuneando Volatility (Linux)] (external link)
   * [http://neosysforensics.blogspot.com/2009/07/modificando-volatility.html Modificando Volatility (Changing Volatility)] (external link)
 
