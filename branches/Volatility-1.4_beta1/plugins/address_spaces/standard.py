@@ -5,7 +5,7 @@ import volatility.obj as obj
 import volatility.conf
 config = volatility.conf.ConfObject()
 import volatility.debug as debug #pylint: disable-msg=W0611
-import urlparse
+import urllib
 import os
 
 #pylint: disable-msg=C0111
@@ -56,13 +56,11 @@ class FileAddressSpace(addrspace.BaseAddressSpace):
     def __init__(self, base, layered=False, **kwargs):
         addrspace.BaseAddressSpace.__init__(self, base, **kwargs)
         assert base == None or layered, 'Must be first Address Space'
-        try:
-            (scheme, _, path, _, _, _) = urlparse.urlparse(config.LOCATION)
-        except AttributeError:
-            assert False, "Unable to parse {0} as a URL".format(config.LOCATION)
+        assert config.LOCATION.startswith("file:"), 'Location is not of file scheme'
 
-        assert scheme == 'file' and os.path.exists(path), 'Filename must be specified and exist'
-        self.name = path
+        path = urllib.url2pathname(config.LOCATION[5:])
+        assert os.path.exists(path), 'Filename must be specified and exist'
+        self.name = os.path.abspath(path)
         self.fname = self.name
         self.mode = 'rb'
         if config.WRITE:
