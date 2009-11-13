@@ -304,7 +304,7 @@ class _MMVAD(obj.CType):
         ## NoneObject). This also means that we can not add any
         ## specialist methods to the _MMVAD class.
         result = obj.Object(theType, offset=offset, vm=vm, parent=parent, **args)
-        result.Tag = tag
+        result.newattr('Tag', tag)
 
         return result
 
