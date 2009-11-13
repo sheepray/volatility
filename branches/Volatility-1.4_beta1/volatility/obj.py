@@ -38,6 +38,8 @@ import struct, copy, operator
 import volatility.registry as MemoryRegistry
 import volatility.addrspace as addrspace
 import volatility.debug as debug
+import volatility.conf as conf
+config = conf.ConfObject()
 
 class Curry:
     """ This class makes a curried object available for simple inlined functions.
@@ -288,6 +290,10 @@ class BaseObject(object):
     def proxied(self, attr):
         return None
 
+    def newattr(self, attr, value):
+        """Sets a new attribute after the object has been created"""
+        return BaseObject.__setattr__(self, attr, value)
+    
     def write(self, value):
         """Function for writing the object back to disk"""
         pass
@@ -736,6 +742,8 @@ class CType(BaseObject):
                 obj = self.m(attr)
                 if not obj.write(value):
                     raise ValueError("Error writing value to member " + attr)
+        # If you hit this, consider using obj.newattr('attr', value)
+        raise ValueError("Attribute " + attr + " was set after object initialization")
     
 ## Profiles are the interface for creating/interpreting
 ## objects
@@ -941,8 +949,6 @@ class Profile:
 if __name__ == '__main__':
     ## If called directly we run unit tests on this stuff
     import unittest
-    import volatility.conf as conf
-    config = conf.ConfObject()
 
     config.parse_options()
     MemoryRegistry.Init()
