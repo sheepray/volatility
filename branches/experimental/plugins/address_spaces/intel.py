@@ -267,7 +267,7 @@ class JKIA32PagedMemory(addrspace.BaseAddressSpace, standard.WritablePagedMemory
                 if pad:
                     buf = '\x00' * chunk_len
                 else:
-                    return None
+                    return ''
 
             ret    += buf
             vaddr  += chunk_len
