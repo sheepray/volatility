@@ -1,8 +1,22 @@
-'''
-Created on 13 Oct 2009
-
-@author: Mike Auty
-'''
+# Volatility
+#
+# Authors:
+# Mike Auty <mike.auty@gmail.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or (at
+# your option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# General Public License for more details. 
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA 
+#
 
 import re
 import sre_constants
@@ -339,36 +353,39 @@ class verinfo(procdump.procexedump):
             return ''
         return string.decode("utf16","ignore").encode("ascii",'backslashreplace')
 
+    def get_version_info(self, addr_space, offset):
+        """Accepts an address space and an executable image offset
+        
+           Returns a VS_VERSION_INFO object of NoneObject
+        """
+        if not addr_space.is_valid_address(offset):
+            return obj.NoneObject("Disk image not resident in memory")
+
+        nt_header = self.get_nt_header(addr_space=addr_space,
+                                       base_addr=offset)
+        # header = s.read(m.BaseAddress, nt_header.OptionalHeader.SizeOfHeaders)
+        
+        for sect in self.get_sections(addr_space, nt_header):
+            if self.get_section_name(sect) == '.rsrc':
+                root = obj.Object("_IMAGE_RESOURCE_DIRECTORY", offset + sect.VirtualAddress, addr_space)
+                for rname, rentry, rdata in root.get_entries():
+                    # We're a VERSION resource and we have subelements
+                    if rname == resource_types['RT_VERSION'] and rentry:
+                        for sname, sentry, sdata in rdata.get_entries():
+                            # We're the single sub element of the VERSION
+                            if sname == 1 and sentry:
+                                # Get the string tables
+                                for _stname, stentry, stdata in sdata.get_entries():
+                                    if not stentry:
+                                        return obj.Object("_VS_VERSION_INFO", offset=(stdata.DataOffset + offset), vm=addr_space)
+
     def render_text(self, outfd, data):
         """Renders the text"""
         for s, m in data:
             outfd.write(str(m.FullDllName))
             outfd.write("\n")
-            if not s.is_valid_address(m.BaseAddress):
-                outfd.write("  Disk image not resident in memory\n")
-                continue
-    
-            nt_header = self.get_nt_header(addr_space=s,
-                                           base_addr=m.BaseAddress)
-            # header = s.read(m.BaseAddress, nt_header.OptionalHeader.SizeOfHeaders)
-            
-            for sect in self.get_sections(s, nt_header):
-                if self.get_section_name(sect) == '.rsrc':
-                    root = obj.Object("_IMAGE_RESOURCE_DIRECTORY", m.BaseAddress + sect.VirtualAddress, s)
-                    for rname, rentry, rdata in root.get_entries():
-                        # We're a VERSION resource and we have subelements
-                        if rname == resource_types['RT_VERSION'] and rentry:
-                            for sname, sentry, sdata in rdata.get_entries():
-                                # We're the single sub element of the VERSION
-                                if sname == 1 and sentry:
-                                    # Get the string tables
-                                    self._render_verinfo(outfd, sdata, m, s)
-
-    def _render_verinfo(self, outfd, sdata, m, s):
-        """Renders remaining version information"""
-        for _stname, stentry, stdata in sdata.get_entries():
-            if not stentry:
-                vinfo = obj.Object("_VS_VERSION_INFO", offset=(stdata.DataOffset + m.BaseAddress), vm=s)
+            vinfo = self.get_version_info(s, m.BaseAddress)
+            if vinfo != None:
                 outfd.write("  File version    : {0}\n".format(vinfo.FileInfo.file_version())) 
                 outfd.write("  Product version : {0}\n".format(vinfo.FileInfo.product_version())) 
                 outfd.write("  Flags           : {0}\n".format(vinfo.FileInfo.flags())) 
