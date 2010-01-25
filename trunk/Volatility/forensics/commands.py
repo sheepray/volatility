@@ -80,7 +80,7 @@ class command:
 
         ## Then we render the result in some way based on the
         ## requested output mode:
-        function_name = "render_%s" % self.opts.output
+        function_name = "render_%s" % self.opts.outputformat
         if not self.opts.out_file:
             outfd = sys.stdout
         else:
@@ -89,7 +89,7 @@ class command:
         try:
             func = getattr(self, function_name)
         except AttributeError:
-            print "Plugin %s is unable to produce output in format %r. Please send a bug report" % (self.__class__.__name__, self.opts.output)
+            print "Plugin %s is unable to produce output in format %r. Please send a bug report" % (self.__class__.__name__, self.opts.outputformat)
             return
 
         func(outfd, data)
