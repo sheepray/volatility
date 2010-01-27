@@ -276,7 +276,7 @@ def Object(theType, offset, vm, parent=None, name=None, **kwargs):
     ## This is a serious error.
     debug.debug("Cant find object {0} in profile {1}???".format(theType, vm.profile), level = 3)
 
-class BaseObject(object):        
+class BaseObject(object):
     def __init__(self, theType, offset, vm, parent=None, name=None):
         self.vm = vm
         self.parent = parent
