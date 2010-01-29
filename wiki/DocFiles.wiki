@@ -31,7 +31,9 @@ This page contains links to documents that are part of the Volatility Documentat
 = Case Studies =
   * [http://neosysforensics.blogspot.com/2009/03/analisis-de-un-caso-real.html Análisis de un caso ¿real?] (external link)
   * [http://neosysforensics.blogspot.com/2009/05/analisis-de-un-caso-real-2.html Análisis de un caso ¿real?, #2] (external link)
+  * [http://neosysforensics.blogspot.com/2010/01/analisis-de-un-caso-real-3.html Análisis de un caso ¿real?, #3] (external link)
   * [http://carnal0wnage.blogspot.com/2009/03/dumping-memory-to-extract-password.html Dumping Memory to Extract Password Hashes] (external link)
+  
 
 = Plugin List =
   * [http://www.forensicswiki.org/wiki/List_of_Volatility_Plugins Forensics Wiki Volatility Plugin List] (external link)
