@@ -31,13 +31,17 @@
 """
 
 #pylint: disable-msg=C0111
+import sys
+
+if sys.version_info < (2, 6, 0):
+    sys.stderr.write("Volatiltiy requires python version 2.6, please upgrade your python installation.")
+    sys.exit(1)
 
 try:
     import psyco #pylint: disable-msg=W0611
 except ImportError:    
     pass
 
-import sys
 import textwrap
 import volatility
 import volatility.registry as MemoryRegistry
@@ -95,11 +99,6 @@ def main():
     # Get the version information on every output from the beginning
     # Exceptionally useful for debugging/telling people what's going on
     sys.stderr.write( "Volatile Systems Volatility Framework {0}\n".format(volatility.version))
-
-    if sys.version_info < (2, 6, 0):
-        sys.stderr.write("Volatiltiy requires python version 2.6, please upgrade your python installation.")
-        sys.exit(1)
-
     MemoryRegistry.Init()
 
     ## Parse all the options now
