@@ -25,9 +25,6 @@ import volatility.commands as commands
 import volatility.conf as conf
 config = conf.ConfObject()
 
-config.add_option("OUTPUT-FILE", short_option="O", default=None,
-                  help = "Specifies the output file")
-
 class hibinfo(commands.command):
     """Dump hibernation file information"""
     
