@@ -95,7 +95,7 @@ class command(object):
             # TODO: We should probably check that this won't blat over an existing file 
         else:
             outfd = sys.stdout
-            
+
         try:
             func = getattr(self, function_name)
         except AttributeError:
@@ -112,8 +112,8 @@ class command(object):
         func(outfd, data)
 
 ## Event handlers do stuff in response to certain events
-#class EventHandler:
-#    def startup(self):
-#        """ This method gets called after all options are parsed, but
-#        before commands are executed
-#        """
+class EventHandler:
+    def startup(self):
+        """ This method gets called after all options are parsed, but
+        before commands are executed
+        """

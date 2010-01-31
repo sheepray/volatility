@@ -32,14 +32,14 @@ pslist_types = {
     '_SE_AUDIT_PROCESS_CREATION_INFO' : [ 0x4, {
     'ImageFileName' : [ 0x0, ['pointer', ['_OBJECT_NAME_INFORMATION']]],
     } ],
-                                      
+
     '_OBJECT_NAME_INFORMATION' : [ 0x8, {
     'Name' : [ 0x0, ['_UNICODE_STRING']],
     } ],
     }
 
 class pstree(commands.command):
-    """Print process list as a tree"""    
+    """Print process list as a tree"""
 
     def find_root(self, pid_dict, pid):
         while pid in pid_dict:
@@ -75,7 +75,7 @@ class pstree(commands.command):
                                 ' ' * pad, task_info['Audit ImageFileName']) )
                         except KeyError:
                             pass
-                        
+
                     draw_branch(pad + 1, task_info['process_id'])
                     del data[task]
 
@@ -83,10 +83,10 @@ class pstree(commands.command):
             keys = data.keys()
             root = self.find_root(data, keys[0])
             draw_branch(0, root)
-        
+
     def calculate(self):
         result = {}
-        
+
         ## Load a new address space
         addr_space = utils.load_as()
         addr_space.profile.add_types(pslist_types)
@@ -111,7 +111,7 @@ class pstree(commands.command):
                     task_info['ImagePathName'] = peb.ProcessParameters.ImagePathName
 
                 task_info['Audit ImageFileName'] = task.SeAuditProcessCreationInfo.ImageFileName.Name or 'UNKNOWN'
-             
+
             result[int(task_info['process_id'])] = task_info
-            
+
         return result

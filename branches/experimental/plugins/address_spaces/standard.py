@@ -81,9 +81,12 @@ class FileAddressSpace(addrspace.BaseAddressSpace):
     def __init__(self, base, layered=False, **kwargs):
         addrspace.BaseAddressSpace.__init__(self, base, **kwargs)
         assert base == None or layered, 'Must be first Address Space'
-        assert config.LOCATION.startswith("file:"), 'Location is not of file scheme'
+        if not config.FILENAME:
+            assert config.LOCATION and config.LOCATION.startswith("file:"), 'Location %s is not of file scheme' % config.LOCATION
+            path = urllib.url2pathname(config.LOCATION[5:])
+        else:
+            path = config.FILENAME
 
-        path = urllib.url2pathname(config.LOCATION[5:])
         assert os.path.exists(path), 'Filename must be specified and exist'
         self.name = os.path.abspath(path)
         self.fname = self.name

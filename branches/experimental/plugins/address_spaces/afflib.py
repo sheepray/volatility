@@ -113,4 +113,4 @@ class AFFAddressSpace(standard.FileAddressSpace):
         raise NotImplementedError("Write support is not implemented for AFF files")
 
 if not afflib:
-    del EWFAddressSpace
+    del AFFAddressSpace
