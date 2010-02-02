@@ -49,13 +49,13 @@ class BaseScanner(object):
         self.buffer = addrspace.BufferAddressSpace(data='\x00'*1024)
         self.window_size = window_size
         self.constraints = []
-        
+
         ## Build our constraints from the specified ScannerCheck
         ## classes:
         for class_name, args in self.checks:
             check = registry.SCANNER_CHECKS[class_name](self.buffer, **args)
             self.constraints.append(check)
-            
+
         self.base_offset = None
         self.error_count = 0
 
@@ -75,29 +75,32 @@ class BaseScanner(object):
             except Exception:
                 debug.b()
                 val = False
-            
+
             if not val:
                 cnt = cnt+1
 
             if cnt > self.error_count:
                 return False
-            
+
         return True
 
+    overlap = 20
     def scan(self, address_space):
         self.base_offset = 0
         ## Which checks also have skippers?
         skippers = [ c for c in self.constraints if hasattr(c, "skip") ]
         while 1:
-            data = address_space.read(self.base_offset, BLOCKSIZE)
+            data = address_space.read(self.base_offset, BLOCKSIZE + self.overlap)
             if not data:
                 break
-            
+
+            length = min(BLOCKSIZE, len(data))
+
             self.buffer.assign_buffer(data, self.base_offset)
             i = 0
             ## Find all occurances of the pool tag in this buffer and
             ## check them:
-            while i < len(data):
+            while i < length:
                 if self.check_addr(i + self.base_offset):
                     ## yield the offset to the start of the memory
                     ## (after the pool tag)
@@ -120,7 +123,7 @@ class BaseScanner(object):
 
                 i += skip
 
-            self.base_offset += len(data)
+            self.base_offset += BLOCKSIZE
 
 
 class ScannerCheck(object):
@@ -151,7 +154,7 @@ class ScannerCheck(object):
 class PoolScanner(BaseScanner):
     ## These are the objects that follow the pool tags
     preamble = [ '_POOL_HEADER', ]
-    
+
     def object_offset(self, found):
         """ This returns the offset of the object contained within
         this pool allocation.
