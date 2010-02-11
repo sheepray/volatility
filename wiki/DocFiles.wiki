@@ -17,6 +17,7 @@ This page contains links to documents that are part of the Volatility Documentat
 = Usage =
 
   * [http://volatility.googlecode.com/files/Pretty%20Process%20Mapping.pdf Pretty Process Mapping] (pdf)
+  * [http://volatility.googlecode.com/files/How%20to%20use%20Volatility_v2.pdf How to Use Volatility] (pdf)
 
 = Reporting =
 
