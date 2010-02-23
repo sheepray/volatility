@@ -241,6 +241,15 @@ class NoneObject(object):
     def __int__(self):
         return -1
 
+    def __lshift__(self, other):
+        return self
+
+    def __rshift__(self, other):
+        return self
+
+    def __or__(self, other):
+        return self
+
     def __call__(self, *arg, **kwargs):
         return self
         
