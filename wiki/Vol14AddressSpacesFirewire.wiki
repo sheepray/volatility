@@ -1,0 +1,70 @@
+#summary Information on using the Volatility-1.4 Firewire Address Space
+
+= Introduction =
+
+The firewire [Vol14AddressSpaces address space] in Volatility allows an investigator to access a running machine's physical memory and run any of the existing Volatility plugins against it.
+
+= Prerequisites =
+
+Volatility's firewire support makes use of [http://www.storm.net.nz/static/files/pythonraw1394-1.0.tar.gz pythonraw1394] by Adam Boileau.  This means it is only available under a linux or BSD operating system with libraw1394 installed.
+
+The linux kernel must have been compiled with raw1394 support, currently using the old firewire stack (rather than the new Juju firewire stack), because libraw1394 is coded such that it will not allow the necessary manipulation of the firewire CSRs if the new firewire stack is in use.
+
+= Usage =
+
+First off, direct access to the physical memory of the host machine must be established.
+
+== Masquerading as an SBP2 device ==
+
+The investigator's machine must look as though it is an SBP2 device for a Windows computer to allow direct access to physical memory.  By default, linux is set to present itself as a 1394 network device.  The _romtool_ program, packaged as part of pythonraw1394, can be used to alter the linux CSRs to those of a CSR device.  The pythonraw1394 package includes an example ipod file _ipod.csr_.
+
+=== Acquiring a new CSR file ===
+
+New CSRs can be acquired by plugging into the remote device with the CSR to be copied and run the following commands (from the pythonraw1394 package).  _businfo_ first returns the port and node number of the available devices, and then _romtool_ can be used to read the other device's CSRs into a file.
+
+{{{
+businfo
+}}}
+{{{
+romtool -o <port> <node> new.csr
+}}}
+
+=== Spoofing a machine's CSRs ===
+
+An investigator's machine can be spoofed to appear as another type of firewire device by alter the CSRs.  This can be done from a saved copy of the CSR with the following command:
+
+{{{
+romtool -s <port> ipod.csr
+}}}
+
+Here the port number is that of the investigator's firewire card, rather than the target machine's bus.
+
+=== Testing whether the target machine allows access to physical memory ===
+
+A tool included with pythonraw1394 can be used to copy memory from a remote firewire device once the target computer believes the investigator's computer is an SBP2 device.
+
+{{{
+1394memimage <port> <node> output.dump [<range>]
+}}}
+
+Note that the optional range parameter should be provided, since if the program attempts to copy more data than is available, the machine will likely blue screen.
+
+The following command will attempt to copy 10K of data and therefore determine quickly whether access is available or not.
+
+{{{
+1394memimage <port> <node> output.dump [0-1K]
+}}}
+
+== Using volatility to carry out direct memory analysis ==
+
+Whilst the firewire acquired memory image can be analyzed offline by Volatility, as of Volatility-1.4 it is now possible to analyze memory directly from a running machine.
+
+To do so, a location parameter with a particular type of URL should be used as follows:
+
+{{{
+volatility -l firewire:///<port>/<node> <plugin> [<plugin_opts>]
+}}}
+
+= Limitations =
+
+Firewire can only access the first 4Gb of physical memory on any machine.  This means that for machines capable of accessing more than 4Gb of memory, any image taken, or access gained directly by Volatility, may be inconsistent or reference inaccessible areas of memory.
