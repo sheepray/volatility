@@ -32,6 +32,12 @@ Classes inheriting directly from a physical address space can use the `layered` 
 
 The constructor should establish any necessary variables for use by any methods specified in the class that require state be maintained (such as the mode or filename for file spaces, or node and bus information for ieee1394/firewire spaces).
 
+If the constructor is called with the `astype` parameter set to "physical", higher level address spaces (those interpreting a physical address space) should raise an assertion error.
+
+{{{
+    assert astype != 'physical', "Explanation (user requested physical address space)"
+}}}
+
 == read ==
 
 This function takes an `addr` parameter (which may be long or 0) and a `length` parameter (which again may be long or 0) and should read from the offset specified by `addr` within the address space to the offset specified by `addr + length` and return a byte string of the values returned.
