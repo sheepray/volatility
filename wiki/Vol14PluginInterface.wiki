@@ -21,7 +21,6 @@ The `calculate` function should carry out the main operation against any memory 
 == Options ==
 
 Any additional command line parameters should be defined in the `__init__` function of the plugin (rather than outside of the plugin class) so that multiple plugins may make use of the same option identifiers.  These are handled in a very similar fashion to the optparse module that comes with python.  An add_option function is available to specify a parameter name (--name), a short option (-n), and then the action/defaults for storing the variable.
-
 {{{
 
 config = volatility.conf.ConfObject() 
@@ -40,6 +39,8 @@ config = volatility.conf.ConfObject()
            ...
 
 }}}
+
+A [CommandLineProcessing complete description of option handling for plugins] is also available.
 
 == Calculating ==
 
