@@ -83,17 +83,17 @@ def determine_connections(addr_space):
     connections = []
 
     for m in all_modules:
-        if str(m.ModuleName).lower() == 'tcpip.sys':
+        if str(m.BaseDllName).lower() == 'tcpip.sys':
             for attempt in module_versions:
                 table_size = obj.Object(
                     "long",
-                    offset = m.BaseAddress + \
+                    offset = m.DllBase + \
                              module_versions[attempt]['SizeOff'][0],
                     vm = addr_space)
                 
                 table_addr = obj.Object(
                     "unsigned long",
-                    offset = m.BaseAddress + \
+                    offset = m.DllBase + \
                              module_versions[attempt]['TCBTableOff'][0],
                     vm = addr_space)
                 
@@ -118,17 +118,17 @@ def determine_sockets(addr_space):
     sockets = []
 
     for m in all_modules:
-        if str(m.ModuleName).lower() == 'tcpip.sys':
+        if str(m.BaseDllName).lower() == 'tcpip.sys':
             for attempt in module_versions:
                 table_size = obj.Object(
                     "unsigned long",
-                    offset = m.BaseAddress + \
+                    offset = m.DllBase + \
                              module_versions[attempt]['AddrObjTableSizeOffset'][0],
                     vm = addr_space)
                 
                 table_addr = obj.Object(
                     "unsigned long",
-                    offset = m.BaseAddress + \
+                    offset = m.DllBase + \
                              module_versions[attempt]['AddrObjTableOffset'][0],
                     vm = addr_space)
                 

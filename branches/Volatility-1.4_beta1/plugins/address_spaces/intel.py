@@ -43,8 +43,8 @@ class JKIA32PagedMemory(addrspace.BaseAddressSpace, standard.WritablePagedMemory
 
     Create a new IA32 address space without PAE to sit on top of 
     the base address space and a Directory Table Base (CR3 value)
-    of 'dtb'. 
-    
+    of 'dtb'.
+
     If the 'cache' parameter is true, will cache the Page Directory Entries
     for extra performance. The cache option requires an additional 4KB of
     space.
@@ -60,8 +60,7 @@ class JKIA32PagedMemory(addrspace.BaseAddressSpace, standard.WritablePagedMemory
     cache = False
     pae = False
     paging_address_space = True
-    name = 'Kernel AS'
-    
+
     def __init__(self, base, dtb=0, astype = None, **kwargs):
         ## We allow users to disable us in favour of the old legacy
         ## modules.
@@ -78,7 +77,7 @@ class JKIA32PagedMemory(addrspace.BaseAddressSpace, standard.WritablePagedMemory
             assert not base.paging_address_space, "Can not stack over another paging address space"
         except AttributeError:
             pass
-        
+
         self.dtb = dtb or config.DTB or self.load_dtb()
         self.base = base
 
@@ -94,7 +93,7 @@ class JKIA32PagedMemory(addrspace.BaseAddressSpace, standard.WritablePagedMemory
 
         # Reserved for future use
         #self.pagefile = config.PAGEFILE
-
+        self.name = 'Kernel AS'
 
     def _cache_values(self):
         '''
@@ -128,7 +127,7 @@ class JKIA32PagedMemory(addrspace.BaseAddressSpace, standard.WritablePagedMemory
             found = 0
             if not data:
                 break
-            
+
             while 1:
                 # This value is specific to x86 Windows XP and must
                 # updated for other operating systems
@@ -205,7 +204,7 @@ class JKIA32PagedMemory(addrspace.BaseAddressSpace, standard.WritablePagedMemory
         Bits 11:0 are from the original linear address
         '''
         return (pte_value & 0xfffff000) | (vaddr & 0xfff)
-        
+
     def get_four_meg_paddr(self, vaddr, pde_value):
         '''
         Bits 31:22 are bits 31:22 of the PDE
@@ -236,8 +235,6 @@ class JKIA32PagedMemory(addrspace.BaseAddressSpace, standard.WritablePagedMemory
 
         return self.get_phys_addr(vaddr, pte_value)
 
-
-
     def __read_chunk(self, vaddr, length):
         """
         Read 'length' bytes from the virtual address 'vaddr'.
@@ -266,7 +263,7 @@ class JKIA32PagedMemory(addrspace.BaseAddressSpace, standard.WritablePagedMemory
         are padded with zeros.
         """
         vaddr, length = int(vaddr), int(length)
-        
+
         ret = ''
 
         while length > 0:
@@ -284,7 +281,7 @@ class JKIA32PagedMemory(addrspace.BaseAddressSpace, standard.WritablePagedMemory
             length -= chunk_len
 
         return ret
-        
+
 
     def read(self, vaddr, length):
         '''
@@ -334,8 +331,6 @@ class JKIA32PagedMemory(addrspace.BaseAddressSpace, standard.WritablePagedMemory
         Each entry in the list is the starting virtual address 
         and the size of the memory page.
         '''
-        page_list = []
-
         # Pages that hold PDEs and PTEs are 0x1000 bytes each.
         # Each PDE and PTE is four bytes. Thus there are 0x1000 / 4 = 0x400
         # PDEs and PTEs we must test
@@ -346,19 +341,14 @@ class JKIA32PagedMemory(addrspace.BaseAddressSpace, standard.WritablePagedMemory
             if not self.entry_present(pde_value):
                 continue
             if self.page_size_flag(pde_value):
-                page_list.append([vaddr, 0x400000])
-                continue
-
-            tmp = vaddr
-            for pte in range(0, 0x400):
-                vaddr = tmp | (pte << 12)
-                pte_value = self.get_pte(vaddr, pde_value)
-                if self.entry_present(pte_value):
-                    page_list.append([vaddr, 0x1000])
-
-        return page_list
-
-
+                yield (vaddr, 0x400000)
+            else:
+                tmp = vaddr
+                for pte in range(0, 0x400):
+                    vaddr = tmp | (pte << 12)
+                    pte_value = self.get_pte(vaddr, pde_value)
+                    if self.entry_present(pte_value):
+                        yield (vaddr, 0x1000)
 
 
 class JKIA32PagedMemoryPae(JKIA32PagedMemory):
@@ -474,7 +464,7 @@ class JKIA32PagedMemoryPae(JKIA32PagedMemory):
 
         if self.page_size_flag(pde):
             return self.get_two_meg_paddr(vaddr, pde)
-        
+
         pte = self.get_pte(vaddr, pde)
         if not self.entry_present(pte):
             # Add support for paged out PTE
@@ -503,8 +493,6 @@ class JKIA32PagedMemoryPae(JKIA32PagedMemory):
         # Pages that hold PDEs and PTEs are 0x1000 bytes each.
         # Each PDE and PTE is eight bytes. Thus there are 0x1000 / 8 = 0x200
         # PDEs and PTEs we must test.
-
-        page_list = []
         for pdpte in range(0, 4):
             vaddr = pdpte << 30
             pdpte_value = self.get_pdpte(vaddr)
@@ -516,7 +504,7 @@ class JKIA32PagedMemoryPae(JKIA32PagedMemory):
                 if not self.entry_present(pde_value):
                     continue
                 if self.page_size_flag(pde_value):
-                    page_list.append([vaddr, 0x200000])
+                    yield (vaddr, 0x200000)
                     continue
 
                 tmp = vaddr
@@ -524,7 +512,4 @@ class JKIA32PagedMemoryPae(JKIA32PagedMemory):
                     vaddr = tmp | (pte << 12)
                     pte_value = self.get_pte(vaddr, pde_value)
                     if self.entry_present(pte_value):
-                        page_list.append([vaddr, 0x1000])
-
-        return page_list
-
+                        yield (vaddr, 0x1000)

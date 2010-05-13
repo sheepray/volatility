@@ -68,7 +68,7 @@ class command(object):
 
     def execute(self):
         """ Executes the plugin command."""
-        ## Executing plugins in done in two stages - first we calculate
+        ## Executing plugins is done in two stages - first we calculate
         data = self.calculate()
 
         ## Then we render the result in some way based on the
@@ -79,7 +79,7 @@ class command(object):
             # TODO: We should probably check that this won't blat over an existing file 
         else:
             outfd = sys.stdout
-            
+
         try:
             func = getattr(self, function_name)
         except AttributeError:

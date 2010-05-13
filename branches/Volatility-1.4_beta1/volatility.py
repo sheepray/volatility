@@ -39,7 +39,7 @@ if sys.version_info < (2, 6, 0):
 
 try:
     import psyco #pylint: disable-msg=W0611
-except ImportError:    
+except ImportError:
     pass
 
 import textwrap
@@ -113,19 +113,19 @@ def main():
     if not module:
         config.parse_options()
         config.error("You must specify something to do (try -h)")
-        
+
     if module not in MemoryRegistry.PLUGIN_COMMANDS.commands:
-        config.parse_options()        
+        config.parse_options()
         config.error("Invalid module [{0}].".format(module))
 
     try:
         if module in MemoryRegistry.PLUGIN_COMMANDS.commands:
             command = MemoryRegistry.PLUGIN_COMMANDS[module]()
-            
+
             ## Register the help cb from the command itself
-            config.set_help_hook(obj.Curry(command_help, command))            
+            config.set_help_hook(obj.Curry(command_help, command))
             config.parse_options()
-             
+
             command.execute()
     except volatility.utils.AddrSpaceError, e:
         print e
@@ -133,10 +133,11 @@ def main():
 if __name__ == "__main__":
     config.set_usage(usage = "Volatility - A memory forensics analysis platform.")
     config.add_help_hook(list_plugins)
-    
+
     try:
         main()
     except Exception, ex:
-        print ex
         if config.DEBUG:
             debug.post_mortem()
+        else:
+            raise

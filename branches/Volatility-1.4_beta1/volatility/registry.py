@@ -61,7 +61,7 @@ class MemoryRegistry:
     module_desc = []
     module_paths = []
     filenames = {}
-    
+
     def __init__(self, ParentClass):
         """ Search the plugins directory for all classes extending
         ParentClass.
@@ -74,10 +74,10 @@ class MemoryRegistry:
         self.classes = []
         self.class_names = []
         self.order = []
-        
+
         # Setup initial plugin directories
         plugins = config.PLUGINS
-                
+
         ## Recurse over all the plugin directories recursively
         for path in plugins.split(':'):
             # Given it's a colon separated list, currently providing absolute paths on windows are impossible
@@ -92,7 +92,7 @@ class MemoryRegistry:
                 path = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(relbase)), path))
             for dirpath, _dirnames, filenames in os.walk(path):
                 sys.path.append(dirpath)
-                
+
                 for filename in filenames:
                     #Lose the extension for the module name
                     module_name = filename[:-3]
@@ -130,14 +130,14 @@ class MemoryRegistry:
                                         continue
                                 except AttributeError:
                                     pass
-                                
+
                                 try:
                                     if not module.active:
                                         print "*** Will not load Module {0}: Module not active".format(module_name)
                                         continue
                                 except AttributeError:
                                     pass
-                                
+
                                 #find the module description
                                 try:
                                     module_desc = module.description
@@ -148,7 +148,7 @@ class MemoryRegistry:
                                 self.modules.append(module)
                                 self.module_desc.append(module_desc)
                                 self.module_paths.append(path)
-                                
+
                             else:
                                 ## We already have the module in the cache:
                                 module = self.modules[self.module_paths.index(path)]
@@ -169,7 +169,7 @@ class MemoryRegistry:
 
                                         ## Add the class to ourselves:
                                         self.add_class(ParentClass, module_desc, cls, Class, filename)
-                                            
+
                                 # Oops: it isnt a class...
                                 except (TypeError, NameError) , e:
                                     continue
@@ -215,7 +215,7 @@ class MemoryRegistry:
 
         if not load_as:
             load_as = name
-        
+
         for module in self.modules:
             if name == module.__name__:
                 sys.modules[load_as] = module
@@ -237,11 +237,11 @@ class VolatilityCommandRegistry(MemoryRegistry):
     def __getitem__(self, command_name):
         """ Return the command objects by name """
         return self.commands[command_name]
-    
+
     def __init__(self, ParentClass):
         MemoryRegistry.__init__(self, ParentClass)
         self.commands = {}
-    
+
         for cls in self.classes:
             ## The name of the class is the command name
             command = cls.__name__.split('.')[-1]
@@ -288,7 +288,6 @@ class VolatilityObjectRegistry(MemoryRegistry):
             except KeyError:
                 self.objects[obj] = cls
 
-
 def print_info():
     for k, v in globals().items():
         if isinstance(v, MemoryRegistry):
@@ -311,8 +310,6 @@ def print_info():
 
             for x in result:
                 print "{0:{2}} - {1:15}".format(x[0], x[1], max_length)
-
-
 
 LOCK = 0
 PLUGIN_COMMANDS = None

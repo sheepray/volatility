@@ -10,11 +10,11 @@
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-# General Public License for more details. 
+# General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA 
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 #
 
 """
@@ -92,7 +92,7 @@ class DispatchThreadHeaderCheck(DispatchHeaderCheck):
         except ValueError:
             ## Substring is not found - skip to the end of this data buffer
             return len(data) - offset
-    
+
 class CheckDTBAligned(scan.ScannerCheck):
     """ Checks that _EPROCESS.Pcb.DirectoryTableBase is aligned to 0x20 """
     def check(self, offset):
@@ -188,7 +188,7 @@ class thrdscan(commands.command):
         address_space = utils.load_as(astype = 'physical')
         for offset in ThreadScan().scan(address_space):
             yield obj.Object('_ETHREAD', vm=address_space, offset=offset)
-    
+
     def render_text(self, outfd, data):
         ## Just grab the AS and scan it using our scanner
         outfd.write("PID    TID    Create Time               Exit Time                 Offset    \n" + \
@@ -200,7 +200,7 @@ class thrdscan(commands.command):
                                                                            ethread.CreateTime or '',
                                                                            ethread.ExitTime or '',
                                                                            ethread.offset))
-   
+
 class PSScan(scan.BaseScanner):
     """ This scanner carves things that look like _EPROCESS structures.
 
@@ -213,7 +213,7 @@ class PSScan(scan.BaseScanner):
                ("CheckThreadList", {}),
                ("CheckSynchronization", {})
                ]
-        
+
 class psscan(commands.command):
     """ Scan Physical memory for _EPROCESS objects"""
 

@@ -68,6 +68,7 @@ class MultiPageScanner(object):
 
         while address_space.is_valid_address(page_offset + PAGESIZE):
             sys.stdout.write("\rScanning: {0:08X}".format(page_offset))
+            sys.stdout.flush()
             # Keep a list so we can ignore checks in the future...
             failed_patchers = set()
             for offset in sorted(self.constraints.keys()):

@@ -29,7 +29,7 @@ def load_as(**kwargs):
     base_as = None
     error = AddrSpaceError()
     while 1:
-        debug.debug("Voting round")        
+        debug.debug("Voting round")
         found = False
         for cls in registry.AS_CLASSES.classes:
             debug.debug("Trying {0} ".format(cls))
