@@ -33,7 +33,7 @@ class modules(volatility.commands.command):
             if not header:
                 outfd.write("{0:50} {1:12} {2:8} {3}\n".format('File', 'Base', 'Size', 'Name'))
                 header = True
-            outfd.write("{0:50} 0x{1:010x} 0x{2:06x} {3}\n".format(module.FullDllName, module.BaseAddress, module.SizeOfImage, module.ModuleName))
+            outfd.write("{0:50} 0x{1:010x} 0x{2:06x} {3}\n".format(module.FullDllName, module.DllBase, module.SizeOfImage, module.BaseDllName))
 
     def calculate(self):
         addr_space = utils.load_as()

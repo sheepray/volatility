@@ -32,6 +32,7 @@ import volatility.commands as commands
 import volatility.win32 as win32
 import volatility.obj as obj
 import volatility.utils as utils
+import volatility.registry as registry
 
 config = conf.ConfObject()
 
@@ -49,7 +50,27 @@ class dlllist(commands.command):
 
         commands.command.__init__(self, *args)
 
-    def render_text(self, outfd, data):
+    def render(self, data, ui):
+        for task in data:
+            pid = task.UniqueProcessId
+
+            ui.rule()
+            ui.para("{0}".format(task.ImageFileName))
+            ui.text("pid: {0:6}".format(pid))
+
+            if task.Peb:
+                ui.text("Command line : {0}".format(task.Peb.ProcessParameters.CommandLine))
+                ui.para("{0}".format(task.Peb.CSDVersion))
+
+                table = ui.table('Base', 'Size', 'Path', format={'Size': '>'})
+                for m in self.list_modules(task):
+                    table.row(m.BaseAddress, m.SizeOfImage, m.FullDllName)
+                table.flush()
+            else:
+                ui.para("Unable to read PEB for task.")
+
+
+    def XXXXrender_text(self, outfd, data):
         for task in data:
             pid = task.UniqueProcessId
 

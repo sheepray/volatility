@@ -27,29 +27,39 @@
 
 import volatility.win32.info as info
 import volatility.obj as obj
+import volatility.conf as conf
+config = conf.ConfObject()
 
 def lsmod(addr_space):
     """ A Generator for modules (uses _KPCR symbols) """
-    ## Locate the kpcr struct - this is hard coded right now
-    kpcr = obj.Object("_KPCR", info.kpcr_addr, addr_space)
+    ## Locate the kpcr struct - either hard coded or specified by the command line
+    kpcra = None
+    if config.KPCR == 0:
+        kpcra = info.kpcr_addr
+    else:
+        kpcra = config.KPCR
+        
+    kpcr = obj.Object("_KPCR",
+                     offset=kpcra,
+                     vm=addr_space)
 
     ## Try to dereference the KdVersionBlock as a 64 bit struct
     DebuggerDataList = kpcr.KdVersionBlock.dereference_as("_DBGKD_GET_VERSION64").DebuggerDataList
 
-    if DebuggerDataList.is_valid():
-        offset = DebuggerDataList.dereference().v()
+    PsLoadedModuleList = DebuggerDataList.dereference_as("_KDDEBUGGER_DATA64"
+                                                          ).PsLoadedModuleList \
+                     or DebuggerDataList.dereference_as("_KDDEBUGGER_DATA32"
+                                                        ).PsLoadedModuleList \
+                     or kpcr.KdVersionBlock.dereference_as("_KDDEBUGGER_DATA32"
+                                                           ).PsLoadedModuleList
+    if PsLoadedModuleList.is_valid():
+        offset = PsLoadedModuleList.dereference().v()
         ## This is a pointer to a _KDDEBUGGER_DATA64 struct. We only
         ## care about the PsActiveProcessHead entry:
-        tmp = obj.Object("_KDDEBUGGER_DATA64", offset,
-                        addr_space).PsLoadedModuleList
 
-        if not tmp.is_valid():
-            ## Ok maybe its a 32 bit struct
-            tmp = obj.Object("_KDDEBUGGER_DATA32", offset,
-                            addr_space).PsLoadedModuleList
 
         ## Try to iterate over the process list in PsActiveProcessHead
         ## (its really a pointer to a _LIST_ENTRY)
-        for l in tmp.dereference_as("_LIST_ENTRY").list_of_type(
-            "_LDR_MODULE", "InLoadOrderModuleList"):
+        for l in PsLoadedModuleList.dereference_as("_LIST_ENTRY").list_of_type(
+            "_LDR_DATA_TABLE_ENTRY", "InLoadOrderLinks"):
             yield l

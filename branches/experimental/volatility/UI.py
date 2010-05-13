@@ -50,6 +50,14 @@ class UI:
     def table(self, headings, output, format=None):
         return Table(headings, self.outfd, format)
 
+    def rule(self):
+        """ Make a horizontal rule """
+        pass
+
+    def para(self, data):
+        """ Render a paragraph of text """
+        pass
+
     def progress(self, percentage = None):
         """ This method is called to indicate to the user progress is made.
 

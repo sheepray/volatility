@@ -187,6 +187,8 @@ xpsp2types = { \
     } ],
 '_KPCR' : [  0xd70, { \
   'KdVersionBlock' : [ 0x34, ['pointer', ['void']]], \
+  'MajorVersion' : [ 0x44, ['unsigned short']],
+  'MinorVersion' : [ 0x46, ['unsigned short']],
   } ], \
   '_KDDEBUGGER_DATA32' : [ 0x44, { \
   'PsLoadedModuleList' : [ 0x70, ['pointer', ['void']]], \

@@ -72,6 +72,11 @@ class command(object):
         """
         raise RuntimeError("Generic rendering is not implemented for this command")
 
+    def render_text(self, outfd, data):
+        """ Render using the generic rendering method and the text renderer """
+        ui = registry.UI_RENDERERS["text"](outfd)
+        return self.render(data, ui)
+
     def render_xml(self, outfd, data):
         """ Render using the generic rendering method and the text renderer """
         ui = registry.UI_RENDERERS["xml"](outfd)

@@ -31,15 +31,27 @@
 import volatility.obj as obj
 import volatility.win32.info as info
 import volatility.debug as debug #pylint: disable-msg=W0611
+import volatility.scan as scan
+import volatility.conf as conf
+import volatility.addrspace as addrspace
+config = conf.ConfObject()
 
 def pslist(addr_space):
     """ A Generator for _EPROCESS objects (uses _KPCR symbols) """
-    ## Locate the kpcr struct - this is hard coded right now
+
+    ## Locate the kpcr struct - either hard coded or specified by the command line
+    kpcra = None
+    if config.KPCR == 0:
+        kpcra = info.kpcr_addr
+    else:
+        kpcra = config.KPCR
+        
     kpcr = obj.Object("_KPCR",
-                     offset=info.kpcr_addr,
+                     offset=kpcra,
                      vm=addr_space)
 
-    ## Try to dereference the KdVersionBlock as a 64 bit struct
+    mv =  kpcr.MajorVersion
+
     DebuggerDataList = kpcr.KdVersionBlock.dereference_as("_DBGKD_GET_VERSION64").DebuggerDataList
     PsActiveProcessHead = DebuggerDataList.dereference_as("_KDDEBUGGER_DATA64"
                                                           ).PsActiveProcessHead \
@@ -72,3 +84,5 @@ def create_addr_space(kaddr_space, directory_table_base):
         return None
 
     return process_address_space
+
+

@@ -20,6 +20,7 @@
 
 """ This is a concrete implementation of the text renderer """
 import volatility.UI as UI
+import pdb
 
 class Table(UI.Table):
     ## Default formatter is just ""
@@ -35,39 +36,67 @@ class Table(UI.Table):
         self.headings_emitted = False
         self.column_count = len(headings)
         self.column_widths = [0] * len(headings)
+        self.column_formats = ['']* len(headings)
         self.row_cache = []
-        self.row(*headings)
+        self.row_cache_format = []
 
     def row(self, *args):
         ## Format each item according to its format string
         row = []
+        formats = []
         for i in range(len(args)):
             format = self.format.get(self.headings[i], self.default_formatter)
             item = "{{0:{0}}}".format(format).format(args[i])
             self.column_widths[i] = max(self.column_widths[i], len(item))
-            row.append(args[i])
-            
+
+            row.append(item)
+            formats.append(format)
+
         self.row_cache.append(row)
         if len(self.row_cache) > self.row_cache_size:
-            self.flush_cache()
+            self.flush()
 
-    def flush_cache(self):
+    def flush(self):
+        if not self.headings_emitted:
+            line = ''
+            for i in range(len(self.headings)):
+                line += "{0:{2}{1:d}} ".format(self.headings[i], self.column_widths[i], '<')
+            self.output.write(line.strip() + "\n")
+
+            line = ''
+            for i in range(len(self.headings)):
+                line += '-'* self.column_widths[i] + " "
+
+            self.output.write(line.strip() + "\n")
+
+            self.headings_emitted = True
+
+
         for row in self.row_cache:
+            line = ''
             for i in range(len(row)):
                 format = self.format.get(self.headings[i], self.default_formatter)
-                item = "{{0:{1:d}{0}}}  ".format(format, self.column_widths[i]).format(row[i])
-                
-                self.output.write(item)
+                #line += "{{0:{1:d}{0}}}  ".format(format, self.column_widths[i]).format(row[i])
+                line += "{0:{2}{1:d}} ".format(row[i], self.column_widths[i], format)
 
-            self.output.write("\n")
+            self.output.write(line.strip() + "\n")
 
         self.row_cache = []
         
     def __del__(self):
-        self.flush_cache()
+        self.flush()
 
 class text(UI.UI):
     """ Renders output using plain Text """
     def table(self, *args, **kwargs):
         return Table(headings = args, output = self.outfd,
                      format = kwargs.get('format'))
+
+    def rule(self):
+        self.outfd.write("*" * 72 + "\n")
+
+    def para(self, data):
+        self.outfd.write( data + "\n\n")
+
+    def text(self, data):
+        self.outfd.write( data + "\n")
