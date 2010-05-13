@@ -40,13 +40,13 @@ class dlllist(commands.command):
 
     def __init__(self, *args):
         config.add_option('OFFSET', short_option = 'o', default=None,
-                          help='EPROCESS Offset (in hex) in physical address space',
+                          help='EPROCESS Offset (in hex) in kernel address space',
                           action='store', type='int')
-        
+
         config.add_option('PIDS', short_option = 'p', default=None,
                           help='Operate on these Process IDs (comma-separated)',
                           action='store', type='str')
-        
+
         commands.command.__init__(self, *args)
 
     def render_text(self, outfd, data):
@@ -86,7 +86,7 @@ class dlllist(commands.command):
         except (ValueError, TypeError):
             # TODO: We should probably print a non-fatal warning here
             pass
-        
+
         return tasks
 
     def calculate(self):
@@ -97,7 +97,7 @@ class dlllist(commands.command):
             tasks = [obj.Object("_EPROCESS", config.OFFSET, addr_space)]
         else:
             tasks = self.filter_tasks(win32.tasks.pslist(addr_space))
-        
+
         return tasks
 
 # Inherit from files just for the config options (__init__)
@@ -116,19 +116,19 @@ class files(dlllist):
                 outfd.write("*" * 72 + "\n")
             outfd.write("Pid: {0:6}\n".format(pid))
             first = False
-            
+
             for h in handles:
                 if h.FileName:
                     outfd.write("{0:6} {1:40}\n".format("File", h.FileName))
 
     def calculate(self):
         tasks = self.filter_tasks(dlllist.calculate(self))
-        
+
         for task in tasks:
             if task.ObjectTable.HandleTableList:
                 pid = task.UniqueProcessId
                 yield pid, self.handle_list(task)
-                
+
     def handle_list(self, task):
         for h in task.handles():
             if str(h.Type.Name) == self.handle_type:
@@ -136,9 +136,6 @@ class files(dlllist):
 
 class pslist(dlllist):
     """ print all running processes by following the EPROCESS lists """
-    def render_text(self, *args):
-        commands.command.render_text(self, *args)
-        
     def render(self, data, ui):
         table = ui.table('Name', 'Pid', 'PPid', 'Thds', 'Hnds', 'Time')
         for task in data:
@@ -170,7 +167,7 @@ class memmap(dlllist):
                     pa = task_space.vtop(p[0])
                     # pa can be 0, according to the old memmap, but can't == None(NoneObject)
                     if pa != None:
-                        outfd.write("0x{0:10x} 0x{1:10x} 0x{2:12x}\n".format(p[0], pa, p[1]))
+                        outfd.write("0x{0:010x} 0x{1:010x} 0x{2:012x}\n".format(p[0], pa, p[1]))
                     #else:
                     #    outfd.write("0x{0:10x} 0x000000     0x{1:12x}\n".format(p[0], p[1]))
             else:
@@ -178,7 +175,7 @@ class memmap(dlllist):
 
     def calculate(self):
         tasks = self.filter_tasks(dlllist.calculate(self))
-        
+
         for task in tasks:
             if task.UniqueProcessId:
                 pid = task.UniqueProcessId

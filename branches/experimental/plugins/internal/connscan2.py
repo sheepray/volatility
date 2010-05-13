@@ -55,7 +55,7 @@ class connscan2(commands.command):
         os = 'WIN_32_XP_SP2',
         version = '1.0',
         )
-    
+
     def calculate(self):
         ## Just grab the AS and scan it using our scanner
         address_space = utils.load_as(astype = 'physical')

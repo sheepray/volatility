@@ -72,6 +72,7 @@ import ConfigParser
 import optparse
 import os
 import sys
+import re
 
 default_config = "/etc/volatilityrc"
 
@@ -426,3 +427,22 @@ try:
     config.add_file(config.CONF_FILE)
 except KeyError:
     pass
+
+
+def parse_int(string):
+    """ Given a string, parse int from it. Support suffixes and prefixes. """
+    if string.startswith("0x"):
+        base = 16
+        string = string[2:]
+
+    elif string.startswith("0b"):
+        base = 2
+        string = string[2:]
+    else:
+        base = 10
+
+    m = re.match("([0-9a-fA-F]+)([kmgKMG]?)",string)
+    if m:
+        return int(m.group(1), base)
+
+    raise ValueError("%s is not an int".format(string))

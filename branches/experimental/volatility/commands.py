@@ -76,15 +76,10 @@ class command(object):
         """ Render using the generic rendering method and the text renderer """
         ui = registry.UI_RENDERERS["xml"](outfd)
         return self.render(data, ui)
-        
-    def render_text(self, outfd, data):
-        """ Render using the generic rendering method and the text renderer """
-        ui = registry.UI_RENDERERS["text"](outfd)
-        return self.render(data, ui)
 
     def execute(self):
         """ Executes the plugin command."""
-        ## Executing plugins in done in two stages - first we calculate
+        ## Executing plugins is done in two stages - first we calculate
         data = self.calculate()
 
         ## Then we render the result in some way based on the
@@ -99,15 +94,23 @@ class command(object):
         try:
             func = getattr(self, function_name)
         except AttributeError:
-            ## Try to find out what formats are supported
-            result = []
-            for x in dir(self):
-                if x.startswith("render_"):
-                    _a, b = x.split("_", 1)
-                    result.append(b)
-            
-            print "Plugin {0} is unable to produce output in format {1}. Supported formats are {2}. Please send a feature request".format(self.__class__.__name__, config.OUTPUT, result)
-            return
+            ## is there a generic renderer for this?
+            try:
+                renderer = registry.UI_RENDERERS[config.OUTPUT]
+                func = getattr(self, render)
+            except (KeyError, AttributeError):
+                ## Try to find out what formats are supported
+                result = []
+                for x in dir(self):
+                    if x.startswith("render_"):
+                        _a, b = x.split("_", 1)
+                        result.append(b)
+
+                print "Plugin {0} is unable to produce output in format {1}. Supported formats are {2}. Please send a feature request".format(self.__class__.__name__, config.OUTPUT, result)
+                return
+
+            ## Try to call it using our renderer
+            func(self, data, renderer())
 
         func(outfd, data)
 
