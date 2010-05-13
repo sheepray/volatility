@@ -69,24 +69,6 @@ class dlllist(commands.command):
             else:
                 ui.para("Unable to read PEB for task.")
 
-
-    def XXXXrender_text(self, outfd, data):
-        for task in data:
-            pid = task.UniqueProcessId
-
-            outfd.write("*" * 72 + "\n")
-            outfd.write("{0} pid: {1:6}\n".format(task.ImageFileName, pid))
-
-            if task.Peb:
-                outfd.write("Command line : {0}\n".format(task.Peb.ProcessParameters.CommandLine))
-                outfd.write("{0}\n".format(task.Peb.CSDVersion))
-                outfd.write("\n")
-                outfd.write("{0:12} {1:12} {2}\n".format('Base', 'Size', 'Path'))
-                for m in self.list_modules(task):
-                    outfd.write("0x{0:08x}   0x{1:06x}     {2}\n".format(m.BaseAddress, m.SizeOfImage, m.FullDllName))
-            else:
-                outfd.write("Unable to read PEB for task.\n")
-
     def list_modules(self, task):
         if task.UniqueProcessId and task.Peb.Ldr.InLoadOrderModuleList:
             for l in task.Peb.Ldr.InLoadOrderModuleList.list_of_type(
@@ -130,17 +112,12 @@ class files(dlllist):
         self.handle_type = 'File'
         self.handle_obj = "_FILE_OBJECT"
 
-    def render_text(self, outfd, data):
-        first = True
+    def render(self, data, ui):
+        table = ui.table("Pid", "Filename", format={"Pid": ">"})
         for pid, handles in data:
-            if not first:
-                outfd.write("*" * 72 + "\n")
-            outfd.write("Pid: {0:6}\n".format(pid))
-            first = False
-
             for h in handles:
                 if h.FileName:
-                    outfd.write("{0:6} {1:40}\n".format("File", h.FileName))
+                    table.row(pid, h.FileName)
 
     def calculate(self):
         tasks = self.filter_tasks(dlllist.calculate(self))
