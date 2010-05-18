@@ -61,7 +61,7 @@ class DispatchHeaderCheck(scan.ScannerCheck):
         data = self.address_space.read(offset + self.type.offset, self.buffer_size)
         return data[self.type.offset] == "\x03" and data[self.size.offset] == "\x1b"
 
-    def skip(self, data, offset):
+    def skip(self, data, offset, base_offset):
         try:
             nextval = data.index("\x03", offset+1)
             return nextval - self.type.offset - offset
@@ -85,7 +85,7 @@ class DispatchThreadHeaderCheck(DispatchHeaderCheck):
         data = self.address_space.read(offset + self.type.offset, self.buffer_size)
         return data[self.type.offset] == "\x06" and data[self.size.offset] == "\x70"
 
-    def skip(self, data, offset):
+    def skip(self, data, offset, base_offset):
         try:
             nextval = data.index("\x06", offset+1)
             return nextval - self.type.offset - offset

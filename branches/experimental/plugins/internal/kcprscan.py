@@ -29,8 +29,8 @@ import volatility.commands as commands
 import volatility.conf as conf
 import volatility.obj as obj
 import volatility.scan as scan
-import volatility.win32.kpcr as kpcr
-import struct 
+import pdb
+import struct
 
 config = conf.ConfObject()
 class KPCRScannerCheck(scan.ScannerCheck):
@@ -40,28 +40,46 @@ class KPCRScannerCheck(scan.ScannerCheck):
         self.SelfPcr_offset = kpcr.SelfPcr.offset
         self.Prcb_offset = kpcr.Prcb.offset
         self.PrcbData_offset = kpcr.PrcbData.offset
-                
+
     def check(self, offset):
-        
-        # TODO: should remove hard coded length and determine size of struct from profile
+        """ We check that _KCPR.pSelfPCR points to the start of the _KCPR struct """
         paKCPR = offset
         paPRCBDATA = offset + self.PrcbData_offset
-        
+
         try:
-            #pSelfPCR = obj.Object("unsigned int", vm=self.address_space, offset=o + 0x1c)
             pSelfPCR = struct.unpack("I", self.address_space.read(offset + self.SelfPcr_offset,4))[0]
-            #pPrcb = obj.Object("unsigned int", vm=self.address_space, offset=o + 0x20)
             pPrcb = struct.unpack("I", self.address_space.read(offset + self.Prcb_offset,4))[0]
             if (pSelfPCR == paKCPR and pPrcb ==  paPRCBDATA):
                 self.KPCR = pSelfPCR
                 return True
-        except:
+
+        except Exception,e:
             return False
+
         return False
 
-    # make the scan DWROD aligned 
-    def skip(self, data, offset):
-        return 4
+    # make the scan DWROD aligned
+    def skip(self, data, offset, base_offset):
+        print hex(offset + base_offset)
+        offset_string = struct.pack("I", offset + base_offset)
+
+        if offset + base_offset >= 0x81c00000L: pdb.set_trace()
+        if '81cec700' in offset_string: pdb.set_trace()
+
+        #pdb.set_trace()
+        new_offset = offset
+        ## A successful match will need to at least match the Most
+        ## Significant 3 bytes
+        while (new_offset + base_offset + self.SelfPcr_offset) & 0xFF >= self.SelfPcr_offset:
+            new_offset = data.find(offset_string[3], new_offset + 1)
+            ## Its not there, skip the whole buffer
+            if new_offset < 0:
+                return len(data) - offset
+
+            if ((new_offset + base_offset) % 4) == 0:
+                return new_offset - self.SelfPcr_offset - 1
+
+        return len(data)-offset
 
 class KPCRScanner(scan.DiscontigScanner):
     checks = [ ("KPCRScannerCheck", {})
@@ -70,7 +88,6 @@ class KPCRScanner(scan.DiscontigScanner):
         
         for (offset,length) in self.getAvailableRuns(address_space):
             # only test for KPCR structure in the upper half of the 4G x86 address space (ie Kernel space)
-            print "%x[%x]" % (offset,length)
             if (offset >= 0x80000000):
                 for match in scan.BaseScanner.scan(self,address_space, offset, length):
                     yield match
@@ -87,11 +104,11 @@ class kpcrscan(commands.command):
         os = 'WIN_32_VISTA_SP0',
         version = '1.0',
         )
-        
+
     def calculate(self):
         """Determines the address space"""
         addr_space = utils.load_as()
-        
+
         #result = kpcr.KPCRScan(addr_space).scan()
         result = []
         sc = KPCRScanner()
@@ -101,16 +118,15 @@ class kpcrscan(commands.command):
             result.append(o)
         if len(result) == 0:
             config.error("No KPCR structures found. (Is it a windows image?)")
-        
+
         return result
-            
+
     def render_text(self, outfd, data):
         """Renders the KPCR values as text"""
-        
+
         outfd.write("Potential KPCR structure virtual addresses:\n")
         for o in data:
             outfd.write(" _KPCR: %x\n" % o)
-            
 
 config.add_option("KPCR", type='int', default=0, help = "KPCR Address")  
-      
+

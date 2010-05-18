@@ -128,7 +128,7 @@ class BaseScanner(object):
                 ## scanner needs to match only some checkers.
                 skip = 1
                 for s in skippers:
-                    skip = max(skip, s.skip(data, i))
+                    skip = max(skip, s.skip(data, i, self.base_offset))
 
                 i += skip
 

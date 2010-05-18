@@ -33,7 +33,7 @@ class PoolTagCheck(scan.ScannerCheck):
         scan.ScannerCheck.__init__(self, address_space, **kwargs)
         self.tag = tag
 
-    def skip(self, data, offset):
+    def skip(self, data, offset, base_offset):
         try:
             nextval = data.index(self.tag, offset+1)
             return nextval - offset

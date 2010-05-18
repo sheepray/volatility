@@ -57,10 +57,9 @@ class ident(datetime):
     """ Identify information for the image """
     def __init__(self, args=None):
         datetime.__init__(self, args)
-    
+
     def render_text(self, outfd, data):
         """Renders the calculated data as text to outfd"""
-        
         dt = data['ImageDatetime'].as_datetime()
 
         outfd.write("              Image Name: {0}\n".format(data['ImageName']))
@@ -69,7 +68,7 @@ class ident(datetime):
         outfd.write("                     DTB: {0}\n".format(data['ImageDTB']))
         outfd.write("                Datetime: {0}\n".format(data['ImageDatetime']))
         outfd.write("          Local Datetime: {0}\n".format(timefmt.display_datetime(dt, data['ImageTz'])))
-    
+
     def calculate(self):
         result = {}
         addr_space = utils.load_as()
@@ -84,15 +83,15 @@ class ident(datetime):
 
         # Get the Image Type
         result['ImageType'] = self.find_csdversion(addr_space)
-        
+
         # Get the VM Type
         result['ImagePAE'] = 'nopae'
         if addr_space.pae:
             result['ImagePAE'] = 'pae'
-        
+
         # Get the Image DTB
         result['ImageDTB'] = hex(addr_space.load_dtb())
-        
+
         # Get the Image Datetime
         result.update(self.get_image_time(addr_space))
 
