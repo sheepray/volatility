@@ -39,27 +39,30 @@ config = conf.ConfObject()
 def pslist(addr_space):
     """ A Generator for _EPROCESS objects (uses _KPCR symbols) """
 
-    ## Locate the kpcr struct - either hard coded or specified by the command line
-    kpcra = None
-    if config.KPCR == 0:
-        kpcra = info.kpcr_addr
-    else:
-        kpcra = config.KPCR
-        
-    kpcr = obj.Object("_KPCR",
-                     offset=kpcra,
+    ## First try to find it with the debugger data block entry in a
+    ## crash dump address space.
+    try:
+        KdDebuggerDataBlock = obj.Object("_KDDEBUGGER_DATA64",
+                     offset=addr_space.base.header.KdDebuggerDataBlock,
                      vm=addr_space)
 
-    mv =  kpcr.MajorVersion
+        PsActiveProcessHead = KdDebuggerDataBlock.PsActiveProcessHead
+    except:
+        ## Maybe its not a crash dump? Look for KPCR at a hard coded address:
+        kpcra = config.KPCR or info.kpcr_addr
+        kpcr = obj.Object("_KPCR",
+                          offset=kpcra,
+                          vm=addr_space)
 
-    DebuggerDataList = kpcr.KdVersionBlock.dereference_as("_DBGKD_GET_VERSION64").DebuggerDataList
-    PsActiveProcessHead = DebuggerDataList.dereference_as("_KDDEBUGGER_DATA64"
-                                                          ).PsActiveProcessHead \
-                     or DebuggerDataList.dereference_as("_KDDEBUGGER_DATA32"
-                                                        ).PsActiveProcessHead \
-                     or kpcr.KdVersionBlock.dereference_as("_KDDEBUGGER_DATA32"
-                                                           ).PsActiveProcessHead
-    
+        DebuggerDataList = kpcr.KdVersionBlock.dereference_as("_DBGKD_GET_VERSION64").DebuggerDataList
+        ## Several options for PsActiveProcessHead from various sources.
+        PsActiveProcessHead =  DebuggerDataList.dereference_as(
+            "_KDDEBUGGER_DATA64").PsActiveProcessHead or \
+            DebuggerDataList.dereference_as(
+            "_KDDEBUGGER_DATA32").PsActiveProcessHead or \
+            kpcr.KdVersionBlock.dereference_as(
+            "_KDDEBUGGER_DATA32").PsActiveProcessHead
+
     if PsActiveProcessHead:
         # print type(PsActiveProcessHead)
     ## Try to iterate over the process list in PsActiveProcessHead
@@ -69,7 +72,7 @@ def pslist(addr_space):
             yield l
     else:
         raise RuntimeError("Unable to find PsActiveProcessHead - is this image supported?")
-    
+
 # Blocksize was chosen to make it aligned
 # on 8 bytes
 # Optimized by Michael Cohen

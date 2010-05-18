@@ -125,8 +125,8 @@ class FileAddressSpace(addrspace.BaseAddressSpace):
     def get_address_range(self):
         return [0, self.fsize-1]
 
-    def get_available_addresses(self):
-        return [0, self.get_address_range()]
+    def get_available_pages(self):
+        return [(0, self.fsize -1)]
 
     def is_valid_address(self, addr):
         if addr == None:
@@ -280,7 +280,7 @@ class IA32PagedMemory(addrspace.BaseAddressSpace, WritablePagedMemory):
                                              vm=self.base)
 
                     if 'Idle' in proc.ImageFileName.v():
-                        return proc.Pcb.DirectoryTableBase[0]
+                        return proc.Pcb.DirectoryTableBase
                 else:
                     break
 
@@ -343,11 +343,11 @@ class IA32PagedMemory(addrspace.BaseAddressSpace, WritablePagedMemory):
         first_block = 0x1000 - vaddr % 0x1000
         full_blocks = ((length + (vaddr % 0x1000)) / 0x1000) - 1
         left_over = (length + vaddr) % 0x1000
-        
+
         paddr = self.vtop(vaddr)
-        if paddr == None:        
+        if paddr == None:
             return None
-        
+
         if length < first_block:
             stuff_read = self.base.read(paddr, length)
             if stuff_read == None:
@@ -451,7 +451,7 @@ class IA32PagedMemory(addrspace.BaseAddressSpace, WritablePagedMemory):
             if self.entry_present(entry) and self.page_size_flag(entry):
                 yield [start, 0x400000]
             elif self.entry_present(entry):
-                pte_curr = entry & ~((1 << page_shift)-1)                
+                pte_curr = entry & ~((1 << page_shift)-1)
                 for j in range(0, ptrs_per_pte):
                     pte_entry = self.read_long_phys(pte_curr)
                     pte_curr = pte_curr + 4
@@ -469,7 +469,7 @@ class IA32PagedMemoryPae(IA32PagedMemory):
         AS, and failing that we search for it.
         """
         IA32PagedMemory.__init__(self, base, **kwargs)
-        
+
     def get_pdptb(self, pdpr):
         return pdpr & 0xFFFFFFE0
 
@@ -535,20 +535,18 @@ class IA32PagedMemoryPae(IA32PagedMemory):
         return longlongval
 
     def get_available_pages(self):
-       
         pdpi_base = self.get_pdptb(self.pgd_vaddr)
 
-        for i in range(0, ptrs_per_pdpi): 
-
+        for i in range(0, ptrs_per_pdpi):
             start = (i * ptrs_per_pae_pgd * ptrs_per_pae_pgd * ptrs_per_pae_pte * 8)
-            pdpi_entry  = pdpi_base + i * entry_size        
+            pdpi_entry  = pdpi_base + i * entry_size
             pdpe = self.read_long_long_phys(pdpi_entry)
 
             if not self.entry_present(pdpe):
                 continue
-          
-            pgd_curr = self.pdba_base(pdpe)          
-                  
+
+            pgd_curr = self.pdba_base(pdpe)
+
             for j in range(0, ptrs_per_pae_pgd):
                 soffset = start + (j * ptrs_per_pae_pgd * ptrs_per_pae_pte * 8)
                 entry = self.read_long_long_phys(pgd_curr)
@@ -556,7 +554,7 @@ class IA32PagedMemoryPae(IA32PagedMemory):
                 if self.entry_present(entry) and self.page_size_flag(entry):
                     yield [soffset, 0x200000]
                 elif self.entry_present(entry):
-                    pte_curr = entry & ~((1 << page_shift)-1)                
+                    pte_curr = entry & ~((1 << page_shift)-1)
                     for k in range(0, ptrs_per_pae_pte):
                         pte_entry = self.read_long_long_phys(pte_curr)
                         pte_curr = pte_curr + 8

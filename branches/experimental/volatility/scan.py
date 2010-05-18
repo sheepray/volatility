@@ -72,7 +72,7 @@ class BaseScanner(object):
             ## constraints can raise for an error
             try:
                 val = check.check(found)
-            except Exception:
+            except Exception, e:
                 debug.b()
                 val = False
 
@@ -85,12 +85,21 @@ class BaseScanner(object):
         return True
 
     overlap = 20
-    def scan(self, address_space):
-        self.base_offset = 0
+             
+    def scan(self, address_space, offset=0, maxlen=None):
+        self.base_offset = offset
+        self.max_length = maxlen
         ## Which checks also have skippers?
         skippers = [ c for c in self.constraints if hasattr(c, "skip") ]
         while 1:
-            data = address_space.read(self.base_offset, BLOCKSIZE + self.overlap)
+            #if not address_space.is_valid_address(self.base_offset):
+            #    break
+            if (self.max_length != None):
+                l = min(BLOCKSIZE + self.overlap, self.max_length)
+            else:
+                l = BLOCKSIZE + self.overlap
+
+            data = address_space.read(self.base_offset, l)
             if not data:
                 break
 
@@ -123,8 +132,35 @@ class BaseScanner(object):
 
                 i += skip
 
-            self.base_offset += BLOCKSIZE
+            self.base_offset += min(BLOCKSIZE,l)
+            if (self.max_length != None):
+                self.max_length -= min(BLOCKSIZE,l)
 
+class DiscontigScanner(BaseScanner):
+        def getAvailableRuns(self, address_space):
+            runLength = None
+            currentOffset = None
+           
+            for (offset,size) in address_space.get_available_pages():
+                if (runLength == None):
+                    runLength = size
+                    currentOffset = offset
+                else:
+                    if (offset == (currentOffset + runLength)):
+                        runLength += size
+                    else:
+                        yield (currentOffset,runLength)
+                        runLength = size
+                        currentOffset = offset
+            if (runLength != None and currentOffset != None):
+                yield (currentOffset,runLength)
+
+        
+        def scan(self, address_space):
+            for (offset,length) in self.getAvailableRuns(address_space):
+                for match in BaseScanner.scan(self,address_space, offset, length):
+                    yield match
+            
 
 class ScannerCheck(object):
     """ A scanner check is a special class which is invoked on an AS to check for a specific condition.

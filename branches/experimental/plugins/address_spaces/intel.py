@@ -35,7 +35,8 @@ BLOCKSIZE = 1024 * 1024 * 10
 config.add_option("CACHE-DTB", action="store_false", default=True, 
                   help = "Cache virtual to physical mappings")
 
-class JKIA32PagedMemory(addrspace.BaseAddressSpace, standard.WritablePagedMemory):
+
+class JKIA32PagedMemoryBase(addrspace.BaseAddressSpace, standard.WritablePagedMemory):
     """ Standard x86 32 bit non PAE address space.
     
     Provides an address space for IA32 paged memory, aka the x86 
@@ -44,8 +45,8 @@ class JKIA32PagedMemory(addrspace.BaseAddressSpace, standard.WritablePagedMemory
 
     Create a new IA32 address space without PAE to sit on top of 
     the base address space and a Directory Table Base (CR3 value)
-    of 'dtb'.
-
+    of 'dtb'. 
+    
     If the 'cache' parameter is true, will cache the Page Directory Entries
     for extra performance. The cache option requires an additional 4KB of
     space.
@@ -61,7 +62,8 @@ class JKIA32PagedMemory(addrspace.BaseAddressSpace, standard.WritablePagedMemory
     cache = False
     pae = False
     paging_address_space = True
-
+    name = 'Kernel AS'
+    
     def __init__(self, base, dtb=0, astype = None, **kwargs):
         ## We allow users to disable us in favour of the old legacy
         ## modules.
@@ -82,9 +84,8 @@ class JKIA32PagedMemory(addrspace.BaseAddressSpace, standard.WritablePagedMemory
         self.dtb = dtb or config.DTB or self.load_dtb()
         self.base = base
 
-        ## We have to have a valid PsLoadedModuleList
-        # FIXME: !!!!! Remove Hardcoded HACK!!!!
-        assert self.is_valid_address(0x8055a420), "PsLoadedModuleList not valid Address"
+        if not self.isValidKernelAS():
+            raise Exception()
 
         # The caching code must be in a separate function to allow the
         # PAE code, which inherits us, to have its own code.
@@ -94,7 +95,20 @@ class JKIA32PagedMemory(addrspace.BaseAddressSpace, standard.WritablePagedMemory
 
         # Reserved for future use
         #self.pagefile = config.PAGEFILE
-        self.name = 'Kernel AS'
+
+    def isValidKernelAS(self):
+        ## We have to have a valid PsLoadedModuleList
+        # FIXME: !!!!! Remove Hardcoded HACK!!!!
+        # TODO: BLS: Ugly hack!
+        #assert self.is_valid_address(0x8055a420), "PsLoadedModuleList not valid Address"
+
+        foundKernelAddresses = False
+        for (offset,length) in self.get_available_pages(start=0x80000000):
+            if (offset > 0x80000000):
+                foundKernelAddresses = True
+                break
+        return foundKernelAddresses
+
 
     def _cache_values(self):
         '''
@@ -151,7 +165,7 @@ class JKIA32PagedMemory(addrspace.BaseAddressSpace, standard.WritablePagedMemory
                                              vm=self.base)
 
                     if 'Idle' in proc.ImageFileName.v():
-                        return proc.Pcb.DirectoryTableBase[0].v()
+                        return proc.Pcb.DirectoryTableBase.v()
                 else:
                     break
 
@@ -337,21 +351,23 @@ class JKIA32PagedMemory(addrspace.BaseAddressSpace, standard.WritablePagedMemory
             return False
         return self.base.is_valid_address(phyaddr)
 
-    def get_available_pages(self):
+    def get_available_pages(self, start=0):
         '''
         Return a list of lists of available memory pages.
         Each entry in the list is the starting virtual address 
         and the size of the memory page.
         '''
+        page_list = []
+        start_pde_ent = self.pde_index(start)
         # Pages that hold PDEs and PTEs are 0x1000 bytes each.
         # Each PDE and PTE is four bytes. Thus there are 0x1000 / 4 = 0x400
         # PDEs and PTEs we must test
 
-        for pde in range(0, 0x400):
+        for pde in range(start_pde_ent, 0x400):
             vaddr = pde << 22
             pde_value = self.get_pde(vaddr)
-            if not self.entry_present(pde_value): continue
-
+            if not self.entry_present(pde_value):
+                continue
             if self.page_size_flag(pde_value):
                 yield (vaddr, 0x400000)
             else:
@@ -363,7 +379,20 @@ class JKIA32PagedMemory(addrspace.BaseAddressSpace, standard.WritablePagedMemory
                         yield (vaddr, 0x1000)
 
 
-class JKIA32PagedMemoryPae(JKIA32PagedMemory):
+class JKIA32PagedMemory(JKIA32PagedMemoryBase):
+    def isValidKernelAS(self):
+        header = None
+        try:
+            header = self.base.header
+        except:
+            pass
+        if header != None:
+            assert header.PaeEnabled == 1
+        return JKIA32PagedMemoryBase.isValidKernelAS(self)
+
+              
+          
+class JKIA32PagedMemoryPae(JKIA32PagedMemoryBase):
     """ Standard x86 32 bit PAE address space.
     
     Provides an address space for IA32 paged memory, aka the x86 
@@ -380,6 +409,16 @@ class JKIA32PagedMemoryPae(JKIA32PagedMemory):
     order = 80        
     pae = True
     
+    def isValidKernelAS(self):
+        header = None
+        try:
+            header = self.base.header
+        except:
+            pass
+        if header != None:
+            assert header.PaeEnabled == 1
+        return JKIA32PagedMemoryBase.isValidKernelAS(self)
+        
     def _cache_values(self):
         buf = self.base.read(self.dtb, 0x20)
         if buf is None:
@@ -495,7 +534,7 @@ class JKIA32PagedMemoryPae(JKIA32PagedMemory):
         (longlongval, ) = struct.unpack('<Q', string)
         return longlongval
 
-    def get_available_pages(self):
+    def get_available_pages(self, start=0):
         '''
         Return a list of lists of available memory pages.
         Each entry in the list is the starting virtual address 
@@ -505,7 +544,10 @@ class JKIA32PagedMemoryPae(JKIA32PagedMemory):
         # Pages that hold PDEs and PTEs are 0x1000 bytes each.
         # Each PDE and PTE is eight bytes. Thus there are 0x1000 / 8 = 0x200
         # PDEs and PTEs we must test.
-        for pdpte in range(0, 4):
+
+        page_list = []
+        start_pdpte = self.pdpte_index(start)
+        for pdpte in range(start_pdpte, 4):
             vaddr = pdpte << 30
             pdpte_value = self.get_pdpte(vaddr)
             if not self.entry_present(pdpte_value):

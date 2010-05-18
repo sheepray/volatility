@@ -27,10 +27,54 @@ import os
 import volatility.utils as utils
 import volatility.commands as commands
 import volatility.conf as conf
+import volatility.obj as obj
+import volatility.scan as scan
 import volatility.win32.kpcr as kpcr
+import struct 
 
 config = conf.ConfObject()
+class KPCRScannerCheck(scan.ScannerCheck):
+    def __init__(self, address_space):
+        scan.ScannerCheck.__init__(self, address_space)
+        kpcr = obj.Object("_KPCR", vm=address_space, offset=0)
+        self.SelfPcr_offset = kpcr.SelfPcr.offset
+        self.Prcb_offset = kpcr.Prcb.offset
+        self.PrcbData_offset = kpcr.PrcbData.offset
+                
+    def check(self, offset):
+        
+        # TODO: should remove hard coded length and determine size of struct from profile
+        paKCPR = offset
+        paPRCBDATA = offset + self.PrcbData_offset
+        
+        try:
+            #pSelfPCR = obj.Object("unsigned int", vm=self.address_space, offset=o + 0x1c)
+            pSelfPCR = struct.unpack("I", self.address_space.read(offset + self.SelfPcr_offset,4))[0]
+            #pPrcb = obj.Object("unsigned int", vm=self.address_space, offset=o + 0x20)
+            pPrcb = struct.unpack("I", self.address_space.read(offset + self.Prcb_offset,4))[0]
+            if (pSelfPCR == paKCPR and pPrcb ==  paPRCBDATA):
+                self.KPCR = pSelfPCR
+                return True
+        except:
+            return False
+        return False
 
+    # make the scan DWROD aligned 
+    def skip(self, data, offset):
+        return 4
+
+class KPCRScanner(scan.DiscontigScanner):
+    checks = [ ("KPCRScannerCheck", {})
+               ]
+    def scan(self, address_space):
+        
+        for (offset,length) in self.getAvailableRuns(address_space):
+            # only test for KPCR structure in the upper half of the 4G x86 address space (ie Kernel space)
+            print "%x[%x]" % (offset,length)
+            if (offset >= 0x80000000):
+                for match in scan.BaseScanner.scan(self,address_space, offset, length):
+                    yield match
+                        
 class kpcrscan(commands.command):
     """Search for and dump potential KPCR values"""
     
@@ -48,8 +92,13 @@ class kpcrscan(commands.command):
         """Determines the address space"""
         addr_space = utils.load_as()
         
-        result = kpcr.KPCRScan(addr_space).scan()
-       
+        #result = kpcr.KPCRScan(addr_space).scan()
+        result = []
+        sc = KPCRScanner()
+        print "Scanning for KPCR..."
+        for o in sc.scan(addr_space):
+            print "\tFound KPCR stucture at %x" % o
+            result.append(o)
         if len(result) == 0:
             config.error("No KPCR structures found. (Is it a windows image?)")
         

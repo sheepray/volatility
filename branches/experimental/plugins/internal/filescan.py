@@ -34,7 +34,7 @@ config = volatility.conf.ConfObject()
 import volatility.utils as utils
 import volatility.obj as obj
 
-class PoolScanFile(scan.PoolScanner):
+class PoolScanFile(scan.DiscontigScanner):
     """PoolScanner for File objects"""
     ## We dont want any preamble - the offsets should be those of the
     ## _POOL_HEADER directly.
@@ -275,3 +275,6 @@ class mutantscan(filescan):
                          mutant.OwnerThread, CID,
                          self.parse_string(object_name_info_obj.Name)
                          ))
+
+
+## FIXME - add objscan

@@ -36,7 +36,7 @@ import volatility.utils as utils
 import volatility.obj as obj
 import volatility.debug as debug #pylint: disable-msg=W0611
 
-class PoolScanModuleFast2(scan.PoolScanner):
+class PoolScanModuleFast2(scan.DiscontigScanner):
     preamble = ['_POOL_HEADER', ]
 
     checks = [ ('PoolTagCheck', dict(tag = 'MmLd')),

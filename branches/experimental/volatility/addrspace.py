@@ -66,7 +66,7 @@ class BaseAddressSpace:
     def read(self, addr, length):
         """ Read some date from a certain offset """
 
-    def get_available_addresses(self):
+    def get_available_pages(self):
         """ Return a list of address ranges covered by this AS """
 
     def is_valid_address(self, _addr):

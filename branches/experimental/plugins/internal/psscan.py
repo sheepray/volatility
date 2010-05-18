@@ -99,7 +99,7 @@ class CheckDTBAligned(scan.ScannerCheck):
         eprocess = obj.Object("_EPROCESS", vm=self.address_space,
                              offset = offset)
         
-        return eprocess.Pcb.DirectoryTableBase[0] % 0x20 == 0
+        return eprocess.Pcb.DirectoryTableBase % 0x20 == 0
 
 class CheckThreadList(scan.ScannerCheck):
     """ Checks that _EPROCESS thread list points to the kernel Address Space """
@@ -200,8 +200,8 @@ class thrdscan(commands.command):
                                                                            ethread.CreateTime or '',
                                                                            ethread.ExitTime or '',
                                                                            ethread.offset))
-
-class PSScan(scan.BaseScanner):
+   
+class PSScan(scan.DiscontigScanner):
     """ This scanner carves things that look like _EPROCESS structures.
 
     Since the _EPROCESS does not need to be linked to the process
@@ -275,5 +275,5 @@ class psscan(commands.command):
                 eprocess.CreateTime or '',
                 eprocess.ExitTime or '',
                 eprocess.offset,
-                eprocess.Pcb.DirectoryTableBase[0],
+                eprocess.Pcb.DirectoryTableBase,
                 eprocess.ImageFileName))

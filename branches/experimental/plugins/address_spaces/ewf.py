@@ -1,9 +1,6 @@
 """ This Address Space allows us to open ewf files """
 import standard
 
-import volatility.debug as debug
-import volatility.addrspace as addrspace
-
 #pylint: disable-msg=C0111
 
 from ctypes import CDLL, c_char_p, c_int, pointer, c_ulonglong, c_ulong, create_string_buffer
@@ -97,10 +94,10 @@ class EWFAddressSpace(standard.FileAddressSpace):
     """
     order = 20
     def __init__(self, base, **kwargs):
-        addrspace.BaseAddressSpace.__init__(self, base, **kwargs)
+        standard.FileAddressSpace.__init__(self, base, layered = True)
         assert(base)
         assert(base.read(0, 6) == "\x45\x56\x46\x09\x0D\x0A")
-        self.fhandle = ewf_open([base.name])
+        self.fhandle = ewf_open([self.name])
         self.fhandle.seek(0, 2)
         self.fsize = self.fhandle.tell()
         self.fhandle.seek(0)
