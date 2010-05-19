@@ -46,7 +46,6 @@ class pas2kas(commands.command):
 
     def get_task_as(self, kernel_addr_space):
         if config.PID:
-            pdb.set_trace
             for t in win32.tasks.pslist(kernel_addr_space):
                 if t.UniqueProcessId == config.PID:
                     return t.get_process_address_space()
