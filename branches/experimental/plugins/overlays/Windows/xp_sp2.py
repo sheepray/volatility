@@ -241,7 +241,7 @@ class _EPROCESS(obj.CType):
 
                 except AttributeError:
                     pass
-        
+
     def handles(self):
         """ A generator which yields this process's handles
 

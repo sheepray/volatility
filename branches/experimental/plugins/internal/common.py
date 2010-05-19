@@ -71,7 +71,7 @@ class CheckPoolType(scan.ScannerCheck):
     def check(self, offset):
         pool_hdr = obj.Object('_POOL_HEADER', vm=self.address_space,
                              offset = offset - 4)
-        
+
         ptype = pool_hdr.PoolType.v()
 
         if self.non_paged and (ptype % 2) == 1:

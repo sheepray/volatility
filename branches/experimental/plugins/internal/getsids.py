@@ -141,7 +141,7 @@ class getsids(taskmods.dlllist):
 
     # Declare meta information associated with this plugin
     
-    meta_info = taskmods.dlllist.meta_info 
+    meta_info = {}
     meta_info['author'] = 'Brendan Dolan-Gavitt'
     meta_info['copyright'] = 'Copyright (c) 2007,2008 Brendan Dolan-Gavitt'
     meta_info['contact'] = 'bdolangavitt@wesleyan.edu'
@@ -183,5 +183,5 @@ class getsids(taskmods.dlllist):
                         sid_name = " ({0})".format(sid_name_re)
                     else:
                         sid_name = ""
-                
+
                 outfd.write("{0} ({1}): {2}{3}\n".format(task.ImageFileName, task.UniqueProcessId, sid_string, sid_name))

@@ -35,7 +35,7 @@ class Table(UI.Table):
         UI.Table.__init__(self, headings=headings, output=output, format=format)
         self.headings_emitted = False
         self.column_count = len(headings)
-        self.column_widths = [0] * len(headings)
+        self.column_widths = [1] * len(headings)
         self.column_formats = ['']* len(headings)
         self.row_cache = []
         self.row_cache_format = []

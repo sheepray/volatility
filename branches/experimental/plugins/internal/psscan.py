@@ -98,7 +98,7 @@ class CheckDTBAligned(scan.ScannerCheck):
     def check(self, offset):
         eprocess = obj.Object("_EPROCESS", vm=self.address_space,
                              offset = offset)
-        
+
         return eprocess.Pcb.DirectoryTableBase % 0x20 == 0
 
 class CheckThreadList(scan.ScannerCheck):
@@ -151,7 +151,7 @@ class CheckThreadNotificationTimer(scan.ScannerCheck):
     def check(self, offset):
         ethread = obj.Object("_ETHREAD", vm=self.address_space,
                             offset = offset)
-        
+
         sem = ethread.Tcb.Timer.Header
         if sem.Type == 0x8 and sem.Size == 0xa:
             return True

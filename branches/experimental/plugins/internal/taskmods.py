@@ -113,7 +113,7 @@ class files(dlllist):
         self.handle_obj = "_FILE_OBJECT"
 
     def render(self, data, ui):
-        table = ui.table("Pid", "Filename", format={"Pid": ">"})
+        table = ui.table("Pid", "Filename", format={"Pid": "{0}"})
         for pid, handles in data:
             for h in handles:
                 if h.FileName:
@@ -183,7 +183,7 @@ class memmap(dlllist):
 
 class memdump(memmap):
     """Dump the addressable memory for a process"""
-    
+
     def __init__(self, *args):
         config.add_option('DUMP-DIR', short_option='D', default=None,
                           help='Directory in which to dump the VAD files')
@@ -194,7 +194,7 @@ class memdump(memmap):
             config.error("Please specify a dump directory (--dump-dir)")
         if not os.path.isdir(config.DUMP_DIR):
             config.error(config.DUMP_DIR + " is not a directory")
-        
+
         for pid, task, pagedata in data:
             outfd.write("*" * 72 + "\n")
 
@@ -209,3 +209,15 @@ class memdump(memmap):
             else:
                 outfd.write("Unable to read pages for task.\n")
             f.close()
+
+class handles(files):
+    """ Shows all the handles in an object """
+    def handle_list(self, task):
+        for h in task.handles():
+            yield h
+
+    def render(self, data, ui):
+        table = ui.table("Pid", "Offset", "Type", format=dict(Offset = "0x{0:09x}"))
+        for pid, handles in data:
+            for h in handles:
+                table.row(pid, h.Body.offset, str(h.Type.Name))

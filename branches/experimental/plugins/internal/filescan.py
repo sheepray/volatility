@@ -33,8 +33,10 @@ import volatility.conf
 config = volatility.conf.ConfObject()
 import volatility.utils as utils
 import volatility.obj as obj
+import pdb
+import struct
 
-class PoolScanFile(scan.DiscontigScanner):
+class PoolScanFile(scan.PoolScanner):
     """PoolScanner for File objects"""
     ## We dont want any preamble - the offsets should be those of the
     ## _POOL_HEADER directly.
@@ -67,7 +69,7 @@ class filescan(commands.command):
         ## We need to do this because the unicode_obj buffer is in
         ## kernel_address_space
         string_length = unicode_obj.Length
-        string_offset = unicode_obj.Buffer            
+        string_offset = unicode_obj.Buffer
 
         string = self.kernel_address_space.read(string_offset, string_length)
         if not string: 
@@ -84,7 +86,7 @@ class filescan(commands.command):
         for offset in PoolScanFile().scan(address_space):
             pool_obj = obj.Object("_POOL_HEADER", vm=address_space,
                                  offset = offset)
-            
+
             ## We work out the _FILE_OBJECT from the end of the
             ## allocation (bottom up).
             file_obj = obj.Object("_FILE_OBJECT", vm=address_space,
@@ -145,16 +147,17 @@ class driverscan(filescan):
         self.kernel_address_space = utils.load_as()
 
         for offset in PoolScanDriver().scan(address_space):
+            pdb.set_trace()
             pool_obj = obj.Object("_POOL_HEADER", vm=address_space,
                                  offset = offset)
-            
+
             ## We work out the _DRIVER_OBJECT from the end of the
             ## allocation (bottom up).
             extension_obj = obj.Object(
                 "_DRIVER_EXTENSION", vm=address_space,
                 offset = offset + pool_obj.BlockSize * 8 - 4 -\
                 address_space.profile.get_obj_size("_DRIVER_EXTENSION"))
-            
+
             ## The _DRIVER_OBJECT is immediately below the _DRIVER_EXTENSION
             driver_obj = obj.Object(
                 "_DRIVER_OBJECT", vm=address_space,
@@ -178,16 +181,16 @@ class driverscan(filescan):
                                                  offset = object_obj.offset - \
                                                  object_obj.NameInfoOffset
                                                  )
-            
+
             yield (object_obj, driver_obj, extension_obj, object_name_info_obj)
 
-        
+
     def render_text(self, outfd, data):
         """Renders the text-based output"""
         outfd.write("{0:10} {1:10} {2:4} {3:4} {4:10} {5:>6} {6:20} {7}\n".format(
                      'Phys.Addr.', 'Obj Type', '#Ptr', '#Hnd',
                      'Start', 'Size', 'Service key', 'Name'))
-        
+
         for object_obj, driver_obj, extension_obj, object_name_info_obj in data:
             outfd.write("0x{0:08x} 0x{1:08x} {2:4} {3:4} 0x{4:08x} {5:6} {6:20} {7:12} {8}\n".format(
                          driver_obj.offset, object_obj.Type, object_obj.PointerCount,
@@ -223,14 +226,14 @@ class mutantscan(filescan):
         for offset in PoolScanMutant().scan(address_space):
             pool_obj = obj.Object("_POOL_HEADER", vm=address_space,
                                  offset = offset)
-            
+
             ## We work out the _DRIVER_OBJECT from the end of the
             ## allocation (bottom up).
             mutant = obj.Object(
                 "_KMUTANT", vm=address_space,
                 offset = offset + pool_obj.BlockSize * 8 -\
                 address_space.profile.get_obj_size("_KMUTANT"))
-            
+
             ## The _OBJECT_HEADER is immediately below the _KMUTANT
             object_obj = obj.Object(
                 "_OBJECT_HEADER", vm=address_space,
@@ -251,16 +254,16 @@ class mutantscan(filescan):
             if config.SILENT:
                 if object_obj.NameInfoOffset == 0:
                     continue
-            
+
             yield (object_obj, mutant, object_name_info_obj)
 
-        
+
     def render_text(self, outfd, data):
         """Renders the output"""
         outfd.write("{0:10} {1:10} {2:4} {3:4} {4:6} {5:10} {6:10} {7}\n".format(
                      'Phys.Addr.', 'Obj Type', '#Ptr', '#Hnd', 'Signal', 
                      'Thread', 'CID', 'Name'))
-        
+
         for object_obj, mutant, object_name_info_obj in data:
             if mutant.OwnerThread > 0x80000000:
                 thread = obj.Object("_ETHREAD", vm = self.kernel_address_space,
@@ -268,7 +271,7 @@ class mutantscan(filescan):
                 CID = "{0}:{1}".format(thread.Cid.UniqueProcess, thread.Cid.UniqueThread)
             else:
                 CID = ""
-            
+
             outfd.write("0x{0:08x} 0x{1:08x} {2:4} {3:4} {4:6} 0x{5:08x} {6:10} {7}\n".format(
                          mutant.offset, object_obj.Type, object_obj.PointerCount,
                          object_obj.HandleCount, mutant.Header.SignalState,
@@ -277,4 +280,67 @@ class mutantscan(filescan):
                          ))
 
 
-## FIXME - add objscan
+class ObjectScanner(PoolScanDriver):
+    """ Scanner for Objects _OBJECT """
+    checks = [ ('PoolTagCheck', dict(tag = 'Obj\xd4')),
+               ('CheckPoolSize', dict(condition = lambda x: x == 0x1d0)),
+               ('CheckPoolType', dict(non_paged = True)),
+               ('CheckPoolIndex', dict(value =0)),
+               ]
+
+class objectscan(filescan):
+    """ Scan for _OBJECT objects """
+    def calculate(self):
+        ## Just grab the AS and scan it using our scanner
+        address_space = utils.load_as(astype='physical')
+
+        ## Will need the kernel AS for later:
+        self.kernel_address_space = utils.load_as()
+
+        for offset in ObjectScanner().scan(address_space):
+            pool_obj = obj.Object("_POOL_HEADER", vm=address_space,
+                                 offset = offset)
+
+            ## We work out the _DRIVER_OBJECT from the end of the
+            ## allocation (bottom up).
+            object_type = obj.Object(
+                "_OBJECT_TYPE", vm=address_space, \
+                    offset = offset + pool_obj.BlockSize * 8 - \
+                    address_space.profile.get_obj_size("_OBJECT_TYPE"))
+
+            object_header = obj.Object(
+                "_OBJECT_HEADER", vm=address_space, \
+                    offset = object_type.offset - \
+                    address_space.profile.get_obj_size("_OBJECT_HEADER"))
+
+            if object_header.Type == None or object_header.Type == 0xbad0b0b0:
+                continue
+
+            yield object_type, object_header
+
+    def render_text(self, outfd, data):
+        commands.command.render_text(self, outfd, data)
+
+    def render(self, object_types, ui):
+        format = {}
+        for x in ['Phys.Addr', 'Obj Type', 'TypePtr']:
+            format[x] = "0x{0:09x}"
+
+        table = ui.table( 'Phys.Addr', 'Obj Type', '#Ptr', '#Hnd',
+                          'Objects', 'Handles', 'PoolTag',
+                          'Pool alloc', 'Name',
+                          format = format)
+        for t, h in object_types:
+            if (t.TypeInfo.PoolType.v() % 2) == 0:
+                StrPoolType = '(npaged)'
+            else:
+                StrPoolType = '(paged)'
+
+            table.row(t.offset, h.Type, h.PointerCount, h.HandleCount,
+                      "%s/%s" % (t.TotalNumberOfObjects, t.HighWaterNumberOfObjects),
+                      "%s/%s" % (t.TotalNumberOfHandles, t.HighWaterNumberOfHandles),
+                      ''.join([chr(x) for x in t.Key ]),
+                      StrPoolType,
+                      self.parse_string(t.Name))
+ 
+ 

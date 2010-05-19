@@ -43,7 +43,7 @@ def load_as(**kwargs):
                 error.append_reason(cls.__name__, e) 
                 continue
             except Exception, e:
-                debug.debug("Failed instantiating") 
+                debug.debug("Failed instantiating %s" % e) 
                 continue               
 
         ## A full iteration through all the classes without anyone
