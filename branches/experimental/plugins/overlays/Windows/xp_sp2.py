@@ -156,11 +156,14 @@ class WinTimeStamp(obj.NativeType):
         return "{0}".format(self)
 
     def as_datetime(self):
-        dt = datetime.datetime.utcfromtimestamp(self.v())
-        if self.is_utc:
-            # Only do dt.replace when dealing with UTC
-            dt = dt.replace(tzinfo=timefmt.UTC())
-        return dt
+        try:
+            dt = datetime.datetime.utcfromtimestamp(self.v())
+            if self.is_utc:
+                # Only do dt.replace when dealing with UTC
+                dt = dt.replace(tzinfo=timefmt.UTC())
+            return dt
+        except ValueError:
+            return datetime.datetime.utcfromtimestamp(0)
 
     def __format__(self, formatspec):
         """Formats the datetime according to the timefmt module"""

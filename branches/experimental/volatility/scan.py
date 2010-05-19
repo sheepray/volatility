@@ -187,7 +187,7 @@ class ScannerCheck(object):
     #def skip(self, data, offset):
     #    return -1
 
-class PoolScanner(BaseScanner):
+class PoolScanner(DiscontigScanner):
     ## These are the objects that follow the pool tags
     preamble = [ '_POOL_HEADER', ]
 
@@ -198,5 +198,5 @@ class PoolScanner(BaseScanner):
         return found + sum([self.buffer.profile.get_obj_size(c) for c in self.preamble]) - 4
 
     def scan(self, address_space):
-        for i in BaseScanner.scan(self, address_space):
+        for i in DiscontigScanner.scan(self, address_space):
             yield self.object_offset(i)

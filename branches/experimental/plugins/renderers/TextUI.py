@@ -24,7 +24,7 @@ import pdb
 
 class Table(UI.Table):
     ## Default formatter is just ""
-    default_formatter = ''
+    default_formatter = "{0}"
     max_column_width = 20
 
     ## We cache a few rows before we print them so we can get a better
@@ -46,7 +46,8 @@ class Table(UI.Table):
         formats = []
         for i in range(len(args)):
             format = self.format.get(self.headings[i], self.default_formatter)
-            item = "{{0:{0}}}".format(format).format(args[i])
+            #item = "{{0:{0}}}".format(format).format(args[i])
+            item = format.format(args[i])
             self.column_widths[i] = max(self.column_widths[i], len(item))
 
             row.append(item)
@@ -77,7 +78,8 @@ class Table(UI.Table):
             for i in range(len(row)):
                 format = self.format.get(self.headings[i], self.default_formatter)
                 #line += "{{0:{1:d}{0}}}  ".format(format, self.column_widths[i]).format(row[i])
-                line += "{0:{2}{1:d}} ".format(row[i], self.column_widths[i], format)
+                #line += "{0:{2}{1:d}} ".format(row[i], self.column_widths[i], format)
+                line += "{0:{1:d}} ".format(row[i], self.column_widths[i], format)
 
             self.output.write(line.strip() + "\n")
 

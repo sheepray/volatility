@@ -49,7 +49,7 @@ class CheckSocketCreateTime(scan.ScannerCheck):
 
         return self.condition(address_obj.CreateTime.v())
 
-class PoolScanSockFast(scan.DiscontigScanner):
+class PoolScanSockFast(scan.PoolScanner):
     checks = [ ('PoolTagCheck', dict(tag = "TCPA")),
                ('CheckPoolSize', dict(condition = lambda x: x == 0x170)),
                ('CheckPoolType', dict(non_paged = True, free = True)),

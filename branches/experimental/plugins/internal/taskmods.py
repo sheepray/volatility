@@ -62,7 +62,7 @@ class dlllist(commands.command):
                 ui.text("Command line : {0}".format(task.Peb.ProcessParameters.CommandLine))
                 ui.para("{0}".format(task.Peb.CSDVersion))
 
-                table = ui.table('Base', 'Size', 'Path', format={'Size': '>'})
+                table = ui.table('Base', 'Size', 'Path', format={'Base': '0x{0:09x}'})
                 for m in self.list_modules(task):
                     table.row(m.BaseAddress, m.SizeOfImage, m.FullDllName)
                 table.flush()

@@ -27,7 +27,6 @@ This module implements the fast module scanning
 """
 
 #pylint: disable-msg=C0111
-
 import volatility.scan as scan
 import volatility.commands as commands
 import volatility.conf as conf
@@ -36,7 +35,7 @@ import volatility.utils as utils
 import volatility.obj as obj
 import volatility.debug as debug #pylint: disable-msg=W0611
 
-class PoolScanModuleFast2(scan.DiscontigScanner):
+class PoolScanModuleFast2(scan.PoolScanner):
     preamble = ['_POOL_HEADER', ]
 
     checks = [ ('PoolTagCheck', dict(tag = 'MmLd')),
@@ -49,7 +48,7 @@ class modscan2(commands.command):
     """ Scan Physical memory for _LDR_DATA_TABLE_ENTRY objects
     """
 
-    # Declare meta information associated with this plugin    
+    # Declare meta information associated with this plugin
     meta_info = dict(
         author = 'Brendan Dolan-Gavitt',
         copyright = 'Copyright (c) 2007,2008 Brendan Dolan-Gavitt',
@@ -68,10 +67,10 @@ class modscan2(commands.command):
         ## We need to do this because the unicode_obj buffer is in
         ## kernel_address_space
         string_length = unicode_obj.Length.v()
-        string_offset = unicode_obj.Buffer.v()            
+        string_offset = unicode_obj.Buffer.v()
         return self.kernel_address_space.read(
             string_offset, string_length).decode("utf16","ignore")
-    
+
     def calculate(self):
         ## Here we scan the physical address space
         address_space = utils.load_as(astype = 'physical')

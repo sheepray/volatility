@@ -2,13 +2,21 @@ import volatility.conf as conf
 config = conf.ConfObject()
 import volatility.utils as utils
 import volatility.commands as commands
+import volatility.win32 as win32
 import pdb
 import bisect
 
-class PAS2KAS(commands.command):
+class pas2kas(commands.command):
     """ Convert a list of physical AS offsets (given on the command
     line) to a list of potential KVA addresses.
     """
+    def __init__(self, *args):
+        config.add_option('PID', short_option = 'p', default=None,
+                          help='Operate on this Process ID',
+                          action='store', type='int')
+
+        commands.command.__init__(self, *args)
+
     def render_text(self, outfd, data):
         outfd.write("{0:10s} {1:10s}\n".format("Phys AS", "KAS"))
         for offset, result in data:
@@ -36,8 +44,19 @@ class PAS2KAS(commands.command):
 
         yield (last_va, last_pa, last_len)
 
+    def get_task_as(self, kernel_addr_space):
+        if config.PID:
+            pdb.set_trace
+            for t in win32.tasks.pslist(kernel_addr_space):
+                if t.UniqueProcessId == config.PID:
+                    return t.get_process_address_space()
+
+            raise RuntimeError("Unable to locate pid %s" % config.PID)
+
+        return kernel_addr_space
+
     def calculate(self):
-        addr_space = utils.load_as()
+        addr_space = self.get_task_as(utils.load_as())
 
         ## Get the coalesced map:
         ranges = [ (va, pa, length) for va, pa, length in self.coalesce_ranges(addr_space) ]
@@ -50,5 +69,4 @@ class PAS2KAS(commands.command):
             needle = conf.parse_int(pa)
             for va, pa, length in ranges:
                 if needle >= pa and needle - pa < length:
-                    pdb.set_trace()
                     yield (needle, va + (needle - pa))
