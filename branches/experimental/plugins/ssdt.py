@@ -1026,8 +1026,8 @@ def find_module(modlist, mod_addrs, addr):
         return None
     mod = modlist[mod_addrs[pos]]
 
-    if (addr >= mod.BaseAddress.v() and 
-        addr <  mod.BaseAddress.v() + mod.SizeOfImage.v()):
+    if (addr >= mod.DllBase.v() and 
+        addr <  mod.DllBase.v() + mod.SizeOfImage.v()):
         return mod
     else:
         return None
@@ -1049,7 +1049,7 @@ class ssdt(commands.command):
         addr_space.profile.add_types(ssdt_types)
 
         ## Get a sorted list of module addresses
-        mods = dict( (mod.BaseAddress.v(), mod) for mod in modules.lsmod(addr_space) )
+        mods = dict( (mod.DllBase.v(), mod) for mod in modules.lsmod(addr_space) )
         mod_addrs = sorted(mods.keys())
 
         # Gather up all SSDTs referenced by threads
@@ -1102,7 +1102,7 @@ class ssdt(commands.command):
 
                     syscall_mod = find_module(mods, mod_addrs, syscall_addr)
                     if syscall_mod:
-                        syscall_modname = syscall_mod.ModuleName
+                        syscall_modname = syscall_mod.BaseDllName
                     else:
                         syscall_modname = "UNKNOWN"
 
