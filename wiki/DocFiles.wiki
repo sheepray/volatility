@@ -38,3 +38,7 @@ This page contains links to documents that are part of the Volatility Documentat
 
 = Plugin List =
   * [http://www.forensicswiki.org/wiki/List_of_Volatility_Plugins Forensics Wiki Volatility Plugin List] (external link)
+
+= Development =
+  * [http://volatility.tumblr.com/post/133902849/windows-memory-forensics-with-volatility Memory Forensics with Volatility] (external link)
+  * [http://blog.schatzforensic.com.au/2010/05/adding-new-structure-definitions-to-volatility/ Adding new structure definitions to Volatility] (external link)
