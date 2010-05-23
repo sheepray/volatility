@@ -18,6 +18,7 @@ This page contains links to documents that are part of the Volatility Documentat
 
   * [http://volatility.googlecode.com/files/Pretty%20Process%20Mapping.pdf Pretty Process Mapping] (pdf)
   * [http://volatility.googlecode.com/files/How%20to%20use%20Volatility_v2.pdf How to Use Volatility] (pdf)
+  * [http://volatility.tumblr.com/post/603590492/may-issa-journal-toolsmith-memory-forensics-with-sift Memory forensics with SIFT 2.0, Volatility, and PTK] (external link)
 
 = Reporting =
 
