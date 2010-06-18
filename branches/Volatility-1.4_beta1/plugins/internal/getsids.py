@@ -141,7 +141,7 @@ class getsids(taskmods.dlllist):
 
     # Declare meta information associated with this plugin
     
-    meta_info = taskmods.dlllist.meta_info 
+    meta_info = {}
     meta_info['author'] = 'Brendan Dolan-Gavitt'
     meta_info['copyright'] = 'Copyright (c) 2007,2008 Brendan Dolan-Gavitt'
     meta_info['contact'] = 'bdolangavitt@wesleyan.edu'

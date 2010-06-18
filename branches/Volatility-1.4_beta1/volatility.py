@@ -141,3 +141,5 @@ if __name__ == "__main__":
             debug.post_mortem()
         else:
             raise
+    except KeyboardInterrupt:
+        print "Interrupted"

@@ -94,10 +94,3 @@ class command(object):
             return
 
         func(outfd, data)
-
-## Event handlers do stuff in response to certain events
-#class EventHandler:
-#    def startup(self):
-#        """ This method gets called after all options are parsed, but
-#        before commands are executed
-#        """
