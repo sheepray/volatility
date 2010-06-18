@@ -87,7 +87,7 @@ xpsp2types = { \
 } ], \
   '_KPROCESS' : [ 0x6c, { \
     'Header' : [ 0x0, ['_DISPATCHER_HEADER']], \
-    'DirectoryTableBase' : [ 0x18, ['array', 2,['unsigned long']]], \
+    'DirectoryTableBase' : [ 0x18, ['unsigned long']], \
 } ], \
   '_PEB' : [ 0x210, { \
     'ImageBaseAddress' : [ 0x8, ['pointer', ['void']]], \

@@ -2541,7 +2541,7 @@ ntoskrnl_types = {
   '_KPROCESS' : [ 0x6c, {
     'Header' : [ 0x0, ['_DISPATCHER_HEADER']],
     'ProfileListHead' : [ 0x10, ['_LIST_ENTRY']],
-    'DirectoryTableBase' : [ 0x18, ['array', 2, ['unsigned long']]],
+    'DirectoryTableBase' : [ 0x18, ['unsigned long']], \
     'LdtDescriptor' : [ 0x20, ['_KGDTENTRY']],
     'Int21Descriptor' : [ 0x28, ['_KIDTENTRY']],
     'IopmOffset' : [ 0x30, ['unsigned short']],

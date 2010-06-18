@@ -139,7 +139,7 @@ class JKIA32PagedMemory(addrspace.BaseAddressSpace, standard.WritablePagedMemory
                                              vm=self.base)
 
                     if 'Idle' in proc.ImageFileName.v():
-                        return proc.Pcb.DirectoryTableBase[0].v()
+                        return proc.Pcb.DirectoryTableBase.v()
                 else:
                     break
 
