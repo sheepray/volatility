@@ -31,6 +31,7 @@ for SP3.
 
 import vista_sp0_x86_vtypes
 import vtypes
+import copy
 import crashdump
 import hibernate_vtypes
 import xp_sp2
@@ -38,19 +39,19 @@ import volatility.debug as debug #pylint: disable-msg=W0611
 
 from xp_sp2 import WinXPSP2
 
-vistasp0x86overlays = vtypes.xpsp2overlays
+vistasp0x86overlays = copy.deepcopy(vtypes.xpsp2overlays)
 
-#vistasp0x86overlays['_MMVAD_SHORT'][1]['Flags'][0] =  lambda x: x['u'][0] 
-#vistasp0x86overlays['_CONTROL_AREA'][1]['Flags'][0] =  lambda x: x['u'][0] 
-#vistasp0x86overlays['_MMVAD_LONG'][1]['Flags'][0] =  lambda x: x['u'][0] 
-#vistasp0x86overlays['_MMVAD_LONG'][1]['Flags2'][0] =  lambda x: x['u'][0] 
+vistasp0x86overlays['_MMVAD_SHORT'][1]['Flags'][0] =  lambda x: x['u'][0] 
+vistasp0x86overlays['_CONTROL_AREA'][1]['Flags'][0] =  lambda x: x['u'][0] 
+vistasp0x86overlays['_MMVAD_LONG'][1]['Flags'][0] =  lambda x: x['u'][0] 
+vistasp0x86overlays['_MMVAD_LONG'][1]['Flags2'][0] =  lambda x: x['u'][0] 
 
 vista_sp0_x86_vtypes.ntkrnlmp_types.update(crashdump.crash_vtypes)
 vista_sp0_x86_vtypes.ntkrnlmp_types.update(hibernate_vtypes.hibernate_vtypes)
 
 
-class VistaSP0X86(xp_sp2.WinXPSP2):
+class VistaSP0x86(xp_sp2.WinXPSP2):
     """ A Profile for Windows Vista SP0 x86 """
     native_types = vtypes.x86_native_types_32bit
     abstract_types = vista_sp0_x86_vtypes.ntkrnlmp_types
-    overlay = vtypes.xpsp2overlays
+    overlay = vistasp0x86overlays
