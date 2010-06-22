@@ -67,7 +67,8 @@ class BaseAddressSpace:
         """ Read some date from a certain offset """
 
     def get_available_addresses(self):
-        """ Return a list of address ranges covered by this AS """
+        """ Return a generator of address ranges covered by this AS """
+        raise StopIteration
 
     def is_valid_address(self, _addr):
         """ Tell us if the address is valid """
@@ -93,10 +94,7 @@ class BufferAddressSpace(BaseAddressSpace):
         self.data = data
 
     def is_valid_address(self, addr):
-        if addr < self.base_offset or addr > self.base_offset + len(self.data):
-            return False
-
-        return True
+        return not (addr < self.base_offset or addr > self.base_offset + len(self.data))
         
     def read(self, addr, length):
         offset = addr - self.base_offset

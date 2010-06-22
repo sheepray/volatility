@@ -22,6 +22,7 @@
 @organization: Schatz Forensic
 """
 
+import pdb
 import volatility.win32.info as info
 import volatility.obj as obj
 import volatility.conf as conf
@@ -52,32 +53,13 @@ class KPCRScan(object):
         self.address_space = address_space
         self.KPCR = None
     
-    # coalesce all available contiguous allocated virtual memory into runs     
-    def getAvailableRuns(self):
-        res = []
-        runLength = None
-        currentOffset = None
-        for (offset, size) in self.address_space.get_available_pages():
-            if (runLength == None):
-                runLength = size
-                currentOffset = offset
-            else:
-                if (offset == (currentOffset + runLength)):
-                    runLength += size
-                else:
-                    res.append((currentOffset, runLength))
-                    runLength = size
-                    currentOffset = offset
-        if (runLength != None and currentOffset != None):
-            res.append((currentOffset, runLength))
-        return res
     
     # return a list of potential KPCR structures found in a discontiguous virtual address space
     # TODO: this is currently really slow. Can we exploit allocation pools, or some other thing
     #       to limit the numner of addresses to scan?
     def scan(self):
         res = []
-        runs =  self.getAvailableRuns()
+        runs =  self.address_space.get_available_addresses()
         for (offset, length) in runs:
             # only test for KPCR structure in the upper half of the 4G x86 address space (ie Kernel space)
             if (offset >= 0x80000000):
@@ -87,7 +69,7 @@ class KPCRScan(object):
                 print "%x" % offset
                 for i in range((length - 0x1f94) / 4):
                     o = offset + (i * 4)
-                    if self.isKPCR(o):
+                    if self.is_KPCR(o):
                         res.append(o)
         return res
     
@@ -101,7 +83,7 @@ class KPCRScan(object):
     # TODO: the pointers are currently being read as unsigned int. Would be nice to resolve as a pointer type for
     #       64bit compatibility
     
-    def isKPCR(self, o):
+    def is_KPCR(self, o):
         paKCPR = o
         paPRCBDATA = o + 0x120
 

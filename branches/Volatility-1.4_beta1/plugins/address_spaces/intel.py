@@ -31,10 +31,15 @@ import volatility.debug as debug #pylint: disable-msg=W0611
 
 BLOCKSIZE = 1024 * 1024 * 10
 
+config.add_option("DTB", type='int', default=0,
+                  help = "DTB Address")
+
 config.add_option("CACHE-DTB", action="store_false", default=True, 
                   help = "Cache virtual to physical mappings")
 
-class JKIA32PagedMemory(addrspace.BaseAddressSpace, standard.WritablePagedMemory):
+# WritablePagedMemory must be BEFORE base address, since it adds the concrete method get_available_addresses
+# If it's second, BaseAddressSpace's abstract version will take priority
+class JKIA32PagedMemory(standard.WritablePagedMemory, addrspace.BaseAddressSpace):
     """ Standard x86 32 bit non PAE address space.
     
     Provides an address space for IA32 paged memory, aka the x86 
@@ -81,9 +86,7 @@ class JKIA32PagedMemory(addrspace.BaseAddressSpace, standard.WritablePagedMemory
         self.dtb = dtb or config.DTB or self.load_dtb()
         self.base = base
 
-        ## We have to have a valid PsLoadedModuleList
-        # FIXME: !!!!! Remove Hardcoded HACK!!!!
-        assert self.is_valid_address(0x8055a420), "PsLoadedModuleList not valid Address"
+        assert self.is_valid_kernelAS(), "Not a valid Kernel Address Space"
 
         # The caching code must be in a separate function to allow the
         # PAE code, which inherits us, to have its own code.
@@ -94,6 +97,17 @@ class JKIA32PagedMemory(addrspace.BaseAddressSpace, standard.WritablePagedMemory
         # Reserved for future use
         #self.pagefile = config.PAGEFILE
         self.name = 'Kernel AS'
+
+    def is_valid_kernelAS(self):
+        ## We have to have a valid PsLoadedModuleList
+        # FIXME: Check is currently a bit loose
+        # Consider using a list of valid addresses instead 
+        # assert self.is_valid_address(0x8055a420), "PsLoadedModuleList not valid Address"
+        # FIXME: This only works for windows
+
+        for (offset, length) in self.get_available_addresses():
+            if (offset > 0x80000000):
+                return True
 
     def _cache_values(self):
         '''
@@ -309,22 +323,6 @@ class JKIA32PagedMemory(addrspace.BaseAddressSpace, standard.WritablePagedMemory
         (longval, ) =  struct.unpack('<L', string)
         return longval
 
-    def is_valid_address(self, addr):
-        '''
-        Returns True if addr maps to a valid location in physical,
-        otherwise False.
-        '''
-        if addr == None:
-            return False
-        try:    
-            phyaddr = self.vtop(addr)
-        except:
-            return False
-
-        if phyaddr == None:
-            return False
-        return self.base.is_valid_address(phyaddr)
-
     def get_available_pages(self):
         '''
         Return a list of lists of available memory pages.
@@ -397,7 +395,7 @@ class JKIA32PagedMemoryPae(JKIA32PagedMemory):
             return self.pdpte_cache[self.pdpte_index(vaddr)]
 
         pdpte_addr = (self.dtb & 0xffffffe0) | ((vaddr & 0xc0000000) >> 27)
-        return self.read_long_long_phys(pdpte_addr)
+        return self._read_long_long_phys(pdpte_addr)
 
     def get_pde(self, vaddr, pdpte):
         '''
@@ -409,7 +407,7 @@ class JKIA32PagedMemoryPae(JKIA32PagedMemory):
         Bits 2:0 are 0
         '''
         pde_addr = (pdpte & 0xffffffffff000) | ((vaddr & 0x3fe00000) >> 18)
-        return self.read_long_long_phys(pde_addr)
+        return self._read_long_long_phys(pde_addr)
     
 
     def get_two_meg_paddr(self, vaddr, pde):
@@ -432,7 +430,7 @@ class JKIA32PagedMemoryPae(JKIA32PagedMemory):
         Bits 2:0 are 0
         '''
         pte_addr = (pde & 0xffffffffff000) | ((vaddr & 0x1ff000) >> 9)
-        return self.read_long_long_phys(pte_addr)
+        return self._read_long_long_phys(pte_addr)
 
     def get_phys_addr(self, vaddr, pte):
         '''
@@ -472,7 +470,7 @@ class JKIA32PagedMemoryPae(JKIA32PagedMemory):
 
         return self.get_phys_addr(vaddr, pte)
 
-    def read_long_long_phys(self, addr):
+    def _read_long_long_phys(self, addr):
         '''
         Returns an unsigned 64-bit integer from the address addr in
         physical memory. If unable to read from that location, returns None.
