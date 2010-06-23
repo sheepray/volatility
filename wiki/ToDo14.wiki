@@ -5,15 +5,19 @@
 
 This page documents the things we want to accomplish in the 1.4 branch, so we can a) keep track of them, and b) people new to the project can find things to work on.
 
-= Details =
+= To Do for 1.4 =
 
-TODO Items:
   # Examine performance/profiling and possibly develop C modules for some parts
+  # Documentation, documentation, documentation!
+  # Immutable flag for ASes, to tell framework features that they can cache values
+    * Probably AS dependent (firewire isn't cachable), but there should be a global override to disable (and possibly enable) caching despite the AS
+
+== Ditched for this release ==
+
   # Sort out Linux code
     * Convert existing linux code to new object framework
     * Convert existing linux scan to new scan engine
     * Write linux plugins
-  # Documentation, documentation, documentation!
 
 == Miscellaneous Todo ==
 
