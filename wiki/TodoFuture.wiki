@@ -16,3 +16,7 @@
   * Implement caching in any cachable areas of the framework
   * Stabilize the interfaces for ASes/Scanners/Plugins/etc
   * Conversion to Python 3+
+
+= Features for current Beta =
+
+Since the current beta is 1.4, please see ToDo14.
