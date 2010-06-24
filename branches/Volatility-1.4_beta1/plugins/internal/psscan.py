@@ -46,7 +46,7 @@ class DispatchHeaderCheck(scan.ScannerCheck):
     """
     order = 10
     
-    def __init__(self, address_space, **kwargs):
+    def __init__(self, address_space, **_kwargs):
         ## Because this checks needs to be super fast we first
         ## instantiate the _EPROCESS and work out the offsets of the
         ## type and size members. Then in the check we just read those
@@ -201,7 +201,7 @@ class thrdscan(commands.command):
                                                                            ethread.ExitTime or '',
                                                                            ethread.offset))
 
-class PSScan(scan.BaseScanner):
+class PSScan(scan.DiscontigScanner):
     """ This scanner carves things that look like _EPROCESS structures.
 
     Since the _EPROCESS does not need to be linked to the process

@@ -56,6 +56,7 @@ class BaseScanner(object):
             check = registry.SCANNER_CHECKS[class_name](self.buffer, **args)
             self.constraints.append(check)
 
+        self.max_length = None
         self.base_offset = None
         self.error_count = 0
 
@@ -85,12 +86,20 @@ class BaseScanner(object):
         return True
 
     overlap = 20
-    def scan(self, address_space):
-        self.base_offset = 0
+    def scan(self, address_space, offset=0, maxlen=None):
+        self.base_offset = offset
+        self.max_length = maxlen
         ## Which checks also have skippers?
         skippers = [ c for c in self.constraints if hasattr(c, "skip") ]
         while 1:
-            data = address_space.read(self.base_offset, BLOCKSIZE + self.overlap)
+            #if not address_space.is_valid_address(self.base_offset):
+            #    break
+            if (self.max_length != None):
+                l = min(BLOCKSIZE + self.overlap, self.max_length)
+            else:
+                l = BLOCKSIZE + self.overlap
+
+            data = address_space.read(self.base_offset, l)
             if not data:
                 break
 
@@ -123,8 +132,17 @@ class BaseScanner(object):
 
                 i += skip
 
-            self.base_offset += BLOCKSIZE
+            self.base_offset += min(BLOCKSIZE,l)
+            if (self.max_length != None):
+                self.max_length -= min(BLOCKSIZE,l)
 
+class DiscontigScanner(BaseScanner):
+    def scan(self, address_space, offset=0, maxlen=None):
+        for (o, l) in address_space.get_available_addresses():
+            # Rely on shortcutting
+            if (o + l > offset) and ((maxlen == None) or (o < offset + maxlen)):
+                for match in BaseScanner.scan(self, address_space, o, l):
+                    yield match
 
 class ScannerCheck(object):
     """ A scanner check is a special class which is invoked on an AS to check for a specific condition.
@@ -134,13 +152,13 @@ class ScannerCheck(object):
 
     This class is the base class for all checks.
     """
-    def __init__(self, address_space, **kwargs):
+    def __init__(self, address_space, **_kwargs):
         self.address_space = address_space
 
     def object_offset(self, offset):
         return offset
 
-    def check(self, offset):
+    def check(self, _offset):
         return False
 
     ## If you want to speed up the scanning define this method - it
@@ -151,7 +169,7 @@ class ScannerCheck(object):
     #def skip(self, data, offset):
     #    return -1
 
-class PoolScanner(BaseScanner):
+class PoolScanner(DiscontigScanner):
     ## These are the objects that follow the pool tags
     preamble = [ '_POOL_HEADER', ]
 
@@ -161,6 +179,6 @@ class PoolScanner(BaseScanner):
         """
         return found + sum([self.buffer.profile.get_obj_size(c) for c in self.preamble]) - 4
 
-    def scan(self, address_space):
-        for i in BaseScanner.scan(self, address_space):
+    def scan(self, address_space, offset=0, maxlen=None):
+        for i in DiscontigScanner.scan(self, address_space, offset, maxlen):
             yield self.object_offset(i)

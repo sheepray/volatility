@@ -22,7 +22,6 @@
 @organization: Schatz Forensic
 """
 
-import pdb
 import volatility.win32.info as info
 import volatility.obj as obj
 import volatility.conf as conf
