@@ -334,8 +334,6 @@ class JKIA32PagedMemory(addrspace.BaseAddressSpace, standard.WritablePagedMemory
         Each entry in the list is the starting virtual address 
         and the size of the memory page.
         '''
-        page_list = []
-
         # Pages that hold PDEs and PTEs are 0x1000 bytes each.
         # Each PDE and PTE is four bytes. Thus there are 0x1000 / 4 = 0x400
         # PDEs and PTEs we must test
@@ -346,19 +344,14 @@ class JKIA32PagedMemory(addrspace.BaseAddressSpace, standard.WritablePagedMemory
             if not self.entry_present(pde_value):
                 continue
             if self.page_size_flag(pde_value):
-                page_list.append([vaddr, 0x400000])
-                continue
-
-            tmp = vaddr
-            for pte in range(0, 0x400):
-                vaddr = tmp | (pte << 12)
-                pte_value = self.get_pte(vaddr, pde_value)
-                if self.entry_present(pte_value):
-                    page_list.append([vaddr, 0x1000])
-
-        return page_list
-
-
+                yield (vaddr, 0x400000)
+            else:
+                tmp = vaddr
+                for pte in range(0, 0x400):
+                    vaddr = tmp | (pte << 12)
+                    pte_value = self.get_pte(vaddr, pde_value)
+                    if self.entry_present(pte_value):
+                        yield (vaddr, 0x1000)
 
 
 class JKIA32PagedMemoryPae(JKIA32PagedMemory):
@@ -503,8 +496,6 @@ class JKIA32PagedMemoryPae(JKIA32PagedMemory):
         # Pages that hold PDEs and PTEs are 0x1000 bytes each.
         # Each PDE and PTE is eight bytes. Thus there are 0x1000 / 8 = 0x200
         # PDEs and PTEs we must test.
-
-        page_list = []
         for pdpte in range(0, 4):
             vaddr = pdpte << 30
             pdpte_value = self.get_pdpte(vaddr)
@@ -516,7 +507,7 @@ class JKIA32PagedMemoryPae(JKIA32PagedMemory):
                 if not self.entry_present(pde_value):
                     continue
                 if self.page_size_flag(pde_value):
-                    page_list.append([vaddr, 0x200000])
+                    yield (vaddr, 0x200000)
                     continue
 
                 tmp = vaddr
@@ -524,7 +515,4 @@ class JKIA32PagedMemoryPae(JKIA32PagedMemory):
                     vaddr = tmp | (pte << 12)
                     pte_value = self.get_pte(vaddr, pde_value)
                     if self.entry_present(pte_value):
-                        page_list.append([vaddr, 0x1000])
-
-        return page_list
-
+                        yield (vaddr, 0x1000)

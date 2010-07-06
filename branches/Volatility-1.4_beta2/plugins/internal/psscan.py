@@ -46,7 +46,7 @@ class DispatchHeaderCheck(scan.ScannerCheck):
     """
     order = 10
     
-    def __init__(self, address_space, **kwargs):
+    def __init__(self, address_space, **_kwargs):
         ## Because this checks needs to be super fast we first
         ## instantiate the _EPROCESS and work out the offsets of the
         ## type and size members. Then in the check we just read those

@@ -109,11 +109,9 @@ class FileAddressSpace(addrspace.BaseAddressSpace):
         (longval, ) =  struct.unpack('=L', string)
         return longval
 
-    def get_address_range(self):
-        return [0, self.fsize-1]
-
     def get_available_addresses(self):
-        return [0, self.get_address_range()]
+        # TODO: Explain why this is always fsize - 1?
+        yield (0, self.fsize - 1)
 
     def is_valid_address(self, addr):
         if addr == None:
