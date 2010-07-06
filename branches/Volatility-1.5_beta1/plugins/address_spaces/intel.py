@@ -86,6 +86,7 @@ class JKIA32PagedMemory(standard.WritablePagedMemory, addrspace.BaseAddressSpace
         self.dtb = dtb or config.DTB or self.load_dtb()
         self.base = base
 
+        assert self.dtb != None, "No valid DTB found"
         assert self.is_valid_kernelAS(), "Not a valid Kernel Address Space"
 
         # The caching code must be in a separate function to allow the
@@ -101,11 +102,21 @@ class JKIA32PagedMemory(standard.WritablePagedMemory, addrspace.BaseAddressSpace
     def is_valid_kernelAS(self):
         ## We have to have a valid PsLoadedModuleList
         # FIXME: Check is currently a bit loose
+        # FIXME: This only works for windows
         # Consider using a list of valid addresses instead 
         # assert self.is_valid_address(0x8055a420), "PsLoadedModuleList not valid Address"
-        # FIXME: This only works for windows
+        
+	# FIXME: Couldn't work out why this was here for Non-PAE as well PAE, so commented it out
+	# Check experimental branch (Bradley Schatz patches) to figure out if it was a mistake or intentional
+	#header = None
+        #try:
+        #    header = self.base.header
+        #except:
+        #    pass
+        #if header != None:
+        #    assert header.PaeEnabled == 1
 
-        for (offset, length) in self.get_available_addresses():
+        for (offset, _length) in self.get_available_addresses():
             if (offset > 0x80000000):
                 return True
 

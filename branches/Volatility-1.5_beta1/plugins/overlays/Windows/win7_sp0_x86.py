@@ -37,8 +37,6 @@ import hibernate_vtypes
 import xp_sp2
 import volatility.debug as debug #pylint: disable-msg=W0611
 
-from xp_sp2 import WinXPSP2
-
 win7sp0x86overlays = copy.deepcopy(vtypes.xpsp2overlays)
 
 win7sp0x86overlays['_MMVAD_SHORT'][1]['Flags'][0] =  lambda x: x['u'][0] 
@@ -51,7 +49,7 @@ win7_sp0_x86_vtypes.ntkrpamp_types.update(hibernate_vtypes.hibernate_vtypes)
 
 
 class Win7SP0x86(xp_sp2.WinXPSP2):
-    """ A Profile for Windows Vista SP0 x86 """
+    """ A Profile for Windows 7 SP0 x86 """
     native_types = vtypes.x86_native_types_32bit
     abstract_types = win7_sp0_x86_vtypes.ntkrpamp_types
     overlay = win7sp0x86overlays
