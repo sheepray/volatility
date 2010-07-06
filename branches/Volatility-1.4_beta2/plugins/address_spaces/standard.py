@@ -265,7 +265,7 @@ class IA32PagedMemory(addrspace.BaseAddressSpace, WritablePagedMemory):
                                              vm=self.base)
 
                     if 'Idle' in proc.ImageFileName.v():
-                        return proc.Pcb.DirectoryTableBase[0]
+                        return proc.Pcb.DirectoryTableBase
                 else:
                     break
 
