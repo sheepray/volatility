@@ -33,13 +33,12 @@ class regobjkeys(taskmods.files):
     
     def render_text(self, outfd, data):
         first = True
-        for pid in data:
+        for pid, handles in data:
             if not first:
                 outfd.write("*" * 72 + "\n")
             outfd.write("Pid: {0:6}\n".format(pid))
             first = False
             
-            handles = data[pid]
             for h in handles:
                 keyname = self.full_key_name(h)
                 outfd.write("{0:6} {1:40}\n".format("Key", keyname))
