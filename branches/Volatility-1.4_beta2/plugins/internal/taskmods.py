@@ -40,7 +40,7 @@ class dlllist(commands.command):
 
     def __init__(self, *args):
         config.add_option('OFFSET', short_option = 'o', default=None,
-                          help='EPROCESS Offset (in hex) in physical address space',
+                          help='EPROCESS Offset (in hex) in kernel address space',
                           action='store', type='int')
         
         config.add_option('PIDS', short_option = 'p', default=None,
@@ -170,7 +170,7 @@ class memmap(dlllist):
                     pa = task_space.vtop(p[0])
                     # pa can be 0, according to the old memmap, but can't == None(NoneObject)
                     if pa != None:
-                        outfd.write("0x{0:10x} 0x{1:10x} 0x{2:12x}\n".format(p[0], pa, p[1]))
+                        outfd.write("0x{0:010x} 0x{1:010x} 0x{2:012x}\n".format(p[0], pa, p[1]))
                     #else:
                     #    outfd.write("0x{0:10x} 0x000000     0x{1:12x}\n".format(p[0], p[1]))
             else:

@@ -134,13 +134,13 @@ class ScannerCheck(object):
 
     This class is the base class for all checks.
     """
-    def __init__(self, address_space, **kwargs):
+    def __init__(self, address_space, **_kwargs):
         self.address_space = address_space
 
     def object_offset(self, offset):
         return offset
 
-    def check(self, offset):
+    def check(self, _offset):
         return False
 
     ## If you want to speed up the scanning define this method - it

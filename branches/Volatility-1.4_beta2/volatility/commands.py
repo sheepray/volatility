@@ -68,7 +68,7 @@ class command(object):
 
     def execute(self):
         """ Executes the plugin command."""
-        ## Executing plugins in done in two stages - first we calculate
+        ## Executing plugins is done in two stages - first we calculate
         data = self.calculate()
 
         ## Then we render the result in some way based on the
@@ -94,10 +94,3 @@ class command(object):
             return
 
         func(outfd, data)
-
-## Event handlers do stuff in response to certain events
-#class EventHandler:
-#    def startup(self):
-#        """ This method gets called after all options are parsed, but
-#        before commands are executed
-#        """

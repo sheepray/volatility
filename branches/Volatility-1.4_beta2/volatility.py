@@ -140,3 +140,7 @@ if __name__ == "__main__":
         print ex
         if config.DEBUG:
             debug.post_mortem()
+        else:
+            raise
+    except KeyboardInterrupt:
+        print "Interrupted"

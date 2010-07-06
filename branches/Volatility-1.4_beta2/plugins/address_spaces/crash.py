@@ -92,9 +92,7 @@ class WindowsCrashDumpSpace32(standard.FileAddressSpace):
         return None
 
     def is_valid_address(self, addr):
-        if self.get_addr(addr) == None:
-            return False
-        return True
+        return self.get_addr(addr) != None
 
     def read(self, addr, length):
         first_block = 0x1000 - addr % 0x1000

@@ -51,8 +51,8 @@ class hibinfo(commands.command):
                           'peb': teb.ProcessEnvironmentBlock,
                           'adrs': adrs }
             adrs = adrs.base
-        
-        if result is None:
+
+        if result == None:
             config.error("Memory Image could not be identified or did not contain hiberation information")
         
         return result
