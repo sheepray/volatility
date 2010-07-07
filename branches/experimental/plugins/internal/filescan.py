@@ -147,7 +147,6 @@ class driverscan(filescan):
         self.kernel_address_space = utils.load_as()
 
         for offset in PoolScanDriver().scan(address_space):
-            pdb.set_trace()
             pool_obj = obj.Object("_POOL_HEADER", vm=address_space,
                                  offset = offset)
 

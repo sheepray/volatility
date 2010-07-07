@@ -377,7 +377,7 @@ class WindowsHiberFileSpace32(standard.FileAddressSpace):
     def read_long(self, addr):
         _baseaddr = self.get_addr(addr)
         string = self.read(addr, 4)
-        (longval, ) = struct.unpack('=L', string)
+        (longval, ) = struct.unpack('=I', string)
         return longval
 
     def get_available_pages(self):

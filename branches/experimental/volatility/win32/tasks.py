@@ -35,10 +35,10 @@ import volatility.scan as scan
 import volatility.conf as conf
 import volatility.addrspace as addrspace
 config = conf.ConfObject()
+import pdb
 
 def pslist(addr_space):
     """ A Generator for _EPROCESS objects (uses _KPCR symbols) """
-
     ## First try to find it with the debugger data block entry in a
     ## crash dump address space.
     try:

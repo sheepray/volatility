@@ -120,7 +120,7 @@ class JKIA32PagedMemoryBase(addrspace.BaseAddressSpace, standard.WritablePagedMe
         if buf is None:
             self.cache = False
         else:
-            self.pde_cache = struct.unpack('<'+'L' * 0x400, buf)
+            self.pde_cache = struct.unpack('<'+'I' * 0x400, buf)
 
     def render_xml(self):
         """Renders the Address Space as XML"""
@@ -332,7 +332,7 @@ class JKIA32PagedMemoryBase(addrspace.BaseAddressSpace, standard.WritablePagedMe
         string = self.base.read(addr, 4)
         if not string:
             return None
-        (longval, ) =  struct.unpack('<L', string)
+        (longval, ) =  struct.unpack('<I', string)
         return longval
 
     def is_valid_address(self, addr):

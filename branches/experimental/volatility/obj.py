@@ -957,7 +957,7 @@ class Profile:
         size = ctype[0]
         for k, v in ctype[1].items():
             if v[0] == None:
-                print "Error - {0} has no offset in object {1}. Check that vtypes has a concerete definition for it.".format(k, cname)
+                print "Error - {0} has no offset in object {1}. Check that vtypes has a concrete definition for it.".format(k, cname)
             members[k] = (v[0], self.list_to_type(k, v[1], typeDict))
 
         ## Allow the plugins to over ride the class constructor here

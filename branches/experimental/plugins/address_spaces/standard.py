@@ -119,7 +119,7 @@ class FileAddressSpace(addrspace.BaseAddressSpace):
 
     def read_long(self, addr):
         string = self.read(addr, 4)
-        (longval, ) =  struct.unpack('=L', string)
+        (longval, ) =  struct.unpack('=I', string)
         return longval
 
     def get_address_range(self):
@@ -216,7 +216,7 @@ class WritablePagedMemory(addrspace.BaseAddressSpace):
     def write_long_phys(self, addr, val):
         if not config.WRITE:
             return False
-        buf = struct.pack('=L', val)
+        buf = struct.pack('=I', val)
         return self.base.write(addr, buf)
     
     def vtop(self, addr):
@@ -419,14 +419,14 @@ class IA32PagedMemory(addrspace.BaseAddressSpace, WritablePagedMemory):
         string = self.read(addr, 4)
         if string is None:
             return None
-        (longval, ) =  struct.unpack('=L', string)
+        (longval, ) =  struct.unpack('=I', string)
         return longval
 
     def read_long_phys(self, addr):
         string = self.base.read(addr, 4)
         if string is None:
             return None
-        (longval, ) =  struct.unpack('=L', string)
+        (longval, ) =  struct.unpack('=I', string)
         return longval
 
     def is_valid_address(self, addr):
