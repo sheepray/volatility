@@ -11,6 +11,9 @@ This page documents the things we want to accomplish in the 1.4 branch, so we ca
   # Documentation, documentation, documentation!
   # Immutable flag for ASes, to tell framework features that they can cache values
     * Probably AS dependent (firewire isn't cachable), but there should be a global override to disable (and possibly enable) caching despite the AS
+  # Add in/stabilize Windows 7/Vista support
+  # Add in profile (OS) dependent default variables (DTB/KPCR, etc)
+  # Auto-generate XPSP2 vtypes to unify variable naming
 
 == Ditched for this release ==
 
