@@ -7,13 +7,12 @@ This page documents the things we want to accomplish in the 1.4 branch, so we ca
 
 = To Do for 1.4 =
 
-  # Examine performance/profiling and possibly develop C modules for some parts
-  # Documentation, documentation, documentation!
-  # Immutable flag for ASes, to tell framework features that they can cache values
-    * Probably AS dependent (firewire isn't cachable), but there should be a global override to disable (and possibly enable) caching despite the AS
-  # Add in/stabilize Windows 7/Vista support
-  # Add in profile (OS) dependent default variables (DTB/KPCR, etc)
   # Auto-generate XPSP2 vtypes to unify variable naming
+  # Test suites/unit tests
+  # Implement caching in any cachable areas of the framework
+  # Add in profile (OS) dependent default variables (DTB/KPCR, etc)
+  # Stabilize the interfaces for ASes/Scanners/Plugins/etc
+  # Documentation, documentation, documentation!
 
 == Ditched for this release ==
 
