@@ -109,13 +109,6 @@ xpsp2types = { \
   '_PEB_LDR_DATA' : [ 0x28, { \
     'InLoadOrderModuleList' : [ 0xc, ['_LIST_ENTRY']], \
 } ], \
-  '_LDR_MODULE' : [ 0x48, { \
-    'InLoadOrderModuleList' : [ 0x0, ['_LIST_ENTRY']], \
-    'BaseAddress' : [ 0x18, ['pointer', ['void']]], \
-    'SizeOfImage' : [ 0x20, ['unsigned long']], \
-    'FullDllName' : [ 0x24, ['_UNICODE_STRING']], \
-    'ModuleName'  : [ 0x2c, ['_UNICODE_STRING']], \
-} ], \
   '_ADDRESS_OBJECT' : [ 0x68, { \
     'Next' : [ 0x0, ['pointer', ['_ADDRESS_OBJECT']]], \
     'LocalIpAddress' : [ 0x0c, ['unsigned long']], \

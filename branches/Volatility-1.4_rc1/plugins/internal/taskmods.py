@@ -62,14 +62,14 @@ class dlllist(commands.command):
                 outfd.write("\n")
                 outfd.write("{0:12} {1:12} {2}\n".format('Base', 'Size', 'Path'))
                 for m in self.list_modules(task):
-                    outfd.write("0x{0:08x}   0x{1:06x}     {2}\n".format(m.BaseAddress, m.SizeOfImage, m.FullDllName))
+                    outfd.write("0x{0:08x}   0x{1:06x}     {2}\n".format(m.DllBase, m.SizeOfImage, m.FullDllName))
             else:
                 outfd.write("Unable to read PEB for task.\n")
 
     def list_modules(self, task):
         if task.UniqueProcessId and task.Peb.Ldr.InLoadOrderModuleList:
             for l in task.Peb.Ldr.InLoadOrderModuleList.list_of_type(
-                "_LDR_MODULE", "InLoadOrderModuleList"):
+                "_LDR_DATA_TABLE_ENTRY", "InLoadOrderLinks"):
                 yield l
 
     def filter_tasks(self, tasks):

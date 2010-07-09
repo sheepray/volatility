@@ -363,7 +363,7 @@ class verinfo(procdump.procexedump):
 
         nt_header = self.get_nt_header(addr_space=addr_space,
                                        base_addr=offset)
-        # header = s.read(m.BaseAddress, nt_header.OptionalHeader.SizeOfHeaders)
+        # header = s.read(m.DllBase, nt_header.OptionalHeader.SizeOfHeaders)
         
         for sect in self.get_sections(addr_space, nt_header):
             if self.get_section_name(sect) == '.rsrc':
@@ -384,7 +384,7 @@ class verinfo(procdump.procexedump):
         for s, m in data:
             outfd.write(str(m.FullDllName))
             outfd.write("\n")
-            vinfo = self.get_version_info(s, m.BaseAddress)
+            vinfo = self.get_version_info(s, m.DllBase)
             if vinfo != None:
                 outfd.write("  File version    : {0}\n".format(vinfo.FileInfo.file_version())) 
                 outfd.write("  Product version : {0}\n".format(vinfo.FileInfo.product_version())) 
