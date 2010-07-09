@@ -7,6 +7,7 @@
     * Command-line (low-latency) output
     * Interactive use (separation of obj/ASs models from application/plugins)
     * GUI plugin result analysis
+  * Examine performance/profiling and possibly develop C modules for some parts
   * Improve Hive AS integration
   * Implement/improve linux support
     * Requires linux overlay/types
