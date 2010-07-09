@@ -55,8 +55,7 @@ opts['license']      = "GPL"
 opts['scripts']      = ["volatility.py"]
 opts['packages']     = ["volatility",
                         "volatility.win32"]
-opts['data_files']   = find_py_files(['memory_plugins',
-                                      'memory_objects'])
+opts['data_files']   = find_py_files(['plugins'])
 
 if py2exe_available:
     py2exe_distdir = 'dist/py2exe'
