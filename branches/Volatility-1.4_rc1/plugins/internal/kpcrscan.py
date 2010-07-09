@@ -60,6 +60,8 @@ class KPCRScannerCheck(scan.ScannerCheck):
 
     # make the scan DWROD aligned
     def skip(self, data, offset):
+        return 4
+
         offset_string = struct.pack("I", offset)
 
         new_offset = offset
