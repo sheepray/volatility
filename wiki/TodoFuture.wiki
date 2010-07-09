@@ -2,7 +2,6 @@
 
 = Long Term Goals =
 
-  * Test suites/unit tests
   * Consider output formats (UI/unified plugin data output)
     * Report output
     * Command-line (low-latency) output
@@ -13,8 +12,6 @@
     * Requires linux overlay/types
     * Requires linux plugins
     * Might require shuffling windows specific global features (--kpcr, etc)
-  * Implement caching in any cachable areas of the framework
-  * Stabilize the interfaces for ASes/Scanners/Plugins/etc
   * Conversion to Python 3+
 
 = Features for current Beta =
