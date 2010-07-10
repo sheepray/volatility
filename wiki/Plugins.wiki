@@ -9,17 +9,17 @@ A list of known Volatility plugins.
 
 
 ||Plugin||Author||URL||Description||Status||Supported OSes||Core Vote||
-||psscan3||Moyix||[http://www.cc.gatech.edu/~brendan/volatility/dl/psscan3.py url]||[http://moyix.blogspot.com/2010/07/plugin-post-robust-process-scanner.html Scans the physical address space looking for memory resident data structures associated with processes.]||.||.||.|AW|
+||psscan3||Moyix||[http://www.cc.gatech.edu/~brendan/volatility/dl/psscan3.py url]||[http://moyix.blogspot.com/2010/07/plugin-post-robust-process-scanner.html Scans the physical address space looking for memory resident data structures associated with processes.]||.||.|| AW ||
 ||volshell||Moyix||[http://moyix.blogspot.com/2008/08/indroducing-volshell.html url]||[http://moyix.blogspot.com/2008/08/indroducing-volshell.html Creates a python shell can be used with the framework]||.||.||.||
 ||IDT||MHL||[http://mhl-malware-scripts.googlecode.com/files/idt.py url]||[http://mnin.blogspot.com/2009/07/new-and-updated-volatility-plug-ins.html Prints the Interrupt Descriptor Table (IDT) addresses for one processor]||.||.||.||
-||DriverIP||MHL||[http://mhl-malware-scripts.googlecode.com/files/driverirp.py url]||[http://mnin.blogspot.com/2009/07/new-and-updated-volatility-plug-ins.html Prints driver IRP function addresses]||.||.||.||
+||DriverIRP||MHL||[http://mhl-malware-scripts.googlecode.com/files/driverirp.py url]||[http://mnin.blogspot.com/2009/07/new-and-updated-volatility-plug-ins.html Prints driver IRP function addresses]||.||.||.||
 ||kernel_hooks||MHL||[http://mhl-malware-scripts.googlecode.com/files/kernel_hooks.py url]||[http://mnin.blogspot.com/2009/07/new-and-updated-volatility-plug-ins.html Detects IAT, EAT, and in-line hooks in kernel drivers instead of usermode modules]||.||.||.||
 ||malfind2||MHL||[http://mhl-malware-scripts.googlecode.com/files/malfind2.py url]||[http://mnin.blogspot.com/2009/07/new-and-updated-volatility-plug-ins.html Automates the process of finding and extracting (usually malicious) code injected into another process]||.||.||.||
 ||orphan_threads||MHL||[http://mhl-malware-scripts.googlecode.com/files/orphan_threads.py url]||[http://mnin.blogspot.com/2009/07/new-and-updated-volatility-plug-ins.html Detects hidden system/kernel threads]||.||.||.||
 ||usermode_hooks||MHL||[http://mhl-malware-scripts.googlecode.com/files/usermode_hooks2.py url]||[http://mnin.blogspot.com/2009/07/new-and-updated-volatility-plug-ins.html Detect IAT/EAT/Inline rootkit hooks]||.||.||.||
 ||Volatility Analyst Pack 0.1||MHL||[http://mhl-malware-scripts.googlecode.com/files/vap-0.1.zip url]||[http://mnin.blogspot.com/2009/12/new-and-updated-volatility-plug-ins.html A pack which contains updates to many of the listed modules]||.||.||.||
 ||cryptoscan||JesseK||[http://jessekornblum.com/tools/volatility/cryptoscan.py url]||Finds Truecrypt passphrases||.||.||.||
-||moddump||Moyix||[http://moyix.blogspot.com/2008/10/plugin-post-moddump.html url]||Dump out a kernel module (aka driver)||.||.||.|AW|
+||moddump||Moyix||[http://moyix.blogspot.com/2008/10/plugin-post-moddump.html url]||Dump out a kernel module (aka driver)||.||.||AW||
 ||Registry Tools||Moyix||[http://www.cc.gatech.edu/%7Ebrendan/volatility/dl/volreg-0.6.tar.gz url]||[http://moyix.blogspot.com/2009/01/memory-registry-tools.html A suite of plugins for accessing data from the registry, including password hashes, LSA secrets, and arbitrary registry keys]||.||.||.||
 ||Modified Regripper & Glue Code||Moyix||[http://www.cc.gatech.edu/%7Ebrendan/volatility/dl/volrip-0.1.tar.gz url]||[http://moyix.blogspot.com/2009/03/regripper-and-volatility-prototype.html Code to run a modified RegRipper against the registry hives embedded in a memory dump. Note that due to a dependency on Inline::Python, this only works on Linux.]||.||.||.||
 ||getsids||Moyix||[http://moyix.blogspot.com/2008/08/linking-processes-to-users.html url]||[http://moyix.blogspot.com/2008/08/linking-processes-to-users.html Get information about what user (SID) started a process.]||.||.||.||
