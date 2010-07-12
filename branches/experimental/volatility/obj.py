@@ -252,7 +252,7 @@ class NoneObject(object):
 
     def __call__(self, *arg, **kwargs):
         return self
-        
+
 def Object(theType, offset, vm, parent=None, name=None, **kwargs):
     """ A function which instantiates the object named in theType (as
     a string) from the type in profile passing optional args of
@@ -260,7 +260,7 @@ def Object(theType, offset, vm, parent=None, name=None, **kwargs):
     """
     name = name or theType
     offset = int(offset)
-    
+
     ## If we cant instantiate the object here, we just error out:
     if not vm.is_valid_address(offset):
         return NoneObject("Invalid Address 0x{0:08X}, instantiating {1}".format(offset, name),
@@ -281,7 +281,7 @@ def Object(theType, offset, vm, parent=None, name=None, **kwargs):
             vm = vm, parent=parent, name=name,
             **kwargs)
 
-    ## If we get here we have no idea what the type is supposed to be? 
+    ## If we get here we have no idea what the type is supposed to be?
     ## This is a serious error.
     debug.debug("Cant find object {0} in profile {1}???".format(theType, vm.profile), level = 3)
 
@@ -293,7 +293,7 @@ class BaseObject(object):
         self.offset = offset
         self.name = name
         self.theType = theType
-        
+
     def rebase(self, offset):
         return self.__class__(self.theType, offset, vm=self.vm)
 
@@ -426,6 +426,21 @@ class BaseObject(object):
         """Display diagnostic information"""
         return self.__repr__()
 
+    def __getstate__(self):
+        """ This controls how we pickle and unpickle the objects """
+        return dict(offset = self.offset, name = self.name, vm = self.vm, theType = self.theType.__name__ )
+
+    def __setstate__(self, state):
+        ## What we want to do here is to instantiate a new object and then copy it into ourselves
+        new_object = Object(state['theType'], state['offset'], state['vm'], name = state['name'])
+
+        ## (Scudette) Im not sure how much of a hack this is - we
+        ## basically take over all the new object's members. This is
+        ## needed because __setstate__ can not return a new object,
+        ## but must update the current object instead. I'm sure ikelos
+        ## will object!!! I am open to suggestions ...
+        self.__dict__ = new_object.__dict__
+
 def CreateMixIn(mixin):
     def make_method(name):
         def method(self, *args, **kw):
@@ -498,9 +513,9 @@ class NativeType(BaseObject, NumericProxyMixIn):
         data = self.vm.read(self.offset, self.size())
         if not data:
             return NoneObject("Unable to read {0} bytes from {1}".format(self.size(), self.offset))
-        
+
         (val, ) = struct.unpack(self.format_string, data)
-                
+
         return val
 
     def cdecl(self):
@@ -529,6 +544,13 @@ class BitField(NativeType):
     def write(self, data):
         data = data << self.start_bit
         return NativeType.write(self, data)
+
+    def __getstate__(self):
+        result = NativeType.__getstate__(self)
+        result['start_bit'] = self.start_bit
+        result['end_bit'] = self.end_bit
+
+        return result
 
 class Pointer(NativeType):
     def __init__(self, theType, offset, vm, parent=None, profile=None, target=None, name=None):
@@ -684,7 +706,7 @@ class Array(BaseObject):
         else:
             return NoneObject("Array {0} invalid member {1}".format(self.name, pos),
                               self.profile.strict)
-    
+
 class CType(BaseObject):
     """ A CType is an object which represents a c struct """
     def __init__(self, theType, offset, vm, parent=None, members=None, name=None, size=0):
@@ -694,7 +716,7 @@ class CType(BaseObject):
         """
         if not members:
             raise RuntimeError()
-        
+
         BaseObject.__init__(self, theType, offset, vm, parent=parent, name=name)
         self.members = members
         self.offset = offset
@@ -750,7 +772,7 @@ class CType(BaseObject):
             return object.__getattribute__(self, "_" + attr)(attr)
         except:
             pass
-        
+
         return self.m(attr)
 
     def __setattr__(self, attr, value):

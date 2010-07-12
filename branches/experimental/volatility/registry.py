@@ -118,7 +118,7 @@ class MemoryRegistry:
                                     except KeyError:
                                         module = imp.load_source(module_name, dirpath + os.path.sep + filename, fd)
                                 except ImportError, e:
-                                    print "*** Unable to load module {0}: {1}".format(module_name, e)
+                                    #print "*** Unable to load module {0}: {1}".format(module_name, e)
                                     continue
 
                                 fd.close()

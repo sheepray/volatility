@@ -28,7 +28,7 @@ config = conf.ConfObject()
 def set_location(_option, _opt_str, value, parser):
     """Sets the location variable in the parser to the filename in question"""
     if parser.values.location == None:
-        parser.values.location = "file:" + urllib.pathname2url(value)
+        parser.values.location = "file://" + urllib.pathname2url(value)
 
 config.add_option("FILENAME", default = None, action="callback",
                   callback = set_location, type='str',

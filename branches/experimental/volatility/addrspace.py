@@ -56,6 +56,8 @@ class BaseAddressSpace:
         options which we may use.
         """
         self.base = base
+        self.profile_name = config.PROFILE
+
         ## Load the required profile
         try:
             self.profile = PROFILES[config.PROFILE]
@@ -80,7 +82,15 @@ class BaseAddressSpace:
         if not config.WRITE:
             return False
         raise NotImplementedError("Write support for this type of Address Space has not been implemented")
-    
+
+    def __getstate__(self):
+        """ Serialise this address space efficiently """
+        return dict(profile_name = self.profile_name, name = self.__class__.__name__,
+                    base = self.base)
+
+    def __setstate__(self, state):
+        self.__init__(**state)
+
 ## This is a specialised AS for use internally - Its used to provide
 ## transparent support for a string buffer so types can be
 ## instantiated off the buffer.

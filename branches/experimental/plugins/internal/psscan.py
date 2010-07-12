@@ -35,6 +35,7 @@ import volatility.utils as utils
 import volatility.obj as obj
 import volatility.debug as debug #pylint: disable-msg=W0611
 config = conf.ConfObject()
+from volatility.cache import CacheDecorator
 
 class DispatchHeaderCheck(scan.ScannerCheck):
     """ A very fast check for an _EPROCESS.Pcb.Header.
@@ -229,6 +230,7 @@ class psscan(commands.command):
         version = '1.0',
         )
 
+    @CacheDecorator("tests/psscan")
     def calculate(self):
         address_space = utils.load_as(astype = 'physical')
 

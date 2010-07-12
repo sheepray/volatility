@@ -63,7 +63,7 @@ class JKIA32PagedMemoryBase(addrspace.BaseAddressSpace, standard.WritablePagedMe
     pae = False
     paging_address_space = True
     name = 'Kernel AS'
-    
+
     def __init__(self, base, dtb=0, astype = None, **kwargs):
         ## We allow users to disable us in favour of the old legacy
         ## modules.
@@ -71,6 +71,8 @@ class JKIA32PagedMemoryBase(addrspace.BaseAddressSpace, standard.WritablePagedMe
         standard.WritablePagedMemory.__init__(self, base)
         addrspace.BaseAddressSpace.__init__(self, base, **kwargs)
         assert astype != 'physical', "User requested physical AS"
+
+        self.astype = astype
 
         ## We must be stacked on someone else:
         assert base, "No base Address Space"
@@ -95,6 +97,13 @@ class JKIA32PagedMemoryBase(addrspace.BaseAddressSpace, standard.WritablePagedMe
 
         # Reserved for future use
         #self.pagefile = config.PAGEFILE
+
+    def __getstate__(self):
+        result = addrspace.BaseAddressSpace.__getstate__(self)
+        result['dtb'] = self.dtb
+        result['astype'] = self.astype
+
+        return result
 
     def isValidKernelAS(self):
         ## We have to have a valid PsLoadedModuleList
