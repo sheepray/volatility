@@ -62,7 +62,9 @@ if py2exe_available:
     opts['console'] = [{ 'script': 'volatility.py',
 #                          'icon_resources': [(1, 'resources/py.ico')]
                       }]
-    opts['options'] = {'py2exe':{'optimize': 2,
+    # We must set optimizations to 0, since we use assert statements during address_space initialization
+    # optimize > 0 removes/doesn't run assert statements
+    opts['options'] = {'py2exe':{'optimize': 0,
                                  'dist_dir': py2exe_distdir,
                                  'packages': opts['packages'] + ['socket', 'ctypes', 'Crypto.Cipher', 'urllib'],
                                  # This, along with zipfile = None, ensures a single binary
