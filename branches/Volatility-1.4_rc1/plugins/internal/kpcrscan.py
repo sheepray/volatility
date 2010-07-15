@@ -104,14 +104,9 @@ class kpcrscan(commands.command):
         #result = kpcr.KPCRScan(addr_space).scan()
         result = []
         sc = KPCRScanner()
-        print "Scanning for KPCR..."
         for o in sc.scan(addr_space):
-            print "\tFound KPCR stucture at %x" % o
-            result.append(o)
-        if len(result) == 0:
-            config.error("No KPCR structures found. (Is it a windows image?)")
-
-        return result
+            print "Phys addr", "{0:08x}".format(addr_space.vtop(o)), "Virt addr", "{0:08x}".format(o)
+            yield o
 
     def render_text(self, outfd, data):
         """Renders the KPCR values as text"""
