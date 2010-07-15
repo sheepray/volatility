@@ -95,8 +95,8 @@ class EWFAddressSpace(standard.FileAddressSpace):
     order = 20
     def __init__(self, base, **kwargs):
         standard.FileAddressSpace.__init__(self, base, layered = True)
-        assert(base)
-        assert(base.read(0, 6) == "\x45\x56\x46\x09\x0D\x0A")
+        self.as_assert(base, "No base address space provided")
+        self.as_assert(base.read(0, 6) == "\x45\x56\x46\x09\x0D\x0A", "EWF signature not present")
         self.fhandle = ewf_open([self.name])
         self.fhandle.seek(0, 2)
         self.fsize = self.fhandle.tell()

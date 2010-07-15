@@ -67,7 +67,7 @@ class WindowsHiberFileSpace32(standard.FileAddressSpace):
     order = 10
     def __init__(self, baseAddressSpace, **kwargs):
         standard.FileAddressSpace.__init__(self, baseAddressSpace, layered = True, **kwargs)
-        assert baseAddressSpace, "No base Address Space"
+        self.as_assert(baseAddressSpace, "No base Address Space")
         self.runs = []
         self.PageDict = {}
         self.HighestPage = 0
@@ -85,7 +85,7 @@ class WindowsHiberFileSpace32(standard.FileAddressSpace):
             self.header = obj.NoneObject("Invalid hibernation header")
         
         # Check it's definitely a hibernation file
-        assert self._get_first_table_page() is not None, "No xpress signature found"
+        self.as_assert(self._get_first_table_page() is not None, "No xpress signature found")
 
         # Extract processor state
         self.ProcState = obj.Object("_KPROCESSOR_STATE", 2 * 4096, baseAddressSpace)

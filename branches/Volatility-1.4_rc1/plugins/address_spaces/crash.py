@@ -37,10 +37,10 @@ class WindowsCrashDumpSpace32(standard.FileAddressSpace):
     def __init__(self, baseAddressSpace, **kwargs):
         standard.FileAddressSpace.__init__(self, baseAddressSpace, layered = True, **kwargs)
         ## We must have an AS below us
-        assert baseAddressSpace, "No base Address Space"
+        self.as_assert(baseAddressSpace, "No base Address Space")
 
         ## Must start with the magic PAGEDUMP
-        assert(baseAddressSpace.read(0, 8) == 'PAGEDUMP'), "Header signature invalid"
+        self.as_assert((baseAddressSpace.read(0, 8) == 'PAGEDUMP'), "Header signature invalid")
 
         self.runs = []
         # I have the feeling config.OFFSET will interfere with plugin options...

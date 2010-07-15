@@ -49,6 +49,11 @@ config.add_option("LOCATION", default=None, short_option='l',
 ## another module.
 PROFILES = {}
 
+class ASAssertionError(AssertionError):
+    
+    def __init__(self, *args, **kwargs):
+        AssertionError.__init__(self, *args, **kwargs)
+
 class BaseAddressSpace:
     """ This is the base class of all Address Spaces. """
     def __init__(self, base, **kwargs):
@@ -62,6 +67,16 @@ class BaseAddressSpace:
         except KeyError:
             self.profile = registry.PROFILES[config.PROFILE]()
             PROFILES[config.PROFILE] = self.profile
+
+    def as_assert(self, assertion, error = None):
+        """Duplicate for the assert command (so that optimizations don't disable them)
+        
+           It had to be called as_assert, since assert is a keyword
+        """
+        if not assertion:
+            if error == None:
+                error = "Instantiation failed for unspecified reason"
+            raise ASAssertionError, error
 
     def read(self, addr, length):
         """ Read some date from a certain offset """

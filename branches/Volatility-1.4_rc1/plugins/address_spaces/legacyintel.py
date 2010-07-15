@@ -58,22 +58,22 @@ class IA32PagedMemory(standard.WritablePagedMemory, addrspace.BaseAddressSpace):
     order = 90
     pae = False
     def __init__(self, base, dtb=0, astype = None, **kwargs):
-        assert config.USE_OLD_AS, "Module disabled"
+        self.as_assert(config.USE_OLD_AS, "Module disabled")
         
         standard.WritablePagedMemory.__init__(self, base)
         addrspace.BaseAddressSpace.__init__(self, base, **kwargs)
-        assert astype != 'physical', "User requested physical AS"
+        self.as_assert(astype != 'physical', "User requested physical AS")
         
         ## We must be stacked on someone else:
-        assert base, "No base Address Space"
+        self.as_assert(base, "No base Address Space")
         
         ## We can not stack on someone with a page table
-        assert not hasattr(base, 'pgd_vaddr'), "Can not stack over page table AS"
+        self.as_assert(not hasattr(base, 'pgd_vaddr'), "Can not stack over page table AS")
         self.pgd_vaddr = dtb or config.DTB or self.load_dtb()
 
         ## Finally we have to have a valid PsLoadedModuleList
         # FIXME: !!!!! Remove Hardcoded HACK!!!!
-        assert self.is_valid_address(0x8055a420), "PsLoadedModuleList not valid Address"
+        self.as_assert(self.is_valid_address(0x8055a420), "PsLoadedModuleList not valid Address")
 
     def load_dtb(self):
         try:

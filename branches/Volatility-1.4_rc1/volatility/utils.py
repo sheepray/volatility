@@ -19,6 +19,7 @@
 #
 
 import volatility.registry as registry
+import volatility.addrspace as addrspace
 import volatility.conf as conf
 config = conf.ConfObject()
 import volatility.debug as debug
@@ -38,7 +39,7 @@ def load_as(**kwargs):
                 debug.debug("Succeeded instantiating {0}".format(base_as))
                 found = True
                 break
-            except AssertionError, e:
+            except addrspace.ASAssertionError, e:
                 debug.debug("Failed instantiating {0}: {1}".format(cls.__name__, e), 2) 
                 error.append_reason(cls.__name__, e) 
                 continue

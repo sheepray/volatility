@@ -80,11 +80,11 @@ class FileAddressSpace(addrspace.BaseAddressSpace):
     order = 100
     def __init__(self, base, layered=False, **kwargs):
         addrspace.BaseAddressSpace.__init__(self, base, **kwargs)
-        assert base == None or layered, 'Must be first Address Space'
-        assert config.LOCATION.startswith("file://"), 'Location is not of file scheme'
+        self.as_assert(base == None or layered, 'Must be first Address Space')
+        self.as_assert(config.LOCATION.startswith("file://"), 'Location is not of file scheme')
 
         path = urllib.url2pathname(config.LOCATION[7:])
-        assert os.path.exists(path), 'Filename must be specified and exist'
+        self.as_assert(os.path.exists(path), 'Filename must be specified and exist')
         self.name = os.path.abspath(path)
         self.fname = self.name
         self.mode = 'rb'
@@ -138,7 +138,7 @@ class PagedMemory(addrspace.BaseAddressSpace):
     Note: Pages can be of any size
     """
     def __init__(self, base, **kwargs):
-        assert self.__class__.__name__ != 'PagedMemory', "Abstract Class - Never for instantiation directly"
+        self.as_assert(self.__class__.__name__ != 'PagedMemory', "Abstract Class - Never for instantiation directly")
         addrspace.BaseAddressSpace.__init__(self, base)
 
     def vtop(self, addr):
@@ -188,7 +188,7 @@ class WritablePagedMemory(PagedMemory):
     vtop().
     """
     def __init__(self, base, **kwargs):
-        assert self.__class__.__name__ != 'WritablePagedMemory', "Abstract Class - Never for instantiation directly"
+        self.as_assert(self.__class__.__name__ != 'WritablePagedMemory', "Abstract Class - Never for instantiation directly")
         PagedMemory.__init__(self, base)
     
     def write(self, vaddr, buf):

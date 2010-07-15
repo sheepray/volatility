@@ -30,25 +30,25 @@ class FirewireAddressSpace(addrspace.BaseAddressSpace):
     order = 99
     def __init__(self, base, layered=False, **kargs):
         addrspace.BaseAddressSpace.__init__(self, base, **kargs)
-        assert base == None or layered, 'Must be first Address Space'
+        self.as_assert(base == None or layered, 'Must be first Address Space')
         try:
             (scheme, _netloc, path, _, _, _) = urlparse.urlparse(config.LOCATION)
-            assert scheme == 'firewire', 'Not a firewire URN'
+            self.as_assert(scheme == 'firewire', 'Not a firewire URN')
             location = [x for x in path.split('/') if x != '' ]
             bus = int(location[0])
             node = int(location[1])
         except (AttributeError, ValueError):
-            assert False, "Unable to parse {0} as a URL".format(config.LOCATION)
-        assert bus is not None and node is not None, 'Bus and Node must be specified'
+            self.as_assert(False, "Unable to parse {0} as a URL".format(config.LOCATION))
+        self.as_assert(bus is not None and node is not None, 'Bus and Node must be specified')
 
         self._node = None
         try:
             h = firewire.Host()
             self._node = h[bus][node]
         except IndexError:
-            assert False, "Firewire node " + str(node) + " on bus " + str(bus) + " was not accessible"
+            self.as_assert(False, "Firewire node " + str(node) + " on bus " + str(bus) + " was not accessible")
         except IOError, e:
-            assert False, "Firewire device IO error - " + str(e)
+            self.as_assert(False, "Firewire device IO error - " + str(e))
         
         # We have a list of exclusions because we know that trying to read anything in these sections
         # will cause the target machine to bluescreen
@@ -115,7 +115,7 @@ class FirewireAddressSpace(addrspace.BaseAddressSpace):
                     output = output[: i[0] - offset] + readdata[:i[1] - i[0]] + output[i[1] - offset:]
         except IOError:
             raise RuntimeError("Failed to read from firewire device")
-        assert len(output) == length, "Firewire read lengths failed to match"
+        self.as_assert(len(output) == length, "Firewire read lengths failed to match")
         return output
 
     def write(self, offset, data):

@@ -69,25 +69,25 @@ class JKIA32PagedMemory(standard.WritablePagedMemory, addrspace.BaseAddressSpace
     def __init__(self, base, dtb=0, astype = None, **kwargs):
         ## We allow users to disable us in favour of the old legacy
         ## modules.
-        assert not config.USE_OLD_AS, "Module disabled"
+        self.as_assert(not config.USE_OLD_AS, "Module disabled")
         standard.WritablePagedMemory.__init__(self, base)
         addrspace.BaseAddressSpace.__init__(self, base, **kwargs)
-        assert astype != 'physical', "User requested physical AS"
+        self.as_assert(astype != 'physical', "User requested physical AS")
 
         ## We must be stacked on someone else:
-        assert base, "No base Address Space"
+        self.as_assert(base, "No base Address Space")
 
         ## We can not stack on someone with a dtb
         try:
-            assert not base.paging_address_space, "Can not stack over another paging address space"
+            self.as_assert(not base.paging_address_space, "Can not stack over another paging address space")
         except AttributeError:
             pass
 
         self.dtb = dtb or config.DTB or self.load_dtb()
         self.base = base
 
-        assert self.dtb != None, "No valid DTB found"
-        assert self.is_valid_kernelAS(), "Not a valid Kernel Address Space"
+        self.as_assert(self.dtb != None, "No valid DTB found")
+        self.as_assert(self.is_valid_kernelAS(), "Not a valid Kernel Address Space")
 
         # The caching code must be in a separate function to allow the
         # PAE code, which inherits us, to have its own code.
@@ -104,7 +104,7 @@ class JKIA32PagedMemory(standard.WritablePagedMemory, addrspace.BaseAddressSpace
         # FIXME: Check is currently a bit loose
         # FIXME: This only works for windows
         # Consider using a list of valid addresses instead 
-        # assert self.is_valid_address(0x8055a420), "PsLoadedModuleList not valid Address"
+        # self.as_assert(self.is_valid_address(0x8055a420), "PsLoadedModuleList not valid Address")
         
 	# FIXME: Couldn't work out why this was here for Non-PAE as well PAE, so commented it out
 	# Check experimental branch (Bradley Schatz patches) to figure out if it was a mistake or intentional
@@ -114,7 +114,7 @@ class JKIA32PagedMemory(standard.WritablePagedMemory, addrspace.BaseAddressSpace
         #except:
         #    pass
         #if header != None:
-        #    assert header.PaeEnabled == 1
+        #    self.as_assert(header.PaeEnabled == 1)
 
         for (offset, _length) in self.get_available_addresses():
             if (offset > 0x80000000):
