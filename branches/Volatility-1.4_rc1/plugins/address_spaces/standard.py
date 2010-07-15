@@ -67,9 +67,9 @@ config.add_option("WRITE", short_option='w', action="callback", default=False,
 class FileAddressSpace(addrspace.BaseAddressSpace):
     """ This is a direct file AS.
 
-    For this AS to be instanitiated, we need
+    For this AS to be instantiated, we need
 
-    1) A valid config.FILENAME
+    1) A valid config.LOCATION (starting with file://)
 
     2) no one else has picked the AS before us
     
@@ -81,9 +81,9 @@ class FileAddressSpace(addrspace.BaseAddressSpace):
     def __init__(self, base, layered=False, **kwargs):
         addrspace.BaseAddressSpace.__init__(self, base, **kwargs)
         assert base == None or layered, 'Must be first Address Space'
-        assert config.LOCATION.startswith("file:"), 'Location is not of file scheme'
+        assert config.LOCATION.startswith("file://"), 'Location is not of file scheme'
 
-        path = urllib.url2pathname(config.LOCATION[5:])
+        path = urllib.url2pathname(config.LOCATION[7:])
         assert os.path.exists(path), 'Filename must be specified and exist'
         self.name = os.path.abspath(path)
         self.fname = self.name
