@@ -18,10 +18,75 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA 
 #
 
+import time
 import urlparse
 import volatility.addrspace as addrspace
 import volatility.conf
 config = volatility.conf.ConfObject()
+
+def FirewireRW(netloc, location):
+    if netloc in fw_implementations:
+        return fw_implementations[netloc](location)
+    return None
+        
+class FWRaw1394(object):
+    def __init__(self, location):
+        locarr = location.split('/')
+        self.bus = locarr[0]
+        self.node = locarr[1]
+        self._node = None 
+
+    def is_valid(self):
+        """Initializes the firewire implementation"""
+        self._node = None
+        try:
+            h = firewire.Host()
+            self._node = h[self.bus][self.node]
+            return True, "Valid"
+        except IndexError:
+            return False, "Firewire node " + str(self.node) + " on bus " + str(self.bus) + " was not accessible"
+        except IOError, e:
+            return False, "Firewire device IO error - " + str(e)
+        return False, "Unknown Error occurred"
+
+    def read(self, addr, length):
+        """Reads bytes from the specified address"""
+        return self._node.read(addr, length)
+        
+    def write(self, addr, buf):
+        """Writes buf bytes at addr"""
+        return self._node.write(addr, buf)
+
+class FWForensic1394(object):
+    def __init__(self, location):
+        """Initializes the firewire implementation"""
+        self.location = location
+        self._bus = forensic1394.Bus()
+        self._bus.enable_sbp2()
+        self._device = None
+
+    def is_valid(self):
+        try:
+            devices = self._bus.devices()
+            # FIXME: Base the device off the location rather than hardcoded first remote device
+            self._device = devices[0]
+            if not self._device.isopen():
+                self._device.open()
+            # The device requires time to settle before it can be used
+            time.sleep(1)
+            return True, "Valid"
+        except IOError, e:
+            print repr(e)
+            return False, "Forensic1394 returned an exception: " + str(e)
+        return False, "Unknown Error occurred"
+        
+    def read(self, addr, length):
+        """Reads bytes from the specified address"""
+        return self._device.read(addr, length)
+        
+    def write(self, addr, buf):
+        """Writes buf bytes at addr"""
+        return self._device.write(addr, buf)
 
 class FirewireAddressSpace(addrspace.BaseAddressSpace):
     """A physical layer address space that provides access via firewire"""
@@ -32,29 +97,20 @@ class FirewireAddressSpace(addrspace.BaseAddressSpace):
         addrspace.BaseAddressSpace.__init__(self, base, **kargs)
         self.as_assert(base == None or layered, 'Must be first Address Space')
         try:
-            (scheme, _netloc, path, _, _, _) = urlparse.urlparse(config.LOCATION)
+            (scheme, netloc, path, _, _, _) = urlparse.urlparse(config.LOCATION)
             self.as_assert(scheme == 'firewire', 'Not a firewire URN')
-            location = [x for x in path.split('/') if x != '' ]
-            bus = int(location[0])
-            node = int(location[1])
+            self._fwimpl = FirewireRW(netloc, path)
         except (AttributeError, ValueError):
             self.as_assert(False, "Unable to parse {0} as a URL".format(config.LOCATION))
-        self.as_assert(bus is not None and node is not None, 'Bus and Node must be specified')
-
-        self._node = None
-        try:
-            h = firewire.Host()
-            self._node = h[bus][node]
-        except IndexError:
-            self.as_assert(False, "Firewire node " + str(node) + " on bus " + str(bus) + " was not accessible")
-        except IOError, e:
-            self.as_assert(False, "Firewire device IO error - " + str(e))
+        self.as_assert(self._fwimpl is not None, "Unable to locate {0} implementation.".format(netloc)) 
+        valid, reason = self._fwimpl.is_valid()
+        self.as_assert(valid, reason)
         
         # We have a list of exclusions because we know that trying to read anything in these sections
         # will cause the target machine to bluescreen
         self._exclusions = sorted([(0xa0000, 0xfffff, "Upper Memory Area")])
         
-        self.name = "Firewire on Bus " + str(bus) + " Node " + str(node) 
+        self.name = "Firewire using " + str(netloc) + " at " + str(path) 
         self.offset = 0
         # We have no way of knowing how big a firewire space is...
         # Set it to the maximum for the moment
@@ -109,11 +165,12 @@ class FirewireAddressSpace(addrspace.BaseAddressSpace):
             for i in ints:
                 if i[1] > i[0]:
                     # node.read won't work on 0 byte
-                    readdata = self._node.read(i[0], i[1] - i[0])
+                    readdata = self._fwimpl.read(i[0], i[1] - i[0])
                     # I'm not sure why, but sometimes readdata comes out longer than the requested size
                     # We just truncate it to the right length
                     output = output[: i[0] - offset] + readdata[:i[1] - i[0]] + output[i[1] - offset:]
-        except IOError:
+        except IOError, e:
+            print repr(e)
             raise RuntimeError("Failed to read from firewire device")
         self.as_assert(len(output) == length, "Firewire read lengths failed to match")
         return output
@@ -127,7 +184,7 @@ class FirewireAddressSpace(addrspace.BaseAddressSpace):
         try:
             for i in ints:
                 if i[1] > i[0]:
-                    self._node.write(i[0], data)
+                    self._fwimpl.write(i[0], data)
         except IOError:
             raise RuntimeError("Failed to write to the firewire device")
         return True
@@ -140,7 +197,19 @@ class FirewireAddressSpace(addrspace.BaseAddressSpace):
         """Returns a list of available addresses"""
         return self.intervals(0, self.size)
 
+fw_implementations = {}
+
 try:
     import firewire
+    fw_implementations['raw1394'] = FWRaw1394
 except ImportError:
+    pass
+
+try:
+    import forensic1394
+    fw_implementations['forensic1394'] = FWForensic1394
+except ImportError:
+    pass
+
+if not len(fw_implementations):        
     FirewireAddressSpace = None
