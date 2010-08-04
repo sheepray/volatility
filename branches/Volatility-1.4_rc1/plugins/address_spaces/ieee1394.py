@@ -67,13 +67,13 @@ class FWForensic1394(object):
 
     def is_valid(self):
         try:
+            time.sleep(2)
             devices = self._bus.devices()
             # FIXME: Base the device off the location rather than hardcoded first remote device
             self._device = devices[0]
             if not self._device.isopen():
                 self._device.open()
             # The device requires time to settle before it can be used
-            time.sleep(1)
             return True, "Valid"
         except IOError, e:
             print repr(e)
