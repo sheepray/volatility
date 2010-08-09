@@ -27,7 +27,7 @@
 """
 
 #pylint: disable-msg=C0111
-
+import pdb
 import sys
 if __name__ == '__main__':
     sys.path.append(".")
@@ -303,7 +303,7 @@ class BaseObject(object):
     def newattr(self, attr, value):
         """Sets a new attribute after the object has been created"""
         return BaseObject.__setattr__(self, attr, value)
-    
+
     def write(self, value):
         """Function for writing the object back to disk"""
         pass
@@ -348,15 +348,15 @@ class BaseObject(object):
         """
         result = self.vm.is_valid_address(self.offset)
         return result
-    
-#    def __eq__(self, other):
-#        if isinstance(other, BaseObject):
-#            return (self.__class__ == other.__class__) and (self.offset == other.offset)
-#        else:
-#            return NotImplemented
+
+    def __eq__(self, other):
+        return (self.__class__ == other.__class__) and (self.offset == other.offset) \
+            and (self.vm == other.vm)
 
     def __hash__(self):
-        return hash(self.name) ^ hash(self.offset)
+        try:
+            return hash(self.name) ^ hash(self.offset)
+        except: pdb.set_trace()
 
     def has_member(self, memname):
         return False
@@ -428,9 +428,15 @@ class BaseObject(object):
 
     def __getstate__(self):
         """ This controls how we pickle and unpickle the objects """
-        return dict(offset = self.offset, name = self.name, vm = self.vm, theType = self.theType.__name__ )
+        try:
+            type = self.theType.__name__
+        except:
+            type = self.theType
+
+        return dict(offset = self.offset, name = self.name, vm = self.vm, theType = type)
 
     def __setstate__(self, state):
+        #pdb.set_trace()
         ## What we want to do here is to instantiate a new object and then copy it into ourselves
         new_object = Object(state['theType'], state['offset'], state['vm'], name = state['name'])
 

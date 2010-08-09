@@ -146,6 +146,9 @@ class FileAddressSpace(addrspace.BaseAddressSpace):
             return False
         return True
 
+    def __eq__(self, other):
+        return self.base == other.base and self.fname == other.fname
+
 BLOCKSIZE = 1024 * 1024 * 10
 
 ## This stuff needs to go in the profile
@@ -234,14 +237,15 @@ class IA32PagedMemory(addrspace.BaseAddressSpace, WritablePagedMemory):
     pae = False
     def __init__(self, base, dtb=0, astype = None, **kwargs):
         assert config.USE_OLD_AS, "Module disabled"
-        
+
         WritablePagedMemory.__init__(self, base)
         addrspace.BaseAddressSpace.__init__(self, base, **kwargs)
+        self.astype = astype
         assert astype != 'physical', "User requested physical AS"
-        
+
         ## We must be stacked on someone else:
         assert base, "No base Address Space"
-        
+
         ## We can not stack on someone with a page table
         assert not hasattr(base, 'pgd_vaddr'), "Can not stack over page table AS"
         self.pgd_vaddr = dtb or config.DTB or self.load_dtb()
@@ -249,6 +253,9 @@ class IA32PagedMemory(addrspace.BaseAddressSpace, WritablePagedMemory):
         ## Finally we have to have a valid PsLoadedModuleList
         # FIXME: !!!!! Remove Hardcoded HACK!!!!
         assert self.is_valid_address(0x8055a420), "PsLoadedModuleList not valid Address"
+
+    def __eq__(self, other):
+        return addrspace.BaseAddressSpace.__eq__(self, other) and self.astype == other.astype
 
     def load_dtb(self):
         try:

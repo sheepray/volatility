@@ -5,6 +5,7 @@ import volatility.commands as commands
 import volatility.win32 as win32
 import pdb
 import bisect
+from volatility.cache import CacheDecorator
 
 class pas2kas(commands.command):
     """ Convert a list of physical AS offsets (given on the command
@@ -54,11 +55,17 @@ class pas2kas(commands.command):
 
         return kernel_addr_space
 
-    def calculate(self):
+    @CacheDecorator("address_space/memory_translation/pas2kas")
+    def get_ranges(self):
         addr_space = self.get_task_as(utils.load_as())
 
         ## Get the coalesced map:
         ranges = [ (va, pa, length) for va, pa, length in self.coalesce_ranges(addr_space) ]
+
+        return ranges
+
+    def calculate(self):
+        ranges = self.get_ranges()
 
         ## Now for each Physical address, find all Virtual Addresses
         ## for it. We optimise by sorting on pa and use binary
@@ -66,6 +73,9 @@ class pas2kas(commands.command):
         config.parse_options()
         for pa in config.args[1:]:
             needle = conf.parse_int(pa)
+            #print "Looking for 0x%08X" % needle
             for va, pa, length in ranges:
+                #print "0x%08X 0x%08X 0x%08X" % (va, pa, length)
                 if needle >= pa and needle - pa < length:
+                    #print "Got it"
                     yield (needle, va + (needle - pa))

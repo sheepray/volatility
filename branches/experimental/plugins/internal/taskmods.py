@@ -137,14 +137,16 @@ class files(dlllist):
 class pslist(dlllist):
     """ print all running processes by following the EPROCESS lists """
     def render(self, data, ui):
-        table = ui.table('Name', 'Pid', 'PPid', 'Thds', 'Hnds', 'Time')
+        table = ui.table('Name', 'Pid', 'PPid', 'Thds', 'Hnds', 'Time', 'Virtual', 'Physical')
         for task in data:
             table.row(task.ImageFileName,
                       task.UniqueProcessId,
                       task.InheritedFromUniqueProcessId,
                       task.ActiveThreads,
                       task.ObjectTable.HandleCount,
-                      task.CreateTime)
+                      task.CreateTime,
+                      task.offset,
+                      task.vm.vtop(task.offset))
 
 # Inherit from files just for the config options (__init__)
 class memmap(dlllist):
@@ -173,6 +175,7 @@ class memmap(dlllist):
             else:
                 outfd.write("Unable to read pages for task.\n")
 
+    @CacheDecorator("test/memmap")
     def calculate(self):
         tasks = self.filter_tasks(dlllist.calculate(self))
 

@@ -203,8 +203,15 @@ import types
 import os
 import urlparse
 import volatility.conf as conf
-import pickle
+#import pickle
+import cPickle as pickle
 config = conf.ConfObject()
+
+## Where to stick the cache
+default_cache_location = os.environ.get("XDG_CACHE_HOME") or os.environ.get("TEMP") or "/tmp/"
+
+config.add_option("CACHE_DIRECTORY", default=default_cache_location,
+                  help = "Directory where cache files are stored")
 
 class CacheNode:
     """ Base class for Cache nodes """
@@ -223,13 +230,15 @@ class CacheNode:
         exists, we simply replace it. '''
         self.children[child.name] = child
 
-    def __getitem__(self, item):
+    def __getitem__(self, item = ''):
         item_url = "%s/%s" % (self.stem, item)
+
         ## Try to load it from the storage manager
         try:
             result = self.storage.load(item_url)
             if result: return result
-        except: pass
+        except Exception, e:
+            pass
 
         ## Make a new empty Node instead on demand
         raise KeyError("item not found")
@@ -253,9 +262,10 @@ class CacheNode:
 
 class CacheTree:
     """ An abstract structure which represents the cache tree """
-    def __init__(self, storage = None):
+    def __init__(self, storage = None, cls = CacheNode):
         self.storage = storage
-        self.root = CacheNode('', '', storage = storage)
+        self.cls = cls
+        self.root = self.cls('', '', storage = storage)
 
     def __getitem__(self, path):
         """ Retrieves the node at the path specified """
@@ -273,15 +283,12 @@ class CacheTree:
                     next_stem = '/'.join((current.stem, e))
                 else: next_stem = e
 
-                node = CacheNode(e, next_stem, storage=self.storage)
+                node = self.cls(e, next_stem, storage=self.storage)
                 current.add_child(node)
 
                 current = node
 
         return current
-
-config.add_option("CACHE_DIRECTORY", default="/tmp/",
-                  help = "Directory where cache files are stored")
 
 class CacheStorage:
     """ The base class for implementation storing the cache. """
@@ -332,6 +339,7 @@ class CacheStorage:
         pickle.dump(payload, fd)
         fd.close()
 
+
 CACHE = CacheTree(CacheStorage())
 
 class CacheDecorator:
@@ -352,7 +360,6 @@ class CacheDecorator:
         self.dump(payload)
 
     def dump(self, payload):
-        print "Dumping Cache %s" % payload
         self.node = CACHE[self.path]
         self.node.set_payload(payload)
         self.node.dump()

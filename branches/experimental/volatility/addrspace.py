@@ -65,6 +65,10 @@ class BaseAddressSpace:
             self.profile = registry.PROFILES[config.PROFILE]()
             PROFILES[config.PROFILE] = self.profile
 
+    def __eq__(self, other):
+        return  self.profile == other.profile and \
+            self.__class__ == other.__class__ and self.base == other.base
+
     def read(self, addr, length):
         """ Read some date from a certain offset """
 
