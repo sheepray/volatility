@@ -9,6 +9,7 @@
     * GUI plugin result analysis
   * Examine performance/profiling and possibly develop C modules for some parts
   * Improve Hive AS integration
+  * Allow module loading from http/zip/other locations
   * Implement/improve linux support
     * Requires linux overlay/types
     * Requires linux plugins
