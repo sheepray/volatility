@@ -38,7 +38,7 @@ config = volatility.conf.ConfObject()
 class vadinfo(taskmods.dlllist):
     """Dump the VAD info"""
 
-    def render_text(self, outfd,data):
+    def render_text(self, outfd, data):
         for task in data:
             outfd.write("*" * 72 + "\n")
             outfd.write("Pid: {0:6}\n".format(task.UniqueProcessId))
@@ -172,16 +172,15 @@ class vaddump(vadinfo):
         if not os.path.isdir(config.DUMP_DIR):
             config.error(config.DUMP_DIR + " is not a directory")
 
-        for pid in data:
-            outfd.write("Pid " + str(pid) + "\n")
+        for task in data:
+            outfd.write("Pid: {0:6}\n".format(task.UniqueProcessId))
             # Get the task and all process specific information
-            task = data[pid].get('task', None)
             task_space = task.get_process_address_space()
             name = task.ImageFileName
             offset = task_space.vtop(task.offset)
 
             outfd.write("*" * 72 + "\n")
-            for vad in data[pid]['vadlist']:
+            for vad in task.VadRoot.traverse():
                 # Ignore Vads with bad tags (which we explicitly include as None)
                 if vad == None:
                     continue
