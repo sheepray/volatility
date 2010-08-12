@@ -32,6 +32,7 @@ import volatility.win32.modules as modules
 import volatility.commands as commands
 import volatility.utils as utils
 import volatility.debug as debug #pylint: disable-msg=W0611
+from volatility.cache import CacheDecorator
 
 #pylint: disable-msg=C0111
 
@@ -1043,8 +1044,9 @@ class ssdt(commands.command):
         'url': 'http://moyix.blogspot.com/',
         'os': 'WIN_32_XP_SP2',
         'version': '1.0'}
-    
-    def calculate(self):        
+
+    @CacheDecorator("tests/ssdt")
+    def calculate(self):
         addr_space = utils.load_as()
         addr_space.profile.add_types(ssdt_types)
 

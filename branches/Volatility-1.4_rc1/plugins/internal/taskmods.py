@@ -32,6 +32,8 @@ import volatility.commands as commands
 import volatility.win32 as win32
 import volatility.obj as obj
 import volatility.utils as utils
+import volatility.registry as registry
+from volatility.cache import CacheDecorator
 
 config = conf.ConfObject()
 
@@ -89,6 +91,7 @@ class dlllist(commands.command):
 
         return tasks
 
+    @CacheDecorator("tests/pslist")
     def calculate(self):
         """Produces a list of processes, or just a single process based on an OFFSET"""
         addr_space = utils.load_as()
