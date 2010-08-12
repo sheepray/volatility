@@ -44,14 +44,10 @@ class CacheNode:
         will carry the specified payload
         '''
 
-    def add_child(self, child):
-        ''' Adds the child to our children list. If the child already
-        exists, we simply replace it. '''
-
     def __str__(self):
         ''' Produce a human readable version of the payload '''
 
-    def update_payload(self, payload):
+    def set_payload(self, payload):
         ''' Update the current payload with the new specified payload '''
 
     def dump(self):
@@ -198,12 +194,10 @@ The following common use cases are discussed:
    as needed.
 
 """
-import pdb
 import types
 import os
 import urlparse
 import volatility.conf as conf
-#import pickle
 import cPickle as pickle
 config = conf.ConfObject()
 
@@ -213,7 +207,7 @@ default_cache_location = os.environ.get("XDG_CACHE_HOME") or os.environ.get("TEM
 config.add_option("CACHE_DIRECTORY", default=default_cache_location,
                   help = "Directory where cache files are stored")
 
-class CacheNode:
+class CacheNode(object):
     """ Base class for Cache nodes """
     def __init__(self, name, stem, storage = None, payload = None):
         ''' Creates a new Cache node under the parent. The new node
@@ -221,14 +215,8 @@ class CacheNode:
         '''
         self.name = name
         self.payload = payload
-        self.children = dict()
         self.storage = storage
         self.stem = stem
-
-    def add_child(self, child):
-        ''' Adds the child to our children list. If the child already
-        exists, we simply replace it. '''
-        self.children[child.name] = child
 
     def __getitem__(self, item = ''):
         item_url = "%s/%s" % (self.stem, item)
@@ -236,8 +224,9 @@ class CacheNode:
         ## Try to load it from the storage manager
         try:
             result = self.storage.load(item_url)
-            if result: return result
-        except Exception, e:
+            if result:
+                return result
+        except Exception, _e:
             pass
 
         ## Make a new empty Node instead on demand
@@ -258,9 +247,25 @@ class CacheNode:
         self.storage.dump(self.stem, self)
 
     def get_payload(self):
-       ''' retrieve this node's payload '''
+        return self.payload
 
-class CacheTree:
+class BlockingNode(CacheNode):
+    """Node that fails on all cache attempts and no-ops on cache storage attempts"""
+    def __init__(self, name, stem, _storage = None, _payload = None):
+        CacheNode.__init__(self, name, stem, None, None)
+
+    def __getitem__(self, _item = ''):
+        raise KeyError("Blocking Cache Node")
+
+    def dump(self):
+        """Ensure nothing gets dumped"""
+        pass
+    
+    def get_payload(self):
+        """Do not set a payload for a blocked cache node"""
+        pass 
+
+class CacheTree(object):
     """ An abstract structure which represents the cache tree """
     def __init__(self, storage = None, cls = CacheNode):
         self.storage = storage
@@ -281,16 +286,16 @@ class CacheTree:
             except KeyError:
                 if current.stem:
                     next_stem = '/'.join((current.stem, e))
-                else: next_stem = e
+                else:
+                    next_stem = e
 
                 node = self.cls(e, next_stem, storage=self.storage)
-                current.add_child(node)
 
                 current = node
 
         return current
 
-class CacheStorage:
+class CacheStorage(object):
     """ The base class for implementation storing the cache. """
     ## Characters allowed in filenames
     printables = "0123456789@ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-_."
@@ -301,7 +306,7 @@ class CacheStorage:
             if x in self.printables:
                 result += x
             else:
-                result += "%%%02X" % ord(x)
+                result += "%{0:02X}".format(ord(x))
 
         return result
 
@@ -314,7 +319,7 @@ class CacheStorage:
         path = "/".join((config.CACHE_DIRECTORY, os.path.basename(config.LOCATION) + ".cache", path)) + '.pickle'
         parsed = urlparse.urlparse(path)
         ## Make sure path does not have any special chars
-        path = '/'.join([ self.encode(x) for x in parsed.path.split("/") ])
+        path = '/'.join([ self.encode(x) for x in parsed.path.split("/") ]) #pylint: disable-msg=E1101
 
         return path
 
@@ -342,10 +347,11 @@ class CacheStorage:
 
 CACHE = CacheTree(CacheStorage())
 
-class CacheDecorator:
+class CacheDecorator(object):
     """ This decorator will memoise a function in the cache """
     def __init__(self, path):
         self.path = path
+        self.node = None
 
     def generate(self, g):
         """ Special handling for generators. We pass each iteration
@@ -368,8 +374,8 @@ class CacheDecorator:
         def wrapper(s, *args, **kwargs):
             ## Check if the result can be retrieved
             self.node = CACHE[self.path]
-            if self.node.payload:
-                return self.node.payload
+            if self.node.get_payload():
+                return self.node.get_payload()
 
             result = f(s, *args, **kwargs)
 
