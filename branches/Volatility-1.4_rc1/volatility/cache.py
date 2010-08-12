@@ -254,8 +254,8 @@ class BlockingNode(CacheNode):
     def __init__(self, name, stem, _storage = None, _payload = None):
         CacheNode.__init__(self, name, stem, None, None)
 
-    def __getitem__(self, _item = ''):
-        raise KeyError("Blocking Cache Node")
+    def __getitem__(self, item = ''):
+        return BlockingNode(item, '/'.join((self.stem, item)))
 
     def dump(self):
         """Ensure nothing gets dumped"""
