@@ -146,8 +146,8 @@ class Patcher(object):
         """Returns the name of the patcher"""
         return self.name
 
-class dllpatch(commands.command):
-    """Patches DLLs based on page scans"""
+class patcher(commands.command):
+    """Patches memory based on page scans"""
 
     def __init__(self, *args, **kwargs):
         config.add_option('XML-INPUT', short_option='x',
