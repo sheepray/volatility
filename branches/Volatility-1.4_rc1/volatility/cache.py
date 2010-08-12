@@ -207,20 +207,6 @@ default_cache_location = os.environ.get("XDG_CACHE_HOME") or os.environ.get("TEM
 config.add_option("CACHE-DIRECTORY", default=default_cache_location,
                   help = "Directory where cache files are stored")
 
-def disable_caching(_option, _opt_str, _value, _parser):
-    """Turns off caching by replacing the tree with one that only takes BlockingNodes"""
-    if config.DEBUG:
-        print "Disabling Caching"
-    # Feels filthy using the global keyword,
-    # but I can't figure another way to ensure that
-    # the code gets called and overwrites the outer scope
-    global CACHE
-    CACHE = CacheTree(CacheStorage(), BlockingNode)
-
-config.add_option("NO-CACHE", default = None, action = 'callback',
-                  callback = disable_caching,
-                  help = "Disable caching")
-
 class CacheNode(object):
     """ Base class for Cache nodes """
     def __init__(self, name, stem, storage = None, payload = None):
@@ -369,6 +355,20 @@ class CacheStorage(object):
         fd.close()
 
 CACHE = CacheTree(CacheStorage())
+
+def disable_caching(_option, _opt_str, _value, _parser):
+    """Turns off caching by replacing the tree with one that only takes BlockingNodes"""
+    if config.DEBUG:
+        print "Disabling Caching"
+    # Feels filthy using the global keyword,
+    # but I can't figure another way to ensure that
+    # the code gets called and overwrites the outer scope
+    global CACHE
+    CACHE = CacheTree(CacheStorage(), BlockingNode)
+
+config.add_option("NO-CACHE", default = None, action = 'callback',
+                  callback = disable_caching,
+                  help = "Disable caching")
 
 class CacheDecorator(object):
     """ This decorator will memoise a function in the cache """
