@@ -59,7 +59,7 @@ class CacheNode:
 
 In order to check the cache, plugins issue the Cache.Check() function:
 
-def Check(url, callback = None, cache_node_class = CacheNode):
+def Check(path, callback = None, cls = CacheNode):
     ''' Traverse the cache tree and retrieve the stored CacheNode.
 
     If there is no such stored CacheNode and callback is specified,
@@ -207,8 +207,19 @@ default_cache_location = os.environ.get("XDG_CACHE_HOME") or os.environ.get("TEM
 config.add_option("CACHE-DIRECTORY", default=default_cache_location,
                   help = "Directory where cache files are stored")
 
-config.add_option("NO-CACHE", default = False , action = 'store_true',
-                  help = "Disables caching")
+def disable_caching(_option, _opt_str, _value, _parser):
+    """Turns off caching by replacing the tree with one that only takes BlockingNodes"""
+    if config.DEBUG:
+        print "Disabling Caching"
+    # Feels filthy using the global keyword,
+    # but I can't figure another way to ensure that
+    # the code gets called and overwrites the outer scope
+    global CACHE
+    CACHE = CacheTree(CacheStorage(), BlockingNode)
+
+config.add_option("NO-CACHE", default = None, action = 'callback',
+                  callback = disable_caching,
+                  help = "Disable caching")
 
 class CacheNode(object):
     """ Base class for Cache nodes """
@@ -273,11 +284,13 @@ class CacheTree(object):
     def __init__(self, storage = None, cls = CacheNode):
         self.storage = storage
         self.cls = cls
-        if config.NO_CACHE:
-            self.cls = BlockingNode
         self.root = self.cls('', '', storage = storage)
 
     def __getitem__(self, path):
+        """Pythonic interface to the cache"""
+        return self.check(path, cls = self.cls)
+        
+    def check(self, path, callback = None, cls = CacheNode):
         """ Retrieves the node at the path specified """
         ## Normalise the path
         path = urlparse.urljoin(config.LOCATION + "/", path)
@@ -293,8 +306,12 @@ class CacheTree(object):
                     next_stem = '/'.join((current.stem, e))
                 else:
                     next_stem = e
-
-                node = self.cls(e, next_stem, storage=self.storage)
+                
+                payload = None
+                if callback is not None:
+                    payload = callback()
+                
+                node = cls(e, next_stem, storage=self.storage, payload = payload)
 
                 current = node
 
