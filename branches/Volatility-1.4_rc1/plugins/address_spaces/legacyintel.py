@@ -252,6 +252,9 @@ class IA32PagedMemory(standard.WritablePagedMemory, addrspace.BaseAddressSpace):
         (longval, ) =  struct.unpack('=L', string)
         return longval
 
+    def __eq__(self, other):
+        return addrspace.BaseAddressSpace.__eq__(self, other) and self.astype == other.astype
+
     def get_available_pages(self):
         pgd_curr = self.pgd_vaddr
         for i in range(0, ptrs_per_pgd):

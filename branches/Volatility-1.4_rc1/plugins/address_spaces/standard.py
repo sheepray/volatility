@@ -132,6 +132,11 @@ class FileAddressSpace(addrspace.BaseAddressSpace):
             return False
         return True
 
+    def __eq__(self, other):
+        return self.base == other.base and self.fname == other.fname
+
+
+
 class PagedMemory(addrspace.BaseAddressSpace):
     """ Class to handle all the associated details of a paged address space
         

@@ -179,6 +179,7 @@ class memmap(dlllist):
             else:
                 outfd.write("Unable to read pages for task.\n")
 
+    @CacheDecorator("test/memmap")
     def calculate(self):
         tasks = self.filter_tasks(dlllist.calculate(self))
 
