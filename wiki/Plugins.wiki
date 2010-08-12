@@ -12,7 +12,7 @@ A list of known Volatility plugins.
 ||kpcrscan||Bradley Schatz||[http://code.google.com/p/volatility/source/browse/branches/Volatility-1.4_rc1/plugins/internal/kpcrscan.py url]||Finds potential KPCR addresses||.||.||.||
 ||bioskbd||AB & MA||[http://code.google.com/p/volatility/source/browse/branches/Volatility-1.4_rc1/plugins/bioskbd.py url]||Reads the keyboard buffer from Real Mode memory||.||.||Yes||
 ||verinfo||MA||[http://code.google.com/p/volatility/source/browse/branches/Volatility-1.4_rc1/plugins/internal/verinfo.py url]||Prints out the version information from PE images||.||.||NO||
-||dllpatch||MA||[http://code.google.com/p/volatility/source/browse/branches/Volatility-1.4_rc1/plugins/internal/patcher.py url]||Patches DLLs based on page scans||.||.||Yes||
+||patcher||MA||[http://code.google.com/p/volatility/source/browse/branches/Volatility-1.4_rc1/plugins/internal/patcher.py url]||Patches memory based on page scans||.||.||Yes||
 ||psscan3||Moyix||[http://www.cc.gatech.edu/~brendan/volatility/dl/psscan3.py url]||[http://moyix.blogspot.com/2010/07/plugin-post-robust-process-scanner.html Scans the physical address space looking for memory resident data structures associated with processes.]||.||.|| Yes ||
 ||volshell||Moyix||[http://moyix.blogspot.com/2008/08/indroducing-volshell.html url]||[http://moyix.blogspot.com/2008/08/indroducing-volshell.html Creates a python shell can be used with the framework]||.||.||No||
 ||IDT||MHL||[http://mhl-malware-scripts.googlecode.com/files/idt.py url]||[http://mnin.blogspot.com/2009/07/new-and-updated-volatility-plug-ins.html Prints the Interrupt Descriptor Table (IDT) addresses for one processor]||.||.||Yes||
@@ -38,3 +38,52 @@ A list of known Volatility plugins.
 ||suspicious||JesseK||[http://jessekornblum.com/tools/volatility/suspicious.py url]||Identify suspicious processes. This version counts any command line running Truecrypt or any command line that starts with a lower case drive letter as suspicious||.||.||No||
 ||pstree||Scudette||[http://scudette.blogspot.com/2008/10/pstree-volatility-plugin.html url]||[http://scudette.blogspot.com/2008/10/pstree-volatility-plugin.html Produces a tree-style listing of processes]||.||.||Yes||
 ||sqlite3||Gleeda||[http://jls-scripts.googlecode.com/files/vol_sql-0.2.tgz url]||[http://gleeda.blogspot.com/2010/01/volatilitys-output-rendering-functions.html Allows one to place Volatility output into a SQLite3 Database]||.||.||As example||
+
+----
+
+= Existing 1.4 plugins =
+
+||Plugin||Description||Primary Maintainer||Core Vote||
+||bioskbd||Reads the keyboard buffer from Real Mode memory||MA||Yes||
+||connections||Print list of open connections||.||.||
+||connscan2||Scan Physical memory for _TCPT_OBJECT objects (tcp connections)||.||.||
+||crashdump||Dumps the crashdump file to a raw file||.||.||
+||crashinfo||Dump crash-dump information||.||.||
+||datetime||Get date/time information for image||MA||Yes||
+||dlllist||Print list of loaded dlls for each process||.||Yes||
+||driverscan||Scan for driver objects _DRIVER_OBJECT||.||.||
+||files||Print list of open files for each process||.||.||
+||filescan||Scan Physical memory for _FILE_OBJECT pool allocations||.||.||
+||getsids||Print the SIDs owning each process||moyix||Yes||
+||hashdump||Dumps passwords hashes (LM/NTLM) from memory||moyix||Yes||
+||hibdump||Dumps the hibernation file to a raw file||.||.||
+||hibinfo||Dump hibernation file information||.||.||
+||hivedump||Prints out a hive||moyix||Yes||
+||hivelist||Print list of registry hives.||moyix||Yes||
+||hivescan||Scan Physical memory for _CMHIVE objects (registry hives)||moyix||Yes||
+||ident||Identify information for the image||MA||Yes||
+||kpcrscan||Search for and dump potential KPCR values||scudette||Yes||
+||lsadump||Dump (decrypted) LSA secrets from the registry||moyix||Yes||
+||memdump||Dump the addressable memory for a process||.||.||
+||memmap||Print the memory map||.||.||
+||modscan2||Scan Physical memory for _LDR_DATA_TABLE_ENTRY objects||.||.||
+||modules||Print list of loaded modules||.||Yes||
+||mutantscan||Scan for mutant objects _KMUTANT||.||.||
+||patcher||Patches memory based on page scans||MA||Yes||
+||printkey||Print a registry key, and its subkeys and values||moyix||Yes||
+||procexedump||Dump a process to an executable file sample||.||Yes||
+||procmemdump||Dump a process to an executable memory sample||.||Yes||
+||pslist||print all running processes by following the EPROCESS lists||.||Yes||
+||psscan||Scan Physical memory for _EPROCESS objects||.||Yes||
+||pstree||Print process list as a tree||.||Yes||
+||regobjkeys||Print list of open regkeys for each process||MA||.||
+||sockets||Print list of open sockets||.||.||
+||sockscan||Scan Physical memory for _ADDRESS_OBJECT objects (tcp sockets)||.||.||
+||ssdt||Display SSDT entries||moyix||Yes||
+||strings||Match physical offsets to virtual addresses (may take a while, VERY verbose)||.||.||
+||thrdscan||Scan Physical memory for _ETHREAD objects||.||.||
+||thrdscan2||Scan physical memory for _ETHREAD objects||.||.||
+||vaddump||Dumps out the vad sections to a file||.||.||
+||vadinfo||Dump the VAD info||.||.||
+||vadtree||Walk the VAD tree and display in tree format||.||.||
+||vadwalk||Walk the VAD tree||.||.||
