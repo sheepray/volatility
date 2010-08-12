@@ -207,6 +207,9 @@ default_cache_location = os.environ.get("XDG_CACHE_HOME") or os.environ.get("TEM
 config.add_option("CACHE-DIRECTORY", default=default_cache_location,
                   help = "Directory where cache files are stored")
 
+config.add_option("NO-CACHE", default = False , action = 'store_true',
+                  help = "Disables caching")
+
 class CacheNode(object):
     """ Base class for Cache nodes """
     def __init__(self, name, stem, storage = None, payload = None):
@@ -219,7 +222,7 @@ class CacheNode(object):
         self.stem = stem
 
     def __getitem__(self, item = ''):
-        item_url = "%s/%s" % (self.stem, item)
+        item_url = "{0}/{1}".format(self.stem, item)
 
         ## Try to load it from the storage manager
         try:
@@ -251,7 +254,7 @@ class CacheNode(object):
 
 class BlockingNode(CacheNode):
     """Node that fails on all cache attempts and no-ops on cache storage attempts"""
-    def __init__(self, name, stem, _storage = None, _payload = None):
+    def __init__(self, name, stem, storage = None, payload = None):
         CacheNode.__init__(self, name, stem, None, None)
 
     def __getitem__(self, item = ''):
@@ -270,6 +273,8 @@ class CacheTree(object):
     def __init__(self, storage = None, cls = CacheNode):
         self.storage = storage
         self.cls = cls
+        if config.NO_CACHE:
+            self.cls = BlockingNode
         self.root = self.cls('', '', storage = storage)
 
     def __getitem__(self, path):
@@ -314,7 +319,7 @@ class CacheStorage(object):
         if url.startswith(config.LOCATION):
             path = os.path.normpath(url[len(config.LOCATION):])
         else:
-            raise RuntimeError("Storing non relative URLs is not supported now (%s) " % url)
+            raise RuntimeError("Storing non relative URLs is not supported now ({0})".format(url))
 
         path = "/".join((config.CACHE_DIRECTORY, os.path.basename(config.LOCATION) + ".cache", path)) + '.pickle'
         parsed = urlparse.urlparse(path)
@@ -326,7 +331,8 @@ class CacheStorage(object):
     def load(self, url):
         filename = self.filename(url)
 
-        print "Loading from %s" % filename
+        if config.DEBUG:
+            print "CACHE: Loading from {0}".format(filename)
         data = open(filename).read()
 
         return pickle.loads(data)
@@ -334,7 +340,8 @@ class CacheStorage(object):
     def dump(self, url, payload):
         filename = self.filename(url)
 
-        print "Dumping filename %s" % filename
+        if config.DEBUG:
+            print "CACHE: Dumping filename {0}".format(filename)
         ## Check that the directory exists
         directory = os.path.dirname(filename)
         if not os.access(directory, os.R_OK | os.W_OK | os.X_OK):
@@ -343,7 +350,6 @@ class CacheStorage(object):
         fd = open(filename, 'w')
         pickle.dump(payload, fd)
         fd.close()
-
 
 CACHE = CacheTree(CacheStorage())
 
