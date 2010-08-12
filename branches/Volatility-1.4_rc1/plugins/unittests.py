@@ -1,4 +1,3 @@
-import volatility.commands as commands
 import volatility.conf as conf
 config = conf.ConfObject()
 
@@ -8,7 +7,7 @@ import sys
 
 class TestNode(cache.CacheNode):
     """ A CacheNode for implementing unit tests """
-    def __getitem__(self, item):
+    def __getitem__(self, item = ''):
         raise KeyError("Cache miss forced for unit tests")
 
     def dump(self):
@@ -32,12 +31,12 @@ Droping to a debugging shell....
         else:
             print "\n\nTest Passed....\n"
 
-config.add_option("UNIT_TEST", default=False , action = 'store_true',
-                  help = "Enable unit tests for this module")
-
-class UnitTestEvents(commands.EventHandler):
-    def startup(self):
+def enable_unittestevents(_option, _opt_str, _value, _parser):
+    """Enables the unit tests"""
         ## If this option was specified we force all nodes to be TestNodes
-        if config.UNIT_TEST:
-            print "Setting CacheNodes to TestNodes"
-            cache.CACHE = cache.CacheTree(cache.CacheStorage(), cls = TestNode)
+    print "Setting CacheNodes to TestNodes"
+    cache.CACHE = cache.CacheTree(cache.CacheStorage(), cls = TestNode)
+
+config.add_option("UNIT-TEST", default = None , action = 'callback',
+                  callback = enable_unittestevents,
+                  help = "Enable unit tests for this module")

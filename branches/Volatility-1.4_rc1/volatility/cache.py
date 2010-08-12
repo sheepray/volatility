@@ -204,7 +204,7 @@ config = conf.ConfObject()
 ## Where to stick the cache
 default_cache_location = os.environ.get("XDG_CACHE_HOME") or os.environ.get("TEMP") or "/tmp/"
 
-config.add_option("CACHE_DIRECTORY", default=default_cache_location,
+config.add_option("CACHE-DIRECTORY", default=default_cache_location,
                   help = "Directory where cache files are stored")
 
 class CacheNode(object):
