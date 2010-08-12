@@ -66,7 +66,7 @@ A list of known Volatility plugins.
 ||lsadump||Dump (decrypted) LSA secrets from the registry||moyix||Yes||
 ||memdump||Dump the addressable memory for a process||.||Yes||
 ||memmap||Print the memory map||.||Yes||
-||modscan2||Scan Physical memory for _LDR_DATA_TABLE_ENTRY objects||.||.||
+||modscan2||Scan Physical memory for _LDR_DATA_TABLE_ENTRY objects||.||Yes||
 ||modules||Print list of loaded modules||MA||.||
 ||mutantscan||Scan for mutant objects _KMUTANT||.||.||
 ||patcher||Patches memory based on page scans||MA||Yes||
@@ -75,7 +75,7 @@ A list of known Volatility plugins.
 ||procmemdump||Dump a process to an executable memory sample||.||Yes||
 ||pslist||print all running processes by following the EPROCESS lists||.||Yes||
 ||psscan||Scan Physical memory for _EPROCESS objects||.||Yes||
-||pstree||Print process list as a tree||.||Yes||
+||pstree||Print process list as a tree||scudette||Yes||
 ||regobjkeys||Print list of open regkeys for each process||MA||.||
 ||sockets||Print list of open sockets||.||Yes||
 ||sockscan||Scan Physical memory for _ADDRESS_OBJECT objects (tcp sockets)||.||Yes||
