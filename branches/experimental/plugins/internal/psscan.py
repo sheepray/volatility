@@ -1,6 +1,7 @@
 # Volatility
-# Copyright (C) 2008 Volatile Systems
-# Copyright (c) 2008 Brendan Dolan-Gavitt <bdolangavitt@wesleyan.edu>
+#
+# Authors:
+# Michael Cohen <scudette@users.sourceforge.net>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,9 +21,9 @@
 """
 This module implements the slow thorough process scanning
 
-@author:       AAron Walters and Brendan Dolan-Gavitt
+@author:       Michael Cohen
 @license:      GNU General Public License 2.0 or later
-@contact:      awalters@volatilesystems.com,bdolangavitt@wesleyan.edu
+@contact:      scudette@users.sourceforge.net
 @organization: Volatile Systems
 """
 
