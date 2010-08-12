@@ -27,7 +27,6 @@
 """
 
 #pylint: disable-msg=C0111
-import pdb
 import sys
 if __name__ == '__main__':
     sys.path.append(".")
@@ -350,13 +349,11 @@ class BaseObject(object):
         return result
 
     def __eq__(self, other):
-        return (self.__class__ == other.__class__) and (self.offset == other.offset) \
-            and (self.vm == other.vm)
+        return self.v() == other or ((self.__class__ == other.__class__) and 
+                                     (self.offset == other.offset) and (self.vm == other.vm))
 
     def __hash__(self):
-        try:
             return hash(self.name) ^ hash(self.offset)
-        except: pdb.set_trace()
 
     def has_member(self, memname):
         return False
