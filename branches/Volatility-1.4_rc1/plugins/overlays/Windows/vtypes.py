@@ -848,6 +848,10 @@ xpsp2types = { \
 # files, collecting debugging symbol data etc. This file defines
 # fixups and improvements to the standard types.
 xpsp2overlays = {
+    'VOLATILITY_CONSTANTS' : [None, { \
+    'DTBSignature' : [ 0x0, ['VolatilityConstant', dict(value="\x03\x00\x1b\x00")]]
+    }],
+    
     '_EPROCESS' : [ None, { \
     'CreateTime' : [ None, ['WinTimeStamp', {}]],
     'ExitTime' : [ None, ['WinTimeStamp', {}]], 

@@ -44,6 +44,8 @@ win7sp0x86overlays['_CONTROL_AREA'][1]['Flags'][0] =  lambda x: x['u'][0]
 win7sp0x86overlays['_MMVAD_LONG'][1]['Flags'][0] =  lambda x: x['u'][0] 
 win7sp0x86overlays['_MMVAD_LONG'][1]['Flags2'][0] =  lambda x: x['u'][0] 
 
+win7sp0x86overlays['VOLATILITY_CONSTANTS'][1]['DTBSignature'][1] = ['VolatilityConstant', dict(value="\x03\x00\x26\x00")]
+
 win7_sp0_x86_vtypes.ntkrpamp_types.update(crashdump.crash_vtypes)
 win7_sp0_x86_vtypes.ntkrpamp_types.update(hibernate_vtypes.hibernate_vtypes)
 

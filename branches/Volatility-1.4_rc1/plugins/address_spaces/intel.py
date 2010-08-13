@@ -165,7 +165,8 @@ class JKIA32PagedMemory(standard.WritablePagedMemory, addrspace.BaseAddressSpace
             while 1:
                 # This value is specific to x86 Windows XP and must
                 # updated for other operating systems
-                found = data.find("\x03\x00\x1b\x00", found+1)
+                constants = obj.Object('VOLATILITY_CONSTANTS', 0x0, self)
+                found = data.find(str(constants.DTBSignature), found+1)
                 if found >= 0:
                     # (_type, _size) = unpack('=HH', data[found:found+4])
                     proc = obj.Object("_EPROCESS",

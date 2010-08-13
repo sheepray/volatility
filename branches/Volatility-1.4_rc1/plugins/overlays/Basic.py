@@ -137,3 +137,35 @@ class Enumeration(obj.NativeType):
 
     def __format__(self, formatspec):
         return format(self.__str__(), formatspec)
+    
+class VolatilityConstant(obj.BaseObject):
+    """Class to contain Volatility Constants"""
+    
+    def __init__(self, theType, offset, vm, parent=None, value = "", name=None):
+        try:
+            obj.BaseObject.__init__(self, theType, offset, vm, parent, name)
+        except obj.InvalidOffsetError:
+            pass
+        self.value = value
+        
+    def v(self):
+        return self.value
+    
+    def __str__(self):
+        return self.v()
+    
+class VOLATILITY_CONSTANTS(obj.CType):
+    """Class representing a VOLATILITY_CONSTANT namespace
+    
+       Needed to ensure that the address space is not verified as valid for constants
+    """
+    def __init__(self, theType, offset, vm, parent=None, members=None, name=None, size=0):
+        try:
+            obj.CType.__init__(self, theType, offset, vm, parent=parent, members=members, name=name, size=size)
+        except obj.InvalidOffsetError:
+            # The exception will be raised before this point,
+            # so we must finish off the CType's __init__ ourselves
+            self.members = members
+            self.offset = offset
+            self.struct_size = size
+            self.__initialized = True

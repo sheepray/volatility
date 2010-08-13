@@ -251,6 +251,10 @@ class NoneObject(object):
     def __call__(self, *arg, **kwargs):
         return self
 
+class InvalidOffsetError(Exception):
+    """Simple placeholder to identify invalid offsets"""
+    pass
+
 def Object(theType, offset, vm, parent=None, name=None, **kwargs):
     """ A function which instantiates the object named in theType (as
     a string) from the type in profile passing optional args of
@@ -259,25 +263,25 @@ def Object(theType, offset, vm, parent=None, name=None, **kwargs):
     name = name or theType
     offset = int(offset)
 
-    ## If we cant instantiate the object here, we just error out:
-    if not vm.is_valid_address(offset):
+    try:
+        if theType in vm.profile.types:
+            result = vm.profile.types[theType](offset=offset, vm=vm, name=name,
+                                               parent=parent)
+            return result
+        
+    
+        # Need to check for any derived object types that may be 
+        # found in the global memory registry.
+        if theType in MemoryRegistry.OBJECT_CLASSES.objects:
+            return MemoryRegistry.OBJECT_CLASSES[theType](
+                theType,
+                offset,
+                vm = vm, parent=parent, name=name,
+                **kwargs)
+    except InvalidOffsetError:
+        ## If we cant instantiate the object here, we just error out:
         return NoneObject("Invalid Address 0x{0:08X}, instantiating {1}".format(offset, name),
                           strict=vm.profile.strict)
-
-    if theType in vm.profile.types:
-        result = vm.profile.types[theType](offset=offset, vm=vm, name=name,
-                                           parent=parent)
-        return result
-    
-
-    # Need to check for any derived object types that may be 
-    # found in the global memory registry.
-    if theType in MemoryRegistry.OBJECT_CLASSES.objects:
-        return MemoryRegistry.OBJECT_CLASSES[theType](
-            theType,
-            offset,
-            vm = vm, parent=parent, name=name,
-            **kwargs)
 
     ## If we get here we have no idea what the type is supposed to be?
     ## This is a serious error.
@@ -291,6 +295,9 @@ class BaseObject(object):
         self.offset = offset
         self.name = name
         self.theType = theType
+        
+        if not self.vm.is_valid_address(self.offset):
+            raise InvalidOffsetError("Invalid Address 0x{0:08X}, instantiating {1}".format(offset, name))
 
     def rebase(self, offset):
         return self.__class__(self.theType, offset, vm=self.vm)
@@ -797,6 +804,11 @@ class Profile:
         self.overlayDict = {}
         self.strict = strict
         
+        # Ensure VOLATILITY_CONSTANTS is always present in every profile
+        # That way, we can still autogenerate types, and put VOLATILITY_CONSTANTS in overlays
+        # Otherwise the overlay won't have anything to, well, over lay.
+        self.abstract_types['VOLATILITY_CONSTANTS'] = [0x0, {}]
+        
         self.add_types(self.abstract_types, self.overlay)
 
     def add_types(self, abstract_types, overlay=None):
@@ -903,6 +915,8 @@ class Profile:
         """ Returns a members offset within the struct """
         class dummy:
             profile = self
+            def is_valid_address(self, _offset):
+                return True
         tmp = self.types[name](name, dummy())
         offset, _cls = tmp.members[member]
         
@@ -912,6 +926,8 @@ class Profile:
         """Returns the size of a struct"""
         class dummy:
             profile = self
+            def is_valid_address(self, _offset):
+                return True
         tmp = self.types[name](name, dummy())
         return tmp.size()
 
