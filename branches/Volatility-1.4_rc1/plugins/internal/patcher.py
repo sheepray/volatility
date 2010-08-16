@@ -179,6 +179,9 @@ class patcher(commands.command):
 
     def parse_patchfile(self):
         """Parses the patch XML data"""
+        if not config.WRITE:
+            print "Warning: WRITE support not enabled, no patching will occur"
+        
         if config.XML_INPUT is None:
             config.error("No XML input file was specified")
         try:
