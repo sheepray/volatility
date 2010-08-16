@@ -37,6 +37,7 @@ import volatility.obj as obj
 import volatility.debug as debug #pylint: disable-msg=W0611
 config = conf.ConfObject()
 from volatility.cache import CacheDecorator
+import volatility.cache as cache
 
 class DispatchHeaderCheck(scan.ScannerCheck):
     """ A very fast check for an _EPROCESS.Pcb.Header.
@@ -216,7 +217,7 @@ class PSScan(scan.DiscontigScanner):
                ("CheckSynchronization", {})
                ]
 
-class psscan(commands.command):
+class psscan(cache.Testable):
     """ Scan Physical memory for _EPROCESS objects"""
 
     # Declare meta information associated with this plugin

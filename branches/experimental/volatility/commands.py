@@ -82,6 +82,13 @@ class command(object):
         ui = registry.UI_RENDERERS["xml"](outfd)
         return self.render(data, ui)
 
+    def test(self):
+      """ This method is called when the unit tests are run.
+
+      You would typically do nothing if you dont want a unit test to
+      run on this command or else call self.execute().
+      """
+
     def execute(self):
         """ Executes the plugin command."""
         ## Executing plugins is done in two stages - first we calculate
@@ -92,7 +99,7 @@ class command(object):
         function_name = "render_{0}".format(config.OUTPUT)
         if config.OUTPUT_FILE:
             outfd = open(config.OUTPUT_FILE,'w')
-            # TODO: We should probably check that this won't blat over an existing file 
+            # TODO: We should probably check that this won't blat over an existing file
         else:
             outfd = sys.stdout
 

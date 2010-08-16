@@ -235,10 +235,10 @@ class CacheNode:
 
         ## Try to load it from the storage manager
         try:
-            result = self.storage.load(item_url)
-            if result: return result
+          result = self.storage.load(item_url)
+          if result: return result
         except Exception, e:
-            pass
+          raise KeyError("%r: %s" % (e,e))
 
         ## Make a new empty Node instead on demand
         raise KeyError("item not found")
@@ -247,9 +247,21 @@ class CacheNode:
         ''' Produce a human readable version of the payload. '''
         return ''
 
+    def flatten_generators(self, item):
+      """ A recursive function to flatten generators into lists """
+      try:
+        result = []
+        for x in iter(item):
+          flat_x = self.flatten_generators(x)
+          result.append(flat_x)
+
+        return result
+      except TypeError:
+        return item
+
     def set_payload(self, payload):
         ''' Update the current payload with the new specified payload '''
-        self.payload = payload
+        self.payload = self.flatten_generators(payload)
 
     def dump(self):
         ''' Dump the node to disk for later retrieval. This is
@@ -335,8 +347,10 @@ class CacheStorage:
         if not os.access(directory, os.R_OK | os.W_OK | os.X_OK):
             os.makedirs(directory)
 
+        ## Ensure that the payload is flattened - i.e. all generators are converted to lists for pickling
+        data = pickle.dumps(payload)
         fd = open(filename, 'w')
-        pickle.dump(payload, fd)
+        fd.write(data)
         fd.close()
 
 
@@ -347,7 +361,7 @@ class CacheDecorator:
     def __init__(self, path):
         self.path = path
 
-    def generate(self, g):
+    def generate(self, path, g):
         """ Special handling for generators. We pass each iteration
         back immediately, and keep it in a list. Note that if the
         generator is aborted, the cache is not dumped.
@@ -357,28 +371,42 @@ class CacheDecorator:
             payload.append(x)
             yield x
 
-        self.dump(payload)
+        self.dump(path, payload)
 
-    def dump(self, payload):
-        self.node = CACHE[self.path]
-        self.node.set_payload(payload)
-        self.node.dump()
+    def dump(self, path, payload):
+      self.node = CACHE[path]
+      self.node.set_payload(payload)
+      self.node.dump()
 
     def __call__(self, f):
         def wrapper(s, *args, **kwargs):
-            ## Check if the result can be retrieved
-            self.node = CACHE[self.path]
-            if self.node.payload:
-                return self.node.payload
+          ## Interpolate the path
+          path = self.path % dict(class_name = s.__class__.__name__)
 
-            result = f(s, *args, **kwargs)
+          ## Check if the result can be retrieved
+          self.node = CACHE[path]
+          if self.node.payload:
+            return self.node.payload
 
-            ## If the wrapped function is a generator we need to
-            ## handle it especially
-            if type(result) == types.GeneratorType:
-                return self.generate(result)
+          result = f(s, *args, **kwargs)
 
-            self.dump(result)
-            return result
+          ## If the wrapped function is a generator we need to
+          ## handle it especially
+          if type(result) == types.GeneratorType:
+            return self.generate(path, result)
+
+          self.dump(path, result)
+          return result
 
         return wrapper
+
+import volatility.commands as commands
+class Testable(commands.command):
+  """ This is a mixin that makes a class response to the unit tests """
+
+  ## This forces the test to be memoised with a key name derived from the class name
+  @CacheDecorator("tests/unittests/%(class_name)s")
+  def test(self):
+    ## This forces iteration over all keys - this is required in order
+    ## to flatten the full list for the cache
+    return [ x for x in self.calculate() ]

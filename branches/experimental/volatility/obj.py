@@ -41,6 +41,7 @@ import volatility.addrspace as addrspace
 import volatility.debug as debug
 import volatility.conf as conf
 config = conf.ConfObject()
+import pickle
 
 class Curry:
     """ This class makes a curried object available for simple inlined functions.
@@ -124,12 +125,12 @@ class FormatSpec(object):
     def from_string(self, formatspec):
         # Format specifier regular expression
         regexp = "\A(.[<>=^]|[<>=^])?([-+ ]|\(\))?(#?)(0?)(\d*)(\.\d+)?(.)?\Z"
-    
+
         match = re.search(regexp, formatspec)
-        
+
         if match is None:
             raise ValueError("Invalid format specification")
-        
+
         if match.group(1):
             fillalign = match.group(1)
             if len(fillalign) > 1:
@@ -165,7 +166,7 @@ class FormatSpec(object):
         if self.precision >= 0:
             formatspec += '.' + str(self.precision)
         formatspec += self.formtype
-    
+
         return formatspec
 
     def __str__(self):
@@ -206,7 +207,7 @@ class NoneObject(object):
     def __format__(self, formatspec):
         spec = FormatSpec(string=formatspec, fill="-", align=">")
         return format('-', str(spec))
-    
+
     def next(self):
         raise StopIteration()
 
@@ -263,16 +264,15 @@ def Object(theType, offset, vm, parent=None, name=None, **kwargs):
 
     ## If we cant instantiate the object here, we just error out:
     if not vm.is_valid_address(offset):
-        return NoneObject("Invalid Address 0x{0:08X}, instantiating {1}".format(offset, name),
-                          strict=vm.profile.strict)
+      return NoneObject("Invalid Address 0x{0:08X}, instantiating {1}".format(offset, name),
+                        strict=vm.profile.strict)
 
     if theType in vm.profile.types:
         result = vm.profile.types[theType](offset=offset, vm=vm, name=name,
                                            parent=parent)
         return result
-    
 
-    # Need to check for any derived object types that may be 
+    # Need to check for any derived object types that may be
     # found in the global memory registry.
     if theType in MemoryRegistry.OBJECT_CLASSES.objects:
         return MemoryRegistry.OBJECT_CLASSES[theType](
@@ -439,6 +439,8 @@ class BaseObject(object):
         #pdb.set_trace()
         ## What we want to do here is to instantiate a new object and then copy it into ourselves
         new_object = Object(state['theType'], state['offset'], state['vm'], name = state['name'])
+        if not new_object:
+          raise pickle.UnpicklingError("Object %(name)s at 0x%(offset)08X invalid" % state)
 
         ## (Scudette) Im not sure how much of a hack this is - we
         ## basically take over all the new object's members. This is
@@ -464,11 +466,11 @@ def CreateMixIn(mixin):
                 args = [proxied] + args
             except AttributeError:
                 method = getattr(proxied, name)
-            
+
             return method(*args, **kw)
-        
+
         return method
-    
+
     for name in mixin._specials:
         setattr(mixin, name, make_method(name))
 
@@ -486,7 +488,7 @@ class NumericProxyMixIn(object):
 
         ## Comparisons
         '__lt__', '__le__', '__eq__', '__ne__', '__ge__', '__gt__', '__index__',
-        
+
         ## Formatting
         '__format__',
         ]
@@ -663,7 +665,6 @@ class Array(BaseObject):
         ## This method is better than the __iter__/next method as it
         ## is reentrant
         for position in range(0, self.count):
-            
             ## We don't want to stop on a NoneObject.  Its
             ## entirely possible that this array contains a bunch of
             ## pointers and some of them may not be valid (or paged
@@ -683,7 +684,7 @@ class Array(BaseObject):
             else:
                 yield NoneObject("Array {0}, Invalid position {1}".format(self.name, position),
                                  self.profile.strict)
-        
+
     def __repr__(self):
         result = [ x.__str__() for x in self ]
         return "<Array {0}>".format(",".join(result))
@@ -695,13 +696,13 @@ class Array(BaseObject):
     def __eq__(self, other):
         if self.count != len(other):
             return False
-        
+
         for i in range(self.count):
             if not self[i] == other[i]:
                 return False
 
         return True
-    
+
     def __getitem__(self, pos):        
         ## Check if the offset is valid
         offset = self.original_offset + \
@@ -723,17 +724,18 @@ class CType(BaseObject):
         if not members:
             raise RuntimeError()
 
-        BaseObject.__init__(self, theType, offset, vm, parent=parent, name=name)
         self.members = members
         self.offset = offset
         self.struct_size = size
+        BaseObject.__init__(self, theType, offset, vm, parent=parent, name=name)
+
         self.__initialized = True
 
     def size(self):
         return self.struct_size
 
     def __repr__(self):
-        return "[{0} {1}] @ 0x{2:08X}".format(self.__class__.__name__, self.name or '', 
+        return "[{0} {1}] @ 0x{2:08X}".format(self.__class__.__name__, self.name or '',
                                      self.offset)
     def d(self):
         result = self.__repr__() + "\n"
@@ -795,7 +797,7 @@ class CType(BaseObject):
                     raise ValueError("Error writing value to member " + attr)
         # If you hit this, consider using obj.newattr('attr', value)
         raise ValueError("Attribute " + attr + " was set after object initialization")
-    
+
 ## Profiles are the interface for creating/interpreting
 ## objects
 
@@ -807,13 +809,13 @@ class Profile:
     native_types = {}
     abstract_types = {}
     overlay = {}
-    
+
     def __init__(self, strict=False):
         self.types = {}
         self.typeDict = {}
         self.overlayDict = {}
         self.strict = strict
-        
+
         self.add_types(self.abstract_types, self.overlay)
 
     def add_types(self, abstract_types, overlay=None):
@@ -836,7 +838,7 @@ class Profile:
             original[1].update(v[1])
             if v[0]:
                 original[0] = v[0]
-                
+
             self.overlayDict[k] = original
 
         # Load the native types
@@ -851,7 +853,7 @@ class Profile:
             ## deep copy:
             self.types[name] = self.convert_members(
                 name, self.typeDict, copy.deepcopy(self.overlayDict))
-        
+
     def list_to_type(self, name, typeList, typeDict=None):
         """ Parses a specification list and returns a VType object.
 
@@ -860,7 +862,7 @@ class Profile:
         """
         ## This supports plugin memory objects:
         #if typeList[0] in MemoryRegistry.OBJECT_CLASSES.objects:
-        #    print "Using plugin for %s" % 
+        #    print "Using plugin for %s" %
 
         try:
             args = typeList[1]
@@ -882,7 +884,7 @@ class Profile:
                 target = typeList[1]
             except IndexError:
                 raise RuntimeError("Syntax Error in pointer type defintion for name {0}".format(name))
-            
+
             return Curry(Pointer, None,
                          name = name,
                          target=self.list_to_type(name, target, typeDict))
@@ -907,7 +909,7 @@ class Profile:
                 args = typeList[1]
             except IndexError:
                 args = {}
-            
+
             obj_name = typeList[0]
             return Curry(Object, obj_name, name=name, **args)
 
@@ -922,7 +924,7 @@ class Profile:
             profile = self
         tmp = self.types[name](name, dummy())
         offset, _cls = tmp.members[member]
-        
+
         return offset
 
     def get_obj_size(self, name):
@@ -946,7 +948,7 @@ class Profile:
                     overlay[k] = v
                 else:
                     overlay[k] = self.apply_overlay(v, overlay[k])
-                    
+
         elif type(overlay)==list:
             if len(overlay) != len(type_member):
                 return overlay
@@ -958,14 +960,14 @@ class Profile:
                     overlay[i] = self.apply_overlay(type_member[i], overlay[i])
 
         return overlay
-        
+
     def convert_members(self, cname, typeDict, overlay):
         """ Convert the member named by cname from the c description
         provided by typeDict into a list of members that can be used
         for later parsing.
 
         cname is the name of the struct.
-        
+
         We expect typeDict[cname] to be a list of the following format
 
         [ Size of struct, members_dict ]
@@ -978,7 +980,7 @@ class Profile:
 
         The specification list has the form specified by self.list_to_type() above.
 
-        We return a list of CTypeMember objects. 
+        We return a list of CTypeMember objects.
         """
         ctype = self.apply_overlay(typeDict[cname], overlay.get(cname))
         members = {}
@@ -994,8 +996,8 @@ class Profile:
             cls = MemoryRegistry.OBJECT_CLASSES[cname]
         else:
             cls = CType
-        
-        return Curry(cls, cls, members=members, size=size)
+
+        return Curry(cls, cname, members=members, size=size)
 
 if __name__ == '__main__':
     ## If called directly we run unit tests on this stuff
@@ -1011,7 +1013,7 @@ if __name__ == '__main__':
             test_data = "hello world"
             address_space = addrspace.BufferAddressSpace(data=test_data)
             o = Object('String', offset=0, vm=address_space, length=len(test_data))
-            
+
             print o.find("world"), o.upper(), o.lower()
 
             o = Object('unsigned int', offset=0, vm=address_space, length=len(test_data))
@@ -1034,7 +1036,7 @@ if __name__ == '__main__':
             self.assertEqual(o >> 2, O >> 2)
             self.assertEqual(o / 3, O / 3)
             self.assertEqual(float(o), float(O))
-            
+
             print o, o+5, o * 2, o / 2, o << 3, o & 0xFF, o + o
 
         def test01SimpleStructHandling(self):
@@ -1050,7 +1052,7 @@ if __name__ == '__main__':
             test_data = "ABAD\x06\x00\x00\x00\x02\x00\xff\xff"
             address_space = addrspace.BufferAddressSpace(data=test_data)
             address_space.profile.add_types(mytype)
-            
+
             o = Object('HEADER', offset=0, vm=address_space)
             ## Can we decode ints?
             self.assertEqual(o.Size.v(), 6)
@@ -1058,7 +1060,7 @@ if __name__ == '__main__':
             self.assertEqual(o.Size + 6, 12)
             self.assertEqual(o.Size - 3, 3)
             self.assertEqual(o.Size + o.Count, 8)
-            
+
             ## This demonstrates how array members print out
             print o.MAGIC[0], o.MAGIC[1]
 
@@ -1067,7 +1069,7 @@ if __name__ == '__main__':
             self.assertEqual(o.MAGIC[0], o.MAGIC[2])
             self.assertEqual(o.MAGIC, ['A', 'B', 'A'])
             self.assertEqual(o.MAGIC, 'ABA')
-            
+
             ## Iteration over arrays:
             tmp = 'ABA'
             count = 0
@@ -1094,7 +1096,7 @@ if __name__ == '__main__':
 
             address_space = addrspace.BufferAddressSpace(data=test_data)
             address_space.profile.add_types(mytype)
-            
+
             o = Object('_HANDLE_TABLE', offset=0, vm=address_space)
 
             self.assertEqual(o.TableCode, 1)
@@ -1110,6 +1112,6 @@ if __name__ == '__main__':
             ## Make sure next.prev == o
             self.assertEqual(n.HandleTableList.Blink, o)
             self.assertEqual(n.HandleTableList.Blink.TableCode, 1)
-                        
+
     suite = unittest.makeSuite(ObjectTests)
     res = unittest.TextTestRunner(verbosity=2).run(suite)

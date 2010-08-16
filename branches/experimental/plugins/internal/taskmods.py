@@ -33,11 +33,11 @@ import volatility.win32 as win32
 import volatility.obj as obj
 import volatility.utils as utils
 import volatility.registry as registry
-from volatility.cache import CacheDecorator
+from volatility.cache import CacheDecorator, Testable
 
 config = conf.ConfObject()
 
-class dlllist(commands.command):
+class dlllist(Testable):
     """Print list of loaded dlls for each process"""
 
     def __init__(self, *args):
@@ -45,7 +45,7 @@ class dlllist(commands.command):
                           help='EPROCESS Offset (in hex) in kernel address space',
                           action='store', type='int')
 
-        config.add_option('PIDS', short_option = 'p', default=None,
+        config.add_option('PID', short_option = 'p', default=None,
                           help='Operate on these Process IDs (comma-separated)',
                           action='store', type='str')
 
@@ -82,8 +82,8 @@ class dlllist(commands.command):
         Returns a reduced list or the full list if config.PIDS not specified.
         """
         try:
-            if config.PIDS:
-                pidlist = [int(p) for p in config.PIDS.split(',')]
+            if config.PID:
+                pidlist = [int(p) for p in config.PID.split(',')]
                 newtasks = [t for t in tasks if t.UniqueProcessId in pidlist]
                 # Make this a separate statement, so that if an exception occurs, no harm done
                 tasks = newtasks
