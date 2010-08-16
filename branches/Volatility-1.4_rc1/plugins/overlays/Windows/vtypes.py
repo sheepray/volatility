@@ -848,8 +848,11 @@ xpsp2types = { \
 # files, collecting debugging symbol data etc. This file defines
 # fixups and improvements to the standard types.
 xpsp2overlays = {
-    'VOLATILITY_CONSTANTS' : [None, { \
-    'DTBSignature' : [ 0x0, ['VolatilityConstant', dict(value="\x03\x00\x1b\x00")]]
+    'VOLATILITY_MAGIC' : [None, { \
+    'DTB' : [ 0x0, ['VolatilityDTB']],
+    'DTBSignature' : [ 0x0, ['VolatilityMagic', dict(value="\x03\x00\x1b\x00")]],
+    'KPCR' : [ 0x0, ['VolatilityMagic', dict(value=0xffdff000)]],
+    'KUSER_SHARED_DATA' : [ 0x0, ['VolatilityMagic', dict(value=0xFFDF0000)]],
     }],
     
     '_EPROCESS' : [ None, { \

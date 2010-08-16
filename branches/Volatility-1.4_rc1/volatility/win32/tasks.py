@@ -55,12 +55,6 @@ def pslist(addr_space):
             yield l
     else:
         raise RuntimeError("Unable to find PsActiveProcessHead - is this image supported?")
-    
-# Blocksize was chosen to make it aligned
-# on 8 bytes
-# Optimized by Michael Cohen
-
-BLOCKSIZE = 1024 * 1024 * 10
 
 def create_addr_space(kaddr_space, directory_table_base):
 

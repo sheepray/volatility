@@ -29,8 +29,6 @@ import volatility.conf
 config = volatility.conf.ConfObject()
 import volatility.debug as debug #pylint: disable-msg=W0611
 
-BLOCKSIZE = 1024 * 1024 * 10
-
 config.add_option("DTB", type='int', default=0,
                   help = "DTB Address")
 
@@ -148,39 +146,12 @@ class JKIA32PagedMemory(standard.WritablePagedMemory, addrspace.BaseAddressSpace
             return self.base.dtb
         except AttributeError:
             ## Ok so we need to find our dtb ourselves:
-            dtb = self._find_dtb()
+            volmagic = obj.Object('VOLATILITY_MAGIC', 0x0, self.base)
+            dtb = volmagic.DTB.v()
             if dtb:
                 ## Make sure to save dtb for other AS's
                 self.base.dtb = dtb
                 return dtb
-
-    def _find_dtb(self):
-        offset = 0
-        while 1:
-            data = self.base.read(offset, BLOCKSIZE)
-            found = 0
-            if not data:
-                break
-
-            while 1:
-                # This value is specific to x86 Windows XP and must
-                # updated for other operating systems
-                constants = obj.Object('VOLATILITY_CONSTANTS', 0x0, self)
-                found = data.find(str(constants.DTBSignature), found+1)
-                if found >= 0:
-                    # (_type, _size) = unpack('=HH', data[found:found+4])
-                    proc = obj.Object("_EPROCESS",
-                                             offset = offset+found,
-                                             vm=self.base)
-
-                    if 'Idle' in proc.ImageFileName.v():
-                        return proc.Pcb.DirectoryTableBase.v()
-                else:
-                    break
-
-            offset += len(data)
-        return None
-
 
     def entry_present(self, entry):
         '''

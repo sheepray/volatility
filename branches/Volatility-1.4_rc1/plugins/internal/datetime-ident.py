@@ -20,8 +20,8 @@
 
 import volatility.timefmt as timefmt
 import volatility.obj as obj
-import volatility.win32 as win32
 import volatility.utils as utils
+import volatility.win32.tasks as tasks
 import volatility.commands as commands
 import volatility.debug as debug
 
@@ -44,8 +44,10 @@ class datetime(commands.command):
     def get_image_time(self, addr_space):
         # Get the Image Datetime
         result = {}
+        volmagic = obj.Object("VOLATILITY_MAGIC", 0x0, addr_space)
+        KUSER_SHARED_DATA = volmagic.KUSER_SHARED_DATA.v()
         k = obj.Object("_KUSER_SHARED_DATA",
-                              offset=win32.info.KUSER_SHARED_DATA,
+                              offset=KUSER_SHARED_DATA,
                               vm=addr_space)
         
         result['ImageDatetime'] = k.SystemTime
@@ -101,7 +103,7 @@ class ident(datetime):
     def find_csdversion(self, addr_space):
         """Find the CDS version from an address space"""
         csdvers = {}
-        for task in win32.tasks.pslist(addr_space):
+        for task in tasks.pslist(addr_space):
             if task.Peb.CSDVersion:
                 lookup = str(task.Peb.CSDVersion)
                 csdvers[lookup] = csdvers.get(lookup, 0) + 1

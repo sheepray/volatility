@@ -713,10 +713,9 @@ class CType(BaseObject):
         if not members:
             raise RuntimeError()
 
-        BaseObject.__init__(self, theType, offset, vm, parent=parent, name=name)
         self.members = members
-        self.offset = offset
         self.struct_size = size
+        BaseObject.__init__(self, theType, offset, vm, parent=parent, name=name)
         self.__initialized = True
 
     def size(self):
@@ -804,10 +803,10 @@ class Profile:
         self.overlayDict = {}
         self.strict = strict
         
-        # Ensure VOLATILITY_CONSTANTS is always present in every profile
-        # That way, we can still autogenerate types, and put VOLATILITY_CONSTANTS in overlays
+        # Ensure VOLATILITY_MAGIC is always present in every profile
+        # That way, we can still autogenerate types, and put VOLATILITY_MAGIC in overlays
         # Otherwise the overlay won't have anything to, well, over lay.
-        self.abstract_types['VOLATILITY_CONSTANTS'] = [0x0, {}]
+        self.abstract_types['VOLATILITY_MAGIC'] = [0x0, {}]
         
         self.add_types(self.abstract_types, self.overlay)
 

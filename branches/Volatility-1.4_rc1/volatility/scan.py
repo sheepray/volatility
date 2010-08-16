@@ -35,8 +35,7 @@
 import volatility.debug as debug
 import volatility.registry as registry
 import volatility.addrspace as addrspace
-
-BLOCKSIZE = 1024*1024*10
+import volatility.constants as constants
 
 ########### Following is the new implementation of the scanning
 ########### framework. The old framework was based on PyFlag's
@@ -95,15 +94,15 @@ class BaseScanner(object):
             #if not address_space.is_valid_address(self.base_offset):
             #    break
             if (self.max_length != None):
-                l = min(BLOCKSIZE + self.overlap, self.max_length)
+                l = min(constants.SCAN_BLOCKSIZE + self.overlap, self.max_length)
             else:
-                l = BLOCKSIZE + self.overlap
+                l = constants.SCAN_BLOCKSIZE + self.overlap
 
             data = address_space.read(self.base_offset, l)
             if not data:
                 break
 
-            length = min(BLOCKSIZE, len(data))
+            length = min(constants.SCAN_BLOCKSIZE, len(data))
 
             self.buffer.assign_buffer(data, self.base_offset)
             i = 0
@@ -132,9 +131,9 @@ class BaseScanner(object):
 
                 i += skip
 
-            self.base_offset += min(BLOCKSIZE,l)
+            self.base_offset += min(constants.SCAN_BLOCKSIZE,l)
             if (self.max_length != None):
-                self.max_length -= min(BLOCKSIZE,l)
+                self.max_length -= min(constants.SCAN_BLOCKSIZE,l)
 
 class DiscontigScanner(BaseScanner):
     def scan(self, address_space, offset=0, maxlen=None):

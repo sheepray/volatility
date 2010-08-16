@@ -29,9 +29,6 @@ import volatility.conf
 config = volatility.conf.ConfObject()
 import volatility.obj as obj
 
-
-BLOCKSIZE = 1024 * 1024 * 10
-
 ## This stuff needs to go in the profile
 entry_size = 8
 pointer_size = 4
@@ -63,6 +60,7 @@ class IA32PagedMemory(standard.WritablePagedMemory, addrspace.BaseAddressSpace):
         standard.WritablePagedMemory.__init__(self, base)
         addrspace.BaseAddressSpace.__init__(self, base, **kwargs)
         self.as_assert(astype != 'physical', "User requested physical AS")
+        self.astype = astype
         
         ## We must be stacked on someone else:
         self.as_assert(base, "No base Address Space")
@@ -82,36 +80,12 @@ class IA32PagedMemory(standard.WritablePagedMemory, addrspace.BaseAddressSpace):
             return self.base.dtb
         except AttributeError:
             ## Ok so we need to find our dtb ourselves:
-            dtb = self._find_dtb()
+            volmagic = obj.Object('VOLATILITY_MAGIC', 0x0, self.base)
+            dtb = volmagic.DTB.v()
             if dtb:
                 ## Make sure to save dtb for other AS's
                 self.base.dtb = dtb
                 return dtb
-
-    def _find_dtb(self):
-        offset = 0
-        while 1:
-            data = self.base.read(offset, BLOCKSIZE)
-            found = 0
-            if not data:
-                break
-            
-            while 1:
-                found = data.find("\x03\x00\x1b\x00", found+1)
-                if found >= 0:
-                    # (_type, _size) = unpack('=HH', data[found:found+4])
-                    proc = obj.Object("_EPROCESS",
-                                             offset = offset+found,
-                                             vm=self.base)
-
-                    if 'Idle' in proc.ImageFileName.v():
-                        return proc.Pcb.DirectoryTableBase
-                else:
-                    break
-
-            offset += len(data)
-
-        return None
 
     def entry_present(self, entry):
         return (entry & (0x00000001)) == 0x00000001

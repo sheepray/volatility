@@ -1,8 +1,5 @@
 # Volatility
-# Copyright (C) 2007,2008 Volatile Systems
-#
-# Volatools Basic
-# Copyright (C) 2007 Komoku, Inc.
+# Copyright (C) 2008 Volatile Systems
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,23 +16,8 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA 
 #
 
-"""
-@author:       AAron Walters 
-@license:      GNU General Public License 2.0 or later
-@contact:      awalters@volatilesystems.com
-@organization: Volatile Systems
-"""
+# Blocksize was chosen to make it aligned
+# on 8 bytes
+# Optimized by Michael Cohen
 
-#pylint: disable-msg=C0111
-
-#
-# Details about the techniques used in this file can be found in 
-# the following references:
-#   - Opc0de, "Finding some non-exported kernel variables," 
-#              http://www.rootkit.com/vault/Opc0de/GetVarXP.pdf 
-#   - Alex Ionescu, "Getting Kernel Variables from KdVersionBlock, Part 2," 
-#              http://www.rootkit.com/newsread.php?newsid=153
-#
-
-kpcr_addr =  0xffdff000
-KUSER_SHARED_DATA = 0xFFDF0000
+SCAN_BLOCKSIZE = 1024 * 1024 * 10

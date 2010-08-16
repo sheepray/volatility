@@ -27,6 +27,7 @@ OS's
 from volatility.obj import BitField, Pointer, Void, Array, CType #pylint: disable-msg=W0611
 import volatility.obj as obj
 import volatility.debug as debug #pylint: disable-msg=W0611
+import volatility.constants as constants
 
 class String(obj.NativeType):
     """Class for dealing with Strings"""
@@ -138,10 +139,10 @@ class Enumeration(obj.NativeType):
     def __format__(self, formatspec):
         return format(self.__str__(), formatspec)
     
-class VolatilityConstant(obj.BaseObject):
-    """Class to contain Volatility Constants"""
+class VolatilityMagic(obj.BaseObject):
+    """Class to contain Volatility Magic value"""
     
-    def __init__(self, theType, offset, vm, parent=None, value = "", name=None):
+    def __init__(self, theType, offset, vm, parent=None, value=None, name=None):
         try:
             obj.BaseObject.__init__(self, theType, offset, vm, parent, name)
         except obj.InvalidOffsetError:
@@ -149,13 +150,38 @@ class VolatilityConstant(obj.BaseObject):
         self.value = value
         
     def v(self):
-        return self.value
+        # We explicitly want to check for None,
+        # in case the user wants a value 
+        # that gives not self.value = True
+        if self.value is None:
+            return self.get_best_suggestion()
+        else:
+            return self.value
     
     def __str__(self):
         return self.v()
     
-class VOLATILITY_CONSTANTS(obj.CType):
-    """Class representing a VOLATILITY_CONSTANT namespace
+    def get_suggestions(self):
+        """Returns a list of possible suggestions for the value
+        
+           These should be returned in order of likelihood, 
+           since the first one will be taken as the best suggestion
+           
+           This is also to avoid a complete scan of the memory address space,
+           since 
+        """
+        yield self.v()
+        
+    
+    def get_best_suggestion(self):
+        """Returns the best suggestion for a list of possible suggestsions"""
+        for val in self.get_suggestions():
+            return val
+        else:
+            return obj.NoneObject("No suggestions available")
+    
+class VOLATILITY_MAGIC(obj.CType):
+    """Class representing a VOLATILITY_MAGIC namespace
     
        Needed to ensure that the address space is not verified as valid for constants
     """
@@ -165,7 +191,30 @@ class VOLATILITY_CONSTANTS(obj.CType):
         except obj.InvalidOffsetError:
             # The exception will be raised before this point,
             # so we must finish off the CType's __init__ ourselves
-            self.members = members
-            self.offset = offset
-            self.struct_size = size
             self.__initialized = True
+
+class VolatilityDTB(VolatilityMagic):
+
+    def get_suggestions(self):
+        offset = 0
+        while 1:
+            data = self.vm.read(offset, constants.SCAN_BLOCKSIZE)
+            found = 0
+            if not data:
+                break
+
+            while 1:
+                found = data.find(str(self.parent.DTBSignature), found+1)
+                if found >= 0:
+                    # (_type, _size) = unpack('=HH', data[found:found+4])
+                    proc = obj.Object("_EPROCESS",
+                                             offset = offset+found,
+                                             vm=self.vm)
+                    if 'Idle' in proc.ImageFileName.v():
+                        yield proc.Pcb.DirectoryTableBase.v()
+                else:
+                    break
+
+            offset += len(data)
+        
+        
