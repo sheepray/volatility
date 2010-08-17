@@ -61,7 +61,7 @@ Droping to a debugging shell....
         else:
             print "\n\nTest Passed....\n"
 
-class TestSuits(commands.command):
+class testsuite(commands.command):
     """ Run unit test suit using the Cache """
     def __init__(self, *args):
         config.add_option("UNIT-TEST", default=False , action = 'store_true',
@@ -95,7 +95,7 @@ class TestSuits(commands.command):
                 print "Error running {0} - {1}".format(cmdname, e)
                 debug.post_mortem()
 
-class InspectCache(commands.command):
+class inspectcache(commands.command):
     """ Inspect the contents of a cache """
     def __init__(self, *args):
         config.add_option("CACHE-LOCATION", default=None,
