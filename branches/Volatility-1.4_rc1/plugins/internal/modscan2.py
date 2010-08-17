@@ -68,10 +68,10 @@ class modscan2(commands.command):
         ## We need to do this because the unicode_obj buffer is in
         ## kernel_address_space
         string_length = unicode_obj.Length.v()
-        string_offset = unicode_obj.Buffer.v()            
+        string_offset = unicode_obj.Buffer.v()
         return self.kernel_address_space.read(
-            string_offset, string_length).decode("utf16","ignore")
-    
+            string_offset, string_length).decode("utf16", "ignore")
+
     def calculate(self):
         ## Here we scan the physical address space
         address_space = utils.load_as(astype = 'physical')
@@ -81,7 +81,7 @@ class modscan2(commands.command):
 
         scanner = PoolScanModuleFast2()
         for offset in scanner.scan(address_space):
-            ldr_entry = obj.Object('_LDR_DATA_TABLE_ENTRY', vm=address_space,
+            ldr_entry = obj.Object('_LDR_DATA_TABLE_ENTRY', vm = address_space,
                                   offset = offset)
             yield ldr_entry
 
@@ -97,15 +97,15 @@ class modscan2(commands.command):
 class CheckThreads(scan.ScannerCheck):
     """ Check sanity of _ETHREAD """
     kernel = 0x80000000
-    
-    def check(self, found):
-        start_of_object = self.address_space.profile.get_obj_size("_POOL_HEADER") +\
-                          self.address_space.profile.get_obj_size("_OBJECT_HEADER") - 4
-        
-        thread = obj.Object('_ETHREAD', vm=self.address_space,
-                           offset=found + start_of_object)
 
-        if thread.Cid.UniqueProcess.v()!=0 and \
+    def check(self, found):
+        start_of_object = self.address_space.profile.get_obj_size("_POOL_HEADER") + \
+                          self.address_space.profile.get_obj_size("_OBJECT_HEADER") - 4
+
+        thread = obj.Object('_ETHREAD', vm = self.address_space,
+                           offset = found + start_of_object)
+
+        if thread.Cid.UniqueProcess.v() != 0 and \
            thread.ThreadsProcess.v() <= self.kernel:
             return False
 
@@ -118,11 +118,11 @@ class CheckThreads(scan.ScannerCheck):
         if thread.Tcb.SuspendSemaphore.Header.Size != 0x05 and \
                thread.Tcb.SuspendSemaphore.Header.Size != 0x05:
             return False
-        
+
         if thread.LpcReplySemaphore.Header.Size != 5 and \
                thread.LpcReplySemaphore.Header.Type != 5:
             return False
-        
+
         return True
 
 class PoolScanThreadFast2(scan.PoolScanner):
@@ -133,7 +133,7 @@ class PoolScanThreadFast2(scan.PoolScanner):
                ('CheckPoolSize', dict(condition = lambda x: x >= 0x278)),
                ('CheckPoolType', dict(non_paged = True, free = True)),
                ('CheckPoolIndex', dict(value = 0)),
-               ('CheckThreads', {} ),
+               ('CheckThreads', {}),
                ]
 
 class thrdscan2(modscan2):
@@ -144,22 +144,21 @@ class thrdscan2(modscan2):
 
         scanner = PoolScanThreadFast2()
         for found in scanner.scan(address_space):
-            thread = obj.Object('_ETHREAD', vm=address_space,
-                               offset=found)
-            
+            thread = obj.Object('_ETHREAD', vm = address_space,
+                               offset = found)
+
             yield thread
-            
+
     def render_text(self, outfd, data):
-        outfd.write("PID    TID    Create Time               Exit Time                 Offset    \n"+ \
+        outfd.write("PID    TID    Create Time               Exit Time                 Offset    \n" + \
                     "------ ------ ------------------------- ------------------------- ----------\n")
-        
+
         for thread in data:
             outfd.write("{0:6} {1:6} {2: <25} {3: <25} 0x{4:08x}\n".format(thread.Cid.UniqueProcess,
                                                                            thread.Cid.UniqueThread,
                                                                            thread.CreateTime or '',
                                                                            thread.ExitTime or '',
                                                                            thread.offset))
-            
-        
 
-        
+
+

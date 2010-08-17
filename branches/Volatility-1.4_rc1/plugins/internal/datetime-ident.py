@@ -47,9 +47,9 @@ class datetime(commands.command):
         volmagic = obj.Object("VOLATILITY_MAGIC", 0x0, addr_space)
         KUSER_SHARED_DATA = volmagic.KUSER_SHARED_DATA.v()
         k = obj.Object("_KUSER_SHARED_DATA",
-                              offset=KUSER_SHARED_DATA,
-                              vm=addr_space)
-        
+                              offset = KUSER_SHARED_DATA,
+                              vm = addr_space)
+
         result['ImageDatetime'] = k.SystemTime
         result['ImageTz'] = timefmt.OffsetTzInfo(-k.TimeZoneBias.as_windows_timestamp() / 10000000)
 
@@ -57,12 +57,12 @@ class datetime(commands.command):
 
 class ident(datetime):
     """ Identify information for the image """
-    def __init__(self, args=None):
+    def __init__(self, args = None):
         datetime.__init__(self, args)
-    
+
     def render_text(self, outfd, data):
         """Renders the calculated data as text to outfd"""
-        
+
         dt = data['ImageDatetime'].as_datetime()
 
         outfd.write("              Image Name: {0}\n".format(data['ImageName']))
@@ -71,7 +71,7 @@ class ident(datetime):
         outfd.write("                     DTB: {0}\n".format(data['ImageDTB']))
         outfd.write("                Datetime: {0}\n".format(data['ImageDatetime']))
         outfd.write("          Local Datetime: {0}\n".format(timefmt.display_datetime(dt, data['ImageTz'])))
-    
+
     def calculate(self):
         result = {}
         addr_space = utils.load_as()
@@ -86,15 +86,15 @@ class ident(datetime):
 
         # Get the Image Type
         result['ImageType'] = self.find_csdversion(addr_space)
-        
+
         # Get the VM Type
         result['ImagePAE'] = 'nopae'
         if addr_space.pae:
             result['ImagePAE'] = 'pae'
-        
+
         # Get the Image DTB
         result['ImageDTB'] = hex(addr_space.load_dtb())
-        
+
         # Get the Image Datetime
         result.update(self.get_image_time(addr_space))
 
@@ -108,7 +108,7 @@ class ident(datetime):
                 lookup = str(task.Peb.CSDVersion)
                 csdvers[lookup] = csdvers.get(lookup, 0) + 1
                 _, result = max([(v, k) for k, v in csdvers.items()])
-                
+
                 return str(result)
-            
+
         return obj.NoneObject("Unable to find version")

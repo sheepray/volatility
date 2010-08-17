@@ -39,7 +39,7 @@ class hivelist(hs.hivescan):
     can obtain this by running the hivescan module first.
     """
     # Declare meta information associated with this plugin
-    
+
     meta_info = {}
     meta_info['author'] = 'Brendan Dolan-Gavitt'
     meta_info['copyright'] = 'Copyright (c) 2007,2008 Brendan Dolan-Gavitt'
@@ -50,10 +50,10 @@ class hivelist(hs.hivescan):
     meta_info['version'] = '1.0'
 
     def __init__(self, *args):
-        config.add_option("HIVE-OFFSET", short_option='o',
-                          default = None, type='int',
+        config.add_option("HIVE-OFFSET", short_option = 'o',
+                          default = None, type = 'int',
                           help = "Offset to registry hive")
-        
+
         hs.hivescan.__init__(self, *args)
 
     def render_text(self, outfd, result):
@@ -66,7 +66,7 @@ class hivelist(hs.hivescan):
                 name = hive.FileFullPath.v() or "[no name]"
                 outfd.write("{0:#X}  {1}\n".format(hive.offset, name))
                 hive_offsets.append(hive.offset)
-    
+
     def calculate(self):
         flat = utils.load_as(astype = 'physical')
         addr_space = utils.load_as()
@@ -86,10 +86,10 @@ class hivelist(hs.hivescan):
                 hive = obj.Object("_CMHIVE", int(offset), flat)
                 if hive.HiveList.Flink.v():
                     start_hive_offset = hive.HiveList.Flink.v() - 0x224
-    
+
                     ## Now instantiate the first hive in virtual address space as normal
                     start_hive = obj.Object("_CMHIVE", start_hive_offset, addr_space)
-    
+
                     for hive in start_hive.HiveList:
                         yield hive
 

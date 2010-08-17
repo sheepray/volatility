@@ -55,7 +55,7 @@ class vadinfo(taskmods.dlllist):
                         self.write_vad_ext(outfd, vad)
                     except AttributeError:
                         pass
-                    
+
                 outfd.write("\n")
 
     def write_vad_short(self, outfd, vad):
@@ -79,7 +79,7 @@ class vadinfo(taskmods.dlllist):
         outfd.write("NumberOfSectionReferences: {0:10} NumberOfPfnReferences:  {1:10}\n".format(CA.NumberOfSectionReferences, CA.NumberOfPfnReferences))
         outfd.write("NumberOfMappedViews:       {0:10} NumberOfSubsections:    {1:10}\n".format(CA.NumberOfMappedViews, CA.NumberOfSubsections))
         outfd.write("FlushInProgressCount:      {0:10} NumberOfUserReferences: {1:10}\n".format(CA.FlushInProgressCount, CA.NumberOfUserReferences))
-        
+
         outfd.write("Flags: {0}\n".format(CA.Flags))
 
         if CA.FilePointer:
@@ -89,33 +89,33 @@ class vadinfo(taskmods.dlllist):
 
         outfd.write("WaitingForDeletion Event: {0:08x}\n".format(CA.WaitingForDeletion))
         outfd.write("ModifiedWriteCount: {0:8} NumberOfSystemCacheViews: {1:8}\n".format(CA.ModifiedWriteCount, CA.NumberOfSystemCacheViews))
-    
+
     def write_vad_ext(self, outfd, vad):
         """Renders a text version of a Long Vad"""
         outfd.write("First prototype PTE: {0:08x} Last contiguous PTE: {1:08x}\n".format(vad.FirstPrototypePte, vad.LastContiguousPte))
-        
+
         outfd.write("Flags2: {0}\n".format(vad.Flags2))
         outfd.write("File offset: {0:08x}\n".format(vad.Flags2.FileOffset))
-        
+
         if (vad.Flags2.v() and vad.Flags2.LongVad):
             # FIXME: Add in the extra bits, after deciding on names for u3 and u4
             outfd.write("Extended information available\n")
-    
+
 class vadtree(vadinfo):
     """Walk the VAD tree and display in tree format"""
-    
+
     def render_text(self, outfd, data):
         for task in data:
             outfd.write("*" * 72 + "\n")
             outfd.write("Pid: {0:6}\n".format(task.UniqueProcessId))
             levels = {}
             for vad in task.VadRoot.traverse():
-                if vad:                    
+                if vad:
                     level = levels.get(vad.Parent.dereference().offset, -1) + 1
                     levels[vad.offset] = level
-                    outfd.write(" " * level + "{0:08x} - {1:08x}\n".format( 
+                    outfd.write(" " * level + "{0:08x} - {1:08x}\n".format(
                                 vad.StartingVpn << 12,
-                                ((vad.EndingVpn + 1) << 12) -1))
+                                ((vad.EndingVpn + 1) << 12) - 1))
 
     def render_dot(self, outfd, data):
         for task in data:
@@ -126,19 +126,19 @@ class vadtree(vadinfo):
             for vad in task.VadRoot.traverse():
                 if vad:
                     if vad.Parent:
-                        outfd.write("vad_{0:08x} -> vad_{1:08x}\n".format(vad.Parent.dereference().offset, vad.offset))                    
+                        outfd.write("vad_{0:08x} -> vad_{1:08x}\n".format(vad.Parent.dereference().offset, vad.offset))
                     outfd.write("vad_{0:08x} [label = \"{{ {1}\\n{2:08x} - {3:08x} }}\""
                                 "shape = \"record\" color = \"blue\"];\n".format(
                         vad.offset,
-                        vad.Tag, 
+                        vad.Tag,
                         vad.StartingVpn << 12,
-                        ((vad.EndingVpn + 1) << 12) -1))
-                    
+                        ((vad.EndingVpn + 1) << 12) - 1))
+
             outfd.write("}\n")
 
 class vadwalk(vadinfo):
     """Walk the VAD tree"""
-    
+
     def render_text(self, outfd, data):
         for task in data:
             outfd.write("*" * 72 + "\n")
@@ -153,17 +153,17 @@ class vadwalk(vadinfo):
                         vad.LeftChild.dereference().offset or 0,
                         vad.RightChild.dereference().offset or 0,
                         vad.StartingVpn << 12,
-                        ((vad.EndingVpn + 1) << 12) -1,
+                        ((vad.EndingVpn + 1) << 12) - 1,
                         vad.Tag))
 
 class vaddump(vadinfo):
     """Dumps out the vad sections to a file"""
 
     def __init__(self, *args):
-        config.add_option('DUMP-DIR', short_option='D', default=None,
-                          help='Directory in which to dump the VAD files')
-        config.add_option('VERBOSE', short_option='v', default=False, type='bool',
-                          help='Print verbose progress information')
+        config.add_option('DUMP-DIR', short_option = 'D', default = None,
+                          help = 'Directory in which to dump the VAD files')
+        config.add_option('VERBOSE', short_option = 'v', default = False, type = 'bool',
+                          help = 'Print verbose progress information')
         vadinfo.__init__(self, *args)
 
     def render_text(self, outfd, data):

@@ -37,22 +37,22 @@ config = conf.ConfObject()
 
 FILTER = ''.join([(len(repr(chr(i))) == 3) and chr(i) or '.' for i in range(256)])
 
-def hd(src, length=16):
+def hd(src, length = 16):
     N = 0
     result = '\n'
     while src:
         s, src = src[:length], src[length:]
         hexa = ' '.join(["{0:02X}".format(ord(x)) for x in s])
         s = s.translate(FILTER)
-        result += "{0:04X}   {2:{1}}   {3}\n".format(N, length*3, hexa, s)
+        result += "{0:04X}   {2:{1}}   {3}\n".format(N, length * 3, hexa, s)
         N += length
     return result
 
 class lsadump(commands.command):
     """Dump (decrypted) LSA secrets from the registry"""
     # Declare meta information associated with this plugin
-    
-    meta_info = commands.command.meta_info 
+
+    meta_info = commands.command.meta_info
     meta_info['author'] = 'Brendan Dolan-Gavitt'
     meta_info['copyright'] = 'Copyright (c) 2007,2008 Brendan Dolan-Gavitt'
     meta_info['contact'] = 'bdolangavitt@wesleyan.edu'
@@ -62,12 +62,12 @@ class lsadump(commands.command):
     meta_info['version'] = '1.0'
 
     def __init__(self, *args):
-        config.add_option('SYS-OFFSET', short_option='y', type='int',
-                          help='SYSTEM hive offset (virtual)')
-        config.add_option('SEC-OFFSET', short_option='s', type='int',
-                          help='SECURITY hive offset (virtual)')
+        config.add_option('SYS-OFFSET', short_option = 'y', type = 'int',
+                          help = 'SYSTEM hive offset (virtual)')
+        config.add_option('SEC-OFFSET', short_option = 's', type = 'int',
+                          help = 'SECURITY hive offset (virtual)')
         commands.command.__init__(self, *args)
-    
+
     def calculate(self):
         addr_space = utils.load_as()
 
@@ -77,11 +77,11 @@ class lsadump(commands.command):
 
         if not config.sys_offset or not config.sec_offset:
             config.error("Both SYSTEM and SECURITY offsets must be provided")
-        
+
         secrets = lsasecrets.get_memory_secrets(addr_space, config.sys_offset, config.sec_offset)
         if not secrets:
             config.error("Unable to read LSA secrets from registry")
-        
+
         return secrets
 
     def render_text(self, outfd, data):
@@ -91,20 +91,20 @@ class lsadump(commands.command):
 
 class hashdump(commands.command):
     """Dumps passwords hashes (LM/NTLM) from memory"""
-    
+
     def __init__(self, *args):
-        config.add_option('SYS-OFFSET', short_option='y', type='int',
-                          help='SYSTEM hive offset (virtual)')
-        config.add_option('SAM-OFFSET', short_option='s', type='int',
-                          help='SAM hive offset (virtual)')
-        commands.command.__init__(self, *args)        
-    
+        config.add_option('SYS-OFFSET', short_option = 'y', type = 'int',
+                          help = 'SYSTEM hive offset (virtual)')
+        config.add_option('SAM-OFFSET', short_option = 's', type = 'int',
+                          help = 'SAM hive offset (virtual)')
+        commands.command.__init__(self, *args)
+
     def calculate(self):
         addr_space = utils.load_as()
 
         if not config.sys_offset or not config.sam_offset:
             config.error("Both SYSTEM and SAM offsets must be provided")
-        
+
         return hashdumpmod.dump_memory_hashes(addr_space, config.sys_offset, config.sam_offset)
 
     def render_text(self, outfd, data):
@@ -113,21 +113,21 @@ class hashdump(commands.command):
 
 class hivedump(commands.command):
     """Prints out a hive"""
-    
+
     def __init__(self, *args):
-        config.add_option('HIVE-OFFSET', short_option='o', type='int',
-                          help='Hive offset (virtual)')
-        commands.command.__init__(self, *args)        
-        
+        config.add_option('HIVE-OFFSET', short_option = 'o', type = 'int',
+                          help = 'Hive offset (virtual)')
+        commands.command.__init__(self, *args)
+
     def calculate(self):
         addr_space = utils.load_as()
-        
+
         if not config.hive_offset:
             config.error("A Hive offset must be provided (--hive-offset)")
-            
+
         h = hive.HiveAddressSpace(addr_space, config.hive_offset)
         return rawreg.get_root(h)
-        
+
     def render_text(self, outfd, data):
         self.print_key(outfd, 0, data)
 

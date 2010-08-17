@@ -40,12 +40,12 @@ class CheckSocketCreateTime(scan.ScannerCheck):
     """ Check that _ADDRESS_OBJECT.CreateTime makes sense """
     def __init__(self, address_space, condition = lambda x: x, **kwargs):
         scan.ScannerCheck.__init__(self, address_space, **kwargs)
-        self.condition  = condition
+        self.condition = condition
 
     def check(self, offset):
         start_of_object = self.address_space.profile.get_obj_size("_POOL_HEADER") - 4
-        address_obj = obj.Object('_ADDRESS_OBJECT', vm=self.address_space,
-                                offset=offset + start_of_object)
+        address_obj = obj.Object('_ADDRESS_OBJECT', vm = self.address_space,
+                                offset = offset + start_of_object)
 
         return self.condition(address_obj.CreateTime.v())
 
@@ -57,13 +57,13 @@ class PoolScanSockFast(scan.PoolScanner):
                ('CheckSocketCreateTime', dict(condition = lambda x: x > 0)),
                ('CheckPoolIndex', dict(value = 0))
                ]
-    
+
 class sockscan(commands.command):
     """ Scan Physical memory for _ADDRESS_OBJECT objects (tcp sockets)
     """
 
     # Declare meta information associated with this plugin
-    
+
     meta_info = dict(
         author = 'Brendan Dolan-Gavitt',
         copyright = 'Copyright (c) 2007,2008 Brendan Dolan-Gavitt',
@@ -73,17 +73,17 @@ class sockscan(commands.command):
         os = 'WIN_32_XP_SP2',
         version = '1.0',
         )
-    
+
     def calculate(self):
         ## Just grab the AS and scan it using our scanner
         address_space = utils.load_as(astype = 'physical')
         scanner = PoolScanSockFast()
         for offset in scanner.scan(address_space):
-            yield obj.Object('_ADDRESS_OBJECT', vm=address_space, offset=offset)        
-    
+            yield obj.Object('_ADDRESS_OBJECT', vm = address_space, offset = offset)
+
     def render_text(self, outfd, data):
-        
-        outfd.write("PID    Port   Proto  Create Time                Offset \n"+ \
+
+        outfd.write("PID    Port   Proto  Create Time                Offset \n" + \
                     "------ ------ ------ -------------------------- ----------\n")
 
         for sock_obj in data:

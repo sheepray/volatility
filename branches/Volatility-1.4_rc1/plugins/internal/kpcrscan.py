@@ -29,10 +29,10 @@ import volatility.conf as conf
 import volatility.obj as obj
 
 config = conf.ConfObject()
-                        
+
 class kpcrscan(commands.command):
     """Search for and dump potential KPCR values"""
-    
+
     meta_info = dict(
         author = 'Bradley Schatz',
         copyright = 'Copyright (c) 2010 Bradley Schatz',
@@ -59,5 +59,5 @@ class kpcrscan(commands.command):
         for o in data:
             outfd.write(" _KPCR: %x\n" % o)
 
-config.add_option("KPCR", type='int', default=0, help = "KPCR Address")  
+config.add_option("KPCR", type = 'int', default = 0, help = "KPCR Address")
 

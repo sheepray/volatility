@@ -33,19 +33,19 @@ class bioskbd(commands.command):
     BUFOFFSET = 0x1e
     LEN = 39
     FORMAT = "<BBBHH32s"
-    
+
     def render_text(self, outfd, data):
         """Displays the character codes"""
         outfd.write("Ascii     Scancode\n")
         for c, s in data:
             outfd.write("{0} (0x{1:02x})   0x{2:02x}\n".format(self.format_char(c), ord(c), s))
-    
+
     def format_char(self, c):
         """Prints out an ascii printable character"""
         if c in '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ[]{};\'#:@~,./<>?!"$%^&*()_+-=`\\|':
             return c
-        return "." 
-    
+        return "."
+
     def calculate(self):
         """Calculate returns the results of the bios keyboard reading"""
         addr_space = utils.load_as(astype = 'physical')
@@ -56,8 +56,8 @@ class bioskbd(commands.command):
         unringed = buf[readp - self.BUFOFFSET:]
         unringed += buf[:readp - self.BUFOFFSET]
         results = []
-        for i in range(0, len(unringed)-2, 2):
+        for i in range(0, len(unringed) - 2, 2):
             if ord(unringed[i]) != 0:
-                results.append((unringed[i], ord(unringed[i+1])))
-        
+                results.append((unringed[i], ord(unringed[i + 1])))
+
         return results

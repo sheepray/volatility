@@ -36,16 +36,16 @@ config = conf.ConfObject()
 class CheckHiveSig(scan.ScannerCheck):
     """ Check for a registry hive signature """
     def check(self, offset):
-        sig = obj.Object('_HHIVE', vm=self.address_space, offset=offset + 4).Signature
+        sig = obj.Object('_HHIVE', vm = self.address_space, offset = offset + 4).Signature
         return sig == 0xbee0bee0
 
 class PoolScanHiveFast2(scan.PoolScanner):
     checks = [ ('PoolTagCheck', dict(tag = "CM10")),
-               ('CheckPoolSize', dict(condition = lambda x: x==0x4a8)),
+               ('CheckPoolSize', dict(condition = lambda x: x == 0x4a8)),
                ('CheckPoolType', dict(paged = True)),
                ('CheckHiveSig', {})
                ]
-    
+
 class hivescan(commands.command):
     """ Scan Physical memory for _CMHIVE objects (registry hives)
 
@@ -53,7 +53,7 @@ class hivescan(commands.command):
     """
 
     # Declare meta information associated with this plugin
-    
+
     meta_info = dict(
         author = 'Brendan Dolan-Gavitt',
         copyright = 'Copyright (c) 2007,2008 Brendan Dolan-Gavitt',
@@ -63,7 +63,7 @@ class hivescan(commands.command):
         os = 'WIN_32_XP_SP2',
         version = '1.0',
         )
-    
+
     def calculate(self):
         ## Just grab the AS and scan it using our scanner
         address_space = utils.load_as(astype = 'physical')

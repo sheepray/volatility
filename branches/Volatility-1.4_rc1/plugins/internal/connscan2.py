@@ -39,7 +39,7 @@ import volatility.debug as debug #pylint: disable-msg=W0611
 class PoolScanConnFast2(scan.PoolScanner):
     checks = [ ('PoolTagCheck', dict(tag = "TCPT")),
                ('CheckPoolSize', dict(condition = lambda x: x >= 0x198)),
-               ('CheckPoolType', dict(non_paged=True, free=True)),
+               ('CheckPoolType', dict(non_paged = True, free = True)),
                ('CheckPoolIndex', dict(value = 0)),
                ]
 
@@ -63,12 +63,12 @@ class connscan2(commands.command):
         scanner = PoolScanConnFast2()
         for offset in scanner.scan(address_space):
             ## This yields the pool offsets - we want the actual object
-            tcp_obj = obj.Object('_TCPT_OBJECT', vm=address_space,
-                                offset=offset)
+            tcp_obj = obj.Object('_TCPT_OBJECT', vm = address_space,
+                                offset = offset)
             yield tcp_obj
 
     def render_text(self, outfd, data):
-        outfd.write("Local Address             Remote Address            Pid   \n"+ \
+        outfd.write("Local Address             Remote Address            Pid   \n" + \
                     "------------------------- ------------------------- ------ \n")
 
         ## We make a new scanner

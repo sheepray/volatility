@@ -64,10 +64,10 @@ Droping to a debugging shell....
 class testsuite(commands.command):
     """ Run unit test suit using the Cache """
     def __init__(self, *args):
-        config.add_option("UNIT-TEST", default=False , action = 'store_true',
+        config.add_option("UNIT-TEST", default = False , action = 'store_true',
                           help = "Enable unit tests for this module")
 
-        config.add_option("MODULES", default='',
+        config.add_option("MODULES", default = '',
                           help = "Only test these comma delimited set of modules")
 
         commands.command.__init__(self, *args)
@@ -84,7 +84,7 @@ class testsuite(commands.command):
             modules = config.MODULES.split(",")
 
         for cmdname in cmds:
-            if modules and cmdname not in modules: 
+            if modules and cmdname not in modules:
                 continue
 
             try:
@@ -100,7 +100,7 @@ class testsuite(commands.command):
 class inspectcache(commands.command):
     """ Inspect the contents of a cache """
     def __init__(self, *args):
-        config.add_option("CACHE-LOCATION", default=None,
+        config.add_option("CACHE-LOCATION", default = None,
                           help = "Location of the cache element")
         commands.command.__init__(self, *args)
 

@@ -29,13 +29,13 @@ import volatility.debug as debug #pylint: disable-msg=W0611
 
 class PoolTagCheck(scan.ScannerCheck):
     """ This scanner checks for the occurance of a pool tag """
-    def __init__(self, address_space, tag=None, **kwargs):
+    def __init__(self, address_space, tag = None, **kwargs):
         scan.ScannerCheck.__init__(self, address_space, **kwargs)
         self.tag = tag
 
     def skip(self, data, offset):
         try:
-            nextval = data.index(self.tag, offset+1)
+            nextval = data.index(self.tag, offset + 1)
             return nextval - offset
         except ValueError:
             ## Substring is not found - skip to the end of this data buffer
@@ -47,16 +47,16 @@ class PoolTagCheck(scan.ScannerCheck):
 
 class CheckPoolSize(scan.ScannerCheck):
     """ Check pool block size """
-    def __init__(self, address_space, condition=(lambda x: x == 8), **kwargs):
+    def __init__(self, address_space, condition = (lambda x: x == 8), **kwargs):
         scan.ScannerCheck.__init__(self, address_space, **kwargs)
         self.condition = condition
 
     def check(self, offset):
-        pool_hdr = obj.Object('_POOL_HEADER', vm=self.address_space,
+        pool_hdr = obj.Object('_POOL_HEADER', vm = self.address_space,
                              offset = offset - 4)
-        
+
         block_size = pool_hdr.BlockSize.v()
-        
+
         return self.condition(block_size * 8)
 
 class CheckPoolType(scan.ScannerCheck):
@@ -69,9 +69,9 @@ class CheckPoolType(scan.ScannerCheck):
         self.free = free
 
     def check(self, offset):
-        pool_hdr = obj.Object('_POOL_HEADER', vm=self.address_space,
+        pool_hdr = obj.Object('_POOL_HEADER', vm = self.address_space,
                              offset = offset - 4)
-        
+
         ptype = pool_hdr.PoolType.v()
 
         if self.non_paged and (ptype % 2) == 1:
@@ -85,12 +85,12 @@ class CheckPoolType(scan.ScannerCheck):
 
 class CheckPoolIndex(scan.ScannerCheck):
     """ Checks the pool index """
-    def __init__(self, address_space, value=0, **kwargs):
+    def __init__(self, address_space, value = 0, **kwargs):
         scan.ScannerCheck.__init__(self, address_space, **kwargs)
         self.value = value
 
     def check(self, offset):
-        pool_hdr = obj.Object('_POOL_HEADER', vm=self.address_space,
+        pool_hdr = obj.Object('_POOL_HEADER', vm = self.address_space,
                              offset = offset - 4)
 
         return pool_hdr.PoolIndex == self.value

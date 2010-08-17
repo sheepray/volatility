@@ -49,7 +49,7 @@ class pstree(commands.command):
     def render_text(self, outfd, data):
         max_pad = 10
         outfd.write("{0:20}             {1} {2:6} {3:6} {4:6} {5:6} {6:6}\n".format(
-            'Name', " " * max_pad, 'Pid','PPid','Thds','Hnds','Time'))
+            'Name', " " * max_pad, 'Pid', 'PPid', 'Thds', 'Hnds', 'Time'))
 
         def draw_branch(pad, inherited_from):
             for task, task_info in data.items():
@@ -72,14 +72,14 @@ class pstree(commands.command):
                             outfd.write("{0}    path: {1}\n".format(
                                 ' ' * pad, task_info['ImagePathName']))
                             outfd.write("{0}    audit: {1}\n".format(
-                                ' ' * pad, task_info['Audit ImageFileName']) )
+                                ' ' * pad, task_info['Audit ImageFileName']))
                         except KeyError:
                             pass
 
                     draw_branch(pad + 1, task_info['process_id'])
                     del data[task]
 
-        while len(data.keys())>0:
+        while len(data.keys()) > 0:
             keys = data.keys()
             root = self.find_root(data, keys[0])
             draw_branch(0, root)
@@ -95,11 +95,11 @@ class pstree(commands.command):
             task_info = {}
             task_info['eprocess'] = task
             task_info['image_file_name'] = task.ImageFileName or 'UNKNOWN'
-            task_info['process_id']      = task.UniqueProcessId
-            task_info['active_threads']  = task.ActiveThreads
-            task_info['inherited_from']  = task.InheritedFromUniqueProcessId
-            task_info['handle_count']    = task.ObjectTable.HandleCount
-            task_info['create_time']     = task.CreateTime
+            task_info['process_id'] = task.UniqueProcessId
+            task_info['active_threads'] = task.ActiveThreads
+            task_info['inherited_from'] = task.InheritedFromUniqueProcessId
+            task_info['handle_count'] = task.ObjectTable.HandleCount
+            task_info['create_time'] = task.CreateTime
 
             ## Get the Process Environment Block - Note that _EPROCESS
             ## will automatically switch to process address space by

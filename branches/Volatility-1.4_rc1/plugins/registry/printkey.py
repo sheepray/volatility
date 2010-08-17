@@ -43,22 +43,22 @@ def vol(k):
 
 FILTER = ''.join([(len(repr(chr(x))) == 3) and chr(x) or '.' for x in range(256)])
 
-def hd(src, length=16):
+def hd(src, length = 16):
     N = 0
     result = ''
     while src:
         s, src = src[:length], src[length:]
         hexa = ' '.join(["{0:02X}".format(ord(k)) for k in s])
         s = s.translate(FILTER)
-        result += "{0:04X}   {2:{1}}   {3}\n".format(N, length*3, hexa, s)
+        result += "{0:04X}   {2:{1}}   {3}\n".format(N, length * 3, hexa, s)
         N += length
     return result
 
 class printkey(commands.command):
     "Print a registry key, and its subkeys and values"
     # Declare meta information associated with this plugin
-    
-    meta_info = commands.command.meta_info 
+
+    meta_info = commands.command.meta_info
     meta_info['author'] = 'Brendan Dolan-Gavitt'
     meta_info['copyright'] = 'Copyright (c) 2007,2008 Brendan Dolan-Gavitt'
     meta_info['contact'] = 'bdolangavitt@wesleyan.edu'
@@ -68,10 +68,10 @@ class printkey(commands.command):
     meta_info['version'] = '1.0'
 
     def __init__(self, *args):
-        config.add_option('HIVE-OFFSET', short_option = 'o', 
-                          help='Hive offset (virtual)', type='int')
+        config.add_option('HIVE-OFFSET', short_option = 'o',
+                          help = 'Hive offset (virtual)', type = 'int')
         config.add_option('KEY', short_option = 'k',
-                          help='Registry Key', type='str')
+                          help = 'Registry Key', type = 'str')
         commands.command.__init__(self, *args)
 
     def calculate(self):
@@ -79,15 +79,15 @@ class printkey(commands.command):
 
         if not config.hive_offset:
             config.error("No hive offset provided!")
-        
+
         if not config.key:
             config.error("No registry key specified.  Please use -k to specify one")
-        
+
         hive = hivemod.HiveAddressSpace(addr_space, config.hive_offset)
         root = rawreg.get_root(hive)
         if not root:
             config.error("Unable to find root key. Is the hive offset correct?")
-        
+
         key = rawreg.open_key(root, config.KEY.split('\\'))
         return key
 
@@ -104,5 +104,5 @@ class printkey(commands.command):
         for v in rawreg.values(key):
             tp, dat = rawreg.value_data(v)
             if tp == 'REG_BINARY':
-                dat = "\n" + hd(dat, length=16)
+                dat = "\n" + hd(dat, length = 16)
             outfd.write("{0:9} {1:10} : {2} {3}\n".format(tp, v.Name, dat, "(Volatile)" if vol(v) else "(Stable)"))

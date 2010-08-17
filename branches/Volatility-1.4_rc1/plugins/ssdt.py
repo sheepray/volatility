@@ -1021,14 +1021,14 @@ def find_module(modlist, mod_addrs, addr):
     This is much faster than a series of linear checks if you have
     to do it many times. Note that modlist and mod_addrs must be sorted
     in order of the module base address."""
-    
+
     pos = bisect_right(mod_addrs, addr) - 1
     if pos == -1:
         return None
     mod = modlist[mod_addrs[pos]]
 
-    if (addr >= mod.DllBase.v() and 
-        addr <  mod.DllBase.v() + mod.SizeOfImage.v()):
+    if (addr >= mod.DllBase.v() and
+        addr < mod.DllBase.v() + mod.SizeOfImage.v()):
         return mod
     else:
         return None
@@ -1051,7 +1051,7 @@ class ssdt(commands.command):
         addr_space.profile.add_types(ssdt_types)
 
         ## Get a sorted list of module addresses
-        mods = dict( (mod.DllBase.v(), mod) for mod in modules.lsmod(addr_space) )
+        mods = dict((mod.DllBase.v(), mod) for mod in modules.lsmod(addr_space))
         mod_addrs = sorted(mods.keys())
 
         # Gather up all SSDTs referenced by threads
@@ -1079,15 +1079,15 @@ class ssdt(commands.command):
                 ps_ad = p.get_process_address_space()
                 ## Is the table accessible from the process AS?
                 if ps_ad.is_valid_address(table):
-                    tables_with_vm.append( (idx, table, n, ps_ad) )
+                    tables_with_vm.append((idx, table, n, ps_ad))
                     found = True
                     break
             ## If not we use the kernel address space
             if not found:
                 # Any VM is equally bad...
-                tables_with_vm.append( (idx, table, n, addr_space) )
+                tables_with_vm.append((idx, table, n, addr_space))
 
-        for idx, table, n, vm in sorted(tables_with_vm, key=itemgetter(0)):
+        for idx, table, n, vm in sorted(tables_with_vm, key = itemgetter(0)):
             yield idx, table, n, vm, mods, mod_addrs
 
     def render_text(self, outfd, data):
@@ -1096,7 +1096,7 @@ class ssdt(commands.command):
             outfd.write("SSDT[{0}] at {1:x} with {2} entries\n".format(idx, table, n))
             if vm.is_valid_address(table):
                 for i in range(n):
-                    syscall_addr = obj.Object('unsigned long', table+(i*4), vm).v()
+                    syscall_addr = obj.Object('unsigned long', table + (i * 4), vm).v()
                     try:
                         syscall_name = xpsp2_syscalls[idx][i]
                     except IndexError:
@@ -1108,7 +1108,7 @@ class ssdt(commands.command):
                     else:
                         syscall_modname = "UNKNOWN"
 
-                    outfd.write("  Entry {0:#06x}: {1:#x} ({2}) owned by {3}\n".format(idx*0x1000+i,
+                    outfd.write("  Entry {0:#06x}: {1:#x} ({2}) owned by {3}\n".format(idx * 0x1000 + i,
                                                                        syscall_addr,
                                                                        syscall_name,
                                                                        syscall_modname))

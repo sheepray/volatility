@@ -31,7 +31,7 @@ def set_location(_option, _opt_str, value, parser):
     if parser.values.location == None:
         parser.values.location = "file://" + urllib.pathname2url(os.path.abspath(value))
 
-config.add_option("FILENAME", default = None, action="callback",
-                  callback = set_location, type='str',
+config.add_option("FILENAME", default = None, action = "callback",
+                  callback = set_location, type = 'str',
                   short_option = 'f', nargs = 1,
                   help = "Filename to use when opening an image")

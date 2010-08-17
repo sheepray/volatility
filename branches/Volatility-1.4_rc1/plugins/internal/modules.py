@@ -28,7 +28,7 @@ class modules(volatility.commands.command):
     """Print list of loaded modules"""
     def render_text(self, outfd, data):
         header = False
-        
+
         for module in data:
             if not header:
                 outfd.write("{0:50} {1:12} {2:8} {3}\n".format('File', 'Base', 'Size', 'Name'))
@@ -37,7 +37,7 @@ class modules(volatility.commands.command):
 
     def calculate(self):
         addr_space = utils.load_as()
-        
+
         result = win32.modules.lsmod(addr_space)
 
         return result

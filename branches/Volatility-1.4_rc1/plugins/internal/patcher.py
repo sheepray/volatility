@@ -48,17 +48,17 @@ class MultiPageScanner(object):
     
        Designed to minimize reads/writes to the address space
     """
-    def __init__(self, patchers, full=False):
+    def __init__(self, patchers, full = False):
         self.patchers = list(patchers)
         self.maxlen = 0
         self.remove_patchers = not full
-    
+
     def use_fullpage(self, address_space):
-        """Calibrate the scanner to ensure fastest speed"""    
+        """Calibrate the scanner to ensure fastest speed"""
         # Define the calibration functions
         timeit_fullpage = lambda: list(self.scan_page(address_space, 0, True))
         timeit_nonfullpage = lambda: list(self.scan_page(address_space, 0, False))
-        
+
         with_fullpage = timeit.repeat(timeit_fullpage, number = 100)
         without_fullpage = timeit.repeat(timeit_nonfullpage, number = 100)
         return min(with_fullpage) < min(without_fullpage)
@@ -80,7 +80,7 @@ class MultiPageScanner(object):
         while address_space.is_valid_address(page_offset + PAGESIZE) and not done:
             sys.stdout.write("\rScanning: {0:08X}".format(page_offset))
             sys.stdout.flush()
-                        
+
             # Run through any patchers that didn't fail
             for patcher in self.scan_page(address_space, page_offset, fullpage):
                 outfd.write("\rPatching {0} at page {1:x}\n".format(patcher.get_name(), page_offset))
@@ -90,7 +90,7 @@ class MultiPageScanner(object):
                     # Stop if we've got nothing left to look for
                     if not len(self.patchers):
                         done = True
-                        
+
             # Jump to the next page
             page_offset += PAGESIZE
         sys.stdout.write("\n")
@@ -119,7 +119,7 @@ class Patcher(object):
         self.constraints = set()
 
     def add_constraint(self, offset, data):
-        """Adds a constraint to the constraintlist"""            
+        """Adds a constraint to the constraintlist"""
         # Ensure that all offsets are within PAGESIZE
         self.constraints.add((offset % PAGESIZE, data))
 
@@ -127,7 +127,7 @@ class Patcher(object):
         """Adds a patch to the patchlist"""
         # Ensure that all offsets are within PAGESIZE
         self.patches.add((offset % PAGESIZE, patch))
-        
+
     def patch(self, addr_space, page_offset):
         """Writes to the address space"""
         result = True
@@ -150,17 +150,17 @@ class patcher(commands.command):
     """Patches memory based on page scans"""
 
     def __init__(self, *args, **kwargs):
-        config.add_option('XML-INPUT', short_option='x',
-                  help='Input XML file for patching binaries')
-        
-        commands.command.__init__(self, *args, **kwargs)        
+        config.add_option('XML-INPUT', short_option = 'x',
+                  help = 'Input XML file for patching binaries')
+
+        commands.command.__init__(self, *args, **kwargs)
 
     def calculate(self):
         """Calculates the patchers"""
-        addr_space = utils.load_as(astype='physical')
+        addr_space = utils.load_as(astype = 'physical')
         scanner = MultiPageScanner(self.parse_patchfile())
         return scanner, addr_space
-    
+
     def render_text(self, outfd, data):
         """Renders the text and carries out the patching"""
         scanner, addr_space = data
@@ -175,13 +175,13 @@ class patcher(commands.command):
         if offset.startswith('0x'):
             offset = offset[2:]
             base = 16
-        return int(offset, base)        
+        return int(offset, base)
 
     def parse_patchfile(self):
         """Parses the patch XML data"""
         if not config.WRITE:
             print "Warning: WRITE support not enabled, no patching will occur"
-        
+
         if config.XML_INPUT is None:
             config.error("No XML input file was specified")
         try:
@@ -201,7 +201,7 @@ class patcher(commands.command):
                             patches = tag
                     if constraints is None:
                         config.error("Patch input file does not contain any valid constraints")
-            
+
                     # Parse the patches section
                     for tag in patches:
                         if tag.tag == 'setbytes':
@@ -212,7 +212,7 @@ class patcher(commands.command):
                     if not len(patcher.get_patches()):
                         # No patches, no point adding this
                         break
-                    
+
                     # Parse the constraints section
                     for c in constraints:
                         if c.tag == 'match':

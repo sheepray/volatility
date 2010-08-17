@@ -67,33 +67,33 @@ class filescan(commands.command):
         ## We need to do this because the unicode_obj buffer is in
         ## kernel_address_space
         string_length = unicode_obj.Length
-        string_offset = unicode_obj.Buffer            
+        string_offset = unicode_obj.Buffer
 
         string = self.kernel_address_space.read(string_offset, string_length)
-        if not string: 
+        if not string:
             return ''
-        return string[:255].decode("utf16","ignore").encode("utf8","ignore")
+        return string[:255].decode("utf16", "ignore").encode("utf8", "ignore")
 
     def calculate(self):
         ## Just grab the AS and scan it using our scanner
-        address_space = utils.load_as(astype='physical')
+        address_space = utils.load_as(astype = 'physical')
 
         ## Will need the kernel AS for later:
         self.kernel_address_space = utils.load_as()
 
         for offset in PoolScanFile().scan(address_space):
-            pool_obj = obj.Object("_POOL_HEADER", vm=address_space,
+            pool_obj = obj.Object("_POOL_HEADER", vm = address_space,
                                  offset = offset)
-            
+
             ## We work out the _FILE_OBJECT from the end of the
             ## allocation (bottom up).
-            file_obj = obj.Object("_FILE_OBJECT", vm=address_space,
+            file_obj = obj.Object("_FILE_OBJECT", vm = address_space,
                                  offset = offset + pool_obj.BlockSize * 8 - \
                                  address_space.profile.get_obj_size("_FILE_OBJECT")
                                  )
 
             ## The _OBJECT_HEADER is immediately below the _FILE_OBJECT
-            object_obj = obj.Object("_OBJECT_HEADER", vm=address_space,
+            object_obj = obj.Object("_OBJECT_HEADER", vm = address_space,
                                    offset = file_obj.offset - \
                                    address_space.profile.get_obj_size("_OBJECT_HEADER")
                                    )
@@ -139,32 +139,32 @@ class driverscan(filescan):
     "Scan for driver objects _DRIVER_OBJECT "
     def calculate(self):
         ## Just grab the AS and scan it using our scanner
-        address_space = utils.load_as(astype='physical')
+        address_space = utils.load_as(astype = 'physical')
 
         ## Will need the kernel AS for later:
         self.kernel_address_space = utils.load_as()
 
         for offset in PoolScanDriver().scan(address_space):
-            pool_obj = obj.Object("_POOL_HEADER", vm=address_space,
+            pool_obj = obj.Object("_POOL_HEADER", vm = address_space,
                                  offset = offset)
-            
+
             ## We work out the _DRIVER_OBJECT from the end of the
             ## allocation (bottom up).
             extension_obj = obj.Object(
-                "_DRIVER_EXTENSION", vm=address_space,
-                offset = offset + pool_obj.BlockSize * 8 - 4 -\
+                "_DRIVER_EXTENSION", vm = address_space,
+                offset = offset + pool_obj.BlockSize * 8 - 4 - \
                 address_space.profile.get_obj_size("_DRIVER_EXTENSION"))
-            
+
             ## The _DRIVER_OBJECT is immediately below the _DRIVER_EXTENSION
             driver_obj = obj.Object(
-                "_DRIVER_OBJECT", vm=address_space,
+                "_DRIVER_OBJECT", vm = address_space,
                 offset = extension_obj.offset - \
                 address_space.profile.get_obj_size("_DRIVER_OBJECT")
                 )
 
             ## The _OBJECT_HEADER is immediately below the _DRIVER_OBJECT
             object_obj = obj.Object(
-                "_OBJECT_HEADER", vm=address_space,
+                "_OBJECT_HEADER", vm = address_space,
                 offset = driver_obj.offset - \
                 address_space.profile.get_obj_size("_OBJECT_HEADER")
                 )
@@ -174,20 +174,20 @@ class driverscan(filescan):
                 continue
 
             ## Now we need to work out the _OBJECT_NAME_INFO object
-            object_name_info_obj = obj.Object("_OBJECT_NAME_INFO", vm=address_space,
+            object_name_info_obj = obj.Object("_OBJECT_NAME_INFO", vm = address_space,
                                                  offset = object_obj.offset - \
                                                  object_obj.NameInfoOffset
                                                  )
-            
+
             yield (object_obj, driver_obj, extension_obj, object_name_info_obj)
 
-        
+
     def render_text(self, outfd, data):
         """Renders the text-based output"""
         outfd.write("{0:10} {1:10} {2:4} {3:4} {4:10} {5:>6} {6:20} {7}\n".format(
                      'Phys.Addr.', 'Obj Type', '#Ptr', '#Hnd',
                      'Start', 'Size', 'Service key', 'Name'))
-        
+
         for object_obj, driver_obj, extension_obj, object_name_info_obj in data:
             outfd.write("0x{0:08x} 0x{1:08x} {2:4} {3:4} 0x{4:08x} {5:6} {6:20} {7:12} {8}\n".format(
                          driver_obj.offset, object_obj.Type, object_obj.PointerCount,
@@ -209,31 +209,31 @@ class PoolScanMutant(PoolScanDriver):
 class mutantscan(filescan):
     "Scan for mutant objects _KMUTANT "
     def __init__(self):
-        config.add_option("SILENT", short_option='s', default=False,
-                          action='store_true', help='suppress less meaningful results')
+        config.add_option("SILENT", short_option = 's', default = False,
+                          action = 'store_true', help = 'suppress less meaningful results')
         filescan.__init__(self)
 
     def calculate(self):
         ## Just grab the AS and scan it using our scanner
-        address_space = utils.load_as(astype='physical')
+        address_space = utils.load_as(astype = 'physical')
 
         ## Will need the kernel AS for later:
         self.kernel_address_space = utils.load_as()
 
         for offset in PoolScanMutant().scan(address_space):
-            pool_obj = obj.Object("_POOL_HEADER", vm=address_space,
+            pool_obj = obj.Object("_POOL_HEADER", vm = address_space,
                                  offset = offset)
-            
+
             ## We work out the _DRIVER_OBJECT from the end of the
             ## allocation (bottom up).
             mutant = obj.Object(
-                "_KMUTANT", vm=address_space,
-                offset = offset + pool_obj.BlockSize * 8 -\
+                "_KMUTANT", vm = address_space,
+                offset = offset + pool_obj.BlockSize * 8 - \
                 address_space.profile.get_obj_size("_KMUTANT"))
-            
+
             ## The _OBJECT_HEADER is immediately below the _KMUTANT
             object_obj = obj.Object(
-                "_OBJECT_HEADER", vm=address_space,
+                "_OBJECT_HEADER", vm = address_space,
                 offset = mutant.offset - \
                 address_space.profile.get_obj_size("_OBJECT_HEADER")
                 )
@@ -243,7 +243,7 @@ class mutantscan(filescan):
             ##   continue
 
             ## Now we need to work out the _OBJECT_NAME_INFO object
-            object_name_info_obj = obj.Object("_OBJECT_NAME_INFO", vm=address_space,
+            object_name_info_obj = obj.Object("_OBJECT_NAME_INFO", vm = address_space,
                                                      offset = object_obj.offset - \
                                                      object_obj.NameInfoOffset
                                                      )
@@ -251,16 +251,16 @@ class mutantscan(filescan):
             if config.SILENT:
                 if object_obj.NameInfoOffset == 0:
                     continue
-            
+
             yield (object_obj, mutant, object_name_info_obj)
 
-        
+
     def render_text(self, outfd, data):
         """Renders the output"""
         outfd.write("{0:10} {1:10} {2:4} {3:4} {4:6} {5:10} {6:10} {7}\n".format(
-                     'Phys.Addr.', 'Obj Type', '#Ptr', '#Hnd', 'Signal', 
+                     'Phys.Addr.', 'Obj Type', '#Ptr', '#Hnd', 'Signal',
                      'Thread', 'CID', 'Name'))
-        
+
         for object_obj, mutant, object_name_info_obj in data:
             if mutant.OwnerThread > 0x80000000:
                 thread = obj.Object("_ETHREAD", vm = self.kernel_address_space,
@@ -268,7 +268,7 @@ class mutantscan(filescan):
                 CID = "{0}:{1}".format(thread.Cid.UniqueProcess, thread.Cid.UniqueThread)
             else:
                 CID = ""
-            
+
             outfd.write("0x{0:08x} 0x{1:08x} {2:4} {3:4} {4:6} 0x{5:08x} {6:10} {7}\n".format(
                          mutant.offset, object_obj.Type, object_obj.PointerCount,
                          object_obj.HandleCount, mutant.Header.SignalState,

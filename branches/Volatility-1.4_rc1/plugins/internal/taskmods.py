@@ -40,13 +40,13 @@ class dlllist(commands.command, cache.Testable):
     """Print list of loaded dlls for each process"""
 
     def __init__(self, *args):
-        config.add_option('OFFSET', short_option = 'o', default=None,
-                          help='EPROCESS Offset (in hex) in kernel address space',
-                          action='store', type='int')
+        config.add_option('OFFSET', short_option = 'o', default = None,
+                          help = 'EPROCESS Offset (in hex) in kernel address space',
+                          action = 'store', type = 'int')
 
-        config.add_option('PID', short_option = 'p', default=None,
-                          help='Operate on these Process IDs (comma-separated)',
-                          action='store', type='str')
+        config.add_option('PID', short_option = 'p', default = None,
+                          help = 'Operate on these Process IDs (comma-separated)',
+                          action = 'store', type = 'str')
 
         commands.command.__init__(self, *args)
         cache.Testable.__init__(self, *args)
@@ -135,7 +135,7 @@ class files(dlllist):
     def handle_list(self, task):
         for h in task.handles():
             if str(h.Type.Name) == self.handle_type:
-                yield obj.Object(self.handle_obj, h.Body.offset, task.vm, parent=task)
+                yield obj.Object(self.handle_obj, h.Body.offset, task.vm, parent = task)
 
 class pslist(dlllist):
     """ print all running processes by following the EPROCESS lists """
@@ -192,10 +192,10 @@ class memmap(dlllist):
 
 class memdump(memmap):
     """Dump the addressable memory for a process"""
-    
+
     def __init__(self, *args):
-        config.add_option('DUMP-DIR', short_option='D', default=None,
-                          help='Directory in which to dump the VAD files')
+        config.add_option('DUMP-DIR', short_option = 'D', default = None,
+                          help = 'Directory in which to dump the VAD files')
         memmap.__init__(self, *args)
 
     def render_text(self, outfd, data):
@@ -203,7 +203,7 @@ class memdump(memmap):
             config.error("Please specify a dump directory (--dump-dir)")
         if not os.path.isdir(config.DUMP_DIR):
             config.error(config.DUMP_DIR + " is not a directory")
-        
+
         for pid, task, pagedata in data:
             outfd.write("*" * 72 + "\n")
 

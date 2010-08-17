@@ -140,7 +140,7 @@ class getsids(taskmods.dlllist):
     """Print the SIDs owning each process"""
 
     # Declare meta information associated with this plugin
-    
+
     meta_info = {}
     meta_info['author'] = 'Brendan Dolan-Gavitt'
     meta_info['copyright'] = 'Copyright (c) 2007,2008 Brendan Dolan-Gavitt'
@@ -149,7 +149,7 @@ class getsids(taskmods.dlllist):
     meta_info['url'] = 'http://moyix.blogspot.com/'
     meta_info['os'] = 'WIN_32_XP_SP2'
     meta_info['version'] = '1.0'
-    
+
     def calculate(self):
         """Produces a list of processes, or just a single process based on an OFFSET"""
         addr_space = utils.load_as()
@@ -159,7 +159,7 @@ class getsids(taskmods.dlllist):
             tasks = [obj.Object("_EPROCESS", config.OFFSET, addr_space)]
         else:
             tasks = self.filter_tasks(win32.tasks.pslist(addr_space))
-        
+
         return tasks
 
     def render_text(self, outfd, data):
@@ -173,7 +173,7 @@ class getsids(taskmods.dlllist):
             for sa in tok.UserAndGroups.dereference():
                 sid = sa.Sid.dereference()
                 for i in sid.IdentifierAuthority.Value:
-                    id_auth = i 
+                    id_auth = i
                 sid_string = "S-" + "-".join(str(i) for i in (sid.Revision, id_auth) + tuple(sid.SubAuthority))
                 if sid_string in well_known_sids:
                     sid_name = " ({0})".format(well_known_sids[sid_string])
@@ -183,5 +183,5 @@ class getsids(taskmods.dlllist):
                         sid_name = " ({0})".format(sid_name_re)
                     else:
                         sid_name = ""
-                
+
                 outfd.write("{0} ({1}): {2}{3}\n".format(task.ImageFileName, task.UniqueProcessId, sid_string, sid_name))

@@ -29,12 +29,12 @@ config = conf.ConfObject()
 
 class procexedump(taskmods.dlllist):
     """Dump a process to an executable file sample"""
-    
+
     def __init__(self, *args):
-        config.add_option('DUMP-DIR', short_option='D', default=None,
-                          help='Directory in which to dump the VAD files')
-        config.add_option("UNSAFE", short_option="u", default=0, type='int',
-                          help='Bypasses certain sanity checks when creating image')
+        config.add_option('DUMP-DIR', short_option = 'D', default = None,
+                          help = 'Directory in which to dump the VAD files')
+        config.add_option("UNSAFE", short_option = "u", default = 0, type = 'int',
+                          help = 'Bypasses certain sanity checks when creating image')
         taskmods.dlllist.__init__(self, *args)
 
     def render_text(self, outfd, data):
@@ -42,8 +42,8 @@ class procexedump(taskmods.dlllist):
         if config.DUMP_DIR == None:
             config.error("Please specify a dump directory (--dump-dir)")
         if not os.path.isdir(config.DUMP_DIR):
-            config.error(config.DUMP_DIR + " is not a directory")        
-        
+            config.error(config.DUMP_DIR + " is not a directory")
+
         for task in data:
             pid = task.UniqueProcessId
             outfd.write("*" * 72 + "\n")
@@ -68,11 +68,11 @@ class procexedump(taskmods.dlllist):
                 outfd.write("You can use -u to disable this check.\n")
             of.close()
 
-    def round(self, addr, align, up=False):
+    def round(self, addr, align, up = False):
         """Rounds down an address based on an alignment"""
-        if addr % align == 0: 
+        if addr % align == 0:
             return addr
-        else: 
+        else:
             if up:
                 return (addr + (align - (addr % align)))
             return (addr - (addr % align))
@@ -80,19 +80,19 @@ class procexedump(taskmods.dlllist):
     def get_nt_header(self, addr_space, base_addr):
         """Returns the NT Header object for a task"""
         dos_header = obj.Object("_IMAGE_DOS_HEADER", offset = base_addr,
-                                vm=addr_space)
-        
+                                vm = addr_space)
+
         nt_header = obj.Object("_IMAGE_NT_HEADERS",
                                offset = base_addr + dos_header.e_lfanew,
-                               vm=addr_space)
-        
+                               vm = addr_space)
+
         return nt_header
 
     def get_sections(self, addr_space, nt_header):
         """Returns the sectors from a process"""
         sect_size = addr_space.profile.get_obj_size("_IMAGE_SECTION_HEADER")
         start_addr = nt_header.FileHeader.SizeOfOptionalHeader + nt_header.OptionalHeader.offset
-        
+
         for i in range(nt_header.FileHeader.NumberOfSections):
             s_addr = start_addr + (i * sect_size)
             sect = obj.Object("_IMAGE_SECTION_HEADER", s_addr, addr_space)
@@ -109,7 +109,7 @@ class procexedump(taskmods.dlllist):
             raise ValueError('VirtualSize {0:08x} is larger than image size.'.format(sect.Misc.VirtualSize))
         if sect.SizeOfRawData > image_size:
             raise ValueError('SizeOfRawData {0:08x} is larger than image size.'.format(sect.SizeOfRawData))
-        
+
     def get_code(self, addr_space, data_start, data_size, offset, outfd):
         """Returns a single section of re-created data from a file image"""
         first_block = 0x1000 - data_start % 0x1000
@@ -118,7 +118,7 @@ class procexedump(taskmods.dlllist):
 
         paddr = addr_space.vtop(data_start)
         code = ""
-    
+
         # Deal with reads that are smaller than a block
         if data_size < first_block:
             data_read = addr_space.zread(data_start, data_size)
@@ -126,39 +126,39 @@ class procexedump(taskmods.dlllist):
                 outfd.write("Memory Not Accessible: Virtual Address: 0x{0:x} File Offset: 0x{1:x} Size: 0x{2:x}\n".format(data_start, offset, data_size))
             code += data_read
             return (offset, code)
-                
+
         data_read = addr_space.zread(data_start, first_block)
         if paddr == None:
             outfd.write("Memory Not Accessible: Virtual Address: 0x{0:x} File Offset: 0x{1:x} Size: 0x{2:x}\n".format(data_start, offset, first_block))
         code += data_read
-    
+
         # The middle part of the read
         new_vaddr = data_start + first_block
-    
+
         for _i in range(0, full_blocks):
             data_read = addr_space.zread(new_vaddr, 0x1000)
             if addr_space.vtop(new_vaddr) == None:
                 outfd.write("Memory Not Accessible: Virtual Address: 0x{0:x} File Offset: 0x{1:x} Size: 0x{2:x}\n".format(new_vaddr, offset, 0x1000))
             code += data_read
-            new_vaddr = new_vaddr + 0x1000        
-    
+            new_vaddr = new_vaddr + 0x1000
+
         # The last part of the read
         if left_over > 0:
             data_read = addr_space.zread(new_vaddr, left_over)
             if addr_space.vtop(new_vaddr) == None:
-                outfd.write("Memory Not Accessible: Virtual Address: 0x{0:x} File Offset: 0x{1:x} Size: 0x{2:x}\n".format(new_vaddr, offset, left_over))       
+                outfd.write("Memory Not Accessible: Virtual Address: 0x{0:x} File Offset: 0x{1:x} Size: 0x{2:x}\n".format(new_vaddr, offset, left_over))
             code += data_read
         return (offset, code)
 
     def get_image(self, outfd, addr_space, base_addr):
         """Outputs an executable disk image of a process"""
-        nt_header = self.get_nt_header(addr_space=addr_space,
-                                       base_addr=base_addr)
+        nt_header = self.get_nt_header(addr_space = addr_space,
+                                       base_addr = base_addr)
 
         soh = nt_header.OptionalHeader.SizeOfHeaders
         header = addr_space.read(base_addr, soh)
         yield (0, header)
-        
+
         fa = nt_header.OptionalHeader.FileAlignment
         for sect in self.get_sections(addr_space, nt_header):
             foa = self.round(sect.PointerToRawData, fa)
@@ -168,7 +168,7 @@ class procexedump(taskmods.dlllist):
             yield self.get_code(addr_space,
                                 base_addr + sect.VirtualAddress,
                                 sect.SizeOfRawData, foa, outfd)
-    
+
 class procmemdump(procexedump):
     """Dump a process to an executable memory sample"""
 
@@ -180,7 +180,7 @@ class procmemdump(procexedump):
         newval = struct.pack(item.format_string, int(value))
         result = header[:start] + newval + header[end:]
         return result
-    
+
     def get_image(self, outfd, addr_space, base_addr):
         """Outputs an executable memory image of a process"""
         nt_header = self.get_nt_header(addr_space, base_addr)
@@ -194,9 +194,9 @@ class procmemdump(procexedump):
         sect_sizes = []
         for sect in self.get_sections(addr_space, nt_header):
             if prevsect is not None:
-                sect_sizes.append(sect.VirtualAddress - prevsect.VirtualAddress) 
+                sect_sizes.append(sect.VirtualAddress - prevsect.VirtualAddress)
             prevsect = sect
-        sect_sizes.append(self.round(prevsect.Misc.VirtualSize, sa, up=True))
+        sect_sizes.append(self.round(prevsect.Misc.VirtualSize, sa, up = True))
 
         counter = 0
         start_addr = nt_header.FileHeader.SizeOfOptionalHeader + (nt_header.OptionalHeader.offset - base_addr)
@@ -206,6 +206,6 @@ class procmemdump(procexedump):
             sectheader = self.replace_header_field(sect, sectheader, sect.PointerToRawData, sect.VirtualAddress)
             sectheader = self.replace_header_field(sect, sectheader, sect.SizeOfRawData, sect_sizes[counter])
             sectheader = self.replace_header_field(sect, sectheader, sect.Misc.VirtualSize, sect_sizes[counter])
-            
+
             yield (start_addr + (counter * shs), sectheader)
             counter += 1
