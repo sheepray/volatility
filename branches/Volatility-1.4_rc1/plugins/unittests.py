@@ -79,7 +79,9 @@ class testsuite(commands.command):
 
 
         cmds = MemoryRegistry.PLUGIN_COMMANDS.commands
-        modules = config.MODULES.split(",")
+        modules = None
+        if config.MODULES:
+            modules = config.MODULES.split(",")
 
         for cmdname in cmds:
             if modules and cmdname not in modules: 
