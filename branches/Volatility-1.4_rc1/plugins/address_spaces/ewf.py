@@ -36,8 +36,8 @@ class ewffile:
         size_p = pointer(c_ulonglong(0))
         libewf.libewf_get_media_size(self.handle, size_p)
         self.size = size_p.contents.value
-        
-    def seek(self, offset, whence=0):
+
+    def seek(self, offset, whence = 0):
         if whence == 0:
             self.readptr = offset
         elif whence == 1:
@@ -66,8 +66,8 @@ class ewffile:
                       "evidence_number", "notes", "acquiry_date",
                       "system_date", "acquiry_operating_system",
                       "acquiry_software_version", "password",
-                      "compression_type", "model", "serial_number",]
-        
+                      "compression_type", "model", "serial_number", ]
+
         ## Make sure we parsed all headers
         libewf.libewf_parse_header_values(self.handle, c_int(4))
         result = {'size': self.size}
@@ -75,7 +75,7 @@ class ewffile:
         for p in properties:
             libewf.libewf_get_header_value(self.handle, p, buf, 1024)
             result[p] = buf.value
-            
+
         ## Get the hash
         if libewf.libewf_get_md5_hash(self.handle, buf, 16) == 1:
             result['md5'] = buf.raw[:16]

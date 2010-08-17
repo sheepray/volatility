@@ -59,7 +59,7 @@ class WindowsCrashDumpSpace32(standard.FileAddressSpace):
         current_file_page = 0x1000
         for run in self.runs:
             page, count = run
-            
+
             ofile.seek(page * 0x1000)
             for j in xrange(0, count * 0x1000, 0x1000):
                 data = self.base.read(current_file_page + j, 0x1000)
@@ -69,7 +69,7 @@ class WindowsCrashDumpSpace32(standard.FileAddressSpace):
                 # so instead we yield for every page
                 yield page_count
             current_file_page += (count * 0x1000)
-            
+
     def get_header(self):
         return self.header
 
@@ -121,8 +121,8 @@ class WindowsCrashDumpSpace32(standard.FileAddressSpace):
             if baddr == None:
                 return None
             stuff_read = stuff_read + self.base.read(baddr, left_over)
-            
-        return stuff_read    
+
+        return stuff_read
 
     def write(self, vaddr, buf):
         baddr = self.get_addr(vaddr)
@@ -132,7 +132,7 @@ class WindowsCrashDumpSpace32(standard.FileAddressSpace):
         first_block = 0x1000 - vaddr % 0x1000
         full_blocks = ((length + (vaddr % 0x1000)) / 0x1000) - 1
         left_over = (length + vaddr) % 0x1000
-       
+
         self.check_address_range(vaddr)
 
         baddr = self.get_addr(vaddr)
@@ -140,7 +140,7 @@ class WindowsCrashDumpSpace32(standard.FileAddressSpace):
         if baddr == None:
             if length < first_block:
                 return ('\0' * length)
-            stuff_read = ('\0' * first_block)       
+            stuff_read = ('\0' * first_block)
         else:
             if length < first_block:
                 return self.base.read(baddr, length)
@@ -167,7 +167,7 @@ class WindowsCrashDumpSpace32(standard.FileAddressSpace):
     def read_long(self, addr):
         _baseaddr = self.get_addr(addr)
         string = self.read(addr, 4)
-        (longval, ) = struct.unpack('=L', string)
+        (longval,) = struct.unpack('=L', string)
         return longval
 
     def get_available_pages(self):
@@ -184,7 +184,7 @@ class WindowsCrashDumpSpace32(standard.FileAddressSpace):
     def get_address_range(self):
         """ This relates to the logical address range that is indexable """
         run = self.runs[-1]
-        size = run[0] * 0x1000 + run[1]*0x1000
+        size = run[0] * 0x1000 + run[1] * 0x1000
         return [0, size]
 
     def get_available_addresses(self):

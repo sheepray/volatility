@@ -32,7 +32,7 @@ import volatility.obj as obj
 ## This stuff needs to go in the profile
 entry_size = 8
 pointer_size = 4
-page_shift = 12 
+page_shift = 12
 ptrs_per_pte = 1024
 ptrs_per_pgd = 1024
 ptrs_per_pae_pte = 512
@@ -54,17 +54,17 @@ class IA32PagedMemory(standard.WritablePagedMemory, addrspace.BaseAddressSpace):
     """
     order = 90
     pae = False
-    def __init__(self, base, dtb=0, astype = None, **kwargs):
+    def __init__(self, base, dtb = 0, astype = None, **kwargs):
         self.as_assert(config.USE_OLD_AS, "Module disabled")
-        
+
         standard.WritablePagedMemory.__init__(self, base)
         addrspace.BaseAddressSpace.__init__(self, base, **kwargs)
         self.as_assert(astype != 'physical', "User requested physical AS")
         self.astype = astype
-        
+
         ## We must be stacked on someone else:
         self.as_assert(base, "No base Address Space")
-        
+
         ## We can not stack on someone with a page table
         self.as_assert(not hasattr(base, 'pgd_vaddr'), "Can not stack over page table AS")
         self.pgd_vaddr = dtb or config.DTB or self.load_dtb()
@@ -93,7 +93,7 @@ class IA32PagedMemory(standard.WritablePagedMemory, addrspace.BaseAddressSpace):
     def page_size_flag(self, entry):
         if (entry & (1 << 7)) == (1 << 7):
             return True
-        return False    
+        return False
 
     def pgd_index(self, pgd):
         return (pgd >> pgdir_shift) & (ptrs_per_pgd - 1)
@@ -117,20 +117,20 @@ class IA32PagedMemory(standard.WritablePagedMemory, addrspace.BaseAddressSpace):
         return (self.pte_pfn(pte) << page_shift) | (vaddr & ((1 << page_shift) - 1))
 
     def get_four_meg_paddr(self, vaddr, pgd_entry):
-        return (pgd_entry & ((ptrs_per_pgd-1) << 22)) | (vaddr & ~((ptrs_per_pgd-1) << 22))
+        return (pgd_entry & ((ptrs_per_pgd - 1) << 22)) | (vaddr & ~((ptrs_per_pgd - 1) << 22))
 
     def vtop(self, vaddr):
         retVal = None
         pgd = self.get_pgd(vaddr)
         if self.entry_present(pgd):
             if self.page_size_flag(pgd):
-                retVal =  self.get_four_meg_paddr(vaddr, pgd)
+                retVal = self.get_four_meg_paddr(vaddr, pgd)
             else:
                 pte = self.get_pte(vaddr, pgd)
                 if not pte:
                     return None
                 if self.entry_present(pte):
-                    retVal =  self.get_paddr(vaddr, pte)
+                    retVal = self.get_paddr(vaddr, pte)
         return retVal
 
     def read(self, vaddr, length):
@@ -140,11 +140,11 @@ class IA32PagedMemory(standard.WritablePagedMemory, addrspace.BaseAddressSpace):
         first_block = 0x1000 - vaddr % 0x1000
         full_blocks = ((length + (vaddr % 0x1000)) / 0x1000) - 1
         left_over = (length + vaddr) % 0x1000
-        
+
         paddr = self.vtop(vaddr)
-        if paddr == None:        
+        if paddr == None:
             return None
-        
+
         if length < first_block:
             stuff_read = self.base.read(paddr, length)
             if stuff_read == None:
@@ -182,13 +182,13 @@ class IA32PagedMemory(standard.WritablePagedMemory, addrspace.BaseAddressSpace):
         first_block = 0x1000 - vaddr % 0x1000
         full_blocks = ((length + (vaddr % 0x1000)) / 0x1000) - 1
         left_over = (length + vaddr) % 0x1000
-        
+
         paddr = self.vtop(vaddr)
 
         if paddr is None:
             if length < first_block:
                 return ('\0' * length)
-            stuff_read = ('\0' * first_block)       
+            stuff_read = ('\0' * first_block)
         else:
             if length < first_block:
                 return self.base.zread(paddr, length)
@@ -216,14 +216,14 @@ class IA32PagedMemory(standard.WritablePagedMemory, addrspace.BaseAddressSpace):
         string = self.read(addr, 4)
         if string is None:
             return None
-        (longval, ) =  struct.unpack('=L', string)
+        (longval,) = struct.unpack('=L', string)
         return longval
 
     def read_long_phys(self, addr):
         string = self.base.read(addr, 4)
         if string is None:
             return None
-        (longval, ) =  struct.unpack('=L', string)
+        (longval,) = struct.unpack('=L', string)
         return longval
 
     def __eq__(self, other):
@@ -238,7 +238,7 @@ class IA32PagedMemory(standard.WritablePagedMemory, addrspace.BaseAddressSpace):
             if self.entry_present(entry) and self.page_size_flag(entry):
                 yield [start, 0x400000]
             elif self.entry_present(entry):
-                pte_curr = entry & ~((1 << page_shift)-1)                
+                pte_curr = entry & ~((1 << page_shift) - 1)
                 for j in range(0, ptrs_per_pte):
                     pte_entry = self.read_long_phys(pte_curr)
                     pte_curr = pte_curr + 4
@@ -256,7 +256,7 @@ class IA32PagedMemoryPae(IA32PagedMemory):
         AS, and failing that we search for it.
         """
         IA32PagedMemory.__init__(self, base, **kwargs)
-        
+
     def get_pdptb(self, pdpr):
         return pdpr & 0xFFFFFFE0
 
@@ -294,7 +294,7 @@ class IA32PagedMemoryPae(IA32PagedMemory):
         return self.pte_pfn(pte) | (vaddr & ((1 << page_shift) - 1))
 
     def get_large_paddr(self, vaddr, pgd_entry):
-        return (pgd_entry & 0xFFE00000) | (vaddr & ~((ptrs_page-1) << 21))
+        return (pgd_entry & 0xFFE00000) | (vaddr & ~((ptrs_page - 1) << 21))
 
     def vtop(self, vaddr):
         retVal = None
@@ -310,32 +310,32 @@ class IA32PagedMemoryPae(IA32PagedMemory):
             else:
                 pte = self.get_pte(vaddr, pgd)
                 if self.entry_present(pte):
-                    retVal =  self.get_paddr(vaddr, pte)
-                        
+                    retVal = self.get_paddr(vaddr, pte)
+
         return retVal
 
     def _read_long_long_phys(self, addr):
         string = self.base.read(addr, 8)
         if string == None:
             return None
-        (longlongval, ) = struct.unpack('=Q', string)
+        (longlongval,) = struct.unpack('=Q', string)
         return longlongval
 
     def get_available_pages(self):
-       
+
         pdpi_base = self.get_pdptb(self.pgd_vaddr)
 
-        for i in range(0, ptrs_per_pdpi): 
+        for i in range(0, ptrs_per_pdpi):
 
             start = (i * ptrs_per_pae_pgd * ptrs_per_pae_pgd * ptrs_per_pae_pte * 8)
-            pdpi_entry  = pdpi_base + i * entry_size        
+            pdpi_entry = pdpi_base + i * entry_size
             pdpe = self._read_long_long_phys(pdpi_entry)
 
             if not self.entry_present(pdpe):
                 continue
-          
-            pgd_curr = self.pdba_base(pdpe)          
-                  
+
+            pgd_curr = self.pdba_base(pdpe)
+
             for j in range(0, ptrs_per_pae_pgd):
                 soffset = start + (j * ptrs_per_pae_pgd * ptrs_per_pae_pte * 8)
                 entry = self._read_long_long_phys(pgd_curr)
@@ -343,7 +343,7 @@ class IA32PagedMemoryPae(IA32PagedMemory):
                 if self.entry_present(entry) and self.page_size_flag(entry):
                     yield [soffset, 0x200000]
                 elif self.entry_present(entry):
-                    pte_curr = entry & ~((1 << page_shift)-1)                
+                    pte_curr = entry & ~((1 << page_shift) - 1)
                     for k in range(0, ptrs_per_pae_pte):
                         pte_entry = self._read_long_long_phys(pte_curr)
                         pte_curr = pte_curr + 8

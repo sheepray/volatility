@@ -28,13 +28,13 @@ def FirewireRW(netloc, location):
     if netloc in fw_implementations:
         return fw_implementations[netloc](location)
     return None
-        
+
 class FWRaw1394(object):
     def __init__(self, location):
         locarr = location.split('/')
         self.bus = locarr[0]
         self.node = locarr[1]
-        self._node = None 
+        self._node = None
 
     def is_valid(self):
         """Initializes the firewire implementation"""
@@ -52,7 +52,7 @@ class FWRaw1394(object):
     def read(self, addr, length):
         """Reads bytes from the specified address"""
         return self._node.read(addr, length)
-        
+
     def write(self, addr, buf):
         """Writes buf bytes at addr"""
         return self._node.write(addr, buf)
@@ -79,21 +79,21 @@ class FWForensic1394(object):
             print repr(e)
             return False, "Forensic1394 returned an exception: " + str(e)
         return False, "Unknown Error occurred"
-        
+
     def read(self, addr, length):
         """Reads bytes from the specified address"""
         return self._device.read(addr, length)
-        
+
     def write(self, addr, buf):
         """Writes buf bytes at addr"""
         return self._device.write(addr, buf)
 
 class FirewireAddressSpace(addrspace.BaseAddressSpace):
     """A physical layer address space that provides access via firewire"""
-    
+
     ## We should be *almost* the AS of last resort
     order = 99
-    def __init__(self, base, layered=False, **kargs):
+    def __init__(self, base, layered = False, **kargs):
         addrspace.BaseAddressSpace.__init__(self, base, **kargs)
         self.as_assert(base == None or layered, 'Must be first Address Space')
         try:
@@ -102,15 +102,15 @@ class FirewireAddressSpace(addrspace.BaseAddressSpace):
             self._fwimpl = FirewireRW(netloc, path)
         except (AttributeError, ValueError):
             self.as_assert(False, "Unable to parse {0} as a URL".format(config.LOCATION))
-        self.as_assert(self._fwimpl is not None, "Unable to locate {0} implementation.".format(netloc)) 
+        self.as_assert(self._fwimpl is not None, "Unable to locate {0} implementation.".format(netloc))
         valid, reason = self._fwimpl.is_valid()
         self.as_assert(valid, reason)
-        
+
         # We have a list of exclusions because we know that trying to read anything in these sections
         # will cause the target machine to bluescreen
         self._exclusions = sorted([(0xa0000, 0xfffff, "Upper Memory Area")])
-        
-        self.name = "Firewire using " + str(netloc) + " at " + str(path) 
+
+        self.name = "Firewire using " + str(netloc) + " at " + str(path)
         self.offset = 0
         # We have no way of knowing how big a firewire space is...
         # Set it to the maximum for the moment
@@ -134,13 +134,13 @@ class FirewireAddressSpace(addrspace.BaseAddressSpace):
         e = exclusions[0]
         estart = e[0]
         eend = e[1]
-        
+
         # e and range overlap
         if (eend < start or estart > end):
             # Ignore this exclusions
             return self._intervals(exclusions[1:], start, end, accumulator)
         if estart < start:
-            if eend < end: 
+            if eend < end:
                 # Covers the start of the remaining length
                 return self._intervals(exclusions[1:], eend, end, accumulator)
             else:
@@ -153,7 +153,7 @@ class FirewireAddressSpace(addrspace.BaseAddressSpace):
             else:
                 # Covers the end of the remaining length
                 return accumulator + [(start, estart)]
-            
+
     def read(self, offset, length):
         """Reads a specified size in bytes from the current offset
         
@@ -179,7 +179,7 @@ class FirewireAddressSpace(addrspace.BaseAddressSpace):
         """Writes a specified size in bytes"""
         if not config.WRITE:
             return False
-        
+
         ints = self.intervals(offset, offset + len(data))
         try:
             for i in ints:
@@ -188,10 +188,10 @@ class FirewireAddressSpace(addrspace.BaseAddressSpace):
         except IOError:
             raise RuntimeError("Failed to write to the firewire device")
         return True
-    
+
     def get_address_range(self):
         """Returns the size of the address range"""
-        return [0, self.size-1]
+        return [0, self.size - 1]
 
     def get_available_addresses(self):
         """Returns a list of available addresses"""
@@ -211,5 +211,5 @@ try:
 except ImportError:
     pass
 
-if not len(fw_implementations):        
+if not len(fw_implementations):
     FirewireAddressSpace = None

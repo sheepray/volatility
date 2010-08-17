@@ -34,10 +34,10 @@ import os
 #pylint: disable-msg=C0111
 
 ## This module requires a filename to be passed by the user
-config.add_option("USE-OLD-AS", action="store_true", default=False, 
+config.add_option("USE-OLD-AS", action = "store_true", default = False,
                   help = "Use the legacy address spaces")
 
-        
+
 
 def write_callback(option, _opt_str, _value, parser, *_args, **_kwargs):
     """Callback function to ensure that write support is only enabled if user repeats a long string
@@ -61,8 +61,8 @@ def write_callback(option, _opt_str, _value, parser, *_args, **_kwargs):
                 return
         print "Write support disabled."
 
-config.add_option("WRITE", short_option='w', action="callback", default=False,
-                  help = "Enable write support", callback=write_callback)
+config.add_option("WRITE", short_option = 'w', action = "callback", default = False,
+                  help = "Enable write support", callback = write_callback)
 
 class FileAddressSpace(addrspace.BaseAddressSpace):
     """ This is a direct file AS.
@@ -78,7 +78,7 @@ class FileAddressSpace(addrspace.BaseAddressSpace):
     """
     ## We should be the AS of last resort
     order = 100
-    def __init__(self, base, layered=False, **kwargs):
+    def __init__(self, base, layered = False, **kwargs):
         addrspace.BaseAddressSpace.__init__(self, base, **kwargs)
         self.as_assert(base == None or layered, 'Must be first Address Space')
         self.as_assert(config.LOCATION.startswith("file://"), 'Location is not of file scheme')
@@ -99,15 +99,15 @@ class FileAddressSpace(addrspace.BaseAddressSpace):
         return self.fhandle.read(length)
 
     def read(self, addr, length):
-        self.fhandle.seek(addr)        
-        return self.fhandle.read(length)    
+        self.fhandle.seek(addr)
+        return self.fhandle.read(length)
 
     def zread(self, addr, length):
         return self.read(addr, length)
 
     def read_long(self, addr):
         string = self.read(addr, 4)
-        (longval, ) =  struct.unpack('=L', string)
+        (longval,) = struct.unpack('=L', string)
         return longval
 
     def get_available_addresses(self):
@@ -153,7 +153,7 @@ class PagedMemory(addrspace.BaseAddressSpace):
     def get_available_pages(self):
         """A generator that returns (addr, size) for each of the virtual addresses present"""
         pass
-    
+
     def get_available_addresses(self):
         """A generator that returns (addr, size) for each valid address block"""
         runLength = None
@@ -172,12 +172,12 @@ class PagedMemory(addrspace.BaseAddressSpace):
         if (runLength != None and currentOffset != None):
             yield (currentOffset, runLength)
         raise StopIteration
-        
+
     def is_valid_address(self, vaddr):
         """Returns whether a virtual address is valid"""
         if vaddr == None:
             return False
-        try:    
+        try:
             paddr = self.vtop(vaddr)
         except:
             return False
@@ -195,20 +195,20 @@ class WritablePagedMemory(PagedMemory):
     def __init__(self, base, **kwargs):
         self.as_assert(self.__class__.__name__ != 'WritablePagedMemory', "Abstract Class - Never for instantiation directly")
         PagedMemory.__init__(self, base)
-    
+
     def write(self, vaddr, buf):
         if not config.WRITE:
             return False
-       
+
         length = len(buf)
         first_block = 0x1000 - vaddr % 0x1000
         full_blocks = ((length + (vaddr % 0x1000)) / 0x1000) - 1
         left_over = (length + vaddr) % 0x1000
-        
+
         paddr = self.vtop(vaddr)
-        if paddr == None:        
+        if paddr == None:
             return False
-        
+
         if length < first_block:
             return self.base.write(paddr, buf)
 

@@ -38,7 +38,7 @@ PAGE_SIZE = 0x1000
 page_shift = 12
 
 class Store:
-    def __init__(self, limit=50):
+    def __init__(self, limit = 50):
         self.limit = limit
         self.cache = {}
         self.seq = []
@@ -47,7 +47,7 @@ class Store:
     def put(self, key, item):
         self.cache[key] = item
         self.size += len(item)
-        
+
         self.seq.append(key)
         if len(self.seq) >= self.limit:
             key = self.seq.pop(0)
@@ -56,7 +56,7 @@ class Store:
 
     def get(self, key):
         return self.cache[key]
-    
+
 class WindowsHiberFileSpace32(standard.FileAddressSpace):
     """ This is a hibernate address space for windows hibernation files.
 
@@ -79,11 +79,11 @@ class WindowsHiberFileSpace32(standard.FileAddressSpace):
         self.offset = 0
         # Extract header information
         self.header = obj.Object('_IMAGE_HIBER_HEADER', 0, baseAddressSpace)
-        
+
         ## Is the signature right?
         if self.header.Signature.lower() not in ['hibr', 'wake']:
             self.header = obj.NoneObject("Invalid hibernation header")
-        
+
         # Check it's definitely a hibernation file
         self.as_assert(self._get_first_table_page() is not None, "No xpress signature found")
 
@@ -116,16 +116,16 @@ class WindowsHiberFileSpace32(standard.FileAddressSpace):
         if self.header != None:
             return self.header.FirstTablePage
         for i in range(10):
-            if self.base.read(i*PAGE_SIZE, 8) == "\x81\x81xpress":
-                return i-1
+            if self.base.read(i * PAGE_SIZE, 8) == "\x81\x81xpress":
+                return i - 1
         return None
 
     def build_page_cache(self):
-        XpressIndex = 0    
+        XpressIndex = 0
         XpressHeader = obj.Object("_IMAGE_XPRESS_HEADER",
                                          (self._get_first_table_page() + 1) * 4096, \
                                          self.base)
-        
+
         XpressBlockSize = self.get_xpress_block_size(XpressHeader)
 
         MemoryArrayOffset = self._get_first_table_page() * 4096
@@ -156,15 +156,15 @@ class WindowsHiberFileSpace32(standard.FileAddressSpace):
                     #print [(PageNumber,XpressBlockSize,XpressPage)]
                     if XpressHeader.offset not in self.PageDict:
                         self.PageDict[XpressHeader.offset] = \
-                            [(PageNumber,XpressBlockSize,XpressPage)]
+                            [(PageNumber, XpressBlockSize, XpressPage)]
                     else:
                         self.PageDict[XpressHeader.offset].append(
                             (PageNumber, \
                              XpressBlockSize, XpressPage))
-                        
+
                     ## Update the lookup cache
                     self.LookupCache[PageNumber] = (
-                        XpressHeader.offset,XpressBlockSize,XpressPage)
+                        XpressHeader.offset, XpressBlockSize, XpressPage)
 
                     self.PageIndex += 1
                     XpressIndex += 1
@@ -176,23 +176,23 @@ class WindowsHiberFileSpace32(standard.FileAddressSpace):
                 self.MemRangeCnt += 1
                 XpressHeader, XpressBlockSize = \
                                              self.next_xpress(XpressHeader, XpressBlockSize)
-                     
+
                 XpressIndex = 0
             else:
                 MemoryArrayOffset = 0
-                    
+
     def convert_to_raw(self, ofile):
         page_count = 0
         for _i, xb in enumerate(self.PageDict.keys()):
             size = self.PageDict[xb][0][1]
-            data_z = self.base.read(xb+0x20, size)
+            data_z = self.base.read(xb + 0x20, size)
             if size == 0x10000:
                 data_uz = data_z
             else:
                 data_uz = xpress.xpress_decode(data_z)
             for page, size, offset in self.PageDict[xb]:
-                ofile.seek(page*0x1000)
-                ofile.write(data_uz[offset*0x1000:offset*0x1000+0x1000])
+                ofile.seek(page * 0x1000)
+                ofile.write(data_uz[offset * 0x1000:offset * 0x1000 + 0x1000])
                 page_count += 1
             del data_z, data_uz
             yield page_count
@@ -212,14 +212,14 @@ class WindowsHiberFileSpace32(standard.FileAddressSpace):
                 break
             else:
                 XpressHeaderOffset += len(data)
-             
+
             ## Only search this far in advance
             if XpressHeaderOffset - original_offset > 10240:
                 return None, None
 
         XpressHeader = obj.Object("_IMAGE_XPRESS_HEADER", XpressHeaderOffset, self.base)
         XpressBlockSize = self.get_xpress_block_size(XpressHeader)
-        
+
         return XpressHeader, XpressBlockSize
 
     def get_xpress_block_size(self, xpress_header):
@@ -266,16 +266,16 @@ class WindowsHiberFileSpace32(standard.FileAddressSpace):
         page = addr >> page_shift
         if page in self.LookupCache:
             (hoffset, size, pageoffset) = self.LookupCache[page]
-            return hoffset, size, pageoffset	
+            return hoffset, size, pageoffset
         return None, None, None
 
     def get_block_offset(self, _xb, addr):
         page = addr >> page_shift
         if page in self.LookupCache:
             (_hoffset, _size, pageoffset) = self.LookupCache[page]
-            return pageoffset	
-        return None                
-        
+            return pageoffset
+        return None
+
     def is_valid_address(self, addr):
         XpressHeaderOffset, _XpressBlockSize, _XpressPage = self.get_addr(addr)
         return XpressHeaderOffset != None
@@ -291,7 +291,7 @@ class WindowsHiberFileSpace32(standard.FileAddressSpace):
                 data_uz = xpress.xpress_decode(data_read)
 
                 self.PageCache.put(baddr, data_uz)
-                
+
             return data_uz
 
     def fread(self, length):
@@ -313,7 +313,7 @@ class WindowsHiberFileSpace32(standard.FileAddressSpace):
         ImageXpressHeader, BlockSize, XpressPage = self.get_addr(addr)
         if not ImageXpressHeader:
             return None
-        
+
         baddr = ImageXpressHeader + 0x20
 
         data = self.read_xpress(baddr, BlockSize)
@@ -321,7 +321,7 @@ class WindowsHiberFileSpace32(standard.FileAddressSpace):
         ## Each block decompressed contains 2**page_shift pages. We
         ## need to know which page to use here.
         offset = XpressPage * 0x1000 + page_offset
-        
+
         return data[offset:offset + available]
 
     def read(self, addr, length):
@@ -330,7 +330,7 @@ class WindowsHiberFileSpace32(standard.FileAddressSpace):
             data = self._partial_read(addr, length)
             if not data:
                 break
-            
+
             addr += len(data)
             length -= len(data)
             result += data
@@ -349,12 +349,12 @@ class WindowsHiberFileSpace32(standard.FileAddressSpace):
         if ImageXpressHeader == None:
             if length < first_block:
                 return ('\0' * length)
-            stuff_read = ('\0' * first_block) 
+            stuff_read = ('\0' * first_block)
         else:
             if length < first_block:
                 return self.read(addr, length)
             stuff_read = self.read(addr, first_block)
-       
+
         new_addr = addr + first_block
 
         for _i in range(0, full_blocks):
@@ -372,24 +372,24 @@ class WindowsHiberFileSpace32(standard.FileAddressSpace):
             else:
                 stuff_read = stuff_read + self.read(new_addr, left_over)
 
-        return stuff_read    
+        return stuff_read
 
     def read_long(self, addr):
         _baseaddr = self.get_addr(addr)
         string = self.read(addr, 4)
-        (longval, ) = struct.unpack('=L', string)
+        (longval,) = struct.unpack('=L', string)
         return longval
 
     def get_available_pages(self):
         page_list = []
         for _i, xb in enumerate(self.PageDict.keys()):
             for page, _size, _offset in self.PageDict[xb]:
-                page_list.append([page*0x1000, 0x1000])
+                page_list.append([page * 0x1000, 0x1000])
         return page_list
 
     def get_address_range(self):
         """ This relates to the logical address range that is indexable """
-        size = self.HighestPage*0x1000+0x1000
+        size = self.HighestPage * 0x1000 + 0x1000
         return [0, size]
 
     def check_address_range(self, addr):

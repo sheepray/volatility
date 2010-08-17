@@ -24,15 +24,15 @@
 import struct
 import standard
 import volatility.addrspace as addrspace
-import volatility.obj as obj 
+import volatility.obj as obj
 import volatility.conf
 config = volatility.conf.ConfObject()
 import volatility.debug as debug #pylint: disable-msg=W0611
 
-config.add_option("DTB", type='int', default=0,
+config.add_option("DTB", type = 'int', default = 0,
                   help = "DTB Address")
 
-config.add_option("CACHE-DTB", action="store_false", default=True, 
+config.add_option("CACHE-DTB", action = "store_false", default = True,
                   help = "Cache virtual to physical mappings")
 
 # WritablePagedMemory must be BEFORE base address, since it adds the concrete method get_available_addresses
@@ -64,7 +64,7 @@ class JKIA32PagedMemory(standard.WritablePagedMemory, addrspace.BaseAddressSpace
     pae = False
     paging_address_space = True
 
-    def __init__(self, base, dtb=0, astype = None, **kwargs):
+    def __init__(self, base, dtb = 0, astype = None, **kwargs):
         ## We allow users to disable us in favour of the old legacy
         ## modules.
         self.as_assert(not config.USE_OLD_AS, "Module disabled")
@@ -112,7 +112,7 @@ class JKIA32PagedMemory(standard.WritablePagedMemory, addrspace.BaseAddressSpace
         # FIXME: This only works for windows
         # Consider using a list of valid addresses instead 
         # self.as_assert(self.is_valid_address(0x8055a420), "PsLoadedModuleList not valid Address")
-        
+
 	# FIXME: Couldn't work out why this was here for Non-PAE as well PAE, so commented it out
 	# Check experimental branch (Bradley Schatz patches) to figure out if it was a mistake or intentional
 	#header = None
@@ -137,7 +137,7 @@ class JKIA32PagedMemory(standard.WritablePagedMemory, addrspace.BaseAddressSpace
         if buf is None:
             self.cache = False
         else:
-            self.pde_cache = struct.unpack('<'+'L' * 0x400, buf)
+            self.pde_cache = struct.unpack('<' + 'L' * 0x400, buf)
 
     def load_dtb(self):
         try:
@@ -282,8 +282,8 @@ class JKIA32PagedMemory(standard.WritablePagedMemory, addrspace.BaseAddressSpace
                 else:
                     return ''
 
-            ret    += buf
-            vaddr  += chunk_len
+            ret += buf
+            vaddr += chunk_len
             length -= chunk_len
 
         return ret
@@ -312,7 +312,7 @@ class JKIA32PagedMemory(standard.WritablePagedMemory, addrspace.BaseAddressSpace
         string = self.base.read(addr, 4)
         if not string:
             return None
-        (longval, ) =  struct.unpack('<L', string)
+        (longval,) = struct.unpack('<L', string)
         return longval
 
     def get_available_pages(self):
@@ -355,16 +355,16 @@ class JKIA32PagedMemoryPae(JKIA32PagedMemory):
     Similar information is also available from Advanced Micro Devices (AMD) 
     at http://support.amd.com/us/Processor_TechDocs/24593.pdf.
     """
-    order = 80        
+    order = 80
     pae = True
-    
+
     def _cache_values(self):
         buf = self.base.read(self.dtb, 0x20)
         if buf is None:
             self.cache = False
         else:
-            self.pdpte_cache = struct.unpack('<'+'Q' * 4, buf)
-        
+            self.pdpte_cache = struct.unpack('<' + 'Q' * 4, buf)
+
     def pdpte_index(self, vaddr):
         '''
         Compute the Page Directory Pointer Table index using the
@@ -400,7 +400,7 @@ class JKIA32PagedMemoryPae(JKIA32PagedMemory):
         '''
         pde_addr = (pdpte & 0xffffffffff000) | ((vaddr & 0x3fe00000) >> 18)
         return self._read_long_long_phys(pde_addr)
-    
+
 
     def get_two_meg_paddr(self, vaddr, pde):
         '''
@@ -434,7 +434,7 @@ class JKIA32PagedMemoryPae(JKIA32PagedMemory):
         '''
         return (pte & 0xffffffffff000) | (vaddr & 0xfff)
 
-    
+
     def vtop(self, vaddr):
         '''
         Translates virtual addresses into physical offsets.
@@ -470,7 +470,7 @@ class JKIA32PagedMemoryPae(JKIA32PagedMemory):
         string = self.base.read(addr, 8)
         if not string:
             return None
-        (longlongval, ) = struct.unpack('<Q', string)
+        (longlongval,) = struct.unpack('<Q', string)
         return longlongval
 
     def get_available_pages(self):
