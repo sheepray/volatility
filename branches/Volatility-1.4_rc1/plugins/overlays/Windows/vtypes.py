@@ -54,7 +54,7 @@ xpsp2types = { \
     'Blink' : [ 0x4, ['pointer', ['_LIST_ENTRY']]], \
 } ], \
   '_KUSER_SHARED_DATA' : [ 0x338, { \
-    'SystemTime' : [ 0x14, ['WinTimeStamp', dict(is_utc=True)]], \
+    'SystemTime' : [ 0x14, ['WinTimeStamp', dict(is_utc = True)]], \
     'TimeZoneBias' : [ 0x20, ['WinTimeStamp']], \
     'SuiteMask' : [ 0x2d0, ['unsigned long']], \
     'NumberOfPhysicalPages' : [ 0x2e8, ['unsigned long']], \
@@ -79,7 +79,7 @@ xpsp2types = { \
     'AddressCreationLock' : [ 0xf0, ['_FAST_MUTEX']], \
     'VadRoot' : [ 0x11c, ['pointer', ['void']]], \
     'InheritedFromUniqueProcessId' : [ 0x14c, ['pointer', ['void']]], \
-    'ImageFileName' : [ 0x174, ['array', 16,['unsigned char']]], \
+    'ImageFileName' : [ 0x174, ['array', 16, ['unsigned char']]], \
     'ThreadListHead' : [ 0x190, ['_LIST_ENTRY']], \
     'ActiveThreads' : [ 0x1a0, ['unsigned long']], \
     'Peb' : [ 0x1b0, ['pointer', ['_PEB']]], \
@@ -139,7 +139,7 @@ xpsp2types = { \
     'HandleCount' : [ 0x4, ['int']],
     'Type' : [ 0x8, ['pointer', ['_OBJECT_TYPE']]],
     'NameInfoOffset' : [ 0x0c, ['unsigned char']],
-    'HandleInfoOffset' : [ 0xd, ['unsigned char']],    
+    'HandleInfoOffset' : [ 0xd, ['unsigned char']],
     'QuotaInfoOffset' : [ 0xe, ['unsigned char']],
     'Flags' : [ 0xf, ['unsigned char']],
     'ObjectCreateInfo' : [ 0x10, ['pointer', ['_OBJECT_TYPE']]],
@@ -171,7 +171,7 @@ xpsp2types = { \
 '_OBJECT_TYPE' : [ 0x190, { \
             'Mutex' : [0x0, ['_ERESOURCE']],
             'TypeList' : [0x38, ['_LIST_ENTRY']],
-            'Name' : [ 0x40, ['_UNICODE_STRING']], 
+            'Name' : [ 0x40, ['_UNICODE_STRING']],
             'DefaultObject' : [ 0x48, ['pointer', ['void']]],
             'Index' : [ 0x4c, ['unsigned long']],
             'TotalNumberOfObjects' : [ 0x50, ['unsigned long']],
@@ -188,7 +188,7 @@ xpsp2types = { \
     'DeviceObject' : [ 0x4, ['pointer', ['_DEVICE_OBJECT']]],
     'Vpb' : [ 0x8, ['pointer', ['_VPB']]],
     'FsContext' : [ 0xc, ['pointer', ['void']]],
-    'FsContext2' : [ 0x10, ['pointer', ['void']]],      
+    'FsContext2' : [ 0x10, ['pointer', ['void']]],
     'SectionObjectPointer' : [ 0x14, ['pointer', ['_SECTION_OBJECT_POINTERS']]],
     'PrivateCacheMap' : [ 0x18, ['pointer', ['void']]],
     'FinalStatus' : [ 0x1c, ['unsigned long']],
@@ -409,10 +409,10 @@ xpsp2types = { \
 '_KEVENT' : [  0x10, { \
   'Header' : [ 0x0, ['_DISPATCHER_HEADER']], \
 } ], \
-'_DISPATCHER_HEADER' : [  0x10, { 
-  'Type' : [ 0x0, ['unsigned char']], 
+'_DISPATCHER_HEADER' : [  0x10, {
+  'Type' : [ 0x0, ['unsigned char']],
   'Absolute' : [ 0x1, ['unsigned char']],
-  'Size' : [ 0x2, ['unsigned char']], 
+  'Size' : [ 0x2, ['unsigned char']],
   'Inserted' : [0x3, ['unsigned char']],
   'SignalState' : [ 0x4, ['long']],
   'WaitListHead' : [ 0x8, ['_LIST_ENTRY']],
@@ -421,7 +421,7 @@ xpsp2types = { \
   'Tcb' : [ 0x0, ['_KTHREAD']], \
   'Cid' : [ 0x1ec, ['_CLIENT_ID']], \
   'LpcReplySemaphore' : [ 0x1f4, ['_KSEMAPHORE']], \
-  'CreateTime' : [ 0x1c0, ['ThreadCreateTimeStamp']],  # Note, this is not a WinTimeStamp, it needs to be >> 3
+  'CreateTime' : [ 0x1c0, ['ThreadCreateTimeStamp']], # Note, this is not a WinTimeStamp, it needs to be >> 3
   'ExitTime' : [ 0x1c8, ['WinTimeStamp']], \
   'ThreadsProcess' : [ 0x220, ['pointer', ['_EPROCESS']]], \
   'StartAddress' : [ 0x224, ['pointer', ['void']]], \
@@ -448,11 +448,11 @@ xpsp2types = { \
 '_PHYSICAL_MEMORY_DESCRIPTOR' : [ 0x10, { \
   'NumberOfRuns' : [ 0x0, ['unsigned long']], \
   'NumberOfPages' : [ 0x4, ['unsigned long']], \
-  'Run' : [ 0x8, ['array', 1,['_PHYSICAL_MEMORY_RUN']]], \
+  'Run' : [ 0x8, ['array', 1, ['_PHYSICAL_MEMORY_RUN']]], \
 } ], \
 '_DMP_HEADER' : [ 0x1000, { \
-  'Signature' : [ 0x0, ['array', 4,['unsigned char']]], \
-  'ValidDump' : [ 0x4, ['array', 4,['unsigned char']]], \
+  'Signature' : [ 0x0, ['array', 4, ['unsigned char']]], \
+  'ValidDump' : [ 0x4, ['array', 4, ['unsigned char']]], \
   'MajorVersion' : [ 0x8, ['unsigned long']], \
   'MinorVersion' : [ 0xc, ['unsigned long']], \
   'DirectoryTableBase' : [ 0x10, ['unsigned long']], \
@@ -462,16 +462,16 @@ xpsp2types = { \
   'MachineImageType' : [ 0x20, ['unsigned long']], \
   'NumberProcessors' : [ 0x24, ['unsigned long']], \
   'BugCheckCode' : [ 0x28, ['unsigned long']], \
-  'BugCheckCodeParameter' : [ 0x2c, ['array', 4,['unsigned long']]], \
-  'VersionUser' : [ 0x3c, ['array', 32,['unsigned char']]], \
+  'BugCheckCodeParameter' : [ 0x2c, ['array', 4, ['unsigned long']]], \
+  'VersionUser' : [ 0x3c, ['array', 32, ['unsigned char']]], \
   'PaeEnabled' : [ 0x5c, ['unsigned char']], \
   'KdSecondaryVersion' : [ 0x5d, ['unsigned char']], \
-  'VersionUser' : [ 0x5e, ['array', 2,['unsigned char']]], \
+  'VersionUser' : [ 0x5e, ['array', 2, ['unsigned char']]], \
   'KdDebuggerDataBlock' : [ 0x60, ['unsigned long']], \
   'PhysicalMemoryBlockBuffer' : [ 0x64, ['_PHYSICAL_MEMORY_DESCRIPTOR']], \
-  'ContextRecord' : [ 0x320, ['array', 1200,['unsigned char']]], \
+  'ContextRecord' : [ 0x320, ['array', 1200, ['unsigned char']]], \
   'Exception' : [ 0x7d0, ['_EXCEPTION_RECORD32']], \
-  'Comment' : [ 0x820, ['array', 128,['unsigned char']]], \
+  'Comment' : [ 0x820, ['array', 128, ['unsigned char']]], \
   'DumpType' : [ 0xf88, ['unsigned long']], \
   'MiniDumpFields' : [ 0xf8c, ['unsigned long']], \
   'SecondaryDataState' : [ 0xf90, ['unsigned long']], \
@@ -481,7 +481,7 @@ xpsp2types = { \
   'RequiredDumpSpace' : [ 0xfa0, ['unsigned __int64']], \
   'SystemUpTime' : [ 0xfb8, ['unsigned __int64']], \
   'SystemTime' : [ 0xfc0, ['unsigned __int64']], \
-  'reserved3' : [ 0xfc8, ['array', 56,['unsigned char']]], \
+  'reserved3' : [ 0xfc8, ['array', 56, ['unsigned char']]], \
 } ], \
   '_TEB' : [ 0xfb8, { \
     'ProcessEnvironmentBlock' : [ 0x30, ['pointer', ['_PEB']]], \
@@ -511,7 +511,7 @@ xpsp2types = { \
 } ], \
 '_CM_NAME_CONTROL_BLOCK' : [  0x10, { \
   'NameLength' : [ 0xc, ['unsigned short']], \
-  'Name' : [ 0xe, ['String', dict(length=lambda x: x.NameLength)]], \
+  'Name' : [ 0xe, ['String', dict(length = lambda x: x.NameLength)]], \
 } ], \
 '_IMAGE_DOS_HEADER' : [  0x40, { \
   'e_lfanew' : [ 0x3c, ['long']], \
@@ -535,7 +535,7 @@ xpsp2types = { \
     'VirtualSize' : [ 0x0, ['unsigned long']],
 } ],
 '_IMAGE_SECTION_HEADER' : [  0x28, { \
-  'Name' : [ 0x0, ['array', 8,['unsigned char']]], \
+  'Name' : [ 0x0, ['array', 8, ['unsigned char']]], \
   'Misc' : [ 0x8, ['__misc']],
   'VirtualAddress' : [ 0xc, ['unsigned long']], \
   'SizeOfRawData' : [ 0x10, ['unsigned long']], \
@@ -554,7 +554,7 @@ xpsp2types = { \
 
 ## These are registry related types
   '_CM_KEY_NODE' : [ 0x50, {
-    'Signature' : [ 0x0, ['String', dict(length=2)]],
+    'Signature' : [ 0x0, ['String', dict(length = 2)]],
     'Flags' : [ 0x2, ['unsigned short']],
     'LastWriteTime' : [ 0x4, ['WinTimeStamp', {}]],
     'Spare' : [ 0xc, ['unsigned long']],
@@ -572,7 +572,7 @@ xpsp2types = { \
     'WorkVar' : [ 0x44, ['unsigned long']],
     'NameLength' : [ 0x48, ['unsigned short']],
     'ClassLength' : [ 0x4a, ['unsigned short']],
-    'Name' : [ 0x4c, ['String', dict(length=lambda x: x.NameLength)]],
+    'Name' : [ 0x4c, ['String', dict(length = lambda x: x.NameLength)]],
 } ],
   '_CM_KEY_REFERENCE' : [ 0x8, {
     'KeyCell' : [ 0x0, ['unsigned long']],
@@ -602,19 +602,19 @@ xpsp2types = { \
     'Dacl' : [ 0x10, ['unsigned long']],
 } ],
   '_CM_KEY_VALUE' : [ 0x18, {
-    'Signature' : [ 0x0, ['String', dict(length=2)]],
+    'Signature' : [ 0x0, ['String', dict(length = 2)]],
     'NameLength' : [ 0x2, ['unsigned short']],
     'DataLength' : [ 0x4, ['unsigned long']],
     'Data' : [ 0x8, ['unsigned long']],
     'Type' : [ 0xc, ['unsigned long']],
     'Flags' : [ 0x10, ['unsigned short']],
     'Spare' : [ 0x12, ['unsigned short']],
-    'Name' : [ 0x14, ['String', dict(length=lambda x: x.NameLength)]],
+    'Name' : [ 0x14, ['String', dict(length = lambda x: x.NameLength)]],
 } ],
   '_CM_KEY_INDEX' : [ 0x8, {
-    'Signature' : [ 0x0, ['String', dict(length=2)]],
+    'Signature' : [ 0x0, ['String', dict(length = 2)]],
     'Count' : [ 0x2, ['unsigned short']],
-    'List' : [ 0x4, ['array', lambda x: 2*x.Count.v(), ['pointer', ['_CM_KEY_NODE']]]],
+    'List' : [ 0x4, ['array', lambda x: 2 * x.Count.v(), ['pointer', ['_CM_KEY_NODE']]]],
 } ],
   '_CMHIVE' : [ 0x49c, {
     'Hive' : [ 0x0, ['_HHIVE']],
@@ -733,7 +733,7 @@ xpsp2types = { \
     'QuadPart' : [ 0x0, ['long long']],
 } ],
     '_IMAGE_HIBER_HEADER' : [ 0xbc, { \
-    'Signature' : [ 0x0, ['array', 4,['unsigned char']]], \
+    'Signature' : [ 0x0, ['array', 4, ['unsigned char']]], \
     'SystemTime' : [ 0x20, ['_LARGE_INTEGER']], \
     'FirstTablePage' : [ 0x58, ['unsigned long']], \
 } ], \
@@ -769,11 +769,11 @@ xpsp2types = { \
     '_PHYSICAL_MEMORY_DESCRIPTOR' : [ 0x10, { \
     'NumberOfRuns' : [ 0x0, ['unsigned long']], \
     'NumberOfPages' : [ 0x4, ['unsigned long']], \
-    'Run' : [ 0x8, ['array', 1,['_PHYSICAL_MEMORY_RUN']]], \
+    'Run' : [ 0x8, ['array', 1, ['_PHYSICAL_MEMORY_RUN']]], \
 } ], \
   '_DMP_HEADER' : [ 0x1000, { \
-    'Signature' : [ 0x0, ['array', 4,['unsigned char']]], \
-    'ValidDump' : [ 0x4, ['array', 4,['unsigned char']]], \
+    'Signature' : [ 0x0, ['array', 4, ['unsigned char']]], \
+    'ValidDump' : [ 0x4, ['array', 4, ['unsigned char']]], \
     'MajorVersion' : [ 0x8, ['unsigned long']], \
     'MinorVersion' : [ 0xc, ['unsigned long']], \
     'DirectoryTableBase' : [ 0x10, ['unsigned long']], \
@@ -783,16 +783,16 @@ xpsp2types = { \
     'MachineImageType' : [ 0x20, ['unsigned long']], \
     'NumberProcessors' : [ 0x24, ['unsigned long']], \
     'BugCheckCode' : [ 0x28, ['unsigned long']], \
-    'BugCheckCodeParameter' : [ 0x2c, ['array', 4,['unsigned long']]], \
-    'VersionUser' : [ 0x3c, ['array', 32,['unsigned char']]], \
+    'BugCheckCodeParameter' : [ 0x2c, ['array', 4, ['unsigned long']]], \
+    'VersionUser' : [ 0x3c, ['array', 32, ['unsigned char']]], \
     'PaeEnabled' : [ 0x5c, ['unsigned char']], \
     'KdSecondaryVersion' : [ 0x5d, ['unsigned char']], \
-    'VersionUser' : [ 0x5e, ['array', 2,['unsigned char']]], \
+    'VersionUser' : [ 0x5e, ['array', 2, ['unsigned char']]], \
     'KdDebuggerDataBlock' : [ 0x60, ['unsigned long']], \
     'PhysicalMemoryBlockBuffer' : [ 0x64, ['_PHYSICAL_MEMORY_DESCRIPTOR']], \
-    'ContextRecord' : [ 0x320, ['array', 1200,['unsigned char']]], \
+    'ContextRecord' : [ 0x320, ['array', 1200, ['unsigned char']]], \
     'Exception' : [ 0x7d0, ['_EXCEPTION_RECORD32']], \
-    'Comment' : [ 0x820, ['array', 128,['unsigned char']]], \
+    'Comment' : [ 0x820, ['array', 128, ['unsigned char']]], \
     'DumpType' : [ 0xf88, ['unsigned long']], \
     'MiniDumpFields' : [ 0xf8c, ['unsigned long']], \
     'SecondaryDataState' : [ 0xf90, ['unsigned long']], \
@@ -802,7 +802,7 @@ xpsp2types = { \
     'RequiredDumpSpace' : [ 0xfa0, ['unsigned __int64']], \
     'SystemUpTime' : [ 0xfb8, ['unsigned __int64']], \
     'SystemTime' : [ 0xfc0, ['unsigned __int64']], \
-    'reserved3' : [ 0xfc8, ['array', 56,['unsigned char']]], \
+    'reserved3' : [ 0xfc8, ['array', 56, ['unsigned char']]], \
 } ], \
 ## These types are from Andreas Schuster's driverscan
     '_DRIVER_OBJECT' : [ 0xa8, {
@@ -850,16 +850,16 @@ xpsp2types = { \
 xpsp2overlays = {
     'VOLATILITY_MAGIC' : [None, { \
     'DTB' : [ 0x0, ['VolatilityDTB']],
-    'DTBSignature' : [ 0x0, ['VolatilityMagic', dict(value="\x03\x00\x1b\x00")]],
-    'KPCR' : [ 0x0, ['VolatilityMagic', dict(value=0xffdff000)]],
-    'KUSER_SHARED_DATA' : [ 0x0, ['VolatilityMagic', dict(value=0xFFDF0000)]],
+    'DTBSignature' : [ 0x0, ['VolatilityMagic', dict(value = "\x03\x00\x1b\x00")]],
+    'KPCR' : [ 0x0, ['VolatilityMagic', dict(value = 0xffdff000)]],
+    'KUSER_SHARED_DATA' : [ 0x0, ['VolatilityMagic', dict(value = 0xFFDF0000)]],
     }],
-    
+
     '_EPROCESS' : [ None, { \
     'CreateTime' : [ None, ['WinTimeStamp', {}]],
-    'ExitTime' : [ None, ['WinTimeStamp', {}]], 
+    'ExitTime' : [ None, ['WinTimeStamp', {}]],
     'InheritedFromUniqueProcessId' : [ None, ['unsigned int']],
-    'ImageFileName' : [ None, ['String', dict(length=16)]],
+    'ImageFileName' : [ None, ['String', dict(length = 16)]],
     'UniqueProcessId' : [ None, ['unsigned int']], \
     'VadRoot': [ None, ['pointer', ['_MMVAD']]], \
     }],
@@ -878,22 +878,22 @@ xpsp2overlays = {
     'Body' : [ None, ['unsigned int']],
     }],
 
-    '_KDDEBUGGER_DATA64' : [ None, { 
+    '_KDDEBUGGER_DATA64' : [ None, {
     'PsActiveProcessHead' : [ None, ['pointer', ['unsigned long']]], \
     }],
-    
+
     '_DBGKD_GET_VERSION64' : [  None, {
     'DebuggerDataList' : [ None, ['pointer', ['unsigned long']]], \
     }],
-    
+
     '_DMP_HEADER' : [ None, {
-    'PsActiveProcessHead' : [ None, ['pointer' ,['unsigned long']]], \
+    'PsActiveProcessHead' : [ None, ['pointer' , ['unsigned long']]], \
     }],
 
     '_CM_KEY_NODE' : [ None, {
-    'Signature' : [ None, ['String', dict(length=2)]],
+    'Signature' : [ None, ['String', dict(length = 2)]],
     'LastWriteTime' : [ None, ['WinTimeStamp', {}]],
-    'Name' : [ None, ['String', dict(length=lambda x: x.NameLength)]],
+    'Name' : [ None, ['String', dict(length = lambda x: x.NameLength)]],
     }],
 
     '_CHILD_LIST' : [ None, {
@@ -902,17 +902,17 @@ xpsp2overlays = {
     }],
 
     '_CM_KEY_VALUE' : [ None, {
-    'Signature' : [ None, ['String', dict(length=2)]],
-    'Name' : [ None, ['String', dict(length=lambda x: x.NameLength)]],
+    'Signature' : [ None, ['String', dict(length = 2)]],
+    'Name' : [ None, ['String', dict(length = lambda x: x.NameLength)]],
     } ],
 
     '_CM_KEY_INDEX' : [ None, {
-    'Signature' : [ None, ['String', dict(length=2)]],
+    'Signature' : [ None, ['String', dict(length = 2)]],
     'List' : [ None, ['array', lambda x: x.Count.v() * 2, ['pointer', ['_CM_KEY_NODE']]]],
     } ],
-    
+
     '_IMAGE_HIBER_HEADER' : [ None, { \
-    'Signature':   [ None, ['String', dict(length=4)]],
+    'Signature':   [ None, ['String', dict(length = 4)]],
     'SystemTime' : [ None, ['WinTimeStamp', {}]], \
     } ], \
 
@@ -923,10 +923,10 @@ xpsp2overlays = {
     ## This is different between Windows 2000 and WinXP. This overlay
     ## is for xp.
     '_POOL_HEADER' : [ None, { \
-    'PoolIndex': [ 0x0, ['BitField', dict(start_bit = 9, end_bit = 16)]], 
-    'BlockSize': [ 0x2, ['BitField', dict(start_bit = 0, end_bit = 9)]], 
+    'PoolIndex': [ 0x0, ['BitField', dict(start_bit = 9, end_bit = 16)]],
+    'BlockSize': [ 0x2, ['BitField', dict(start_bit = 0, end_bit = 9)]],
     'PoolType': [ 0x2, [ 'BitField', dict(start_bit = 9, end_bit = 16)]],
-    } ],\
+    } ], \
 
     '_TCPT_OBJECT': [ None, {
     'RemotePort': [ None, [ 'unsigned be short']],
@@ -947,7 +947,7 @@ xpsp2overlays = {
     'FailAllIo' : 0x4,
     'Image' : 0x5,
     'Based' : 0x6,
-    'File'  : 0x7, 
+    'File'  : 0x7,
     'Networked' : 0x8,
     'NoCache' : 0x9,
     'PhysicalMemory' : 0xa,
@@ -962,12 +962,12 @@ xpsp2overlays = {
     'FilePointerNull' : 0x13,
     'DebugSymbolsLoaded' : 0x14,
     'SetMappedFileIoComplete' : 0x15,
-    'CollidedFlush' : 0x16, 
-    'NoChange' : 0x17, 
+    'CollidedFlush' : 0x16,
+    'NoChange' : 0x17,
     'HadUserReference' : 0x18,
     'ImageMappedInSystemSpace' : 0x19,
     'UserWritable' : 0x1a,
-    'Accessed' : 0x1b, 
+    'Accessed' : 0x1b,
     'GlobalOnlyPerSession' : 0x1c,
     'Rom' : 0x1d,
     },
@@ -991,7 +991,7 @@ xpsp2overlays['_MMVAD_SHORT'] = [ None, {
     'PrivateMemory': 0x1f,
     },
   'maskmap': {
-    'CommitCharge' : [0x0, 0x13], 
+    'CommitCharge' : [0x0, 0x13],
     'Protection' : [0x18, 0x5],
     }
   } ] ],
@@ -999,7 +999,7 @@ xpsp2overlays['_MMVAD_SHORT'] = [ None, {
 
 xpsp2overlays['_MMVAD_LONG'] = [ None, {
     'Flags': xpsp2overlays['_MMVAD_SHORT'][1]['Flags'],
-    
+
     'Flags2': [ None, ['Flags',
   {'bitmap': {
     'SecNoChange' : 0x18,
@@ -1012,7 +1012,7 @@ xpsp2overlays['_MMVAD_LONG'] = [ None, {
     'CopyOnWrite' : 0x1f,
     },
   'maskmap': {
-    'FileOffset' : [0x0, 0x18], 
+    'FileOffset' : [0x0, 0x18],
     }
   } ] ],
     } ]

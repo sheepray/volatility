@@ -56,7 +56,7 @@ class _UNICODE_STRING(obj.CType):
             if length > 1024:
                 length = 0
             data = self.vm.read(self.Buffer.v(), length)
-            return data.decode("utf16","ignore").encode("ascii",'backslashreplace')
+            return data.decode("utf16", "ignore").encode("ascii", 'backslashreplace')
         except Exception, _e:
             return ''
 
@@ -72,10 +72,10 @@ class _UNICODE_STRING(obj.CType):
 
 class _LIST_ENTRY(obj.CType):
     """ Adds iterators for _LIST_ENTRY types """
-    def list_of_type(self, type, member, forward=True):
+    def list_of_type(self, type, member, forward = True):
         if not self.is_valid():
             return
-        
+
         ## Get the first element
         if forward:
             lst = self.Flink.dereference()
@@ -86,13 +86,13 @@ class _LIST_ENTRY(obj.CType):
 
         seen = set()
         seen.add(lst.offset)
-        
-        while 1:            
+
+        while 1:
             ## Instantiate the object
             item = obj.Object(type, offset = lst.offset - offset,
-                                    vm=self.vm,
-                                    parent=self.parent,
-                                    name=type)
+                                    vm = self.vm,
+                                    parent = self.parent,
+                                    name = type)
 
 
             if forward:
@@ -114,12 +114,12 @@ class _LIST_ENTRY(obj.CType):
         return self.list_of_type(self.parent.name, self.name)
 
 class WinTimeStamp(obj.NativeType):
-    
-    def __init__(self, theType=None, offset=None, vm=None,
-                 parent=None, name=None, is_utc=False, **args):
+
+    def __init__(self, theType = None, offset = None, vm = None,
+                 parent = None, name = None, is_utc = False, **args):
         self.is_utc = is_utc
-        obj.NativeType.__init__(self, theType, offset, vm, parent=parent, 
-                                name=name, format_string="q")
+        obj.NativeType.__init__(self, theType, offset, vm, parent = parent,
+                                name = name, format_string = "q")
 
     def windows_to_unix_time(self, windows_time):
         """
@@ -159,7 +159,7 @@ class WinTimeStamp(obj.NativeType):
         dt = datetime.datetime.utcfromtimestamp(self.v())
         if self.is_utc:
             # Only do dt.replace when dealing with UTC
-            dt = dt.replace(tzinfo=timefmt.UTC())
+            dt = dt.replace(tzinfo = timefmt.UTC())
         return dt
 
     def __format__(self, formatspec):
@@ -170,10 +170,10 @@ class WinTimeStamp(obj.NativeType):
 LEVEL_MASK = 0xfffffff8
 
 class ThreadCreateTimeStamp(WinTimeStamp):
-    
+
     def __init__(self, *args, **kwargs):
-        WinTimeStamp.__init__(self, *args,  **kwargs)
-    
+        WinTimeStamp.__init__(self, *args, **kwargs)
+
     def as_windows_timestamp(self):
         return obj.NativeType.v(self) >> 3
 
@@ -188,15 +188,15 @@ class _EPROCESS(obj.CType):
         """
         process_ad = self.get_process_address_space()
         if process_ad:
-            offset =  self.m("Peb").v()
-            peb = obj.Object("_PEB", offset, vm=process_ad, 
-                                    name = "Peb", parent=self)
+            offset = self.m("Peb").v()
+            peb = obj.Object("_PEB", offset, vm = process_ad,
+                                    name = "Peb", parent = self)
 
             if peb.is_valid():
                 return peb
 
         return obj.NoneObject("Peb not found")
-            
+
     def get_process_address_space(self):
         """ Gets a process address space for a task given in _EPROCESS """
         directory_table_base = self.Pcb.DirectoryTableBase.v()
@@ -205,7 +205,7 @@ class _EPROCESS(obj.CType):
             process_as = self.vm.__class__(self.vm.base, dtb = directory_table_base)
         except AssertionError, _e:
             return obj.NoneObject("Unable to get process AS")
-        
+
         process_as.name = "Process {0}".format(self.UniqueProcessId)
 
         return process_as
@@ -215,8 +215,8 @@ class _EPROCESS(obj.CType):
         and iterates over them.
 
         """
-        table = obj.Array("_HANDLE_TABLE_ENTRY", offset=offset, vm=self.vm,
-                              count=0x200, parent=self)
+        table = obj.Array("_HANDLE_TABLE_ENTRY", offset = offset, vm = self.vm,
+                              count = 0x200, parent = self)
         for t in table:
             offset = t.dereference_as('unsigned int')
             if not offset.is_valid():
@@ -224,21 +224,21 @@ class _EPROCESS(obj.CType):
 
             if level > 0:
                 ## We need to go deeper:
-                for h in self._make_handle_array(offset, level-1):
+                for h in self._make_handle_array(offset, level - 1):
                     yield h
             else:
                 ## OK We got to the bottom table, we just resolve
                 ## objects here:
                 offset = int(offset) & ~0x00000007
                 item = obj.Object("_OBJECT_HEADER", offset, self.vm,
-                                        parent=self)
+                                        parent = self)
                 try:
                     if item.Type.Name:
                         yield item
 
                 except AttributeError:
                     pass
-        
+
     def handles(self):
         """ A generator which yields this process's handles
 
@@ -265,7 +265,7 @@ import socket, struct
 class _TCPT_OBJECT(obj.CType):
     def _RemoteIpAddress(self, attr):
         return socket.inet_ntoa(struct.pack("<I", self.m(attr).v()))
-    
+
     def _LocalIpAddress(self, attr):
         return socket.inet_ntoa(struct.pack("<I", self.m(attr).v()))
 
@@ -287,15 +287,15 @@ class _MMVAD(obj.CType):
         ## _EPROCESS over our parent, and having it give us the
         ## correct AS
         if vm.name.startswith("Kernel"):
-            eprocess = obj.Object("_EPROCESS", offset=parent.offset, vm=vm)
+            eprocess = obj.Object("_EPROCESS", offset = parent.offset, vm = vm)
             vm = eprocess.get_process_address_space()
             if not vm:
                 return vm
-            
+
         ## What type is this struct?
         tag = vm.read(offset - 4, 4)
         theType = switch.get(tag)
-        
+
         if not theType:
             return obj.NoneObject("Tag {0} not knowns".format(tag))
 
@@ -303,7 +303,7 @@ class _MMVAD(obj.CType):
         ## completely different object here (including
         ## NoneObject). This also means that we can not add any
         ## specialist methods to the _MMVAD class.
-        result = obj.Object(theType, offset=offset, vm=vm, parent=parent, **args)
+        result = obj.Object(theType, offset = offset, vm = vm, parent = parent, **args)
         result.newattr('Tag', tag)
 
         return result
@@ -321,14 +321,14 @@ class _MMVAD_SHORT(obj.CType):
         ## We try to prevent loops here
         if self.offset in visited:
             return
-        
+
         yield self
 
-        for c in self.LeftChild.traverse(visited=visited):
+        for c in self.LeftChild.traverse(visited = visited):
             visited.add(c.offset)
             yield c
-            
-        for c in self.RightChild.traverse(visited=visited):
+
+        for c in self.RightChild.traverse(visited = visited):
             visited.add(c.offset)
             yield c
 

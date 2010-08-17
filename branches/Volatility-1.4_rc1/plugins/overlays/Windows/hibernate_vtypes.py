@@ -60,7 +60,7 @@ hibernate_vtypes = { \
     'QuadPart' : [ 0x0, ['long long']],
 } ],
     '_IMAGE_HIBER_HEADER' : [ 0xbc, { \
-    'Signature' : [ 0x0, ['array', 4,['unsigned char']]], \
+    'Signature' : [ 0x0, ['array', 4, ['unsigned char']]], \
     'SystemTime' : [ 0x20, ['_LARGE_INTEGER']], \
     'FirstTablePage' : [ 0x58, ['unsigned long']], \
 } ], \

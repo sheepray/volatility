@@ -29,7 +29,7 @@ import volatility.obj as obj
 import Basic
 
 class VolatilityKPCR(Basic.VolatilityMagic):
-    
+
     def get_suggestions(self):
         scan = KPCRScanner()
         for val in scan.scan(self.vm):
@@ -39,7 +39,7 @@ class KPCRScannerCheck(scan.ScannerCheck):
     def __init__(self, address_space):
         scan.ScannerCheck.__init__(self, address_space)
         self.vm = address_space
-        kpcr = obj.Object("_KPCR", vm=self.vm, offset=0)
+        kpcr = obj.Object("_KPCR", vm = self.vm, offset = 0)
         self.SelfPcr_offset = kpcr.SelfPcr.offset
         self.Prcb_offset = kpcr.Prcb.offset
         self.PrcbData_offset = kpcr.PrcbData.offset
@@ -51,8 +51,8 @@ class KPCRScannerCheck(scan.ScannerCheck):
         paPRCBDATA = offset + self.PrcbData_offset
 
         try:
-            pSelfPCR = obj.Object('unsigned long', offset=(offset + self.SelfPcr_offset), vm=self.vm)
-            pPrcb = obj.Object('unsigned long', offset=(offset + self.Prcb_offset), vm=self.vm)
+            pSelfPCR = obj.Object('unsigned long', offset = (offset + self.SelfPcr_offset), vm = self.vm)
+            pPrcb = obj.Object('unsigned long', offset = (offset + self.Prcb_offset), vm = self.vm)
             if (pSelfPCR == paKCPR and pPrcb == paPRCBDATA):
                 self.KPCR = pSelfPCR
                 return True
@@ -80,12 +80,12 @@ class KPCRScannerCheck(scan.ScannerCheck):
             if (new_offset % 4) == 0:
                 return new_offset - self.SelfPcr_offset - 1
 
-        return len(data)-offset
+        return len(data) - offset
 
 class KPCRScanner(scan.DiscontigScanner):
     checks = [ ("KPCRScannerCheck", {})
                ]
-    def scan(self, address_space, offset=0, maxlen=None):
+    def scan(self, address_space, offset = 0, maxlen = None):
         return scan.DiscontigScanner.scan(self, address_space, max(offset, 0x80000000), maxlen)
 
 

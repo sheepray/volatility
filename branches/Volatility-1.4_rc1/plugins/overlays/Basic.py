@@ -31,22 +31,22 @@ import volatility.constants as constants
 
 class String(obj.NativeType):
     """Class for dealing with Strings"""
-    def __init__(self, theType, offset, vm=None,
-                 length=1, parent=None, profile=None, name=None, **args):
+    def __init__(self, theType, offset, vm = None,
+                 length = 1, parent = None, profile = None, name = None, **args):
         ## Allow length to be a callable:
         try:
             length = length(parent)
         except TypeError:
             pass
-        
+
         ## length must be an integer
-        obj.NativeType.__init__(self, theType, offset, vm, parent=parent, profile=profile,
-                            name=name, format_string="{0}s".format(length))
+        obj.NativeType.__init__(self, theType, offset, vm, parent = parent, profile = profile,
+                            name = name, format_string = "{0}s".format(length))
 
     def proxied(self, name):
         """ Return an object to be proxied """
         return self.__str__()
-    
+
     def __str__(self):
         data = self.v()
         ## Make sure its null terminated:
@@ -54,14 +54,14 @@ class String(obj.NativeType):
         if not result:
             return ""
         return result
-    
+
     def __format__(self, formatspec):
         return format(self.__str__(), formatspec)
-    
+
     def __add__(self, other):
         """Set up mappings for concat"""
         return str(self) + other
-    
+
     def __radd__(self, other):
         """Set up mappings for reverse concat"""
         return other + str(self)
@@ -75,8 +75,8 @@ class Flags(obj.NativeType):
     ## consisting of a list of start, width bits
     maskmap = {}
 
-    def __init__(self, targetType=None, offset=0, vm=None, parent=None,
-                 bitmap=None, name=None, maskmap=None, target="unsigned long",
+    def __init__(self, targetType = None, offset = 0, vm = None, parent = None,
+                 bitmap = None, name = None, maskmap = None, target = "unsigned long",
                  **args):
         if bitmap:
             self.bitmap = bitmap
@@ -84,7 +84,7 @@ class Flags(obj.NativeType):
         if maskmap:
             self.maskmap = maskmap
 
-        self.target = obj.Object(target, offset=offset, vm=vm, parent=parent)
+        self.target = obj.Object(target, offset = offset, vm = vm, parent = parent)
         obj.NativeType.__init__(self, targetType, offset, vm, parent, **args)
 
     def v(self):
@@ -109,22 +109,22 @@ class Flags(obj.NativeType):
         if not maprange:
             return obj.NoneObject("Mask {0} not known".format(attr))
 
-        bits = 2**maprange[1] - 1
+        bits = 2 ** maprange[1] - 1
         mask = bits << maprange[0]
 
         return self.v() & mask
-    
+
 class Enumeration(obj.NativeType):
     """Enumeration class for handling multiple possible meanings for a single value"""
 
-    def __init__(self, targetType=None, offset=0, vm=None, parent=None,
-                 choices=None, name=None, target="unsigned long",
+    def __init__(self, targetType = None, offset = 0, vm = None, parent = None,
+                 choices = None, name = None, target = "unsigned long",
                  **args):
         self.choices = {}
         if choices:
             self.choices = choices
 
-        self.target = obj.Object(target, offset=offset, vm=vm, parent=parent)
+        self.target = obj.Object(target, offset = offset, vm = vm, parent = parent)
         obj.NativeType.__init__(self, targetType, offset, vm, parent, **args)
 
     def v(self):
@@ -138,17 +138,17 @@ class Enumeration(obj.NativeType):
 
     def __format__(self, formatspec):
         return format(self.__str__(), formatspec)
-    
+
 class VolatilityMagic(obj.BaseObject):
     """Class to contain Volatility Magic value"""
-    
-    def __init__(self, theType, offset, vm, parent=None, value=None, name=None):
+
+    def __init__(self, theType, offset, vm, parent = None, value = None, name = None):
         try:
             obj.BaseObject.__init__(self, theType, offset, vm, parent, name)
         except obj.InvalidOffsetError:
             pass
         self.value = value
-        
+
     def v(self):
         # We explicitly want to check for None,
         # in case the user wants a value 
@@ -157,10 +157,10 @@ class VolatilityMagic(obj.BaseObject):
             return self.get_best_suggestion()
         else:
             return self.value
-    
+
     def __str__(self):
         return self.v()
-    
+
     def get_suggestions(self):
         """Returns a list of possible suggestions for the value
         
@@ -171,23 +171,23 @@ class VolatilityMagic(obj.BaseObject):
            since 
         """
         yield self.v()
-        
-    
+
+
     def get_best_suggestion(self):
         """Returns the best suggestion for a list of possible suggestsions"""
         for val in self.get_suggestions():
             return val
         else:
             return obj.NoneObject("No suggestions available")
-    
+
 class VOLATILITY_MAGIC(obj.CType):
     """Class representing a VOLATILITY_MAGIC namespace
     
        Needed to ensure that the address space is not verified as valid for constants
     """
-    def __init__(self, theType, offset, vm, parent=None, members=None, name=None, size=0):
+    def __init__(self, theType, offset, vm, parent = None, members = None, name = None, size = 0):
         try:
-            obj.CType.__init__(self, theType, offset, vm, parent=parent, members=members, name=name, size=size)
+            obj.CType.__init__(self, theType, offset, vm, parent = parent, members = members, name = name, size = size)
         except obj.InvalidOffsetError:
             # The exception will be raised before this point,
             # so we must finish off the CType's __init__ ourselves
@@ -204,17 +204,17 @@ class VolatilityDTB(VolatilityMagic):
                 break
 
             while 1:
-                found = data.find(str(self.parent.DTBSignature), found+1)
+                found = data.find(str(self.parent.DTBSignature), found + 1)
                 if found >= 0:
                     # (_type, _size) = unpack('=HH', data[found:found+4])
                     proc = obj.Object("_EPROCESS",
-                                             offset = offset+found,
-                                             vm=self.vm)
+                                             offset = offset + found,
+                                             vm = self.vm)
                     if 'Idle' in proc.ImageFileName.v():
                         yield proc.Pcb.DirectoryTableBase.v()
                 else:
                     break
 
             offset += len(data)
-        
-        
+
+

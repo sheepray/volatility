@@ -39,10 +39,10 @@ import volatility.debug as debug #pylint: disable-msg=W0611
 
 vistasp0x86overlays = copy.deepcopy(vtypes.xpsp2overlays)
 
-vistasp0x86overlays['_MMVAD_SHORT'][1]['Flags'][0] =  lambda x: x['u'][0] 
-vistasp0x86overlays['_CONTROL_AREA'][1]['Flags'][0] =  lambda x: x['u'][0] 
-vistasp0x86overlays['_MMVAD_LONG'][1]['Flags'][0] =  lambda x: x['u'][0] 
-vistasp0x86overlays['_MMVAD_LONG'][1]['Flags2'][0] =  lambda x: x['u'][0] 
+vistasp0x86overlays['_MMVAD_SHORT'][1]['Flags'][0] = lambda x: x['u'][0]
+vistasp0x86overlays['_CONTROL_AREA'][1]['Flags'][0] = lambda x: x['u'][0]
+vistasp0x86overlays['_MMVAD_LONG'][1]['Flags'][0] = lambda x: x['u'][0]
+vistasp0x86overlays['_MMVAD_LONG'][1]['Flags2'][0] = lambda x: x['u'][0]
 
 vista_sp0_x86_vtypes.ntkrnlmp_types.update(crashdump.crash_vtypes)
 vista_sp0_x86_vtypes.ntkrnlmp_types.update(hibernate_vtypes.hibernate_vtypes)
