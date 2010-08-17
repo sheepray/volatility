@@ -15,7 +15,7 @@ This page documents the things we want to accomplish in the 1.4 branch, so we ca
   # ~~Add in profile (OS) dependent default variables (DTB/KPCR, etc)~~
     * ~~Done by:~~
       * ~~implementing constant/algorithmic vtypes for profile-specific signatures~~
-    * Goals for 1.4 are:
+    * ~~Goals for 1.4 are:~~
       # ~~DTB finder plugin~~
       # ~~KPCR finder plugin~~
   # ~~Stabilize the interfaces for ASes/Scanners/Plugins/etc~~
