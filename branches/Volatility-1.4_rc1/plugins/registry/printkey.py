@@ -54,7 +54,7 @@ def hd(src, length = 16):
         N += length
     return result
 
-class printkey(commands.command):
+class PrintKey(commands.command):
     "Print a registry key, and its subkeys and values"
     # Declare meta information associated with this plugin
 

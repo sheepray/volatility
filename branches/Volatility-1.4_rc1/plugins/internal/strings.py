@@ -26,7 +26,7 @@ import volatility.win32 as win32
 import volatility.conf as conf
 config = conf.ConfObject()
 
-class strings(commands.command):
+class Strings(commands.command):
     """Match physical offsets to virtual addresses (may take a while, VERY verbose)"""
 
     def __init__(self, *args):

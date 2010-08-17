@@ -183,7 +183,7 @@ class ThreadScan(scan.BaseScanner):
                ("CheckThreadSemaphores", {})
                ]
 
-class thrdscan(commands.command):
+class ThrdScan(commands.command):
     """ Scan Physical memory for _ETHREAD objects"""
     def calculate(self):
         address_space = utils.load_as(astype = 'physical')
@@ -202,7 +202,7 @@ class thrdscan(commands.command):
                                                                            ethread.ExitTime or '',
                                                                            ethread.offset))
 
-class PSScan(scan.DiscontigScanner):
+class PSScanner(scan.DiscontigScanner):
     """ This scanner carves things that look like _EPROCESS structures.
 
     Since the _EPROCESS does not need to be linked to the process
@@ -215,7 +215,7 @@ class PSScan(scan.DiscontigScanner):
                ("CheckSynchronization", {})
                ]
 
-class psscan(commands.command, cache.Testable):
+class PSScan(commands.command, cache.Testable):
     """ Scan Physical memory for _EPROCESS objects"""
 
     # Declare meta information associated with this plugin
@@ -234,7 +234,7 @@ class psscan(commands.command, cache.Testable):
     def calculate(self):
         address_space = utils.load_as(astype = 'physical')
 
-        for offset in PSScan().scan(address_space):
+        for offset in PSScanner().scan(address_space):
             yield obj.Object('_EPROCESS', vm = address_space, offset = offset)
 
     def render_dot(self, outfd, data):

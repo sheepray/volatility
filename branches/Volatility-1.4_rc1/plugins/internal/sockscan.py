@@ -58,7 +58,7 @@ class PoolScanSockFast(scan.PoolScanner):
                ('CheckPoolIndex', dict(value = 0))
                ]
 
-class sockscan(commands.command):
+class SockScan(commands.command):
     """ Scan Physical memory for _ADDRESS_OBJECT objects (tcp sockets)
     """
 

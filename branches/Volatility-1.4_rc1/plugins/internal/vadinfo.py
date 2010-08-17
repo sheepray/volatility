@@ -35,7 +35,7 @@ import volatility.debug as debug #pylint: disable-msg=W0611
 config = volatility.conf.ConfObject()
 
 # Inherit from dlllist just for the config options (__init__)
-class vadinfo(taskmods.dlllist):
+class VADInfo(taskmods.DllList):
     """Dump the VAD info"""
 
     def render_text(self, outfd, data):
@@ -101,7 +101,7 @@ class vadinfo(taskmods.dlllist):
             # FIXME: Add in the extra bits, after deciding on names for u3 and u4
             outfd.write("Extended information available\n")
 
-class vadtree(vadinfo):
+class VADTree(VADInfo):
     """Walk the VAD tree and display in tree format"""
 
     def render_text(self, outfd, data):
@@ -136,7 +136,7 @@ class vadtree(vadinfo):
 
             outfd.write("}\n")
 
-class vadwalk(vadinfo):
+class VADWalk(VADInfo):
     """Walk the VAD tree"""
 
     def render_text(self, outfd, data):
@@ -156,7 +156,7 @@ class vadwalk(vadinfo):
                         ((vad.EndingVpn + 1) << 12) - 1,
                         vad.Tag))
 
-class vaddump(vadinfo):
+class VADDump(VADInfo):
     """Dumps out the vad sections to a file"""
 
     def __init__(self, *args):
@@ -164,7 +164,7 @@ class vaddump(vadinfo):
                           help = 'Directory in which to dump the VAD files')
         config.add_option('VERBOSE', short_option = 'v', default = False, type = 'bool',
                           help = 'Print verbose progress information')
-        vadinfo.__init__(self, *args)
+        VADInfo.__init__(self, *args)
 
     def render_text(self, outfd, data):
         if config.DUMP_DIR == None:

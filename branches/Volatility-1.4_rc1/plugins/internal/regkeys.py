@@ -23,11 +23,11 @@ import volatility.conf
 
 config = volatility.conf.ConfObject()
 
-class regobjkeys(taskmods.files):
+class RegObjKeys(taskmods.Files):
     """Print list of open regkeys for each process"""
 
     def __init__(self, *args):
-        taskmods.files.__init__(self, *args)
+        taskmods.Files.__init__(self, *args)
         self.handle_type = 'Key'
         self.handle_obj = '_CM_KEY_BODY'
 

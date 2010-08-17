@@ -1033,7 +1033,7 @@ def find_module(modlist, mod_addrs, addr):
     else:
         return None
 
-class ssdt(commands.command):
+class SSDT(commands.command):
     "Display SSDT entries"
     # Declare meta information associated with this plugin
     meta_info = {

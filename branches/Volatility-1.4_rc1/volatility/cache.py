@@ -74,7 +74,7 @@ function - this is probably the easiest way to apply caching to
 existing code. For example, suppose we want to cache the results of
 the psscan plugin:
 
-class psscan(commands.command):
+class PSScan(commands.command):
 ....
    @cache("/scanners/psscan")
    def calculate(self):

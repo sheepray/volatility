@@ -111,7 +111,7 @@ class MultiPageScanner(object):
             else:
                 yield patcher
 
-class Patcher(object):
+class PatcherObject(object):
     """Simple object to hold patching data"""
     def __init__(self, name):
         self.name = name
@@ -146,7 +146,7 @@ class Patcher(object):
         """Returns the name of the patcher"""
         return self.name
 
-class patcher(commands.command):
+class Patcher(commands.command):
     """Patches memory based on page scans"""
 
     def __init__(self, *args, **kwargs):
@@ -192,7 +192,7 @@ class patcher(commands.command):
         for element in root:
             if element.tag == 'patchinfo':
                 if element.get('method', 'nomethod') == 'pagescan':
-                    patcher = Patcher(element.get('name', 'Unlabelled'))
+                    patcher = PatcherObject(element.get('name', 'Unlabelled'))
                     constraints = None
                     for tag in element:
                         if tag.tag == 'constraints':

@@ -27,7 +27,7 @@ import volatility.debug as debug
 
 #pylint: disable-msg=C0111
 
-class datetime(commands.command):
+class DateTime(commands.command):
     """Get date/time information for image"""
     def render_text(self, outfd, data):
         """Renders the calculated data as text to outfd"""
@@ -55,7 +55,7 @@ class datetime(commands.command):
 
         return result
 
-class ident(datetime):
+class Ident(DateTime):
     """ Identify information for the image """
     def __init__(self, args = None):
         datetime.__init__(self, args)

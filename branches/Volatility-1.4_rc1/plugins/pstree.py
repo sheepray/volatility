@@ -38,7 +38,7 @@ pslist_types = {
     } ],
     }
 
-class pstree(commands.command):
+class PSTree(commands.command):
     """Print process list as a tree"""
 
     def find_root(self, pid_dict, pid):

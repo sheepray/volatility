@@ -24,7 +24,7 @@ import volatility.commands
 import volatility.win32 as win32
 import volatility.utils as utils
 
-class sockets(volatility.commands.command):
+class Sockets(volatility.commands.command):
     """Print list of open sockets"""
     def render_text(self, outfd, data):
         if len(data):

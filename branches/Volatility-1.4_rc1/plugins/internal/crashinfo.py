@@ -24,7 +24,7 @@ import volatility.commands as commands
 import volatility.conf as conf
 config = conf.ConfObject()
 
-class crashinfo(commands.command):
+class CrashInfo(commands.command):
     """Dump crash-dump information"""
 
     def calculate(self):
@@ -75,13 +75,13 @@ class crashinfo(commands.command):
             foffset += (run[1] * 0x1000)
         outfd.write("{0:08x}      {1:08x}\n".format(foffset - 0x1000, ((run[0] + run[1] - 1) * 0x1000)))
 
-class crashdump(crashinfo):
+class CrashDump(CrashInfo):
     """Dumps the crashdump file to a raw file"""
 
     def __init__(self, *args):
         config.add_option("DUMP-FILE", short_option = "D", default = None,
                           help = "Specifies the output dump file")
-        crashinfo.__init__(self, *args)
+        CrashInfo.__init__(self, *args)
 
     def render_text(self, outfd, data):
         """Renders the text output of crashdump file dumping"""

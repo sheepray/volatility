@@ -136,7 +136,7 @@ token_types = {
 } ],
 }
 
-class getsids(taskmods.dlllist):
+class GetSIDs(taskmods.DllList):
     """Print the SIDs owning each process"""
 
     # Declare meta information associated with this plugin

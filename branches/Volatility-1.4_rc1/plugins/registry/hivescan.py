@@ -46,7 +46,7 @@ class PoolScanHiveFast2(scan.PoolScanner):
                ('CheckHiveSig', {})
                ]
 
-class hivescan(commands.command):
+class HiveScan(commands.command):
     """ Scan Physical memory for _CMHIVE objects (registry hives)
 
     You will need to obtain these offsets to feed into the hivelist command.

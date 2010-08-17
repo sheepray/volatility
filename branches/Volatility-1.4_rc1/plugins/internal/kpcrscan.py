@@ -30,7 +30,7 @@ import volatility.obj as obj
 
 config = conf.ConfObject()
 
-class kpcrscan(commands.command):
+class KPCRScan(commands.command):
     """Search for and dump potential KPCR values"""
 
     meta_info = dict(

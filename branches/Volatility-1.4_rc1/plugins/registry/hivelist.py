@@ -32,7 +32,7 @@ import volatility.utils as utils
 import volatility.conf as conf
 config = conf.ConfObject()
 
-class hivelist(hs.hivescan):
+class HiveList(hs.HiveScan):
     """Print list of registry hives.
 
     You must supply this module the initial offset of the hive. You
@@ -54,7 +54,7 @@ class hivelist(hs.hivescan):
                           default = None, type = 'int',
                           help = "Offset to registry hive")
 
-        hs.hivescan.__init__(self, *args)
+        hs.HiveScan.__init__(self, *args)
 
     def render_text(self, outfd, result):
         outfd.write("Address      Name\n")
@@ -71,7 +71,7 @@ class hivelist(hs.hivescan):
         flat = utils.load_as(astype = 'physical')
         addr_space = utils.load_as()
 
-        hives = hs.hivescan.calculate(self)
+        hives = hs.HiveScan.calculate(self)
 
         if config.HIVE_OFFSET:
             hives = [config.HIVE_OFFSET]

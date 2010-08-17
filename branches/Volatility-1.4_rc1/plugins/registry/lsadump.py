@@ -48,7 +48,7 @@ def hd(src, length = 16):
         N += length
     return result
 
-class lsadump(commands.command):
+class LSADump(commands.command):
     """Dump (decrypted) LSA secrets from the registry"""
     # Declare meta information associated with this plugin
 
@@ -89,7 +89,7 @@ class lsadump(commands.command):
             outfd.write(k + "\n")
             outfd.write(hd(data[k]) + "\n")
 
-class hashdump(commands.command):
+class HashDump(commands.command):
     """Dumps passwords hashes (LM/NTLM) from memory"""
 
     def __init__(self, *args):
@@ -111,7 +111,7 @@ class hashdump(commands.command):
         for d in data:
             outfd.write(d + "\n")
 
-class hivedump(commands.command):
+class HiveDump(commands.command):
     """Prints out a hive"""
 
     def __init__(self, *args):

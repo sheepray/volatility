@@ -20,11 +20,11 @@
 
 #pylint: disable-msg=C0111
 
-import volatility.commands
+import volatility.commands as commands
 import volatility.win32 as win32
 import volatility.utils as utils
 
-class modules(volatility.commands.command):
+class Modules(commands.command):
     """Print list of loaded modules"""
     def render_text(self, outfd, data):
         header = False

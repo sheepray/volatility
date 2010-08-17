@@ -24,7 +24,7 @@ import volatility.commands as commands
 import volatility.win32.network as network
 import volatility.utils as utils
 
-class connections(commands.command):
+class Connections(commands.command):
     """
     Print list of open connections
     ------------------------------

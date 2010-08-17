@@ -25,7 +25,7 @@ import volatility.commands as commands
 import volatility.conf as conf
 config = conf.ConfObject()
 
-class hibinfo(commands.command):
+class HibInfo(commands.command):
     """Dump hibernation file information"""
 
     def calculate(self):
@@ -78,13 +78,13 @@ class hibinfo(commands.command):
 
         outfd.write("\nWindows Version is {0}.{1} ({2})\n\n".format(peb.OSMajorVersion, peb.OSMinorVersion, peb.OSBuildNumber))
 
-class hibdump(hibinfo):
+class HibDump(HibInfo):
     """Dumps the hibernation file to a raw file"""
 
     def __init__(self, *args):
         config.add_option("DUMP-FILE", short_option = "D", default = None,
                           help = "Specifies the output dump file")
-        hibinfo.__init__(self, *args)
+        HibInfo.__init__(self, *args)
 
     def render_text(self, outfd, data):
         """Renders the text output of hibneration file dumping"""

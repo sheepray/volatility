@@ -45,7 +45,7 @@ class PoolScanFile(scan.PoolScanner):
                ('CheckPoolIndex', dict(value = 0)),
                ]
 
-class filescan(commands.command):
+class FileScan(commands.command):
     """ Scan Physical memory for _FILE_OBJECT pool allocations
     """
     # Declare meta information associated with this plugin
@@ -135,7 +135,7 @@ class PoolScanDriver(PoolScanFile):
                ('CheckPoolIndex', dict(value = 0)),
                ]
 
-class driverscan(filescan):
+class DriverScan(FileScan):
     "Scan for driver objects _DRIVER_OBJECT "
     def calculate(self):
         ## Just grab the AS and scan it using our scanner
@@ -206,12 +206,12 @@ class PoolScanMutant(PoolScanDriver):
                ]
 
 
-class mutantscan(filescan):
+class MutantScan(FileScan):
     "Scan for mutant objects _KMUTANT "
     def __init__(self):
         config.add_option("SILENT", short_option = 's', default = False,
                           action = 'store_true', help = 'suppress less meaningful results')
-        filescan.__init__(self)
+        FileScan.__init__(self)
 
     def calculate(self):
         ## Just grab the AS and scan it using our scanner

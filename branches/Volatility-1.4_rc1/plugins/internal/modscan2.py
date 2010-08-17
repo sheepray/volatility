@@ -45,7 +45,7 @@ class PoolScanModuleFast2(scan.PoolScanner):
                ('CheckPoolIndex', dict(value = 0)),
                ]
 
-class modscan2(commands.command):
+class ModScan2(commands.command):
     """ Scan Physical memory for _LDR_DATA_TABLE_ENTRY objects
     """
 
@@ -136,7 +136,7 @@ class PoolScanThreadFast2(scan.PoolScanner):
                ('CheckThreads', {}),
                ]
 
-class thrdscan2(modscan2):
+class ThrdScan2(ModScan2):
     """Scan physical memory for _ETHREAD objects"""
     def calculate(self):
         ## Here we scan the physical address space

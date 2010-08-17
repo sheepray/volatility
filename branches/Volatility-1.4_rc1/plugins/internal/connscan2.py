@@ -43,7 +43,7 @@ class PoolScanConnFast2(scan.PoolScanner):
                ('CheckPoolIndex', dict(value = 0)),
                ]
 
-class connscan2(commands.command):
+class ConnScan2(commands.command):
     """ Scan Physical memory for _TCPT_OBJECT objects (tcp connections)
     """
     meta_info = dict(

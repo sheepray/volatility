@@ -27,7 +27,7 @@ import volatility.conf as conf
 import volatility.obj as obj
 config = conf.ConfObject()
 
-class procexedump(taskmods.dlllist):
+class ProcExeDump(taskmods.DllList):
     """Dump a process to an executable file sample"""
 
     def __init__(self, *args):
@@ -35,7 +35,7 @@ class procexedump(taskmods.dlllist):
                           help = 'Directory in which to dump the VAD files')
         config.add_option("UNSAFE", short_option = "u", default = 0, type = 'int',
                           help = 'Bypasses certain sanity checks when creating image')
-        taskmods.dlllist.__init__(self, *args)
+        taskmods.DllList.__init__(self, *args)
 
     def render_text(self, outfd, data):
         """Renders the tasks to disk images, outputting progress as they go"""
@@ -169,7 +169,7 @@ class procexedump(taskmods.dlllist):
                                 base_addr + sect.VirtualAddress,
                                 sect.SizeOfRawData, foa, outfd)
 
-class procmemdump(procexedump):
+class ProcMemDump(ProcExeDump):
     """Dump a process to an executable memory sample"""
 
     def replace_header_field(self, sect, header, item, value):

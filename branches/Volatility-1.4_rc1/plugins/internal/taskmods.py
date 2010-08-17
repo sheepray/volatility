@@ -36,7 +36,7 @@ import volatility.cache as cache
 
 config = conf.ConfObject()
 
-class dlllist(commands.command, cache.Testable):
+class DllList(commands.command, cache.Testable):
     """Print list of loaded dlls for each process"""
 
     def __init__(self, *args):
@@ -104,11 +104,11 @@ class dlllist(commands.command, cache.Testable):
         return tasks
 
 # Inherit from files just for the config options (__init__)
-class files(dlllist):
+class Files(DllList):
     """Print list of open files for each process"""
 
     def __init__(self, *args):
-        dlllist.__init__(self, *args)
+        DllList.__init__(self, *args)
         self.handle_type = 'File'
         self.handle_obj = "_FILE_OBJECT"
 
@@ -125,7 +125,7 @@ class files(dlllist):
                     outfd.write("{0:6} {1:40}\n".format("File", h.FileName))
 
     def calculate(self):
-        tasks = self.filter_tasks(dlllist.calculate(self))
+        tasks = self.filter_tasks(DllList.calculate(self))
 
         for task in tasks:
             if task.ObjectTable.HandleTableList:
@@ -137,7 +137,7 @@ class files(dlllist):
             if str(h.Type.Name) == self.handle_type:
                 yield obj.Object(self.handle_obj, h.Body.offset, task.vm, parent = task)
 
-class pslist(dlllist):
+class PSList(DllList):
     """ print all running processes by following the EPROCESS lists """
     def render_text(self, outfd, data):
         outfd.write("{0:20} {1:6} {2:6} {3:6} {4:6} {5:6}\n".format(
@@ -153,7 +153,7 @@ class pslist(dlllist):
                 task.CreateTime))
 
 # Inherit from files just for the config options (__init__)
-class memmap(dlllist):
+class MemMap(DllList):
     """Print the memory map"""
 
     def render_text(self, outfd, data):
@@ -181,7 +181,7 @@ class memmap(dlllist):
 
     @cache.CacheDecorator("test/memmap")
     def calculate(self):
-        tasks = self.filter_tasks(dlllist.calculate(self))
+        tasks = self.filter_tasks(DllList.calculate(self))
 
         for task in tasks:
             if task.UniqueProcessId:
@@ -190,13 +190,13 @@ class memmap(dlllist):
                 pages = task_space.get_available_pages()
                 yield pid, task, pages
 
-class memdump(memmap):
+class MemDump(MemMap):
     """Dump the addressable memory for a process"""
 
     def __init__(self, *args):
         config.add_option('DUMP-DIR', short_option = 'D', default = None,
                           help = 'Directory in which to dump the VAD files')
-        memmap.__init__(self, *args)
+        MemMap.__init__(self, *args)
 
     def render_text(self, outfd, data):
         if config.DUMP_DIR == None:
