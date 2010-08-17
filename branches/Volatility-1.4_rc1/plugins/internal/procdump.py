@@ -91,7 +91,7 @@ class procexedump(taskmods.dlllist):
     def get_sections(self, addr_space, nt_header):
         """Returns the sectors from a process"""
         sect_size = addr_space.profile.get_obj_size("_IMAGE_SECTION_HEADER")
-        start_addr = nt_header.OptionalHeader.offset + nt_header.FileHeader.SizeOfOptionalHeader
+        start_addr = nt_header.FileHeader.SizeOfOptionalHeader + nt_header.OptionalHeader.offset
         
         for i in range(nt_header.FileHeader.NumberOfSections):
             s_addr = start_addr + (i * sect_size)
@@ -199,7 +199,7 @@ class procmemdump(procexedump):
         sect_sizes.append(self.round(prevsect.Misc.VirtualSize, sa, up=True))
 
         counter = 0
-        start_addr = nt_header.OptionalHeader.offset + nt_header.FileHeader.SizeOfOptionalHeader - base_addr
+        start_addr = nt_header.FileHeader.SizeOfOptionalHeader + (nt_header.OptionalHeader.offset - base_addr)
         for sect in self.get_sections(addr_space, nt_header):
             sectheader = addr_space.read(sect.offset, shs)
             # Change the PointerToRawData
