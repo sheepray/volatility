@@ -226,8 +226,8 @@ class CacheNode(object):
             result = self.storage.load(item_url)
             if result:
                 return result
-        except Exception, _e:
-            pass
+        except Exception, e:
+            raise KeyError(e)
 
         ## Make a new empty Node instead on demand
         raise KeyError("item not found")
@@ -236,9 +236,21 @@ class CacheNode(object):
         ''' Produce a human readable version of the payload. '''
         return ''
 
+    def flatten_generators(self, item):
+        """ A recursive function to flatten generators into lists """
+        try:
+            result = []
+            for x in iter(item):
+                flat_x = self.flatten_generators(x)
+                result.append(flat_x)
+        
+            return result
+        except TypeError:
+            return item
+
     def set_payload(self, payload):
         ''' Update the current payload with the new specified payload '''
-        self.payload = payload
+        self.payload = self.flatten_generators(payload)
 
     def dump(self):
         ''' Dump the node to disk for later retrieval. This is
@@ -247,6 +259,7 @@ class CacheNode(object):
         self.storage.dump(self.stem, self)
 
     def get_payload(self):
+        """Retrieve this node's payload"""
         return self.payload
 
 class BlockingNode(CacheNode):
@@ -350,8 +363,10 @@ class CacheStorage(object):
         if not os.access(directory, os.R_OK | os.W_OK | os.X_OK):
             os.makedirs(directory)
 
+        ## Ensure that the payload is flattened - i.e. all generators are converted to lists for pickling
+        data = pickle.dumps(payload)
         fd = open(filename, 'w')
-        pickle.dump(payload, fd)
+        fd.write(data)
         fd.close()
 
 CACHE = CacheTree(CacheStorage())
@@ -376,7 +391,7 @@ class CacheDecorator(object):
         self.path = path
         self.node = None
 
-    def generate(self, g):
+    def generate(self, path, g):
         """ Special handling for generators. We pass each iteration
         back immediately, and keep it in a list. Note that if the
         generator is aborted, the cache is not dumped.
@@ -386,15 +401,17 @@ class CacheDecorator(object):
             payload.append(x)
             yield x
 
-        self.dump(payload)
+        self.dump(path, payload)
 
-    def dump(self, payload):
-        self.node = CACHE[self.path]
+    def dump(self, path, payload):
+        self.node = CACHE[path]
         self.node.set_payload(payload)
         self.node.dump()
 
     def __call__(self, f):
         def wrapper(s, *args, **kwargs):
+            ## Interpolate the path
+            path = self.path % dict(class_name = s.__class__.__name__)
             ## Check if the result can be retrieved
             self.node = CACHE[self.path]
             if self.node.get_payload():
@@ -405,9 +422,25 @@ class CacheDecorator(object):
             ## If the wrapped function is a generator we need to
             ## handle it especially
             if type(result) == types.GeneratorType:
-                return self.generate(result)
-
-            self.dump(result)
+                return self.generate(path, result)
+            
+            self.dump(path, result)
             return result
 
         return wrapper
+
+class Testable(object):
+    """ This is a mixin that makes a class response to the unit tests 
+    
+        It must be inheritted *after* the command class
+    """
+
+    def calculate(self):
+        """Empty function used to allow mixin"""
+
+    ## This forces the test to be memoised with a key name derived from the class name
+    @CacheDecorator("tests/unittests/%(class_name)s")
+    def test(self):
+        ## This forces iteration over all keys - this is required in order
+        ## to flatten the full list for the cache
+        return [ x for x in self.calculate() ]

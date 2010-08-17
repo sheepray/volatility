@@ -32,12 +32,11 @@ import volatility.commands as commands
 import volatility.win32 as win32
 import volatility.obj as obj
 import volatility.utils as utils
-import volatility.registry as registry
-from volatility.cache import CacheDecorator
+import volatility.cache as cache
 
 config = conf.ConfObject()
 
-class dlllist(commands.command):
+class dlllist(commands.command, cache.Testable):
     """Print list of loaded dlls for each process"""
 
     def __init__(self, *args):
@@ -45,11 +44,12 @@ class dlllist(commands.command):
                           help='EPROCESS Offset (in hex) in kernel address space',
                           action='store', type='int')
 
-        config.add_option('PIDS', short_option = 'p', default=None,
+        config.add_option('PID', short_option = 'p', default=None,
                           help='Operate on these Process IDs (comma-separated)',
                           action='store', type='str')
 
         commands.command.__init__(self, *args)
+        cache.Testable.__init__(self, *args)
 
     def render_text(self, outfd, data):
         for task in data:
@@ -80,8 +80,8 @@ class dlllist(commands.command):
         Returns a reduced list or the full list if config.PIDS not specified.
         """
         try:
-            if config.PIDS:
-                pidlist = [int(p) for p in config.PIDS.split(',')]
+            if config.PID:
+                pidlist = [int(p) for p in config.PID.split(',')]
                 newtasks = [t for t in tasks if t.UniqueProcessId in pidlist]
                 # Make this a separate statement, so that if an exception occurs, no harm done
                 tasks = newtasks
@@ -91,7 +91,7 @@ class dlllist(commands.command):
 
         return tasks
 
-    @CacheDecorator("tests/pslist")
+    @cache.CacheDecorator("tests/pslist")
     def calculate(self):
         """Produces a list of processes, or just a single process based on an OFFSET"""
         addr_space = utils.load_as()
@@ -179,7 +179,7 @@ class memmap(dlllist):
             else:
                 outfd.write("Unable to read pages for task.\n")
 
-    @CacheDecorator("test/memmap")
+    @cache.CacheDecorator("test/memmap")
     def calculate(self):
         tasks = self.filter_tasks(dlllist.calculate(self))
 

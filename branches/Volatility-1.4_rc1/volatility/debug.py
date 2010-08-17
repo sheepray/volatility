@@ -43,4 +43,5 @@ def trace():
 
 def post_mortem():
     """Provides a command line interface to python after an exception's occurred"""
-    pdb.post_mortem()
+    if config.DEBUG:
+      pdb.post_mortem()

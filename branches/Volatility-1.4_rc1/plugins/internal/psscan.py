@@ -31,11 +31,11 @@ This module implements the slow thorough process scanning
 import volatility.scan as scan
 import volatility.conf as conf
 import volatility.commands as commands
+import volatility.cache as cache
 import volatility.utils as utils
 import volatility.obj as obj
 import volatility.debug as debug #pylint: disable-msg=W0611
 config = conf.ConfObject()
-from volatility.cache import CacheDecorator
 
 class DispatchHeaderCheck(scan.ScannerCheck):
     """ A very fast check for an _EPROCESS.Pcb.Header.
@@ -215,7 +215,7 @@ class PSScan(scan.DiscontigScanner):
                ("CheckSynchronization", {})
                ]
 
-class psscan(commands.command):
+class psscan(commands.command, cache.Testable):
     """ Scan Physical memory for _EPROCESS objects"""
 
     # Declare meta information associated with this plugin
@@ -230,7 +230,7 @@ class psscan(commands.command):
         version = '1.0',
         )
 
-    @CacheDecorator("tests/psscan")
+    @cache.CacheDecorator("tests/psscan")
     def calculate(self):
         address_space = utils.load_as(astype = 'physical')
 

@@ -33,6 +33,7 @@ if __name__ == '__main__':
     sys.path.append("..")
 
 import re
+import pickle
 import struct, copy, operator
 import volatility.registry as MemoryRegistry
 import volatility.addrspace as addrspace
@@ -419,16 +420,18 @@ class BaseObject(object):
     def __getstate__(self):
         """ This controls how we pickle and unpickle the objects """
         try:
-            type = self.theType.__name__
+            thetype = self.theType.__name__
         except:
-            type = self.theType
+            thetype = self.theType
 
-        return dict(offset = self.offset, name = self.name, vm = self.vm, theType = type)
+        return dict(offset = self.offset, name = self.name, vm = self.vm, theType = thetype)
 
     def __setstate__(self, state):
         #pdb.set_trace()
         ## What we want to do here is to instantiate a new object and then copy it into ourselves
         new_object = Object(state['theType'], state['offset'], state['vm'], name = state['name'])
+        if not new_object:
+            raise pickle.UnpicklingError("Object {0} at 0x{1:08x} invalid".format(state.name, state.offset))
 
         ## (Scudette) Im not sure how much of a hack this is - we
         ## basically take over all the new object's members. This is
@@ -912,7 +915,7 @@ class Profile:
 
     def get_obj_offset(self, name, member):
         """ Returns a members offset within the struct """
-        class dummy:
+        class dummy(object):
             profile = self
             def is_valid_address(self, _offset):
                 return True
@@ -923,7 +926,7 @@ class Profile:
 
     def get_obj_size(self, name):
         """Returns the size of a struct"""
-        class dummy:
+        class dummy(object):
             profile = self
             def is_valid_address(self, _offset):
                 return True
@@ -993,7 +996,7 @@ class Profile:
         else:
             cls = CType
         
-        return Curry(cls, cls, members=members, size=size)
+        return Curry(cls, cname, members=members, size=size)
 
 if __name__ == '__main__':
     ## If called directly we run unit tests on this stuff
