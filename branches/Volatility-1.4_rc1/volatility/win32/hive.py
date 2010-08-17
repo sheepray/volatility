@@ -31,14 +31,14 @@ import struct
 
 FILTER = ''.join([(len(repr(chr(x))) == 3) and chr(x) or '.' for x in range(256)])
 
-CI_TYPE_MASK   = 0x80000000
-CI_TYPE_SHIFT  = 0x1F
-CI_TABLE_MASK  = 0x7FE00000
+CI_TYPE_MASK = 0x80000000
+CI_TYPE_SHIFT = 0x1F
+CI_TABLE_MASK = 0x7FE00000
 CI_TABLE_SHIFT = 0x15
-CI_BLOCK_MASK  = 0x1FF000
+CI_BLOCK_MASK = 0x1FF000
 CI_BLOCK_SHIFT = 0x0C
-CI_OFF_MASK    = 0x0FFF
-CI_OFF_SHIFT   = 0x0
+CI_OFF_MASK = 0x0FFF
+CI_OFF_SHIFT = 0x0
 
 BLOCK_SIZE = 0x1000
 
@@ -84,13 +84,13 @@ class HiveAddressSpace(addrspace.BaseAddressSpace):
     #    
     #    return Obj("_HMAP_ENTRY", table, self.base)
 
-    def read(self, vaddr, length, zero=False):
+    def read(self, vaddr, length, zero = False):
         length = int(length)
         vaddr = int(vaddr)
         first_block = BLOCK_SIZE - vaddr % BLOCK_SIZE
         full_blocks = ((length + (vaddr % BLOCK_SIZE)) / BLOCK_SIZE) - 1
         left_over = (length + vaddr) % BLOCK_SIZE
-        
+
         paddr = self.vtop(vaddr)
         if paddr == None and zero:
             if length < first_block:
@@ -140,7 +140,7 @@ class HiveAddressSpace(addrspace.BaseAddressSpace):
 
     def read_long_phys(self, addr):
         string = self.base.read(addr, 4)
-        (longval, ) =  struct.unpack('L', string)
+        (longval,) = struct.unpack('L', string)
         return longval
 
     def is_valid_address(self, addr):
@@ -149,7 +149,7 @@ class HiveAddressSpace(addrspace.BaseAddressSpace):
         vaddr = self.vtop(addr)
         if not vaddr:
             return False
-        return self.base.is_valid_address(vaddr) 
+        return self.base.is_valid_address(vaddr)
 
     def save(self, outf):
         baseblock = self.base.read(self.baseblock, BLOCK_SIZE)
@@ -174,8 +174,8 @@ class HiveAddressSpace(addrspace.BaseAddressSpace):
                 data = '\0' * BLOCK_SIZE
 
             outf.write(data)
-    
-    def stats(self, stable=True):
+
+    def stats(self, stable = True):
         if stable:
             stor = 0
             ci = lambda x: x
@@ -197,15 +197,15 @@ class HiveAddressSpace(addrspace.BaseAddressSpace):
             else:
                 bad_blocks_reg += 1
                 continue
-            
+
             if not data:
                 bad_blocks_mem += 1
 
         print "{0} bytes in hive.".format(length)
         print "{0} blocks not loaded by CM, {1} blocks paged out, {2} total blocks.".format(bad_blocks_reg, bad_blocks_mem, total_blocks)
         if total_blocks:
-            print "Total of {0:.2f}% of hive unreadable.".format(((bad_blocks_reg+bad_blocks_mem)/float(total_blocks))*100)
-        
+            print "Total of {0:.2f}% of hive unreadable.".format(((bad_blocks_reg + bad_blocks_mem) / float(total_blocks)) * 100)
+
         return (bad_blocks_reg, bad_blocks_mem, total_blocks)
 
 
@@ -216,11 +216,11 @@ class HiveFileAddressSpace:
     def vtop(self, vaddr):
         return vaddr + BLOCK_SIZE + 4
 
-    def read(self, vaddr, length, zero=False):
+    def read(self, vaddr, length, zero = False):
         first_block = BLOCK_SIZE - vaddr % BLOCK_SIZE
         full_blocks = ((length + (vaddr % BLOCK_SIZE)) / BLOCK_SIZE) - 1
         left_over = (length + vaddr) % BLOCK_SIZE
-        
+
         paddr = self.vtop(vaddr)
         if paddr == None and zero:
             if length < first_block:
@@ -270,7 +270,7 @@ class HiveFileAddressSpace:
 
     def read_long_phys(self, addr):
         string = self.base.read(addr, 4)
-        (longval, ) =  struct.unpack('L', string)
+        (longval,) = struct.unpack('L', string)
         return longval
 
     def is_valid_address(self, vaddr):

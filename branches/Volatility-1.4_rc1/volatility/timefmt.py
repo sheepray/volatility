@@ -30,32 +30,32 @@ config = conf.ConfObject()
 
 class OffsetTzInfo(datetime.tzinfo):
     """Timezone implementation that allows offsets specified in seconds"""
-    
-    def __init__(self, offset=None, *args, **kwargs):
+
+    def __init__(self, offset = None, *args, **kwargs):
         """Accepts offset in seconds"""
-        self.offset = offset 
+        self.offset = offset
         datetime.tzinfo.__init__(self, *args, **kwargs)
-    
+
     def set_offset(self, offset):
         """Simple setter for offset"""
         self.offset = offset
-    
+
     def utcoffset(self, dt):
         """Returns the offset from UTC"""
         if self.offset is None:
             return None
-        return datetime.timedelta(seconds=self.offset) + self.dst(dt)
-    
+        return datetime.timedelta(seconds = self.offset) + self.dst(dt)
+
     def dst(self, _dt):
         """We almost certainly can't know about DST, so we say it's always off"""
         # FIXME: Maybe we can know or make guesses about DST? 
         return datetime.timedelta(0)
-    
+
     def tzname(self, _dt):
         """Return a useful timezone name"""
         if self.offset is None:
             return "UNKNOWN"
-        
+
         return ""
 
 class UTC(datetime.tzinfo):
@@ -64,16 +64,16 @@ class UTC(datetime.tzinfo):
     def utcoffset(self, _dt):
         """Returns an offset from UTC of 0"""
         return datetime.timedelta(0)
-    
+
     def dst(self, _dt):
         """Returns no daylight savings offset"""
         return datetime.timedelta(0)
-    
+
     def tzname(self, _dt):
         """Returns the timezone name"""
         return "UTC"
 
-def display_datetime(dt, custom_tz=None):
+def display_datetime(dt, custom_tz = None):
     """Returns a string from a datetime according to the display TZ (or a custom one"""
     timeformat = "%Y-%m-%d %H:%M:%S %Z%z"
     if dt.tzinfo is not None and dt.tzinfo.utcoffset(dt) is not None:
@@ -96,14 +96,14 @@ def tz_from_string(_option, _opt_str, value, parser):
     if value is not None:
         if value[0] in ['+', '-']:
             # Handed a numeric offset, create an OffsetTzInfo
-            valarray = [value[i:i+2] for i in range(1, len(value), 2)]
+            valarray = [value[i:i + 2] for i in range(1, len(value), 2)]
             multipliers = [3600, 60]
             offset = 0
             for i in range(min(len(valarray), len(multipliers))):
                 offset += int(valarray[i]) * multipliers[i]
             if value[0] == '-':
                 offset = -offset
-            timezone = OffsetTzInfo(offset=offset)
+            timezone = OffsetTzInfo(offset = offset)
         else:
             # Value is a lookup, choose pytz over time.tzset
             if tz_pytz:
@@ -117,6 +117,6 @@ def tz_from_string(_option, _opt_str, value, parser):
                 timezone = value
         parser.values.tz = timezone
 
-config.add_option("TZ", action="callback", callback=tz_from_string,
-                  help="Sets the timezone for displaying timestamps",
-                  default=None, nargs=1, type=str)
+config.add_option("TZ", action = "callback", callback = tz_from_string,
+                  help = "Sets the timezone for displaying timestamps",
+                  default = None, nargs = 1, type = str)

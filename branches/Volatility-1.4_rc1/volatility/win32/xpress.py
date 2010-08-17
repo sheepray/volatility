@@ -32,7 +32,7 @@
 #pylint: disable-msg=C0111
 
 from struct import unpack
-from struct import error as StructError 
+from struct import error as StructError
 
 def recombine(outbuf):
     return "".join(outbuf[k] for k in sorted(outbuf.keys()))
@@ -43,7 +43,7 @@ def xpress_decode(inputBuffer):
     inputIndex = 0
     indicatorBit = 0
     nibbleIndex = 0
-     
+
     # we are decoding the entire input here, so I have changed
     # the check to see if we're at the end of the output buffer
     # with a check to see if we still have any input left.
@@ -52,14 +52,14 @@ def xpress_decode(inputBuffer):
             # in pseudocode this was indicatorBit = ..., but that makes no
             # sense, so I think this was intended...
             try:
-                indicator = unpack("<L", inputBuffer[inputIndex:inputIndex+4])[0]
+                indicator = unpack("<L", inputBuffer[inputIndex:inputIndex + 4])[0]
             except StructError:
                 return recombine(outputBuffer)
-                
-            inputIndex += 4 
-            indicatorBit = 32 
-     
-        indicatorBit = indicatorBit - 1 
+
+            inputIndex += 4
+            indicatorBit = 32
+
+        indicatorBit = indicatorBit - 1
         # check whether the bit specified by indicatorBit is set or not 
         # set in indicator. For example, if indicatorBit has value 4 
         # check whether the 4th bit of the value in indicator is set
@@ -68,9 +68,9 @@ def xpress_decode(inputBuffer):
                 outputBuffer[outputIndex] = inputBuffer[inputIndex]
             except IndexError:
                 return recombine(outputBuffer)
- 
-            inputIndex += 1 
-            outputIndex += 1 
+
+            inputIndex += 1
+            outputIndex += 1
         else:
             # Get the length. This appears to use a scheme whereby if
             # the value at the current width is all ones, then we assume
@@ -83,7 +83,7 @@ def xpress_decode(inputBuffer):
             # and then at some later point get the nibble from the high part (F).
 
             try:
-                length = unpack("<H", inputBuffer[inputIndex:inputIndex+2])[0]
+                length = unpack("<H", inputBuffer[inputIndex:inputIndex + 2])[0]
             except StructError:
                 return recombine(outputBuffer)
 
@@ -92,7 +92,7 @@ def xpress_decode(inputBuffer):
             length = length % 8
             if length == 7:
                 if nibbleIndex == 0:
-                    nibbleIndex = inputIndex 
+                    nibbleIndex = inputIndex
                     length = ord(inputBuffer[inputIndex]) % 16
                     inputIndex += 1
                 else:
@@ -107,7 +107,7 @@ def xpress_decode(inputBuffer):
                     inputIndex += 1
                     if length == 255:
                         try:
-                            length = unpack("<H", inputBuffer[inputIndex:inputIndex+2])[0]
+                            length = unpack("<H", inputBuffer[inputIndex:inputIndex + 2])[0]
                         except StructError:
                             return recombine(outputBuffer)
                         inputIndex = inputIndex + 2
@@ -115,14 +115,14 @@ def xpress_decode(inputBuffer):
                     length = length + 15
                 length = length + 7
             length = length + 3
-            
+
             while length != 0:
-                try:							     
-                    outputBuffer[outputIndex] = outputBuffer[outputIndex - offset - 1] 
+                try:
+                    outputBuffer[outputIndex] = outputBuffer[outputIndex - offset - 1]
                 except KeyError:
                     return recombine(outputBuffer)
-                outputIndex += 1 
-                length -= 1 
+                outputIndex += 1
+                length -= 1
 
     return recombine(outputBuffer)
 

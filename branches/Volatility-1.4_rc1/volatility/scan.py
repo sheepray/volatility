@@ -44,8 +44,8 @@ import volatility.constants as constants
 class BaseScanner(object):
     """ A more thorough scanner which checks every byte """
     checks = []
-    def __init__(self, window_size=8):
-        self.buffer = addrspace.BufferAddressSpace(data='\x00'*1024)
+    def __init__(self, window_size = 8):
+        self.buffer = addrspace.BufferAddressSpace(data = '\x00' * 1024)
         self.window_size = window_size
         self.constraints = []
 
@@ -77,7 +77,7 @@ class BaseScanner(object):
                 val = False
 
             if not val:
-                cnt = cnt+1
+                cnt = cnt + 1
 
             if cnt > self.error_count:
                 return False
@@ -85,7 +85,7 @@ class BaseScanner(object):
         return True
 
     overlap = 20
-    def scan(self, address_space, offset=0, maxlen=None):
+    def scan(self, address_space, offset = 0, maxlen = None):
         self.base_offset = offset
         self.max_length = maxlen
         ## Which checks also have skippers?
@@ -131,12 +131,12 @@ class BaseScanner(object):
 
                 i += skip
 
-            self.base_offset += min(constants.SCAN_BLOCKSIZE,l)
+            self.base_offset += min(constants.SCAN_BLOCKSIZE, l)
             if (self.max_length != None):
-                self.max_length -= min(constants.SCAN_BLOCKSIZE,l)
+                self.max_length -= min(constants.SCAN_BLOCKSIZE, l)
 
 class DiscontigScanner(BaseScanner):
-    def scan(self, address_space, offset=0, maxlen=None):
+    def scan(self, address_space, offset = 0, maxlen = None):
         for (o, l) in address_space.get_available_addresses():
             # Rely on shortcutting
             if (o + l > offset) and ((maxlen == None) or (o < offset + maxlen)):
@@ -178,6 +178,6 @@ class PoolScanner(DiscontigScanner):
         """
         return found + sum([self.buffer.profile.get_obj_size(c) for c in self.preamble]) - 4
 
-    def scan(self, address_space, offset=0, maxlen=None):
+    def scan(self, address_space, offset = 0, maxlen = None):
         for i in DiscontigScanner.scan(self, address_space, offset, maxlen):
             yield self.object_offset(i)

@@ -45,17 +45,17 @@ def find_py_files(topdirs):
 
 opts = {}
 
-opts['name']         = "volatility"
-opts['version']      = volatility.version
-opts['description']  = "Volatility -- Volatile memory framwork"
-opts['author']       = "AAron Walters"
-opts['author_email'] = "awalters@volatilesystems.com"  
-opts['url']          = "http://www.volatilesystems.com"
-opts['license']      = "GPL"
-opts['scripts']      = ["volatility.py"]
-opts['packages']     = ["volatility",
+opts['name'] = "volatility"
+opts['version'] = volatility.version
+opts['description'] = "Volatility -- Volatile memory framwork"
+opts['author'] = "AAron Walters"
+opts['author_email'] = "awalters@volatilesystems.com"
+opts['url'] = "http://www.volatilesystems.com"
+opts['license'] = "GPL"
+opts['scripts'] = ["volatility.py"]
+opts['packages'] = ["volatility",
                         "volatility.win32"]
-opts['data_files']   = find_py_files(['plugins'])
+opts['data_files'] = find_py_files(['plugins'])
 
 if py2exe_available:
     py2exe_distdir = 'dist/py2exe'

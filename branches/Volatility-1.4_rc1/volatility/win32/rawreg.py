@@ -64,7 +64,7 @@ VALUE_TYPES = dict(enumerate([
 ]))
 VALUE_TYPES.setdefault("REG_UNKNOWN")
 
-def get_root(address_space, stable=True):
+def get_root(address_space, stable = True):
     if stable:
         return obj.Object("_CM_KEY_NODE", ROOT_INDEX, address_space)
     else:
@@ -76,7 +76,7 @@ def open_key(root, key):
 
     if not root.is_valid():
         return None
-    
+
     keyname = key.pop(0)
     for s in subkeys(root):
         if s.Name.upper() == keyname.upper():
@@ -89,26 +89,26 @@ def read_sklist(sk):
         sk.Signature.v() == LF_SIG):
         for i in sk.List:
             yield i
-    
+
     elif sk.Signature.v() == RI_SIG:
         for i in range(sk.Count):
             # Read and dereference the pointer
-            ptr_off = sk.get_member_offset('List')+(i*4)
+            ptr_off = sk.get_member_offset('List') + (i * 4)
             if not sk.vm.is_valid_address(ptr_off):
                 continue
             ssk_off = obj.Object("unsigned int", ptr_off, sk.vm)
             if not sk.vm.is_valid_address(ssk_off):
                 continue
-            
+
             ssk = obj.Object("_CM_KEY_INDEX", ssk_off, sk.vm)
             for i in read_sklist(ssk):
                 yield i
-        
+
 # Note: had to change SubKeyLists to be array of 2 pointers in vtypes.py
 def subkeys(key):
     if not key.is_valid():
         return
-    
+
     if int(key.SubKeyCounts[0]) > 0:
         sk_off = key.SubKeyLists[0]
         sk = obj.Object("_CM_KEY_INDEX", sk_off, key.vm)
@@ -118,7 +118,7 @@ def subkeys(key):
             for i in read_sklist(sk):
                 if i.Signature.v() == NK_SIG:
                     yield i
-            
+
     if int(key.SubKeyCounts[1]) > 0:
         sk_off = key.SubKeyLists[1]
         sk = obj.Object("_CM_KEY_INDEX", sk_off, key.vm)
@@ -138,7 +138,7 @@ def key_flags(key):
 
 def value_data(val):
     valtype = VALUE_TYPES[val.Type.v()]
-    inline =  val.DataLength & 0x80000000
+    inline = val.DataLength & 0x80000000
 
     if inline:
         valdata = val.vm.read(val.get_member_offset('Data'), val.DataLength & 0x7FFFFFFF)
@@ -147,9 +147,9 @@ def value_data(val):
 
     if (valtype == "REG_SZ" or valtype == "REG_EXPAND_SZ" or
         valtype == "REG_LINK"):
-        valdata = valdata.decode('utf-16-le',"ignore")
+        valdata = valdata.decode('utf-16-le', "ignore")
     elif valtype == "REG_MULTI_SZ":
-        valdata = valdata.decode('utf-16-le',"ignore").split('\0')
+        valdata = valdata.decode('utf-16-le', "ignore").split('\0')
     elif valtype == "REG_DWORD":
         valdata = struct.unpack("<L", valdata)[0]
     elif valtype == "REG_DWORD_BIG_ENDIAN":

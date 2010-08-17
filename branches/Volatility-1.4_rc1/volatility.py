@@ -91,14 +91,14 @@ def command_help(command):
     ---------------------------------
     Module {0}
     ---------------------------------\n""".format(command.__class__.__name__))
-    
+
     return result + command.help() + "\n\n"
 
 def main():
 
     # Get the version information on every output from the beginning
     # Exceptionally useful for debugging/telling people what's going on
-    sys.stderr.write( "Volatile Systems Volatility Framework {0}\n".format(volatility.version))
+    sys.stderr.write("Volatile Systems Volatility Framework {0}\n".format(volatility.version))
     MemoryRegistry.Init()
 
     ## Parse all the options now

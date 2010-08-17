@@ -31,14 +31,14 @@ config = conf.ConfObject()
 # Damien Aumaitre (2009) "A little journey inside Windows memory", 
 #
 
-config.add_option('KPCR', short_option='k', default=None, type='int',
-                  help="Specify a specific KPCR address")
+config.add_option('KPCR', short_option = 'k', default = None, type = 'int',
+                  help = "Specify a specific KPCR address")
 
 def get_kpcrobj(addr_space):
     ## Locate the kpcr struct - either hard coded or specified by the command line
     volmagic = obj.Object('VOLATILITY_MAGIC', 0x0, addr_space)
     kpcra = config.KPCR or volmagic.KPCR.v()
-        
+
     return obj.Object("_KPCR",
-                      offset=kpcra,
-                      vm=addr_space)
+                      offset = kpcra,
+                      vm = addr_space)

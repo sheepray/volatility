@@ -204,7 +204,7 @@ config = conf.ConfObject()
 ## Where to stick the cache
 default_cache_location = os.environ.get("XDG_CACHE_HOME") or os.environ.get("TEMP") or "/tmp/"
 
-config.add_option("CACHE-DIRECTORY", default=default_cache_location,
+config.add_option("CACHE-DIRECTORY", default = default_cache_location,
                   help = "Directory where cache files are stored")
 
 class CacheNode(object):
@@ -243,7 +243,7 @@ class CacheNode(object):
             for x in iter(item):
                 flat_x = self.flatten_generators(x)
                 result.append(flat_x)
-        
+
             return result
         except TypeError:
             return item
@@ -273,10 +273,10 @@ class BlockingNode(CacheNode):
     def dump(self):
         """Ensure nothing gets dumped"""
         pass
-    
+
     def get_payload(self):
         """Do not set a payload for a blocked cache node"""
-        pass 
+        pass
 
 class CacheTree(object):
     """ An abstract structure which represents the cache tree """
@@ -288,7 +288,7 @@ class CacheTree(object):
     def __getitem__(self, path):
         """Pythonic interface to the cache"""
         return self.check(path, cls = self.cls)
-        
+
     def check(self, path, callback = None, cls = CacheNode):
         """ Retrieves the node at the path specified """
         ## Normalise the path
@@ -305,12 +305,12 @@ class CacheTree(object):
                     next_stem = '/'.join((current.stem, e))
                 else:
                     next_stem = e
-                
+
                 payload = None
                 if callback is not None:
                     payload = callback()
-                
-                node = cls(e, next_stem, storage=self.storage, payload = payload)
+
+                node = cls(e, next_stem, storage = self.storage, payload = payload)
 
                 current = node
 
@@ -423,7 +423,7 @@ class CacheDecorator(object):
             ## handle it especially
             if type(result) == types.GeneratorType:
                 return self.generate(path, result)
-            
+
             self.dump(path, result)
             return result
 

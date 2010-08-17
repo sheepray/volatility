@@ -45,7 +45,7 @@ def pslist(addr_space):
                                                         ).PsActiveProcessHead \
                      or kpcrval.KdVersionBlock.dereference_as("_KDDEBUGGER_DATA32"
                                                            ).PsActiveProcessHead
-    
+
     if PsActiveProcessHead:
         # print type(PsActiveProcessHead)
     ## Try to iterate over the process list in PsActiveProcessHead

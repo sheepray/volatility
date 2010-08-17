@@ -44,10 +44,10 @@ import volatility.conf as conf
 config = conf.ConfObject()
 import volatility.debug as debug #pylint: disable-msg=W0611
 
-config.add_option("INFO", default=None, action="store_true",
+config.add_option("INFO", default = None, action = "store_true",
                   help = "Print information about all registered objects")
 
-config.add_option("PLUGINS", default="./plugins",
+config.add_option("PLUGINS", default = "./plugins",
                   help = "Additional plugin directories to use (colon separated)")
 
 class MemoryRegistry:
@@ -88,7 +88,7 @@ class MemoryRegistry:
                 relbase = sys.argv[0]
                 if hasattr(sys, "frozen") or hasattr(sys, "importers") or imp.is_frozen("__main__"):
                     # Use the actual executable path if the script's frozen (running within py2exe)
-                    relbase = sys.executable  
+                    relbase = sys.executable
                 path = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(relbase)), path))
             for dirpath, _dirnames, filenames in os.walk(path):
                 sys.path.append(dirpath)
@@ -196,7 +196,7 @@ class MemoryRegistry:
         If there is any problem, we chuck an exception.
         """
 
-    def import_module(self, name=None, load_as=None):
+    def import_module(self, name = None, load_as = None):
         """ Loads the named module into the system module name space.
         After calling this it is possible to do:
 
@@ -255,31 +255,31 @@ class VolatilityObjectRegistry(MemoryRegistry):
     def __getitem__(self, object_name):
         """ Return the objects by name """
         return self.objects[object_name]
-    
+
     def __init__(self, ParentClass):
         MemoryRegistry.__init__(self, ParentClass)
         self.objects = {}
-        
+
         ## First we sort the classes according to their order
         def sort_function(x, y):
             try:
                 a = x.order
             except AttributeError:
                 a = 10
-            
+
             try:
                 b = y.order
             except AttributeError:
                 b = 10
-            
+
             if a < b:
-                return -1
+                return - 1
             elif a == b:
                 return 0
             return 1
-        
+
         self.classes.sort(sort_function)
-        
+
         for cls in self.classes:
             ## The name of the class is the object name
             obj = cls.__name__.split('.')[-1]
@@ -306,7 +306,7 @@ def print_info():
                 max_length = max(len(cls.__name__), max_length)
 
             ## Sort the result
-            result.sort(key=lambda x: x[0])
+            result.sort(key = lambda x: x[0])
 
             for x in result:
                 print "{0:{2}} - {1:15}".format(x[0], x[1], max_length)
@@ -347,7 +347,7 @@ def Init():
     import volatility.scan as scan
     global SCANNER_CHECKS
     SCANNER_CHECKS = VolatilityObjectRegistry(scan.ScannerCheck)
-    
+
     if config.INFO:
         print_info()
         sys.exit(0)

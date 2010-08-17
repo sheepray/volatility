@@ -22,14 +22,14 @@ import volatility.conf as conf
 
 config = conf.ConfObject()
 
-config.add_option("OUTPUT", default='text',
-                  help="Output in this format (format support is module specific)")
+config.add_option("OUTPUT", default = 'text',
+                  help = "Output in this format (format support is module specific)")
 
-config.add_option("OUTPUT-FILE", default=None,
-                  help="write output in this file")
+config.add_option("OUTPUT-FILE", default = None,
+                  help = "write output in this file")
 
-config.add_option("VERBOSE", default=0, action='count',
-                  short_option='v', help='Verbose information')
+config.add_option("VERBOSE", default = 0, action = 'count',
+                  short_option = 'v', help = 'Verbose information')
 
 class command(object):
     """ Base class for each plugin command """
@@ -40,7 +40,7 @@ class command(object):
     # meta_info will be removed
     meta_info = {}
 
-    def __init__(self, args=None):
+    def __init__(self, args = None):
         """ Constructor uses args as an initializer. It creates an instance
         of OptionParser, populates the options, and finally parses the 
         command line. Options are stored in the self.opts attribute.
@@ -75,7 +75,7 @@ class command(object):
         ## requested output mode:
         function_name = "render_{0}".format(config.OUTPUT)
         if config.OUTPUT_FILE:
-            outfd = open(config.OUTPUT_FILE,'w')
+            outfd = open(config.OUTPUT_FILE, 'w')
             # TODO: We should probably check that this won't blat over an existing file 
         else:
             outfd = sys.stdout
@@ -89,7 +89,7 @@ class command(object):
                 if x.startswith("render_"):
                     _a, b = x.split("_", 1)
                     result.append(b)
-            
+
             print "Plugin {0} is unable to produce output in format {1}. Supported formats are {2}. Please send a feature request".format(self.__class__.__name__, config.OUTPUT, result)
             return
 

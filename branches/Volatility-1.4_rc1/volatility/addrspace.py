@@ -38,10 +38,10 @@ import volatility.conf as conf
 config = conf.ConfObject()
 
 ## By default load the profile that the user asked for
-config.add_option("PROFILE", default='WinXPSP2',
+config.add_option("PROFILE", default = 'WinXPSP2',
                   help = "Name of the profile to load")
 
-config.add_option("LOCATION", default=None, short_option='l',
+config.add_option("LOCATION", default = None, short_option = 'l',
                   help = "A URN location from which to load an address space")
 
 ## Make sure the profiles are cached so we only parse it once. This is
@@ -50,7 +50,7 @@ config.add_option("LOCATION", default=None, short_option='l',
 PROFILES = {}
 
 class ASAssertionError(AssertionError):
-    
+
     def __init__(self, *args, **kwargs):
         AssertionError.__init__(self, *args, **kwargs)
 
@@ -94,7 +94,7 @@ class BaseAddressSpace:
     def is_valid_address(self, _addr):
         """ Tell us if the address is valid """
         return True
-    
+
     def write(self, _addr, _buf):
         if not config.WRITE:
             return False
@@ -118,17 +118,17 @@ class BufferAddressSpace(BaseAddressSpace):
         self.data = data
         self.base_offset = base_offset
 
-    def assign_buffer(self, data, base_offset=0):
+    def assign_buffer(self, data, base_offset = 0):
         self.base_offset = base_offset
         self.data = data
 
     def is_valid_address(self, addr):
         return not (addr < self.base_offset or addr > self.base_offset + len(self.data))
-        
+
     def read(self, addr, length):
         offset = addr - self.base_offset
-        return self.data[offset: offset+length]
-    
+        return self.data[offset: offset + length]
+
     def write(self, addr, data):
         if not config.WRITE:
             return False

@@ -67,7 +67,7 @@ configuration information:
    - Finally a conf table in each case is used to provide a per case
    configuration
    
-"""    
+"""
 import ConfigParser
 import optparse
 import os
@@ -94,12 +94,12 @@ class PyFlagOptionParser(optparse.OptionParser):
         else:
             raise RuntimeError(msg)
 
-    def print_help(self, file=sys.stdout):
+    def print_help(self, file = sys.stdout):
         optparse.OptionParser.print_help(self, file)
 
         for cb in self.help_hooks:
             file.write(cb())
-        
+
 class ConfObject(object):
     """ This is a singleton class to manage the configuration.
 
@@ -107,18 +107,18 @@ class ConfObject(object):
     refers to the global configuration (which is set in class
     variables).
     """
-    optparser = PyFlagOptionParser(add_help_option=False,
-                                   version=False,
+    optparser = PyFlagOptionParser(add_help_option = False,
+                                   version = False,
                                    )
     initialised = False
 
     ## This is the globals dictionary which will be used for
     ## evaluating the configuration directives.
     g_dict = dict(__builtins__ = None)
-    
+
     ## These are the options derived by reading any config files
     cnf_opts = {}
-    
+
     ## Command line opts
     opts = {}
     args = None
@@ -145,32 +145,32 @@ class ConfObject(object):
 
     ## A list of option names:
     options = []
-    
+
     def __init__(self):
         """ This is a singleton object kept in the class """
         if not ConfObject.initialised:
-            self.optparser.add_option("-h", "--help", action="store_true", default=False,
-                            help="list all available options and their default values. Default values may be set in the configuration file (" + default_config + ")")
+            self.optparser.add_option("-h", "--help", action = "store_true", default = False,
+                            help = "list all available options and their default values. Default values may be set in the configuration file (" + default_config + ")")
 
             ConfObject.initialised = True
 
-    def set_usage(self, usage=None, version=None):
+    def set_usage(self, usage = None, version = None):
         if usage:
             self.optparser.set_usage(usage)
 
         if version:
             self.optparser.version = version
-        
-    def add_file(self, filename, _type='init'):
+
+    def add_file(self, filename, _type = 'init'):
         """ Adds a new file to parse """
         self._filenames.append(filename)
-        
+
         self.cnf_opts.clear()
 
         for f in self._filenames:
             try:
                 conf_parser = ConfigParser.ConfigParser()
-                conf_parser.read(f)                
+                conf_parser.read(f)
 
                 for k, v in conf_parser.items('DEFAULT'):
                     ## Absolute parameters are protected from
@@ -185,7 +185,7 @@ class ConfObject(object):
 
                     ## update the configured options
                     self.cnf_opts[k] = v
-                    
+
             except IOError:
                 print "Unable to open {0}".format(f)
 
@@ -204,7 +204,7 @@ class ConfObject(object):
     def set_help_hook(self, cb):
         self.optparser.help_hooks = [cb]
 
-    def parse_options(self, final=True):
+    def parse_options(self, final = True):
         """ Parses the options from command line and any conf files
         currently added.
 
@@ -213,7 +213,7 @@ class ConfObject(object):
         required; (For example when we detect the -h parameter).
         """
         self.optparser.final = final
-        
+
         ## Parse the command line options:
         try:
             (opts, args) = self.optparser.parse_args()
@@ -228,13 +228,13 @@ class ConfObject(object):
 
         except UnboundLocalError:
             raise RuntimeError("Unknown option - use -h to see help")
-        
+
         ## If error() was called we catch it here
         except RuntimeError:
             opts = {}
             ## This gives us as much as was parsed so far
             args = self.optparser.largs
-        
+
         self.optparse_opts = opts
         self.args = args
 
@@ -242,10 +242,10 @@ class ConfObject(object):
             ## Reparse the config file again:
             self.add_file(self._filename)
 
-            try:                    
+            try:
                 ## Help can only be set on the command line
                 if getattr(self.optparse_opts, "help"):
-                    
+
                 ## Populate the metavars with the default values:
                     for opt in self.optparser.option_list:
                         try:
@@ -268,13 +268,13 @@ class ConfObject(object):
         """
         option = option.lower()
 
-        normalized_option = option.replace("-","_")
-        
+        normalized_option = option.replace("-", "_")
+
         if normalized_option not in self.options:
             return
 
         self.options.remove(normalized_option)
-        
+
         if normalized_option in self.readonly:
             del self.readonly[normalized_option]
 
@@ -283,29 +283,29 @@ class ConfObject(object):
 
         if normalized_option in self._absolute:
             del self._absolute[normalized_option]
-            
+
         del self.docstrings[normalized_option]
 
         self.optparser.remove_option("--{0}".format(option))
-        
+
         try:
             self.parse_options(False)
         except AttributeError:
             pass
 
-    def add_option(self, option, short_option=None, **args):
+    def add_option(self, option, short_option = None, **args):
         """ Adds options both to the config file parser and the
         command line parser
         """
         option = option.lower()
 
-        normalized_option = option.replace("-","_")
-        
+        normalized_option = option.replace("-", "_")
+
         if normalized_option in self.options:
             return
-        
+
         self.options.append(normalized_option)
-        
+
         ## If this is read only we store it in a special dict
         try:
             if args['readonly']:
@@ -321,7 +321,7 @@ class ConfObject(object):
                 default = eval(default, self.g_dict)
             except:
                 pass
-            
+
             self.default_opts[normalized_option] = default
             del args['default']
         except KeyError:
@@ -339,7 +339,7 @@ class ConfObject(object):
             self.optparser.add_option("-{0}".format(short_option), "--{0}".format(option), **args)
         else:
             self.optparser.add_option("--{0}".format(option), **args)
-            
+
         ## update the command line parser
 
         ## We have to do the try-catch for python 2.4 support of short
@@ -348,11 +348,11 @@ class ConfObject(object):
             self.parse_options(False)
         except AttributeError:
             pass
-        
+
     def update(self, key, value):
         """ This can be used by scripts to force a value of an option """
         self.readonly[key.lower()] = value
-        
+
     def __getattr__(self, attr):
         ## If someone is looking for a configuration parameter but
         ## we have not parsed anything yet - do so now.
@@ -410,7 +410,7 @@ class ConfObject(object):
                 return getattr(self.optparse_opts, attr.lower())
         except AttributeError:
             pass
-        
+
         raise AttributeError("Parameter {0} is not configured - try setting it on the command line (-h for help)".format(attr))
 
 config = ConfObject()
@@ -420,7 +420,7 @@ else:
     config.add_file("volatilityrc")
 
 try:
-    config.add_option("CONF-FILE", default=os.environ['HOME']+'/.volatilityrc',
+    config.add_option("CONF-FILE", default = os.environ['HOME'] + '/.volatilityrc',
                       help = "User based configuration file")
 
     config.add_file(config.CONF_FILE)

@@ -71,8 +71,8 @@ class Curry:
             kw.update(kwargs)
         else:
             kw = kwargs or self.kwargs
-            
-        return self.fun(*(self.pending+args), **kw)
+
+        return self.fun(*(self.pending + args), **kw)
 
 try:
     ## Curry is now a standard python feature
@@ -84,7 +84,7 @@ except:
 
 import traceback
 
-def get_bt_string(_e=None):    
+def get_bt_string(_e = None):
     return ''.join(traceback.format_stack()[:-3])
 
 class FormatSpec(object):
@@ -103,16 +103,16 @@ class FormatSpec(object):
         # Ensure we parse the remaining arguments after the string to that they override
         self.from_specs(**kwargs)
 
-    def from_specs(self, fill=None, align=None, sign=None, altform=None, minwidth=None, precision=None, formtype=None):
+    def from_specs(self, fill = None, align = None, sign = None, altform = None, minwidth = None, precision = None, formtype = None):
         ## Allow setting individual elements using kwargs 
         if fill is not None:
-            self.fill = fill 
+            self.fill = fill
         if align is not None:
             self.align = align
         if sign is not None:
             self.sign = sign
         if altform is not None:
-            self.altform = altform 
+            self.altform = altform
         if minwidth is not None:
             self.minwidth = minwidth
         if precision is not None:
@@ -123,12 +123,12 @@ class FormatSpec(object):
     def from_string(self, formatspec):
         # Format specifier regular expression
         regexp = "\A(.[<>=^]|[<>=^])?([-+ ]|\(\))?(#?)(0?)(\d*)(\.\d+)?(.)?\Z"
-    
+
         match = re.search(regexp, formatspec)
-        
+
         if match is None:
             raise ValueError("Invalid format specification")
-        
+
         if match.group(1):
             fillalign = match.group(1)
             if len(fillalign) > 1:
@@ -136,7 +136,7 @@ class FormatSpec(object):
                 self.align = fillalign[1]
             elif fillalign:
                 self.align = fillalign
-    
+
         if match.group(2):
             self.sign = match.group(2)
         if match.group(3):
@@ -164,7 +164,7 @@ class FormatSpec(object):
         if self.precision >= 0:
             formatspec += '.' + str(self.precision)
         formatspec += self.formtype
-    
+
         return formatspec
 
     def __str__(self):
@@ -176,7 +176,7 @@ class NoneObject(object):
 
     Instantiate with the reason for the error.
     """
-    def __init__(self, reason='', strict=False):
+    def __init__(self, reason = '', strict = False):
         self.reason = reason
         self.strict = strict
         if strict:
@@ -203,9 +203,9 @@ class NoneObject(object):
         return 0
 
     def __format__(self, formatspec):
-        spec = FormatSpec(string=formatspec, fill="-", align=">")
+        spec = FormatSpec(string = formatspec, fill = "-", align = ">")
         return format('-', str(spec))
-    
+
     def next(self):
         raise StopIteration()
 
@@ -238,7 +238,7 @@ class NoneObject(object):
         return self
 
     def __int__(self):
-        return -1
+        return - 1
 
     def __lshift__(self, other):
         return self
@@ -256,7 +256,7 @@ class InvalidOffsetError(Exception):
     """Simple placeholder to identify invalid offsets"""
     pass
 
-def Object(theType, offset, vm, parent=None, name=None, **kwargs):
+def Object(theType, offset, vm, parent = None, name = None, **kwargs):
     """ A function which instantiates the object named in theType (as
     a string) from the type in profile passing optional args of
     kwargs.
@@ -266,42 +266,42 @@ def Object(theType, offset, vm, parent=None, name=None, **kwargs):
 
     try:
         if theType in vm.profile.types:
-            result = vm.profile.types[theType](offset=offset, vm=vm, name=name,
-                                               parent=parent)
+            result = vm.profile.types[theType](offset = offset, vm = vm, name = name,
+                                               parent = parent)
             return result
-        
-    
+
+
         # Need to check for any derived object types that may be 
         # found in the global memory registry.
         if theType in MemoryRegistry.OBJECT_CLASSES.objects:
             return MemoryRegistry.OBJECT_CLASSES[theType](
                 theType,
                 offset,
-                vm = vm, parent=parent, name=name,
+                vm = vm, parent = parent, name = name,
                 **kwargs)
     except InvalidOffsetError:
         ## If we cant instantiate the object here, we just error out:
         return NoneObject("Invalid Address 0x{0:08X}, instantiating {1}".format(offset, name),
-                          strict=vm.profile.strict)
+                          strict = vm.profile.strict)
 
     ## If we get here we have no idea what the type is supposed to be?
     ## This is a serious error.
     debug.debug("Cant find object {0} in profile {1}???".format(theType, vm.profile), level = 3)
 
 class BaseObject(object):
-    def __init__(self, theType, offset, vm, parent=None, name=None):
+    def __init__(self, theType, offset, vm, parent = None, name = None):
         self.vm = vm
         self.parent = parent
         self.profile = vm.profile
         self.offset = offset
         self.name = name
         self.theType = theType
-        
+
         if not self.vm.is_valid_address(self.offset):
             raise InvalidOffsetError("Invalid Address 0x{0:08X}, instantiating {1}".format(offset, name))
 
     def rebase(self, offset):
-        return self.__class__(self.theType, offset, vm=self.vm)
+        return self.__class__(self.theType, offset, vm = self.vm)
 
     def proxied(self, attr):
         return None
@@ -323,7 +323,7 @@ class BaseObject(object):
         # Don't do a __nonzero__ check on proxied or things like '' will fail
         if proxied is None:
             raise AttributeError("Unable to resolve attribute %s on %s" % (attr, self.name))
-        
+
         return getattr(proxied, attr)
 
     def __setattr__(self, attr, value):
@@ -356,7 +356,7 @@ class BaseObject(object):
         return result
 
     def __eq__(self, other):
-        return self.v() == other or ((self.__class__ == other.__class__) and 
+        return self.v() == other or ((self.__class__ == other.__class__) and
                                      (self.offset == other.offset) and (self.vm == other.vm))
 
     def __hash__(self):
@@ -371,7 +371,7 @@ class BaseObject(object):
     def get_member(self, memname):
         raise AttributeError("No member {0}".format(memname))
 
-    def get_member_offset(self, memname, relative=False):
+    def get_member_offset(self, memname, relative = False):
         return self.offset
 
     def is_null(self):
@@ -385,7 +385,7 @@ class BaseObject(object):
 
     def dereference_as(self, derefType):
         return Object(derefType, self.v(), \
-                         self.vm, parent=self)
+                         self.vm, parent = self)
 
     def cast(self, castString):
         return Object(castString, self.offset, self.vm)
@@ -398,7 +398,7 @@ class BaseObject(object):
     def __format__(self, formatspec):
         return format(self.v(), formatspec)
 
-    def get_bytes(self, amount=None):
+    def get_bytes(self, amount = None):
         if amount == None:
             # FIXME: Figure out what self.size() should be?
             # amount = self.size()
@@ -457,11 +457,11 @@ def CreateMixIn(mixin):
                 args = [proxied] + args
             except AttributeError:
                 method = getattr(proxied, name)
-            
+
             return method(*args, **kw)
-        
+
         return method
-    
+
     for name in mixin._specials:
         setattr(mixin, name, make_method(name))
 
@@ -479,7 +479,7 @@ class NumericProxyMixIn(object):
 
         ## Comparisons
         '__lt__', '__le__', '__eq__', '__ne__', '__ge__', '__gt__', '__index__',
-        
+
         ## Formatting
         '__format__',
         ]
@@ -488,9 +488,9 @@ class NumericProxyMixIn(object):
 CreateMixIn(NumericProxyMixIn)
 
 class NativeType(BaseObject, NumericProxyMixIn):
-    def __init__(self, theType, offset, vm, parent=None,
-                 format_string=None, name=None, **args):
-        BaseObject.__init__(self, theType, offset, vm, parent=parent, name=name)
+    def __init__(self, theType, offset, vm, parent = None,
+                 format_string = None, name = None, **args):
+        BaseObject.__init__(self, theType, offset, vm, parent = parent, name = name)
         NumericProxyMixIn.__init__(self)
         self.format_string = format_string
 
@@ -500,7 +500,7 @@ class NativeType(BaseObject, NumericProxyMixIn):
         return self.vm.write(self.offset, output)
 
     def rebase(self, offset):
-        return self.__class__(None, offset, self.vm, format_string=self.format_string)
+        return self.__class__(None, offset, self.vm, format_string = self.format_string)
 
     def proxied(self, attr):
         return self.v()
@@ -513,7 +513,7 @@ class NativeType(BaseObject, NumericProxyMixIn):
         if not data:
             return NoneObject("Unable to read {0} bytes from {1}".format(self.size(), self.offset))
 
-        (val, ) = struct.unpack(self.format_string, data)
+        (val,) = struct.unpack(self.format_string, data)
 
         return val
 
@@ -522,23 +522,23 @@ class NativeType(BaseObject, NumericProxyMixIn):
 
     def __repr__(self):
         return " [{0}]: {1}".format(self.theType, self.v())
-    
+
     def d(self):
         return " [{0} {1} | {2}]: {3}".format(self.__class__.__name__, self.name or '',
                                               self.theType, self.v())
 
 class BitField(NativeType):
     """ A class splitting an integer into a bunch of bit. """
-    def __init__(self, theType, offset, vm, parent=None, 
-                 start_bit=0, end_bit=32, name=None, **args):
-        NativeType.__init__(self, theType, offset, vm, parent=parent, name=name)
+    def __init__(self, theType, offset, vm, parent = None,
+                 start_bit = 0, end_bit = 32, name = None, **args):
+        NativeType.__init__(self, theType, offset, vm, parent = parent, name = name)
         self.format_string = 'L'
         self.start_bit = start_bit
         self.end_bit = end_bit
 
     def v(self):
         i = NativeType.v(self)
-        return (i & ( (1 << self.end_bit) - 1)) >> self.start_bit
+        return (i & ((1 << self.end_bit) - 1)) >> self.start_bit
 
     def write(self, data):
         data = data << self.start_bit
@@ -552,11 +552,11 @@ class BitField(NativeType):
         return result
 
 class Pointer(NativeType):
-    def __init__(self, theType, offset, vm, parent=None, profile=None, target=None, name=None):
-        NativeType.__init__(self, theType, offset = offset, vm=vm, name=name,
-                            parent=parent, profile=profile)
+    def __init__(self, theType, offset, vm, parent = None, profile = None, target = None, name = None):
+        NativeType.__init__(self, theType, offset = offset, vm = vm, name = name,
+                            parent = parent, profile = profile)
         self.format_string = "=L"
-        
+
         if theType:
             self.target = Curry(Object, theType)
         else:
@@ -569,8 +569,8 @@ class Pointer(NativeType):
     def dereference(self):
         offset = self.v()
         if self.vm.is_valid_address(offset):
-            result = self.target(offset=offset, vm=self.vm, parent=self.parent,
-                                 name=self.name)
+            result = self.target(offset = offset, vm = self.vm, parent = self.parent,
+                                 name = self.name)
             return result
         else:
             return NoneObject("Pointer {0} invalid".format(self.name), self.profile.strict)
@@ -587,7 +587,7 @@ class Pointer(NativeType):
 
     def d(self):
         target = self.dereference()
-        return "<{0} {1} pointer to [0x{2:08X}]>".format(target.__class__.__name__, self.name or '', self.v()) 
+        return "<{0} {1} pointer to [0x{2:08X}]>".format(target.__class__.__name__, self.name or '', self.v())
 
     def __getattribute__(self, attr):
         try:
@@ -601,14 +601,14 @@ class Pointer(NativeType):
             return result.__getattribute__(attr)
 
 class Void(NativeType):
-    def __init__(self, theType, offset, vm, parent=None,
-                 format_string=None, **args):
-        NativeType.__init__(self, theType, offset, vm, parent=None)
+    def __init__(self, theType, offset, vm, parent = None,
+                 format_string = None, **args):
+        NativeType.__init__(self, theType, offset, vm, parent = None)
         self.format_string = "=L"
 
     def cdecl(self):
         return "0x{0:08X}".format(self.v())
-    
+
     def __repr__(self):
         return "Void (0x{0:08X})".format(self.v())
 
@@ -620,20 +620,20 @@ class Void(NativeType):
 
     def dereference_as(self, derefType):
         return Object(derefType, self.v(), \
-                         self.vm, parent=self)
+                         self.vm, parent = self)
 
 class Array(BaseObject):
     """ An array of objects of the same size """
-    def __init__(self, targetType=None, offset=0, vm=None, parent=None,
-                 count=1, name=None, target=None):
+    def __init__(self, targetType = None, offset = 0, vm = None, parent = None,
+                 count = 1, name = None, target = None):
         ## Instantiate the first object on the offset:
         BaseObject.__init__(self, targetType, offset, vm,
-                        parent=parent, name=name)
+                        parent = parent, name = name)
         try:
             count = count(parent)
         except TypeError, _e:
             pass
-        
+
         self.count = int(count)
 
         self.original_offset = offset
@@ -642,11 +642,11 @@ class Array(BaseObject):
         else:
             self.target = target
 
-        self.current = self.target(offset=offset, vm=vm, parent=self,
-                                       name= name)
-        if self.current.size()==0:
+        self.current = self.target(offset = offset, vm = vm, parent = self,
+                                       name = name)
+        if self.current.size() == 0:
             ## It is an error to have a zero sized element
-            debug.debug("Array with 0 sized members???", level=10)
+            debug.debug("Array with 0 sized members???", level = 10)
             debug.b()
 
     def size(self):
@@ -656,7 +656,7 @@ class Array(BaseObject):
         ## This method is better than the __iter__/next method as it
         ## is reentrant
         for position in range(0, self.count):
-            
+
             ## We don't want to stop on a NoneObject.  Its
             ## entirely possible that this array contains a bunch of
             ## pointers and some of them may not be valid (or paged
@@ -670,13 +670,13 @@ class Array(BaseObject):
 
             ## Instantiate the target here:
             if self.vm.is_valid_address(offset):
-                yield self.target(offset = offset, vm=self.vm,
-                                  parent=self,
-                                  name="{0} {1}".format(self.name, position))
+                yield self.target(offset = offset, vm = self.vm,
+                                  parent = self,
+                                  name = "{0} {1}".format(self.name, position))
             else:
                 yield NoneObject("Array {0}, Invalid position {1}".format(self.name, position),
                                  self.profile.strict)
-        
+
     def __repr__(self):
         result = [ x.__str__() for x in self ]
         return "<Array {0}>".format(",".join(result))
@@ -688,27 +688,27 @@ class Array(BaseObject):
     def __eq__(self, other):
         if self.count != len(other):
             return False
-        
+
         for i in range(self.count):
             if not self[i] == other[i]:
                 return False
 
         return True
-    
-    def __getitem__(self, pos):        
+
+    def __getitem__(self, pos):
         ## Check if the offset is valid
         offset = self.original_offset + \
                  pos * self.current.size()
         if pos <= self.count and self.vm.is_valid_address(offset):
             return self.target(offset = offset,
-                               vm=self.vm, parent=self)
+                               vm = self.vm, parent = self)
         else:
             return NoneObject("Array {0} invalid member {1}".format(self.name, pos),
                               self.profile.strict)
 
 class CType(BaseObject):
     """ A CType is an object which represents a c struct """
-    def __init__(self, theType, offset, vm, parent=None, members=None, name=None, size=0):
+    def __init__(self, theType, offset, vm, parent = None, members = None, name = None, size = 0):
         """ This must be instantiated with a dict of members. The keys
         are the offsets, the values are Curried Object classes that
         will be instantiated when accessed.
@@ -718,19 +718,19 @@ class CType(BaseObject):
 
         self.members = members
         self.struct_size = size
-        BaseObject.__init__(self, theType, offset, vm, parent=parent, name=name)
+        BaseObject.__init__(self, theType, offset, vm, parent = parent, name = name)
         self.__initialized = True
 
     def size(self):
         return self.struct_size
 
     def __repr__(self):
-        return "[{0} {1}] @ 0x{2:08X}".format(self.__class__.__name__, self.name or '', 
+        return "[{0} {1}] @ 0x{2:08X}".format(self.__class__.__name__, self.name or '',
                                      self.offset)
     def d(self):
         result = self.__repr__() + "\n"
         for k in self.members.keys():
-            result += " {0} -\n {1}\n".format( k, self.m(k))
+            result += " {0} -\n {1}\n".format(k, self.m(k))
 
         return result
 
@@ -755,8 +755,8 @@ class CType(BaseObject):
             ## Otherwise its relative to the start of our struct
             offset = int(offset) + int(self.offset)
 
-        result = cls(offset = offset, vm=self.vm,
-                     parent=self, name=attr)
+        result = cls(offset = offset, vm = self.vm,
+                     parent = self, name = attr)
 
         return result
 
@@ -787,7 +787,7 @@ class CType(BaseObject):
                     raise ValueError("Error writing value to member " + attr)
         # If you hit this, consider using obj.newattr('attr', value)
         raise ValueError("Attribute " + attr + " was set after object initialization")
-    
+
 ## Profiles are the interface for creating/interpreting
 ## objects
 
@@ -799,21 +799,21 @@ class Profile:
     native_types = {}
     abstract_types = {}
     overlay = {}
-    
-    def __init__(self, strict=False):
+
+    def __init__(self, strict = False):
         self.types = {}
         self.typeDict = {}
         self.overlayDict = {}
         self.strict = strict
-        
+
         # Ensure VOLATILITY_MAGIC is always present in every profile
         # That way, we can still autogenerate types, and put VOLATILITY_MAGIC in overlays
         # Otherwise the overlay won't have anything to, well, over lay.
         self.abstract_types['VOLATILITY_MAGIC'] = [0x0, {}]
-        
+
         self.add_types(self.abstract_types, self.overlay)
 
-    def add_types(self, abstract_types, overlay=None):
+    def add_types(self, abstract_types, overlay = None):
         overlay = overlay or {}
 
         ## we merge the abstract_types with self.typeDict and then recompile
@@ -833,14 +833,14 @@ class Profile:
             original[1].update(v[1])
             if v[0]:
                 original[0] = v[0]
-                
+
             self.overlayDict[k] = original
 
         # Load the native types
         self.types = {}
         for nt, value in self.native_types.items():
             if type(value) == list:
-                self.types[nt] = Curry(NativeType, nt, format_string=value[1])
+                self.types[nt] = Curry(NativeType, nt, format_string = value[1])
 
         for name in self.typeDict.keys():
             ## We need to protect our virgin overlay dict here - since
@@ -848,8 +848,8 @@ class Profile:
             ## deep copy:
             self.types[name] = self.convert_members(
                 name, self.typeDict, copy.deepcopy(self.overlayDict))
-        
-    def list_to_type(self, name, typeList, typeDict=None):
+
+    def list_to_type(self, name, typeList, typeDict = None):
         """ Parses a specification list and returns a VType object.
 
         This function is a bit complex because we support lots of
@@ -862,16 +862,16 @@ class Profile:
         try:
             args = typeList[1]
 
-            if type(args)==dict:
+            if type(args) == dict:
                 ## We have a list of the form [ ClassName, dict(.. args ..) ]
-                return Curry(Object, theType=typeList[0], name=name,
+                return Curry(Object, theType = typeList[0], name = name,
                              **args)
         except (TypeError, IndexError), _e:
             pass
 
         ## This is of the form [ 'void' ]
         if typeList[0] == 'void':
-            return Curry(Void, Void, name=name)
+            return Curry(Void, Void, name = name)
 
         ## This is of the form [ 'pointer' , [ 'foobar' ]]
         if typeList[0] == 'pointer':
@@ -879,20 +879,20 @@ class Profile:
                 target = typeList[1]
             except IndexError:
                 raise RuntimeError("Syntax Error in pointer type defintion for name {0}".format(name))
-            
+
             return Curry(Pointer, None,
                          name = name,
-                         target=self.list_to_type(name, target, typeDict))
+                         target = self.list_to_type(name, target, typeDict))
 
         ## This is an array: [ 'array', count, ['foobar'] ]
         if typeList[0] == 'array':
             return Curry(Array, None,
-                         name = name, count=typeList[1],
-                         target=self.list_to_type(name, typeList[2], typeDict))
+                         name = name, count = typeList[1],
+                         target = self.list_to_type(name, typeList[2], typeDict))
 
         ## This is a list which refers to a type which is already defined
         if typeList[0] in self.types:
-            return Curry(self.types[typeList[0]], name=name)
+            return Curry(self.types[typeList[0]], name = name)
 
         ## Does it refer to a type which will be defined in future? in
         ## this case we just curry the Object function to provide
@@ -904,14 +904,14 @@ class Profile:
                 args = typeList[1]
             except IndexError:
                 args = {}
-            
+
             obj_name = typeList[0]
-            return Curry(Object, obj_name, name=name, **args)
+            return Curry(Object, obj_name, name = name, **args)
 
         ## If we get here we have no idea what this list is
         #raise RuntimeError("Error in parsing list {0}".format(typeList))
         print "Warning - Unable to find a type for {0}, assuming int".format(typeList[0])
-        return Curry(self.types['int'], name=name)
+        return Curry(self.types['int'], name = name)
 
     def get_obj_offset(self, name, member):
         """ Returns a members offset within the struct """
@@ -921,7 +921,7 @@ class Profile:
                 return True
         tmp = self.types[name](name, dummy())
         offset, _cls = tmp.members[member]
-        
+
         return offset
 
     def get_obj_size(self, name):
@@ -941,14 +941,14 @@ class Profile:
         if not overlay:
             return type_member
 
-        if type(type_member)==dict:
+        if type(type_member) == dict:
             for k, v in type_member.items():
                 if k not in overlay:
                     overlay[k] = v
                 else:
                     overlay[k] = self.apply_overlay(v, overlay[k])
-                    
-        elif type(overlay)==list:
+
+        elif type(overlay) == list:
             if len(overlay) != len(type_member):
                 return overlay
 
@@ -959,7 +959,7 @@ class Profile:
                     overlay[i] = self.apply_overlay(type_member[i], overlay[i])
 
         return overlay
-        
+
     def convert_members(self, cname, typeDict, overlay):
         """ Convert the member named by cname from the c description
         provided by typeDict into a list of members that can be used
@@ -995,8 +995,8 @@ class Profile:
             cls = MemoryRegistry.OBJECT_CLASSES[cname]
         else:
             cls = CType
-        
-        return Curry(cls, cname, members=members, size=size)
+
+        return Curry(cls, cname, members = members, size = size)
 
 if __name__ == '__main__':
     ## If called directly we run unit tests on this stuff
@@ -1010,12 +1010,12 @@ if __name__ == '__main__':
         def test001ProxyObject(self):
             ## Check the proxying of various objects
             test_data = "hello world"
-            address_space = addrspace.BufferAddressSpace(data=test_data)
-            o = Object('String', offset=0, vm=address_space, length=len(test_data))
-            
+            address_space = addrspace.BufferAddressSpace(data = test_data)
+            o = Object('String', offset = 0, vm = address_space, length = len(test_data))
+
             print o.find("world"), o.upper(), o.lower()
 
-            o = Object('unsigned int', offset=0, vm=address_space, length=len(test_data))
+            o = Object('unsigned int', offset = 0, vm = address_space, length = len(test_data))
             O = o.v()
             print type(o), type(O)
             self.assertEqual(o, O)
@@ -1035,8 +1035,8 @@ if __name__ == '__main__':
             self.assertEqual(o >> 2, O >> 2)
             self.assertEqual(o / 3, O / 3)
             self.assertEqual(float(o), float(O))
-            
-            print o, o+5, o * 2, o / 2, o << 3, o & 0xFF, o + o
+
+            print o, o + 5, o * 2, o / 2, o << 3, o & 0xFF, o + o
 
         def test01SimpleStructHandling(self):
             """ Test simple struct handling """
@@ -1049,17 +1049,17 @@ if __name__ == '__main__':
                 }
 
             test_data = "ABAD\x06\x00\x00\x00\x02\x00\xff\xff"
-            address_space = addrspace.BufferAddressSpace(data=test_data)
+            address_space = addrspace.BufferAddressSpace(data = test_data)
             address_space.profile.add_types(mytype)
-            
-            o = Object('HEADER', offset=0, vm=address_space)
+
+            o = Object('HEADER', offset = 0, vm = address_space)
             ## Can we decode ints?
             self.assertEqual(o.Size.v(), 6)
             self.assertEqual(int(o.Size), 6)
             self.assertEqual(o.Size + 6, 12)
             self.assertEqual(o.Size - 3, 3)
             self.assertEqual(o.Size + o.Count, 8)
-            
+
             ## This demonstrates how array members print out
             print o.MAGIC[0], o.MAGIC[1]
 
@@ -1068,7 +1068,7 @@ if __name__ == '__main__':
             self.assertEqual(o.MAGIC[0], o.MAGIC[2])
             self.assertEqual(o.MAGIC, ['A', 'B', 'A'])
             self.assertEqual(o.MAGIC, 'ABA')
-            
+
             ## Iteration over arrays:
             tmp = 'ABA'
             count = 0
@@ -1093,10 +1093,10 @@ if __name__ == '__main__':
 
             test_data = '\x01\x00\x00\x00\x00\x00\x00\x00\x1c\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\\\x00\x00\x00\\\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x02\x00\x00\x00\x03\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x1c\x00\x00\x00\x1c\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x05\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
 
-            address_space = addrspace.BufferAddressSpace(data=test_data)
+            address_space = addrspace.BufferAddressSpace(data = test_data)
             address_space.profile.add_types(mytype)
-            
-            o = Object('_HANDLE_TABLE', offset=0, vm=address_space)
+
+            o = Object('_HANDLE_TABLE', offset = 0, vm = address_space)
 
             self.assertEqual(o.TableCode, 1)
             self.assertEqual(o.UniqueProcessId, 0x1c)
@@ -1111,6 +1111,6 @@ if __name__ == '__main__':
             ## Make sure next.prev == o
             self.assertEqual(n.HandleTableList.Blink, o)
             self.assertEqual(n.HandleTableList.Blink.TableCode, 1)
-                        
+
     suite = unittest.makeSuite(ObjectTests)
-    res = unittest.TextTestRunner(verbosity=2).run(suite)
+    res = unittest.TextTestRunner(verbosity = 2).run(suite)

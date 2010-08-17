@@ -40,12 +40,12 @@ def load_as(**kwargs):
                 found = True
                 break
             except addrspace.ASAssertionError, e:
-                debug.debug("Failed instantiating {0}: {1}".format(cls.__name__, e), 2) 
-                error.append_reason(cls.__name__, e) 
+                debug.debug("Failed instantiating {0}: {1}".format(cls.__name__, e), 2)
+                error.append_reason(cls.__name__, e)
                 continue
             except Exception, e:
-                debug.debug("Failed instantiating %s" % e) 
-                continue               
+                debug.debug("Failed instantiating %s" % e)
+                continue
 
         ## A full iteration through all the classes without anyone
         ## selecting us means we are done:
@@ -62,7 +62,7 @@ class AddrSpaceError(Exception):
     def __init__(self):
         self.reasons = []
         Exception.__init__(self, "No suitable address space mapping found")
-    
+
     def append_reason(self, driver, reason):
         self.reasons.append((driver, reason))
 

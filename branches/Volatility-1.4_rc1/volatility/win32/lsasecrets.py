@@ -69,25 +69,25 @@ def decrypt_secret(secret, key):
     decrypted_data = ''
     j = 0   # key index
     for i in range(0, len(secret), 8):
-        enc_block = secret[i:i+8]
-        block_key = key[j:j+7]
+        enc_block = secret[i:i + 8]
+        block_key = key[j:j + 7]
         des_key = hashdump.str_to_key(block_key)
 
         des = DES.new(des_key, DES.MODE_ECB)
         decrypted_data += des.decrypt(enc_block)
-        
+
         j += 7
-        if len(key[j:j+7]) < 7:
-            j = len(key[j:j+7])
+        if len(key[j:j + 7]) < 7:
+            j = len(key[j:j + 7])
 
     (dec_data_len,) = struct.unpack("<L", decrypted_data[:4])
-    return decrypted_data[8:8+dec_data_len]
+    return decrypted_data[8:8 + dec_data_len]
 
 def get_secret_by_name(secaddr, name, lsakey):
     root = rawreg.get_root(secaddr)
     if not root:
         return None
-    
+
     enc_secret_key = rawreg.open_key(root, ["Policy", "Secrets", name, "CurrVal"])
     if not enc_secret_key:
         return None
@@ -116,17 +116,17 @@ def get_secrets(sysaddr, secaddr):
     secrets_key = rawreg.open_key(root, ["Policy", "Secrets"])
     if not secrets_key:
         return None
-    
+
     secrets = {}
     for key in rawreg.subkeys(secrets_key):
         sec_val_key = rawreg.open_key(key, ["CurrVal"])
         if not sec_val_key:
             continue
-        
+
         enc_secret_value = sec_val_key.ValueList.List.dereference()[0]
         if not enc_secret_value:
             continue
-        
+
         enc_secret = secaddr.read(enc_secret_value.Data,
                 enc_secret_value.DataLength)
         if not enc_secret:

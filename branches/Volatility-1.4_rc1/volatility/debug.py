@@ -22,13 +22,13 @@
 import volatility.conf
 config = volatility.conf.ConfObject()
 
-config.add_option("DEBUG", short_option='d', default = 0,
+config.add_option("DEBUG", short_option = 'd', default = 0,
                   action = 'count',
                   help = "Debug volatility")
 
 import pdb
 
-def debug(msg, level=1):
+def debug(msg, level = 1):
     """Outputs a debugging message"""
     if config.DEBUG >= level:
         print msg

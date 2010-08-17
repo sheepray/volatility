@@ -38,16 +38,16 @@ odd_parity = [
   49, 49, 50, 50, 52, 52, 55, 55, 56, 56, 59, 59, 61, 61, 62, 62,
   64, 64, 67, 67, 69, 69, 70, 70, 73, 73, 74, 74, 76, 76, 79, 79,
   81, 81, 82, 82, 84, 84, 87, 87, 88, 88, 91, 91, 93, 93, 94, 94,
-  97, 97, 98, 98,100,100,103,103,104,104,107,107,109,109,110,110,
-  112,112,115,115,117,117,118,118,121,121,122,122,124,124,127,127,
-  128,128,131,131,133,133,134,134,137,137,138,138,140,140,143,143,
-  145,145,146,146,148,148,151,151,152,152,155,155,157,157,158,158,
-  161,161,162,162,164,164,167,167,168,168,171,171,173,173,174,174,
-  176,176,179,179,181,181,182,182,185,185,186,186,188,188,191,191,
-  193,193,194,194,196,196,199,199,200,200,203,203,205,205,206,206,
-  208,208,211,211,213,213,214,214,217,217,218,218,220,220,223,223,
-  224,224,227,227,229,229,230,230,233,233,234,234,236,236,239,239,
-  241,241,242,242,244,244,247,247,248,248,251,251,253,253,254,254
+  97, 97, 98, 98, 100, 100, 103, 103, 104, 104, 107, 107, 109, 109, 110, 110,
+  112, 112, 115, 115, 117, 117, 118, 118, 121, 121, 122, 122, 124, 124, 127, 127,
+  128, 128, 131, 131, 133, 133, 134, 134, 137, 137, 138, 138, 140, 140, 143, 143,
+  145, 145, 146, 146, 148, 148, 151, 151, 152, 152, 155, 155, 157, 157, 158, 158,
+  161, 161, 162, 162, 164, 164, 167, 167, 168, 168, 171, 171, 173, 173, 174, 174,
+  176, 176, 179, 179, 181, 181, 182, 182, 185, 185, 186, 186, 188, 188, 191, 191,
+  193, 193, 194, 194, 196, 196, 199, 199, 200, 200, 203, 203, 205, 205, 206, 206,
+  208, 208, 211, 211, 213, 213, 214, 214, 217, 217, 218, 218, 220, 220, 223, 223,
+  224, 224, 227, 227, 229, 229, 230, 230, 233, 233, 234, 234, 236, 236, 239, 239,
+  241, 241, 242, 242, 244, 244, 247, 247, 248, 248, 251, 251, 253, 253, 254, 254
 ]
 
 # Permutation matrix for boot key
@@ -66,25 +66,25 @@ empty_nt = "31d6cfe0d16ae931b73c59d7e0c089c0".decode('hex')
 
 def str_to_key(s):
     key = []
-    key.append( ord(s[0])>>1 )
-    key.append( ((ord(s[0])&0x01)<<6) | (ord(s[1])>>2) )
-    key.append( ((ord(s[1])&0x03)<<5) | (ord(s[2])>>3) )
-    key.append( ((ord(s[2])&0x07)<<4) | (ord(s[3])>>4) )
-    key.append( ((ord(s[3])&0x0F)<<3) | (ord(s[4])>>5) )
-    key.append( ((ord(s[4])&0x1F)<<2) | (ord(s[5])>>6) )
-    key.append( ((ord(s[5])&0x3F)<<1) | (ord(s[6])>>7) )
-    key.append( ord(s[6])&0x7F )
+    key.append(ord(s[0]) >> 1)
+    key.append(((ord(s[0]) & 0x01) << 6) | (ord(s[1]) >> 2))
+    key.append(((ord(s[1]) & 0x03) << 5) | (ord(s[2]) >> 3))
+    key.append(((ord(s[2]) & 0x07) << 4) | (ord(s[3]) >> 4))
+    key.append(((ord(s[3]) & 0x0F) << 3) | (ord(s[4]) >> 5))
+    key.append(((ord(s[4]) & 0x1F) << 2) | (ord(s[5]) >> 6))
+    key.append(((ord(s[5]) & 0x3F) << 1) | (ord(s[6]) >> 7))
+    key.append(ord(s[6]) & 0x7F)
     for i in range(8):
-        key[i] = (key[i]<<1)
+        key[i] = (key[i] << 1)
         key[i] = odd_parity[key[i]]
     return "".join(chr(k) for k in key)
 
 def sid_to_key(sid):
     s1 = ""
     s1 += chr(sid & 0xFF)
-    s1 += chr((sid>>8) & 0xFF)
-    s1 += chr((sid>>16) & 0xFF)
-    s1 += chr((sid>>24) & 0xFF)
+    s1 += chr((sid >> 8) & 0xFF)
+    s1 += chr((sid >> 16) & 0xFF)
+    s1 += chr((sid >> 24) & 0xFF)
     s1 += s1[0]
     s1 += s1[1]
     s1 += s1[2]
@@ -95,14 +95,14 @@ def sid_to_key(sid):
 
 def hash_lm(pw):
     pw = pw[:14].upper()
-    pw = pw + ('\0'*(14-len(pw)))
+    pw = pw + ('\0' * (14 - len(pw)))
     d1 = DES.new(str_to_key(pw[:7]), DES.MODE_ECB)
     d2 = DES.new(str_to_key(pw[7:]), DES.MODE_ECB)
     return d1.encrypt(lmkey) + d2.encrypt(lmkey)
 
 def hash_nt(pw):
     return MD4.new(pw.encode('utf-16-le')).digest()
-   
+
 def find_control_set(sysaddr):
     root = rawreg.get_root(sysaddr)
     if not root:
@@ -130,16 +130,16 @@ def get_bootkey(sysaddr):
         return None
 
     bootkey = ""
-    
+
     for lk in lsa_keys:
         key = rawreg.open_key(lsa, [lk])
         class_data = sysaddr.read(key.Class, key.ClassLength)
         bootkey += class_data.decode('utf-16-le').decode('hex')
-    
+
     bootkey_scrambled = ""
     for i in range(len(bootkey)):
         bootkey_scrambled += bootkey[p[i]]
-    
+
     return bootkey_scrambled
 
 def get_hbootkey(samaddr, bootkey):
@@ -166,7 +166,7 @@ def get_hbootkey(samaddr, bootkey):
 
     rc4 = ARC4.new(rc4_key)
     hbootkey = rc4.encrypt(F[0x80:0xA0])
-    
+
     return hbootkey
 
 def get_user_keys(samaddr):
@@ -202,7 +202,7 @@ def decrypt_hashes(rid, enc_lm_hash, enc_nt_hash, hbootkey):
         lmhash = decrypt_single_hash(rid, hbootkey, enc_lm_hash, almpassword)
     else:
         lmhash = ""
-    
+
     # NT Hash
     if enc_nt_hash:
         nthash = decrypt_single_hash(rid, hbootkey, enc_nt_hash, antpassword)
@@ -232,7 +232,7 @@ def encrypt_hashes(rid, lm_hash, nt_hash, hbootkey):
         enc_lmhash = encrypt_single_hash(rid, hbootkey, lm_hash, almpassword)
     else:
         enc_lmhash = ""
-    
+
     # NT Hash
     if nt_hash:
         enc_nthash = encrypt_single_hash(rid, hbootkey, nt_hash, antpassword)
@@ -257,12 +257,12 @@ def get_user_hashes(user_key, hbootkey):
     nt_len = unpack("<L", V[0xac:0xb0])[0] - 4
 
     if lm_len:
-        enc_lm_hash = V[lm_offset:lm_offset+0x10]
+        enc_lm_hash = V[lm_offset:lm_offset + 0x10]
     else:
         enc_lm_hash = ""
-    
+
     if nt_len:
-        enc_nt_hash = V[nt_offset:nt_offset+0x10]
+        enc_nt_hash = V[nt_offset:nt_offset + 0x10]
     else:
         enc_nt_hash = ""
 
@@ -280,7 +280,7 @@ def get_user_name(user_key):
     name_offset = unpack("<L", V[0x0c:0x10])[0] + 0xCC
     name_length = unpack("<L", V[0x10:0x14])[0]
 
-    username = V[name_offset:name_offset+name_length].decode('utf-16-le')
+    username = V[name_offset:name_offset + name_length].decode('utf-16-le')
     return username
 
 def get_user_desc(user_key):
@@ -291,11 +291,11 @@ def get_user_desc(user_key):
             V = samaddr.read(v.Data, v.DataLength)
     if not V:
         return None
-    
+
     desc_offset = unpack("<L", V[0x24:0x28])[0] + 0xCC
     desc_length = unpack("<L", V[0x28:0x2c])[0]
-    
-    desc = V[desc_offset:desc_offset+desc_length].decode('utf-16-le')
+
+    desc = V[desc_offset:desc_offset + desc_length].decode('utf-16-le')
     return desc
 
 def dump_hashes(sysaddr, samaddr):
@@ -316,7 +316,7 @@ def dump_memory_hashes(addr_space, syshive, samhive):
     samaddr = hive.HiveAddressSpace(addr_space, samhive)
     return dump_hashes(sysaddr, samaddr)
 
-def dump_file_hashes(syshive_fname, samhive_fname, profile):
+def dump_file_hashes(syshive_fname, samhive_fname):
     sysaddr = hive.HiveFileAddressSpace(syshive_fname)
     samaddr = hive.HiveFileAddressSpace(samhive_fname)
-    return dump_hashes(sysaddr, samaddr, profile)
+    return dump_hashes(sysaddr, samaddr)
