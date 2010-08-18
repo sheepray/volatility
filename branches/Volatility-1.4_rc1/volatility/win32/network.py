@@ -80,7 +80,6 @@ module_versions = { \
 def determine_connections(addr_space):
     """Determines all connections for each module"""
     all_modules = win32.modules.lsmod(addr_space)
-    connections = []
 
     for m in all_modules:
         if str(m.BaseDllName).lower() == 'tcpip.sys':
@@ -98,24 +97,21 @@ def determine_connections(addr_space):
                     vm = addr_space)
 
                 if table_size > 0:
-                    table = obj.Array(
+                    table = obj.Object("array",
                         offset = table_addr, vm = addr_space,
                         count = table_size,
                         target = obj.Curry(obj.Pointer, '_TCPT_OBJECT'))
 
-                    for entry in table:
-                        conn = entry.dereference()
-                        while conn.is_valid():
-                            connections.append(conn)
-                            conn = conn.Next
-            return connections
-
-    return obj.NoneObject("Unable to determine connections")
+                    if table:
+                        for entry in table:
+                            conn = entry.dereference()
+                            while conn.is_valid():
+                                yield conn
+                                conn = conn.Next
 
 def determine_sockets(addr_space):
     """Determines all sockets for each module"""
     all_modules = win32.modules.lsmod(addr_space)
-    sockets = []
 
     for m in all_modules:
         if str(m.BaseDllName).lower() == 'tcpip.sys':
@@ -133,16 +129,14 @@ def determine_sockets(addr_space):
                     vm = addr_space)
 
                 if int(table_size) > 0:
-                    table = obj.Array(
+                    table = obj.Object("array",
                         offset = table_addr, vm = addr_space,
                         count = table_size,
                         target = obj.Curry(obj.Pointer, "_ADDRESS_OBJECT"))
 
-                    for entry in table:
-                        sock = entry.dereference()
-                        while sock.is_valid():
-                            sockets.append(sock)
-                            sock = sock.Next
-            return sockets
-
-    return obj.NoneObject("Unable to determine sockets")
+                    if table:
+                        for entry in table:
+                            sock = entry.dereference()
+                            while sock.is_valid():
+                                yield sock
+                                sock = sock.Next

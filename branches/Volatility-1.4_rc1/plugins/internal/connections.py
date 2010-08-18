@@ -41,8 +41,7 @@ class Connections(commands.command):
         commands.command.__init__(self, args)
 
     def render_text(self, outfd, data):
-        if len(data):
-            outfd.write("{0:25} {1:25} {2:6}\n".format('Local Address', 'Remote Address', 'Pid'))
+        outfd.write("{0:25} {1:25} {2:6}\n".format('Local Address', 'Remote Address', 'Pid'))
 
         for conn in data:
             local = "{0}:{1}".format(conn.LocalIpAddress, conn.LocalPort)
@@ -53,6 +52,4 @@ class Connections(commands.command):
     def calculate(self):
         addr_space = utils.load_as()
 
-        result = network.determine_connections(addr_space)
-
-        return result
+        return network.determine_connections(addr_space)
