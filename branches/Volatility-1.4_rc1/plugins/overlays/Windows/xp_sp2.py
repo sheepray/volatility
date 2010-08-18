@@ -215,8 +215,12 @@ class _EPROCESS(obj.CType):
         and iterates over them.
 
         """
-        table = obj.Array("_HANDLE_TABLE_ENTRY", offset = offset, vm = self.vm,
+        try:
+            table = obj.Array("_HANDLE_TABLE_ENTRY", offset = offset, vm = self.vm,
                               count = 0x200, parent = self)
+        except obj.InvalidOffsetError:
+            raise StopIteration
+
         for t in table:
             offset = t.dereference_as('unsigned int')
             if not offset.is_valid():
