@@ -270,13 +270,12 @@ def Object(theType, offset, vm, parent = None, name = None, **kwargs):
                                                parent = parent)
             return result
 
-
         # Need to check for any derived object types that may be 
         # found in the global memory registry.
         if theType in MemoryRegistry.OBJECT_CLASSES.objects:
             return MemoryRegistry.OBJECT_CLASSES[theType](
-                theType,
-                offset,
+                theType = theType,
+                offset = offset,
                 vm = vm, parent = parent, name = name,
                 **kwargs)
     except InvalidOffsetError:
@@ -624,10 +623,10 @@ class Void(NativeType):
 
 class Array(BaseObject):
     """ An array of objects of the same size """
-    def __init__(self, targetType = None, offset = 0, vm = None, parent = None,
-                 count = 1, name = None, target = None):
+    def __init__(self, theType, offset, vm = None, parent = None,
+                 count = 1, targetType = None, target = None, name = None):
         ## Instantiate the first object on the offset:
-        BaseObject.__init__(self, targetType, offset, vm,
+        BaseObject.__init__(self, theType, offset, vm,
                         parent = parent, name = name)
         try:
             count = count(parent)

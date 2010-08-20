@@ -215,33 +215,31 @@ class _EPROCESS(obj.CType):
         and iterates over them.
 
         """
-        try:
-            table = obj.Array("_HANDLE_TABLE_ENTRY", offset = offset, vm = self.vm,
-                              count = 0x200, parent = self)
-        except obj.InvalidOffsetError:
-            raise StopIteration
+        table = obj.Object("Array", offset = offset, vm = self.vm, count = 0x200,
+                           targetType = "_HANDLE_TABLE_ENTRY", parent = self)
 
-        for t in table:
-            offset = t.dereference_as('unsigned int')
-            if not offset.is_valid():
-                break
+        if table:
+            for t in table:
+                offset = t.dereference_as('unsigned int')
+                if not offset.is_valid():
+                    break
 
-            if level > 0:
-                ## We need to go deeper:
-                for h in self._make_handle_array(offset, level - 1):
-                    yield h
-            else:
-                ## OK We got to the bottom table, we just resolve
-                ## objects here:
-                offset = int(offset) & ~0x00000007
-                item = obj.Object("_OBJECT_HEADER", offset, self.vm,
-                                        parent = self)
-                try:
-                    if item.Type.Name:
-                        yield item
+                if level > 0:
+                    ## We need to go deeper:
+                    for h in self._make_handle_array(offset, level - 1):
+                        yield h
+                else:
+                    ## OK We got to the bottom table, we just resolve
+                    ## objects here:
+                    offset = int(offset) & ~0x00000007
+                    item = obj.Object("_OBJECT_HEADER", offset, self.vm,
+                                            parent = self)
+                    try:
+                        if item.Type.Name:
+                            yield item
 
-                except AttributeError:
-                    pass
+                    except AttributeError:
+                        pass
 
     def handles(self):
         """ A generator which yields this process's handles
