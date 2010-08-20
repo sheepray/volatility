@@ -31,8 +31,8 @@ import Basic
 class VolatilityKPCR(Basic.VolatilityMagic):
 
     def get_suggestions(self):
-        scan = KPCRScanner()
-        for val in scan.scan(self.vm):
+        scanner = KPCRScanner()
+        for val in scanner.scan(self.vm):
             yield val
 
 class KPCRScannerCheck(scan.ScannerCheck):
