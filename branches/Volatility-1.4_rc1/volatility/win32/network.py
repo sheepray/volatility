@@ -97,7 +97,7 @@ def determine_connections(addr_space):
                     vm = addr_space)
 
                 if table_size > 0:
-                    table = obj.Object("array",
+                    table = obj.Object("Array",
                         offset = table_addr, vm = addr_space,
                         count = table_size,
                         target = obj.Curry(obj.Pointer, '_TCPT_OBJECT'))
@@ -129,7 +129,7 @@ def determine_sockets(addr_space):
                     vm = addr_space)
 
                 if int(table_size) > 0:
-                    table = obj.Object("array",
+                    table = obj.Object("Array",
                         offset = table_addr, vm = addr_space,
                         count = table_size,
                         target = obj.Curry(obj.Pointer, "_ADDRESS_OBJECT"))
