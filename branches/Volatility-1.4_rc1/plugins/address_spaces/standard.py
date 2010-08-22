@@ -107,7 +107,7 @@ class FileAddressSpace(addrspace.BaseAddressSpace):
 
     def read_long(self, addr):
         string = self.read(addr, 4)
-        (longval,) = struct.unpack('=L', string)
+        (longval,) = struct.unpack('=I', string)
         return longval
 
     def get_available_addresses(self):
@@ -235,5 +235,5 @@ class WritablePagedMemory(PagedMemory):
     def write_long_phys(self, addr, val):
         if not config.WRITE:
             return False
-        buf = struct.pack('=L', val)
+        buf = struct.pack('=I', val)
         return self.base.write(addr, buf)

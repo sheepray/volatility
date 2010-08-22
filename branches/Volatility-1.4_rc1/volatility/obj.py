@@ -554,7 +554,7 @@ class Pointer(NativeType):
     def __init__(self, theType, offset, vm, parent = None, profile = None, target = None, name = None):
         NativeType.__init__(self, theType, offset = offset, vm = vm, name = name,
                             parent = parent, profile = profile)
-        self.format_string = "=L"
+        self.format_string = "=I"
 
         if theType:
             self.target = Curry(Object, theType)
@@ -603,7 +603,7 @@ class Void(NativeType):
     def __init__(self, theType, offset, vm, parent = None,
                  format_string = None, **args):
         NativeType.__init__(self, theType, offset, vm, parent = None)
-        self.format_string = "=L"
+        self.format_string = "=I"
 
     def cdecl(self):
         return "0x{0:08X}".format(self.v())

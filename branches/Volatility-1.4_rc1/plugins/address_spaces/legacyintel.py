@@ -216,14 +216,14 @@ class IA32PagedMemory(standard.WritablePagedMemory, addrspace.BaseAddressSpace):
         string = self.read(addr, 4)
         if string is None:
             return None
-        (longval,) = struct.unpack('=L', string)
+        (longval,) = struct.unpack('=I', string)
         return longval
 
     def read_long_phys(self, addr):
         string = self.base.read(addr, 4)
         if string is None:
             return None
-        (longval,) = struct.unpack('=L', string)
+        (longval,) = struct.unpack('=I', string)
         return longval
 
     def __eq__(self, other):

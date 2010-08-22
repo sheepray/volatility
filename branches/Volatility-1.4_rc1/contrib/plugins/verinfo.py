@@ -214,7 +214,7 @@ class _VS_FIXEDFILEINFO(obj.CType):
 
     def flags(self):
         """Returns the file's flags"""
-        data = struct.pack('=L', self.FileFlags & self.FileFlagsMask)
+        data = struct.pack('=I', self.FileFlags & self.FileFlagsMask)
         addr_space = addrspace.BufferAddressSpace(0, data)
         bitmap = {'Debug': 0,
                   'Prerelease': 1,

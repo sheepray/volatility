@@ -603,7 +603,7 @@ pae_enabled = 0x01
 #def write_long_phys(value, member_list, hdr, types):
 #
 #    (offset, _current_type) = get_obj_offset(types, member_list) 
-#    new_hdr = hdr[:offset] + struct.pack('=L', value) + hdr[offset+4:]
+#    new_hdr = hdr[:offset] + struct.pack('=I', value) + hdr[offset+4:]
 #    return new_hdr
 #    
 #def write_long_long_phys(value, member_list, hdr, types):
@@ -647,10 +647,10 @@ pae_enabled = 0x01
 #    if addr_space.pae == True:
 #        new_hdr = write_char_phys(pae_enabled, ['_DMP_HEADER', 'PaeEnabled'], new_hdr, types)
 #
-#    new_hdr = new_hdr[:100] + struct.pack('=L', num_of_runs) + \
-#                             struct.pack('=L', num_pages) + \
-#			     struct.pack('=L', 0x00000000)  + \
-#			     struct.pack('=L', num_pages) + \
+#    new_hdr = new_hdr[:100] + struct.pack('=I', num_of_runs) + \
+#                             struct.pack('=I', num_pages) + \
+#			     struct.pack('=I', 0x00000000)  + \
+#			     struct.pack('=I', num_pages) + \
 #                             new_hdr[116:]
 #
 #    MI = open(outfile, 'wb')
