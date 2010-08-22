@@ -140,7 +140,7 @@ class HiveAddressSpace(addrspace.BaseAddressSpace):
 
     def read_long_phys(self, addr):
         string = self.base.read(addr, 4)
-        (longval,) = struct.unpack('L', string)
+        (longval,) = struct.unpack('=I', string)
         return longval
 
     def is_valid_address(self, addr):
@@ -270,7 +270,7 @@ class HiveFileAddressSpace:
 
     def read_long_phys(self, addr):
         string = self.base.read(addr, 4)
-        (longval,) = struct.unpack('L', string)
+        (longval,) = struct.unpack('=I', string)
         return longval
 
     def is_valid_address(self, vaddr):

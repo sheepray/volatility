@@ -531,7 +531,7 @@ class BitField(NativeType):
     def __init__(self, theType, offset, vm, parent = None,
                  start_bit = 0, end_bit = 32, name = None, **args):
         NativeType.__init__(self, theType, offset, vm, parent = parent, name = name)
-        self.format_string = 'L'
+        self.format_string = '=I'
         self.start_bit = start_bit
         self.end_bit = end_bit
 
