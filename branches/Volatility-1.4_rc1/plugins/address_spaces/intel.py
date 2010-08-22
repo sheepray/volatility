@@ -137,7 +137,7 @@ class JKIA32PagedMemory(standard.WritablePagedMemory, addrspace.BaseAddressSpace
         if buf is None:
             self.cache = False
         else:
-            self.pde_cache = struct.unpack('<' + 'L' * 0x400, buf)
+            self.pde_cache = struct.unpack('<' + 'I' * 0x400, buf)
 
     def load_dtb(self):
         try:
@@ -312,7 +312,7 @@ class JKIA32PagedMemory(standard.WritablePagedMemory, addrspace.BaseAddressSpace
         string = self.base.read(addr, 4)
         if not string:
             return None
-        (longval,) = struct.unpack('<L', string)
+        (longval,) = struct.unpack('<I', string)
         return longval
 
     def get_available_pages(self):
