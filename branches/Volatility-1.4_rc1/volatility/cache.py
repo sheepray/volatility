@@ -207,6 +207,9 @@ default_cache_location = os.environ.get("XDG_CACHE_HOME") or os.environ.get("TEM
 config.add_option("CACHE-DIRECTORY", default = default_cache_location,
                   help = "Directory where cache files are stored")
 
+class ContainsGenerator(Exception):
+    pass
+
 class CacheNode(object):
     """ Base class for Cache nodes """
     def __init__(self, name, stem, storage = None, payload = None):
@@ -236,12 +239,14 @@ class CacheNode(object):
         ''' Produce a human readable version of the payload. '''
         return ''
 
-    def flatten_generators(self, item):
+    def _find_generators(self, item):
         """ A recursive function to flatten generators into lists """
         try:
             result = []
+            if type(item) == types.GeneratorType:
+                raise ContainsGenerator
             for x in iter(item):
-                flat_x = self.flatten_generators(x)
+                flat_x = self._find_generators(x)
                 result.append(flat_x)
 
             return result
@@ -250,13 +255,18 @@ class CacheNode(object):
 
     def set_payload(self, payload):
         ''' Update the current payload with the new specified payload '''
-        self.payload = self.flatten_generators(payload)
+        try:
+            self.payload = self._find_generators(payload)
+        except ContainsGenerator:
+            # This only works because None payload cached results are rerun
+            self.payload = None
 
     def dump(self):
         ''' Dump the node to disk for later retrieval. This is
         normally called when the process has exited. '''
         #url = "%s%s" % (self.stem, self.name)
-        self.storage.dump(self.stem, self)
+        if self.payload:
+            self.storage.dump(self.stem, self)
 
     def get_payload(self):
         """Retrieve this node's payload"""
@@ -380,8 +390,9 @@ def disable_caching(_option, _opt_str, _value, _parser):
     # the code gets called and overwrites the outer scope
     global CACHE
     CACHE = CacheTree(CacheStorage(), BlockingNode)
+    config.NO_CACHE = True
 
-config.add_option("NO-CACHE", default = None, action = 'callback',
+config.add_option("NO-CACHE", default = False, action = 'callback',
                   callback = disable_caching,
                   help = "Disable caching")
 
@@ -408,25 +419,43 @@ class CacheDecorator(object):
         self.node.set_payload(payload)
         self.node.dump()
 
+    def _cachewrapper(self, f, s, *args, **kwargs):
+        """Wrapper for caching function calls"""
+        ## Interpolate the path
+        path = self.path % dict(class_name = s.__class__.__name__)
+        ## Check if the result can be retrieved
+        self.node = CACHE[self.path]
+        # If this test goes away, we need to change the set_payload exception check
+        # to act on dump instead of just the payload
+        payload = self.node.get_payload()
+        if payload:
+            return payload
+
+        result = f(s, *args, **kwargs)
+
+        ## If the wrapped function is a generator we need to
+        ## handle it especially
+        if type(result) == types.GeneratorType:
+            return self.generate(path, result)
+
+        self.dump(path, result)
+        return result
+
     def __call__(self, f):
         def wrapper(s, *args, **kwargs):
-            ## Interpolate the path
-            path = self.path % dict(class_name = s.__class__.__name__)
-            ## Check if the result can be retrieved
-            self.node = CACHE[self.path]
-            if self.node.get_payload():
-                return self.node.get_payload()
+            if config.NO_CACHE:
+                return f(s, *args, **kwargs)
 
-            result = f(s, *args, **kwargs)
+            return self._cachewrapper(f, s, *args, **kwargs)
 
-            ## If the wrapped function is a generator we need to
-            ## handle it especially
-            if type(result) == types.GeneratorType:
-                return self.generate(path, result)
+        return wrapper
 
-            self.dump(path, result)
-            return result
+class TestDecorator(CacheDecorator):
+    """This decorator is just like a CacheDecorator, but will *always* cache fully"""
 
+    def __call__(self, f):
+        def wrapper(s, *args, **kwargs):
+            return self._cachewrapper(f, s, *args, **kwargs)
         return wrapper
 
 class Testable(object):
@@ -438,9 +467,21 @@ class Testable(object):
     def calculate(self):
         """Empty function used to allow mixin"""
 
+    def _flatten(self, item):
+        """Flattens an item, including all generators"""
+        try:
+            for x in iter(item):
+                flat_x = self._flatten(x)
+
+            return flat_x
+        except TypeError:
+            return item
+
     ## This forces the test to be memoised with a key name derived from the class name
-    @CacheDecorator("tests/unittests/%(class_name)s")
+    @TestDecorator("tests/unittests/%(class_name)s")
     def test(self):
         ## This forces iteration over all keys - this is required in order
         ## to flatten the full list for the cache
-        return [ x for x in self.calculate() ]
+        ## We must ensure config.NO_CACHE is set here, otherwise the change isn't registered in this module
+        config.NO_CACHE = True
+        return self._flatten(self.calculate())
