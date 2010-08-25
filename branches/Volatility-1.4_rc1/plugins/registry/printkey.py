@@ -70,7 +70,7 @@ class PrintKey(commands.command):
     def __init__(self, *args):
         config.add_option('HIVE-OFFSET', short_option = 'o',
                           help = 'Hive offset (virtual)', type = 'int')
-        config.add_option('KEY', short_option = 'k',
+        config.add_option('KEY', short_option = 'K',
                           help = 'Registry Key', type = 'str')
         commands.command.__init__(self, *args)
 
