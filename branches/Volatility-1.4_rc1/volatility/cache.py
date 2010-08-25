@@ -301,6 +301,10 @@ class CacheTree(object):
 
     def check(self, path, callback = None, cls = CacheNode):
         """ Retrieves the node at the path specified """
+        # Abort if we haven't been given a location
+        if not config.LOCATION:
+            return None
+
         ## Normalise the path
         path = urlparse.urljoin(config.LOCATION + "/", path)
 
@@ -427,9 +431,10 @@ class CacheDecorator(object):
         self.node = CACHE[self.path]
         # If this test goes away, we need to change the set_payload exception check
         # to act on dump instead of just the payload
-        payload = self.node.get_payload()
-        if payload:
-            return payload
+        if self.node:
+            payload = self.node.get_payload()
+            if payload:
+                return payload
 
         result = f(s, *args, **kwargs)
 
