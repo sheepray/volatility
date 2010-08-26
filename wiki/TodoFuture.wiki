@@ -8,6 +8,9 @@
     * Interactive use (separation of obj/ASs models from application/plugins)
     * GUI plugin result analysis
   * Examine performance/profiling and possibly develop C modules for some parts
+  * Consider overhauling the config system
+    * Potentially moving to argparse, to allow subcommand options specified by the plugins.
+  * Consider removing the use of globals to allow volatility to be used as a library.
   * Improve Hive AS integration
   * Allow module loading from http/zip/other locations
   * Implement/improve linux support
