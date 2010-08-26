@@ -19,8 +19,8 @@ This page documents the things we want to accomplish in the 1.4 branch, so we ca
       # ~~DTB finder plugin~~
       # ~~KPCR finder plugin~~
   # ~~Stabilize the interfaces for ASes/Scanners/Plugins/etc~~
-    * These seem to be relatively stable, but this should also be a long term goal
-  # ssdt plugin could do with some multi-OS love
+    * ~~These seem to be relatively stable, but this should also be a long term goal~~
+  # Clear out any release blocking bugs.
   # Documentation, documentation, documentation!
 
 == Ditched for this release ==
