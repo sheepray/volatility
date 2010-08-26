@@ -830,7 +830,7 @@ xpsp2types = { \
         'ClientDriverExtension' : [ 0x14, ['pointer', ['_IO_CLIENT_EXTENSION']]],
         'FsFilterCallbacks' : [ 0x18, ['pointer', ['_FS_FILTER_CALLBACKS']]],
     } ],
-    '_OBJECT_NAME_INFO' : [ 0xc, {
+    '_OBJECT_NAME_INFORMATION' : [ 0xc, {
         'Directory' : [ 0x0, ['pointer', ['_OBJECT_DIRECTORY']]],
         'Name' : [ 0x04, ['_UNICODE_STRING']],
     } ],

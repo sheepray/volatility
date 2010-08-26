@@ -173,8 +173,8 @@ class DriverScan(FileScan):
             if object_obj.Type == 0xbad0b0b0:
                 continue
 
-            ## Now we need to work out the _OBJECT_NAME_INFO object
-            object_name_info_obj = obj.Object("_OBJECT_NAME_INFO", vm = address_space,
+            ## Now we need to work out the _OBJECT_NAME_INFORMATION object
+            object_name_info_obj = obj.Object("_OBJECT_NAME_INFORMATION", vm = address_space,
                                                  offset = object_obj.offset - \
                                                  object_obj.NameInfoOffset
                                                  )
@@ -242,8 +242,8 @@ class MutantScan(FileScan):
             ##if object_obj.Type == 0xbad0b0b0:
             ##   continue
 
-            ## Now we need to work out the _OBJECT_NAME_INFO object
-            object_name_info_obj = obj.Object("_OBJECT_NAME_INFO", vm = address_space,
+            ## Now we need to work out the _OBJECT_NAME_INFORMATION object
+            object_name_info_obj = obj.Object("_OBJECT_NAME_INFORMATION", vm = address_space,
                                                      offset = object_obj.offset - \
                                                      object_obj.NameInfoOffset
                                                      )
