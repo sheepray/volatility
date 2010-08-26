@@ -58,7 +58,7 @@ class DateTime(commands.command):
 class Ident(DateTime):
     """ Identify information for the image """
     def __init__(self, args = None):
-        datetime.__init__(self, args)
+        DateTime.__init__(self, args)
 
     def render_text(self, outfd, data):
         """Renders the calculated data as text to outfd"""
