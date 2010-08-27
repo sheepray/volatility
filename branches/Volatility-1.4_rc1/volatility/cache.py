@@ -243,7 +243,14 @@ class CacheNode(object):
         """ A recursive function to flatten generators into lists """
         try:
             result = []
-            if type(item) == types.GeneratorType:
+            # Make sure dicts aren't flattened to lists
+            if isinstance(item, dict):
+                result = {}
+                for i in item:
+                    result[self._find_generators(i)] = self._find_generators(item[i])
+                return result
+
+            if isinstance(item, types.GeneratorType):
                 raise ContainsGenerator
             for x in iter(item):
                 flat_x = self._find_generators(x)
@@ -440,7 +447,7 @@ class CacheDecorator(object):
 
         ## If the wrapped function is a generator we need to
         ## handle it especially
-        if type(result) == types.GeneratorType:
+        if isinstance(result, types.GeneratorType):
             return self.generate(path, result)
 
         self.dump(path, result)
@@ -475,6 +482,13 @@ class Testable(object):
     def _flatten(self, item):
         """Flattens an item, including all generators"""
         try:
+            # Make sure dicts aren't flattened to lists
+            if isinstance(item, dict):
+                result = {}
+                for i in item:
+                    result[self._flatten(i)] = self._flatten(item[i])
+                return result
+
             for x in iter(item):
                 flat_x = self._flatten(x)
 
