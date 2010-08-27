@@ -251,6 +251,10 @@ class CacheNode:
       """ A recursive function to flatten generators into lists """
       try:
         result = []
+
+        ## Do not flatten dicts
+        if type(item)==dict: return item
+
         for x in iter(item):
           flat_x = self.flatten_generators(x)
           result.append(flat_x)
@@ -347,7 +351,6 @@ class CacheStorage:
         if not os.access(directory, os.R_OK | os.W_OK | os.X_OK):
             os.makedirs(directory)
 
-        ## Ensure that the payload is flattened - i.e. all generators are converted to lists for pickling
         data = pickle.dumps(payload)
         fd = open(filename, 'w')
         fd.write(data)
