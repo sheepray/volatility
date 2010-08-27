@@ -75,7 +75,7 @@ class Flags(obj.NativeType):
     ## consisting of a list of start, width bits
     maskmap = {}
 
-    def __init__(self, targetType = None, offset = 0, vm = None, parent = None,
+    def __init__(self, theType = None, offset = 0, vm = None, parent = None,
                  bitmap = None, name = None, maskmap = None, target = "unsigned long",
                  **args):
         if bitmap:
@@ -85,7 +85,7 @@ class Flags(obj.NativeType):
             self.maskmap = maskmap
 
         self.target = obj.Object(target, offset = offset, vm = vm, parent = parent)
-        obj.NativeType.__init__(self, targetType, offset, vm, parent, **args)
+        obj.NativeType.__init__(self, theType, offset, vm, parent, **args)
 
     def v(self):
         return self.target.v()
@@ -117,7 +117,7 @@ class Flags(obj.NativeType):
 class Enumeration(obj.NativeType):
     """Enumeration class for handling multiple possible meanings for a single value"""
 
-    def __init__(self, targetType = None, offset = 0, vm = None, parent = None,
+    def __init__(self, theType = None, offset = 0, vm = None, parent = None,
                  choices = None, name = None, target = "unsigned long",
                  **args):
         self.choices = {}
@@ -125,7 +125,7 @@ class Enumeration(obj.NativeType):
             self.choices = choices
 
         self.target = obj.Object(target, offset = offset, vm = vm, parent = parent)
-        obj.NativeType.__init__(self, targetType, offset, vm, parent, **args)
+        obj.NativeType.__init__(self, theType, offset, vm, parent, **args)
 
     def v(self):
         return self.target.v()
