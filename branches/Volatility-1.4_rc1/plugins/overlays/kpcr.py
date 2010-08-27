@@ -26,9 +26,9 @@
 import struct
 import volatility.scan as scan
 import volatility.obj as obj
-import Basic
+import basic
 
-class VolatilityKPCR(Basic.VolatilityMagic):
+class VolatilityKPCR(basic.VolatilityMagic):
 
     def get_suggestions(self):
         scanner = KPCRScanner()
