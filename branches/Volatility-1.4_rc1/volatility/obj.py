@@ -38,8 +38,6 @@ import struct, copy, operator
 import volatility.registry as MemoryRegistry
 import volatility.addrspace as addrspace
 import volatility.debug as debug
-import volatility.conf as conf
-config = conf.ConfObject()
 
 class Curry:
     """ This class makes a curried object available for simple inlined functions.
@@ -780,10 +778,9 @@ class CType(BaseObject):
         elif self.__dict__.has_key(attr):       # any normal attributes are handled normally
             return BaseObject.__setattr__(self, attr, value)
         else:
-            if config.WRITE:
-                obj = self.m(attr)
-                if not obj.write(value):
-                    raise ValueError("Error writing value to member " + attr)
+            obj = self.m(attr)
+            if not obj.write(value):
+                raise ValueError("Error writing value to member " + attr)
         # If you hit this, consider using obj.newattr('attr', value)
         raise ValueError("Attribute " + attr + " was set after object initialization")
 
@@ -1001,6 +998,8 @@ if __name__ == '__main__':
     ## If called directly we run unit tests on this stuff
     import unittest
 
+    import volatility.conf as conf
+    config = conf.ConfObject()
     config.parse_options()
     MemoryRegistry.Init()
 
