@@ -30,8 +30,6 @@ import volatility.scan as scan
 import volatility.obj as obj
 import volatility.utils as utils
 import volatility.commands as commands
-import volatility.conf as conf
-config = conf.ConfObject()
 
 class CheckHiveSig(scan.ScannerCheck):
     """ Check for a registry hive signature """

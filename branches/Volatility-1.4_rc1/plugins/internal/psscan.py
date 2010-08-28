@@ -30,13 +30,11 @@ This module implements the slow thorough process scanning
 #pylint: disable-msg=C0111
 
 import volatility.scan as scan
-import volatility.conf as conf
 import volatility.commands as commands
 import volatility.cache as cache
 import volatility.utils as utils
 import volatility.obj as obj
 import volatility.debug as debug #pylint: disable-msg=W0611
-config = conf.ConfObject()
 
 class DispatchHeaderCheck(scan.ScannerCheck):
     """ A very fast check for an _EPROCESS.Pcb.Header.

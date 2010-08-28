@@ -30,8 +30,6 @@
 
 import volatility.win32.kpcr as kpcr
 import volatility.debug as debug #pylint: disable-msg=W0611
-import volatility.conf as conf
-config = conf.ConfObject()
 
 def pslist(addr_space):
     """ A Generator for _EPROCESS objects (uses _KPCR symbols) """

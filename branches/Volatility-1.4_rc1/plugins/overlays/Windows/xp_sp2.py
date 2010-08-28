@@ -33,8 +33,6 @@ import datetime
 import vtypes
 import volatility.timefmt as timefmt
 import volatility.debug as debug #pylint: disable-msg=W0611
-import volatility.conf as conf
-config = conf.ConfObject()
 
 class WinXPSP2(obj.Profile):
     """ A Profile for windows XP SP2 """

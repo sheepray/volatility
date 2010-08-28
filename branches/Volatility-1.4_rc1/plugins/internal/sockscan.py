@@ -30,8 +30,6 @@ This module implements the fast socket scanning
 
 import volatility.scan as scan
 import volatility.commands as commands
-import volatility.conf as conf
-config = conf.ConfObject()
 import volatility.utils as utils
 import volatility.obj as obj
 import volatility.debug as debug #pylint: disable-msg=W0611

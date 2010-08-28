@@ -20,8 +20,6 @@
 
 import volatility.registry as registry
 import volatility.addrspace as addrspace
-import volatility.conf as conf
-config = conf.ConfObject()
 import volatility.debug as debug
 
 #pylint: disable-msg=C0111

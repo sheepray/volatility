@@ -19,9 +19,6 @@
 #
 
 import taskmods
-import volatility.conf
-
-config = volatility.conf.ConfObject()
 
 class RegObjKeys(taskmods.Files):
     """Print list of open regkeys for each process"""
