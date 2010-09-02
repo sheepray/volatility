@@ -68,6 +68,26 @@ class DllList(commands.command, cache.Testable):
             else:
                 outfd.write("Unable to read PEB for task.\n")
 
+    def render(self, data, ui):
+        for task in data:
+            pid = task.UniqueProcessId
+
+            ui.rule()
+            ui.para("{0}".format(task.ImageFileName))
+            ui.text("pid: {0:6}".format(pid))
+
+            if task.Peb:
+                ui.text("Command line : {0}".format(task.Peb.ProcessParameters.CommandLine))
+                ui.para("{0}".format(task.Peb.CSDVersion))
+
+                table = ui.table('Base', 'Size', 'Path', format = {'Base': '0x{0:09x}'})
+                for m in self.list_modules(task):
+                    table.row(m.DllBase, m.SizeOfImage, m.FullDllName)
+                table.flush()
+            else:
+                ui.para("Unable to read PEB for task.")
+
+
     def list_modules(self, task):
         if task.UniqueProcessId and task.Peb.Ldr.InLoadOrderModuleList:
             for l in task.Peb.Ldr.InLoadOrderModuleList.list_of_type(
@@ -124,6 +144,14 @@ class Files(DllList):
                 if h.FileName:
                     outfd.write("{0:6} {1:40}\n".format("File", h.FileName))
 
+    def render(self, data, ui):
+        table = ui.table("Pid", "Filename", format = {"Pid": "{0}"})
+        for pid, handles in data:
+            for h in handles:
+                if h.FileName:
+                    table.row(pid, h.FileName)
+
+
     def calculate(self):
         tasks = self.filter_tasks(DllList.calculate(self))
 
@@ -151,6 +179,18 @@ class PSList(DllList):
                 task.ActiveThreads,
                 task.ObjectTable.HandleCount,
                 task.CreateTime))
+
+    def render(self, data, ui):
+        table = ui.table('Name', 'Pid', 'PPid', 'Thds', 'Hnds', 'Time', 'Virtual', 'Physical')
+        for task in data:
+            table.row(task.ImageFileName,
+                      task.UniqueProcessId,
+                      task.InheritedFromUniqueProcessId,
+                      task.ActiveThreads,
+                      task.ObjectTable.HandleCount,
+                      task.CreateTime,
+                      task.offset,
+                      task.vm.vtop(task.offset))
 
 # Inherit from files just for the config options (__init__)
 class MemMap(DllList):

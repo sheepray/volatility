@@ -95,6 +95,9 @@ class BaseAddressSpace:
         """ Tell us if the address is valid """
         return True
 
+    def render_xml(self):
+        return None
+
     def write(self, _addr, _buf):
         if not config.WRITE:
             return False

@@ -35,6 +35,7 @@ if __name__ == '__main__':
 import re
 import pickle
 import struct, copy, operator
+import xml.etree.cElementTree as etree
 import volatility.registry as MemoryRegistry
 import volatility.addrspace as addrspace
 import volatility.debug as debug
@@ -395,6 +396,19 @@ class BaseObject(object):
 
     def __format__(self, formatspec):
         return format(self.v(), formatspec)
+
+    def render_xml(self):
+        """ Return a representation of this object in XML """
+        result = etree.Element('object', {'name'   : self.name,
+                                          'type'   : self.theType,
+                                          'offset' : str(self.offset)})
+
+        ## Now output the info about the VM
+        vm_elem = self.vm.render_xml()
+        if vm_elem:
+            result.append(vm_elem)
+
+        return result
 
     def get_bytes(self, amount = None):
         if amount == None:

@@ -275,3 +275,66 @@ class MutantScan(FileScan):
                          mutant.OwnerThread, CID,
                          self.parse_string(object_name_info_obj.Name)
                          ))
+
+class ObjectScanner(PoolScanDriver):
+    """ Scanner for Objects _OBJECT """
+    checks = [ ('PoolTagCheck', dict(tag = 'Obj\xd4')),
+               ('CheckPoolSize', dict(condition = lambda x: x == 0x1d0)),
+               ('CheckPoolType', dict(non_paged = True)),
+               ('CheckPoolIndex', dict(value = 0)),
+               ]
+
+class ObjectScan(FileScan):
+    """ Scan for _OBJECT objects """
+    def calculate(self):
+        ## Just grab the AS and scan it using our scanner
+        address_space = utils.load_as(astype = 'physical')
+
+        ## Will need the kernel AS for later:
+        self.kernel_address_space = utils.load_as()
+
+        for offset in ObjectScanner().scan(address_space):
+            pool_obj = obj.Object("_POOL_HEADER", vm = address_space,
+                                 offset = offset)
+
+            ## We work out the _DRIVER_OBJECT from the end of the
+            ## allocation (bottom up).
+            object_type = obj.Object(
+                "_OBJECT_TYPE", vm = address_space, \
+                    offset = offset + pool_obj.BlockSize * 8 - \
+                    address_space.profile.get_obj_size("_OBJECT_TYPE"))
+
+            object_header = obj.Object(
+                "_OBJECT_HEADER", vm = address_space, \
+                    offset = object_type.offset - \
+                    address_space.profile.get_obj_size("_OBJECT_HEADER"))
+
+            if object_header.Type == None or object_header.Type == 0xbad0b0b0:
+                continue
+
+            yield object_type, object_header
+
+    def render_text(self, outfd, data):
+        commands.command.render_text(self, outfd, data)
+
+    def render(self, object_types, ui):
+        formatarr = {}
+        for x in ['Phys.Addr', 'Obj Type', 'TypePtr']:
+            formatarr[x] = "0x{0:09x}"
+
+        table = ui.table('Phys.Addr', 'Obj Type', '#Ptr', '#Hnd',
+                          'Objects', 'Handles', 'PoolTag',
+                          'Pool alloc', 'Name',
+                          format = formatarr)
+        for t, h in object_types:
+            if (t.TypeInfo.PoolType.v() % 2) == 0:
+                StrPoolType = '(npaged)'
+            else:
+                StrPoolType = '(paged)'
+
+            table.row(t.offset, h.Type, h.PointerCount, h.HandleCount,
+                      "%s/%s" % (t.TotalNumberOfObjects, t.HighWaterNumberOfObjects),
+                      "%s/%s" % (t.TotalNumberOfHandles, t.HighWaterNumberOfHandles),
+                      ''.join([chr(x) for x in t.Key ]),
+                      StrPoolType,
+                      self.parse_string(t.Name))
