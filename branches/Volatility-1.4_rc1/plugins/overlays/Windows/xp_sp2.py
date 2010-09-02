@@ -213,23 +213,29 @@ class _EPROCESS(obj.CType):
         and iterates over them.
 
         """
-        table = obj.Object("Array", offset = offset, vm = self.vm, count = 0x200,
-                           targetType = "_HANDLE_TABLE_ENTRY", parent = self)
+        if level > 0:
+            count = 0x400
+            targetType = "unsigned int"
+        else:
+            count = 0x200
+            targetType = "_HANDLE_TABLE_ENTRY"
+
+        table = obj.Object("Array", offset = offset, vm = self.vm, count = count,
+                           targetType = targetType, parent = self)
 
         if table:
-            for t in table:
-                offset = t.dereference_as('unsigned int')
-                if not offset.is_valid():
+            for entry in table:
+                if not entry.is_valid():
                     break
 
                 if level > 0:
                     ## We need to go deeper:
-                    for h in self._make_handle_array(offset, level - 1):
+                    for h in self._make_handle_array(entry, level - 1):
                         yield h
                 else:
                     ## OK We got to the bottom table, we just resolve
                     ## objects here:
-                    offset = int(offset) & ~0x00000007
+                    offset = int(entry.Object.v()) & ~0x00000007
                     item = obj.Object("_OBJECT_HEADER", offset, self.vm,
                                             parent = self)
                     try:
