@@ -86,6 +86,7 @@ class BaseScanner(object):
 
     overlap = 20
     def scan(self, address_space, offset = 0, maxlen = None):
+        self.buffer.profile = address_space.profile
         self.base_offset = offset
         self.max_length = maxlen
         ## Which checks also have skippers?
