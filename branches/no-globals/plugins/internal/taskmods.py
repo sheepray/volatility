@@ -91,7 +91,7 @@ class DllList(commands.command, cache.Testable):
 
         return tasks
 
-    @cache.CacheDecorator("tests/pslist")
+    @cache.CacheDecorator(lambda self: "tests/pslist/pid=%s" % self.config.PID)
     def calculate(self):
         """Produces a list of processes, or just a single process based on an OFFSET"""
         addr_space = utils.load_as()
