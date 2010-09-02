@@ -40,8 +40,8 @@ config.add_option("CACHE-DTB", action = "store_false", default = True,
 # If it's second, BaseAddressSpace's abstract version will take priority
 class JKIA32PagedMemory(standard.WritablePagedMemory, addrspace.BaseAddressSpace):
     """ Standard x86 32 bit non PAE address space.
-    
-    Provides an address space for IA32 paged memory, aka the x86 
+
+    Provides an address space for IA32 paged memory, aka the x86
     architecture, without Physical Address Extensions (PAE). Allows
     callers to map virtual address to offsets in physical memory.
 
@@ -84,7 +84,10 @@ class JKIA32PagedMemory(standard.WritablePagedMemory, addrspace.BaseAddressSpace
         except AttributeError:
             pass
 
-        self.dtb = dtb or config.DTB or self.load_dtb()
+        self.process_dtb = self.dtb = dtb
+        if not dtb:
+            self.dtb =  self.get_dtb()
+
         self.base = base
 
         self.as_assert(self.dtb != None, "No valid DTB found")
@@ -100,9 +103,25 @@ class JKIA32PagedMemory(standard.WritablePagedMemory, addrspace.BaseAddressSpace
         #self.pagefile = config.PAGEFILE
         self.name = 'Kernel AS'
 
+    def get_dtb(self):
+        """Guess the DTB from user preference or search for it"""
+        return config.DTB or self.load_dtb()
+
+    def __setstate__(self, result):
+        # If process_dtb was not given then we could have calculated
+        # dtb from the config or scanned for it. In case this is
+        # different than the cached dtb it means that the running
+        # configuration has changed and we fail to load the cache object.
+        if result['process_dtb'] == 0 and result['dtb'] != self.get_dtb():
+          raise address.ASAssertionError("Cached DTB inconsistent")
+
+        # Replace the object __dict__ with the pickled result.
+        addrspace.BaseAddressSpace.__setstate__(self, result);
+
     def __getstate__(self):
         result = addrspace.BaseAddressSpace.__getstate__(self)
         result['dtb'] = self.dtb
+        result['process_dtb'] = self.process_dtb
         result['astype'] = self.astype
 
         return result
