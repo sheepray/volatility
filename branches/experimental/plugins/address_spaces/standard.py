@@ -25,11 +25,19 @@
 """ These are standard address spaces supported by Volatility """
 import struct
 import volatility.addrspace as addrspace
+import volatility.conf
+config = volatility.conf.ConfObject()
 import volatility.debug as debug #pylint: disable-msg=W0611
 import urllib
 import os
 
 #pylint: disable-msg=C0111
+
+## This module requires a filename to be passed by the user
+config.add_option("USE-OLD-AS", action = "store_true", default = False,
+                  help = "Use the legacy address spaces")
+
+
 
 def write_callback(option, _opt_str, _value, parser, *_args, **_kwargs):
     """Callback function to ensure that write support is only enabled if user repeats a long string
@@ -53,6 +61,9 @@ def write_callback(option, _opt_str, _value, parser, *_args, **_kwargs):
                 return
         print "Write support disabled."
 
+config.add_option("WRITE", short_option = 'w', action = "callback", default = False,
+                  help = "Enable write support", callback = write_callback)
+
 class FileAddressSpace(addrspace.BaseAddressSpace):
     """ This is a direct file AS.
 
@@ -67,8 +78,8 @@ class FileAddressSpace(addrspace.BaseAddressSpace):
     """
     ## We should be the AS of last resort
     order = 100
-    def __init__(self, base, config, layered = False, **kwargs):
-        addrspace.BaseAddressSpace.__init__(self, base, config, **kwargs)
+    def __init__(self, base, layered = False, **kwargs):
+        addrspace.BaseAddressSpace.__init__(self, base, **kwargs)
         self.as_assert(base == None or layered, 'Must be first Address Space')
         self.as_assert(config.LOCATION.startswith("file://"), 'Location is not of file scheme')
 
@@ -112,7 +123,7 @@ class FileAddressSpace(addrspace.BaseAddressSpace):
         self.fhandle.close()
 
     def write(self, addr, data):
-        if not self.get_config().WRITE:
+        if not config.WRITE:
             return False
         try:
             self.fhandle.seek(addr)
@@ -131,9 +142,9 @@ class PagedMemory(addrspace.BaseAddressSpace):
         
     Note: Pages can be of any size
     """
-    def __init__(self, base, config, **kwargs):
+    def __init__(self, base, **kwargs):
         self.as_assert(self.__class__.__name__ != 'PagedMemory', "Abstract Class - Never for instantiation directly")
-        addrspace.BaseAddressSpace.__init__(self, base, config)
+        addrspace.BaseAddressSpace.__init__(self, base)
 
     def vtop(self, addr):
         """Abstract function that converts virtual (paged) addresses to physical addresses"""
@@ -181,17 +192,12 @@ class WritablePagedMemory(PagedMemory):
     to any standard address space that supports write() and
     vtop().
     """
-    def __init__(self, base, config, **kwargs):
+    def __init__(self, base, **kwargs):
         self.as_assert(self.__class__.__name__ != 'WritablePagedMemory', "Abstract Class - Never for instantiation directly")
-        PagedMemory.__init__(self, base, config)
-
-    @staticmethod
-    def register_options(config):
-        config.add_option("WRITE", short_option = 'w', action = "callback", default = False,
-                          help = "Enable write support", callback = write_callback)
+        PagedMemory.__init__(self, base)
 
     def write(self, vaddr, buf):
-        if not self.get_config().WRITE:
+        if not config.WRITE:
             return False
 
         length = len(buf)
@@ -227,7 +233,7 @@ class WritablePagedMemory(PagedMemory):
             return self.base.write(paddr, buf)
 
     def write_long_phys(self, addr, val):
-        if not self.get_config().WRITE:
+        if not config.WRITE:
             return False
         buf = struct.pack('=I', val)
         return self.base.write(addr, buf)

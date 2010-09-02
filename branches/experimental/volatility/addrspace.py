@@ -34,6 +34,16 @@
 
 import registry
 
+import volatility.conf as conf
+config = conf.ConfObject()
+
+## By default load the profile that the user asked for
+config.add_option("PROFILE", default = 'WinXPSP2',
+                  help = "Name of the profile to load")
+
+config.add_option("LOCATION", default = None, short_option = 'l',
+                  help = "A URN location from which to load an address space")
+
 ## Make sure the profiles are cached so we only parse it once. This is
 ## important since it allows one module to update the profile for
 ## another module.
@@ -46,31 +56,19 @@ class ASAssertionError(AssertionError):
 
 class BaseAddressSpace:
     """ This is the base class of all Address Spaces. """
-    def __init__(self, base, config, **kwargs):
+    def __init__(self, base, **kwargs):
         """ base is the AS we will be stacking on top of, opts are
         options which we may use.
         """
         self.base = base
-        self._config = config
-        self.profile = self._set_profile(config.PROFILE)
+        self.profile_name = config.PROFILE
 
-    @staticmethod
-    def register_options(config):
-        ## By default load the profile that the user asked for
-        config.add_option("PROFILE", default = 'WinXPSP2',
-                          help = "Name of the profile to load")
-
-        config.add_option("LOCATION", default = None, short_option = 'l',
-                          help = "A URN location from which to load an address space")
-
-    def _set_profile(self, profile_name):
         ## Load the required profile
         try:
-            ret = PROFILES[profile_name]
+            self.profile = PROFILES[config.PROFILE]
         except KeyError:
-            ret = registry.PROFILES[profile_name]()
-            PROFILES[profile_name] = ret
-        return ret
+            self.profile = registry.PROFILES[config.PROFILE]()
+            PROFILES[config.PROFILE] = self.profile
 
     def as_assert(self, assertion, error = None):
         """Duplicate for the assert command (so that optimizations don't disable them)
@@ -98,28 +96,24 @@ class BaseAddressSpace:
         return True
 
     def write(self, _addr, _buf):
-        if not self.get_config().WRITE:
+        if not config.WRITE:
             return False
         raise NotImplementedError("Write support for this type of Address Space has not been implemented")
 
-    def get_config(self):
-        return self._config
-
     def __getstate__(self):
         """ Serialise this address space efficiently """
-        return dict(profile_name = self.get_config().PROFILE, name = self.__class__.__name__,
+        return dict(profile_name = self.profile_name, name = self.__class__.__name__,
                     base = self.base)
 
     def __setstate__(self, state):
         self.__init__(**state)
-        self._set_profile(state['profile_name'])
 
 ## This is a specialised AS for use internally - Its used to provide
 ## transparent support for a string buffer so types can be
 ## instantiated off the buffer.
 class BufferAddressSpace(BaseAddressSpace):
-    def __init__(self, config, base_offset = 0, data = '', **kwargs):
-        BaseAddressSpace.__init__(self, None, config, **kwargs)
+    def __init__(self, base_offset = 0, data = '', **kwargs):
+        BaseAddressSpace.__init__(self, None, **kwargs)
         self.fname = "Buffer"
         self.data = data
         self.base_offset = base_offset
@@ -136,7 +130,7 @@ class BufferAddressSpace(BaseAddressSpace):
         return self.data[offset: offset + length]
 
     def write(self, addr, data):
-        if not self.get_config().WRITE:
+        if not config.WRITE:
             return False
         self.data = self.data[:addr] + data + self.data[addr + len(data):]
         return True

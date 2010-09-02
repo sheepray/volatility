@@ -24,6 +24,8 @@
 import standard
 import struct
 import volatility.obj as obj
+import volatility.conf
+config = volatility.conf.ConfObject()
 
 #pylint: disable-msg=C0111
 
@@ -32,20 +34,20 @@ page_shift = 12
 class WindowsCrashDumpSpace32(standard.FileAddressSpace):
     """ This AS supports windows Crash Dump format """
     order = 30
-    def __init__(self, base, config, **kwargs):
-        standard.FileAddressSpace.__init__(self, base, config, layered = True, **kwargs)
+    def __init__(self, baseAddressSpace, **kwargs):
+        standard.FileAddressSpace.__init__(self, baseAddressSpace, layered = True, **kwargs)
         ## We must have an AS below us
-        self.as_assert(base, "No base Address Space")
+        self.as_assert(baseAddressSpace, "No base Address Space")
 
         ## Must start with the magic PAGEDUMP
-        self.as_assert((base.read(0, 8) == 'PAGEDUMP'), "Header signature invalid")
+        self.as_assert((baseAddressSpace.read(0, 8) == 'PAGEDUMP'), "Header signature invalid")
 
         self.runs = []
         # I have the feeling config.OFFSET will interfere with plugin options...
         self.offset = 0 # config.OFFSET
         self.fname = ''
 
-        self.header = obj.Object("_DMP_HEADER", self.offset, base)
+        self.header = obj.Object("_DMP_HEADER", self.offset, baseAddressSpace)
 
         self.runs = [ (x.BasePage.v(), x.PageCount.v()) \
                       for x in self.header.PhysicalMemoryBlockBuffer.Run ]

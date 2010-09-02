@@ -27,7 +27,10 @@
 import standard
 import volatility.obj as obj
 import volatility.win32.xpress as xpress
+import volatility.conf as conf
 import struct
+
+config = conf.ConfObject()
 
 #pylint: disable-msg=C0111
 
@@ -62,9 +65,9 @@ class WindowsHiberFileSpace32(standard.FileAddressSpace):
     2) the first 4 bytes must be 'hibr'
     """
     order = 10
-    def __init__(self, base, config, **kwargs):
-        standard.FileAddressSpace.__init__(self, base, config, layered = True, **kwargs)
-        self.as_assert(base, "No base Address Space")
+    def __init__(self, baseAddressSpace, **kwargs):
+        standard.FileAddressSpace.__init__(self, baseAddressSpace, layered = True, **kwargs)
+        self.as_assert(baseAddressSpace, "No base Address Space")
         self.runs = []
         self.PageDict = {}
         self.HighestPage = 0
@@ -75,7 +78,7 @@ class WindowsHiberFileSpace32(standard.FileAddressSpace):
         self.MemRangeCnt = 0
         self.offset = 0
         # Extract header information
-        self.header = obj.Object('_IMAGE_HIBER_HEADER', 0, base)
+        self.header = obj.Object('_IMAGE_HIBER_HEADER', 0, baseAddressSpace)
 
         ## Is the signature right?
         if self.header.Signature.lower() not in ['hibr', 'wake']:
@@ -85,7 +88,7 @@ class WindowsHiberFileSpace32(standard.FileAddressSpace):
         self.as_assert(self._get_first_table_page() is not None, "No xpress signature found")
 
         # Extract processor state
-        self.ProcState = obj.Object("_KPROCESSOR_STATE", 2 * 4096, base)
+        self.ProcState = obj.Object("_KPROCESSOR_STATE", 2 * 4096, baseAddressSpace)
 
         ## This is a pointer to the page table - any ASs above us dont
         ## need to search for it.
@@ -402,7 +405,7 @@ class WindowsHiberFileSpace32(standard.FileAddressSpace):
         self.base.close()
 
     def write(self, _addr, _buf):
-        if not self.get_config().WRITE:
+        if not config.WRITE:
             return False
         raise NotImplementedError("Writing to hibernation files has not been implemented yet")
 

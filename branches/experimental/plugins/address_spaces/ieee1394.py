@@ -21,6 +21,8 @@
 import time
 import urlparse
 import volatility.addrspace as addrspace
+import volatility.conf
+config = volatility.conf.ConfObject()
 
 def FirewireRW(netloc, location):
     if netloc in fw_implementations:
@@ -91,8 +93,8 @@ class FirewireAddressSpace(addrspace.BaseAddressSpace):
 
     ## We should be *almost* the AS of last resort
     order = 99
-    def __init__(self, base, config, layered = False, **kargs):
-        addrspace.BaseAddressSpace.__init__(self, base, config, **kargs)
+    def __init__(self, base, layered = False, **kargs):
+        addrspace.BaseAddressSpace.__init__(self, base, **kargs)
         self.as_assert(base == None or layered, 'Must be first Address Space')
         try:
             (scheme, netloc, path, _, _, _) = urlparse.urlparse(config.LOCATION)
@@ -175,7 +177,7 @@ class FirewireAddressSpace(addrspace.BaseAddressSpace):
 
     def write(self, offset, data):
         """Writes a specified size in bytes"""
-        if not self.get_config().WRITE:
+        if not config.WRITE:
             return False
 
         ints = self.intervals(offset, offset + len(data))

@@ -26,9 +26,14 @@ import standard
 import volatility.addrspace as addrspace
 import volatility.obj as obj
 import volatility.conf
-configuration = volatility.conf.ConfObject()
+config = volatility.conf.ConfObject()
 import volatility.debug as debug #pylint: disable-msg=W0611
 
+config.add_option("DTB", type = 'int', default = 0,
+                  help = "DTB Address")
+
+config.add_option("CACHE-DTB", action = "store_false", default = True,
+                  help = "Cache virtual to physical mappings")
 
 # WritablePagedMemory must be BEFORE base address, since it adds the concrete method get_available_addresses
 # If it's second, BaseAddressSpace's abstract version will take priority
@@ -59,12 +64,12 @@ class JKIA32PagedMemory(standard.WritablePagedMemory, addrspace.BaseAddressSpace
     pae = False
     paging_address_space = True
 
-    def __init__(self, base, config, dtb = 0, astype = None, **kwargs):
+    def __init__(self, base, dtb = 0, astype = None, **kwargs):
         ## We allow users to disable us in favour of the old legacy
         ## modules.
         self.as_assert(not config.USE_OLD_AS, "Module disabled")
-        standard.WritablePagedMemory.__init__(self, base, config)
-        addrspace.BaseAddressSpace.__init__(self, base, config, **kwargs)
+        standard.WritablePagedMemory.__init__(self, base)
+        addrspace.BaseAddressSpace.__init__(self, base, **kwargs)
         self.as_assert(astype != 'physical', "User requested physical AS")
 
         self.astype = astype
@@ -93,14 +98,6 @@ class JKIA32PagedMemory(standard.WritablePagedMemory, addrspace.BaseAddressSpace
         # Reserved for future use
         #self.pagefile = config.PAGEFILE
         self.name = 'Kernel AS'
-
-    @staticmethod
-    def register_options(config):
-        config.add_option("DTB", type = 'int', default = 0,
-                          help = "DTB Address")
-
-        config.add_option("CACHE-DTB", action = "store_false", default = True,
-                          help = "Cache virtual to physical mappings")
 
     def __getstate__(self):
         result = addrspace.BaseAddressSpace.__getstate__(self)

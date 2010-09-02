@@ -5,6 +5,8 @@ import standard
 
 from ctypes import CDLL, c_char_p, c_int, pointer, c_ulonglong, c_ulong, create_string_buffer
 import ctypes.util
+import volatility.conf
+config = volatility.conf.ConfObject()
 
 possible_names = ['libewf-1', 'ewf', ]
 for name in possible_names:
@@ -91,8 +93,8 @@ class EWFAddressSpace(standard.FileAddressSpace):
     2) The first 6 bytes must be 45 56 46 09 0D 0A (EVF header)
     """
     order = 20
-    def __init__(self, base, config, **kwargs):
-        standard.FileAddressSpace.__init__(self, base, config, layered = True)
+    def __init__(self, base, **kwargs):
+        standard.FileAddressSpace.__init__(self, base, layered = True)
         self.as_assert(base, "No base address space provided")
         self.as_assert(base.read(0, 6) == "\x45\x56\x46\x09\x0D\x0A", "EWF signature not present")
         self.fhandle = ewf_open([self.name])
@@ -104,7 +106,7 @@ class EWFAddressSpace(standard.FileAddressSpace):
         return True
 
     def write(self, _addr, _buf):
-        if not self.get_config().WRITE:
+        if not config.WRITE:
             return False
         raise NotImplementedError("Write support is not yet implemented for EWF files")
 

@@ -25,6 +25,8 @@
 import struct
 import standard
 import volatility.addrspace as addrspace
+import volatility.conf
+config = volatility.conf.ConfObject()
 import volatility.obj as obj
 
 ## This stuff needs to go in the profile
@@ -52,11 +54,11 @@ class IA32PagedMemory(standard.WritablePagedMemory, addrspace.BaseAddressSpace):
     """
     order = 90
     pae = False
-    def __init__(self, base, config, dtb = 0, astype = None, **kwargs):
+    def __init__(self, base, dtb = 0, astype = None, **kwargs):
         self.as_assert(config.USE_OLD_AS, "Module disabled")
 
-        standard.WritablePagedMemory.__init__(self, base, config)
-        addrspace.BaseAddressSpace.__init__(self, base, config, **kwargs)
+        standard.WritablePagedMemory.__init__(self, base)
+        addrspace.BaseAddressSpace.__init__(self, base, **kwargs)
         self.as_assert(astype != 'physical', "User requested physical AS")
         self.astype = astype
 
@@ -70,12 +72,6 @@ class IA32PagedMemory(standard.WritablePagedMemory, addrspace.BaseAddressSpace):
         ## Finally we have to have a valid PsLoadedModuleList
         # FIXME: !!!!! Remove Hardcoded HACK!!!!
         self.as_assert(self.is_valid_address(0x8055a420), "PsLoadedModuleList not valid Address")
-
-    @staticmethod
-    def register_options(config):
-        ## This module requires a filename to be passed by the user
-        config.add_option("USE-OLD-AS", action = "store_true", default = False,
-                          help = "Use the legacy address spaces")
 
     def load_dtb(self):
         try:
@@ -254,12 +250,12 @@ class IA32PagedMemoryPae(IA32PagedMemory):
     """
     order = 80
     pae = True
-    def __init__(self, base, config, **kwargs):
+    def __init__(self, base, **kwargs):
         """ We accept an optional arg called dtb to force us to use a
         specific dtb. If not provided, we try to find it from our base
         AS, and failing that we search for it.
         """
-        IA32PagedMemory.__init__(self, base, config, **kwargs)
+        IA32PagedMemory.__init__(self, base, **kwargs)
 
     def get_pdptb(self, pdpr):
         return pdpr & 0xFFFFFFE0

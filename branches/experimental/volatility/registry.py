@@ -184,11 +184,6 @@ class MemoryRegistry:
         """
         if Class not in self.classes:
             self.classes.append(Class)
-
-            # Register any config options required by the class
-            if hasattr(Class, 'register_options'):
-                Class.register_options(config)
-
             self.filenames[self.get_name(Class)] = filename
             try:
                 self.order.append(Class.order)
@@ -332,19 +327,19 @@ def Init():
         return
     LOCK = 1
 
-    import volatility.addrspace as addrspace
-    global AS_CLASSES
-    AS_CLASSES = VolatilityObjectRegistry(addrspace.BaseAddressSpace)
+    ## Register all shell commands:
+    import volatility.commands as commands
+    global PLUGIN_COMMANDS
+    PLUGIN_COMMANDS = VolatilityCommandRegistry(commands.command)
 
     ## Register all the derived objects
     import volatility.obj as objmod
     global OBJECT_CLASSES
     OBJECT_CLASSES = VolatilityObjectRegistry(objmod.BaseObject)
 
-    ## Register all shell commands:
-    import volatility.commands as commands
-    global PLUGIN_COMMANDS
-    PLUGIN_COMMANDS = VolatilityCommandRegistry(commands.command)
+    import volatility.addrspace as addrspace
+    global AS_CLASSES
+    AS_CLASSES = VolatilityObjectRegistry(addrspace.BaseAddressSpace)
 
     global PROFILES
     PROFILES = VolatilityObjectRegistry(objmod.Profile)
