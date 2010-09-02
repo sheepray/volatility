@@ -410,6 +410,29 @@ config.add_option("NO-CACHE", default = False, action = 'callback',
 class CacheDecorator(object):
     """ This decorator will memoise a function in the cache """
     def __init__(self, path):
+        """Wraps a function in a cache decorator.
+
+        The results of the function will be cached and memoised. Further
+        calls to the function will retrieve the result from the
+        cache. Cached objects are stored with the specified path as a
+        key.
+
+        Args:
+           path: Key for storage into the cache. If this is callable,
+           it will be called with the function's args and is expected
+           to return a string which will be used as a path.
+
+        Returns:
+           A decorator.
+
+        Example: Suppose the calculate function is decorated:
+
+        @CacheDecorator(lambda self: "tests/pslist/pid%s/" % self.config.PID)
+        def calculate(self):
+           ....
+
+        Note the use of the callback to finely tune the cache key depending on external variables.
+        """
         self.path = path
         self.node = None
 
@@ -432,10 +455,14 @@ class CacheDecorator(object):
 
     def _cachewrapper(self, f, s, *args, **kwargs):
         """Wrapper for caching function calls"""
-        ## Interpolate the path
-        path = self.path % dict(class_name = s.__class__.__name__)
+        ## See if the path is callable:
+        try:
+          path = self.path(s, *args, **kwargs)
+        except TypeError:
+          path = self.path
+
         ## Check if the result can be retrieved
-        self.node = CACHE[self.path]
+        self.node = CACHE[path]
         # If this test goes away, we need to change the set_payload exception check
         # to act on dump instead of just the payload
         if self.node:
@@ -497,7 +524,7 @@ class Testable(object):
             return item
 
     ## This forces the test to be memoised with a key name derived from the class name
-    @TestDecorator("tests/unittests/%(class_name)s")
+    @TestDecorator(lambda self: "tests/unittests/%s" % self.__class__.__name__)
     def test(self):
         ## This forces iteration over all keys - this is required in order
         ## to flatten the full list for the cache

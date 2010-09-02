@@ -45,6 +45,8 @@ class command(object):
         of OptionParser, populates the options, and finally parses the 
         command line. Options are stored in the self.opts attribute.
         """
+        self.config = config
+
     @classmethod
     def help(cls):
         """ This function returns a string that will be displayed when a
