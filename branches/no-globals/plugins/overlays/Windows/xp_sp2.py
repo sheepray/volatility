@@ -200,7 +200,7 @@ class _EPROCESS(obj.CType):
         directory_table_base = self.Pcb.DirectoryTableBase.v()
 
         try:
-            process_as = self.vm.__class__(self.vm.base, dtb = directory_table_base)
+            process_as = self.vm.__class__(self.vm.base, self.vm.config, dtb = directory_table_base)
         except AssertionError, _e:
             return obj.NoneObject("Unable to get process AS")
 
