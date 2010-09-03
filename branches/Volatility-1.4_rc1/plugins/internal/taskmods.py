@@ -91,7 +91,7 @@ class DllList(commands.command, cache.Testable):
 
         return tasks
 
-    @cache.CacheDecorator(lambda self: "tests/pslist/pid=%s" % self.config.PID)
+    @cache.CacheDecorator(lambda self: "tests/pslist/pid={0}".format(self.config.PID))
     def calculate(self):
         """Produces a list of processes, or just a single process based on an OFFSET"""
         addr_space = utils.load_as()
@@ -179,7 +179,7 @@ class MemMap(DllList):
             else:
                 outfd.write("Unable to read pages for task.\n")
 
-    @cache.CacheDecorator(lambda self: "test/memmap/pid%s" % self.config.PID)
+    @cache.CacheDecorator(lambda self: "test/memmap/pid{0}".format(self.config.PID))
     def calculate(self):
         tasks = self.filter_tasks(DllList.calculate(self))
 
