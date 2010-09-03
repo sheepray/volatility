@@ -28,6 +28,7 @@ import volatility.registry as MemoryRegistry
 import volatility.commands as commands
 import volatility.debug as debug
 import volatility.cache as cache
+import volatility.conf as conf
 
 class TestNode(cache.CacheNode):
     """ A CacheNode for implementing unit tests """
@@ -86,7 +87,9 @@ class TestSuite(commands.command):
                 continue
 
             try:
-                command = MemoryRegistry.PLUGIN_COMMANDS[cmdname](self._config)
+                # TODO: This won't work until ConfObejct isn't a singleton class
+                config = conf.ConfObject()
+                command = MemoryRegistry.PLUGIN_COMMANDS[cmdname](config)
                 if isinstance(command, cache.Testable):
                     print "Executing {0}".format(cmdname)
                     command.test()

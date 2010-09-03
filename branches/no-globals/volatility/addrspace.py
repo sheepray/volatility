@@ -63,6 +63,10 @@ class BaseAddressSpace:
         config.add_option("LOCATION", default = None, short_option = 'l',
                           help = "A URN location from which to load an address space")
 
+    def get_config(self):
+        """Returns the config object used by the vm for use in other vms"""
+        return self._config
+
     def _set_profile(self, profile_name):
         ## Load the required profile
         try:
