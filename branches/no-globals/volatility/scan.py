@@ -45,7 +45,7 @@ class BaseScanner(object):
     """ A more thorough scanner which checks every byte """
     checks = []
     def __init__(self, window_size = 8):
-        self.buffer = addrspace.BufferAddressSpace(data = '\x00' * 1024)
+        self.buffer = None # addrspace.BufferAddressSpace(None, data = '\x00' * 1024)
         self.window_size = window_size
         self.constraints = []
 
@@ -86,6 +86,7 @@ class BaseScanner(object):
 
     overlap = 20
     def scan(self, address_space, offset = 0, maxlen = None):
+        self.buffer = addrspace.BufferAddressSpace(address_space.get_config(), data = '\x00' * 1024)
         self.buffer.profile = address_space.profile
         self.base_offset = offset
         self.max_length = maxlen
