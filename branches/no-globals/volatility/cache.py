@@ -271,7 +271,7 @@ class CacheNode(object):
     def dump(self):
         ''' Dump the node to disk for later retrieval. This is
         normally called when the process has exited. '''
-        #url = "%s%s" % (self.stem, self.name)
+        #url = "{0}{1}".format(self.stem, self.name)
         if self.payload:
             self.storage.dump(self.stem, self)
 
@@ -427,7 +427,7 @@ class CacheDecorator(object):
 
         Example: Suppose the calculate function is decorated:
 
-        @CacheDecorator(lambda self: "tests/pslist/pid%s/" % self._config.PID)
+        @CacheDecorator(lambda self: "tests/pslist/pid{0}/".format(self._config.PID))
         def calculate(self):
            ....
 
@@ -457,9 +457,9 @@ class CacheDecorator(object):
         """Wrapper for caching function calls"""
         ## See if the path is callable:
         try:
-          path = self.path(s, *args, **kwargs)
+            path = self.path(s, *args, **kwargs)
         except TypeError:
-          path = self.path
+            path = self.path
 
         ## Check if the result can be retrieved
         self.node = CACHE[path]
@@ -524,7 +524,7 @@ class Testable(object):
             return item
 
     ## This forces the test to be memoised with a key name derived from the class name
-    @TestDecorator(lambda self: "tests/unittests/%s" % self.__class__.__name__)
+    @TestDecorator(lambda self: "tests/unittests/{0}".format(self.__class__.__name__))
     def test(self):
         ## This forces iteration over all keys - this is required in order
         ## to flatten the full list for the cache

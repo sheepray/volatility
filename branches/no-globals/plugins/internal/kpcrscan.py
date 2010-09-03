@@ -54,4 +54,4 @@ class KPCRScan(commands.command):
 
         outfd.write("Potential KPCR structure virtual addresses:\n")
         for o in data:
-            outfd.write(" _KPCR: %x\n" % o)
+            outfd.write(" _KPCR: {0:x}\n".format(o))

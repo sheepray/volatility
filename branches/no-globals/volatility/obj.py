@@ -284,7 +284,7 @@ class BaseObject(object):
         proxied = self.proxied(attr)
         # Don't do a __nonzero__ check on proxied or things like '' will fail
         if proxied is None:
-            raise AttributeError("Unable to resolve attribute %s on %s" % (attr, self.name))
+            raise AttributeError("Unable to resolve attribute {0} on {1}".format(attr, self.name))
 
         return getattr(proxied, attr)
 
