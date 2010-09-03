@@ -29,8 +29,6 @@
 import volatility.scan as scan
 import volatility.commands as commands
 import volatility.debug as debug #pylint: disable-msg=W0611
-import volatility.conf
-config = volatility.conf.ConfObject()
 import volatility.utils as utils
 import volatility.obj as obj
 
@@ -58,8 +56,8 @@ class FileScan(commands.command):
     meta_info['os'] = 'WIN_32_XP_SP2'
     meta_info['version'] = '0.1'
 
-    def __init__(self, *args):
-        commands.command.__init__(self, *args)
+    def __init__(self, config, *args):
+        commands.command.__init__(self, config, *args)
         self.kernel_address_space = None
 
     def parse_string(self, unicode_obj):
@@ -76,10 +74,10 @@ class FileScan(commands.command):
 
     def calculate(self):
         ## Just grab the AS and scan it using our scanner
-        address_space = utils.load_as(astype = 'physical')
+        address_space = utils.load_as(self._config, astype = 'physical')
 
         ## Will need the kernel AS for later:
-        self.kernel_address_space = utils.load_as()
+        self.kernel_address_space = utils.load_as(self._config)
 
         for offset in PoolScanFile().scan(address_space):
             pool_obj = obj.Object("_POOL_HEADER", vm = address_space,
@@ -139,10 +137,10 @@ class DriverScan(FileScan):
     "Scan for driver objects _DRIVER_OBJECT "
     def calculate(self):
         ## Just grab the AS and scan it using our scanner
-        address_space = utils.load_as(astype = 'physical')
+        address_space = utils.load_as(self._config, astype = 'physical')
 
         ## Will need the kernel AS for later:
-        self.kernel_address_space = utils.load_as()
+        self.kernel_address_space = utils.load_as(self._config)
 
         for offset in PoolScanDriver().scan(address_space):
             pool_obj = obj.Object("_POOL_HEADER", vm = address_space,
@@ -208,17 +206,17 @@ class PoolScanMutant(PoolScanDriver):
 
 class MutantScan(FileScan):
     "Scan for mutant objects _KMUTANT "
-    def __init__(self):
+    def __init__(self, config, *args):
+        FileScan.__init__(self, config, *args)
         config.add_option("SILENT", short_option = 's', default = False,
-                          action = 'store_true', help = 'suppress less meaningful results')
-        FileScan.__init__(self)
+                          action = 'store_true', help = 'Suppress less meaningful results')
 
     def calculate(self):
         ## Just grab the AS and scan it using our scanner
-        address_space = utils.load_as(astype = 'physical')
+        address_space = utils.load_as(self._config, astype = 'physical')
 
         ## Will need the kernel AS for later:
-        self.kernel_address_space = utils.load_as()
+        self.kernel_address_space = utils.load_as(self._config)
 
         for offset in PoolScanMutant().scan(address_space):
             pool_obj = obj.Object("_POOL_HEADER", vm = address_space,
@@ -248,7 +246,7 @@ class MutantScan(FileScan):
                                                      object_obj.NameInfoOffset
                                                      )
 
-            if config.SILENT:
+            if self._config.SILENT:
                 if object_obj.NameInfoOffset == 0:
                     continue
 

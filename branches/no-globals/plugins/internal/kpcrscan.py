@@ -25,10 +25,7 @@
 
 import volatility.utils as utils
 import volatility.commands as commands
-import volatility.conf as conf
 import volatility.obj as obj
-
-config = conf.ConfObject()
 
 class KPCRScan(commands.command):
     """Search for and dump potential KPCR values"""
@@ -45,7 +42,7 @@ class KPCRScan(commands.command):
 
     def calculate(self):
         """Determines the address space"""
-        addr_space = utils.load_as()
+        addr_space = utils.load_as(self._config)
 
         volmagic = obj.Object('VOLATILITY_MAGIC', 0x0, addr_space)
         for o in volmagic.KPCR.get_suggestions():
@@ -58,6 +55,3 @@ class KPCRScan(commands.command):
         outfd.write("Potential KPCR structure virtual addresses:\n")
         for o in data:
             outfd.write(" _KPCR: %x\n" % o)
-
-config.add_option("KPCR", type = 'int', default = 0, help = "KPCR Address")
-

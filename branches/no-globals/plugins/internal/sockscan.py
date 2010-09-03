@@ -74,7 +74,7 @@ class SockScan(commands.command):
 
     def calculate(self):
         ## Just grab the AS and scan it using our scanner
-        address_space = utils.load_as(astype = 'physical')
+        address_space = utils.load_as(self._config, astype = 'physical')
         scanner = PoolScanSockFast()
         for offset in scanner.scan(address_space):
             yield obj.Object('_ADDRESS_OBJECT', vm = address_space, offset = offset)

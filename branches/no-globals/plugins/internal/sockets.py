@@ -34,6 +34,6 @@ class Sockets(volatility.commands.command):
 
 
     def calculate(self):
-        addr_space = utils.load_as()
+        addr_space = utils.load_as(self._config)
 
         return win32.network.determine_sockets(addr_space)

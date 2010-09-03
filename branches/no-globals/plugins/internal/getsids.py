@@ -29,14 +29,11 @@
 """
 
 
-import volatility.conf as conf
 import volatility.win32 as win32
 import volatility.obj as obj
 import volatility.utils as utils
 import taskmods
 import re
-
-config = conf.ConfObject()
 
 def find_sid_re(sid_string, sid_re_list):
     for reg, name in sid_re_list:
@@ -152,11 +149,11 @@ class GetSIDs(taskmods.DllList):
 
     def calculate(self):
         """Produces a list of processes, or just a single process based on an OFFSET"""
-        addr_space = utils.load_as()
+        addr_space = utils.load_as(self._config)
         addr_space.profile.add_types(token_types)
 
-        if config.OFFSET != None:
-            tasks = [obj.Object("_EPROCESS", config.OFFSET, addr_space)]
+        if self._config.OFFSET != None:
+            tasks = [obj.Object("_EPROCESS", self._config.OFFSET, addr_space)]
         else:
             tasks = self.filter_tasks(win32.tasks.pslist(addr_space))
 

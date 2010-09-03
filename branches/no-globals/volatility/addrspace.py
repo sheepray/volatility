@@ -98,16 +98,13 @@ class BaseAddressSpace:
         return True
 
     def write(self, _addr, _buf):
-        if not self.get_config().WRITE:
+        if not self._config.WRITE:
             return False
         raise NotImplementedError("Write support for this type of Address Space has not been implemented")
 
-    def get_config(self):
-        return self._config
-
     def __getstate__(self):
         """ Serialise this address space efficiently """
-        return dict(profile_name = self.get_config().PROFILE, name = self.__class__.__name__,
+        return dict(profile_name = self._config.PROFILE, name = self.__class__.__name__,
                     base = self.base)
 
     def __setstate__(self, state):
@@ -136,7 +133,7 @@ class BufferAddressSpace(BaseAddressSpace):
         return self.data[offset: offset + length]
 
     def write(self, addr, data):
-        if not self.get_config().WRITE:
+        if not self._config.WRITE:
             return False
         self.data = self.data[:addr] + data + self.data[addr + len(data):]
         return True

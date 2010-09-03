@@ -37,7 +37,7 @@ class DateTime(commands.command):
         outfd.write("Image local date and time : {0}\n".format(timefmt.display_datetime(dt, data['ImageTz'])))
 
     def calculate(self):
-        addr_space = utils.load_as()
+        addr_space = utils.load_as(self._config)
 
         return self.get_image_time(addr_space)
 
@@ -57,9 +57,6 @@ class DateTime(commands.command):
 
 class Ident(DateTime):
     """ Identify information for the image """
-    def __init__(self, args = None):
-        DateTime.__init__(self, args)
-
     def render_text(self, outfd, data):
         """Renders the calculated data as text to outfd"""
 
@@ -74,7 +71,7 @@ class Ident(DateTime):
 
     def calculate(self):
         result = {}
-        addr_space = utils.load_as()
+        addr_space = utils.load_as(self._config)
 
         # Get the name
         tmpspace = addr_space

@@ -28,8 +28,6 @@ import volatility.registry as MemoryRegistry
 import volatility.commands as commands
 import volatility.debug as debug
 import volatility.cache as cache
-import volatility.conf as conf
-config = conf.ConfObject()
 
 class TestNode(cache.CacheNode):
     """ A CacheNode for implementing unit tests """
@@ -63,32 +61,32 @@ Droping to a debugging shell....
 
 class TestSuite(commands.command):
     """ Run unit test suit using the Cache """
-    def __init__(self, *args):
+
+    def __init__(self, config, *args):
+        commands.command.__init__(self, config, *args)
         config.add_option("UNIT-TEST", default = False , action = 'store_true',
                           help = "Enable unit tests for this module")
 
         config.add_option("MODULES", default = '',
                           help = "Only test these comma delimited set of modules")
 
-        commands.command.__init__(self, *args)
-
     def execute(self):
-        if config.UNIT_TEST:
+        if self._config.UNIT_TEST:
             print "Setting CacheNodes to TestNodes"
             cache.CACHE = cache.CacheTree(cache.CacheStorage(), cls = TestNode)
 
 
         cmds = MemoryRegistry.PLUGIN_COMMANDS.commands
         modules = None
-        if config.MODULES:
-            modules = config.MODULES.split(",")
+        if self._config.MODULES:
+            modules = self._config.MODULES.split(",")
 
         for cmdname in cmds:
             if modules and cmdname not in modules:
                 continue
 
             try:
-                command = MemoryRegistry.PLUGIN_COMMANDS[cmdname]()
+                command = MemoryRegistry.PLUGIN_COMMANDS[cmdname](self._config)
                 if isinstance(command, cache.Testable):
                     print "Executing {0}".format(cmdname)
                     command.test()
@@ -99,13 +97,14 @@ class TestSuite(commands.command):
 
 class InspectCache(commands.command):
     """ Inspect the contents of a cache """
-    def __init__(self, *args):
+
+    def __init__(self, config, *args):
+        commands.command.__init__(self, config, *args)
         config.add_option("CACHE-LOCATION", default = None,
                           help = "Location of the cache element")
-        commands.command.__init__(self, *args)
 
     def execute(self):
-        node = cache.CACHE[config.CACHE_LOCATION]
+        node = cache.CACHE[self._config.CACHE_LOCATION]
 
         ## FIXME - nicer pretty printing here
         print repr(node.get_payload())

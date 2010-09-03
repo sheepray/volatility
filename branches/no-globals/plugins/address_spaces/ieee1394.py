@@ -175,7 +175,7 @@ class FirewireAddressSpace(addrspace.BaseAddressSpace):
 
     def write(self, offset, data):
         """Writes a specified size in bytes"""
-        if not self.get_config().WRITE:
+        if not self._config.WRITE:
             return False
 
         ints = self.intervals(offset, offset + len(data))

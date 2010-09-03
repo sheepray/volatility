@@ -58,8 +58,8 @@ class ModScan2(commands.command):
         version = '1.0',
         )
 
-    def __init__(self, *args):
-        commands.command.__init__(self, *args)
+    def __init__(self, config, *args):
+        commands.command.__init__(self, config, *args)
         self.kernel_address_space = None
 
     def parse_string(self, unicode_obj):
@@ -72,10 +72,10 @@ class ModScan2(commands.command):
 
     def calculate(self):
         ## Here we scan the physical address space
-        address_space = utils.load_as(astype = 'physical')
+        address_space = utils.load_as(self._config, astype = 'physical')
 
         ## We need the kernel_address_space later
-        self.kernel_address_space = utils.load_as()
+        self.kernel_address_space = utils.load_as(self._config)
 
         scanner = PoolScanModuleFast2()
         for offset in scanner.scan(address_space):
@@ -138,7 +138,7 @@ class ThrdScan2(ModScan2):
     """Scan physical memory for _ETHREAD objects"""
     def calculate(self):
         ## Here we scan the physical address space
-        address_space = utils.load_as(astype = 'physical')
+        address_space = utils.load_as(self._config, astype = 'physical')
 
         scanner = PoolScanThreadFast2()
         for found in scanner.scan(address_space):

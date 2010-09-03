@@ -1047,7 +1047,7 @@ class SSDT(commands.command):
 
     @CacheDecorator("tests/ssdt")
     def calculate(self):
-        addr_space = utils.load_as()
+        addr_space = utils.load_as(self._config)
         addr_space.profile.add_types(ssdt_types)
 
         ## Get a sorted list of module addresses

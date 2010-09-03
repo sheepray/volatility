@@ -23,8 +23,8 @@ import taskmods
 class RegObjKeys(taskmods.Files):
     """Print list of open regkeys for each process"""
 
-    def __init__(self, *args):
-        taskmods.Files.__init__(self, *args)
+    def __init__(self, config, *args):
+        taskmods.Files.__init__(self, config, *args)
         self.handle_type = 'Key'
         self.handle_obj = '_CM_KEY_BODY'
 

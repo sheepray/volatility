@@ -402,7 +402,7 @@ class WindowsHiberFileSpace32(standard.FileAddressSpace):
         self.base.close()
 
     def write(self, _addr, _buf):
-        if not self.get_config().WRITE:
+        if not self._config.WRITE:
             return False
         raise NotImplementedError("Writing to hibernation files has not been implemented yet")
 

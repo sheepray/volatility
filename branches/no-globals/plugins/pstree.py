@@ -23,8 +23,6 @@
 import volatility.win32.tasks as tasks
 import volatility.utils as utils
 import volatility.commands as commands
-import volatility.conf as conf
-config = conf.ConfObject()
 
 #pylint: disable-msg=C0111
 
@@ -65,7 +63,7 @@ class PSTree(commands.command):
                         task_info['handle_count'],
                         task_info['create_time']))
 
-                    if config.VERBOSE > 1:
+                    if self._config.VERBOSE > 1:
                         try:
                             outfd.write("{0}    cmd: {1}\n".format(
                                 ' ' * pad, task_info['command_line']))
@@ -88,7 +86,7 @@ class PSTree(commands.command):
         result = {}
 
         ## Load a new address space
-        addr_space = utils.load_as()
+        addr_space = utils.load_as(self._config)
         addr_space.profile.add_types(pslist_types)
 
         for task in tasks.pslist(addr_space):
@@ -104,7 +102,7 @@ class PSTree(commands.command):
             ## Get the Process Environment Block - Note that _EPROCESS
             ## will automatically switch to process address space by
             ## itself.
-            if config.VERBOSE > 1:
+            if self._config.VERBOSE > 1:
                 peb = task.Peb
                 if peb:
                     task_info['command_line'] = peb.ProcessParameters.CommandLine

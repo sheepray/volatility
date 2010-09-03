@@ -104,7 +104,7 @@ class EWFAddressSpace(standard.FileAddressSpace):
         return True
 
     def write(self, _addr, _buf):
-        if not self.get_config().WRITE:
+        if not self._config.WRITE:
             return False
         raise NotImplementedError("Write support is not yet implemented for EWF files")
 

@@ -26,8 +26,6 @@ import volatility.win32 as win32
 import volatility.obj as obj
 import volatility.utils as utils
 import volatility.addrspace as addrspace
-import volatility.conf as conf
-config = conf.ConfObject()
 
 MAX_STRING_BYTES = 260
 
@@ -297,11 +295,11 @@ resource_types = {
  'RT_HTML'         : 23,
 }
 
-class verinfo(procdump.procexedump):
+class VerInfo(procdump.ProcExeDump):
     """Prints out the version information from PE images"""
 
-    def __init__(self, *args):
-        procdump.procexedump.__init__(self, *args)
+    def __init__(self, config, *args):
+        procdump.ProcExeDump.__init__(self, config, *args)
         config.remove_option("OFFSET")
         config.remove_option("PIDS")
         config.add_option("OFFSET", short_option = "o", type = 'int',
@@ -313,29 +311,29 @@ class verinfo(procdump.procexedump):
 
     def calculate(self):
         """Returns a unique list of modules"""
-        addr_space = utils.load_as()
+        addr_space = utils.load_as(self._config)
         addr_space.profile.add_types(ver_types)
 
-        if config.PATTERN is not None:
+        if self._config.PATTERN is not None:
             try:
-                if config.IGNORE_CASE:
-                    module_pattern = re.compile(config.PATTERN, flags = sre_constants.SRE_FLAG_IGNORECASE)
+                if self._config.IGNORE_CASE:
+                    module_pattern = re.compile(self._config.PATTERN, flags = sre_constants.SRE_FLAG_IGNORECASE)
                 else:
-                    module_pattern = re.compile(config.PATTERN)
+                    module_pattern = re.compile(self._config.PATTERN)
             except sre_constants.error, e:
-                config.error('Regular expression parsing error: {0}'.format(e))
+                self._config.error('Regular expression parsing error: {0}'.format(e))
 
-        if config.OFFSET is not None:
-            if not addr_space.is_valid_address(config.OFFSET):
-                config.error("Specified offset is not valid for the provided address space")
-            yield addr_space, config.OFFSET
+        if self._config.OFFSET is not None:
+            if not addr_space.is_valid_address(self._config.OFFSET):
+                self._config.error("Specified offset is not valid for the provided address space")
+            yield addr_space, self._config.OFFSET
             raise StopIteration
 
         tasks = win32.tasks.pslist(addr_space)
 
         for task in tasks:
             for m in self.list_modules(task):
-                if config.PATTERN is not None:
+                if self._config.PATTERN is not None:
                     if not (module_pattern.search(str(m.FullDllName))
                             or module_pattern.search(str(m.ModuleName))):
                         continue

@@ -23,26 +23,23 @@
 import os
 import struct
 import taskmods
-import volatility.conf as conf
 import volatility.obj as obj
-config = conf.ConfObject()
 
 class ProcExeDump(taskmods.DllList):
     """Dump a process to an executable file sample"""
-
-    def __init__(self, *args):
+    def __init__(self, config, *args):
+        taskmods.DllList.__init__(self, config, *args)
         config.add_option('DUMP-DIR', short_option = 'D', default = None,
                           help = 'Directory in which to dump the VAD files')
         config.add_option("UNSAFE", short_option = "u", default = 0, type = 'int',
                           help = 'Bypasses certain sanity checks when creating image')
-        taskmods.DllList.__init__(self, *args)
 
     def render_text(self, outfd, data):
         """Renders the tasks to disk images, outputting progress as they go"""
-        if config.DUMP_DIR == None:
-            config.error("Please specify a dump directory (--dump-dir)")
-        if not os.path.isdir(config.DUMP_DIR):
-            config.error(config.DUMP_DIR + " is not a directory")
+        if self._config.DUMP_DIR == None:
+            self._config.error("Please specify a dump directory (--dump-dir)")
+        if not os.path.isdir(self._config.DUMP_DIR):
+            self._config.error(self._config.DUMP_DIR + " is not a directory")
 
         for task in data:
             pid = task.UniqueProcessId
@@ -56,7 +53,7 @@ class ProcExeDump(taskmods.DllList):
                 continue
 
             outfd.write("Dumping {0}, pid: {1:6} output: {2}\n".format(task.ImageFileName, pid, "executable." + str(pid) + ".exe"))
-            of = open(os.path.join(config.DUMP_DIR, "executable." + str(pid) + ".exe"), 'wb')
+            of = open(os.path.join(self._config.DUMP_DIR, "executable." + str(pid) + ".exe"), 'wb')
             try:
                 for chunk in self.get_image(outfd, task.get_process_address_space(), task.Peb.ImageBaseAddress):
                     offset, code = chunk
@@ -96,7 +93,7 @@ class ProcExeDump(taskmods.DllList):
         for i in range(nt_header.FileHeader.NumberOfSections):
             s_addr = start_addr + (i * sect_size)
             sect = obj.Object("_IMAGE_SECTION_HEADER", s_addr, addr_space)
-            if not config.UNSAFE:
+            if not self._config.UNSAFE:
                 self.sanity_check_section(sect, nt_header.OptionalHeader.SizeOfImage)
             yield sect
 

@@ -39,46 +39,10 @@ import volatility.registry as MemoryRegistry
 import volatility.addrspace as addrspace
 import volatility.debug as debug
 
-class Curry:
-    """ This class makes a curried object available for simple inlined functions.
+## Curry is now a standard python feature
+import functools
 
-    A curried object represents a function which has some of its
-    arguements pre-determined. For example imagine there is a
-    function:
-
-    def foo(a=a,b=b):
-        pass
-
-    curry=Curry(foo,a=1)   returns a function pointer.
-
-    curry(3) is the same as calling foo(a=1,b=3).
-    For more information see the Oreilly Python Cookbook.
-
-    This implementation is used for old python versions since in
-    modern pythons its in the standard library (See below)
-    """
-    def __init__(self, function, *args, **kwargs):
-        """ Initialised the curry object with the correct function."""
-        self.fun = function
-        self.pending = args[:]
-        self.kwargs = kwargs.copy()
-
-    def __call__(self, *args, **kwargs):
-        if kwargs and self.kwargs:
-            kw = self.kwargs.copy()
-            kw.update(kwargs)
-        else:
-            kw = kwargs or self.kwargs
-
-        return self.fun(*(self.pending + args), **kw)
-
-try:
-    ## Curry is now a standard python feature
-    import functools
-
-    Curry = functools.partial
-except:
-    pass
+Curry = functools.partial
 
 import traceback
 
@@ -358,7 +322,7 @@ class BaseObject(object):
                                      (self.offset == other.offset) and (self.vm == other.vm))
 
     def __hash__(self):
-            return hash(self.name) ^ hash(self.offset)
+        return hash(self.name) ^ hash(self.offset)
 
     def has_member(self, memname):
         return False

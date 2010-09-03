@@ -27,19 +27,18 @@
 #pylint: disable-msg=C0111
 
 import os
-import volatility.conf as conf
 import volatility.commands as commands
 import volatility.win32 as win32
 import volatility.obj as obj
 import volatility.utils as utils
 import volatility.cache as cache
 
-config = conf.ConfObject()
-
 class DllList(commands.command, cache.Testable):
     """Print list of loaded dlls for each process"""
 
-    def __init__(self, *args):
+    def __init__(self, config, *args):
+        commands.command.__init__(self, config, *args)
+        cache.Testable.__init__(self)
         config.add_option('OFFSET', short_option = 'o', default = None,
                           help = 'EPROCESS Offset (in hex) in kernel address space',
                           action = 'store', type = 'int')
@@ -47,9 +46,6 @@ class DllList(commands.command, cache.Testable):
         config.add_option('PID', short_option = 'p', default = None,
                           help = 'Operate on these Process IDs (comma-separated)',
                           action = 'store', type = 'str')
-
-        commands.command.__init__(self, *args)
-        cache.Testable.__init__(self, *args)
 
     def render_text(self, outfd, data):
         for task in data:
@@ -80,8 +76,8 @@ class DllList(commands.command, cache.Testable):
         Returns a reduced list or the full list if config.PIDS not specified.
         """
         try:
-            if config.PID:
-                pidlist = [int(p) for p in config.PID.split(',')]
+            if self._config.PID:
+                pidlist = [int(p) for p in self._config.PID.split(',')]
                 newtasks = [t for t in tasks if t.UniqueProcessId in pidlist]
                 # Make this a separate statement, so that if an exception occurs, no harm done
                 tasks = newtasks
@@ -91,13 +87,13 @@ class DllList(commands.command, cache.Testable):
 
         return tasks
 
-    @cache.CacheDecorator(lambda self: "tests/pslist/pid=%s" % self.config.PID)
+    @cache.CacheDecorator(lambda self: "tests/pslist/pid=%s" % self._config.PID)
     def calculate(self):
         """Produces a list of processes, or just a single process based on an OFFSET"""
-        addr_space = utils.load_as()
+        addr_space = utils.load_as(self._config)
 
-        if config.OFFSET != None:
-            tasks = [obj.Object("_EPROCESS", config.OFFSET, addr_space)]
+        if self._config.OFFSET != None:
+            tasks = [obj.Object("_EPROCESS", self._config.OFFSET, addr_space)]
         else:
             tasks = self.filter_tasks(win32.tasks.pslist(addr_space))
 
@@ -107,8 +103,8 @@ class DllList(commands.command, cache.Testable):
 class Files(DllList):
     """Print list of open files for each process"""
 
-    def __init__(self, *args):
-        DllList.__init__(self, *args)
+    def __init__(self, config, *args):
+        DllList.__init__(self, config, *args)
         self.handle_type = 'File'
         self.handle_obj = "_FILE_OBJECT"
 
@@ -179,7 +175,7 @@ class MemMap(DllList):
             else:
                 outfd.write("Unable to read pages for task.\n")
 
-    @cache.CacheDecorator(lambda self: "test/memmap/pid%s" % self.config.PID)
+    @cache.CacheDecorator(lambda self: "test/memmap/pid%s" % self._config.PID)
     def calculate(self):
         tasks = self.filter_tasks(DllList.calculate(self))
 
@@ -193,16 +189,16 @@ class MemMap(DllList):
 class MemDump(MemMap):
     """Dump the addressable memory for a process"""
 
-    def __init__(self, *args):
+    def __init__(self, config, *args):
+        MemMap.__init__(self, config, *args)
         config.add_option('DUMP-DIR', short_option = 'D', default = None,
                           help = 'Directory in which to dump the VAD files')
-        MemMap.__init__(self, *args)
 
     def render_text(self, outfd, data):
-        if config.DUMP_DIR == None:
-            config.error("Please specify a dump directory (--dump-dir)")
-        if not os.path.isdir(config.DUMP_DIR):
-            config.error(config.DUMP_DIR + " is not a directory")
+        if self._config.DUMP_DIR == None:
+            self._config.error("Please specify a dump directory (--dump-dir)")
+        if not os.path.isdir(self._config.DUMP_DIR):
+            self._config.error(self._config.config.DUMP_DIR + " is not a directory")
 
         for pid, task, pagedata in data:
             outfd.write("*" * 72 + "\n")
@@ -210,7 +206,7 @@ class MemDump(MemMap):
             task_space = task.get_process_address_space()
             outfd.write("Writing {0} [{1:6}] to {2}.dmp\n".format(task.ImageFileName, pid, str(pid)))
 
-            f = open(os.path.join(config.DUMP_DIR, str(pid) + ".dmp"), 'wb')
+            f = open(os.path.join(self._config.DUMP_DIR, str(pid) + ".dmp"), 'wb')
             if pagedata:
                 for p in pagedata:
                     data = task_space.read(p[0], p[1])

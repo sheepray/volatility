@@ -22,12 +22,9 @@ import volatility.registry as registry
 import volatility.addrspace as addrspace
 import volatility.debug as debug
 
-import volatility.conf as conf
-configuration = conf.ConfObject()
-
 #pylint: disable-msg=C0111
 
-def load_as(config = configuration, **kwargs):
+def load_as(config, **kwargs):
     base_as = None
     error = AddrSpaceError()
     while 1:

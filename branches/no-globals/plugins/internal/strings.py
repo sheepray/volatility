@@ -23,35 +23,32 @@ import volatility.commands as commands
 import volatility.obj as obj
 import volatility.utils as utils
 import volatility.win32 as win32
-import volatility.conf as conf
-config = conf.ConfObject()
 
 class Strings(commands.command):
     """Match physical offsets to virtual addresses (may take a while, VERY verbose)"""
-
-    def __init__(self, *args):
+    def __init__(self, config, *args):
+        commands.command.__init__(self, config, *args)
         config.add_option('STRING-FILE', short_option = 's', default = None,
                           help = 'File output in strings format (offset:string)',
                           action = 'store', type = 'str')
         config.add_option('PIDS', short_option = 'p', default = None,
                           help = 'Operate on these Process IDs (comma-separated)',
                           action = 'store', type = 'str')
-        commands.command.__init__(self, *args)
 
     def calculate(self):
         """Calculates the physical to virtual address mapping"""
-        if config.STRING_FILE is None or not os.path.exists(config.STRING_FILE):
-            config.error("Strings file not found")
+        if self._config.STRING_FILE is None or not os.path.exists(self._config.STRING_FILE):
+            self._config.error("Strings file not found")
 
         data = {}
 
-        addr_space = utils.load_as()
+        addr_space = utils.load_as(self._config)
 
         tasks = win32.tasks.pslist(addr_space)
 
         try:
-            if config.PIDS is not None:
-                pidlist = [int(p) for p in config.PIDS.split(',')]
+            if self._config.PIDS is not None:
+                pidlist = [int(p) for p in self._config.PIDS.split(',')]
                 tasks = [t for t in tasks if int(t.UniqueProcessId) in pidlist]
         except (ValueError, TypeError):
             # TODO: We should probably print a non-fatal warning here
@@ -64,10 +61,10 @@ class Strings(commands.command):
 
         addr_space, tasks = data
 
-        stringlist = open(config.STRING_FILE, "r")
+        stringlist = open(self._config.STRING_FILE, "r")
 
         verbfd = None
-        if config.VERBOSE:
+        if self._config.VERBOSE:
             verbfd = outfd
 
         # Before we bother to start parsing the image, check to make sure the strings
@@ -78,7 +75,7 @@ class Strings(commands.command):
             try:
                 offset = int(offsetString)
             except ValueError:
-                config.error("String file format invalid.")
+                self._config.error("String file format invalid.")
             parsedStrings.append((offset, string))
 
         reverse_map = self.get_reverse_map(addr_space, tasks, verbfd)

@@ -56,7 +56,7 @@ class ConnScan2(commands.command):
 
     def calculate(self):
         ## Just grab the AS and scan it using our scanner
-        address_space = utils.load_as(astype = 'physical')
+        address_space = utils.load_as(self._config, astype = 'physical')
 
         scanner = PoolScanConnFast2()
         for offset in scanner.scan(address_space):

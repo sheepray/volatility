@@ -22,15 +22,13 @@ import os
 import volatility.utils as utils
 import volatility.obj as obj
 import volatility.commands as commands
-import volatility.conf as conf
-config = conf.ConfObject()
 
 class HibInfo(commands.command):
     """Dump hibernation file information"""
 
     def calculate(self):
         """Determines the address space"""
-        addr_space = utils.load_as()
+        addr_space = utils.load_as(self._config)
 
         result = None
         adrs = addr_space
@@ -53,7 +51,7 @@ class HibInfo(commands.command):
             adrs = adrs.base
 
         if result == None:
-            config.error("Memory Image could not be identified or did not contain hiberation information")
+            self._config.error("Memory Image could not be identified or did not contain hiberation information")
 
         return result
 
@@ -81,22 +79,22 @@ class HibInfo(commands.command):
 class HibDump(HibInfo):
     """Dumps the hibernation file to a raw file"""
 
-    def __init__(self, *args):
+    def __init__(self, config, *args):
+        HibInfo.__init__(self, config, *args)
         config.add_option("DUMP-FILE", short_option = "D", default = None,
                           help = "Specifies the output dump file")
-        HibInfo.__init__(self, *args)
 
     def render_text(self, outfd, data):
         """Renders the text output of hibneration file dumping"""
-        if not config.DUMP_FILE:
-            config.error("Hibdump requires an output file to dump the hibernation file")
+        if not self._config.DUMP_FILE:
+            self._config.error("Hibdump requires an output file to dump the hibernation file")
 
-        if os.path.exists(config.DUMP_FILE):
-            config.error("File " + config.DUMP_FILE + " already exists, please choose another file or delete it first")
+        if os.path.exists(self._config.DUMP_FILE):
+            self._config.error("File " + self._config.DUMP_FILE + " already exists, please choose another file or delete it first")
 
         outfd.write("Converting hibernation file...\n")
 
-        f = open(config.DUMP_FILE, 'wb')
+        f = open(self._config.DUMP_FILE, 'wb')
         total = data['adrs'].get_number_of_pages()
         for pagenum in data['adrs'].convert_to_raw(f):
             outfd.write("\r" + ("{0:08x}".format(pagenum)) + " / " + ("{0:08x}".format(total)) + " converted (" + ("{0:03d}".format(pagenum * 100 / total)) + "%)")

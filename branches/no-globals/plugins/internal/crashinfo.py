@@ -21,15 +21,13 @@
 import os
 import volatility.utils as utils
 import volatility.commands as commands
-import volatility.conf as conf
-config = conf.ConfObject()
 
 class CrashInfo(commands.command):
     """Dump crash-dump information"""
 
     def calculate(self):
         """Determines the address space"""
-        addr_space = utils.load_as()
+        addr_space = utils.load_as(self._config)
 
         result = None
         adrs = addr_space
@@ -39,7 +37,7 @@ class CrashInfo(commands.command):
             adrs = adrs.base
 
         if result is None:
-            config.error("Memory Image could not be identified as a crash dump")
+            self._config.error("Memory Image could not be identified as a crash dump")
 
         return result
 
@@ -77,23 +75,22 @@ class CrashInfo(commands.command):
 
 class CrashDump(CrashInfo):
     """Dumps the crashdump file to a raw file"""
-
-    def __init__(self, *args):
+    def __init__(self, config, *args):
+        CrashInfo.__init__(self, config, *args)
         config.add_option("DUMP-FILE", short_option = "D", default = None,
                           help = "Specifies the output dump file")
-        CrashInfo.__init__(self, *args)
 
     def render_text(self, outfd, data):
         """Renders the text output of crashdump file dumping"""
-        if not config.DUMP_FILE:
-            config.error("crashdump requires an output file to dump the crashdump file")
+        if not self._config.DUMP_FILE:
+            self._config.error("crashdump requires an output file to dump the crashdump file")
 
-        if os.path.exists(config.DUMP_FILE):
-            config.error("File " + config.DUMP_FILE + " already exists, please choose another file or delete it first")
+        if os.path.exists(self._config.DUMP_FILE):
+            self._config.error("File " + self._config.DUMP_FILE + " already exists, please choose another file or delete it first")
 
         outfd.write("Converting crashdump file...\n")
 
-        f = open(config.DUMP_FILE, 'wb')
+        f = open(self._config.DUMP_FILE, 'wb')
         total = data.get_number_of_pages()
         for pagenum in data.convert_to_raw(f):
             outfd.write("\r" + ("{0:08x}".format(pagenum)) + " / " + ("{0:08x}".format(total)) + " converted (" + ("{0:03}".format(pagenum * 100 / total)) + "%)")

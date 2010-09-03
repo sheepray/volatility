@@ -185,7 +185,7 @@ class ThreadScan(scan.BaseScanner):
 class ThrdScan(commands.command):
     """ Scan Physical memory for _ETHREAD objects"""
     def calculate(self):
-        address_space = utils.load_as(astype = 'physical')
+        address_space = utils.load_as(self._config, astype = 'physical')
         for offset in ThreadScan().scan(address_space):
             yield obj.Object('_ETHREAD', vm = address_space, offset = offset)
 
@@ -231,7 +231,7 @@ class PSScan(commands.command, cache.Testable):
 
     @cache.CacheDecorator("tests/psscan")
     def calculate(self):
-        address_space = utils.load_as(astype = 'physical')
+        address_space = utils.load_as(self._config, astype = 'physical')
 
         for offset in PSScanner().scan(address_space):
             yield obj.Object('_EPROCESS', vm = address_space, offset = offset)

@@ -28,11 +28,8 @@
 # "The VAD Tree: A Process-Eye View of Physical Memory," Brendan Dolan-Gavitt
 
 import os.path
-import volatility.conf
 import taskmods
 import volatility.debug as debug #pylint: disable-msg=W0611
-
-config = volatility.conf.ConfObject()
 
 # Inherit from dlllist just for the config options (__init__)
 class VADInfo(taskmods.DllList):
@@ -159,18 +156,18 @@ class VADWalk(VADInfo):
 class VADDump(VADInfo):
     """Dumps out the vad sections to a file"""
 
-    def __init__(self, *args):
+    def __init__(self, config, *args):
+        VADInfo.__init__(self, config, *args)
         config.add_option('DUMP-DIR', short_option = 'D', default = None,
                           help = 'Directory in which to dump the VAD files')
         config.add_option('VERBOSE', short_option = 'v', default = False, type = 'bool',
                           help = 'Print verbose progress information')
-        VADInfo.__init__(self, *args)
 
     def render_text(self, outfd, data):
-        if config.DUMP_DIR == None:
-            config.error("Please specify a dump directory (--dump-dir)")
-        if not os.path.isdir(config.DUMP_DIR):
-            config.error(config.DUMP_DIR + " is not a directory")
+        if self._config.DUMP_DIR == None:
+            self._config.error("Please specify a dump directory (--dump-dir)")
+        if not os.path.isdir(self._config.DUMP_DIR):
+            self._config.error(self._config.DUMP_DIR + " is not a directory")
 
         for task in data:
             outfd.write("Pid: {0:6}\n".format(task.UniqueProcessId))
@@ -192,7 +189,7 @@ class VADDump(VADInfo):
                     continue
 
                 # Open the file and initialize the data
-                f = open(os.path.join(config.DUMP_DIR, "{0}.{1:x}.{2:08x}-{3:08x}.dmp".format(name, offset, start, end)), 'wb')
+                f = open(os.path.join(self._config.DUMP_DIR, "{0}.{1:x}.{2:08x}-{3:08x}.dmp".format(name, offset, start, end)), 'wb')
                 range_data = ""
                 num_pages = (end - start + 1) >> 12
 
@@ -208,7 +205,7 @@ class VADDump(VADInfo):
                     else:
                         range_data = range_data + page_read
 
-                if config.VERBOSE:
+                if self._config.VERBOSE:
                     outfd.write("Writing VAD for " + ("{0}.{1:x}.{2:08x}-{3:08x}.dmp".format(name, offset, start, end)) + "\n")
                 f.write(range_data)
                 f.close()

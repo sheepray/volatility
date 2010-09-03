@@ -68,8 +68,8 @@ class HiveList(hs.HiveScan):
                 hive_offsets.append(hive.offset)
 
     def calculate(self):
-        flat = utils.load_as(astype = 'physical')
-        addr_space = utils.load_as()
+        flat = utils.load_as(self._config, astype = 'physical')
+        addr_space = utils.load_as(self._config)
 
         hives = hs.HiveScan.calculate(self)
 

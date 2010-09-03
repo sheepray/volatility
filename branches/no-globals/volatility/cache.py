@@ -427,7 +427,7 @@ class CacheDecorator(object):
 
         Example: Suppose the calculate function is decorated:
 
-        @CacheDecorator(lambda self: "tests/pslist/pid%s/" % self.config.PID)
+        @CacheDecorator(lambda self: "tests/pslist/pid%s/" % self._config.PID)
         def calculate(self):
            ....
 

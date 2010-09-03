@@ -37,9 +37,6 @@ class Connections(commands.command):
     find it more effective to do conscan instead.
     """
 
-    def __init__(self, args = None):
-        commands.command.__init__(self, args)
-
     def render_text(self, outfd, data):
         outfd.write("{0:25} {1:25} {2:6}\n".format('Local Address', 'Remote Address', 'Pid'))
 
@@ -50,6 +47,6 @@ class Connections(commands.command):
 
 
     def calculate(self):
-        addr_space = utils.load_as()
+        addr_space = utils.load_as(self._config)
 
         return network.determine_connections(addr_space)

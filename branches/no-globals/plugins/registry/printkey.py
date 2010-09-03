@@ -31,8 +31,6 @@ import volatility.win32.hive as hivemod
 import volatility.win32.rawreg as rawreg
 import volatility.utils as utils
 import volatility.commands as commands
-import volatility.conf as conf
-config = conf.ConfObject()
 
 ## This module requires a filename to be passed by the user
 #config.add_option("HIVE-OFFSET", default = 0, type='int',
@@ -67,28 +65,28 @@ class PrintKey(commands.command):
     meta_info['os'] = 'WIN_32_XP_SP2'
     meta_info['version'] = '1.0'
 
-    def __init__(self, *args):
+    def __init__(self, config, *args):
+        commands.command.__init__(self, config, *args)
         config.add_option('HIVE-OFFSET', short_option = 'o',
                           help = 'Hive offset (virtual)', type = 'int')
         config.add_option('KEY', short_option = 'K',
                           help = 'Registry Key', type = 'str')
-        commands.command.__init__(self, *args)
 
     def calculate(self):
-        addr_space = utils.load_as()
+        addr_space = utils.load_as(self._config)
 
-        if not config.hive_offset:
-            config.error("No hive offset provided!")
+        if not self._config.hive_offset:
+            self._config.error("No hive offset provided!")
 
-        if not config.key:
-            config.error("No registry key specified.  Please use -k to specify one")
+        if not self._config.key:
+            self._config.error("No registry key specified.  Please use -k to specify one")
 
-        hive = hivemod.HiveAddressSpace(addr_space, config.hive_offset)
+        hive = hivemod.HiveAddressSpace(addr_space, self._config.hive_offset)
         root = rawreg.get_root(hive)
         if not root:
-            config.error("Unable to find root key. Is the hive offset correct?")
+            self._config.error("Unable to find root key. Is the hive offset correct?")
 
-        key = rawreg.open_key(root, config.KEY.split('\\'))
+        key = rawreg.open_key(root, self._config.KEY.split('\\'))
         return key
 
     def render_text(self, outfd, key):

@@ -32,8 +32,6 @@ import volatility.win32.lsasecrets as lsasecrets
 import volatility.win32.hashdump as hashdumpmod
 import volatility.utils as utils
 import volatility.commands as commands
-import volatility.conf as conf
-config = conf.ConfObject()
 
 FILTER = ''.join([(len(repr(chr(i))) == 3) and chr(i) or '.' for i in range(256)])
 
@@ -61,26 +59,26 @@ class LSADump(commands.command):
     meta_info['os'] = 'WIN_32_XP_SP2'
     meta_info['version'] = '1.0'
 
-    def __init__(self, *args):
+    def __init__(self, config, *args):
+        commands.command.__init__(self, config, *args)
         config.add_option('SYS-OFFSET', short_option = 'y', type = 'int',
                           help = 'SYSTEM hive offset (virtual)')
         config.add_option('SEC-OFFSET', short_option = 's', type = 'int',
                           help = 'SECURITY hive offset (virtual)')
-        commands.command.__init__(self, *args)
 
     def calculate(self):
-        addr_space = utils.load_as()
+        addr_space = utils.load_as(self._config)
 
         # In general it's not recommended to update the global types on the fly,
         # but I'm special and I know what I'm doing ;)
         # types.update(regtypes)
 
-        if not config.sys_offset or not config.sec_offset:
-            config.error("Both SYSTEM and SECURITY offsets must be provided")
+        if not self._config.sys_offset or not self._config.sec_offset:
+            self._config.error("Both SYSTEM and SECURITY offsets must be provided")
 
-        secrets = lsasecrets.get_memory_secrets(addr_space, config.sys_offset, config.sec_offset)
+        secrets = lsasecrets.get_memory_secrets(addr_space, self._config.sys_offset, self._config.sec_offset)
         if not secrets:
-            config.error("Unable to read LSA secrets from registry")
+            self._config.error("Unable to read LSA secrets from registry")
 
         return secrets
 
@@ -92,20 +90,20 @@ class LSADump(commands.command):
 class HashDump(commands.command):
     """Dumps passwords hashes (LM/NTLM) from memory"""
 
-    def __init__(self, *args):
+    def __init__(self, config, *args):
+        commands.command.__init__(self, config, *args)
         config.add_option('SYS-OFFSET', short_option = 'y', type = 'int',
                           help = 'SYSTEM hive offset (virtual)')
         config.add_option('SAM-OFFSET', short_option = 's', type = 'int',
                           help = 'SAM hive offset (virtual)')
-        commands.command.__init__(self, *args)
 
     def calculate(self):
-        addr_space = utils.load_as()
+        addr_space = utils.load_as(self._config)
 
-        if not config.sys_offset or not config.sam_offset:
-            config.error("Both SYSTEM and SAM offsets must be provided")
+        if not self._config.sys_offset or not self._config.sam_offset:
+            self._config.error("Both SYSTEM and SAM offsets must be provided")
 
-        return hashdumpmod.dump_memory_hashes(addr_space, config.sys_offset, config.sam_offset)
+        return hashdumpmod.dump_memory_hashes(addr_space, self._config.sys_offset, self._config.sam_offset)
 
     def render_text(self, outfd, data):
         for d in data:
@@ -113,19 +111,18 @@ class HashDump(commands.command):
 
 class HiveDump(commands.command):
     """Prints out a hive"""
-
-    def __init__(self, *args):
+    def __init__(self, config, *args):
+        commands.command.__init__(self, config, *args)
         config.add_option('HIVE-OFFSET', short_option = 'o', type = 'int',
                           help = 'Hive offset (virtual)')
-        commands.command.__init__(self, *args)
 
     def calculate(self):
-        addr_space = utils.load_as()
+        addr_space = utils.load_as(self._config)
 
-        if not config.hive_offset:
-            config.error("A Hive offset must be provided (--hive-offset)")
+        if not self._config.hive_offset:
+            self._config.error("A Hive offset must be provided (--hive-offset)")
 
-        h = hive.HiveAddressSpace(addr_space, config.hive_offset)
+        h = hive.HiveAddressSpace(addr_space, self._config.hive_offset)
         return rawreg.get_root(h)
 
     def render_text(self, outfd, data):

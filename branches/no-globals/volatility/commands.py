@@ -18,18 +18,6 @@
 
 
 import sys, textwrap
-import volatility.conf as conf
-
-config = conf.ConfObject()
-
-config.add_option("OUTPUT", default = 'text',
-                  help = "Output in this format (format support is module specific)")
-
-config.add_option("OUTPUT-FILE", default = None,
-                  help = "write output in this file")
-
-config.add_option("VERBOSE", default = 0, action = 'count',
-                  short_option = 'v', help = 'Verbose information')
 
 class command(object):
     """ Base class for each plugin command """
@@ -40,12 +28,24 @@ class command(object):
     # meta_info will be removed
     meta_info = {}
 
-    def __init__(self, args = None):
+    def __init__(self, config, *_args, **_kwargs):
         """ Constructor uses args as an initializer. It creates an instance
         of OptionParser, populates the options, and finally parses the 
         command line. Options are stored in the self.opts attribute.
         """
-        self.config = config
+        self._config = config
+
+    @staticmethod
+    def register_options(config):
+        """Registers options into a config object provided"""
+        config.add_option("OUTPUT", default = 'text',
+                          help = "Output in this format (format support is module specific)")
+
+        config.add_option("OUTPUT-FILE", default = None,
+                          help = "write output in this file")
+
+        config.add_option("VERBOSE", default = 0, action = 'count',
+                          short_option = 'v', help = 'Verbose information')
 
     @classmethod
     def help(cls):
@@ -75,9 +75,9 @@ class command(object):
 
         ## Then we render the result in some way based on the
         ## requested output mode:
-        function_name = "render_{0}".format(config.OUTPUT)
-        if config.OUTPUT_FILE:
-            outfd = open(config.OUTPUT_FILE, 'w')
+        function_name = "render_{0}".format(self._config.OUTPUT)
+        if self._config.OUTPUT_FILE:
+            outfd = open(self._config.OUTPUT_FILE, 'w')
             # TODO: We should probably check that this won't blat over an existing file 
         else:
             outfd = sys.stdout
@@ -92,7 +92,7 @@ class command(object):
                     _a, b = x.split("_", 1)
                     result.append(b)
 
-            print "Plugin {0} is unable to produce output in format {1}. Supported formats are {2}. Please send a feature request".format(self.__class__.__name__, config.OUTPUT, result)
+            print "Plugin {0} is unable to produce output in format {1}. Supported formats are {2}. Please send a feature request".format(self.__class__.__name__, self._config.OUTPUT, result)
             return
 
         func(outfd, data)

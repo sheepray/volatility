@@ -112,7 +112,7 @@ class FileAddressSpace(addrspace.BaseAddressSpace):
         self.fhandle.close()
 
     def write(self, addr, data):
-        if not self.get_config().WRITE:
+        if not self._config.WRITE:
             return False
         try:
             self.fhandle.seek(addr)
@@ -191,7 +191,7 @@ class WritablePagedMemory(PagedMemory):
                           help = "Enable write support", callback = write_callback)
 
     def write(self, vaddr, buf):
-        if not self.get_config().WRITE:
+        if not self._config.WRITE:
             return False
 
         length = len(buf)
@@ -227,7 +227,7 @@ class WritablePagedMemory(PagedMemory):
             return self.base.write(paddr, buf)
 
     def write_long_phys(self, addr, val):
-        if not self.get_config().WRITE:
+        if not self._config.WRITE:
             return False
         buf = struct.pack('=I', val)
         return self.base.write(addr, buf)
