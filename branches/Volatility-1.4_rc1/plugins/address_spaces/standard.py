@@ -133,7 +133,7 @@ class FileAddressSpace(addrspace.BaseAddressSpace):
         return True
 
     def __eq__(self, other):
-        return self.base == other.base and self.fname == other.fname
+        return self.__class__ == other.__class__ and self.base == other.base and self.fname == other.fname
 
 
 
