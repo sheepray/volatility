@@ -81,8 +81,8 @@ class BaseAddressSpace:
             raise ASAssertionError, error
 
     def __eq__(self, other):
-        return  self.profile == other.profile and \
-            self.__class__ == other.__class__ and self.base == other.base
+        return self.__class__ == other.__class__ and \
+               self.profile == other.profile and self.base == other.base
 
     def read(self, addr, length):
         """ Read some date from a certain offset """
