@@ -80,16 +80,14 @@ class PrintKey(commands.command):
         if not config.hive_offset:
             config.error("No hive offset provided!")
 
-        if not config.key:
-            config.error("No registry key specified.  Please use -k to specify one")
-
         hive = hivemod.HiveAddressSpace(addr_space, config.hive_offset)
         root = rawreg.get_root(hive)
         if not root:
             config.error("Unable to find root key. Is the hive offset correct?")
 
-        key = rawreg.open_key(root, config.KEY.split('\\'))
-        return key
+        if config.KEY:
+            return rawreg.open_key(root, config.KEY.split('\\'))
+        return root
 
     def render_text(self, outfd, key):
         outfd.write("Key name: " + key.Name + "\n")
