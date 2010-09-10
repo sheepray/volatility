@@ -45,9 +45,11 @@ config = conf.ConfObject()
 import volatility.debug as debug #pylint: disable-msg=W0611
 
 config.add_option("INFO", default = None, action = "store_true",
+                  cache_invalidator=False,
                   help = "Print information about all registered objects")
 
 config.add_option("PLUGINS", default = "./plugins",
+                  cache_invalidator=False,
                   help = "Additional plugin directories to use (colon separated)")
 
 class MemoryRegistry:

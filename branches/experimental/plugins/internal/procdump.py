@@ -32,9 +32,12 @@ class ProcExeDump(taskmods.DllList):
 
     def __init__(self, *args):
         config.add_option('DUMP-DIR', short_option = 'D', default = None,
+                          cache_invalidator=False,
                           help = 'Directory in which to dump the VAD files')
+
         config.add_option("UNSAFE", short_option = "u", default = 0, type = 'int',
                           help = 'Bypasses certain sanity checks when creating image')
+
         taskmods.DllList.__init__(self, *args)
 
     def render_text(self, outfd, data):

@@ -118,5 +118,6 @@ def tz_from_string(_option, _opt_str, value, parser):
         parser.values.tz = timezone
 
 config.add_option("TZ", action = "callback", callback = tz_from_string,
+                  cache_invalidator=False,
                   help = "Sets the timezone for displaying timestamps",
                   default = None, nargs = 1, type = str)

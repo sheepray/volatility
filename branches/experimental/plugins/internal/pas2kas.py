@@ -13,6 +13,7 @@ class pas2kas(commands.command):
     """
     def __init__(self, *args):
         config.add_option('PID', short_option = 'p', default=None,
+                          cache_invalidator=False,
                           help='Operate on this Process ID',
                           action='store', type='int')
 
@@ -55,7 +56,11 @@ class pas2kas(commands.command):
 
         return kernel_addr_space
 
-    @CacheDecorator("address_space/memory_translation/pas2kas")
+    ## This caches the mapping per each pid so we dont need to
+    ## invalidate on different pids
+    @CacheDecorator(lambda self: "address_space/memory_translation/"
+                    "pas2kas/pid-{0}".format(self.config.PID))
+
     def get_ranges(self):
         addr_space = self.get_task_as(utils.load_as())
 

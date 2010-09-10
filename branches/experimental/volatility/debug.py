@@ -23,6 +23,7 @@ import volatility.conf
 config = volatility.conf.ConfObject()
 
 config.add_option("DEBUG", short_option = 'd', default = 0,
+                  cache_invalidator=False,
                   action = 'count',
                   help = "Debug volatility")
 

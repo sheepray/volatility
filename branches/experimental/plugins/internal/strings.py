@@ -31,6 +31,7 @@ class Strings(commands.command):
 
     def __init__(self, *args):
         config.add_option('STRING-FILE', short_option = 's', default = None,
+                          cache_invalidator=False,
                           help = 'File output in strings format (offset:string)',
                           action = 'store', type = 'str')
         config.add_option('PIDS', short_option = 'p', default = None,
