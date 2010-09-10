@@ -339,8 +339,8 @@ class CacheTree(object):
 
 class CacheStorage(object):
     """ The base class for implementation storing the cache. """
-    ## Characters allowed in filenames
-    printables = "0123456789@ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-_."
+    ## Characters allowed in filenames (/'s are allowed since we're dealing with URLs only)
+    printables = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-_./"
 
     def encode(self, string):
         result = ''
@@ -354,14 +354,15 @@ class CacheStorage(object):
 
     def filename(self, url):
         if url.startswith(config.LOCATION):
-            path = os.path.normpath(url[len(config.LOCATION):])
+            # Encode just the path part, since everything else is taken from relatively safe/already used data
+            path = self.encode(url[len(config.LOCATION):])
         else:
             raise RuntimeError("Storing non relative URLs is not supported now ({0})".format(url))
 
-        path = "/".join((config.CACHE_DIRECTORY, os.path.basename(config.LOCATION) + ".cache", path)) + '.pickle'
-        parsed = urlparse.urlparse(path)
-        ## Make sure path does not have any special chars
-        path = '/'.join([ self.encode(x) for x in parsed.path.split("/") ]) #pylint: disable-msg=E1101
+        # Join together the bits we need, and abspath it to ensure it's right for the OS it's on
+        path = os.path.abspath(os.path.sep.join([config.CACHE_DIRECTORY,
+                                                 os.path.basename(config.LOCATION) + ".cache",
+                                                 path + '.pickle']))
 
         return path
 
