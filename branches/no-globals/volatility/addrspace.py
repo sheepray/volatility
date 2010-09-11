@@ -108,8 +108,9 @@ class BaseAddressSpace:
 
     def __getstate__(self):
         """ Serialise this address space efficiently """
-        return dict(profile_name = self._config.PROFILE, name = self.__class__.__name__,
-                    base = self.base)
+        ## FIXME: Note that types added/overridden in the config.PROFILE may bleed through
+        ## into other plugins from the cache.  This needs fixing.
+        return dict(name = self.__class__.__name__, base = self.base, config = self._config)
 
     def __setstate__(self, state):
         self.__init__(**state)
