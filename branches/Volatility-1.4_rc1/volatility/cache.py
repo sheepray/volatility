@@ -202,7 +202,7 @@ import cPickle as pickle
 config = conf.ConfObject()
 
 ## Where to stick the cache
-default_cache_location = os.environ.get("XDG_CACHE_HOME") or os.environ.get("TEMP") or "/tmp/"
+default_cache_location = os.path.join((os.environ.get("XDG_CACHE_HOME") or os.environ.get("TEMP") or "/tmp/"), "volatility-cache")
 
 config.add_option("CACHE-DIRECTORY", default = default_cache_location,
                   cache_invalidator = False,
@@ -339,6 +339,8 @@ class Invalidator(object):
         ## the global cache invalidator. We cant really get away from
         ## having a global invalidator.
         for k, v in CACHE.invalidator.callbacks.items():
+            # TODO: Determine what happens if the state or current callbacks
+            # contain a key that's not in the other
             if k in state and v() != state[k]:
                 if config.DEBUG:
                     print "Invaliding cache... {0} (Running) != {1} (Stored) on key {2}".format(v(), state[k], k)
