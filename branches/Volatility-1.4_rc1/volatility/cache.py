@@ -205,14 +205,19 @@ config = conf.ConfObject()
 default_cache_location = os.environ.get("XDG_CACHE_HOME") or os.environ.get("TEMP") or "/tmp/"
 
 config.add_option("CACHE-DIRECTORY", default = default_cache_location,
+                  cache_invalidator = False,
                   help = "Directory where cache files are stored")
 
 class ContainsGenerator(Exception):
     pass
 
+class InvalidCache(Exception):
+    """Exception raised when the cache item is determined to be invalid."""
+    pass
+
 class CacheNode(object):
     """ Base class for Cache nodes """
-    def __init__(self, name, stem, storage = None, payload = None):
+    def __init__(self, name, stem, storage = None, payload = None, invalidator = None):
         ''' Creates a new Cache node under the parent. The new node
         will carry the specified payload
         '''
@@ -220,6 +225,13 @@ class CacheNode(object):
         self.payload = payload
         self.storage = storage
         self.stem = stem
+
+        # This object encapsulate the running environment. If the
+        # environment during the time of unpickling differs from the
+        # environment during the time of pickling we refuse to
+        # unpickle this object, and the cache misses. We dont really
+        # do anything with it, just have it serialised as well.
+        self.invalidator = invalidator
 
     def __getitem__(self, item = ''):
         item_url = "{0}/{1}".format(self.stem, item)
@@ -271,7 +283,6 @@ class CacheNode(object):
     def dump(self):
         ''' Dump the node to disk for later retrieval. This is
         normally called when the process has exited. '''
-        #url = "{0}{1}".format(self.stem, self.name)
         if self.payload:
             self.storage.dump(self.stem, self)
 
@@ -281,8 +292,10 @@ class CacheNode(object):
 
 class BlockingNode(CacheNode):
     """Node that fails on all cache attempts and no-ops on cache storage attempts"""
-    def __init__(self, name, stem, storage = None, payload = None):
-        CacheNode.__init__(self, name, stem, None, None)
+    def __init__(self, name, stem, **kwargs):
+        CacheNode.__init__(self, name, stem,
+                           storage = None,
+                           payload = None, **kwargs)
 
     def __getitem__(self, item = ''):
         return BlockingNode(item, '/'.join((self.stem, item)))
@@ -295,16 +308,75 @@ class BlockingNode(CacheNode):
         """Do not set a payload for a blocked cache node"""
         pass
 
+class Invalidator(object):
+    """ The Invalidator encapsulates program state to control
+    invalidation of the cache.
+
+    1) This object registers callbacks using the add_condition()
+    method.
+
+    2) Prior to serialising the cache object the callbacks are called
+    returning a signature dict.
+
+    3) When unpickling the cached object, we call the invalidator to
+    produce a signature dict again, and compare this to the pickled
+    version.
+
+    The purpose of the callbacks is to represent a signature of the
+    current state of execution. If the signature changes, the cache is
+    invalidated.
+    """
+    def __init__(self):
+        self.callbacks = {}
+
+    def add_condition(self, key, callback):
+        """Callback will be stored under key and should return a string.
+        """
+        self.callbacks[key] = callback
+
+    def __setstate__(self, state):
+        ## We do not actually have any callbacks here - we must use
+        ## the global cache invalidator. We cant really get away from
+        ## having a global invalidator.
+        for k, v in CACHE.invalidator.callbacks.items():
+            if k in state and v() != state[k]:
+                if config.DEBUG:
+                    print "Invaliding cache... {0} (Running) != {1} (Stored) on key {2}".format(v(), state[k], k)
+
+                raise InvalidCache("Running environment inconsistant "
+                                   "with pickled environment - "
+                                   "invalidating cache.")
+
+    def __getstate__(self):
+        """When pickling ourselves we call our callbacks to provide a
+        dict of strings (our state signature). This dict should
+        reflect all of our running state at the moment. This will then
+        be compared to the state signature when unpickling and if its
+        different we invalidate the cache.
+        """
+        result = {}
+        for k, v in self.callbacks.items():
+            result[k] = v()
+
+        if config.DEBUG:
+            print "Pickling State signature: ", result
+
+        return result
+
 class CacheTree(object):
     """ An abstract structure which represents the cache tree """
-    def __init__(self, storage = None, cls = CacheNode):
+    def __init__(self, storage = None, cls = CacheNode, invalidator = None):
         self.storage = storage
         self.cls = cls
-        self.root = self.cls('', '', storage = storage)
+        self.invalidator = invalidator
+        self.root = self.cls('', '', storage = storage, invalidator = invalidator)
 
     def __getitem__(self, path):
         """Pythonic interface to the cache"""
         return self.check(path, cls = self.cls)
+
+    def invalidate_on(self, key, callback):
+        self.invalidator.add_condition(key, callback)
 
     def check(self, path, callback = None, cls = CacheNode):
         """ Retrieves the node at the path specified """
@@ -331,7 +403,8 @@ class CacheTree(object):
                 if callback is not None:
                     payload = callback()
 
-                node = cls(e, next_stem, storage = self.storage, payload = payload)
+                node = cls(e, next_stem, storage = self.storage,
+                           payload = payload, invalidator = self.invalidator)
 
                 current = node
 
@@ -391,7 +464,8 @@ class CacheStorage(object):
         fd.write(data)
         fd.close()
 
-CACHE = CacheTree(CacheStorage())
+## This is the central cache object
+CACHE = CacheTree(CacheStorage(), invalidator = Invalidator())
 
 def disable_caching(_option, _opt_str, _value, _parser):
     """Turns off caching by replacing the tree with one that only takes BlockingNodes"""
@@ -401,10 +475,11 @@ def disable_caching(_option, _opt_str, _value, _parser):
     # but I can't figure another way to ensure that
     # the code gets called and overwrites the outer scope
     global CACHE
-    CACHE = CacheTree(CacheStorage(), BlockingNode)
+    CACHE = CacheTree(CacheStorage(), BlockingNode, invalidator = Invalidator())
     config.NO_CACHE = True
 
 config.add_option("NO-CACHE", default = False, action = 'callback',
+                  cache_invalidator = False,
                   callback = disable_caching,
                   help = "Disable caching")
 

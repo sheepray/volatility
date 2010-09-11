@@ -195,6 +195,7 @@ class MemDump(MemMap):
 
     def __init__(self, *args):
         config.add_option('DUMP-DIR', short_option = 'D', default = None,
+                          cache_invalidator = False,
                           help = 'Directory in which to dump the VAD files')
         MemMap.__init__(self, *args)
 

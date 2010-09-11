@@ -23,12 +23,15 @@ import volatility.conf as conf
 config = conf.ConfObject()
 
 config.add_option("OUTPUT", default = 'text',
+                  cache_invalidator = False,
                   help = "Output in this format (format support is module specific)")
 
 config.add_option("OUTPUT-FILE", default = None,
+                  cache_invalidator = False,
                   help = "write output in this file")
 
 config.add_option("VERBOSE", default = 0, action = 'count',
+                  cache_invalidator = False,
                   short_option = 'v', help = 'Verbose information')
 
 class command(object):
