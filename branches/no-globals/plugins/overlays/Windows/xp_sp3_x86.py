@@ -37,8 +37,6 @@ import hibernate_vtypes
 import copy
 import volatility.debug as debug #pylint: disable-msg=W0611
 
-from xp_sp2 import WinXPSP2
-
 xpsp3overlays = copy.deepcopy(vtypes.xpsp2overlays)
 
 xpsp3overlays['_MMVAD_SHORT'][1]['Flags'][0] = lambda x: x['u'][0]

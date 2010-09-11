@@ -74,8 +74,7 @@ class TestSuite(commands.command):
     def execute(self):
         if self._config.UNIT_TEST:
             print "Setting CacheNodes to TestNodes"
-            cache.CACHE = cache.CacheTree(cache.CacheStorage(), cls = TestNode)
-
+            cache.CACHE = cache.CacheTree(cache.CacheStorage(), cls = TestNode, invalidator = cache.CACHE.invalidator)
 
         cmds = MemoryRegistry.PLUGIN_COMMANDS.commands
         modules = None

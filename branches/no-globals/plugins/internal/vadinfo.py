@@ -159,8 +159,11 @@ class VADDump(VADInfo):
     def __init__(self, config, *args):
         VADInfo.__init__(self, config, *args)
         config.add_option('DUMP-DIR', short_option = 'D', default = None,
+                          cache_invalidator = False,
                           help = 'Directory in which to dump the VAD files')
+
         config.add_option('VERBOSE', short_option = 'v', default = False, type = 'bool',
+                          cache_invalidator = False,
                           help = 'Print verbose progress information')
 
     def render_text(self, outfd, data):

@@ -106,6 +106,10 @@ class ConfObject(object):
     This means it can be instantiated many times, but each instance
     refers to the global configuration (which is set in class
     variables).
+
+    NOTE: The class attributes have static dicts assigned to
+    facilitate singleton behaviour. This means all future instances
+    will have the same dicts.
     """
     optparser = PyFlagOptionParser(add_help_option = False,
                                    version = False,
@@ -145,6 +149,11 @@ class ConfObject(object):
 
     ## A list of option names:
     options = []
+
+    ## Cache variants: There are configuration options which
+    ## encapsulate the state of the running program. If any of these
+    ## change all caches will be invalidated.
+    cache_invalidators = {}
 
     def __init__(self):
         """ This is a singleton object kept in the class """
@@ -259,14 +268,22 @@ class ConfObject(object):
             except AttributeError:
                 pass
 
+            ## Set the cache invalidators on the cache now:
+            import volatility.cache as cache
+            for k, v in self.cache_invalidators.items():
+                cache.CACHE.invalidate_on(k, v)
+
     def remove_option(self, option):
         """ Removes options both from the config file parser and the
             command line parser
-        
+
             This should only by used on options *before* they have been read,
             otherwise things could get very confusing.
         """
         option = option.lower()
+
+        if option in self.cache_invalidators:
+            del self.cache_invalidators[option]
 
         normalized_option = option.replace("-", "_")
 
@@ -293,11 +310,22 @@ class ConfObject(object):
         except AttributeError:
             pass
 
-    def add_option(self, option, short_option = None, **args):
+    def add_option(self, option, short_option = None,
+                   cache_invalidator = True,
+                   **args):
         """ Adds options both to the config file parser and the
-        command line parser
+        command line parser.
+
+        Args:
+          option:            The long option name.
+          short_option:      An optional short option.
+          cache_invalidator: If set, when this option
+                             changes all caches are invalidated.
         """
         option = option.lower()
+
+        if cache_invalidator:
+            self.cache_invalidators[option] = lambda : self.get_value(option)
 
         normalized_option = option.replace("-", "_")
 
@@ -352,6 +380,9 @@ class ConfObject(object):
     def update(self, key, value):
         """ This can be used by scripts to force a value of an option """
         self.readonly[key.lower()] = value
+
+    def get_value(self, key):
+        return getattr(self, key.replace("-", "_"))
 
     def __getattr__(self, attr):
         ## If someone is looking for a configuration parameter but
@@ -421,6 +452,7 @@ else:
 
 try:
     config.add_option("CONF-FILE", default = os.environ['HOME'] + '/.volatilityrc',
+                      cache_invalidator = False,
                       help = "User based configuration file")
 
     config.add_file(config.CONF_FILE)

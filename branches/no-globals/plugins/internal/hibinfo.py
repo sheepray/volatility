@@ -82,6 +82,7 @@ class HibDump(HibInfo):
     def __init__(self, config, *args):
         HibInfo.__init__(self, config, *args)
         config.add_option("DUMP-FILE", short_option = "D", default = None,
+                          cache_invalidator = False,
                           help = "Specifies the output dump file")
 
     def render_text(self, outfd, data):
