@@ -202,7 +202,7 @@ import cPickle as pickle
 config = conf.ConfObject()
 
 ## Where to stick the cache
-default_cache_location = os.path.join((os.environ.get("XDG_CACHE_HOME") or os.environ.get("TEMP") or "/tmp/"), "volatility-cache")
+default_cache_location = os.path.join((os.environ.get("XDG_CACHE_HOME") or os.path.expanduser("~/.cache")), "volatility")
 
 config.add_option("CACHE-DIRECTORY", default = default_cache_location,
                   cache_invalidator = False,
