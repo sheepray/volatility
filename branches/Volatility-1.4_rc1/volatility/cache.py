@@ -293,9 +293,7 @@ class CacheNode(object):
 class BlockingNode(CacheNode):
     """Node that fails on all cache attempts and no-ops on cache storage attempts"""
     def __init__(self, name, stem, **kwargs):
-        CacheNode.__init__(self, name, stem,
-                           storage = None,
-                           payload = None, **kwargs)
+        CacheNode.__init__(self, name, stem, **kwargs)
 
     def __getitem__(self, item = ''):
         return BlockingNode(item, '/'.join((self.stem, item)))
