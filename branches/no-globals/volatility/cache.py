@@ -202,7 +202,7 @@ import cPickle as pickle
 config = conf.ConfObject()
 
 ## Where to stick the cache
-default_cache_location = os.path.join((os.environ.get("XDG_CACHE_HOME") or os.environ.get("TEMP") or "/tmp/"), "volatility-cache")
+default_cache_location = os.path.join((os.environ.get("XDG_CACHE_HOME") or os.path.expanduser("~/.cache")), "volatility")
 
 config.add_option("CACHE-DIRECTORY", default = default_cache_location,
                   cache_invalidator = False,
@@ -293,9 +293,7 @@ class CacheNode(object):
 class BlockingNode(CacheNode):
     """Node that fails on all cache attempts and no-ops on cache storage attempts"""
     def __init__(self, name, stem, **kwargs):
-        CacheNode.__init__(self, name, stem,
-                           storage = None,
-                           payload = None, **kwargs)
+        CacheNode.__init__(self, name, stem, **kwargs)
 
     def __getitem__(self, item = ''):
         return BlockingNode(item, '/'.join((self.stem, item)))

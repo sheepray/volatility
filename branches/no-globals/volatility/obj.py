@@ -752,7 +752,7 @@ class CType(BaseObject):
 ## Profiles are the interface for creating/interpreting
 ## objects
 
-class Profile:
+class Profile(object):
     """ A profile is a collection of types relating to a certain
     system. We parse the abstract_types and join them with
     native_types to make everything work together.
@@ -760,6 +760,7 @@ class Profile:
     native_types = {}
     abstract_types = {}
     overlay = {}
+    object_classes = {}
 
     def __init__(self, strict = False):
         self.types = {}
@@ -951,7 +952,10 @@ class Profile:
             members[k] = (v[0], self.list_to_type(k, v[1], typeDict))
 
         ## Allow the plugins to over ride the class constructor here
-        if MemoryRegistry.OBJECT_CLASSES and \
+        if self.object_classes and \
+               cname in self.object_classes:
+            cls = self.object_classes[cname]
+        elif MemoryRegistry.OBJECT_CLASSES and \
                cname in MemoryRegistry.OBJECT_CLASSES.objects:
             cls = MemoryRegistry.OBJECT_CLASSES[cname]
         else:
