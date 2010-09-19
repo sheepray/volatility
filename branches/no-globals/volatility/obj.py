@@ -233,14 +233,15 @@ def Object(theType, offset, vm, parent = None, name = None, **kwargs):
                                                parent = parent)
             return result
 
-        # Need to check for any derived object types that may be 
-        # found in the global memory registry.
-        if theType in MemoryRegistry.OBJECT_CLASSES.objects:
-            return MemoryRegistry.OBJECT_CLASSES[theType](
-                theType = theType,
-                offset = offset,
-                vm = vm, parent = parent, name = name,
-                **kwargs)
+        if theType in vm.profile.object_classes:
+            result = vm.profile.object_classes[theType](theType = theType,
+                                                        offset = offset,
+                                                        vm = vm,
+                                                        parent = parent,
+                                                        name = name,
+                                                        **kwargs)
+            return result
+
     except InvalidOffsetError:
         ## If we cant instantiate the object here, we just error out:
         return NoneObject("Invalid Address 0x{0:08X}, instantiating {1}".format(offset, name),
@@ -676,7 +677,7 @@ class CType(BaseObject):
         will be instantiated when accessed.
         """
         if not members:
-            raise RuntimeError()
+            raise RuntimeError("No members specified for CType")
 
         self.members = members
         self.struct_size = size
@@ -760,7 +761,12 @@ class Profile(object):
     native_types = {}
     abstract_types = {}
     overlay = {}
-    object_classes = {}
+    # We initially populate this with objects in this module that will be used everywhere
+    object_classes = {'BitField': BitField,
+                      'Pointer':Pointer,
+                      'Void':Void,
+                      'Array':Array,
+                      'CType':CType}
 
     def __init__(self, strict = False):
         self.types = {}
@@ -955,9 +961,6 @@ class Profile(object):
         if self.object_classes and \
                cname in self.object_classes:
             cls = self.object_classes[cname]
-        elif MemoryRegistry.OBJECT_CLASSES and \
-               cname in MemoryRegistry.OBJECT_CLASSES.objects:
-            cls = MemoryRegistry.OBJECT_CLASSES[cname]
         else:
             cls = CType
 

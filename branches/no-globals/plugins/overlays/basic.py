@@ -22,9 +22,6 @@
 """ This file defines some basic types which might be useful for many
 OS's
 """
-# FIXME: It's currently important these are imported here, otherwise
-# they don't show up in the MemoryObjects registry
-from volatility.obj import BitField, Pointer, Void, Array, CType #pylint: disable-msg=W0611
 import volatility.obj as obj
 import volatility.debug as debug #pylint: disable-msg=W0611
 import volatility.constants as constants
@@ -65,6 +62,8 @@ class String(obj.NativeType):
     def __radd__(self, other):
         """Set up mappings for reverse concat"""
         return other + str(self)
+
+obj.Profile.object_classes['String'] = String
 
 class Flags(obj.NativeType):
     """ This object decodes each flag into a string """
@@ -114,6 +113,8 @@ class Flags(obj.NativeType):
 
         return self.v() & mask
 
+obj.Profile.object_classes['Flags'] = Flags
+
 class Enumeration(obj.NativeType):
     """Enumeration class for handling multiple possible meanings for a single value"""
 
@@ -138,6 +139,8 @@ class Enumeration(obj.NativeType):
 
     def __format__(self, formatspec):
         return format(self.__str__(), formatspec)
+
+obj.Profile.object_classes['Enumeration'] = Enumeration
 
 class VolatilityMagic(obj.BaseObject):
     """Class to contain Volatility Magic value"""
@@ -180,6 +183,8 @@ class VolatilityMagic(obj.BaseObject):
         else:
             return obj.NoneObject("No suggestions available")
 
+obj.Profile.object_classes['VolatilityMagic'] = VolatilityMagic
+
 class VOLATILITY_MAGIC(obj.CType):
     """Class representing a VOLATILITY_MAGIC namespace
     
@@ -192,6 +197,8 @@ class VOLATILITY_MAGIC(obj.CType):
             # The exception will be raised before this point,
             # so we must finish off the CType's __init__ ourselves
             self.__initialized = True
+
+obj.Profile.object_classes['VOLATILITY_MAGIC'] = VOLATILITY_MAGIC
 
 class VolatilityDTB(VolatilityMagic):
 
@@ -217,4 +224,4 @@ class VolatilityDTB(VolatilityMagic):
 
             offset += len(data)
 
-
+obj.Profile.object_classes['VolatilityDTB'] = VolatilityDTB

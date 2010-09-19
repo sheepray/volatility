@@ -320,7 +320,6 @@ def print_info():
 
 LOCK = 0
 PLUGIN_COMMANDS = None
-OBJECT_CLASSES = None
 AS_CLASSES = None
 PROFILES = None
 SCANNER_CHECKS = None
@@ -334,20 +333,17 @@ def Init():
         return
     LOCK = 1
 
-    import volatility.addrspace as addrspace
-    global AS_CLASSES
-    AS_CLASSES = VolatilityObjectRegistry(addrspace.BaseAddressSpace)
-
-    ## Register all the derived objects
-    import volatility.obj as objmod
-    global OBJECT_CLASSES
-    OBJECT_CLASSES = VolatilityObjectRegistry(objmod.BaseObject)
-
     ## Register all shell commands:
     import volatility.commands as commands
     global PLUGIN_COMMANDS
     PLUGIN_COMMANDS = VolatilityCommandRegistry(commands.command)
 
+    ## Register all the derived objects
+    import volatility.addrspace as addrspace
+    global AS_CLASSES
+    AS_CLASSES = VolatilityObjectRegistry(addrspace.BaseAddressSpace)
+
+    import volatility.obj as objmod
     global PROFILES
     PROFILES = VolatilityObjectRegistry(objmod.Profile)
 
