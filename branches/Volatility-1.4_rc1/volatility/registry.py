@@ -315,7 +315,6 @@ def print_info():
 
 LOCK = 0
 PLUGIN_COMMANDS = None
-OBJECT_CLASSES = None
 AS_CLASSES = None
 PROFILES = None
 SCANNER_CHECKS = None
@@ -335,14 +334,11 @@ def Init():
     PLUGIN_COMMANDS = VolatilityCommandRegistry(commands.command)
 
     ## Register all the derived objects
-    import volatility.obj as objmod
-    global OBJECT_CLASSES
-    OBJECT_CLASSES = VolatilityObjectRegistry(objmod.BaseObject)
-
     import volatility.addrspace as addrspace
     global AS_CLASSES
     AS_CLASSES = VolatilityObjectRegistry(addrspace.BaseAddressSpace)
 
+    import volatility.obj as objmod
     global PROFILES
     PROFILES = VolatilityObjectRegistry(objmod.Profile)
 

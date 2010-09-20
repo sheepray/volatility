@@ -68,6 +68,8 @@ class _UNICODE_STRING(obj.CType):
     def __str__(self):
         return self.v()
 
+obj.Profile.object_classes['_UNICODE_STRING'] = _UNICODE_STRING
+
 class _LIST_ENTRY(obj.CType):
     """ Adds iterators for _LIST_ENTRY types """
     def list_of_type(self, type, member, forward = True):
@@ -110,6 +112,8 @@ class _LIST_ENTRY(obj.CType):
 
     def __iter__(self):
         return self.list_of_type(self.parent.name, self.name)
+
+obj.Profile.object_classes['_LIST_ENTRY'] = _LIST_ENTRY
 
 class WinTimeStamp(obj.NativeType):
 
@@ -167,6 +171,9 @@ class WinTimeStamp(obj.NativeType):
 
 LEVEL_MASK = 0xfffffff8
 
+obj.Profile.object_classes['WinTimeStamp'] = WinTimeStamp
+
+
 class ThreadCreateTimeStamp(WinTimeStamp):
 
     def __init__(self, *args, **kwargs):
@@ -174,6 +181,8 @@ class ThreadCreateTimeStamp(WinTimeStamp):
 
     def as_windows_timestamp(self):
         return obj.NativeType.v(self) >> 3
+
+obj.Profile.object_classes['ThreadCreateTimeStamp'] = ThreadCreateTimeStamp
 
 class _EPROCESS(obj.CType):
     """ An extensive _EPROCESS with bells and whistles """
@@ -266,6 +275,8 @@ class _EPROCESS(obj.CType):
             for h in self._make_handle_array(offset, table_levels):
                 yield h
 
+obj.Profile.object_classes['_EPROCESS'] = _EPROCESS
+
 import socket, struct
 
 class _TCPT_OBJECT(obj.CType):
@@ -275,6 +286,7 @@ class _TCPT_OBJECT(obj.CType):
     def _LocalIpAddress(self, attr):
         return socket.inet_ntoa(struct.pack("<I", self.m(attr).v()))
 
+obj.Profile.object_classes['_TCPT_OBJECT'] = _TCPT_OBJECT
 
 ## This is an object which provides access to the VAD tree.
 class _MMVAD(obj.CType):
@@ -314,6 +326,8 @@ class _MMVAD(obj.CType):
 
         return result
 
+obj.Profile.object_classes['_MMVAD'] = _MMVAD
+
 class _MMVAD_SHORT(obj.CType):
     def traverse(self, visited = None):
         """ Traverse the VAD tree by generating all the left items,
@@ -340,3 +354,6 @@ class _MMVAD_SHORT(obj.CType):
 
 class _MMVAD_LONG(_MMVAD_SHORT):
     pass
+
+obj.Profile.object_classes['_MMVAD_SHORT'] = _MMVAD_SHORT
+obj.Profile.object_classes['_MMVAD_LONG'] = _MMVAD_LONG
