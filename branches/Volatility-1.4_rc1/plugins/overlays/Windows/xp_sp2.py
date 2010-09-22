@@ -34,15 +34,11 @@ import vtypes
 import volatility.timefmt as timefmt
 import volatility.debug as debug #pylint: disable-msg=W0611
 
-class Windows(obj.Profile):
+class WinXPSP2(obj.Profile):
     """ A Profile for windows systems """
     native_types = vtypes.x86_native_types_32bit
     abstract_types = vtypes.xpsp2types
     overlay = vtypes.xpsp2overlays
-
-class WinXPSP2(Windows):
-    """ A Profile for windows XP SP2 """
-    pass
 
 class _UNICODE_STRING(obj.CType):
     """Class representing a _UNICODE_STRING
@@ -72,7 +68,7 @@ class _UNICODE_STRING(obj.CType):
     def __str__(self):
         return self.v()
 
-Windows.object_classes['_UNICODE_STRING'] = _UNICODE_STRING
+WinXPSP2.object_classes['_UNICODE_STRING'] = _UNICODE_STRING
 
 class _LIST_ENTRY(obj.CType):
     """ Adds iterators for _LIST_ENTRY types """
@@ -117,7 +113,7 @@ class _LIST_ENTRY(obj.CType):
     def __iter__(self):
         return self.list_of_type(self.parent.name, self.name)
 
-Windows.object_classes['_LIST_ENTRY'] = _LIST_ENTRY
+WinXPSP2.object_classes['_LIST_ENTRY'] = _LIST_ENTRY
 
 class WinTimeStamp(obj.NativeType):
 
@@ -175,7 +171,7 @@ class WinTimeStamp(obj.NativeType):
 
 LEVEL_MASK = 0xfffffff8
 
-Windows.object_classes['WinTimeStamp'] = WinTimeStamp
+WinXPSP2.object_classes['WinTimeStamp'] = WinTimeStamp
 
 
 class ThreadCreateTimeStamp(WinTimeStamp):
@@ -186,7 +182,7 @@ class ThreadCreateTimeStamp(WinTimeStamp):
     def as_windows_timestamp(self):
         return obj.NativeType.v(self) >> 3
 
-Windows.object_classes['ThreadCreateTimeStamp'] = ThreadCreateTimeStamp
+WinXPSP2.object_classes['ThreadCreateTimeStamp'] = ThreadCreateTimeStamp
 
 class _EPROCESS(obj.CType):
     """ An extensive _EPROCESS with bells and whistles """
@@ -279,7 +275,7 @@ class _EPROCESS(obj.CType):
             for h in self._make_handle_array(offset, table_levels):
                 yield h
 
-Windows.object_classes['_EPROCESS'] = _EPROCESS
+WinXPSP2.object_classes['_EPROCESS'] = _EPROCESS
 
 import socket, struct
 
@@ -290,7 +286,7 @@ class _TCPT_OBJECT(obj.CType):
     def _LocalIpAddress(self, attr):
         return socket.inet_ntoa(struct.pack("<I", self.m(attr).v()))
 
-Windows.object_classes['_TCPT_OBJECT'] = _TCPT_OBJECT
+WinXPSP2.object_classes['_TCPT_OBJECT'] = _TCPT_OBJECT
 
 ## This is an object which provides access to the VAD tree.
 class _MMVAD(obj.CType):
@@ -330,7 +326,7 @@ class _MMVAD(obj.CType):
 
         return result
 
-Windows.object_classes['_MMVAD'] = _MMVAD
+WinXPSP2.object_classes['_MMVAD'] = _MMVAD
 
 class _MMVAD_SHORT(obj.CType):
     def traverse(self, visited = None):
@@ -359,5 +355,5 @@ class _MMVAD_SHORT(obj.CType):
 class _MMVAD_LONG(_MMVAD_SHORT):
     pass
 
-Windows.object_classes['_MMVAD_SHORT'] = _MMVAD_SHORT
-Windows.object_classes['_MMVAD_LONG'] = _MMVAD_LONG
+WinXPSP2.object_classes['_MMVAD_SHORT'] = _MMVAD_SHORT
+WinXPSP2.object_classes['_MMVAD_LONG'] = _MMVAD_LONG
