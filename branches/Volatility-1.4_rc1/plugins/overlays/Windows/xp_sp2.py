@@ -35,12 +35,13 @@ import volatility.timefmt as timefmt
 import volatility.debug as debug #pylint: disable-msg=W0611
 
 class Windows(obj.Profile):
-    """ A Profile for windows XP SP2 """
+    """ A Profile for windows systems """
     native_types = vtypes.x86_native_types_32bit
     abstract_types = vtypes.xpsp2types
     overlay = vtypes.xpsp2overlays
 
 class WinXPSP2(Windows):
+    """ A Profile for windows XP SP2 """
     pass
 
 class _UNICODE_STRING(obj.CType):
