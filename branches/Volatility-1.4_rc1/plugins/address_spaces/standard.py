@@ -137,13 +137,13 @@ class FileAddressSpace(addrspace.BaseAddressSpace):
 
 
 
-class PagedMemory(addrspace.BaseAddressSpace):
+class AbstractPagedMemory(addrspace.BaseAddressSpace):
     """ Class to handle all the associated details of a paged address space
         
     Note: Pages can be of any size
     """
     def __init__(self, base, **kwargs):
-        self.as_assert(self.__class__.__name__ != 'PagedMemory', "Abstract Class - Never for instantiation directly")
+        self.as_assert(self.__class__.__name__ != 'AbstractPagedMemory', "Abstract Class - Never for instantiation directly")
         addrspace.BaseAddressSpace.__init__(self, base)
 
     def vtop(self, addr):
@@ -186,15 +186,15 @@ class PagedMemory(addrspace.BaseAddressSpace):
         return self.base.is_valid_address(paddr)
 
 
-class WritablePagedMemory(PagedMemory):
+class AbstractWritablePagedMemory(AbstractPagedMemory):
     """
     Mixin class that can be used to add write functionality
     to any standard address space that supports write() and
     vtop().
     """
     def __init__(self, base, **kwargs):
-        self.as_assert(self.__class__.__name__ != 'WritablePagedMemory', "Abstract Class - Never for instantiation directly")
-        PagedMemory.__init__(self, base)
+        self.as_assert(self.__class__.__name__ != 'AbstractWritablePagedMemory', "Abstract Class - Never for instantiation directly")
+        AbstractPagedMemory.__init__(self, base)
 
     def write(self, vaddr, buf):
         if not config.WRITE:

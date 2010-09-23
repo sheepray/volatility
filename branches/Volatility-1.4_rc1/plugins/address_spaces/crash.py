@@ -126,7 +126,7 @@ class WindowsCrashDumpSpace32(standard.FileAddressSpace):
 
     def write(self, vaddr, buf):
         baddr = self.get_addr(vaddr)
-        return standard.WritablePagedMemory.write(self, baddr, buf)
+        return standard.AbstractWritablePagedMemory.write(self, baddr, buf)
 
     def zread(self, vaddr, length):
         first_block = 0x1000 - vaddr % 0x1000
