@@ -37,8 +37,21 @@ import registry
 import volatility.conf as conf
 config = conf.ConfObject()
 
+def check_valid_profile(option, _opt_str, value, parser):
+    """Checks to make sure the selected profile is valid"""
+    # PROFILES may not have been created yet,
+    # but the callback should get called once it has
+    # during the final parse of the config options
+    if registry.PROFILES:
+        try:
+            registry.PROFILES[value]
+        except KeyError:
+            config.error("Invalid profile " + value + " selected")
+        setattr(parser.values, option.dest, value)
+
 ## By default load the profile that the user asked for
-config.add_option("PROFILE", default = 'WinXPSP2',
+config.add_option("PROFILE", default = 'WinXPSP2', type = "str",
+                  nargs = 1, action = "callback", callback = check_valid_profile,
                   help = "Name of the profile to load")
 
 config.add_option("LOCATION", default = None, short_option = 'l',
@@ -67,8 +80,11 @@ class BaseAddressSpace:
         try:
             self.profile = PROFILES[config.PROFILE]
         except KeyError:
-            self.profile = registry.PROFILES[config.PROFILE]()
-            PROFILES[config.PROFILE] = self.profile
+            try:
+                self.profile = registry.PROFILES[config.PROFILE]()
+                PROFILES[config.PROFILE] = self.profile
+            except KeyError:
+                raise ASAssertionError, "Invalid profile " + config.PROFILE + " selected"
 
     def as_assert(self, assertion, error = None):
         """Duplicate for the assert command (so that optimizations don't disable them)
