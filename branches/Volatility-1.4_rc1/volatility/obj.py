@@ -26,7 +26,7 @@
 @organization: Volatile Systems
 """
 
-#pylint: disable-msg=C0111
+#pylint: disable-msg=C0111,W0613
 import sys
 if __name__ == '__main__':
     sys.path.append(".")
@@ -359,7 +359,7 @@ class BaseObject(object):
                                      (self.offset == other.offset) and (self.vm == other.vm))
 
     def __hash__(self):
-            return hash(self.name) ^ hash(self.offset)
+        return hash(self.name) ^ hash(self.offset)
 
     def has_member(self, memname):
         return False
@@ -855,7 +855,8 @@ class Profile(object):
         # Ensure VOLATILITY_MAGIC is always present in every profile
         # That way, we can still autogenerate types, and put VOLATILITY_MAGIC in overlays
         # Otherwise the overlay won't have anything to, well, over lay.
-        self.abstract_types['VOLATILITY_MAGIC'] = [0x0, {}]
+        if 'VOLATILITY_MAGIC' not in self.abstract_types:
+            self.abstract_types['VOLATILITY_MAGIC'] = [0x0, {}]
 
         self.add_types(self.abstract_types, self.overlay)
 
