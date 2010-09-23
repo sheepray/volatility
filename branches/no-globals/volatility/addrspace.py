@@ -44,6 +44,19 @@ class ASAssertionError(AssertionError):
     def __init__(self, *args, **kwargs):
         AssertionError.__init__(self, *args, **kwargs)
 
+def check_valid_profile(option, _opt_str, value, parser):
+    """Checks to make sure the selected profile is valid"""
+    # PROFILES may not have been created yet,
+    # but the callback should get called once it has
+    # during the final parse of the config options
+    if registry.PROFILES:
+        try:
+            registry.PROFILES[value]
+        except KeyError:
+            print "Invalid profile " + value + " selected, using default"
+            return
+        setattr(parser.values, option.dest, value)
+
 class BaseAddressSpace:
     """ This is the base class of all Address Spaces. """
     def __init__(self, base, config, **kwargs):
@@ -57,7 +70,8 @@ class BaseAddressSpace:
     @staticmethod
     def register_options(config):
         ## By default load the profile that the user asked for
-        config.add_option("PROFILE", default = 'WinXPSP2',
+        config.add_option("PROFILE", default = 'WinXPSP2', type = 'str',
+                          nargs = 1, action = "callback", callback = check_valid_profile,
                           help = "Name of the profile to load")
 
         config.add_option("LOCATION", default = None, short_option = 'l',
@@ -72,8 +86,11 @@ class BaseAddressSpace:
         try:
             ret = PROFILES[profile_name]
         except KeyError:
-            ret = registry.PROFILES[profile_name]()
-            PROFILES[profile_name] = ret
+            try:
+                ret = registry.PROFILES[profile_name]()
+                PROFILES[profile_name] = ret
+            except KeyError:
+                raise ASAssertionError, "Invalid profile " + profile_name + " selected"
         return ret
 
     def as_assert(self, assertion, error = None):

@@ -43,7 +43,7 @@ pde_shift = 21
 ptrs_per_pde = 512
 ptrs_page = 2048
 
-class IA32PagedMemory(standard.WritablePagedMemory, addrspace.BaseAddressSpace):
+class IA32PagedMemory(standard.AbstractWritablePagedMemory, addrspace.BaseAddressSpace):
     """ Legacy x86 non PAE address space (to use specify --use_old_as)
 
     We accept an optional arg called dtb to force us to use a
@@ -55,7 +55,7 @@ class IA32PagedMemory(standard.WritablePagedMemory, addrspace.BaseAddressSpace):
     def __init__(self, base, config, dtb = 0, astype = None, **kwargs):
         self.as_assert(config.USE_OLD_AS, "Module disabled")
 
-        standard.WritablePagedMemory.__init__(self, base, config)
+        standard.AbstractWritablePagedMemory.__init__(self, base, config)
         addrspace.BaseAddressSpace.__init__(self, base, config, **kwargs)
         self.as_assert(astype != 'physical', "User requested physical AS")
         self.astype = astype

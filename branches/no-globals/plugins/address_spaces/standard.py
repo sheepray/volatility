@@ -84,6 +84,12 @@ class FileAddressSpace(addrspace.BaseAddressSpace):
         self.fsize = self.fhandle.tell()
         self.offset = 0
 
+    # Abstract Classes cannot register options, and since this checks config.WRITE in __init__, we define the option here
+    @staticmethod
+    def register_options(config):
+        config.add_option("WRITE", short_option = 'w', action = "callback", default = False,
+                          help = "Enable write support", callback = write_callback)
+
     def fread(self, length):
         return self.fhandle.read(length)
 
@@ -126,13 +132,13 @@ class FileAddressSpace(addrspace.BaseAddressSpace):
 
 
 
-class PagedMemory(addrspace.BaseAddressSpace):
+class AbstractPagedMemory(addrspace.BaseAddressSpace):
     """ Class to handle all the associated details of a paged address space
         
     Note: Pages can be of any size
     """
     def __init__(self, base, config, **kwargs):
-        self.as_assert(self.__class__.__name__ != 'PagedMemory', "Abstract Class - Never for instantiation directly")
+        self.as_assert(self.__class__.__name__ != 'AbstractPagedMemory', "Abstract Class - Never for instantiation directly")
         addrspace.BaseAddressSpace.__init__(self, base, config)
 
     def vtop(self, addr):
@@ -175,20 +181,15 @@ class PagedMemory(addrspace.BaseAddressSpace):
         return self.base.is_valid_address(paddr)
 
 
-class WritablePagedMemory(PagedMemory):
+class AbstractWritablePagedMemory(AbstractPagedMemory):
     """
     Mixin class that can be used to add write functionality
     to any standard address space that supports write() and
     vtop().
     """
     def __init__(self, base, config, **kwargs):
-        self.as_assert(self.__class__.__name__ != 'WritablePagedMemory', "Abstract Class - Never for instantiation directly")
-        PagedMemory.__init__(self, base, config)
-
-    @staticmethod
-    def register_options(config):
-        config.add_option("WRITE", short_option = 'w', action = "callback", default = False,
-                          help = "Enable write support", callback = write_callback)
+        self.as_assert(self.__class__.__name__ != 'AbstractWritablePagedMemory', "Abstract Class - Never for instantiation directly")
+        AbstractPagedMemory.__init__(self, base, config)
 
     def write(self, vaddr, buf):
         if not self._config.WRITE:

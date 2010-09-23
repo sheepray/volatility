@@ -32,7 +32,7 @@ import volatility.debug as debug #pylint: disable-msg=W0611
 
 # WritablePagedMemory must be BEFORE base address, since it adds the concrete method get_available_addresses
 # If it's second, BaseAddressSpace's abstract version will take priority
-class JKIA32PagedMemory(standard.WritablePagedMemory, addrspace.BaseAddressSpace):
+class JKIA32PagedMemory(standard.AbstractWritablePagedMemory, addrspace.BaseAddressSpace):
     """ Standard x86 32 bit non PAE address space.
     
     Provides an address space for IA32 paged memory, aka the x86 
@@ -63,7 +63,7 @@ class JKIA32PagedMemory(standard.WritablePagedMemory, addrspace.BaseAddressSpace
         ## We allow users to disable us in favour of the old legacy
         ## modules.
         self.as_assert(not config.USE_OLD_AS, "Module disabled")
-        standard.WritablePagedMemory.__init__(self, base, config)
+        standard.AbstractWritablePagedMemory.__init__(self, base, config)
         addrspace.BaseAddressSpace.__init__(self, base, config, **kwargs)
         self.as_assert(astype != 'physical', "User requested physical AS")
 

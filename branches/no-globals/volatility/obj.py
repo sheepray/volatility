@@ -26,7 +26,7 @@
 @organization: Volatile Systems
 """
 
-#pylint: disable-msg=C0111
+#pylint: disable-msg=C0111,W0613
 import sys
 if __name__ == '__main__':
     sys.path.append(".")
@@ -750,6 +750,47 @@ class CType(BaseObject):
         # If you hit this, consider using obj.newattr('attr', value)
         raise ValueError("Attribute " + attr + " was set after object initialization")
 
+class VolatilityMagic(BaseObject):
+    """Class to contain Volatility Magic value"""
+
+    def __init__(self, theType, offset, vm, parent = None, value = None, name = None):
+        try:
+            BaseObject.__init__(self, theType, offset, vm, parent, name)
+        except InvalidOffsetError:
+            pass
+        self.value = value
+
+    def v(self):
+        # We explicitly want to check for None,
+        # in case the user wants a value 
+        # that gives not self.value = True
+        if self.value is None:
+            return self.get_best_suggestion()
+        else:
+            return self.value
+
+    def __str__(self):
+        return self.v()
+
+    def get_suggestions(self):
+        """Returns a list of possible suggestions for the value
+        
+           These should be returned in order of likelihood, 
+           since the first one will be taken as the best suggestion
+           
+           This is also to avoid a complete scan of the memory address space,
+           since 
+        """
+        yield self.v()
+
+
+    def get_best_suggestion(self):
+        """Returns the best suggestion for a list of possible suggestsions"""
+        for val in self.get_suggestions():
+            return val
+        else:
+            return NoneObject("No suggestions available")
+
 ## Profiles are the interface for creating/interpreting
 ## objects
 
@@ -766,7 +807,8 @@ class Profile(object):
                       'Pointer':Pointer,
                       'Void':Void,
                       'Array':Array,
-                      'CType':CType}
+                      'CType':CType,
+                      'VolatilityMagic':VolatilityMagic}
 
     def __init__(self, strict = False):
         self.types = {}
@@ -777,7 +819,8 @@ class Profile(object):
         # Ensure VOLATILITY_MAGIC is always present in every profile
         # That way, we can still autogenerate types, and put VOLATILITY_MAGIC in overlays
         # Otherwise the overlay won't have anything to, well, over lay.
-        self.abstract_types['VOLATILITY_MAGIC'] = [0x0, {}]
+        if 'VOLATILITY_MAGIC' not in self.abstract_types:
+            self.abstract_types['VOLATILITY_MAGIC'] = [0x0, {}]
 
         self.add_types(self.abstract_types, self.overlay)
 

@@ -120,7 +120,7 @@ class MemoryRegistry:
                                     except KeyError:
                                         module = imp.load_source(module_name, dirpath + os.path.sep + filename, fd)
                                 except ImportError, e:
-                                    #print "*** Unable to load module {0}: {1}".format(module_name, e)
+                                    debug.debug("*** Unable to load module {0}: {1}".format(module_name, e))
                                     continue
 
                                 fd.close()
@@ -202,6 +202,8 @@ class MemoryRegistry:
 
         If there is any problem, we chuck an exception.
         """
+        if Class.__name__.lower().startswith("abstract"):
+            raise NotImplemented("This class is an abstract class")
 
     def import_module(self, name = None, load_as = None):
         """ Loads the named module into the system module name space.

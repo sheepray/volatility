@@ -18,7 +18,7 @@ if resolved:
 if not resolved or not libewf._name:
     libewf = None
 
-class ewffile:
+class ewffile(object):
     """ A file like object to provide access to the ewf file """
     def __init__(self, volumes):
         if isinstance(volumes, str):

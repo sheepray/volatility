@@ -34,7 +34,7 @@ import struct
 PAGE_SIZE = 0x1000
 page_shift = 12
 
-class Store:
+class Store(object):
     def __init__(self, limit = 50):
         self.limit = limit
         self.cache = {}
