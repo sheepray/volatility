@@ -197,6 +197,8 @@ class MemoryRegistry:
 
         If there is any problem, we chuck an exception.
         """
+        if Class.__name__.lower().startswith("abstract"):
+            raise NotImplemented("This class is an abstract class")
 
     def import_module(self, name = None, load_as = None):
         """ Loads the named module into the system module name space.
