@@ -96,5 +96,5 @@ A list of known Volatility plugins.
 = Plugins Left to Port to 1.4 =
 
 ||Plugin||Description||Primary Maintainer||Core Vote||
-|IDT||Prints the Interrupt Descriptor Table (IDT) addresses for one processor||.||Yes||
+||IDT||Prints the Interrupt Descriptor Table (IDT) addresses for one processor||.||Yes||
 ||psscan3||Scans the physical address space looking for memory resident data structures associated with processes||.|| Yes ||
