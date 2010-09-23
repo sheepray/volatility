@@ -26,14 +26,15 @@
 import struct
 import volatility.scan as scan
 import volatility.obj as obj
-import basic
 
-class VolatilityKPCR(basic.VolatilityMagic):
+class VolatilityKPCR(obj.VolatilityMagic):
 
     def get_suggestions(self):
         scanner = KPCRScanner()
         for val in scanner.scan(self.vm):
             yield val
+
+obj.Profile.object_classes['VolatilityKPCR'] = VolatilityKPCR
 
 class KPCRScannerCheck(scan.ScannerCheck):
     def __init__(self, address_space):
@@ -87,5 +88,3 @@ class KPCRScanner(scan.DiscontigScanner):
                ]
     def scan(self, address_space, offset = 0, maxlen = None):
         return scan.DiscontigScanner.scan(self, address_space, max(offset, 0x80000000), maxlen)
-
-

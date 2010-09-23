@@ -19,6 +19,7 @@
 
 import datetime
 import socket, struct
+import kpcr
 import volatility.timefmt as timefmt
 import volatility.obj as obj
 
@@ -197,3 +198,5 @@ class _TCPT_OBJECT(obj.CType):
         return socket.inet_ntoa(struct.pack("<I", self.m(attr).v()))
 
 AbstractWindows.object_classes['_TCPT_OBJECT'] = _TCPT_OBJECT
+
+AbstractWindows.object_classes['VolatilityKPCR'] = kpcr.VolatilityKPCR

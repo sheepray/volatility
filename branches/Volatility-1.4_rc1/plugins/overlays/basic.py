@@ -142,49 +142,6 @@ class Enumeration(obj.NativeType):
 
 obj.Profile.object_classes['Enumeration'] = Enumeration
 
-class VolatilityMagic(obj.BaseObject):
-    """Class to contain Volatility Magic value"""
-
-    def __init__(self, theType, offset, vm, parent = None, value = None, name = None):
-        try:
-            obj.BaseObject.__init__(self, theType, offset, vm, parent, name)
-        except obj.InvalidOffsetError:
-            pass
-        self.value = value
-
-    def v(self):
-        # We explicitly want to check for None,
-        # in case the user wants a value 
-        # that gives not self.value = True
-        if self.value is None:
-            return self.get_best_suggestion()
-        else:
-            return self.value
-
-    def __str__(self):
-        return self.v()
-
-    def get_suggestions(self):
-        """Returns a list of possible suggestions for the value
-        
-           These should be returned in order of likelihood, 
-           since the first one will be taken as the best suggestion
-           
-           This is also to avoid a complete scan of the memory address space,
-           since 
-        """
-        yield self.v()
-
-
-    def get_best_suggestion(self):
-        """Returns the best suggestion for a list of possible suggestsions"""
-        for val in self.get_suggestions():
-            return val
-        else:
-            return obj.NoneObject("No suggestions available")
-
-obj.Profile.object_classes['VolatilityMagic'] = VolatilityMagic
-
 class VOLATILITY_MAGIC(obj.CType):
     """Class representing a VOLATILITY_MAGIC namespace
     
@@ -200,7 +157,7 @@ class VOLATILITY_MAGIC(obj.CType):
 
 obj.Profile.object_classes['VOLATILITY_MAGIC'] = VOLATILITY_MAGIC
 
-class VolatilityDTB(VolatilityMagic):
+class VolatilityDTB(obj.VolatilityMagic):
 
     def get_suggestions(self):
         offset = 0

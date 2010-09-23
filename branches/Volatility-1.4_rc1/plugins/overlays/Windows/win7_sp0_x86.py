@@ -50,7 +50,6 @@ win7sp0x86overlays['VOLATILITY_MAGIC'][1]['KPCR'][1] = ['VolatilityKPCR']
 win7_sp0_x86_vtypes.ntkrpamp_types.update(crashdump.crash_vtypes)
 win7_sp0_x86_vtypes.ntkrpamp_types.update(hibernate_vtypes.hibernate_vtypes)
 
-
 class Win7SP0x86(windows.AbstractWindows):
     """ A Profile for Windows 7 SP0 x86 """
     abstract_types = win7_sp0_x86_vtypes.ntkrpamp_types
