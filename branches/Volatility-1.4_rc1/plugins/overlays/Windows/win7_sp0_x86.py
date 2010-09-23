@@ -30,10 +30,11 @@ for SP3.
 
 
 import win7_sp0_x86_vtypes
+import xp_sp2_x86
+import windows
 import copy
 import crashdump
 import hibernate_vtypes
-import xp_sp2_x86
 import volatility.debug as debug #pylint: disable-msg=W0611
 
 win7sp0x86overlays = copy.deepcopy(xp_sp2_x86.xpsp2overlays)
@@ -50,8 +51,7 @@ win7_sp0_x86_vtypes.ntkrpamp_types.update(crashdump.crash_vtypes)
 win7_sp0_x86_vtypes.ntkrpamp_types.update(hibernate_vtypes.hibernate_vtypes)
 
 
-class Win7SP0x86(xp_sp2_x86.WinXPSP2):
+class Win7SP0x86(windows.AbstractWindows):
     """ A Profile for Windows 7 SP0 x86 """
-    native_types = xp_sp2_x86.x86_native_types_32bit
     abstract_types = win7_sp0_x86_vtypes.ntkrpamp_types
     overlay = win7sp0x86overlays

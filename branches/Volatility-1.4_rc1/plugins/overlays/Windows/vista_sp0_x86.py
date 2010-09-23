@@ -30,10 +30,11 @@ for SP3.
 
 
 import vista_sp0_x86_vtypes
+import xp_sp2_x86
+import windows
 import copy
 import crashdump
 import hibernate_vtypes
-import xp_sp2_x86
 import volatility.debug as debug #pylint: disable-msg=W0611
 
 vistasp0x86overlays = copy.deepcopy(xp_sp2_x86.xpsp2overlays)
@@ -47,8 +48,7 @@ vista_sp0_x86_vtypes.ntkrnlmp_types.update(crashdump.crash_vtypes)
 vista_sp0_x86_vtypes.ntkrnlmp_types.update(hibernate_vtypes.hibernate_vtypes)
 
 
-class VistaSP0x86(xp_sp2_x86.WinXPSP2):
+class VistaSP0x86(windows.AbstractWindows):
     """ A Profile for Windows Vista SP0 x86 """
-    native_types = xp_sp2_x86.x86_native_types_32bit
     abstract_types = vista_sp0_x86_vtypes.ntkrnlmp_types
     overlay = vistasp0x86overlays

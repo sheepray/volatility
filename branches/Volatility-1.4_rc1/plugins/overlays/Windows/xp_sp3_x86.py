@@ -31,6 +31,7 @@ for SP3.
 
 import xp_sp3_x86_vtypes
 import xp_sp2_x86
+import windows
 import crashdump
 import hibernate_vtypes
 import copy
@@ -46,8 +47,7 @@ xpsp3overlays['_MMVAD_LONG'][1]['Flags2'][0] = lambda x: x['u'][0]
 xp_sp3_x86_vtypes.ntoskrnl_types.update(crashdump.crash_vtypes)
 xp_sp3_x86_vtypes.ntoskrnl_types.update(hibernate_vtypes.hibernate_vtypes)
 
-class WinXPSP3(xp_sp2_x86.WinXPSP2):
+class WinXPSP3(windows.AbstractWindows):
     """ A Profile for windows XP SP3 """
-    native_types = xp_sp2_x86.x86_native_types_32bit
     abstract_types = xp_sp3_x86_vtypes.ntoskrnl_types
     overlay = xpsp3overlays
