@@ -23,7 +23,9 @@
 @organization: Schatz Forensic
 """
 
+import struct
 import volatility.utils as utils
+import volatility.scan as scan
 import volatility.commands as commands
 import volatility.conf as conf
 import volatility.obj as obj
@@ -61,3 +63,55 @@ class KPCRScan(commands.command):
 
 config.add_option("KPCR", type = 'int', default = 0, help = "KPCR Address")
 
+class KPCRScannerCheck(scan.ScannerCheck):
+    def __init__(self, address_space):
+        scan.ScannerCheck.__init__(self, address_space)
+        self.vm = address_space
+        kpcr = obj.Object("_KPCR", vm = self.vm, offset = 0)
+        self.SelfPcr_offset = kpcr.SelfPcr.offset
+        self.Prcb_offset = kpcr.Prcb.offset
+        self.PrcbData_offset = kpcr.PrcbData.offset
+        self.KPCR = None
+
+    def check(self, offset):
+        """ We check that _KCPR.pSelfPCR points to the start of the _KCPR struct """
+        paKCPR = offset
+        paPRCBDATA = offset + self.PrcbData_offset
+
+        try:
+            pSelfPCR = obj.Object('unsigned long', offset = (offset + self.SelfPcr_offset), vm = self.vm)
+            pPrcb = obj.Object('unsigned long', offset = (offset + self.Prcb_offset), vm = self.vm)
+            if (pSelfPCR == paKCPR and pPrcb == paPRCBDATA):
+                self.KPCR = pSelfPCR
+                return True
+
+        except Exception:
+            return False
+
+        return False
+
+    # make the scan DWROD aligned
+    def skip(self, data, offset):
+        return 4
+
+        offset_string = struct.pack("I", offset)
+
+        new_offset = offset
+        ## A successful match will need to at least match the Most
+        ## Significant 3 bytes
+        while (new_offset + self.SelfPcr_offset) & 0xFF >= self.SelfPcr_offset:
+            new_offset = data.find(offset_string[3], new_offset + 1)
+            ## Its not there, skip the whole buffer
+            if new_offset < 0:
+                return len(data) - offset
+
+            if (new_offset % 4) == 0:
+                return new_offset - self.SelfPcr_offset - 1
+
+        return len(data) - offset
+
+class KPCRScanner(scan.DiscontigScanner):
+    checks = [ ("KPCRScannerCheck", {})
+               ]
+    def scan(self, address_space, offset = 0, maxlen = None):
+        return scan.DiscontigScanner.scan(self, address_space, max(offset, 0x80000000), maxlen)

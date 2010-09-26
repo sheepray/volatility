@@ -19,7 +19,7 @@
 
 import datetime
 import socket, struct
-import volatility.plugins.overlays.windows.kpcr as kpcr
+import volatility.plugins.kpcr as kpcr
 import volatility.timefmt as timefmt
 import volatility.obj as obj
 
@@ -201,4 +201,11 @@ class _TCPT_OBJECT(obj.CType):
 
 AbstractWindows.object_classes['_TCPT_OBJECT'] = _TCPT_OBJECT
 
-AbstractWindows.object_classes['VolatilityKPCR'] = kpcr.VolatilityKPCR
+class VolatilityKPCR(obj.VolatilityMagic):
+
+    def get_suggestions(self):
+        scanner = kpcr.KPCRScanner()
+        for val in scanner.scan(self.vm):
+            yield val
+
+AbstractWindows.object_classes['VolatilityKPCR'] = VolatilityKPCR
