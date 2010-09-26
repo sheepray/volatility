@@ -19,7 +19,7 @@
 
 import datetime
 import socket, struct
-import volatility.plugins.kpcr as kpcr
+import volatility.plugins.kpcrscan as kpcr
 import volatility.timefmt as timefmt
 import volatility.obj as obj
 
