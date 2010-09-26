@@ -21,9 +21,11 @@
 #
 
 """ An AS for processing crash dumps """
-import standard
 import struct
 import volatility.obj as obj
+import volatility.plugins.addrspaces.standard as standard
+
+__namespace__ = "addrspaces"
 
 #pylint: disable-msg=C0111
 

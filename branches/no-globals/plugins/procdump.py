@@ -22,7 +22,7 @@
 
 import os
 import struct
-import taskmods
+import volatility.plugins.taskmods as taskmods
 import volatility.obj as obj
 
 class ProcExeDump(taskmods.DllList):

@@ -32,6 +32,8 @@ import volatility.win32.rawreg as rawreg
 import volatility.utils as utils
 import volatility.commands as commands
 
+__namespace__ = "registry"
+
 ## This module requires a filename to be passed by the user
 #config.add_option("HIVE-OFFSET", default = 0, type='int',
 #                  help = "Offset to reg hive")

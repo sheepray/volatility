@@ -1,3 +1,5 @@
+__namespace__ = "overlays.windows"
+
 ntkrpamp_types = {
   '_WAIT_CONTEXT_BLOCK' : [ 0x28, {
     'WaitQueueEntry' : [ 0x0, ['_KDEVICE_QUEUE_ENTRY']],

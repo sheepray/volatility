@@ -18,7 +18,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA 
 #
 
-import taskmods
+import volatility.plugins.taskmods as taskmods
 
 class RegObjKeys(taskmods.Files):
     """Print list of open regkeys for each process"""

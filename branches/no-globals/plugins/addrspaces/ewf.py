@@ -1,10 +1,12 @@
 """ This Address Space allows us to open ewf files """
-import standard
 
 #pylint: disable-msg=C0111
 
 from ctypes import CDLL, c_char_p, c_int, pointer, c_ulonglong, c_ulong, create_string_buffer
 import ctypes.util
+import volatility.plugins.addrspaces.standard as standard
+
+__namespace__ = "addrspaces"
 
 possible_names = ['libewf-1', 'ewf', ]
 for name in possible_names:

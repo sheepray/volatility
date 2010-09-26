@@ -32,7 +32,7 @@
 import volatility.win32 as win32
 import volatility.obj as obj
 import volatility.utils as utils
-import taskmods
+import volatility.plugins.taskmods as taskmods
 import re
 
 def find_sid_re(sid_string, sid_re_list):

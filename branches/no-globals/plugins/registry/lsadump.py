@@ -33,6 +33,8 @@ import volatility.win32.hashdump as hashdumpmod
 import volatility.utils as utils
 import volatility.commands as commands
 
+__namespace__ = "registry"
+
 FILTER = ''.join([(len(repr(chr(i))) == 3) and chr(i) or '.' for i in range(256)])
 
 def hd(src, length = 16):

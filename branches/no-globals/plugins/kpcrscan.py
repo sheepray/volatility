@@ -24,17 +24,43 @@
 """
 
 import struct
+import volatility.utils as utils
 import volatility.scan as scan
+import volatility.commands as commands
 import volatility.obj as obj
 
-class VolatilityKPCR(obj.VolatilityMagic):
+class KPCRScan(commands.command):
+    """Search for and dump potential KPCR values"""
 
-    def get_suggestions(self):
-        scanner = KPCRScanner()
-        for val in scanner.scan(self.vm):
-            yield val
+    meta_info = dict(
+        author = 'Bradley Schatz',
+        copyright = 'Copyright (c) 2010 Bradley Schatz',
+        contact = 'bradley@schatzforensic.com.au',
+        license = 'GNU General Public License 2.0 or later',
+        url = 'http://www.schatzforensic.com.au/',
+        os = 'WIN_32_VISTA_SP0',
+        version = '1.0',
+        )
 
-obj.Profile.object_classes['VolatilityKPCR'] = VolatilityKPCR
+    @staticmethod
+    def register_class(config):
+        config.add_option("KPCR", type = 'int', default = 0, help = "KPCR Address")
+
+    def calculate(self):
+        """Determines the address space"""
+        addr_space = utils.load_as(self._config)
+
+        volmagic = obj.Object('VOLATILITY_MAGIC', 0x0, addr_space)
+        for o in volmagic.KPCR.get_suggestions():
+            print "Phys addr", "{0:08x}".format(addr_space.vtop(o)), "Virt addr", "{0:08x}".format(o)
+            yield o
+
+    def render_text(self, outfd, data):
+        """Renders the KPCR values as text"""
+
+        outfd.write("Potential KPCR structure virtual addresses:\n")
+        for o in data:
+            outfd.write(" _KPCR: {0:x}\n".format(o))
 
 class KPCRScannerCheck(scan.ScannerCheck):
     def __init__(self, address_space):

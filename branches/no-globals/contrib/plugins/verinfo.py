@@ -21,7 +21,7 @@
 import re
 import sre_constants
 import struct
-import procdump
+import volatility.plugins.procdump as procdump
 import volatility.win32 as win32
 import volatility.obj as obj
 import volatility.utils as utils

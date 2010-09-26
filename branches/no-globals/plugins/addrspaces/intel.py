@@ -22,13 +22,14 @@
 """ This is Jesse Kornblum's patch to clean up the standard AS's.
 """
 import struct
-import standard
+import volatility.plugins.addrspaces.standard as standard
 import volatility.addrspace as addrspace
 import volatility.obj as obj
 import volatility.conf
 configuration = volatility.conf.ConfObject()
 import volatility.debug as debug #pylint: disable-msg=W0611
 
+__namespace__ = "addrspaces"
 
 # WritablePagedMemory must be BEFORE base address, since it adds the concrete method get_available_addresses
 # If it's second, BaseAddressSpace's abstract version will take priority
