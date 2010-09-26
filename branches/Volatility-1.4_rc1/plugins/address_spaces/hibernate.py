@@ -24,11 +24,13 @@
 # this code in Volatility.
 
 """ A Hiber file Address Space """
-import standard
+import volatility.plugins.addrspaces.standard as standard
 import volatility.obj as obj
 import volatility.win32.xpress as xpress
 import volatility.conf as conf
 import struct
+
+__namespace__ = "addrspaces"
 
 config = conf.ConfObject()
 

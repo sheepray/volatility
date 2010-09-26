@@ -19,9 +19,11 @@
 
 import datetime
 import socket, struct
-import kpcr
+import volatility.plugins.overlays.windows.kpcr as kpcr
 import volatility.timefmt as timefmt
 import volatility.obj as obj
+
+__namespace__ = "overlays.windows"
 
 ## The following is a conversion of basic C99 types to python struct
 ## format strings. NOTE: since volatility is analysing images which

@@ -27,6 +27,8 @@ import struct
 import volatility.scan as scan
 import volatility.obj as obj
 
+__namespace__ = "overlays.windows"
+
 class VolatilityKPCR(obj.VolatilityMagic):
 
     def get_suggestions(self):

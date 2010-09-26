@@ -22,12 +22,14 @@
 """ This is Jesse Kornblum's patch to clean up the standard AS's.
 """
 import struct
-import standard
+import volatility.plugins.addrspaces.standard as standard
 import volatility.addrspace as addrspace
 import volatility.obj as obj
 import volatility.conf
 config = volatility.conf.ConfObject()
 import volatility.debug as debug #pylint: disable-msg=W0611
+
+__namespace__ = "addrspaces"
 
 config.add_option("DTB", type = 'int', default = 0,
                   help = "DTB Address")
