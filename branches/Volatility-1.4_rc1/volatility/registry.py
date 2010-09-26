@@ -57,7 +57,7 @@ class ModuleRegistry(object):
     """A class to load and manage a set of python modules."""
     def __init__(self):
         self.namespaces = set()
-        self.module_paths = {}
+        self.module_paths = []
         self.modules = {}
         self.get_modules()
         self.errors = {}
@@ -73,8 +73,8 @@ class ModuleRegistry(object):
             ## no change - we cant make any progress - report the
             ## failures and continue
             if modules_left == len(self.module_paths):
-                for module_name in self.module_paths:
-                    debug.debug("Unable to import {0}: {1}".format(module_name, self.errors[module_name]))
+                for module_name, module_path in self.module_paths:
+                    debug.debug("Unable to import {0}: {1}".format(module_name, self.errors[module_path]))
 
                 break
 
@@ -88,8 +88,8 @@ class ModuleRegistry(object):
           The modules which did not load.
         """
 
-        results = {}
-        for module_name, module_path in modules.items():
+        results = []
+        for module_name, module_path in modules:
             try:
                 ## Temporarily load this module into a temporary
                 ## name. It will be moved later to its desired
@@ -111,8 +111,8 @@ class ModuleRegistry(object):
                 self.insert_module_to_system("volatility.plugins.%s" % module_name, module)
 
             except ImportError, e:
-                results[module_name] = module_path
-                self.errors[module_name] = e
+                results.append((module_name, module_path))
+                self.errors[module_path] = e
 
         return results
 
@@ -177,7 +177,7 @@ class ModuleRegistry(object):
                     module_name = filename[:-3]
                     if filename.endswith(".py"):
                         path = os.path.join(dirpath, filename)
-                        self.module_paths[module_name] = path
+                        self.module_paths.append((module_name, path))
 
 
 class MemoryRegistry(object):
