@@ -108,7 +108,10 @@ class ModuleRegistry(object):
                     pass
 
                 module.__name__ = module_name
-                self.insert_module_to_system("volatility.plugins.%s" % module_name, module)
+                modname = "volatility.plugins.{0}".format(module_name)
+                if self.modules.get(modname, None):
+                    config.error("Module " + module_path + " requested an already registered name (" + modname + ")")
+                self.insert_module_to_system(modname, module)
 
             except ImportError, e:
                 results.append((module_name, module_path))
