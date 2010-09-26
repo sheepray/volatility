@@ -64,6 +64,7 @@ class KPCRScan(commands.command):
 config.add_option("KPCR", type = 'int', default = 0, help = "KPCR Address")
 
 class KPCRScannerCheck(scan.ScannerCheck):
+    """Checks the self referential pointers to find KPCRs"""
     def __init__(self, address_space):
         scan.ScannerCheck.__init__(self, address_space)
         self.vm = address_space
