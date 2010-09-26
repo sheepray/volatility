@@ -28,16 +28,15 @@ for SP3.
 
 #pylint: disable-msg=C0111
 
-
-import xp_sp3_x86_vtypes
-import vtypes
-import xp_sp2
-import crashdump
-import hibernate_vtypes
+import volatility.plugins.xp_sp3_x86_vtypes as xp_sp3_x86_vtypes
+import volatility.plugins.windows.vtypes as vtypes
 import copy
+import volatility.plugins.crashdump as crashdump
+import volatility.plugins.hibernate_vtypes as hibernate_vtypes
 import volatility.debug as debug #pylint: disable-msg=W0611
+import volatility.plugins.xp_sp2 as xp_sp2
 
-from xp_sp2 import WinXPSP2
+from volatility.plugins.xp_sp2 import WinXPSP2
 
 xpsp3overlays = copy.deepcopy(vtypes.xpsp2overlays)
 

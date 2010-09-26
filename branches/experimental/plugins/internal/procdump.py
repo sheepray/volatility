@@ -22,7 +22,7 @@
 
 import os
 import struct
-import taskmods
+import volatility.plugins.windows.taskmods as taskmods
 import volatility.conf as conf
 import volatility.obj as obj
 config = conf.ConfObject()

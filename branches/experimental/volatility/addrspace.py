@@ -33,7 +33,7 @@
 #pylint: disable-msg=C0111
 
 import registry
-
+import pdb
 import volatility.conf as conf
 config = conf.ConfObject()
 
@@ -67,7 +67,11 @@ class BaseAddressSpace:
         try:
             self.profile = PROFILES[config.PROFILE]
         except KeyError:
-            self.profile = registry.PROFILES[config.PROFILE]()
+            try:
+                self.profile = registry.PROFILES[config.PROFILE]()
+            except KeyError:
+                #pdb.set_trace()
+                pass
             PROFILES[config.PROFILE] = self.profile
 
     def as_assert(self, assertion, error = None):

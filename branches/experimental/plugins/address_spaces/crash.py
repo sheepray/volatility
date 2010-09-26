@@ -21,7 +21,7 @@
 #
 
 """ An AS for processing crash dumps """
-import standard
+import volatility.plugins.standard as standard
 import struct
 import volatility.obj as obj
 import volatility.conf

@@ -27,6 +27,8 @@
 @organization: Volatile Systems
 """
 
+__namespace__ = "windows"
+
 ## The following is a conversion of basic C99 types to python struct
 ## format strings. NOTE: since volatility is analysing images which
 ## are not necessarily the same bit size as the currently running

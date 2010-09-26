@@ -24,7 +24,7 @@
 # this code in Volatility.
 
 """ A Hiber file Address Space """
-import standard
+import volatility.plugins.standard as standard
 import volatility.obj as obj
 import volatility.win32.xpress as xpress
 import volatility.conf as conf

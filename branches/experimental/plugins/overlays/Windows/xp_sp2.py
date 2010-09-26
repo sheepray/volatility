@@ -30,7 +30,7 @@ for SP2.
 
 import volatility.obj as obj
 import datetime
-import vtypes
+import volatility.plugins.windows.vtypes as vtypes
 import volatility.timefmt as timefmt
 import volatility.debug as debug #pylint: disable-msg=W0611
 

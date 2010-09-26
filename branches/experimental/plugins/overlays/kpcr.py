@@ -26,7 +26,7 @@
 import struct
 import volatility.scan as scan
 import volatility.obj as obj
-import basic
+import volatility.plugins.basic as basic
 
 class VolatilityKPCR(basic.VolatilityMagic):
 

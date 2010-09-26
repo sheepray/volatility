@@ -52,37 +52,113 @@ config.add_option("PLUGINS", default = "./plugins",
                   cache_invalidator=False,
                   help = "Additional plugin directories to use (colon separated)")
 
-class MemoryRegistry:
-    """ Main class to register classes derived from a given parent
-    class. 
-    """
-    ## NOTE - These are class attributes - they will be the same for
-    ## all classes, subclasses and future instances of them. They DO
-    ## NOT get reset for each instance.
-    modules = []
-    module_desc = []
-    module_paths = []
-    filenames = {}
 
-    def __init__(self, ParentClass):
-        """ Search the plugins directory for all classes extending
-        ParentClass.
+class ModuleRegistry(object):
+    """A class to load and manage a set of python modules."""
+    def __init__(self):
+        self.namespaces = set()
+        self.module_paths = {}
+        self.modules = {}
+        self.get_modules()
+        self.errors = {}
 
-        These will be considered as implementations and added to our
-        internal registry.  
+        ## The following code resolves dependencies by postponing
+        ## loading of failed modules
+        while 1:
+            modules_left = len(self.module_paths)
+
+            ## Try to compile some more
+            self.module_paths = self.load_modules(self.module_paths)
+
+            ## no change - we cant make any progress - report the
+            ## failures and continue
+            if modules_left == len(self.module_paths):
+                for module_name in self.module_paths:
+                    print "Unable to import %s: %s" % (module_name, self.errors[module_name])
+
+                break
+
+    def get_module_objects(self):
+        return self.modules.values()
+
+    def load_modules(self, modules):
+        """Load all the modules named in modules if possible.
+
+        Returns:
+          The modules which did not load.
         """
 
-        ## Create instance variables
-        self.classes = []
-        self.class_names = []
-        self.order = []
+        results = {}
+        for module_name, module_path in modules.items():
+            try:
+                ## Temporarily load this module into a temporary
+                ## name. It will be moved later to its desired
+                ## namespace
+                try:
+                    del sys.modules['tmp_module']
+                except KeyError: pass
 
+                module = imp.load_source("tmp_module", module_path)
+                
+                # The module name we use depends on the __namespace__ arg
+                try:
+                    module_name = "{0}.{1}".format(module.__namespace__, module_name)
+                    print module_name
+                except AttributeError:
+                    pass
+                    
+                self.insert_module_to_system("volatility.plugins.%s" % module_name, module)
+
+            except ImportError, e:
+                results[module_name] = module_path
+                self.errors[module_name] = e
+
+        return results
+
+    def insert_module_to_system(self, module_name, module):
+        """Inserts the module into the sys.modules dict ensuring that
+        intermediate modules are created.
+
+        After this call modules can simply issue
+
+        import module_name
+
+        to receive the module.
+        """
+        ## We basically add the module to the module tree by ensure it
+        ## has a continuous path to the root. If a node is missing we
+        ## add a dummy node.
+        self.modules[module_name] = sys.modules[module_name] = module
+
+        ## Now check that its reachable
+        module_path = module_name.split(".")
+        for i in range(len(module_path)-1, 0, -1):
+            component = ".".join(module_path[0:i])
+            try:
+                setattr(sys.modules[component], module_path[i], module)
+                ## We have reached a connected node - we just need to
+                ## set a new property and quit (We assume that if its
+                ## already in the tree its connected to the root).
+                break
+
+            except KeyError:
+                sys.modules[component] = imp.new_module(component)
+                
+                setattr(sys.modules[component], module_path[i], module)
+
+                module = sys.modules[component]
+
+    def get_modules(self):
+        """Iterates over all the plugin paths to discover modules.
+
+        Returns:
+           a dict of potential modules and paths.
+        """
         # Setup initial plugin directories
         plugins = config.PLUGINS
 
         ## Recurse over all the plugin directories recursively
-        for path in plugins.split(':'):
-            # Given it's a colon separated list, currently providing absolute paths on windows are impossible
+        for path in plugins.split(';'):
             if path.startswith('/'):
                 path = os.path.abspath(path)
             else:
@@ -92,101 +168,74 @@ class MemoryRegistry:
                     # Use the actual executable path if the script's frozen (running within py2exe)
                     relbase = sys.executable
                 path = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(relbase)), path))
-            for dirpath, _dirnames, filenames in os.walk(path):
-                sys.path.append(dirpath)
 
+            for dirpath, _dirnames, filenames in os.walk(path):
                 for filename in filenames:
                     #Lose the extension for the module name
                     module_name = filename[:-3]
                     if filename.endswith(".py"):
                         path = os.path.join(dirpath, filename)
-                        try:
-                            if path not in self.module_paths:
-                                ## If we do not have the module in the 
-                                ## cache, we load it now
-                                try:
-                                    #open the plugin file
-                                    fd = open(path, "r")
-                                except IOError, e:
-                                    print "Unable to open plugin file '{0}': {1}".format(filename, e)
-                                    continue
+                        self.module_paths[module_name] = path
 
-                                #load the module into our namespace
-                                try:
-                                    ## Try to load the module from the
-                                    ## currently cached copy
-                                    try:
-                                        module = sys.modules[module_name]
-                                    except KeyError:
-                                        module = imp.load_source(module_name, dirpath + os.path.sep + filename, fd)
-                                except ImportError, e:
-                                    #print "*** Unable to load module {0}: {1}".format(module_name, e)
-                                    continue
 
-                                fd.close()
+class MemoryRegistry(object):
+    """ Main class to register classes derived from a given parent
+    class. 
+    """
+    ## NOTE - These are class attributes - they will be the same for
+    ## all classes, subclasses and future instances of them. They DO
+    ## NOT get reset for each instance.
+    modules = []
+    module_desc = []
+    module_paths = []
 
-                                #Is this module active?
-                                try:
-                                    if module.hidden:
-                                        print "*** Will not load Module {0}: Module Hidden".format(module_name)
-                                        continue
-                                except AttributeError:
-                                    pass
+    def __init__(self, ParentClass, modules):
+        """ Search the plugins directory for all classes extending
+        ParentClass.
 
-                                try:
-                                    if not module.active:
-                                        print "*** Will not load Module {0}: Module not active".format(module_name)
-                                        continue
-                                except AttributeError:
-                                    pass
+        These will be considered as implementations and added to our
+        internal registry.  
+        """
+        ## Create instance variables
+        self.classes = []
+        self.class_names = []
+        self.order = []
+        self.ParentClass = ParentClass
 
-                                #find the module description
-                                try:
-                                    module_desc = module.description
-                                except AttributeError:
-                                    module_desc = module_name
+        for module in modules.get_module_objects():
+            self.load_module(module)
 
-                                ## Store information about this module here.
-                                self.modules.append(module)
-                                self.module_desc.append(module_desc)
-                                self.module_paths.append(path)
+    def load_module(self, module):
+        """Grabs all the classes inheriting from self.ParentClass in
+        the module object.
+        """
+        #Now we enumerate all the classes in the
+        #module to see which one is a ParentClass:
 
-                            else:
-                                ## We already have the module in the cache:
-                                module = self.modules[self.module_paths.index(path)]
-                                module_desc = self.module_desc[self.module_paths.index(path)]
+        for cls in dir(module):
+            try:
+                Class = module.__dict__[cls]
+                if issubclass(Class, self.ParentClass) and Class != self.ParentClass:
+                    ## Check the class for consitancy
+                    try:
+                        self.check_class(Class)
+                    except AttributeError, e:
+                        print "Failed to load {0} '{1}': {2}".format(self.ParentClass, cls, e)
+                        continue
 
-                            #Now we enumerate all the classes in the
-                            #module to see which one is a ParentClass:
-                            for cls in dir(module):
-                                try:
-                                    Class = module.__dict__[cls]
-                                    if issubclass(Class, ParentClass) and Class != ParentClass:
-                                        ## Check the class for consitancy
-                                        try:
-                                            self.check_class(Class)
-                                        except AttributeError, e:
-                                            print "Failed to load {0} '{1}': {2}".format(ParentClass, cls, e)
-                                            continue
+                    ## Add the class to ourselves:
+                    self.add_class(Class)
 
-                                        ## Add the class to ourselves:
-                                        self.add_class(ParentClass, module_desc, cls, Class, filename)
+            # Oops: it isnt a class...
+            except (TypeError, NameError) , e:
+                continue
 
-                                # Oops: it isnt a class...
-                                except (TypeError, NameError) , e:
-                                    continue
-
-                        except TypeError, e:
-                            print "Could not compile module {0}: {1}".format(module_name, e)
-                            continue
-
-    def add_class(self, _ParentClass, _module_desc, _cls, Class, filename):
+    def add_class(self, Class):
         """ Adds the class provided to our self. This is here to be
         possibly over ridden by derived classes.
         """
         if Class not in self.classes:
             self.classes.append(Class)
-            self.filenames[self.get_name(Class)] = filename
             try:
                 self.order.append(Class.order)
             except AttributeError:
@@ -198,41 +247,11 @@ class MemoryRegistry:
         If there is any problem, we chuck an exception.
         """
 
-    def import_module(self, name = None, load_as = None):
-        """ Loads the named module into the system module name space.
-        After calling this it is possible to do:
-
-        import load_as
-
-        in all other modules. Note that to avoid race conditions its
-        best to only attempt to use the module after the registry is
-        initialised (i.e. at run time not load time).
-
-        @arg load_as: name to use in the systems namespace.
-        @arg name: module name to import
-        @note: If there are several modules of the same name (which
-        should be avoided)  the last one encountered during registring
-        should persist. This may lead to indeterminate behaviour.  
-	"""
-
-        if not load_as:
-            load_as = name
-
-        for module in self.modules:
-            if name == module.__name__:
-                sys.modules[load_as] = module
-                return
-
-        raise ImportError("No module by name {0}".format(name))
-
     def get_name(self, cls):
         try:
             return cls.name
         except AttributeError:
             return ("{0}".format(cls)).split(".")[-1]
-
-    def filename(self, cls_name):
-        return self.filenames.get(cls_name, "Unknown")
 
 class VolatilityCommandRegistry(MemoryRegistry):
     """ A class to manage commands """
@@ -240,8 +259,8 @@ class VolatilityCommandRegistry(MemoryRegistry):
         """ Return the command objects by name """
         return self.commands[command_name]
 
-    def __init__(self, ParentClass):
-        MemoryRegistry.__init__(self, ParentClass)
+    def __init__(self, ParentClass, modules):
+        MemoryRegistry.__init__(self, ParentClass, modules)
         self.commands = {}
 
         for cls in self.classes:
@@ -258,8 +277,8 @@ class VolatilityObjectRegistry(MemoryRegistry):
         """ Return the objects by name """
         return self.objects[object_name]
 
-    def __init__(self, ParentClass):
-        MemoryRegistry.__init__(self, ParentClass)
+    def __init__(self, ParentClass, modules):
+        MemoryRegistry.__init__(self, ParentClass, modules)
         self.objects = {}
 
         ## First we sort the classes according to their order
@@ -324,6 +343,9 @@ UI_RENDERERS = None
 
 ## This is required for late initialization to avoid dependency nightmare.
 def Init():
+    ## Load all the modules:
+    modules = ModuleRegistry()
+
     ## LOCK will ensure that we only initialize once.
     global LOCK
     if LOCK:
@@ -333,27 +355,27 @@ def Init():
     ## Register all shell commands:
     import volatility.commands as commands
     global PLUGIN_COMMANDS
-    PLUGIN_COMMANDS = VolatilityCommandRegistry(commands.command)
+    PLUGIN_COMMANDS = VolatilityCommandRegistry(commands.command, modules)
 
     ## Register all the derived objects
     import volatility.obj as objmod
     global OBJECT_CLASSES
-    OBJECT_CLASSES = VolatilityObjectRegistry(objmod.BaseObject)
+    OBJECT_CLASSES = VolatilityObjectRegistry(objmod.BaseObject, modules)
 
     import volatility.addrspace as addrspace
     global AS_CLASSES
-    AS_CLASSES = VolatilityObjectRegistry(addrspace.BaseAddressSpace)
+    AS_CLASSES = VolatilityObjectRegistry(addrspace.BaseAddressSpace, modules)
 
     global PROFILES
-    PROFILES = VolatilityObjectRegistry(objmod.Profile)
+    PROFILES = VolatilityObjectRegistry(objmod.Profile, modules)
 
     import volatility.scan as scan
     global SCANNER_CHECKS
-    SCANNER_CHECKS = VolatilityObjectRegistry(scan.ScannerCheck)
+    SCANNER_CHECKS = VolatilityObjectRegistry(scan.ScannerCheck, modules)
 
     import volatility.UI as UI
     global UI_RENDERERS
-    UI_RENDERERS = VolatilityObjectRegistry(UI.UI)
+    UI_RENDERERS = VolatilityObjectRegistry(UI.UI, modules)
 
     if config.INFO:
         print_info()

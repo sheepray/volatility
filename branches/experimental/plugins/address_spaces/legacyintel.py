@@ -23,7 +23,7 @@
 #
 
 import struct
-import standard
+import volatility.plugins.standard as standard
 import volatility.addrspace as addrspace
 import volatility.conf
 config = volatility.conf.ConfObject()

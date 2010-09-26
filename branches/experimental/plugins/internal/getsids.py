@@ -33,7 +33,7 @@ import volatility.conf as conf
 import volatility.win32 as win32
 import volatility.obj as obj
 import volatility.utils as utils
-import taskmods
+import volatility.plugins.windows.taskmods as taskmods
 import re
 
 config = conf.ConfObject()

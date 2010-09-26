@@ -22,7 +22,7 @@
 """ This is Jesse Kornblum's patch to clean up the standard AS's.
 """
 import struct
-import standard
+import volatility.plugins.standard as standard
 import xml.etree.cElementTree as etree
 import volatility.addrspace as addrspace
 import volatility.obj as obj

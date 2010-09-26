@@ -36,6 +36,11 @@ import volatility.cache as cache
 
 config = conf.ConfObject()
 
+## This loads this module into the windows namespace of the
+## plugins. Users will need to call us with:
+## import volatility.plugins.windows.taskmods
+__namespace__ = "windows"
+
 class DllList(commands.command, cache.Testable):
     """Print list of loaded dlls for each process"""
 
@@ -165,32 +170,6 @@ class Files(DllList):
             if str(h.Type.Name) == self.handle_type:
                 yield obj.Object(self.handle_obj, h.Body.offset, task.vm, parent = task)
 
-class PSList(DllList):
-    """ print all running processes by following the EPROCESS lists """
-    def render_text(self, outfd, data):
-        outfd.write("{0:20} {1:6} {2:6} {3:6} {4:6} {5:6}\n".format(
-            'Name', 'Pid', 'PPid', 'Thds', 'Hnds', 'Time'))
-
-        for task in data:
-            outfd.write("{0:20} {1:6} {2:6} {3:6} {4:6} {5:26}\n".format(
-                task.ImageFileName,
-                task.UniqueProcessId,
-                task.InheritedFromUniqueProcessId,
-                task.ActiveThreads,
-                task.ObjectTable.HandleCount,
-                task.CreateTime))
-
-    def render(self, data, ui):
-        table = ui.table('Name', 'Pid', 'PPid', 'Thds', 'Hnds', 'Time', 'Virtual', 'Physical')
-        for task in data:
-            table.row(task.ImageFileName,
-                      task.UniqueProcessId,
-                      task.InheritedFromUniqueProcessId,
-                      task.ActiveThreads,
-                      task.ObjectTable.HandleCount,
-                      task.CreateTime,
-                      task.offset,
-                      task.vm.vtop(task.offset))
 
 # Inherit from files just for the config options (__init__)
 class MemMap(DllList):

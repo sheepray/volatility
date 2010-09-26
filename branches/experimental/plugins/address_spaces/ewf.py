@@ -1,5 +1,5 @@
 """ This Address Space allows us to open ewf files """
-import standard
+import volatility.plugins.standard as standard
 
 #pylint: disable-msg=C0111
 

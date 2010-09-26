@@ -26,7 +26,7 @@
 
 #pylint: disable-msg=C0111
 
-import hivescan as hs
+import volatility.plugins.hivescan as hs
 import volatility.obj as obj
 import volatility.utils as utils
 import volatility.conf as conf

@@ -29,12 +29,12 @@ for SP3.
 #pylint: disable-msg=C0111
 
 
-import vista_sp0_x86_vtypes
-import vtypes
+import volatility.plugins.vista_sp0_x86_vtypes as vista_sp0_x86_vtypes
+import volatility.plugins.windows.vtypes as vtypes
 import copy
-import crashdump
-import hibernate_vtypes
-import xp_sp2
+import volatility.plugins.crashdump as crashdump
+import volatility.plugins.hibernate_vtypes as hibernate_vtypes
+import volatility.plugins.xp_sp2 as xp_sp2
 import volatility.debug as debug #pylint: disable-msg=W0611
 
 vistasp0x86overlays = copy.deepcopy(vtypes.xpsp2overlays)
