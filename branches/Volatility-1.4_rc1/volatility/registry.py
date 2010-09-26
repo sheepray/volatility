@@ -40,9 +40,9 @@ classes in the same plugin and have them all automatically loaded.
 """
 
 import os, sys, imp, warnings
+import volatility.debug as debug
 import volatility.conf as conf
 config = conf.ConfObject()
-import volatility.debug as debug #pylint: disable-msg=W0611
 
 config.add_option("INFO", default = None, action = "store_true",
                   cache_invalidator = False,
@@ -112,7 +112,7 @@ class ModuleRegistry(object):
 
                     module_name = "volatility.plugins.{0}".format(module_name)
                     if self.modules.get(module_name, None):
-                        config.error("Module " + module_path + " requested an already registered name (" + module_name + ")")
+                        debug.error("Module " + module_path + " requested an already registered name (" + module_name + ")")
                     self.insert_module_to_system(module_name, module_path)
 
                 except ImportError, e:
@@ -231,7 +231,7 @@ class MemoryRegistry(object):
                     try:
                         self.check_class(Class)
                     except AttributeError, e:
-                        print "Failed to load {0} '{1}': {2}".format(self.ParentClass, cls, e)
+                        debug.debug("Failed to load {0} '{1}': {2}".format(self.ParentClass, cls, e))
                         continue
 
                     ## Add the class to ourselves:

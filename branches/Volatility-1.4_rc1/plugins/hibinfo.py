@@ -22,6 +22,7 @@ import os
 import volatility.utils as utils
 import volatility.obj as obj
 import volatility.commands as commands
+import volatility.debug as debug
 import volatility.conf as conf
 config = conf.ConfObject()
 
@@ -53,7 +54,7 @@ class HibInfo(commands.command):
             adrs = adrs.base
 
         if result == None:
-            config.error("Memory Image could not be identified or did not contain hiberation information")
+            debug.error("Memory Image could not be identified or did not contain hiberation information")
 
         return result
 
@@ -90,10 +91,10 @@ class HibDump(HibInfo):
     def render_text(self, outfd, data):
         """Renders the text output of hibneration file dumping"""
         if not config.DUMP_FILE:
-            config.error("Hibdump requires an output file to dump the hibernation file")
+            debug.error("Hibdump requires an output file to dump the hibernation file")
 
         if os.path.exists(config.DUMP_FILE):
-            config.error("File " + config.DUMP_FILE + " already exists, please choose another file or delete it first")
+            debug.error("File " + config.DUMP_FILE + " already exists, please choose another file or delete it first")
 
         outfd.write("Converting hibernation file...\n")
 

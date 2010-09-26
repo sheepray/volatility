@@ -31,6 +31,7 @@ import volatility.conf as conf
 import volatility.commands as commands
 import volatility.win32 as win32
 import volatility.obj as obj
+import volatility.debug as debug
 import volatility.utils as utils
 import volatility.cache as cache
 
@@ -201,9 +202,9 @@ class MemDump(MemMap):
 
     def render_text(self, outfd, data):
         if config.DUMP_DIR == None:
-            config.error("Please specify a dump directory (--dump-dir)")
+            debug.error("Please specify a dump directory (--dump-dir)")
         if not os.path.isdir(config.DUMP_DIR):
-            config.error(config.DUMP_DIR + " is not a directory")
+            debug.error(config.DUMP_DIR + " is not a directory")
 
         for pid, task, pagedata in data:
             outfd.write("*" * 72 + "\n")

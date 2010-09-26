@@ -30,6 +30,7 @@ import volatility.win32.hive as hive
 import volatility.win32.rawreg as rawreg
 import volatility.win32.lsasecrets as lsasecrets
 import volatility.win32.hashdump as hashdumpmod
+import volatility.debug as debug
 import volatility.utils as utils
 import volatility.commands as commands
 import volatility.conf as conf
@@ -78,11 +79,11 @@ class LSADump(commands.command):
         # types.update(regtypes)
 
         if not config.sys_offset or not config.sec_offset:
-            config.error("Both SYSTEM and SECURITY offsets must be provided")
+            debug.error("Both SYSTEM and SECURITY offsets must be provided")
 
         secrets = lsasecrets.get_memory_secrets(addr_space, config.sys_offset, config.sec_offset)
         if not secrets:
-            config.error("Unable to read LSA secrets from registry")
+            debug.error("Unable to read LSA secrets from registry")
 
         return secrets
 
@@ -105,7 +106,7 @@ class HashDump(commands.command):
         addr_space = utils.load_as()
 
         if not config.sys_offset or not config.sam_offset:
-            config.error("Both SYSTEM and SAM offsets must be provided")
+            debug.error("Both SYSTEM and SAM offsets must be provided")
 
         return hashdumpmod.dump_memory_hashes(addr_space, config.sys_offset, config.sam_offset)
 
@@ -125,7 +126,7 @@ class HiveDump(commands.command):
         addr_space = utils.load_as()
 
         if not config.hive_offset:
-            config.error("A Hive offset must be provided (--hive-offset)")
+            debug.error("A Hive offset must be provided (--hive-offset)")
 
         h = hive.HiveAddressSpace(addr_space, config.hive_offset)
         return rawreg.get_root(h)

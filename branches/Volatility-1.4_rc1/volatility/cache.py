@@ -198,6 +198,7 @@ import types
 import os
 import urlparse
 import volatility.conf as conf
+import volatility.debug as debug
 import cPickle as pickle
 config = conf.ConfObject()
 
@@ -340,8 +341,7 @@ class Invalidator(object):
             # TODO: Determine what happens if the state or current callbacks
             # contain a key that's not in the other
             if k in state and v() != state[k]:
-                if config.DEBUG:
-                    print "Invaliding cache... {0} (Running) != {1} (Stored) on key {2}".format(v(), state[k], k)
+                debug.debug("Invaliding cache... {0} (Running) != {1} (Stored) on key {2}".format(v(), state[k], k))
 
                 raise InvalidCache("Running environment inconsistant "
                                    "with pickled environment - "
@@ -358,8 +358,7 @@ class Invalidator(object):
         for k, v in self.callbacks.items():
             result[k] = v()
 
-        if config.DEBUG:
-            print "Pickling State signature: ", result
+        debug.debug("Pickling State signature: {0}".format(result))
 
         return result
 
@@ -442,8 +441,7 @@ class CacheStorage(object):
     def load(self, url):
         filename = self.filename(url)
 
-        if config.DEBUG:
-            print "CACHE: Loading from {0}".format(filename)
+        debug.debug("Loading from {0}".format(filename))
         data = open(filename).read()
 
         return pickle.loads(data)
@@ -451,8 +449,7 @@ class CacheStorage(object):
     def dump(self, url, payload):
         filename = self.filename(url)
 
-        if config.DEBUG:
-            print "CACHE: Dumping filename {0}".format(filename)
+        debug.debug("Dumping filename {0}".format(filename))
         ## Check that the directory exists
         directory = os.path.dirname(filename)
         if not os.access(directory, os.R_OK | os.W_OK | os.X_OK):
@@ -469,8 +466,7 @@ CACHE = CacheTree(CacheStorage(), invalidator = Invalidator())
 
 def disable_caching(_option, _opt_str, _value, _parser):
     """Turns off caching by replacing the tree with one that only takes BlockingNodes"""
-    if config.DEBUG:
-        print "Disabling Caching"
+    debug.debug("Disabling Caching")
     # Feels filthy using the global keyword,
     # but I can't figure another way to ensure that
     # the code gets called and overwrites the outer scope

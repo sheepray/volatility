@@ -26,6 +26,7 @@ import volatility.win32 as win32
 import volatility.obj as obj
 import volatility.utils as utils
 import volatility.addrspace as addrspace
+import volatility.debug as debug
 import volatility.conf as conf
 config = conf.ConfObject()
 
@@ -323,11 +324,11 @@ class verinfo(procdump.procexedump):
                 else:
                     module_pattern = re.compile(config.PATTERN)
             except sre_constants.error, e:
-                config.error('Regular expression parsing error: {0}'.format(e))
+                debug.error('Regular expression parsing error: {0}'.format(e))
 
         if config.OFFSET is not None:
             if not addr_space.is_valid_address(config.OFFSET):
-                config.error("Specified offset is not valid for the provided address space")
+                debug.error("Specified offset is not valid for the provided address space")
             yield addr_space, config.OFFSET
             raise StopIteration
 

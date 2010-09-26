@@ -34,6 +34,7 @@
 
 import registry
 
+import volatility.debug as debug
 import volatility.conf as conf
 config = conf.ConfObject()
 
@@ -46,7 +47,7 @@ def check_valid_profile(option, _opt_str, value, parser):
         try:
             registry.PROFILES[value]
         except KeyError:
-            config.error("Invalid profile " + value + " selected")
+            debug.error("Invalid profile " + value + " selected")
         setattr(parser.values, option.dest, value)
 
 ## By default load the profile that the user asked for

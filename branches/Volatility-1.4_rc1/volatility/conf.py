@@ -203,9 +203,6 @@ class ConfObject(object):
     def print_help(self):
         return self.optparser.print_help()
 
-    def error(self, message):
-        return self.optparser.error(message)
-
     def add_help_hook(self, cb):
         """ Adds an epilog to the help message """
         self.optparser.help_hooks.append(cb)

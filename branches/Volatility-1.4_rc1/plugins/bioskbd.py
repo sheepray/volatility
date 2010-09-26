@@ -23,8 +23,7 @@
 import struct
 import volatility.commands as commands
 import volatility.utils as utils
-import volatility.conf as conf
-config = conf.ConfObject()
+import volatility.debug as debug
 
 class BiosKbd(commands.command):
     """Reads the keyboard buffer from Real Mode memory"""
@@ -51,7 +50,7 @@ class BiosKbd(commands.command):
         addr_space = utils.load_as(astype = 'physical')
         data = addr_space.read(self.BASE + self.OFFSET, self.LEN)
         if not data or len(data) != self.LEN:
-            config.error("Failed to read keyboard buffer, please check this is a physical memory image.")
+            debug.error("Failed to read keyboard buffer, please check this is a physical memory image.")
         _shifta, _shiftb, _alt, readp, _writep, buf = struct.unpack(self.FORMAT, data)
         unringed = buf[readp - self.BUFOFFSET:]
         unringed += buf[:readp - self.BUFOFFSET]
