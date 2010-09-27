@@ -36,6 +36,7 @@ import volatility.debug as debug
 import volatility.registry as registry
 import volatility.addrspace as addrspace
 import volatility.constants as constants
+import volatility.conf as conf
 
 ########### Following is the new implementation of the scanning
 ########### framework. The old framework was based on PyFlag's
@@ -45,24 +46,19 @@ class BaseScanner(object):
     """ A more thorough scanner which checks every byte """
     checks = []
     def __init__(self, window_size = 8):
-        self.buffer = None # addrspace.BufferAddressSpace(None, data = '\x00' * 1024)
+        self.buffer = addrspace.BufferAddressSpace(conf.DummyConfig(), data = '\x00' * 1024)
         self.window_size = window_size
         self.constraints = []
-        self.profile_name = None
+
+        ## Build our constraints from the specified ScannerCheck
+        ## classes:
+        for class_name, args in self.checks:
+            check = registry.SCANNER_CHECKS[class_name](self.buffer, **args)
+            self.constraints.append(check)
+
         self.max_length = None
         self.base_offset = None
         self.error_count = 0
-
-    def update_profile(self, address_space):
-        if self.profile_name != registry.PROFILES.get_name(address_space.profile.__class__):
-            self.constraints = []
-            self.profile_name = registry.PROFILES.get_name(address_space.profile.__class__)
-
-            ## Build our constraints from the specified ScannerCheck
-            ## classes:
-            for class_name, args in self.checks:
-                check = registry.SCANNER_CHECKS[class_name](address_space, **args)
-                self.constraints.append(check)
 
     def check_addr(self, found):
         """ This calls all our constraints on the offset found and
@@ -91,9 +87,8 @@ class BaseScanner(object):
 
     overlap = 20
     def scan(self, address_space, offset = 0, maxlen = None):
-        self.buffer = addrspace.BufferAddressSpace(address_space.get_config(), data = '\x00' * 1024)
         self.buffer.profile = address_space.profile
-        self.update_profile(self.buffer)
+        print len(self.buffer.data)
         self.base_offset = offset
         self.max_length = maxlen
         ## Which checks also have skippers?

@@ -441,6 +441,9 @@ class ConfObject(object):
 
         raise AttributeError("Parameter {0} is not configured - try setting it on the command line (-h for help)".format(attr))
 
+class DummyConfig(ConfObject):
+    pass
+
 config = ConfObject()
 if os.access(default_config, os.R_OK):
     config.add_file(default_config)
