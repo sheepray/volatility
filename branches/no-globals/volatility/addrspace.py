@@ -33,6 +33,7 @@
 #pylint: disable-msg=C0111
 
 import registry
+import volatility.debug as debug
 
 ## Make sure the profiles are cached so we only parse it once. This is
 ## important since it allows one module to update the profile for
@@ -53,8 +54,7 @@ def check_valid_profile(option, _opt_str, value, parser):
         try:
             registry.PROFILES[value]
         except KeyError:
-            print "Invalid profile " + value + " selected, using default"
-            return
+            debug.error("Invalid profile " + value + " selected")
         setattr(parser.values, option.dest, value)
 
 class BaseAddressSpace:

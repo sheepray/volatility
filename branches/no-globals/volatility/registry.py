@@ -39,10 +39,10 @@ functionality. For example we may include a Scanner, Report and File
 classes in the same plugin and have them all automatically loaded.
 """
 
-import os, sys, imp
+import os, sys, imp, warnings
+import volatility.debug as debug
 import volatility.conf as conf
 config = conf.ConfObject()
-import volatility.debug as debug #pylint: disable-msg=W0611
 
 config.add_option("INFO", default = None, action = "store_true",
                   cache_invalidator = False,
@@ -57,7 +57,7 @@ class ModuleRegistry(object):
     """A class to load and manage a set of python modules."""
     def __init__(self):
         self.namespaces = set()
-        self.module_paths = {}
+        self.module_paths = []
         self.modules = {}
         self.get_modules()
         self.errors = {}
@@ -73,8 +73,8 @@ class ModuleRegistry(object):
             ## no change - we cant make any progress - report the
             ## failures and continue
             if modules_left == len(self.module_paths):
-                for module_name in self.module_paths:
-                    debug.debug("Unable to import {0}: {1}".format(module_name, self.errors[module_name]))
+                for module_name, module_path in self.module_paths:
+                    debug.debug("Unable to import {0}: {1}".format(module_name, self.errors[module_path]))
 
                 break
 
@@ -88,35 +88,40 @@ class ModuleRegistry(object):
           The modules which did not load.
         """
 
-        results = {}
-        for module_name, module_path in modules.items():
-            try:
-                ## Temporarily load this module into a temporary
-                ## name. It will be moved later to its desired
-                ## namespace
+        # Ignore the RuntimeWarnings telling us about no lower nodes during absolute import attempts
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", RuntimeWarning)
+            results = []
+            for module_name, module_path in modules:
                 try:
-                    del sys.modules['tmp_module']
-                except KeyError:
-                    pass
+                    ## Temporarily load this module into a temporary
+                    ## name. It will be moved later to its desired
+                    ## namespace
+                    try:
+                        del sys.modules['tmp_module']
+                    except KeyError:
+                        pass
 
-                module = imp.load_source("tmp_module", module_path)
+                    module = imp.load_source("tmp_module", module_path)
 
-                # The module name we use depends on the __namespace__ arg
-                try:
-                    module_name = "{0}.{1}".format(module.__namespace__, module_name)
-                except AttributeError:
-                    pass
+                    # The module name we use depends on the __namespace__ arg
+                    try:
+                        module_name = "{0}.{1}".format(module.__namespace__, module_name)
+                    except AttributeError:
+                        pass
 
-                module.__name__ = module_name
-                self.insert_module_to_system("volatility.plugins.%s" % module_name, module)
+                    module_name = "volatility.plugins.{0}".format(module_name)
+                    if self.modules.get(module_name, None):
+                        debug.error("Module " + module_path + " requested an already registered name (" + module_name + ")")
+                    self.insert_module_to_system(module_name, module_path)
 
-            except ImportError, e:
-                results[module_name] = module_path
-                self.errors[module_name] = e
+                except ImportError, e:
+                    results.append((module_name, module_path))
+                    self.errors[module_path] = e
 
         return results
 
-    def insert_module_to_system(self, module_name, module):
+    def insert_module_to_system(self, module_name, module_path):
         """Inserts the module into the sys.modules dict ensuring that
         intermediate modules are created.
 
@@ -129,6 +134,10 @@ class ModuleRegistry(object):
         ## We basically add the module to the module tree by ensure it
         ## has a continuous path to the root. If a node is missing we
         ## add a dummy node.
+
+        # We have to reload the source to ensure the objects get created with the right module name
+        # so that pickling it later all fits together properly.
+        module = imp.load_source(module_name, module_path)
         self.modules[module_name] = sys.modules[module_name] = module
 
         ## Now check that its reachable
@@ -177,7 +186,7 @@ class ModuleRegistry(object):
                     module_name = filename[:-3]
                     if filename.endswith(".py"):
                         path = os.path.join(dirpath, filename)
-                        self.module_paths[module_name] = path
+                        self.module_paths.append((module_name, path))
 
 
 class MemoryRegistry(object):
@@ -222,7 +231,7 @@ class MemoryRegistry(object):
                     try:
                         self.check_class(Class)
                     except AttributeError, e:
-                        print "Failed to load {0} '{1}': {2}".format(self.ParentClass, cls, e)
+                        debug.debug("Failed to load {0} '{1}': {2}".format(self.ParentClass, cls, e))
                         continue
 
                     ## Add the class to ourselves:

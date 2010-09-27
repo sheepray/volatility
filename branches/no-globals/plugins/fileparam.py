@@ -23,6 +23,7 @@ import urllib
 import sys
 import os
 ## This is required to ensure that LOCATION is defined here
+import volatility.debug as debug
 import volatility.addrspace as addrspace #pylint: disable-msg=W0611
 
 config = conf.ConfObject()
@@ -30,7 +31,7 @@ config = conf.ConfObject()
 def set_location(_option, _opt_str, value, parser):
     """Sets the location variable in the parser to the filename in question"""
     if not os.path.exists(os.path.abspath(value)):
-        config.error("The requested file doesn't exist")
+        debug.error("The requested file doesn't exist")
     if parser.values.location == None:
         slashes = "//"
         # Windows pathname2url decides to convert C:\blah to ///C:/blah

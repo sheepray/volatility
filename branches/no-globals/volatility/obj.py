@@ -35,8 +35,6 @@ if __name__ == '__main__':
 import re
 import pickle
 import struct, copy, operator
-import volatility.registry as MemoryRegistry
-import volatility.addrspace as addrspace
 import volatility.debug as debug
 
 ## Curry is now a standard python feature
@@ -148,11 +146,10 @@ class NoneObject(object):
     def __str__(self):
         ## If we are strict we blow up here
         if self.strict:
-            result = "Error: {0} n{1}".format(self.reason, self.bt)
-            print result
+            debug.error("{0} n{1}".format(self.reason, self.bt))
             sys.exit(0)
         else:
-            return "Error: {0}".format(self.reason)
+            debug.warning("{0}".format(self.reason))
 
     def write(self, data):
         """Write procedure only ever returns False"""
@@ -249,7 +246,7 @@ def Object(theType, offset, vm, parent = None, name = None, **kwargs):
 
     ## If we get here we have no idea what the type is supposed to be?
     ## This is a serious error.
-    debug.debug("Cant find object {0} in profile {1}???".format(theType, vm.profile), level = 3)
+    debug.warning("Cant find object {0} in profile {1}?".format(theType, vm.profile))
 
 class BaseObject(object):
     def __init__(self, theType, offset, vm, parent = None, name = None):
@@ -294,7 +291,6 @@ class BaseObject(object):
             object.__setattr__(self, attr, value)
         except AttributeError:
             pass
-            # print "Will set {0} to {1}".format(attr, value)
 
     def __nonzero__(self):
         """ This method is called when we test the truth value of an
@@ -921,7 +917,7 @@ class Profile(object):
 
         ## If we get here we have no idea what this list is
         #raise RuntimeError("Error in parsing list {0}".format(typeList))
-        print "Warning - Unable to find a type for {0}, assuming int".format(typeList[0])
+        debug.warning("Unable to find a type for {0}, assuming int".format(typeList[0]))
         return Curry(self.types['int'], name = name)
 
     def get_obj_offset(self, name, member):
@@ -997,7 +993,7 @@ class Profile(object):
         size = ctype[0]
         for k, v in ctype[1].items():
             if v[0] == None:
-                print "Error - {0} has no offset in object {1}. Check that vtypes has a concrete definition for it.".format(k, cname)
+                debug.warning("{0} has no offset in object {1}. Check that vtypes has a concrete definition for it.".format(k, cname))
             members[k] = (v[0], self.list_to_type(k, v[1], typeDict))
 
         ## Allow the plugins to over ride the class constructor here

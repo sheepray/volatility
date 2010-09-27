@@ -21,6 +21,7 @@
 import os
 import volatility.utils as utils
 import volatility.commands as commands
+import volatility.debug as debug
 
 class CrashInfo(commands.command):
     """Dump crash-dump information"""
@@ -37,7 +38,7 @@ class CrashInfo(commands.command):
             adrs = adrs.base
 
         if result is None:
-            self._config.error("Memory Image could not be identified as a crash dump")
+            debug.error("Memory Image could not be identified as a crash dump")
 
         return result
 
@@ -84,10 +85,10 @@ class CrashDump(CrashInfo):
     def render_text(self, outfd, data):
         """Renders the text output of crashdump file dumping"""
         if not self._config.DUMP_FILE:
-            self._config.error("crashdump requires an output file to dump the crashdump file")
+            debug.error("crashdump requires an output file to dump the crashdump file")
 
         if os.path.exists(self._config.DUMP_FILE):
-            self._config.error("File " + self._config.DUMP_FILE + " already exists, please choose another file or delete it first")
+            debug.error("File " + config.DUMP_FILE + " already exists, please choose another file or delete it first")
 
         outfd.write("Converting crashdump file...\n")
 

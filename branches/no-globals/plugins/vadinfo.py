@@ -168,9 +168,9 @@ class VADDump(VADInfo):
 
     def render_text(self, outfd, data):
         if self._config.DUMP_DIR == None:
-            self._config.error("Please specify a dump directory (--dump-dir)")
+            debug.error("Please specify a dump directory (--dump-dir)")
         if not os.path.isdir(self._config.DUMP_DIR):
-            self._config.error(self._config.DUMP_DIR + " is not a directory")
+            debug.error(self._config.DUMP_DIR + " is not a directory")
 
         for task in data:
             outfd.write("Pid: {0:6}\n".format(task.UniqueProcessId))

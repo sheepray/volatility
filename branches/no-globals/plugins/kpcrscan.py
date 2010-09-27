@@ -63,6 +63,7 @@ class KPCRScan(commands.command):
             outfd.write(" _KPCR: {0:x}\n".format(o))
 
 class KPCRScannerCheck(scan.ScannerCheck):
+    """Checks the self referential pointers to find KPCRs"""
     def __init__(self, address_space):
         scan.ScannerCheck.__init__(self, address_space)
         kpcr = obj.Object("_KPCR", vm = self.address_space, offset = 0)

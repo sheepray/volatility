@@ -43,6 +43,7 @@ except ImportError:
     pass
 
 import textwrap
+import logging
 import volatility
 import volatility.registry as MemoryRegistry
 import volatility.conf as conf
@@ -70,22 +71,6 @@ def list_plugins():
 
     return result
 
-def usage(progname):
-    print ""
-    print "\tCopyright (C) 2007,2008 Volatile Systems"
-    print "\tCopyright (C) 2007 Komoku, Inc."
-    print "\tThis is free software; see the source for copying conditions."
-    print "\tThere is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."
-    print ""
-    print "\tusage: {0} cmd [cmd_opts]\n".format(progname)
-    print "\tRun command cmd with options cmd_opts"
-    print "\tFor help on a specific command, run '{0} cmd --help'".format(progname)
-    print
-    list_plugins()
-    print
-    print "\tExample: volatility pslist -f /path/to/my/file"
-    sys.exit(0)
-
 def command_help(command):
     result = textwrap.dedent("""
     ---------------------------------
@@ -101,8 +86,13 @@ def main():
     sys.stderr.write("Volatile Systems Volatility Framework {0}\n".format(volatility.version))
     MemoryRegistry.Init()
 
+    # Setup the debugging format
+    debug.setup()
     ## Parse all the options now
     config.parse_options(False)
+    # Reset the logging level now we know whether debug is set or not
+    debug.setup(config.DEBUG)
+
     module = None
     ## Try to find the first thing that looks like a module name
     for m in config.args:
@@ -112,11 +102,11 @@ def main():
 
     if not module:
         config.parse_options()
-        config.error("You must specify something to do (try -h)")
+        debug.error("You must specify something to do (try -h)")
 
     if module not in MemoryRegistry.PLUGIN_COMMANDS.commands:
         config.parse_options()
-        config.error("Invalid module [{0}].".format(module))
+        debug.error("Invalid module [{0}].".format(module))
 
     try:
         if module in MemoryRegistry.PLUGIN_COMMANDS.commands:

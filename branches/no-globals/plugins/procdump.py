@@ -23,6 +23,7 @@
 import os
 import struct
 import volatility.plugins.taskmods as taskmods
+import volatility.debug as debug
 import volatility.obj as obj
 
 class ProcExeDump(taskmods.DllList):
@@ -39,9 +40,9 @@ class ProcExeDump(taskmods.DllList):
     def render_text(self, outfd, data):
         """Renders the tasks to disk images, outputting progress as they go"""
         if self._config.DUMP_DIR == None:
-            self._config.error("Please specify a dump directory (--dump-dir)")
+            debug.error("Please specify a dump directory (--dump-dir)")
         if not os.path.isdir(self._config.DUMP_DIR):
-            self._config.error(self._config.DUMP_DIR + " is not a directory")
+            debug.error(config.DUMP_DIR + " is not a directory")
 
         for task in data:
             pid = task.UniqueProcessId

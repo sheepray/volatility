@@ -23,6 +23,7 @@ import timeit
 import binascii
 import xml.etree.cElementTree as etree
 import volatility.commands as commands
+import volatility.debug as debug
 import volatility.utils as utils
 PAGESIZE = 4096
 
@@ -179,11 +180,11 @@ class Patcher(commands.command):
             print "Warning: WRITE support not enabled, no patching will occur"
 
         if self._config.XML_INPUT is None:
-            self._config.error("No XML input file was specified")
+            debug.error("No XML input file was specified")
         try:
             root = etree.parse(self._config.XML_INPUT).getroot()
         except SyntaxError, e:
-            self._config.error("XML input file was improperly formed: " + str(e))
+            debug.error("XML input file was improperly formed: " + str(e))
 
         for element in root:
             if element.tag == 'patchinfo':
@@ -196,7 +197,7 @@ class Patcher(commands.command):
                         if tag.tag == 'patches':
                             patches = tag
                     if constraints is None:
-                        self._config.error("Patch input file does not contain any valid constraints")
+                        debug.error("Patch input file does not contain any valid constraints")
 
                     # Parse the patches section
                     for tag in patches:
@@ -218,4 +219,4 @@ class Patcher(commands.command):
                                 patcher.add_constraint(offset, data)
                     yield patcher
                 else:
-                    self._config.error("Unsupported patchinfo method " + element.method)
+                    debug.error("Unsupported patchinfo method " + element.method)

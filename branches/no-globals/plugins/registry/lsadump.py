@@ -30,6 +30,7 @@ import volatility.win32.hive as hive
 import volatility.win32.rawreg as rawreg
 import volatility.win32.lsasecrets as lsasecrets
 import volatility.win32.hashdump as hashdumpmod
+import volatility.debug as debug
 import volatility.utils as utils
 import volatility.commands as commands
 
@@ -76,11 +77,11 @@ class LSADump(commands.command):
         # types.update(regtypes)
 
         if not self._config.sys_offset or not self._config.sec_offset:
-            self._config.error("Both SYSTEM and SECURITY offsets must be provided")
+            debug.error("Both SYSTEM and SECURITY offsets must be provided")
 
         secrets = lsasecrets.get_memory_secrets(addr_space, self._config.sys_offset, self._config.sec_offset)
         if not secrets:
-            self._config.error("Unable to read LSA secrets from registry")
+            debug.error("Unable to read LSA secrets from registry")
 
         return secrets
 
@@ -102,8 +103,13 @@ class HashDump(commands.command):
     def calculate(self):
         addr_space = utils.load_as(self._config)
 
+<<<<<<< HEAD
         if not self._config.sys_offset or not self._config.sam_offset:
             self._config.error("Both SYSTEM and SAM offsets must be provided")
+=======
+        if not config.sys_offset or not config.sam_offset:
+            debug.error("Both SYSTEM and SAM offsets must be provided")
+>>>>>>> local/Volatility-1.4_rc1
 
         return hashdumpmod.dump_memory_hashes(addr_space, self._config.sys_offset, self._config.sam_offset)
 
@@ -121,8 +127,13 @@ class HiveDump(commands.command):
     def calculate(self):
         addr_space = utils.load_as(self._config)
 
+<<<<<<< HEAD
         if not self._config.hive_offset:
             self._config.error("A Hive offset must be provided (--hive-offset)")
+=======
+        if not config.hive_offset:
+            debug.error("A Hive offset must be provided (--hive-offset)")
+>>>>>>> local/Volatility-1.4_rc1
 
         h = hive.HiveAddressSpace(addr_space, self._config.hive_offset)
         return rawreg.get_root(h)

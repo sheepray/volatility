@@ -29,6 +29,7 @@
 # from volatility.win32.datetime import windows_to_unix_time
 import volatility.win32.hive as hivemod
 import volatility.win32.rawreg as rawreg
+import volatility.debug as debug
 import volatility.utils as utils
 import volatility.commands as commands
 
@@ -78,12 +79,12 @@ class PrintKey(commands.command):
         addr_space = utils.load_as(self._config)
 
         if not self._config.hive_offset:
-            self._config.error("No hive offset provided!")
+            debug.error("No hive offset provided!")
 
         hive = hivemod.HiveAddressSpace(addr_space, self._config.hive_offset)
         root = rawreg.get_root(hive)
         if not root:
-            self._config.error("Unable to find root key. Is the hive offset correct?")
+            debug.error("Unable to find root key. Is the hive offset correct?")
 
         if self._config.KEY:
             return rawreg.open_key(root, self._config.KEY.split('\\'))

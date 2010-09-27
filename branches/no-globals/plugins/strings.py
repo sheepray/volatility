@@ -23,6 +23,7 @@ import volatility.commands as commands
 import volatility.obj as obj
 import volatility.utils as utils
 import volatility.win32 as win32
+import volatility.debug as debug
 
 class Strings(commands.command):
     """Match physical offsets to virtual addresses (may take a while, VERY verbose)"""
@@ -38,7 +39,7 @@ class Strings(commands.command):
     def calculate(self):
         """Calculates the physical to virtual address mapping"""
         if self._config.STRING_FILE is None or not os.path.exists(self._config.STRING_FILE):
-            self._config.error("Strings file not found")
+            debug.error("Strings file not found")
 
         data = {}
 
@@ -75,7 +76,7 @@ class Strings(commands.command):
             try:
                 offset = int(offsetString)
             except ValueError:
-                self._config.error("String file format invalid.")
+                debug.error("String file format invalid.")
             parsedStrings.append((offset, string))
 
         reverse_map = self.get_reverse_map(addr_space, tasks, verbfd)

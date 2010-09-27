@@ -21,6 +21,7 @@
 import os, time, calendar
 import datetime
 import volatility.conf as conf
+import volatility.debug as debug
 try:
     import pytz
     tz_pytz = True
@@ -110,10 +111,10 @@ def tz_from_string(_option, _opt_str, value, parser):
                 try:
                     timezone = pytz.timezone(value)
                 except pytz.UnknownTimeZoneError:
-                    config.error("Unknown display timezone specified")
+                    debug.error("Unknown display timezone specified")
             else:
                 if not hasattr(time, 'tzset'):
-                    config.error("This operating system doesn't support tzset, please either specify an offset (eg. +1000) or install pytz")
+                    debug.error("This operating system doesn't support tzset, please either specify an offset (eg. +1000) or install pytz")
                 timezone = value
         parser.values.tz = timezone
 
