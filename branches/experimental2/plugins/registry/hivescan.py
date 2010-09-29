@@ -18,8 +18,6 @@
 #
 
 """
-This module implements the fast connection scanning
-
 @author:       AAron Walters and Brendan Dolan-Gavitt
 @license:      GNU General Public License 2.0 or later
 @contact:      awalters@volatilesystems.com,bdolangavitt@wesleyan.edu
@@ -29,23 +27,33 @@ This module implements the fast connection scanning
 #pylint: disable-msg=C0111
 
 import volatility.scan as scan
-import volatility.commands as commands
-import volatility.cache as cache
-import volatility.utils as utils
 import volatility.obj as obj
-import volatility.debug as debug #pylint: disable-msg=W0611
+import volatility.utils as utils
+import volatility.commands as commands
 
+__namespace__ = "registry"
 
-class PoolScanConnFast2(scan.PoolScanner):
-    checks = [ ('PoolTagCheck', dict(tag = "TCPT")),
-               ('CheckPoolSize', dict(condition = lambda x: x >= 0x198)),
-               ('CheckPoolType', dict(non_paged = True, free = True)),
-               ('CheckPoolIndex', dict(value = 0)),
+class CheckHiveSig(scan.ScannerCheck):
+    """ Check for a registry hive signature """
+    def check(self, offset):
+        sig = obj.Object('_HHIVE', vm = self.address_space, offset = offset + 4).Signature
+        return sig == 0xbee0bee0
+
+class PoolScanHiveFast2(scan.PoolScanner):
+    checks = [ ('PoolTagCheck', dict(tag = "CM10")),
+               ('CheckPoolSize', dict(condition = lambda x: x == 0x4a8)),
+               ('CheckPoolType', dict(paged = True)),
+               ('CheckHiveSig', {})
                ]
 
-class ConnScan2(commands.command):
-    """ Scan Physical memory for _TCPT_OBJECT objects (tcp connections)
+class HiveScan(commands.command):
+    """ Scan Physical memory for _CMHIVE objects (registry hives)
+
+    You will need to obtain these offsets to feed into the hivelist command.
     """
+
+    # Declare meta information associated with this plugin
+
     meta_info = dict(
         author = 'Brendan Dolan-Gavitt',
         copyright = 'Copyright (c) 2007,2008 Brendan Dolan-Gavitt',
@@ -56,24 +64,13 @@ class ConnScan2(commands.command):
         version = '1.0',
         )
 
-    @cache.CacheDecorator("scans/connscan2")
     def calculate(self):
         ## Just grab the AS and scan it using our scanner
         address_space = utils.load_as(astype = 'physical')
 
-        scanner = PoolScanConnFast2()
-        for offset in scanner.scan(address_space):
-            ## This yields the pool offsets - we want the actual object
-            tcp_obj = obj.Object('_TCPT_OBJECT', vm = address_space,
-                                offset = offset)
-            yield tcp_obj
+        return PoolScanHiveFast2().scan(address_space)
 
     def render_text(self, outfd, data):
-        outfd.write("Local Address             Remote Address            Pid   \n" + \
-                    "------------------------- ------------------------- ------ \n")
-
-        ## We make a new scanner
-        for tcp_obj in data:
-            local = "{0}:{1}".format(tcp_obj.LocalIpAddress, tcp_obj.LocalPort)
-            remote = "{0}:{1}".format(tcp_obj.RemoteIpAddress, tcp_obj.RemotePort)
-            outfd.write("{0:25} {1:25} {2:6}\n".format(local, remote, tcp_obj.Pid))
+        outfd.write("{0:15} {1:15}\n".format("Offset", "(hex)"))
+        for offset in data:
+            outfd.write("{0:<15} 0x{1:08X}\n".format(offset, offset))

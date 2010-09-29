@@ -18,7 +18,7 @@
 #
 
 """
-This module implements the fast connection scanning
+This module implements the fast socket scanning
 
 @author:       AAron Walters and Brendan Dolan-Gavitt
 @license:      GNU General Public License 2.0 or later
@@ -30,22 +30,38 @@ This module implements the fast connection scanning
 
 import volatility.scan as scan
 import volatility.commands as commands
-import volatility.cache as cache
 import volatility.utils as utils
 import volatility.obj as obj
 import volatility.debug as debug #pylint: disable-msg=W0611
 
+class CheckSocketCreateTime(scan.ScannerCheck):
+    """ Check that _ADDRESS_OBJECT.CreateTime makes sense """
+    def __init__(self, address_space, condition = lambda x: x, **kwargs):
+        scan.ScannerCheck.__init__(self, address_space, **kwargs)
+        self.condition = condition
 
-class PoolScanConnFast2(scan.PoolScanner):
-    checks = [ ('PoolTagCheck', dict(tag = "TCPT")),
-               ('CheckPoolSize', dict(condition = lambda x: x >= 0x198)),
+    def check(self, offset):
+        start_of_object = self.address_space.profile.get_obj_size("_POOL_HEADER") - 4
+        address_obj = obj.Object('_ADDRESS_OBJECT', vm = self.address_space,
+                                offset = offset + start_of_object)
+
+        return self.condition(address_obj.CreateTime.v())
+
+class PoolScanSockFast(scan.PoolScanner):
+    checks = [ ('PoolTagCheck', dict(tag = "TCPA")),
+               ('CheckPoolSize', dict(condition = lambda x: x == 0x170)),
                ('CheckPoolType', dict(non_paged = True, free = True)),
-               ('CheckPoolIndex', dict(value = 0)),
+               ## Valid sockets have time > 0
+               ('CheckSocketCreateTime', dict(condition = lambda x: x > 0)),
+               ('CheckPoolIndex', dict(value = 0))
                ]
 
-class ConnScan2(commands.command):
-    """ Scan Physical memory for _TCPT_OBJECT objects (tcp connections)
+class SockScan(commands.command):
+    """ Scan Physical memory for _ADDRESS_OBJECT objects (tcp sockets)
     """
+
+    # Declare meta information associated with this plugin
+
     meta_info = dict(
         author = 'Brendan Dolan-Gavitt',
         copyright = 'Copyright (c) 2007,2008 Brendan Dolan-Gavitt',
@@ -56,24 +72,19 @@ class ConnScan2(commands.command):
         version = '1.0',
         )
 
-    @cache.CacheDecorator("scans/connscan2")
     def calculate(self):
         ## Just grab the AS and scan it using our scanner
         address_space = utils.load_as(astype = 'physical')
-
-        scanner = PoolScanConnFast2()
+        scanner = PoolScanSockFast()
         for offset in scanner.scan(address_space):
-            ## This yields the pool offsets - we want the actual object
-            tcp_obj = obj.Object('_TCPT_OBJECT', vm = address_space,
-                                offset = offset)
-            yield tcp_obj
+            yield obj.Object('_ADDRESS_OBJECT', vm = address_space, offset = offset)
 
     def render_text(self, outfd, data):
-        outfd.write("Local Address             Remote Address            Pid   \n" + \
-                    "------------------------- ------------------------- ------ \n")
 
-        ## We make a new scanner
-        for tcp_obj in data:
-            local = "{0}:{1}".format(tcp_obj.LocalIpAddress, tcp_obj.LocalPort)
-            remote = "{0}:{1}".format(tcp_obj.RemoteIpAddress, tcp_obj.RemotePort)
-            outfd.write("{0:25} {1:25} {2:6}\n".format(local, remote, tcp_obj.Pid))
+        outfd.write("PID    Port   Proto  Create Time                Offset \n" + \
+                    "------ ------ ------ -------------------------- ----------\n")
+
+        for sock_obj in data:
+            outfd.write("{0:6} {1:6} {2:6} {3:26} 0x{4:08x}\n".format(sock_obj.Pid, sock_obj.LocalPort,
+                                                                      sock_obj.Protocol,
+                                                                      sock_obj.CreateTime, sock_obj.offset))
