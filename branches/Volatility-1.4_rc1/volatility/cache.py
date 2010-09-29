@@ -202,8 +202,6 @@ import volatility.debug as debug
 import cPickle as pickle
 config = conf.ConfObject()
 
-import pdb
-
 ## Where to stick the cache
 default_cache_location = os.path.join((os.environ.get("XDG_CACHE_HOME") or os.path.expanduser("~/.cache")), "volatility")
 
@@ -446,7 +444,7 @@ class CacheStorage(object):
         debug.debug("Loading from {0}".format(filename))
         data = open(filename).read()
 
-        pdb.set_trace()
+        debug.trace()
         return pickle.loads(data)
 
     def dump(self, url, payload):

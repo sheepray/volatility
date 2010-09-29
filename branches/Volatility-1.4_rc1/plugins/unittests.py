@@ -22,7 +22,6 @@
 @contact:      scudette@users.sourceforge.net
 """
 
-import pdb
 import sys
 import volatility.registry as MemoryRegistry
 import volatility.commands as commands
@@ -56,7 +55,7 @@ Current Value: {2}
 
 Droping to a debugging shell....
 """.format(self.stem, original_result.payload, self.payload)
-            pdb.set_trace()
+            debug.trace()
             sys.exit(-1)
         else:
             print "\n\nTest Passed....\n"
