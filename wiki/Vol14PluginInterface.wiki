@@ -57,3 +57,22 @@ Render functions accept a file descriptor (`outfd`) and the data object returned
 When outputting function values in a standard fashion, it is recommended to use `"{0}".format(value)`, over the deprecated `"%x" % value`.
 
 *Note*: The file descriptor may not be a real file, but instead directly to the console that the program is run from (stdout).  As such results may be required in real time.  No output should be made in the calculate function, so to reduce the amount of time taken before being able to display the results a [http://docs.python.org/tutorial/classes.html#generators python generator] should be used.
+
+== Importing ==
+
+Note that every class derived from commands.command, present in a module's namespace, will be registered as a plugin.  Two plugins with the same class name cannot be registered at the same time, therefore import plugin, address space, profile or object classes using:
+
+{{{
+from module import Class
+}}}
+
+are prohibited and must not be used.  If they are used, they will be added to the new module's namespace, be re-registered, and volatility will return a conflict error.  The correct method for importing plugins or other classes is as follows:
+
+{{{
+from long.module.name as shrtmdl
+
+def SubClass(shrtmdl.Class):
+   ...
+}}}
+
+For further information on this matter, please see issue 36.
