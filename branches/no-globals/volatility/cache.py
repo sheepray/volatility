@@ -444,6 +444,7 @@ class CacheStorage(object):
         debug.debug("Loading from {0}".format(filename))
         data = open(filename).read()
 
+        debug.trace()
         return pickle.loads(data)
 
     def dump(self, url, payload):

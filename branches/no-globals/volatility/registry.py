@@ -44,6 +44,8 @@ import volatility.debug as debug
 import volatility.conf as conf
 config = conf.ConfObject()
 
+import pdb
+
 config.add_option("INFO", default = None, action = "store_true",
                   cache_invalidator = False,
                   help = "Print information about all registered objects")
@@ -55,10 +57,11 @@ config.add_option("PLUGINS", default = "./plugins",
 
 class ModuleRegistry(object):
     """A class to load and manage a set of python modules."""
+    modules = {}
+
     def __init__(self):
         self.namespaces = set()
         self.module_paths = []
-        self.modules = {}
         self.get_modules()
         self.errors = {}
 
@@ -94,6 +97,7 @@ class ModuleRegistry(object):
             results = []
             for module_name, module_path in modules:
                 try:
+                    debug.trace()
                     ## Temporarily load this module into a temporary
                     ## name. It will be moved later to its desired
                     ## namespace
@@ -103,6 +107,7 @@ class ModuleRegistry(object):
                         pass
 
                     module = imp.load_source("tmp_module", module_path)
+                    self.modules[module_name] = module
 
                     # The module name we use depends on the __namespace__ arg
                     try:
@@ -135,10 +140,11 @@ class ModuleRegistry(object):
         ## has a continuous path to the root. If a node is missing we
         ## add a dummy node.
 
-        # We have to reload the source to ensure the objects get created with the right module name
-        # so that pickling it later all fits together properly.
+        # We have to reload the source to ensure the objects get
+        # created with the right module name so that pickling it later
+        # all fits together properly.
         module = imp.load_source(module_name, module_path)
-        self.modules[module_name] = sys.modules[module_name] = module
+        sys.modules[module_name] = module
 
         ## Now check that its reachable
         module_path = module_name.split(".")

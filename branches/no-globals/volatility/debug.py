@@ -63,12 +63,16 @@ def critical(msg):
     sys.exit(1)
 
 def log(msg, level):
-    frm = inspect.stack()[1]
-    mod = inspect.getmodule(frm[0])
-    if mod.__name__ == "volatility.debug":
-        frm = inspect.stack()[2]
-        mod = inspect.getmodule(frm[0])
-    _log(msg, mod.__name__, level)
+    try:
+        frm = inspect.currentframe()
+        modname = "volatility.debug"
+        while modname == "volatility.debug":
+            frm = frm.f_back
+            mod = inspect.getmodule(frm)
+            modname = mod.__name__
+    finally:
+        del frm
+    _log(msg, modname, level)
 
 def _log(msg, facility, loglevel):
     """Outputs a debugging message"""

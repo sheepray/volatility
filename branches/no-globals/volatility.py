@@ -84,10 +84,10 @@ def main():
     # Get the version information on every output from the beginning
     # Exceptionally useful for debugging/telling people what's going on
     sys.stderr.write("Volatile Systems Volatility Framework {0}\n".format(volatility.version))
-    MemoryRegistry.Init()
 
     # Setup the debugging format
     debug.setup()
+    MemoryRegistry.Init()
     ## Parse all the options now
     config.parse_options(False)
     # Reset the logging level now we know whether debug is set or not
