@@ -97,7 +97,6 @@ class ModuleRegistry(object):
             results = []
             for module_name, module_path in modules:
                 try:
-                    debug.trace()
                     ## Temporarily load this module into a temporary
                     ## name. It will be moved later to its desired
                     ## namespace
