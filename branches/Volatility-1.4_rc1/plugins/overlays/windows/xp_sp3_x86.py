@@ -29,28 +29,25 @@ for SP3.
 #pylint: disable-msg=C0111
 
 
-import volatility.plugins.overlays.windows.vista_sp0_x86_vtypes as vista_sp0_x86_vtypes
-import volatility.plugins.overlays.windows.xp_sp2_x86 as xp_sp2_x86
-import volatility.plugins.overlays.windows.windows as windows
+import xp_sp3_x86_vtypes as xp_sp3_x86_vtypes
+import xp_sp2_x86 as xp_sp2_x86
+import windows as windows
+import crashdump as crashdump
+import hibernate_vtypes as hibernate_vtypes
 import copy
-import volatility.plugins.overlays.windows.crashdump as crashdump
-import volatility.plugins.overlays.windows.hibernate_vtypes as hibernate_vtypes
 import volatility.debug as debug #pylint: disable-msg=W0611
 
-__namespace__ = "overlays.windows"
+xpsp3overlays = copy.deepcopy(xp_sp2_x86.xpsp2overlays)
 
-vistasp0x86overlays = copy.deepcopy(xp_sp2_x86.xpsp2overlays)
+xpsp3overlays['_MMVAD_SHORT'][1]['Flags'][0] = lambda x: x['u'][0]
+xpsp3overlays['_CONTROL_AREA'][1]['Flags'][0] = lambda x: x['u'][0]
+xpsp3overlays['_MMVAD_LONG'][1]['Flags'][0] = lambda x: x['u'][0]
+xpsp3overlays['_MMVAD_LONG'][1]['Flags2'][0] = lambda x: x['u'][0]
 
-vistasp0x86overlays['_MMVAD_SHORT'][1]['Flags'][0] = lambda x: x['u'][0]
-vistasp0x86overlays['_CONTROL_AREA'][1]['Flags'][0] = lambda x: x['u'][0]
-vistasp0x86overlays['_MMVAD_LONG'][1]['Flags'][0] = lambda x: x['u'][0]
-vistasp0x86overlays['_MMVAD_LONG'][1]['Flags2'][0] = lambda x: x['u'][0]
+xp_sp3_x86_vtypes.ntoskrnl_types.update(crashdump.crash_vtypes)
+xp_sp3_x86_vtypes.ntoskrnl_types.update(hibernate_vtypes.hibernate_vtypes)
 
-vista_sp0_x86_vtypes.ntkrnlmp_types.update(crashdump.crash_vtypes)
-vista_sp0_x86_vtypes.ntkrnlmp_types.update(hibernate_vtypes.hibernate_vtypes)
-
-
-class VistaSP0x86(windows.AbstractWindows):
-    """ A Profile for Windows Vista SP0 x86 """
-    abstract_types = vista_sp0_x86_vtypes.ntkrnlmp_types
-    overlay = vistasp0x86overlays
+class WinXPSP3(windows.AbstractWindows):
+    """ A Profile for windows XP SP3 """
+    abstract_types = xp_sp3_x86_vtypes.ntoskrnl_types
+    overlay = xpsp3overlays

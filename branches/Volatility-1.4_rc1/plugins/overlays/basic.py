@@ -26,8 +26,6 @@ import volatility.obj as obj
 import volatility.debug as debug #pylint: disable-msg=W0611
 import volatility.constants as constants
 
-__namespace__ = "overlays"
-
 class String(obj.NativeType):
     """Class for dealing with Strings"""
     def __init__(self, theType, offset, vm = None,

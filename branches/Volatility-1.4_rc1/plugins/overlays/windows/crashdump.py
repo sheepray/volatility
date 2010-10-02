@@ -1,5 +1,3 @@
-__namespace__ = "overlays.windows"
-
 crash_vtypes = {
 ## These types are for crash dumps
     '_PHYSICAL_MEMORY_RUN' : [ 0x8, { \

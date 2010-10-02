@@ -1,5 +1,3 @@
-__namespace__ = "overlays.windows"
-
 hibernate_vtypes = { \
   '_HBASE_BLOCK' : [ 0x1000, {
     'Signature' : [ 0x0, ['unsigned long']],

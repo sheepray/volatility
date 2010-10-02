@@ -28,15 +28,13 @@ for SP3.
 
 #pylint: disable-msg=C0111
 
-import volatility.plugins.overlays.windows.win7_sp0_x86_vtypes as win7_sp0_x86_vtypes
-import volatility.plugins.overlays.windows.xp_sp2_x86 as xp_sp2_x86
-import volatility.plugins.overlays.windows.windows as windows
 import copy
-import volatility.plugins.overlays.windows.crashdump as crashdump
-import volatility.plugins.overlays.windows.hibernate_vtypes as hibernate_vtypes
+import win7_sp0_x86_vtypes as win7_sp0_x86_vtypes
+import xp_sp2_x86 as xp_sp2_x86
+import windows as windows
+import crashdump as crashdump
+import hibernate_vtypes as hibernate_vtypes
 import volatility.debug as debug #pylint: disable-msg=W0611
-
-__namespace__ = "overlays.windows"
 
 win7sp0x86overlays = copy.deepcopy(xp_sp2_x86.xpsp2overlays)
 

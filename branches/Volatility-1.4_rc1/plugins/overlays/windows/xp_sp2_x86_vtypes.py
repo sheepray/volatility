@@ -27,8 +27,6 @@
 @organization: Volatile Systems
 """
 
-__namespace__ = "overlays.windows"
-
 xpsp2types = { \
   '_LIST_ENTRY' : [ 0x8, { \
     'Flink' : [ 0x0, ['pointer', ['_LIST_ENTRY']]], \
