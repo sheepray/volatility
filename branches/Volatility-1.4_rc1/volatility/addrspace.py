@@ -68,7 +68,7 @@ class ASAssertionError(AssertionError):
     def __init__(self, *args, **kwargs):
         AssertionError.__init__(self, *args, **kwargs)
 
-class BaseAddressSpace:
+class BaseAddressSpace(object):
     """ This is the base class of all Address Spaces. """
     def __init__(self, base, **kwargs):
         """ base is the AS we will be stacking on top of, opts are
