@@ -82,7 +82,13 @@ class PluginImporter(object):
         """Imports all the already found modules"""
         for i in self.modnames.keys():
             if self.modnames[i] is not None:
-                __import__(i)
+                try:
+                    __import__(i)
+                except BaseException, e:
+                    print "*** Failed to import " + i + " (" + str(e.__class__.__name__) + ": " + str(e) + ")"
+                    # This is too early to have had the debug filter lowered to include debugging messages
+                    if config.DEBUG:
+                        debug.post_mortem()
 
 class MemoryRegistry(object):
     """ Main class to register classes derived from a given parent

@@ -87,6 +87,7 @@ def main():
 
     # Setup the debugging format
     debug.setup()
+    # Load up modules in case they set config options
     MemoryRegistry.Init()
     ## Parse all the options now
     config.parse_options(False)
