@@ -30,11 +30,13 @@ This page contains links to documents that are part of the Volatility Documentat
   * [http://forensiczone.blogspot.com/2009/10/walk-through-volatility-batch-file.html Walk-Through with Volatility Batch File Maker and Procdump] (external link)
       * [http://forensiczone.blogspot.com/2009/10/volatility-batch-file-maker.html Volatility Batch File Maker] (external link)
 
-= Case Studies =
+= Case Studies/Forensic Challenges =
   * [http://neosysforensics.blogspot.com/2009/03/analisis-de-un-caso-real.html Análisis de un caso ¿real?] (external link)
   * [http://neosysforensics.blogspot.com/2009/05/analisis-de-un-caso-real-2.html Análisis de un caso ¿real?, #2] (external link)
   * [http://neosysforensics.blogspot.com/2010/01/analisis-de-un-caso-real-3.html Análisis de un caso ¿real?, #3] (external link)
   * [http://carnal0wnage.blogspot.com/2009/03/dumping-memory-to-extract-password.html Dumping Memory to Extract Password Hashes] (external link)
+  * [https://www.honeynet.org/challenges/2010_3_banking_troubles Honeynet Forensic Challenge 2010 - Banking Troubles] (external link w/challenge and submissions)
+  * [http://network-forensics.blogspot.com/2010/04/honeynet-forensics-contest.html Honeynet Forensic Challenge 2010 - Banking Troubles] (external link, pstutz' blog)
   
 
 = Plugin List =
