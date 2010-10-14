@@ -28,6 +28,7 @@ This module implements the fast module scanning
 
 #pylint: disable-msg=C0111
 
+import filescan as filescan
 import volatility.scan as scan
 import volatility.commands as commands
 import volatility.utils as utils
@@ -43,7 +44,7 @@ class PoolScanModuleFast2(scan.PoolScanner):
                ('CheckPoolIndex', dict(value = 0)),
                ]
 
-class ModScan2(commands.command):
+class ModScan2(filescan.FileScan):
     """ Scan Physical memory for _LDR_DATA_TABLE_ENTRY objects
     """
 
@@ -57,18 +58,6 @@ class ModScan2(commands.command):
         os = 'WIN_32_XP_SP2',
         version = '1.0',
         )
-
-    def __init__(self, *args):
-        commands.command.__init__(self, *args)
-        self.kernel_address_space = None
-
-    def parse_string(self, unicode_obj):
-        ## We need to do this because the unicode_obj buffer is in
-        ## kernel_address_space
-        string_length = unicode_obj.Length.v()
-        string_offset = unicode_obj.Buffer.v()
-        return self.kernel_address_space.read(
-            string_offset, string_length).decode("utf16", "ignore")
 
     def calculate(self):
         ## Here we scan the physical address space
