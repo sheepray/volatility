@@ -49,8 +49,8 @@ class KPCRScan(commands.command):
         """Determines the address space"""
         addr_space = utils.load_as()
 
-        volmagic = obj.Object('VOLATILITY_MAGIC', 0x0, addr_space)
-        for o in volmagic.KPCR.get_suggestions():
+        scanner = KPCRScanner()
+        for o in scanner.scan(addr_space):
             print "Phys addr", "{0:08x}".format(addr_space.vtop(o)), "Virt addr", "{0:08x}".format(o)
             yield o
 
@@ -60,8 +60,6 @@ class KPCRScan(commands.command):
         outfd.write("Potential KPCR structure virtual addresses:\n")
         for o in data:
             outfd.write(" _KPCR: {0:x}\n".format(o))
-
-config.add_option("KPCR", type = 'int', default = 0, help = "KPCR Address")
 
 class KPCRScannerCheck(scan.ScannerCheck):
     """Checks the self referential pointers to find KPCRs"""
