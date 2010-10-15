@@ -160,14 +160,18 @@ class JKIA32PagedMemory(standard.AbstractWritablePagedMemory, addrspace.BaseAddr
         Returns whether or not the 'P' (Present) flag is on 
         in the given entry
         '''
-        return (entry & 1) == 1
+        if entry:
+            return (entry & 1) == 1
+        return False
 
     def page_size_flag(self, entry):
         '''
         Returns whether or not the 'PS' (Page Size) flag is on
         in the given entry
         '''
-        return (entry & (1 << 7)) == (1 << 7)
+        if entry:
+            return (entry & (1 << 7)) == (1 << 7)
+        return False
 
     def pde_index(self, vaddr):
         ''' 
