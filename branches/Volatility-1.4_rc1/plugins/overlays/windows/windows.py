@@ -201,7 +201,7 @@ AbstractWindows.object_classes['_TCPT_OBJECT'] = _TCPT_OBJECT
 
 class VolatilityKPCR(obj.VolatilityMagic):
 
-    def get_suggestions(self):
+    def generate_suggestions(self):
         scanner = kpcr.KPCRScanner()
         for val in scanner.scan(self.vm):
             yield val

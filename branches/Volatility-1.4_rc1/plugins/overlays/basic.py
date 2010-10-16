@@ -159,7 +159,7 @@ obj.Profile.object_classes['VOLATILITY_MAGIC'] = VOLATILITY_MAGIC
 
 class VolatilityDTB(obj.VolatilityMagic):
 
-    def get_suggestions(self):
+    def generate_suggestions(self):
         offset = 0
         while 1:
             data = self.vm.read(offset, constants.SCAN_BLOCKSIZE)

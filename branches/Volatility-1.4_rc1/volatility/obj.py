@@ -36,6 +36,8 @@ import re
 import pickle
 import struct, copy, operator
 import volatility.debug as debug
+import volatility.conf as conf
+config = conf.ConfObject()
 
 class Curry:
     """ This class makes a curried object available for simple inlined functions.
@@ -785,11 +787,20 @@ class CType(BaseObject):
 class VolatilityMagic(BaseObject):
     """Class to contain Volatility Magic value"""
 
-    def __init__(self, theType, offset, vm, parent = None, value = None, name = None):
+    def __init__(self, theType, offset, vm, parent = None, value = None, name = None, configname = None):
         try:
             BaseObject.__init__(self, theType, offset, vm, parent, name)
         except InvalidOffsetError:
             pass
+        # If we've been given a configname override,
+        # then override the value with the one from the config
+        if configname:
+            # When we kill off globals,
+            # use the self.vm's config
+            configval = getattr(config, configname)
+            # Check the configvalue is actually set to something
+            if configval:
+                value = configval
         self.value = value
 
     def v(self):
@@ -813,8 +824,13 @@ class VolatilityMagic(BaseObject):
            This is also to avoid a complete scan of the memory address space,
            since 
         """
-        yield self.v()
+        if self.value:
+            yield self.value
+        for x in self.generate_suggestions():
+            yield x
 
+    def generate_suggestions(self):
+        raise StopIteration("No suggestions available")
 
     def get_best_suggestion(self):
         """Returns the best suggestion for a list of possible suggestsions"""
