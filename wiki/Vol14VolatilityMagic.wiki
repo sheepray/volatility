@@ -84,7 +84,7 @@ Then overlay it on the VOLATILITY_MAGIC class, as usual.
 {{{
 class VolatilityKPCR(basic.VolatilityMagic):
 
-    def get_suggestions(self):
+    def generate_suggestions(self):
         scanner = KPCRScanner()
         for val in scanner.scan(self.vm):
             yield val
