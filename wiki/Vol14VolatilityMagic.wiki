@@ -12,8 +12,10 @@ To keep conflicts between generated vtypes and `VolatilityMagic` values separate
 
 This object has the following methods:
 
+  * `__init__(value = None, configname = None)`: Initializer, which accepts a standard value to return (if None is provided then suggestions will be generated from `get_suggestions()`), and a configname, which will be used to look up a value passed in via the config, and return that instead of any other value provided to `v()`, or at the start of `get_suggestions()`.
   * `v()`: Returns the value of the object (either value passed during creation or `get_best_suggestion()`).
-  * `get_suggestion()`: Returns a list of possible values, ordered best fit to worst fit.
+  * `get_suggestions()`: Returns a list of possible values (including any value specified during creation time, or any relevant config value), ordered best fit to worst fit.  This function is not intended to be overridden, please define `generate_suggestion` where required.
+  * `generate_suggestions()`: Returns a list of possible values, ordered best fit to worst fit.  Intended to be overriden.
   * `get_best_suggestion()`: By default, returns the first item from get_suggestion (or NoneObject if no suggestions are available).
 
 = Examples =
@@ -26,10 +28,10 @@ The following example sets `VOLATILITY_MAGIC.DTBSignature` to be `\x03\x00\x1b\x
 
 {{{
 'VOLATILITY_MAGIC' : [None, { 
+    'DTB' : [ 0x0, ['VolatilityDTB', dict(configname = "DTB")]],
     'DTBSignature' : [ 0x0, ['VolatilityMagic', dict(value = "\x03\x00\x1b\x00")]],
 }
 }}}
-
 
 == Returning Generated Values ==
 
@@ -38,7 +40,7 @@ To return generated values, create an object that inherits from `VolatilityMagic
 {{{
 class VolatilityDTB(VolatilityMagic):
 
-    def get_suggestions(self):
+    def generate_suggestions(self):
         offset = 0
         while 1:
             data = self.vm.read(offset, constants.SCAN_BLOCKSIZE)
@@ -77,7 +79,7 @@ Then overlay it on the VOLATILITY_MAGIC class, as usual.
 
 == Using existing Scanners ==
 
-`get_suggestions()` can implement new classes, so existing Scanner objects can easily be converted into `VolatilityMagic` objects:
+`generate_suggestions()` can implement new classes, so existing Scanner objects can easily be converted into `VolatilityMagic` objects:
 
 {{{
 class VolatilityKPCR(basic.VolatilityMagic):
