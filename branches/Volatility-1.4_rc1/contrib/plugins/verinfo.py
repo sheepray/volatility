@@ -298,7 +298,7 @@ resource_types = {
  'RT_HTML'         : 23,
 }
 
-class verinfo(procdump.procexedump):
+class verinfo(procdump.ProcExeDump):
     """Prints out the version information from PE images"""
 
     def __init__(self, *args):
