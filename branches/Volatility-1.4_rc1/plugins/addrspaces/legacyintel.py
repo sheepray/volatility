@@ -75,6 +75,8 @@ class IA32PagedMemory(standard.AbstractWritablePagedMemory, addrspace.BaseAddres
         # FIXME: !!!!! Remove Hardcoded HACK!!!!
         self.as_assert(self.is_valid_address(0x8055a420), "PsLoadedModuleList not valid Address")
 
+        self.name = 'Kernel AS'
+
     def load_dtb(self):
         try:
             ## Try to be lazy and see if someone else found dtb for
