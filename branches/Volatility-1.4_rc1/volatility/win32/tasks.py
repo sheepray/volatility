@@ -28,13 +28,16 @@
 
 #pylint: disable-msg=C0111
 
-import volatility.win32.kpcr as kpcr
+import volatility.obj as obj
 import volatility.debug as debug #pylint: disable-msg=W0611
 
 def pslist(addr_space):
     """ A Generator for _EPROCESS objects (uses _KPCR symbols) """
 
-    kpcrval = kpcr.get_kpcrobj(addr_space)
+    volmagic = obj.Object('VOLATILITY_MAGIC', 0x0, addr_space)
+    kpcra = volmagic.KPCR.v()
+
+    kpcrval = obj.Object("_KPCR", offset = kpcra, vm = addr_space)
 
     DebuggerDataList = kpcrval.KdVersionBlock.dereference_as("_DBGKD_GET_VERSION64").DebuggerDataList
     PsActiveProcessHead = DebuggerDataList.dereference_as("_KDDEBUGGER_DATA64"

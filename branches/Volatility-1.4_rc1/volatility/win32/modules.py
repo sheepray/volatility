@@ -24,14 +24,16 @@
 """
 
 #pylint: disable-msg=C0111
-
-import volatility.win32.kpcr as kpcr
+import volatility.obj as obj
 
 def lsmod(addr_space):
     """ A Generator for modules (uses _KPCR symbols) """
     ## Locate the kpcr struct - either hard coded or specified by the command line
 
-    kpcrval = kpcr.get_kpcrobj(addr_space)
+    volmagic = obj.Object('VOLATILITY_MAGIC', 0x0, addr_space)
+    kpcra = volmagic.KPCR.v()
+
+    kpcrval = obj.Object("_KPCR", offset = kpcra, vm = addr_space)
 
     ## Try to dereference the KdVersionBlock as a 64 bit struct
     DebuggerDataList = kpcrval.KdVersionBlock.dereference_as("_DBGKD_GET_VERSION64").DebuggerDataList
