@@ -85,7 +85,7 @@ class JKIA32PagedMemory(standard.AbstractWritablePagedMemory, addrspace.BaseAddr
         except AttributeError:
             pass
 
-        self.dtb = dtb or config.DTB or self.load_dtb()
+        self.dtb = dtb or self.load_dtb()
         self.base = base
 
         self.as_assert(self.dtb != None, "No valid DTB found")
