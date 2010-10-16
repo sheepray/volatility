@@ -39,12 +39,10 @@ functionality. For example we may include a Scanner, Report and File
 classes in the same plugin and have them all automatically loaded.
 """
 
-import os, sys, imp, warnings
+import os, sys
 import volatility.debug as debug
 import volatility.conf as conf
 config = conf.ConfObject()
-
-import pdb
 
 config.add_option("INFO", default = None, action = "store_true",
                   cache_invalidator = False,
@@ -54,146 +52,42 @@ config.add_option("PLUGINS", default = "./plugins",
                   cache_invalidator = False,
                   help = "Additional plugin directories to use (colon separated)")
 
-
-class ModuleRegistry(object):
-    """A class to load and manage a set of python modules."""
-    modules = {}
-
-    def __init__(self):
-        self.namespaces = set()
-        self.module_paths = []
-        self.get_modules()
-        self.errors = {}
-
-        ## The following code resolves dependencies by postponing
-        ## loading of failed modules
-        while 1:
-            modules_left = len(self.module_paths)
-
-            ## Try to compile some more
-            self.module_paths = self.load_modules(self.module_paths)
-
-            ## no change - we cant make any progress - report the
-            ## failures and continue
-            if modules_left == len(self.module_paths):
-                for module_name, module_path in self.module_paths:
-                    debug.debug("Unable to import {0}: {1}".format(module_name, self.errors[module_path]))
-
-                break
-
-    def get_module_objects(self):
-        return self.modules.values()
-
-    def load_modules(self, modules):
-        """Load all the modules named in modules if possible.
-
-        Returns:
-          The modules which did not load.
+class PluginImporter(object):
+    """This class searches through a comma-separated list of plugins and
+       imports all classes found, based on their path and a fixed prefix.
+    """
+    def __init__(self, plugins):
+        """Gathers all the plugins from config.PLUGINS
+           Determines their namespaces and maintains a dictionary of modules to filepaths
+           Then imports all modules found
         """
+        self.modnames = {}
 
-        # Ignore the RuntimeWarnings telling us about no lower nodes during absolute import attempts
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore", RuntimeWarning)
-            results = []
-            for module_name, module_path in modules:
-                try:
-                    debug.trace()
-                    ## Temporarily load this module into a temporary
-                    ## name. It will be moved later to its desired
-                    ## namespace
-                    try:
-                        del sys.modules['tmp_module']
-                    except KeyError:
-                        pass
-
-                    module = imp.load_source("tmp_module", module_path)
-                    self.modules[module_name] = module
-
-                    # The module name we use depends on the __namespace__ arg
-                    try:
-                        module_name = "{0}.{1}".format(module.__namespace__, module_name)
-                    except AttributeError:
-                        pass
-
-                    module_name = "volatility.plugins.{0}".format(module_name)
-                    if self.modules.get(module_name, None):
-                        debug.error("Module " + module_path + " requested an already registered name (" + module_name + ")")
-                    self.insert_module_to_system(module_name, module_path)
-
-                except ImportError, e:
-                    results.append((module_name, module_path))
-                    self.errors[module_path] = e
-
-        return results
-
-    def insert_module_to_system(self, module_name, module_path):
-        """Inserts the module into the sys.modules dict ensuring that
-        intermediate modules are created.
-
-        After this call modules can simply issue
-
-        import module_name
-
-        to receive the module.
-        """
-        ## We basically add the module to the module tree by ensure it
-        ## has a continuous path to the root. If a node is missing we
-        ## add a dummy node.
-
-        # We have to reload the source to ensure the objects get
-        # created with the right module name so that pickling it later
-        # all fits together properly.
-        module = imp.load_source(module_name, module_path)
-        sys.modules[module_name] = module
-
-        ## Now check that its reachable
-        module_path = module_name.split(".")
-        for i in range(len(module_path) - 1, 0, -1):
-            component = ".".join(module_path[0:i])
-            try:
-                setattr(sys.modules[component], module_path[i], module)
-                ## We have reached a connected node - we just need to
-                ## set a new property and quit (We assume that if its
-                ## already in the tree its connected to the root).
-                break
-
-            except KeyError:
-                sys.modules[component] = imp.new_module(component)
-
-                setattr(sys.modules[component], module_path[i], module)
-
-                module = sys.modules[component]
-
-    def get_modules(self):
-        """Iterates over all the plugin paths to discover modules.
-
-        Returns:
-           a dict of potential modules and paths.
-        """
-        # Setup initial plugin directories
-        plugins = config.PLUGINS
-
-        ## Recurse over all the plugin directories recursively
         for path in plugins.split(';'):
-            # FIXME: Windows Absolute Paths don't start with /
-            if path.startswith('/'):
-                path = os.path.abspath(path)
-            else:
-                # Take the executable path
-                relbase = sys.argv[0]
-                if hasattr(sys, "frozen") or hasattr(sys, "importers") or imp.is_frozen("__main__"):
-                    # Use the actual executable path if the script's frozen (running within py2exe)
-                    relbase = sys.executable
-                path = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(relbase)), path))
+            path = os.path.abspath(path)
 
             for dirpath, _dirnames, filenames in os.walk(path):
+                pathlist = ['volatility.plugins'] + [ x for x in dirpath[len(path) + 1:].split(os.path.sep) if x ]
+                namespace = ".".join(pathlist)
                 for filename in filenames:
                     #Lose the extension for the module name
-                    module_name = filename[:-3]
-                    if filename.endswith(".py"):
-                        path = os.path.join(dirpath, filename)
-                        self.module_paths.append((module_name, path))
+                    module_name, ext = os.path.splitext(filename)
+                    if ext == ".py":
+                        filepath = os.path.join(dirpath, filename)
+                        self.modnames[namespace + "." + module_name] = filepath
 
+        self.run_imports()
+
+    def run_imports(self):
+        """Imports all the already found modules"""
+        for i in self.modnames.keys():
+            if self.modnames[i] is not None:
+                try:
+                    __import__(i)
+                except BaseException, e:
+                    print "*** Failed to import " + i + " (" + str(e.__class__.__name__) + ": " + str(e) + ")"
+                    # This is too early to have had the debug filter lowered to include debugging messages
+                    debug.post_mortem(2)
 
 class MemoryRegistry(object):
     """ Main class to register classes derived from a given parent
@@ -206,8 +100,8 @@ class MemoryRegistry(object):
     module_desc = []
     module_paths = []
 
-    def __init__(self, ParentClass, modules):
-        """ Search the plugins directory for all classes extending
+    def __init__(self, ParentClass):
+        """ Search all imported modules for all classes extending
         ParentClass.
 
         These will be considered as implementations and added to our
@@ -219,33 +113,25 @@ class MemoryRegistry(object):
         self.order = []
         self.ParentClass = ParentClass
 
-        for module in modules.get_module_objects():
-            self.load_module(module)
-
-    def load_module(self, module):
-        """Grabs all the classes inheriting from self.ParentClass in
-        the module object.
-        """
-        #Now we enumerate all the classes in the
-        #module to see which one is a ParentClass:
-
-        for cls in dir(module):
-            try:
-                Class = module.__dict__[cls]
-                if issubclass(Class, self.ParentClass) and Class != self.ParentClass:
-                    ## Check the class for consistency
-                    try:
-                        self.check_class(Class)
-                    except AttributeError, e:
-                        debug.debug("Failed to load {0} '{1}': {2}".format(self.ParentClass, cls, e))
-                        continue
-
+        for Class in self.get_subclasses(self.ParentClass):
+            if Class != self.ParentClass:
+                ## Check the class for consistency
+                try:
+                    self.check_class(Class)
                     ## Add the class to ourselves:
                     self.add_class(Class)
+                except NotImplementedError:
+                    pass
+                except AttributeError, e:
+                    debug.debug("Failed to load {0} '{1}': {2}".format(self.ParentClass, Class, e))
+                    continue
 
-            # Oops: it isnt a class...
-            except (TypeError, NameError) , e:
-                continue
+    def get_subclasses(self, cls):
+        """Returns a list of all subclasses"""
+        for i in cls.__subclasses__():
+            for c in self.get_subclasses(i):
+                yield c
+        yield cls
 
     def add_class(self, Class):
         """ Adds the class provided to our self. This is here to be
@@ -269,8 +155,11 @@ class MemoryRegistry(object):
 
         If there is any problem, we chuck an exception.
         """
+        prohibited_class_names = ["BufferAddressSpace", "HiveAddressSpace"]
         if Class.__name__.lower().startswith("abstract"):
-            raise NotImplemented("This class is an abstract class")
+            raise NotImplementedError("This class is an abstract class")
+        if Class.__name__ in prohibited_class_names:
+            raise NotImplementedError("This class name is prohibited from the Registry")
 
     def get_name(self, cls):
         try:
@@ -284,8 +173,8 @@ class VolatilityCommandRegistry(MemoryRegistry):
         """ Return the command objects by name """
         return self.commands[command_name]
 
-    def __init__(self, ParentClass, modules):
-        MemoryRegistry.__init__(self, ParentClass, modules)
+    def __init__(self, ParentClass):
+        MemoryRegistry.__init__(self, ParentClass)
         self.commands = {}
 
         for cls in self.classes:
@@ -302,8 +191,8 @@ class VolatilityObjectRegistry(MemoryRegistry):
         """ Return the objects by name """
         return self.objects[object_name]
 
-    def __init__(self, ParentClass, modules):
-        MemoryRegistry.__init__(self, ParentClass, modules)
+    def __init__(self, ParentClass):
+        MemoryRegistry.__init__(self, ParentClass)
         self.objects = {}
 
         ## First we sort the classes according to their order
@@ -367,7 +256,7 @@ SCANNER_CHECKS = None
 ## This is required for late initialization to avoid dependency nightmare.
 def Init():
     ## Load all the modules:
-    modules = ModuleRegistry()
+    PluginImporter(config.PLUGINS)
 
     ## LOCK will ensure that we only initialize once.
     global LOCK
@@ -378,19 +267,19 @@ def Init():
     ## Register all shell commands:
     import volatility.commands as commands
     global PLUGIN_COMMANDS
-    PLUGIN_COMMANDS = VolatilityCommandRegistry(commands.command, modules)
+    PLUGIN_COMMANDS = VolatilityCommandRegistry(commands.command)
 
     import volatility.addrspace as addrspace
     global AS_CLASSES
-    AS_CLASSES = VolatilityObjectRegistry(addrspace.BaseAddressSpace, modules)
+    AS_CLASSES = VolatilityObjectRegistry(addrspace.BaseAddressSpace)
 
     global PROFILES
     import volatility.obj as obj
-    PROFILES = VolatilityObjectRegistry(obj.Profile, modules)
+    PROFILES = VolatilityObjectRegistry(obj.Profile)
 
     import volatility.scan as scan
     global SCANNER_CHECKS
-    SCANNER_CHECKS = VolatilityObjectRegistry(scan.ScannerCheck, modules)
+    SCANNER_CHECKS = VolatilityObjectRegistry(scan.ScannerCheck)
 
     if config.INFO:
         print_info()

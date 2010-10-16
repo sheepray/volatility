@@ -44,14 +44,15 @@ class KPCRScan(commands.command):
 
     @staticmethod
     def register_class(config):
-        config.add_option("KPCR", type = 'int', default = 0, help = "KPCR Address")
+        config.add_option('KPCR', short_option = 'k', default = None, type = 'int',
+                          help = "Specify a specific KPCR address")
 
     def calculate(self):
         """Determines the address space"""
         addr_space = utils.load_as(self._config)
 
-        volmagic = obj.Object('VOLATILITY_MAGIC', 0x0, addr_space)
-        for o in volmagic.KPCR.get_suggestions():
+        scanner = KPCRScanner()
+        for o in scanner.scan(addr_space):
             print "Phys addr", "{0:08x}".format(addr_space.vtop(o)), "Virt addr", "{0:08x}".format(o)
             yield o
 

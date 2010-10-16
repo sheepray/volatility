@@ -34,7 +34,7 @@ class ProcExeDump(taskmods.DllList):
                           cache_invalidator = False,
                           help = 'Directory in which to dump the VAD files')
 
-        config.add_option("UNSAFE", short_option = "u", default = 0, type = 'int',
+        config.add_option("UNSAFE", short_option = "u", default = False, action = 'store_true',
                           help = 'Bypasses certain sanity checks when creating image')
 
     def render_text(self, outfd, data):
@@ -123,13 +123,15 @@ class ProcExeDump(taskmods.DllList):
         if data_size < first_block:
             data_read = addr_space.zread(data_start, data_size)
             if paddr == None:
-                outfd.write("Memory Not Accessible: Virtual Address: 0x{0:x} File Offset: 0x{1:x} Size: 0x{2:x}\n".format(data_start, offset, data_size))
+                if self.config.verbose:
+                    outfd.write("Memory Not Accessible: Virtual Address: 0x{0:x} File Offset: 0x{1:x} Size: 0x{2:x}\n".format(data_start, offset, data_size))
             code += data_read
             return (offset, code)
 
         data_read = addr_space.zread(data_start, first_block)
         if paddr == None:
-            outfd.write("Memory Not Accessible: Virtual Address: 0x{0:x} File Offset: 0x{1:x} Size: 0x{2:x}\n".format(data_start, offset, first_block))
+            if self.config.verbose:
+                outfd.write("Memory Not Accessible: Virtual Address: 0x{0:x} File Offset: 0x{1:x} Size: 0x{2:x}\n".format(data_start, offset, first_block))
         code += data_read
 
         # The middle part of the read
@@ -138,7 +140,8 @@ class ProcExeDump(taskmods.DllList):
         for _i in range(0, full_blocks):
             data_read = addr_space.zread(new_vaddr, 0x1000)
             if addr_space.vtop(new_vaddr) == None:
-                outfd.write("Memory Not Accessible: Virtual Address: 0x{0:x} File Offset: 0x{1:x} Size: 0x{2:x}\n".format(new_vaddr, offset, 0x1000))
+                if self.config.verbose:
+                    outfd.write("Memory Not Accessible: Virtual Address: 0x{0:x} File Offset: 0x{1:x} Size: 0x{2:x}\n".format(new_vaddr, offset, 0x1000))
             code += data_read
             new_vaddr = new_vaddr + 0x1000
 
@@ -146,7 +149,8 @@ class ProcExeDump(taskmods.DllList):
         if left_over > 0:
             data_read = addr_space.zread(new_vaddr, left_over)
             if addr_space.vtop(new_vaddr) == None:
-                outfd.write("Memory Not Accessible: Virtual Address: 0x{0:x} File Offset: 0x{1:x} Size: 0x{2:x}\n".format(new_vaddr, offset, left_over))
+                if self.config.verbose:
+                    outfd.write("Memory Not Accessible: Virtual Address: 0x{0:x} File Offset: 0x{1:x} Size: 0x{2:x}\n".format(new_vaddr, offset, left_over))
             code += data_read
         return (offset, code)
 

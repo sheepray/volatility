@@ -67,11 +67,13 @@ class IA32PagedMemory(standard.AbstractWritablePagedMemory, addrspace.BaseAddres
 
         ## We can not stack on someone with a page table
         self.as_assert(not hasattr(base, 'pgd_vaddr'), "Can not stack over page table AS")
-        self.pgd_vaddr = dtb or config.DTB or self.load_dtb()
+        self.pgd_vaddr = dtb or self.load_dtb()
 
         ## Finally we have to have a valid PsLoadedModuleList
         # FIXME: !!!!! Remove Hardcoded HACK!!!!
         self.as_assert(self.is_valid_address(0x8055a420), "PsLoadedModuleList not valid Address")
+
+        self.name = 'Kernel AS'
 
     @staticmethod
     def register_options(config):

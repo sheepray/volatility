@@ -79,17 +79,14 @@ def _log(msg, facility, loglevel):
     logger = logging.getLogger(facility)
     logger.log(loglevel, msg)
 
-def b():
+def b(level = 1):
     """Enters the debugger at the call point"""
-    if config.DEBUG:
+    if config.DEBUG >= level:
         pdb.set_trace()
 
-def trace():
-    """Enters the debugger at the call point"""
-    if config.DEBUG:
-        pdb.set_trace()
+trace = b
 
-def post_mortem():
+def post_mortem(level = 1):
     """Provides a command line interface to python after an exception's occurred"""
-    if config.DEBUG:
+    if config.DEBUG >= level:
         pdb.post_mortem()
