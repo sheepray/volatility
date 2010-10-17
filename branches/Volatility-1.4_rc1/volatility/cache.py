@@ -198,6 +198,7 @@ import types
 import os
 import urlparse
 import volatility.conf as conf
+import volatility.obj as obj
 import volatility.debug as debug
 import cPickle as pickle
 config = conf.ConfObject()
@@ -262,6 +263,10 @@ class CacheNode(object):
                 for i in item:
                     result[self._find_generators(i)] = self._find_generators(item[i])
                 return result
+
+            # Since NoneObjects are iterable, treat them specially
+            if isinstance(item, obj.NoneObject):
+                return item
 
             if isinstance(item, types.GeneratorType):
                 raise ContainsGenerator
