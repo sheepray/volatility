@@ -25,6 +25,7 @@ import re
 import volatility.plugins.procdump as procdump
 import volatility.win32.modules as modules
 import volatility.utils as utils
+import volatility.debug as debug
 import volatility.conf as conf
 config = conf.ConfObject()
 
@@ -49,9 +50,9 @@ class ModDump(procdump.ProcExeDump):
         addr_space = utils.load_as()
 
         if config.DUMP_DIR == None:
-            config.error("Please specify a dump directory (--dump-dir)")
+            debug.error("Please specify a dump directory (--dump-dir)")
         if not os.path.isdir(config.DUMP_DIR):
-            config.error(config.DUMP_DIR + " is not a directory")
+            debug.error(config.DUMP_DIR + " is not a directory")
 
         if config.regex:
             try:
@@ -60,7 +61,7 @@ class ModDump(procdump.ProcExeDump):
                 else:
                     mod_re = re.compile(config.regex)
             except re.error, e:
-                config.error('Error parsing regular expression: %s' % e)
+                debug.error('Error parsing regular expression: %s' % e)
 
         mods = dict((mod.DllBase.v(), mod) for mod in modules.lsmod(addr_space))
 
