@@ -24,6 +24,7 @@ import os
 import re
 import volatility.plugins.procdump as procdump
 import volatility.win32.modules as modules
+import volatility.win32.tasks as tasks
 import volatility.utils as utils
 import volatility.debug as debug
 import volatility.conf as conf
@@ -46,6 +47,17 @@ class ModDump(procdump.ProcExeDump):
                           help = 'Dump driver with base address OFFSET (in hex)',
                           action = 'store', type = 'int')
 
+    def find_space(self, addr_space, procs, mod_base):
+        """Search for an address space (usually looking for a GUI process)"""
+        if addr_space.is_valid_address(mod_base):
+            return addr_space
+        for proc in procs:
+            ps_ad = proc.get_process_address_space()
+            if ps_ad != None:
+                if ps_ad.is_valid_address(mod_base):
+                    return ps_ad
+        return None
+
     def calculate(self):
         addr_space = utils.load_as()
 
@@ -64,10 +76,13 @@ class ModDump(procdump.ProcExeDump):
                 debug.error('Error parsing regular expression: %s' % e)
 
         mods = dict((mod.DllBase.v(), mod) for mod in modules.lsmod(addr_space))
+        # We need the process list to find spaces for some drivers. Enumerate them here
+        # instead of inside the find_space function, so we only have to do it once. 
+        procs = list(tasks.pslist(addr_space))
 
         if config.offset:
             if mods.has_key(config.offset):
-                yield addr_space, mods[config.offset]
+                yield addr_space, procs, mods[config.offset]
             else:
                 raise StopIteration('No such module at 0x{0:X}'.format(config.offset))
         else:
@@ -75,16 +90,17 @@ class ModDump(procdump.ProcExeDump):
                 if config.regex:
                     if not mod_re.search(str(mod.FullDllName)) and not mod_re.search(str(mod.BaseDllName)):
                         continue
-                yield addr_space, mod
+                yield addr_space, procs, mod
 
     def render_text(self, outfd, data):
-        for addr_space, mod in data:
-            if addr_space.is_valid_address(mod.DllBase):
+        for addr_space, procs, mod in data:
+            space = self.find_space(addr_space, procs, mod.DllBase)
+            if space != None:
                 dump_file = "driver.{0:x}.sys".format(mod.DllBase)
                 outfd.write("Dumping {0}, Base: {1:8x} output: {2}\n".format(mod.BaseDllName, mod.DllBase, dump_file))
                 of = open(os.path.join(config.DUMP_DIR, dump_file), 'wb')
                 try:
-                    for chunk in self.get_image(outfd, addr_space, mod.DllBase):
+                    for chunk in self.get_image(outfd, space, mod.DllBase):
                         offset, code = chunk
                         of.seek(offset)
                         of.write(code)
