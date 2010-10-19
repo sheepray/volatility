@@ -31,8 +31,6 @@ import volatility.debug as debug #pylint: disable-msg=W0611
 import urllib
 import os
 
-__namespace__ = "addrspaces"
-
 #pylint: disable-msg=C0111
 
 ## This module requires a filename to be passed by the user

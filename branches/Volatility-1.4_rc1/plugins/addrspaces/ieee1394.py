@@ -24,8 +24,6 @@ import volatility.addrspace as addrspace
 import volatility.conf
 config = volatility.conf.ConfObject()
 
-__namespace__ = "addrspaces"
-
 def FirewireRW(netloc, location):
     if netloc in fw_implementations:
         return fw_implementations[netloc](location)

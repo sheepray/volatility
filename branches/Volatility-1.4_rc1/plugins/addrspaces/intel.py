@@ -29,8 +29,6 @@ import volatility.conf
 config = volatility.conf.ConfObject()
 import volatility.debug as debug #pylint: disable-msg=W0611
 
-__namespace__ = "addrspaces"
-
 config.add_option("DTB", type = 'int', default = 0,
                   help = "DTB Address")
 

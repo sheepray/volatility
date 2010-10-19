@@ -30,8 +30,6 @@ import volatility.win32.xpress as xpress
 import volatility.conf as conf
 import struct
 
-__namespace__ = "addrspaces"
-
 config = conf.ConfObject()
 
 #pylint: disable-msg=C0111

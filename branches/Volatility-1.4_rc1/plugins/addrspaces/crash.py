@@ -27,8 +27,6 @@ import volatility.conf
 import volatility.plugins.addrspaces.standard as standard
 config = volatility.conf.ConfObject()
 
-__namespace__ = "addrspaces"
-
 #pylint: disable-msg=C0111
 
 page_shift = 12

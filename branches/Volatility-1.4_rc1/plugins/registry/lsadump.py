@@ -36,8 +36,6 @@ import volatility.commands as commands
 import volatility.conf as conf
 config = conf.ConfObject()
 
-__namespace__ = "registry"
-
 FILTER = ''.join([(len(repr(chr(i))) == 3) and chr(i) or '.' for i in range(256)])
 
 def hd(src, length = 16):

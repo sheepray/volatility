@@ -8,8 +8,6 @@ import volatility.plugins.addrspaces.standard as standard
 import volatility.conf
 config = volatility.conf.ConfObject()
 
-__namespace__ = "addrspaces"
-
 possible_names = ['libewf-1', 'ewf', ]
 for name in possible_names:
     resolved = ctypes.util.find_library(name)

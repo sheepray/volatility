@@ -29,8 +29,6 @@ import volatility.conf
 config = volatility.conf.ConfObject()
 import volatility.obj as obj
 
-__namespace__ = "addrspaces"
-
 ## This stuff needs to go in the profile
 entry_size = 8
 pointer_size = 4
