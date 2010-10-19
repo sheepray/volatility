@@ -44,6 +44,8 @@ vistasp0x86overlays['_CONTROL_AREA'][1]['Flags'][0] = lambda x: x['u'][0]
 vistasp0x86overlays['_MMVAD_LONG'][1]['Flags'][0] = lambda x: x['u'][0]
 vistasp0x86overlays['_MMVAD_LONG'][1]['Flags2'][0] = lambda x: x['u'][0]
 
+vistasp0x86overlays['VOLATILITY_MAGIC'][1]['KPCR'][1] = ['VolatilityKPCR', dict(configname = 'KPCR')]
+
 vista_sp0_x86_vtypes.ntkrnlmp_types.update(crashdump.crash_vtypes)
 vista_sp0_x86_vtypes.ntkrnlmp_types.update(hibernate_vtypes.hibernate_vtypes)
 
