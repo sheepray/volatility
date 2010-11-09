@@ -368,9 +368,6 @@ class BaseObject(object):
     def get_member(self, memname):
         raise AttributeError("No member {0}".format(memname))
 
-    def get_member_offset(self, memname, relative = False):
-        return self.offset
-
     def is_null(self):
         return False
 
