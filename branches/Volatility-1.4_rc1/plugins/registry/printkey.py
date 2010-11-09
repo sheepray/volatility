@@ -91,6 +91,9 @@ class PrintKey(commands.command):
         return root
 
     def render_text(self, outfd, key):
+        if not key:
+            outfd.write("Unable to find requested key")
+            return
         outfd.write("Key name: " + key.Name + "\n")
         outfd.write("(Volatile)\n" if vol(key) else "(Stable)\n")
         outfd.write("Last updated: {0}\n".format(key.LastWriteTime))
