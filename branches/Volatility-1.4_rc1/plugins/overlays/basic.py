@@ -31,10 +31,8 @@ class String(obj.NativeType):
     def __init__(self, theType, offset, vm = None,
                  length = 1, parent = None, profile = None, name = None, **args):
         ## Allow length to be a callable:
-        try:
+        if callable(length):
             length = length(parent)
-        except TypeError:
-            pass
 
         ## length must be an integer
         obj.NativeType.__init__(self, theType, offset, vm, parent = parent, profile = profile,

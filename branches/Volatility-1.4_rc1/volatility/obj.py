@@ -744,11 +744,11 @@ class CType(BaseObject):
             #return NoneObject("Struct {0} has no member {1}".format(self.name, attr))
             raise AttributeError("Struct {0} has no member {1}".format(self.name, attr))
 
-        try:
+        if callable(offset):
             ## If offset is specified as a callable its an absolute
             ## offset
             offset = int(offset(self))
-        except TypeError:
+        else:
             ## Otherwise its relative to the start of our struct
             offset = int(offset) + int(self.offset)
 

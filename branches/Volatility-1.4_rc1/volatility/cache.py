@@ -534,9 +534,9 @@ class CacheDecorator(object):
     def _cachewrapper(self, f, s, *args, **kwargs):
         """Wrapper for caching function calls"""
         ## See if the path is callable:
-        try:
+        if callable(self.path):
             path = self.path(s, *args, **kwargs)
-        except TypeError:
+        else:
             path = self.path
 
         ## Check if the result can be retrieved
