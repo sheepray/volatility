@@ -359,17 +359,8 @@ class BaseObject(object):
     def __hash__(self):
         return hash(self.name) ^ hash(self.offset)
 
-    def has_member(self, memname):
-        return False
-
     def m(self, memname):
-        return self.get_member(memname)
-
-    def get_member(self, memname):
         raise AttributeError("No member {0}".format(memname))
-
-    def is_null(self):
-        return False
 
     def is_valid(self):
         return self.vm.is_valid_address(self.offset)
@@ -378,8 +369,7 @@ class BaseObject(object):
         return NoneObject("Can't dereference {0}".format(self.name), self.profile.strict)
 
     def dereference_as(self, derefType):
-        return Object(derefType, self.v(), \
-                         self.vm, parent = self)
+        return Object(derefType, self.v(), self.vm, parent = self)
 
     def cast(self, castString):
         return Object(castString, self.offset, self.vm)
@@ -391,14 +381,6 @@ class BaseObject(object):
 
     def __format__(self, formatspec):
         return format(self.v(), formatspec)
-
-    def get_bytes(self, amount = None):
-        if amount == None:
-            # FIXME: Figure out what self.size() should be?
-            # amount = self.size()
-            pass
-
-        return self.vm.read(self.offset, amount)
 
     def __str__(self):
         return str(self.v())
