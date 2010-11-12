@@ -302,7 +302,7 @@ class verinfo(procdump.ProcExeDump):
     """Prints out the version information from PE images"""
 
     def __init__(self, *args):
-        procdump.procexedump.__init__(self, *args)
+        procdump.ProcExeDump.__init__(self, *args)
         config.remove_option("OFFSET")
         config.remove_option("PIDS")
         config.add_option("OFFSET", short_option = "o", type = 'int',
