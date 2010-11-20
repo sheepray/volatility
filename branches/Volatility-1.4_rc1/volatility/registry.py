@@ -40,6 +40,7 @@ classes in the same plugin and have them all automatically loaded.
 """
 
 import os, sys, zipfile
+import volatility.constants as constants
 import volatility.debug as debug
 import volatility.conf as conf
 config = conf.ConfObject()
@@ -64,11 +65,10 @@ class PluginImporter(object):
         self.modnames = {}
 
         # Handle the core plugins
-        directory = os.path.join(os.path.dirname(__file__), 'plugins')
         if not plugins:
-            plugins = directory
+            plugins = constants.PLUGINPATH
         else:
-            plugins += ";" + directory
+            plugins += ";" + constants.PLUGINPATH
 
         # Handle additional plugins
         for path in plugins.split(';'):
