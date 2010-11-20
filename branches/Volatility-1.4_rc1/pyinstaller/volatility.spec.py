@@ -9,7 +9,7 @@ def get_plugins(list):
 a = Analysis([os.path.join(HOMEPATH, 'support/_mountzlib.py'),
               os.path.join(HOMEPATH, 'support/useUnicode.py'),
               os.path.join(projpath, 'volatility.py')],
-              pathex = ['/home/mike/tmp/pyinstaller/trunk'],
+              pathex = [HOMEPATH],
               hookspath = [os.path.join(projpath, 'pyinstaller')])
 pyz = PYZ(a.pure - set(get_plugins(a.pure)),
           name = os.path.join(projpath, 'pyinstaller', 'build', 'vol.pkz'))
