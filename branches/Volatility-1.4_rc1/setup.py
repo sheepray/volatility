@@ -22,7 +22,7 @@
 #
 
 from distutils.core import setup
-import volatility
+import volatility.constants
 import sys
 import os
 
@@ -46,7 +46,7 @@ def find_py_files(topdirs):
 opts = {}
 
 opts['name'] = "volatility"
-opts['version'] = volatility.version
+opts['version'] = volatility.constants.VERSION
 opts['description'] = "Volatility -- Volatile memory framwork"
 opts['author'] = "AAron Walters"
 opts['author_email'] = "awalters@volatilesystems.com"

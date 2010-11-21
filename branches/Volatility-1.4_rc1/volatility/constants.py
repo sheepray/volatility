@@ -22,6 +22,8 @@
 
 import os, sys
 
+VERSION = "1.4_rc1"
+
 SCAN_BLOCKSIZE = 1024 * 1024 * 10
 
 PLUGINPATH = os.path.dirname(__file__)

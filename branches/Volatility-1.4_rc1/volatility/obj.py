@@ -37,6 +37,7 @@ import pickle
 import struct, copy, operator
 import volatility.debug as debug
 import volatility.conf as conf
+import volatility.utils as utils
 config = conf.ConfObject()
 
 class Curry:
@@ -250,7 +251,7 @@ class NoneObject(object):
     def __call__(self, *arg, **kwargs):
         return self
 
-class InvalidOffsetError(Exception):
+class InvalidOffsetError(utils.VolatilityException):
     """Simple placeholder to identify invalid offsets"""
     pass
 
