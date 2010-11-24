@@ -30,6 +30,11 @@
 
 import volatility.obj as obj
 import volatility.debug as debug #pylint: disable-msg=W0611
+import volatility.utils as utils
+
+class TasksNotFound(utils.VolatilityException):
+    """Thrown when a tasklist cannot be determined"""
+    pass
 
 def pslist(addr_space):
     """ A Generator for _EPROCESS objects (uses _KPCR symbols) """
@@ -48,14 +53,12 @@ def pslist(addr_space):
                                                            ).PsActiveProcessHead
 
     if PsActiveProcessHead:
-        # print type(PsActiveProcessHead)
-    ## Try to iterate over the process list in PsActiveProcessHead
-    ## (its really a pointer to a _LIST_ENTRY)
-        for l in PsActiveProcessHead.dereference_as("_LIST_ENTRY").list_of_type(
-            "_EPROCESS", "ActiveProcessLinks"):
+        # Try to iterate over the process list in PsActiveProcessHead
+        # (its really a pointer to a _LIST_ENTRY)
+        for l in PsActiveProcessHead.dereference_as("_LIST_ENTRY").list_of_type("_EPROCESS", "ActiveProcessLinks"):
             yield l
     else:
-        raise RuntimeError("Unable to find PsActiveProcessHead - is this image supported?")
+        raise TasksNotFound("Could not list tasks, please verify the --profile option and whether this image is valid")
 
 def create_addr_space(kaddr_space, directory_table_base):
 

@@ -198,7 +198,9 @@ import types
 import os
 import urlparse
 import volatility.conf as conf
+import volatility.obj as obj
 import volatility.debug as debug
+import volatility.utils as utils
 import cPickle as pickle
 config = conf.ConfObject()
 
@@ -209,7 +211,8 @@ config.add_option("CACHE-DIRECTORY", default = default_cache_location,
                   cache_invalidator = False,
                   help = "Directory where cache files are stored")
 
-class ContainsGenerator(Exception):
+class CacheContainsGenerator(utils.VolatilityException):
+    """Exception raised when the cache contains a generator"""
     pass
 
 class InvalidCache(Exception):
@@ -263,8 +266,12 @@ class CacheNode(object):
                     result[self._find_generators(i)] = self._find_generators(item[i])
                 return result
 
+            # Since NoneObjects are iterable, treat them specially
+            if isinstance(item, obj.NoneObject):
+                return item
+
             if isinstance(item, types.GeneratorType):
-                raise ContainsGenerator
+                raise CacheContainsGenerator
             for x in iter(item):
                 flat_x = self._find_generators(x)
                 result.append(flat_x)
@@ -277,7 +284,7 @@ class CacheNode(object):
         ''' Update the current payload with the new specified payload '''
         try:
             self.payload = self._find_generators(payload)
-        except ContainsGenerator:
+        except CacheContainsGenerator:
             # This only works because None payload cached results are rerun
             self.payload = None
 
@@ -529,9 +536,9 @@ class CacheDecorator(object):
     def _cachewrapper(self, f, s, *args, **kwargs):
         """Wrapper for caching function calls"""
         ## See if the path is callable:
-        try:
+        if callable(self.path):
             path = self.path(s, *args, **kwargs)
-        except TypeError:
+        else:
             path = self.path
 
         ## Check if the result can be retrieved

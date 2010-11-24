@@ -34,8 +34,6 @@ import volatility.debug as debug
 import volatility.utils as utils
 import volatility.commands as commands
 
-__namespace__ = "registry"
-
 FILTER = ''.join([(len(repr(chr(i))) == 3) and chr(i) or '.' for i in range(256)])
 
 def hd(src, length = 16):
@@ -129,9 +127,10 @@ class HiveDump(commands.command):
         return rawreg.get_root(h)
 
     def render_text(self, outfd, data):
-        self.print_key(outfd, 0, data)
+        outfd.write("{0:20s} {1}\n".format("Last Written", "Key"))
+        self.print_key(outfd, '', data)
 
-    def print_key(self, outfd, level, key):
-        outfd.write((" " * level) + key.Name + "\n")
+    def print_key(self, outfd, keypath, key):
+        outfd.write("{0:20s} {1}\n".format(key.LastWriteTime, keypath + "\\" + key.Name))
         for k in rawreg.subkeys(key):
-            self.print_key(outfd, level + 1, k)
+            self.print_key(outfd, keypath + "\\" + key.Name, k)

@@ -22,8 +22,6 @@ import time
 import urlparse
 import volatility.addrspace as addrspace
 
-__namespace__ = "addrspaces"
-
 def FirewireRW(netloc, location):
     if netloc in fw_implementations:
         return fw_implementations[netloc](location)

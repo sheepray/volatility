@@ -33,8 +33,6 @@ import volatility.debug as debug
 import volatility.utils as utils
 import volatility.commands as commands
 
-__namespace__ = "registry"
-
 ## This module requires a filename to be passed by the user
 #config.add_option("HIVE-OFFSET", default = 0, type='int',
 #                  help = "Offset to reg hive")
@@ -91,6 +89,9 @@ class PrintKey(commands.command):
         return root
 
     def render_text(self, outfd, key):
+        if not key:
+            outfd.write("Unable to find requested key")
+            return
         outfd.write("Key name: " + key.Name + "\n")
         outfd.write("(Volatile)\n" if vol(key) else "(Stable)\n")
         outfd.write("Last updated: {0}\n".format(key.LastWriteTime))

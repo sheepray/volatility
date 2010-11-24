@@ -31,8 +31,6 @@ import volatility.obj as obj
 import volatility.utils as utils
 import volatility.commands as commands
 
-__namespace__ = "registry"
-
 class CheckHiveSig(scan.ScannerCheck):
     """ Check for a registry hive signature """
     def check(self, offset):

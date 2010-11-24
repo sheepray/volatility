@@ -398,6 +398,7 @@ xpsp2types = { \
 } ], \
 '_ETHREAD' : [  0x258, { \
   'Tcb' : [ 0x0, ['_KTHREAD']], \
+  'ThreadListEntry' : [ 0x22c, ['_LIST_ENTRY']], \
   'Cid' : [ 0x1ec, ['_CLIENT_ID']], \
   'LpcReplySemaphore' : [ 0x1f4, ['_KSEMAPHORE']], \
   'CreateTime' : [ 0x1c0, ['ThreadCreateTimeStamp']], # Note, this is not a WinTimeStamp, it needs to be >> 3
@@ -411,6 +412,7 @@ xpsp2types = { \
 } ], \
 '_KTHREAD' : [  0x1c0, { \
   'Header' : [ 0x0, ['_DISPATCHER_HEADER']], \
+  'ServiceTable' : [ 0xe0, ['pointer', ['void']]],
   'Timer' : [ 0xf0, ['_KTIMER']], \
   'SuspendSemaphore' : [ 0x19c, ['_KSEMAPHORE']], \
 } ], \

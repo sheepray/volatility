@@ -57,7 +57,7 @@ class command(object):
         """
         try:
             return textwrap.dedent(cls.__doc__)
-        except AttributeError:
+        except (AttributeError, TypeError):
             return ""
 
     def calculate(self):

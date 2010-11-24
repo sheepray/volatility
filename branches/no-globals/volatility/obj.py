@@ -37,6 +37,7 @@ import pickle
 import struct, copy, operator
 import volatility.debug as debug
 import volatility.conf as conf
+import volatility.utils as utils
 config = conf.ConfObject()
 
 ## Curry is now a standard python feature
@@ -214,7 +215,7 @@ class NoneObject(object):
     def __call__(self, *arg, **kwargs):
         return self
 
-class InvalidOffsetError(Exception):
+class InvalidOffsetError(utils.VolatilityException):
     """Simple placeholder to identify invalid offsets"""
     pass
 
@@ -323,20 +324,8 @@ class BaseObject(object):
     def __hash__(self):
         return hash(self.name) ^ hash(self.offset)
 
-    def has_member(self, memname):
-        return False
-
     def m(self, memname):
-        return self.get_member(memname)
-
-    def get_member(self, memname):
         raise AttributeError("No member {0}".format(memname))
-
-    def get_member_offset(self, memname, relative = False):
-        return self.offset
-
-    def is_null(self):
-        return False
 
     def is_valid(self):
         return self.vm.is_valid_address(self.offset)
@@ -345,8 +334,7 @@ class BaseObject(object):
         return NoneObject("Can't dereference {0}".format(self.name), self.profile.strict)
 
     def dereference_as(self, derefType):
-        return Object(derefType, self.v(), \
-                         self.vm, parent = self)
+        return Object(derefType, self.v(), self.vm, parent = self)
 
     def cast(self, castString):
         return Object(castString, self.offset, self.vm)
@@ -358,14 +346,6 @@ class BaseObject(object):
 
     def __format__(self, formatspec):
         return format(self.v(), formatspec)
-
-    def get_bytes(self, amount = None):
-        if amount == None:
-            # FIXME: Figure out what self.size() should be?
-            # amount = self.size()
-            pass
-
-        return self.vm.read(self.offset, amount)
 
     def __str__(self):
         return str(self.v())
@@ -708,11 +688,11 @@ class CType(BaseObject):
             #return NoneObject("Struct {0} has no member {1}".format(self.name, attr))
             raise AttributeError("Struct {0} has no member {1}".format(self.name, attr))
 
-        try:
+        if callable(offset):
             ## If offset is specified as a callable its an absolute
             ## offset
             offset = int(offset(self))
-        except TypeError:
+        else:
             ## Otherwise its relative to the start of our struct
             offset = int(offset) + int(self.offset)
 

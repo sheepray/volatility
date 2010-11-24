@@ -93,7 +93,7 @@ def read_sklist(sk):
     elif sk.Signature.v() == RI_SIG:
         for i in range(sk.Count):
             # Read and dereference the pointer
-            ptr_off = sk.get_member_offset('List') + (i * 4)
+            ptr_off = sk.List.offset + (i * 4)
             if not sk.vm.is_valid_address(ptr_off):
                 continue
             ssk_off = obj.Object("unsigned int", ptr_off, sk.vm)
@@ -141,7 +141,7 @@ def value_data(val):
     inline = val.DataLength & 0x80000000
 
     if inline:
-        valdata = val.vm.read(val.get_member_offset('Data'), val.DataLength & 0x7FFFFFFF)
+        valdata = val.vm.read(val.Data.offset, val.DataLength & 0x7FFFFFFF)
     else:
         valdata = val.vm.read(val.Data, val.DataLength)
 

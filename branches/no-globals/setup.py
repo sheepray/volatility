@@ -21,8 +21,11 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA 
 #
 
-from distutils.core import setup
-import volatility
+try:
+    from setuptools import setup
+except ImportError:
+    from distutils.core import setup
+import volatility.constants
 import sys
 import os
 
@@ -46,7 +49,7 @@ def find_py_files(topdirs):
 opts = {}
 
 opts['name'] = "volatility"
-opts['version'] = volatility.version
+opts['version'] = volatility.constants.VERSION
 opts['description'] = "Volatility -- Volatile memory framwork"
 opts['author'] = "AAron Walters"
 opts['author_email'] = "awalters@volatilesystems.com"
@@ -54,15 +57,21 @@ opts['url'] = "http://www.volatilesystems.com"
 opts['license'] = "GPL"
 opts['scripts'] = ["volatility.py"]
 opts['packages'] = ["volatility",
-                        "volatility.win32"]
-opts['data_files'] = find_py_files(['plugins'])
+                    "volatility.win32",
+                    "volatility.plugins",
+                    "volatility.plugins.addrspaces",
+                    "volatility.plugins.overlays",
+                    "volatility.plugins.registry"]
+opts['data_files'] = find_py_files(['contrib'])
 
 if py2exe_available:
     py2exe_distdir = 'dist/py2exe'
     opts['console'] = [{ 'script': 'volatility.py',
 #                          'icon_resources': [(1, 'resources/py.ico')]
                       }]
-    opts['options'] = {'py2exe':{'optimize': 2,
+    # Optimize must be 1 for plugins that use docstring for the help value,
+    # otherwise the help gets optimized out
+    opts['options'] = {'py2exe':{'optimize': 1,
                                  'dist_dir': py2exe_distdir,
                                  'packages': opts['packages'] + ['socket', 'ctypes', 'Crypto.Cipher', 'urllib'],
                                  # This, along with zipfile = None, ensures a single binary

@@ -28,27 +28,28 @@ for SP3.
 
 #pylint: disable-msg=C0111
 
-
 import copy
-import vista_sp0_x86_vtypes as vista_sp0_x86_vtypes
+import win7_sp0_x86_vtypes as win7_sp0_x86_vtypes
 import xp_sp2_x86 as xp_sp2_x86
 import windows as windows
 import crashdump as crashdump
 import hibernate_vtypes as hibernate_vtypes
 import volatility.debug as debug #pylint: disable-msg=W0611
 
-vistasp0x86overlays = copy.deepcopy(xp_sp2_x86.xpsp2overlays)
+win7sp0x86overlays = copy.deepcopy(xp_sp2_x86.xpsp2overlays)
 
-vistasp0x86overlays['_MMVAD_SHORT'][1]['Flags'][0] = lambda x: x['u'][0]
-vistasp0x86overlays['_CONTROL_AREA'][1]['Flags'][0] = lambda x: x['u'][0]
-vistasp0x86overlays['_MMVAD_LONG'][1]['Flags'][0] = lambda x: x['u'][0]
-vistasp0x86overlays['_MMVAD_LONG'][1]['Flags2'][0] = lambda x: x['u'][0]
+win7sp0x86overlays['_MMVAD_SHORT'][1]['Flags'][0] = lambda x: x.u.offset
+win7sp0x86overlays['_CONTROL_AREA'][1]['Flags'][0] = lambda x: x.u.offset
+win7sp0x86overlays['_MMVAD_LONG'][1]['Flags'][0] = lambda x: x.u.offset
+win7sp0x86overlays['_MMVAD_LONG'][1]['Flags2'][0] = lambda x: x.u2.offset
 
-vista_sp0_x86_vtypes.ntkrnlmp_types.update(crashdump.crash_vtypes)
-vista_sp0_x86_vtypes.ntkrnlmp_types.update(hibernate_vtypes.hibernate_vtypes)
+win7sp0x86overlays['VOLATILITY_MAGIC'][1]['DTBSignature'][1] = ['VolatilityMagic', dict(value = "\x03\x00\x26\x00")]
+win7sp0x86overlays['VOLATILITY_MAGIC'][1]['KPCR'][1] = ['VolatilityKPCR', dict(configname = 'KPCR')]
 
+win7_sp0_x86_vtypes.ntkrpamp_types.update(crashdump.crash_vtypes)
+win7_sp0_x86_vtypes.ntkrpamp_types.update(hibernate_vtypes.hibernate_vtypes)
 
-class VistaSP0x86(windows.AbstractWindows):
-    """ A Profile for Windows Vista SP0 x86 """
-    abstract_types = vista_sp0_x86_vtypes.ntkrnlmp_types
-    overlay = vistasp0x86overlays
+class Win7SP0x86(windows.AbstractWindows):
+    """ A Profile for Windows 7 SP0 x86 """
+    abstract_types = win7_sp0_x86_vtypes.ntkrpamp_types
+    overlay = win7sp0x86overlays

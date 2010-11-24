@@ -43,12 +43,12 @@ except ImportError:
     pass
 
 import textwrap
-import logging
-import volatility
 import volatility.registry as MemoryRegistry
 import volatility.conf as conf
 config = conf.ConfObject()
 import volatility.obj as obj
+import volatility.utils as utils
+import volatility.constants as constants
 import volatility.debug as debug
 
 def list_plugins():
@@ -57,16 +57,13 @@ def list_plugins():
     keys.sort()
     for cmdname in keys:
         command = MemoryRegistry.PLUGIN_COMMANDS[cmdname]
-        helpline = command.help()
+        helpline = command.help() or ''
         ## Just put the title line (First non empty line) in this
         ## abbreviated display
-        try:
-            for line in helpline.splitlines():
-                if line:
-                    helpline = line
-                    break
-        except:
-            helpline = ''
+        for line in helpline.splitlines():
+            if line:
+                helpline = line
+                break
         result += "\t\t{0:15}\t{1}\n".format(cmdname, helpline)
 
     return result
@@ -83,7 +80,7 @@ def main():
 
     # Get the version information on every output from the beginning
     # Exceptionally useful for debugging/telling people what's going on
-    sys.stderr.write("Volatile Systems Volatility Framework {0}\n".format(volatility.version))
+    sys.stderr.write("Volatile Systems Volatility Framework {0}\n".format(constants.VERSION))
 
     # Setup the debugging format
     debug.setup()
@@ -118,7 +115,7 @@ def main():
             config.parse_options()
 
             command.execute()
-    except volatility.utils.AddrSpaceError, e:
+    except utils.VolatilityException, e:
         print e
 
 if __name__ == "__main__":

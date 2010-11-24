@@ -20,4 +20,18 @@
 # on 8 bytes
 # Optimized by Michael Cohen
 
+import os, sys
+
+VERSION = "1.4_rc1"
+
 SCAN_BLOCKSIZE = 1024 * 1024 * 10
+
+PLUGINPATH = os.path.dirname(__file__)
+# If we're in a pyinstaller executable 
+if hasattr(sys, "frozen"):
+    try:
+        import iu, _mountzlib #pylint: disable=W0611,F0401
+        PLUGINPATH = os.environ["_MEIPASS2"]
+    except ImportError:
+        pass
+PLUGINPATH = os.path.join(PLUGINPATH, 'plugins')

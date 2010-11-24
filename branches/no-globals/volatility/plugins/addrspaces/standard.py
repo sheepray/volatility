@@ -29,8 +29,6 @@ import volatility.debug as debug #pylint: disable-msg=W0611
 import urllib
 import os
 
-__namespace__ = "addrspaces"
-
 #pylint: disable-msg=C0111
 
 def write_callback(option, _opt_str, _value, parser, *_args, **_kwargs):

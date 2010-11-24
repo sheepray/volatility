@@ -55,7 +55,7 @@ def warning(msg):
     log(msg, logging.WARNING)
 
 def error(msg):
-    _log(msg, "volatility.py", logging.ERROR)
+    log(msg, logging.ERROR)
     sys.exit(1)
 
 def critical(msg):
@@ -63,6 +63,7 @@ def critical(msg):
     sys.exit(1)
 
 def log(msg, level):
+    modname = "volatility.py"
     try:
         frm = inspect.currentframe()
         modname = "volatility.debug"

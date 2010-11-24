@@ -6,8 +6,6 @@ from ctypes import CDLL, c_char_p, c_int, pointer, c_ulonglong, c_ulong, create_
 import ctypes.util
 import volatility.plugins.addrspaces.standard as standard
 
-__namespace__ = "addrspaces"
-
 possible_names = ['libewf-1', 'ewf', ]
 for name in possible_names:
     resolved = ctypes.util.find_library(name)

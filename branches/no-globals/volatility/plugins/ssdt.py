@@ -46,12 +46,6 @@ ssdt_types = {
     'ServiceLimit' : [0x8, ['long']],
     'ArgumentTable' : [0xc, ['pointer', ['unsigned char']]],
 } ],
-  '_ETHREAD' : [ None, {
-    'ThreadListEntry' : [ 0x22c, ['_LIST_ENTRY']],
-} ],
-  '_KTHREAD' : [ None, {
-    'ServiceTable' : [ 0xe0, ['pointer', ['_SERVICE_DESCRIPTOR_TABLE']]],
-} ],
 }
 
 # Derived using:
@@ -1059,7 +1053,7 @@ class SSDT(commands.command):
         ssdts = set()
         for proc in tasks.pslist(addr_space):
             for thread in proc.ThreadListHead.list_of_type("_ETHREAD", "ThreadListEntry"):
-                ssdt_obj = thread.Tcb.ServiceTable.dereference()
+                ssdt_obj = thread.Tcb.ServiceTable.dereference_as('_SERVICE_DESCRIPTOR_TABLE')
                 ssdts.add(ssdt_obj)
 
         # Get a list of *unique* SSDT entries. Typically we see only two.
@@ -1067,7 +1061,9 @@ class SSDT(commands.command):
 
         for ssdt_obj in ssdts:
             for i, desc in enumerate(ssdt_obj.Descriptors):
-                if desc.is_valid() and desc.ServiceLimit != 0:
+                # Apply some extra checks - KiServiceTable should reside in kernel memory and ServiceLimit 
+                # should be greater than 0 but not unbelievably high
+                if desc.is_valid() and desc.ServiceLimit > 0 and desc.ServiceLimit < 0xFFFF and desc.KiServiceTable > 0x80000000:
                     tables.add((i, desc.KiServiceTable.v(), desc.ServiceLimit.v()))
 
         print "Finding appropriate address space for tables..."

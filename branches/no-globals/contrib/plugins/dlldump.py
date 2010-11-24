@@ -23,40 +23,27 @@
 import os
 import re
 import volatility.plugins.procdump as procdump
-import volatility.win32.modules as modules
 import volatility.win32.tasks as tasks
-import volatility.utils as utils
 import volatility.debug as debug
+import volatility.utils as utils
 import volatility.conf as conf
 config = conf.ConfObject()
 
-class ModDump(procdump.ProcExeDump):
-    """Dump a kernel driver to an executable file sample"""
+class DLLDump(procdump.ProcExeDump):
+    """Dump a DLL from a process address space"""
 
     def __init__(self, *args):
         procdump.ProcExeDump.__init__(self, *args)
-        config.remove_option("PID")
         config.remove_option("OFFSET")
         config.add_option('REGEX', short_option = 'r',
-                      help = 'Dump modules matching REGEX',
+                      help = 'Dump dlls matching REGEX',
                       action = 'store', type = 'string', dest = 'regex')
         config.add_option('IGNORE-CASE', short_option = 'i',
                       help = 'Ignore case in pattern match',
                       action = 'store_true', default = False, dest = 'ignore_case')
         config.add_option('OFFSET', short_option = 'o', default = None,
-                          help = 'Dump driver with base address OFFSET (in hex)',
+                          help = 'Dump DLL with base address OFFSET (in hex)',
                           action = 'store', type = 'int')
-
-    def find_space(self, addr_space, procs, mod_base):
-        """Search for an address space (usually looking for a GUI process)"""
-        if addr_space.is_valid_address(mod_base):
-            return addr_space
-        for proc in procs:
-            ps_ad = proc.get_process_address_space()
-            if ps_ad != None:
-                if ps_ad.is_valid_address(mod_base):
-                    return ps_ad
-        return None
 
     def calculate(self):
         addr_space = utils.load_as()
@@ -75,32 +62,35 @@ class ModDump(procdump.ProcExeDump):
             except re.error, e:
                 debug.error('Error parsing regular expression: %s' % e)
 
-        mods = dict((mod.DllBase.v(), mod) for mod in modules.lsmod(addr_space))
-        # We need the process list to find spaces for some drivers. Enumerate them here
-        # instead of inside the find_space function, so we only have to do it once. 
-        procs = list(tasks.pslist(addr_space))
+        for proc in self.filter_tasks(tasks.pslist(addr_space)):
 
-        if config.offset:
-            if mods.has_key(config.offset):
-                yield addr_space, procs, mods[config.offset]
+            ps_ad = proc.get_process_address_space()
+            if ps_ad == None:
+                continue
+
+            mods = dict((mod.DllBase.v(), mod) for mod in self.list_modules(proc))
+
+            if config.offset:
+                if mods.has_key(config.offset):
+                    yield addr_space, mods[config.offset]
+                else:
+                    raise StopIteration('No such module at 0x{0:X}'.format(config.offset))
             else:
-                raise StopIteration('No such module at 0x{0:X}'.format(config.offset))
-        else:
-            for mod in mods.values():
-                if config.regex:
-                    if not mod_re.search(str(mod.FullDllName)) and not mod_re.search(str(mod.BaseDllName)):
-                        continue
-                yield addr_space, procs, mod
+                for mod in mods.values():
+                    if config.regex:
+                        if not mod_re.search(str(mod.FullDllName)) and not mod_re.search(str(mod.BaseDllName)):
+                            continue
+                    yield proc, ps_ad, mod
 
     def render_text(self, outfd, data):
-        for addr_space, procs, mod in data:
-            space = self.find_space(addr_space, procs, mod.DllBase)
-            if space != None:
-                dump_file = "driver.{0:x}.sys".format(mod.DllBase)
-                outfd.write("Dumping {0}, Base: {1:8x} output: {2}\n".format(mod.BaseDllName, mod.DllBase, dump_file))
+        for proc, ps_ad, mod in data:
+            if ps_ad.is_valid_address(mod.DllBase):
+                process_offset = ps_ad.vtop(proc.offset)
+                dump_file = "module.{0:x}.{1:x}.dll".format(process_offset, mod.DllBase)
+                outfd.write("Dumping {0}, Process: {1}, Base: {2:8x} output: {3}\n".format(mod.BaseDllName, proc.ImageFileName, mod.DllBase, dump_file))
                 of = open(os.path.join(config.DUMP_DIR, dump_file), 'wb')
                 try:
-                    for chunk in self.get_image(outfd, space, mod.DllBase):
+                    for chunk in self.get_image(outfd, ps_ad, mod.DllBase):
                         offset, code = chunk
                         of.seek(offset)
                         of.write(code)
@@ -110,4 +100,4 @@ class ModDump(procdump.ProcExeDump):
                     outfd.write("You can use -u to disable this check.\n")
                 of.close()
             else:
-                print 'Cannot dump {0} at {1:8x}'.format(mod.BaseDllName, mod.DllBase)
+                print 'Cannot dump {0}@{1} at {2:8x}'.format(proc.ImageFileName, mod.BaseDllName, mod.DllBase)

@@ -39,7 +39,8 @@ functionality. For example we may include a Scanner, Report and File
 classes in the same plugin and have them all automatically loaded.
 """
 
-import os, sys
+import os, sys, zipfile
+import volatility.constants as constants
 import volatility.debug as debug
 import volatility.conf as conf
 config = conf.ConfObject()
@@ -48,7 +49,7 @@ config.add_option("INFO", default = None, action = "store_true",
                   cache_invalidator = False,
                   help = "Print information about all registered objects")
 
-config.add_option("PLUGINS", default = "./plugins",
+config.add_option("PLUGINS", default = "",
                   cache_invalidator = False,
                   help = "Additional plugin directories to use (colon separated)")
 
@@ -63,20 +64,63 @@ class PluginImporter(object):
         """
         self.modnames = {}
 
+        # Handle the core plugins
+        if not plugins:
+            plugins = constants.PLUGINPATH
+        else:
+            plugins += ";" + constants.PLUGINPATH
+
+        # Handle additional plugins
         for path in plugins.split(';'):
             path = os.path.abspath(path)
 
-            for dirpath, _dirnames, filenames in os.walk(path):
-                pathlist = ['volatility.plugins'] + [ x for x in dirpath[len(path) + 1:].split(os.path.sep) if x ]
-                namespace = ".".join(pathlist)
-                for filename in filenames:
-                    #Lose the extension for the module name
-                    module_name, ext = os.path.splitext(filename)
-                    if ext == ".py":
-                        filepath = os.path.join(dirpath, filename)
-                        self.modnames[namespace + "." + module_name] = filepath
+            for relfile in self.walkzip(path):
+                module_path, ext = os.path.splitext(relfile)
+                namespace = ".".join(['volatility.plugins'] + [ x for x in module_path.split(os.path.sep) if x ])
+                #Lose the extension for the module name
+                if ext in [".py", ".pyc", ".pyo"]:
+                    filepath = os.path.join(path, relfile)
+                    # Handle Init files
+                    initstr = '.__init__'
+                    if namespace.endswith(initstr):
+                        self.modnames[namespace[:-len(initstr)]] = filepath
+                    else:
+                        self.modnames[namespace] = filepath
 
         self.run_imports()
+
+    def walkzip(self, path):
+        """Walks a path independent of whether it includes a zipfile or not"""
+        if os.path.exists(path) and os.path.isdir(path):
+            for dirpath, _dirnames, filenames in os.walk(path):
+                for filename in filenames:
+                    # Run through files as we always used to
+                    yield os.path.join(dirpath[len(path) + len(os.path.sep):], filename)
+        else:
+            index = -1
+            zippath = None
+            while path.find(os.path.sep, index + 1) > -1:
+                index = path.find(os.path.sep, index + 1)
+                if zipfile.is_zipfile(path[:index]):
+                    zippath = path[:index]
+                    break
+            else:
+                if zipfile.is_zipfile(path):
+                    zippath = path
+
+            # Now yield the files
+            if zippath:
+                zipf = zipfile.ZipFile(zippath)
+                prefix = path[len(zippath):].strip(os.path.sep)
+                # If there's a prefix, ensure it ends in a slash
+                if len(prefix):
+                    prefix += os.path.sep
+                for fn in zipf.namelist():
+                    # Zipfiles seem to always list contents using / as their separator
+                    fn = fn.replace('/', os.path.sep)
+                    if fn.startswith(prefix) and not fn.endswith(os.path.sep):
+                        # We're a file in the zipfile
+                        yield fn[len(prefix):]
 
     def run_imports(self):
         """Imports all the already found modules"""

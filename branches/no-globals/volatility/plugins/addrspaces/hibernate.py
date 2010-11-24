@@ -29,7 +29,6 @@ import volatility.obj as obj
 import volatility.win32.xpress as xpress
 import struct
 
-__namespace__ = "addrspaces"
 
 #pylint: disable-msg=C0111
 
