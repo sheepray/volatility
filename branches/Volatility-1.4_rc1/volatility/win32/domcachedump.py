@@ -95,7 +95,7 @@ def dump_hashes(sysaddr, secaddr):
         if v.Name == "NL$Control":
             continue
 
-        data = v.v_vm.read(v.Data, v.DataLength)
+        data = v.obj_vm.read(v.Data, v.DataLength)
 
         (uname_len, domain_len, domain_name_len,
             enc_data, ch) = parse_cache_entry(data)

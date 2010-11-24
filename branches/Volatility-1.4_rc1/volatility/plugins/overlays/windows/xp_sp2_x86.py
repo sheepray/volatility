@@ -236,7 +236,7 @@ class _EPROCESS(obj.CType):
         directory_table_base = self.Pcb.DirectoryTableBase.v()
 
         try:
-            process_as = self.v_vm.__class__(self.v_vm.base, self.v_vm.get_config(), dtb = directory_table_base)
+            process_as = self.obj_vm.__class__(self.obj_vm.base, self.obj_vm.get_config(), dtb = directory_table_base)
         except AssertionError, _e:
             return obj.NoneObject("Unable to get process AS")
 
@@ -256,7 +256,7 @@ class _EPROCESS(obj.CType):
             count = 0x200
             targetType = "_HANDLE_TABLE_ENTRY"
 
-        table = obj.Object("Array", offset = offset, vm = self.v_vm, count = count,
+        table = obj.Object("Array", offset = offset, vm = self.obj_vm, count = count,
                            targetType = targetType, parent = self)
 
         if table:
@@ -272,7 +272,7 @@ class _EPROCESS(obj.CType):
                     ## OK We got to the bottom table, we just resolve
                     ## objects here:
                     offset = int(entry.Object.v()) & ~0x00000007
-                    item = obj.Object("_OBJECT_HEADER", offset, self.v_vm,
+                    item = obj.Object("_OBJECT_HEADER", offset, self.obj_vm,
                                             parent = self)
                     try:
                         if item.Type.Name:
@@ -323,7 +323,7 @@ class _MMVAD(obj.CType):
         ## _EPROCESS over our parent, and having it give us the
         ## correct AS
         if vm.name.startswith("Kernel"):
-            eprocess = obj.Object("_EPROCESS", offset = parent.v_offset, vm = vm)
+            eprocess = obj.Object("_EPROCESS", offset = parent.obj_offset, vm = vm)
             vm = eprocess.get_process_address_space()
             if not vm:
                 return vm
@@ -357,17 +357,17 @@ class _MMVAD_SHORT(obj.CType):
             visited = set()
 
         ## We try to prevent loops here
-        if self.v_offset in visited:
+        if self.obj_offset in visited:
             return
 
         yield self
 
         for c in self.LeftChild.traverse(visited = visited):
-            visited.add(c.v_offset)
+            visited.add(c.obj_offset)
             yield c
 
         for c in self.RightChild.traverse(visited = visited):
-            visited.add(c.v_offset)
+            visited.add(c.obj_offset)
             yield c
 
 class _MMVAD_LONG(_MMVAD_SHORT):

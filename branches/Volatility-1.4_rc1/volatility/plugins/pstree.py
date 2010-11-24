@@ -54,7 +54,7 @@ class PSTree(commands.command):
                 if task_info['inherited_from'] == inherited_from:
                     outfd.write("{0} 0x{1:08X}:{2:20} {3} {4:6} {5:6} {6:6} {7:6} {8:26}\n".format(
                         "." * pad,
-                        task_info['eprocess'].v_offset,
+                        task_info['eprocess'].obj_offset,
                         task_info['image_file_name'],
                         " " * (max_pad - pad),
                         task_info['process_id'],

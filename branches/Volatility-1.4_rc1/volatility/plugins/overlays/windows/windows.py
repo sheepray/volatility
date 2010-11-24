@@ -61,7 +61,7 @@ class _UNICODE_STRING(obj.CType):
             length = self.Length.v()
             if length > 1024:
                 length = 0
-            data = self.v_vm.read(self.Buffer.v(), length)
+            data = self.obj_vm.read(self.Buffer.v(), length)
             return data.decode("utf16", "ignore").encode("ascii", 'backslashreplace')
         except Exception, _e:
             return ''
@@ -90,16 +90,16 @@ class _LIST_ENTRY(obj.CType):
         else:
             lst = self.Blink.dereference()
 
-        offset = self.v_vm.profile.get_obj_offset(type, member)
+        offset = self.obj_vm.profile.get_obj_offset(type, member)
 
         seen = set()
-        seen.add(lst.v_offset)
+        seen.add(lst.obj_offset)
 
         while 1:
             ## Instantiate the object
-            item = obj.Object(type, offset = lst.v_offset - offset,
-                                    vm = self.v_vm,
-                                    parent = self.v_parent,
+            item = obj.Object(type, offset = lst.obj_offset - offset,
+                                    vm = self.obj_vm,
+                                    parent = self.obj_parent,
                                     name = type)
 
 
@@ -108,9 +108,9 @@ class _LIST_ENTRY(obj.CType):
             else:
                 lst = item.m(member).Blink.dereference()
 
-            if not lst.is_valid() or lst.v_offset in seen:
+            if not lst.is_valid() or lst.obj_offset in seen:
                 return
-            seen.add(lst.v_offset)
+            seen.add(lst.obj_offset)
 
             yield item
 
@@ -119,7 +119,7 @@ class _LIST_ENTRY(obj.CType):
         return bool(self.Flink) or bool(self.Blink)
 
     def __iter__(self):
-        return self.list_of_type(self.v_parent.v_name, self.v_name)
+        return self.list_of_type(self.obj_parent.obj_name, self.obj_name)
 
 AbstractWindows.object_classes['_LIST_ENTRY'] = _LIST_ENTRY
 
@@ -203,7 +203,7 @@ class VolatilityKPCR(obj.VolatilityMagic):
 
     def generate_suggestions(self):
         scanner = kpcr.KPCRScanner()
-        for val in scanner.scan(self.v_vm):
+        for val in scanner.scan(self.obj_vm):
             yield val
 
 AbstractWindows.object_classes['VolatilityKPCR'] = VolatilityKPCR

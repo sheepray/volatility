@@ -152,16 +152,16 @@ class WindowsHiberFileSpace32(standard.FileAddressSpace):
                     PageNumber = start + j
                     XpressPage = XpressIndex % 0x10
                     #print [(PageNumber,XpressBlockSize,XpressPage)]
-                    if XpressHeader.v_offset not in self.PageDict:
-                        self.PageDict[XpressHeader.v_offset] = [
+                    if XpressHeader.obj_offset not in self.PageDict:
+                        self.PageDict[XpressHeader.obj_offset] = [
                             (PageNumber, XpressBlockSize, XpressPage)]
                     else:
-                        self.PageDict[XpressHeader.v_offset].append(
+                        self.PageDict[XpressHeader.obj_offset].append(
                             (PageNumber, XpressBlockSize, XpressPage))
 
                     ## Update the lookup cache
                     self.LookupCache[PageNumber] = (
-                        XpressHeader.v_offset, XpressBlockSize, XpressPage)
+                        XpressHeader.obj_offset, XpressBlockSize, XpressPage)
 
                     self.PageIndex += 1
                     XpressIndex += 1
@@ -195,7 +195,7 @@ class WindowsHiberFileSpace32(standard.FileAddressSpace):
             yield page_count
 
     def next_xpress(self, XpressHeader, XpressBlockSize):
-        XpressHeaderOffset = XpressBlockSize + XpressHeader.v_offset + \
+        XpressHeaderOffset = XpressBlockSize + XpressHeader.obj_offset + \
                              XpressHeader.size()
 
         ## We only search this far

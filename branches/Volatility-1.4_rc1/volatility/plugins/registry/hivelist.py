@@ -59,10 +59,10 @@ class HiveList(hs.HiveScan):
         hive_offsets = []
 
         for hive in result:
-            if hive.v_offset not in hive_offsets:
+            if hive.obj_offset not in hive_offsets:
                 name = hive.FileFullPath.v() or "[no name]"
-                outfd.write("{0:#X}  {1}\n".format(hive.v_offset, name))
-                hive_offsets.append(hive.v_offset)
+                outfd.write("{0:#X}  {1}\n".format(hive.obj_offset, name))
+                hive_offsets.append(hive.obj_offset)
 
     def calculate(self):
         flat = utils.load_as(self._config, astype = 'physical')

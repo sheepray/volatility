@@ -242,7 +242,7 @@ def encrypt_hashes(rid, lm_hash, nt_hash, hbootkey):
     return enc_lmhash, enc_nthash
 
 def get_user_hashes(user_key, hbootkey):
-    samaddr = user_key.v_vm
+    samaddr = user_key.obj_vm
     rid = int(str(user_key.Name), 16)
     V = None
     for v in rawreg.values(user_key):
@@ -269,7 +269,7 @@ def get_user_hashes(user_key, hbootkey):
     return decrypt_hashes(rid, enc_lm_hash, enc_nt_hash, hbootkey)
 
 def get_user_name(user_key):
-    samaddr = user_key.v_vm
+    samaddr = user_key.obj_vm
     V = None
     for v in rawreg.values(user_key):
         if v.Name == 'V':
@@ -284,7 +284,7 @@ def get_user_name(user_key):
     return username
 
 def get_user_desc(user_key):
-    samaddr = user_key.v_vm
+    samaddr = user_key.obj_vm
     V = None
     for v in rawreg.values(user_key):
         if v.Name == 'V':

@@ -144,7 +144,7 @@ class ThrdScan2(ModScan2):
                                                                            thread.Cid.UniqueThread,
                                                                            thread.CreateTime or '',
                                                                            thread.ExitTime or '',
-                                                                           thread.v_offset))
+                                                                           thread.obj_offset))
 
 
 

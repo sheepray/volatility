@@ -39,10 +39,10 @@ import volatility.debug as debug #pylint: disable-msg=W0611
 
 vistasp0x86overlays = copy.deepcopy(xp_sp2_x86.xpsp2overlays)
 
-vistasp0x86overlays['_MMVAD_SHORT'][1]['Flags'][0] = lambda x: x.u.v_offset
-vistasp0x86overlays['_CONTROL_AREA'][1]['Flags'][0] = lambda x: x.u.v_offset
-vistasp0x86overlays['_MMVAD_LONG'][1]['Flags'][0] = lambda x: x.u.v_offset
-vistasp0x86overlays['_MMVAD_LONG'][1]['Flags2'][0] = lambda x: x.u2.v_offset
+vistasp0x86overlays['_MMVAD_SHORT'][1]['Flags'][0] = lambda x: x.u.obj_offset
+vistasp0x86overlays['_CONTROL_AREA'][1]['Flags'][0] = lambda x: x.u.obj_offset
+vistasp0x86overlays['_MMVAD_LONG'][1]['Flags'][0] = lambda x: x.u.obj_offset
+vistasp0x86overlays['_MMVAD_LONG'][1]['Flags2'][0] = lambda x: x.u2.obj_offset
 
 vistasp0x86overlays['VOLATILITY_MAGIC'][1]['DTBSignature'][1] = ['VolatilityMagic', dict(value = "\x03\x00\x20\x00")]
 vistasp0x86overlays['VOLATILITY_MAGIC'][1]['KPCR'][1] = ['VolatilityKPCR', dict(configname = 'KPCR')]

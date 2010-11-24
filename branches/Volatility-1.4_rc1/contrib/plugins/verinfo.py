@@ -59,7 +59,7 @@ ver_types = {
   'ValueLength': [0x2, ['unsigned short']],
   'Type': [0x4, ['unsigned short']],
   'Key': [0x6, ['array', len("VS_VERSION_INFO "), ['unsigned short']]],
-  'FileInfo': [lambda x: (((x.Key.v_offset + x.Key.size() + 3) / 4) * 4), ['_VS_FIXEDFILEINFO']],
+  'FileInfo': [lambda x: (((x.Key.obj_offset + x.Key.size() + 3) / 4) * 4), ['_VS_FIXEDFILEINFO']],
 } ],
 'VerStruct' : [0x26, {
   'Length': [0x0, ['unsigned short']],
@@ -119,8 +119,8 @@ class VerStruct(obj.CType):
                 # If the letter's valid, then deal with it
                 if n == 0:
                     if findend:
-                        return n.v_offset + n.size()
-                    name = self.v_vm.read(self.Key.v_offset, n.v_offset - self.Key.v_offset).decode("utf16", "ignore").encode("ascii", 'backslashreplace')
+                        return n.obj_offset + n.size()
+                    name = self.obj_vm.read(self.Key.obj_offset, n.obj_offset - self.Key.obj_offset).decode("utf16", "ignore").encode("ascii", 'backslashreplace')
                     break
             return name
         return self.Key
@@ -139,16 +139,16 @@ class VerStruct(obj.CType):
         if self.ValueLength > 0:
             # Nasty hardcoding unicode (length*2) length in here, 
             # but what else can we do?
-            return self.v_vm.read(offset, self.ValueLength * 2)
+            return self.obj_vm.read(offset, self.ValueLength * 2)
         else:
             return self._recurse_children(offset)
 
     def _recurse_children(self, offset):
         """Recurses thorugh the available children"""
-        while offset < self.v_offset + self.Length:
-            item = obj.Object("VerStruct", offset = offset, vm = self.v_vm, parent = self)
+        while offset < self.obj_offset + self.Length:
+            item = obj.Object("VerStruct", offset = offset, vm = self.obj_vm, parent = self)
             if item.Length < 1 or item.get_key() == None:
-                raise StopIteration("Could not recover a key for a child at offset {0}".format(item.v_offset))
+                raise StopIteration("Could not recover a key for a child at offset {0}".format(item.obj_offset))
             yield item.get_key(), item.get_children()
             offset = self.offset_pad(offset + item.Length)
         raise StopIteration("No children")
@@ -158,7 +158,7 @@ class _VS_VERSION_INFO(VerStruct):
 
     def get_children(self):
         """Recurses through the children of a Version Info records"""
-        offset = self.offset_pad(self.FileInfo.v_offset + self.ValueLength)
+        offset = self.offset_pad(self.FileInfo.obj_offset + self.ValueLength)
         return self._recurse_children(offset)
 
 class _VS_FIXEDFILEINFO(obj.CType):
@@ -206,7 +206,7 @@ class _VS_FIXEDFILEINFO(obj.CType):
                        0x3: 'Truetype',
                        }
         if choices != None:
-            subtype = obj.Object('Enumeration', 0x28, vm = self.v_vm, parent = self, choices = choices)
+            subtype = obj.Object('Enumeration', 0x28, vm = self.obj_vm, parent = self, choices = choices)
             ftype += " (" + str(subtype) + ")"
 
         return ftype
@@ -244,7 +244,7 @@ class _IMAGE_RESOURCE_DIR_STRING_U(obj.CType):
             length = self.Length.v()
             if length > 1024:
                 length = 0
-            data = self.v_vm.read(self.Value.v_offset, length)
+            data = self.obj_vm.read(self.Value.obj_offset, length)
             return data.decode("utf16", "ignore").encode("ascii", 'backslashreplace')
         except Exception, _e:
             return ''
@@ -261,16 +261,16 @@ class _IMAGE_RESOURCE_DIRECTORY(obj.CType):
             if irde != None:
                 if irde.Name & 0x80000000:
                     # Points to a Name object
-                    name = obj.Object("_IMAGE_RESOURCE_DIR_STRING_U", (irde.Name & 0x7FFFFFFF) + self.sectoffset, vm = self.v_vm, parent = irde)
+                    name = obj.Object("_IMAGE_RESOURCE_DIR_STRING_U", (irde.Name & 0x7FFFFFFF) + self.sectoffset, vm = self.obj_vm, parent = irde)
                 else:
                     name = int(irde.Name)
                 if irde.DataOffset & 0x80000000:
                     # We're another DIRECTORY
-                    retobj = obj.Object("_IMAGE_RESOURCE_DIRECTORY", (irde.DataOffset & 0x7FFFFFFF) + self.sectoffset, vm = self.v_vm, parent = irde)
+                    retobj = obj.Object("_IMAGE_RESOURCE_DIRECTORY", (irde.DataOffset & 0x7FFFFFFF) + self.sectoffset, vm = self.obj_vm, parent = irde)
                     retobj.sectoffset = self.sectoffset
                 else:
                     # We're a DATA_ENTRY
-                    retobj = obj.Object("_IMAGE_RESOURCE_DATA_ENTRY", irde.DataOffset + self.sectoffset, vm = self.v_vm, parent = irde)
+                    retobj = obj.Object("_IMAGE_RESOURCE_DATA_ENTRY", irde.DataOffset + self.sectoffset, vm = self.obj_vm, parent = irde)
                 yield (name, bool(irde.DataOffset & 0x80000000), retobj)
 
 resource_types = {

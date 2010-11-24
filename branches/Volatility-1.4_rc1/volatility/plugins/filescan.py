@@ -92,7 +92,7 @@ class FileScan(commands.command):
 
             ## The _OBJECT_HEADER is immediately below the _FILE_OBJECT
             object_obj = obj.Object("_OBJECT_HEADER", vm = address_space,
-                                   offset = file_obj.v_offset - \
+                                   offset = file_obj.obj_offset - \
                                    address_space.profile.get_obj_size("_OBJECT_HEADER")
                                    )
 
@@ -121,7 +121,7 @@ class FileScan(commands.command):
                         ((file_obj.SharedDelete > 0 and "d") or '-')
 
             outfd.write("0x{0:08x} 0x{1:08x} {2:4} {3:4} {4:6} {5}\n".format(
-                         object_obj.v_offset, object_obj.Type, object_obj.PointerCount,
+                         object_obj.obj_offset, object_obj.Type, object_obj.PointerCount,
                          object_obj.HandleCount, AccessStr, Name))
 
 class PoolScanDriver(PoolScanFile):
@@ -156,14 +156,14 @@ class DriverScan(FileScan):
             ## The _DRIVER_OBJECT is immediately below the _DRIVER_EXTENSION
             driver_obj = obj.Object(
                 "_DRIVER_OBJECT", vm = address_space,
-                offset = extension_obj.v_offset - \
+                offset = extension_obj.obj_offset - \
                 address_space.profile.get_obj_size("_DRIVER_OBJECT")
                 )
 
             ## The _OBJECT_HEADER is immediately below the _DRIVER_OBJECT
             object_obj = obj.Object(
                 "_OBJECT_HEADER", vm = address_space,
-                offset = driver_obj.v_offset - \
+                offset = driver_obj.obj_offset - \
                 address_space.profile.get_obj_size("_OBJECT_HEADER")
                 )
 
@@ -173,7 +173,7 @@ class DriverScan(FileScan):
 
             ## Now we need to work out the _OBJECT_NAME_INFORMATION object
             object_name_info_obj = obj.Object("_OBJECT_NAME_INFORMATION", vm = address_space,
-                                                 offset = object_obj.v_offset - \
+                                                 offset = object_obj.obj_offset - \
                                                  object_obj.NameInfoOffset
                                                  )
 
@@ -188,7 +188,7 @@ class DriverScan(FileScan):
 
         for object_obj, driver_obj, extension_obj, object_name_info_obj in data:
             outfd.write("0x{0:08x} 0x{1:08x} {2:4} {3:4} 0x{4:08x} {5:6} {6:20} {7:12} {8}\n".format(
-                         driver_obj.v_offset, object_obj.Type, object_obj.PointerCount,
+                         driver_obj.obj_offset, object_obj.Type, object_obj.PointerCount,
                          object_obj.HandleCount,
                          driver_obj.DriverStart, driver_obj.DriverSize,
                          self.parse_string(extension_obj.ServiceKeyName),
@@ -232,7 +232,7 @@ class MutantScan(FileScan):
             ## The _OBJECT_HEADER is immediately below the _KMUTANT
             object_obj = obj.Object(
                 "_OBJECT_HEADER", vm = address_space,
-                offset = mutant.v_offset - \
+                offset = mutant.obj_offset - \
                 address_space.profile.get_obj_size("_OBJECT_HEADER")
                 )
 
@@ -242,7 +242,7 @@ class MutantScan(FileScan):
 
             ## Now we need to work out the _OBJECT_NAME_INFORMATION object
             object_name_info_obj = obj.Object("_OBJECT_NAME_INFORMATION", vm = address_space,
-                                                     offset = object_obj.v_offset - \
+                                                     offset = object_obj.obj_offset - \
                                                      object_obj.NameInfoOffset
                                                      )
 
@@ -268,7 +268,7 @@ class MutantScan(FileScan):
                 CID = ""
 
             outfd.write("0x{0:08x} 0x{1:08x} {2:4} {3:4} {4:6} 0x{5:08x} {6:10} {7}\n".format(
-                         mutant.v_offset, object_obj.Type, object_obj.PointerCount,
+                         mutant.obj_offset, object_obj.Type, object_obj.PointerCount,
                          object_obj.HandleCount, mutant.Header.SignalState,
                          mutant.OwnerThread, CID,
                          self.parse_string(object_name_info_obj.Name)

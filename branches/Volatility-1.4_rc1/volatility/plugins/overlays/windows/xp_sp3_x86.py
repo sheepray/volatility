@@ -39,10 +39,10 @@ import volatility.debug as debug #pylint: disable-msg=W0611
 
 xpsp3overlays = copy.deepcopy(xp_sp2_x86.xpsp2overlays)
 
-xpsp3overlays['_MMVAD_SHORT'][1]['Flags'][0] = lambda x: x.u.v_offset
-xpsp3overlays['_CONTROL_AREA'][1]['Flags'][0] = lambda x: x.u.v_offset
-xpsp3overlays['_MMVAD_LONG'][1]['Flags'][0] = lambda x: x.u.v_offset
-xpsp3overlays['_MMVAD_LONG'][1]['Flags2'][0] = lambda x: x.u2.v_offset
+xpsp3overlays['_MMVAD_SHORT'][1]['Flags'][0] = lambda x: x.u.obj_offset
+xpsp3overlays['_CONTROL_AREA'][1]['Flags'][0] = lambda x: x.u.obj_offset
+xpsp3overlays['_MMVAD_LONG'][1]['Flags'][0] = lambda x: x.u.obj_offset
+xpsp3overlays['_MMVAD_LONG'][1]['Flags2'][0] = lambda x: x.u2.obj_offset
 
 xp_sp3_x86_vtypes.ntoskrnl_types.update(crashdump.crash_vtypes)
 xp_sp3_x86_vtypes.ntoskrnl_types.update(hibernate_vtypes.hibernate_vtypes)

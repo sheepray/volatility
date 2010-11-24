@@ -261,11 +261,11 @@ class BaseObject(object):
             raise InvalidOffsetError("Invalid Address 0x{0:08X}, instantiating {1}".format(offset, name))
 
     @property
-    def v_vm(self):
+    def obj_vm(self):
         return self._vol_vm
 
     @property
-    def v_offset(self):
+    def obj_offset(self):
         return self._vol_offset
 
     @property
@@ -273,11 +273,11 @@ class BaseObject(object):
         return self._vol_theType
 
     @property
-    def v_parent(self):
+    def obj_parent(self):
         return self._vol_parent
 
     @property
-    def v_name(self):
+    def obj_name(self):
         return self._vol_name
 
     def rebase(self, offset):
@@ -302,7 +302,7 @@ class BaseObject(object):
         proxied = self.proxied(attr)
         # Don't do a __nonzero__ check on proxied or things like '' will fail
         if proxied is None:
-            raise AttributeError("Unable to resolve attribute {0} on {1}".format(attr, self.v_name))
+            raise AttributeError("Unable to resolve attribute {0} on {1}".format(attr, self.obj_name))
 
         return getattr(proxied, attr)
 
@@ -331,35 +331,35 @@ class BaseObject(object):
 
         the later form is not going to work when X is a NoneObject. 
         """
-        result = self.v_vm.is_valid_address(self.v_offset)
+        result = self.obj_vm.is_valid_address(self.obj_offset)
         return result
 
     def __eq__(self, other):
         return self.v() == other or ((self.__class__ == other.__class__) and
-                                     (self.v_offset == other.v_offset) and (self.v_vm == other.v_vm))
+                                     (self.obj_offset == other.obj_offset) and (self.obj_vm == other.obj_vm))
 
     def __hash__(self):
-        return hash(self.v_name) ^ hash(self.v_offset)
+        return hash(self.obj_name) ^ hash(self.obj_offset)
 
     def m(self, memname):
         raise AttributeError("No member {0}".format(memname))
 
     def is_valid(self):
-        return self.v_vm.is_valid_address(self.v_offset)
+        return self.obj_vm.is_valid_address(self.obj_offset)
 
     def dereference(self):
-        return NoneObject("Can't dereference {0}".format(self.v_name), self._vol_profile.strict)
+        return NoneObject("Can't dereference {0}".format(self.obj_name), self._vol_profile.strict)
 
     def dereference_as(self, derefType):
-        return Object(derefType, self.v(), self.v_vm, parent = self)
+        return Object(derefType, self.v(), self.obj_vm, parent = self)
 
     def cast(self, castString):
-        return Object(castString, self.v_offset, self.v_vm)
+        return Object(castString, self.obj_offset, self.obj_vm)
 
     def v(self):
         """ Do the actual reading and decoding of this member
         """
-        return NoneObject("No value for {0}".format(self.v_name), self._vol_profile.strict)
+        return NoneObject("No value for {0}".format(self.obj_name), self._vol_profile.strict)
 
     def __format__(self, formatspec):
         return format(self.v(), formatspec)
@@ -368,8 +368,8 @@ class BaseObject(object):
         return str(self.v())
 
     def __repr__(self):
-        return "[{0} {1}] @ 0x{2:08X}".format(self.__class__.__name__, self.v_name or '',
-                                              self.v_offset)
+        return "[{0} {1}] @ 0x{2:08X}".format(self.__class__.__name__, self.obj_name or '',
+                                              self.obj_offset)
 
     def d(self):
         """Display diagnostic information"""
@@ -382,14 +382,14 @@ class BaseObject(object):
         except:
             thetype = self.v_theType
 
-        return dict(offset = self.v_offset, name = self.v_name, vm = self.v_vm, theType = thetype)
+        return dict(offset = self.obj_offset, name = self.obj_name, vm = self.obj_vm, theType = thetype)
 
     def __setstate__(self, state):
         #pdb.set_trace()
         ## What we want to do here is to instantiate a new object and then copy it into ourselves
         new_object = Object(state['theType'], state['offset'], state['vm'], name = state['name'])
         if not new_object:
-            raise pickle.UnpicklingError("Object {0} at 0x{1:08x} invalid".format(state.v_name, state.v_offset))
+            raise pickle.UnpicklingError("Object {0} at 0x{1:08x} invalid".format(state.obj_name, state.obj_offset))
 
         ## (Scudette) Im not sure how much of a hack this is - we
         ## basically take over all the new object's members. This is
@@ -455,10 +455,10 @@ class NativeType(BaseObject, NumericProxyMixIn):
     def write(self, data):
         """Writes the data back into the address space"""
         output = struct.pack(self.format_string, data)
-        return self.v_vm.write(self.v_offset, output)
+        return self.obj_vm.write(self.obj_offset, output)
 
     def rebase(self, offset):
-        return self.__class__(None, offset, self.v_vm, format_string = self.format_string)
+        return self.__class__(None, offset, self.obj_vm, format_string = self.format_string)
 
     def proxied(self, attr):
         return self.v()
@@ -467,22 +467,22 @@ class NativeType(BaseObject, NumericProxyMixIn):
         return struct.calcsize(self.format_string)
 
     def v(self):
-        data = self.v_vm.read(self.v_offset, self.size())
+        data = self.obj_vm.read(self.obj_offset, self.size())
         if not data:
-            return NoneObject("Unable to read {0} bytes from {1}".format(self.size(), self.v_offset))
+            return NoneObject("Unable to read {0} bytes from {1}".format(self.size(), self.obj_offset))
 
         (val,) = struct.unpack(self.format_string, data)
 
         return val
 
     def cdecl(self):
-        return self.v_name
+        return self.obj_name
 
     def __repr__(self):
         return " [{0}]: {1}".format(self.v_theType, self.v())
 
     def d(self):
-        return " [{0} {1} | {2}]: {3}".format(self.__class__.__name__, self.v_name or '',
+        return " [{0} {1} | {2}]: {3}".format(self.__class__.__name__, self.obj_name or '',
                                               self.v_theType, self.v())
 
 class BitField(NativeType):
@@ -522,16 +522,16 @@ class Pointer(NativeType):
 
     def is_valid(self):
         """ Returns if what we are pointing to is valid """
-        return self.v_vm.is_valid_address(self.v())
+        return self.obj_vm.is_valid_address(self.v())
 
     def dereference(self):
         offset = self.v()
-        if self.v_vm.is_valid_address(offset):
-            result = self.target(offset = offset, vm = self.v_vm, parent = self.v_parent,
-                                 name = self.v_name)
+        if self.obj_vm.is_valid_address(offset):
+            result = self.target(offset = offset, vm = self.obj_vm, parent = self.obj_parent,
+                                 name = self.obj_name)
             return result
         else:
-            return NoneObject("Pointer {0} invalid".format(self.v_name), self.v_vm.profile.strict)
+            return NoneObject("Pointer {0} invalid".format(self.obj_name), self.obj_vm.profile.strict)
 
     def cdecl(self):
         return "Pointer {0}".format(self.v())
@@ -545,7 +545,7 @@ class Pointer(NativeType):
 
     def d(self):
         target = self.dereference()
-        return "<{0} {1} pointer to [0x{2:08X}]>".format(target.__class__.__name__, self.v_name or '', self.v())
+        return "<{0} {1} pointer to [0x{2:08X}]>".format(target.__class__.__name__, self.obj_name or '', self.v())
 
     def __getattribute__(self, attr):
         try:
@@ -571,14 +571,14 @@ class Void(NativeType):
         return "Void (0x{0:08X})".format(self.v())
 
     def d(self):
-        return "Void[{0} {1}] (0x{2:08X})".format(self.__class__.__name__, self.v_name or '', self.v())
+        return "Void[{0} {1}] (0x{2:08X})".format(self.__class__.__name__, self.obj_name or '', self.v())
 
     def __nonzero__(self):
         return bool(self.dereference())
 
     def dereference_as(self, derefType):
         return Object(derefType, self.v(), \
-                         self.v_vm, parent = self)
+                         self.obj_vm, parent = self)
 
 class Array(BaseObject):
     """ An array of objects of the same size """
@@ -627,13 +627,13 @@ class Array(BaseObject):
             offset = self.original_offset + position * self.current.size()
 
             ## Instantiate the target here:
-            if self.v_vm.is_valid_address(offset):
-                yield self.target(offset = offset, vm = self.v_vm,
+            if self.obj_vm.is_valid_address(offset):
+                yield self.target(offset = offset, vm = self.obj_vm,
                                   parent = self,
-                                  name = "{0} {1}".format(self.v_name, position))
+                                  name = "{0} {1}".format(self.obj_name, position))
             else:
-                yield NoneObject("Array {0}, Invalid position {1}".format(self.v_name, position),
-                                 self.v_vm.profile.strict)
+                yield NoneObject("Array {0}, Invalid position {1}".format(self.obj_name, position),
+                                 self.obj_vm.profile.strict)
 
     def __repr__(self):
         result = [ x.__str__() for x in self ]
@@ -641,7 +641,7 @@ class Array(BaseObject):
 
     def d(self):
         result = [ x.__str__() for x in self ]
-        return "<Array[{0} {1}] {2}>".format(self.__class__.__name__, self.v_name or '', ",".join(result))
+        return "<Array[{0} {1}] {2}>".format(self.__class__.__name__, self.obj_name or '', ",".join(result))
 
     def __eq__(self, other):
         if self.count != len(other):
@@ -657,12 +657,12 @@ class Array(BaseObject):
         ## Check if the offset is valid
         offset = self.original_offset + \
                  pos * self.current.size()
-        if pos <= self.count and self.v_vm.is_valid_address(offset):
+        if pos <= self.count and self.obj_vm.is_valid_address(offset):
             return self.target(offset = offset,
-                               vm = self.v_vm, parent = self)
+                               vm = self.obj_vm, parent = self)
         else:
-            return NoneObject("Array {0} invalid member {1}".format(self.v_name, pos),
-                              self.v_vm.profile.strict)
+            return NoneObject("Array {0} invalid member {1}".format(self.obj_name, pos),
+                              self.obj_vm.profile.strict)
 
 class CType(BaseObject):
     """ A CType is an object which represents a c struct """
@@ -683,8 +683,8 @@ class CType(BaseObject):
         return self.struct_size
 
     def __repr__(self):
-        return "[{0} {1}] @ 0x{2:08X}".format(self.__class__.__name__, self.v_name or '',
-                                     self.v_offset)
+        return "[{0} {1}] @ 0x{2:08X}".format(self.__class__.__name__, self.obj_name or '',
+                                     self.obj_offset)
     def d(self):
         result = self.__repr__() + "\n"
         for k in self.members.keys():
@@ -695,15 +695,15 @@ class CType(BaseObject):
     def v(self):
         """ When a struct is evaluated we just return our offset.
         """
-        return self.v_offset
+        return self.obj_offset
 
     def m(self, attr):
         try:
             offset, cls = self.members[attr]
         except KeyError:
             ## hmm - tough choice - should we raise or should we not
-            #return NoneObject("Struct {0} has no member {1}".format(self.v_name, attr))
-            raise AttributeError("Struct {0} has no member {1}".format(self.v_name, attr))
+            #return NoneObject("Struct {0} has no member {1}".format(self.obj_name, attr))
+            raise AttributeError("Struct {0} has no member {1}".format(self.obj_name, attr))
 
         if callable(offset):
             ## If offset is specified as a callable its an absolute
@@ -711,9 +711,9 @@ class CType(BaseObject):
             offset = int(offset(self))
         else:
             ## Otherwise its relative to the start of our struct
-            offset = int(offset) + int(self.v_offset)
+            offset = int(offset) + int(self.obj_offset)
 
-        result = cls(offset = offset, vm = self.v_vm,
+        result = cls(offset = offset, vm = self.obj_vm,
                      parent = self, name = attr)
 
         return result
@@ -756,7 +756,7 @@ class VolatilityMagic(BaseObject):
         # If we've been given a configname override,
         # then override the value with the one from the config
         if configname:
-            configval = getattr(self.v_vm.get_config(), configname)
+            configval = getattr(self.obj_vm.get_config(), configname)
             # Check the configvalue is actually set to something
             if configval:
                 value = configval
