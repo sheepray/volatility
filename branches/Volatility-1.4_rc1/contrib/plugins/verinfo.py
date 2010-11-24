@@ -120,7 +120,7 @@ class VerStruct(obj.CType):
                 if n == 0:
                     if findend:
                         return n.v_offset + n.size()
-                    name = self.vm.read(self.Key.v_offset, n.v_offset - self.Key.v_offset).decode("utf16", "ignore").encode("ascii", 'backslashreplace')
+                    name = self.v_vm.read(self.Key.v_offset, n.v_offset - self.Key.v_offset).decode("utf16", "ignore").encode("ascii", 'backslashreplace')
                     break
             return name
         return self.Key
@@ -139,14 +139,14 @@ class VerStruct(obj.CType):
         if self.ValueLength > 0:
             # Nasty hardcoding unicode (length*2) length in here, 
             # but what else can we do?
-            return self.vm.read(offset, self.ValueLength * 2)
+            return self.v_vm.read(offset, self.ValueLength * 2)
         else:
             return self._recurse_children(offset)
 
     def _recurse_children(self, offset):
         """Recurses thorugh the available children"""
         while offset < self.v_offset + self.Length:
-            item = obj.Object("VerStruct", offset = offset, vm = self.vm, parent = self)
+            item = obj.Object("VerStruct", offset = offset, vm = self.v_vm, parent = self)
             if item.Length < 1 or item.get_key() == None:
                 raise StopIteration("Could not recover a key for a child at offset {0}".format(item.v_offset))
             yield item.get_key(), item.get_children()
@@ -206,7 +206,7 @@ class _VS_FIXEDFILEINFO(obj.CType):
                        0x3: 'Truetype',
                        }
         if choices != None:
-            subtype = obj.Object('Enumeration', 0x28, vm = self.vm, parent = self, choices = choices)
+            subtype = obj.Object('Enumeration', 0x28, vm = self.v_vm, parent = self, choices = choices)
             ftype += " (" + str(subtype) + ")"
 
         return ftype
@@ -244,7 +244,7 @@ class _IMAGE_RESOURCE_DIR_STRING_U(obj.CType):
             length = self.Length.v()
             if length > 1024:
                 length = 0
-            data = self.vm.read(self.Value.v_offset, length)
+            data = self.v_vm.read(self.Value.v_offset, length)
             return data.decode("utf16", "ignore").encode("ascii", 'backslashreplace')
         except Exception, _e:
             return ''
@@ -261,16 +261,16 @@ class _IMAGE_RESOURCE_DIRECTORY(obj.CType):
             if irde != None:
                 if irde.Name & 0x80000000:
                     # Points to a Name object
-                    name = obj.Object("_IMAGE_RESOURCE_DIR_STRING_U", (irde.Name & 0x7FFFFFFF) + self.sectoffset, vm = self.vm, parent = irde)
+                    name = obj.Object("_IMAGE_RESOURCE_DIR_STRING_U", (irde.Name & 0x7FFFFFFF) + self.sectoffset, vm = self.v_vm, parent = irde)
                 else:
                     name = int(irde.Name)
                 if irde.DataOffset & 0x80000000:
                     # We're another DIRECTORY
-                    retobj = obj.Object("_IMAGE_RESOURCE_DIRECTORY", (irde.DataOffset & 0x7FFFFFFF) + self.sectoffset, vm = self.vm, parent = irde)
+                    retobj = obj.Object("_IMAGE_RESOURCE_DIRECTORY", (irde.DataOffset & 0x7FFFFFFF) + self.sectoffset, vm = self.v_vm, parent = irde)
                     retobj.sectoffset = self.sectoffset
                 else:
                     # We're a DATA_ENTRY
-                    retobj = obj.Object("_IMAGE_RESOURCE_DATA_ENTRY", irde.DataOffset + self.sectoffset, vm = self.vm, parent = irde)
+                    retobj = obj.Object("_IMAGE_RESOURCE_DATA_ENTRY", irde.DataOffset + self.sectoffset, vm = self.v_vm, parent = irde)
                 yield (name, bool(irde.DataOffset & 0x80000000), retobj)
 
 resource_types = {

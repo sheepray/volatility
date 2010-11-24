@@ -236,7 +236,7 @@ class _EPROCESS(obj.CType):
         directory_table_base = self.Pcb.DirectoryTableBase.v()
 
         try:
-            process_as = self.vm.__class__(self.vm.base, self.vm.get_config(), dtb = directory_table_base)
+            process_as = self.v_vm.__class__(self.v_vm.base, self.v_vm.get_config(), dtb = directory_table_base)
         except AssertionError, _e:
             return obj.NoneObject("Unable to get process AS")
 
@@ -256,7 +256,7 @@ class _EPROCESS(obj.CType):
             count = 0x200
             targetType = "_HANDLE_TABLE_ENTRY"
 
-        table = obj.Object("Array", offset = offset, vm = self.vm, count = count,
+        table = obj.Object("Array", offset = offset, vm = self.v_vm, count = count,
                            targetType = targetType, parent = self)
 
         if table:
@@ -272,7 +272,7 @@ class _EPROCESS(obj.CType):
                     ## OK We got to the bottom table, we just resolve
                     ## objects here:
                     offset = int(entry.Object.v()) & ~0x00000007
-                    item = obj.Object("_OBJECT_HEADER", offset, self.vm,
+                    item = obj.Object("_OBJECT_HEADER", offset, self.v_vm,
                                             parent = self)
                     try:
                         if item.Type.Name:

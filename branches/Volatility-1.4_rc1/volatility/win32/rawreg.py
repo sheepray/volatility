@@ -94,13 +94,13 @@ def read_sklist(sk):
         for i in range(sk.Count):
             # Read and dereference the pointer
             ptr_off = sk.List.v_offset + (i * 4)
-            if not sk.vm.is_valid_address(ptr_off):
+            if not sk.v_vm.is_valid_address(ptr_off):
                 continue
-            ssk_off = obj.Object("unsigned int", ptr_off, sk.vm)
-            if not sk.vm.is_valid_address(ssk_off):
+            ssk_off = obj.Object("unsigned int", ptr_off, sk.v_vm)
+            if not sk.v_vm.is_valid_address(ssk_off):
                 continue
 
-            ssk = obj.Object("_CM_KEY_INDEX", ssk_off, sk.vm)
+            ssk = obj.Object("_CM_KEY_INDEX", ssk_off, sk.v_vm)
             for i in read_sklist(ssk):
                 yield i
 
@@ -111,7 +111,7 @@ def subkeys(key):
 
     if int(key.SubKeyCounts[0]) > 0:
         sk_off = key.SubKeyLists[0]
-        sk = obj.Object("_CM_KEY_INDEX", sk_off, key.vm)
+        sk = obj.Object("_CM_KEY_INDEX", sk_off, key.v_vm)
         if not sk or not sk.is_valid():
             pass
         else:
@@ -121,7 +121,7 @@ def subkeys(key):
 
     if int(key.SubKeyCounts[1]) > 0:
         sk_off = key.SubKeyLists[1]
-        sk = obj.Object("_CM_KEY_INDEX", sk_off, key.vm)
+        sk = obj.Object("_CM_KEY_INDEX", sk_off, key.v_vm)
         if not sk or not sk.is_valid():
             pass
         else:
@@ -141,9 +141,9 @@ def value_data(val):
     inline = val.DataLength & 0x80000000
 
     if inline:
-        valdata = val.vm.read(val.Data.v_offset, val.DataLength & 0x7FFFFFFF)
+        valdata = val.v_vm.read(val.Data.v_offset, val.DataLength & 0x7FFFFFFF)
     else:
-        valdata = val.vm.read(val.Data, val.DataLength)
+        valdata = val.v_vm.read(val.Data, val.DataLength)
 
     if (valtype == "REG_SZ" or valtype == "REG_EXPAND_SZ" or
         valtype == "REG_LINK"):

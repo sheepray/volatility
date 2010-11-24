@@ -61,7 +61,7 @@ class _UNICODE_STRING(obj.CType):
             length = self.Length.v()
             if length > 1024:
                 length = 0
-            data = self.vm.read(self.Buffer.v(), length)
+            data = self.v_vm.read(self.Buffer.v(), length)
             return data.decode("utf16", "ignore").encode("ascii", 'backslashreplace')
         except Exception, _e:
             return ''
@@ -90,7 +90,7 @@ class _LIST_ENTRY(obj.CType):
         else:
             lst = self.Blink.dereference()
 
-        offset = self.vm.profile.get_obj_offset(type, member)
+        offset = self.v_vm.profile.get_obj_offset(type, member)
 
         seen = set()
         seen.add(lst.v_offset)
@@ -98,7 +98,7 @@ class _LIST_ENTRY(obj.CType):
         while 1:
             ## Instantiate the object
             item = obj.Object(type, offset = lst.v_offset - offset,
-                                    vm = self.vm,
+                                    vm = self.v_vm,
                                     parent = self.v_parent,
                                     name = type)
 
@@ -203,7 +203,7 @@ class VolatilityKPCR(obj.VolatilityMagic):
 
     def generate_suggestions(self):
         scanner = kpcr.KPCRScanner()
-        for val in scanner.scan(self.vm):
+        for val in scanner.scan(self.v_vm):
             yield val
 
 AbstractWindows.object_classes['VolatilityKPCR'] = VolatilityKPCR

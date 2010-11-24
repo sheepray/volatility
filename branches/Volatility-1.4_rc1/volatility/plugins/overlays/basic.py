@@ -161,7 +161,7 @@ class VolatilityDTB(obj.VolatilityMagic):
     def generate_suggestions(self):
         offset = 0
         while 1:
-            data = self.vm.read(offset, constants.SCAN_BLOCKSIZE)
+            data = self.v_vm.read(offset, constants.SCAN_BLOCKSIZE)
             found = 0
             if not data:
                 break
@@ -172,7 +172,7 @@ class VolatilityDTB(obj.VolatilityMagic):
                     # (_type, _size) = unpack('=HH', data[found:found+4])
                     proc = obj.Object("_EPROCESS",
                                              offset = offset + found,
-                                             vm = self.vm)
+                                             vm = self.v_vm)
                     if 'Idle' in proc.ImageFileName.v():
                         yield proc.Pcb.DirectoryTableBase.v()
                 else:
