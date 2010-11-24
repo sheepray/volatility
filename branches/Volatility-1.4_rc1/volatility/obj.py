@@ -256,7 +256,7 @@ class BaseObject(object):
         self.profile = vm.profile
         self._vol_offset = offset
         self.name = name
-        self.theType = theType
+        self._vol_theType = theType
 
         if not self.vm.is_valid_address(self._vol_offset):
             raise InvalidOffsetError("Invalid Address 0x{0:08X}, instantiating {1}".format(offset, name))
@@ -265,8 +265,12 @@ class BaseObject(object):
     def v_offset(self):
         return self._vol_offset
 
+    @property
+    def v_theType(self):
+        return self._vol_theType
+
     def rebase(self, offset):
-        return self.__class__(self.theType, offset, vm = self.vm)
+        return self.__class__(self.v_theType, offset, vm = self.vm)
 
     def proxied(self, attr):
         return None
@@ -363,9 +367,9 @@ class BaseObject(object):
     def __getstate__(self):
         """ This controls how we pickle and unpickle the objects """
         try:
-            thetype = self.theType.__name__
+            thetype = self.v_theType.__name__
         except:
-            thetype = self.theType
+            thetype = self.v_theType
 
         return dict(offset = self.v_offset, name = self.name, vm = self.vm, theType = thetype)
 
@@ -464,11 +468,11 @@ class NativeType(BaseObject, NumericProxyMixIn):
         return self.name
 
     def __repr__(self):
-        return " [{0}]: {1}".format(self.theType, self.v())
+        return " [{0}]: {1}".format(self.v_theType, self.v())
 
     def d(self):
         return " [{0} {1} | {2}]: {3}".format(self.__class__.__name__, self.name or '',
-                                              self.theType, self.v())
+                                              self.v_theType, self.v())
 
 class BitField(NativeType):
     """ A class splitting an integer into a bunch of bit. """
