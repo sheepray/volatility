@@ -90,7 +90,7 @@ class _LIST_ENTRY(obj.CType):
         else:
             lst = self.Blink.dereference()
 
-        offset = self.profile.get_obj_offset(type, member)
+        offset = self.vm.profile.get_obj_offset(type, member)
 
         seen = set()
         seen.add(lst.v_offset)

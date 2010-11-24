@@ -253,7 +253,6 @@ class BaseObject(object):
     def __init__(self, theType, offset, vm, parent = None, name = None):
         self.vm = vm
         self._vol_parent = parent
-        self.profile = vm.profile
         self._vol_offset = offset
         self.name = name
         self._vol_theType = theType
@@ -341,7 +340,7 @@ class BaseObject(object):
         return self.vm.is_valid_address(self.v_offset)
 
     def dereference(self):
-        return NoneObject("Can't dereference {0}".format(self.name), self.profile.strict)
+        return NoneObject("Can't dereference {0}".format(self.name), self._vol_profile.strict)
 
     def dereference_as(self, derefType):
         return Object(derefType, self.v(), self.vm, parent = self)
@@ -352,7 +351,7 @@ class BaseObject(object):
     def v(self):
         """ Do the actual reading and decoding of this member
         """
-        return NoneObject("No value for {0}".format(self.name), self.profile.strict)
+        return NoneObject("No value for {0}".format(self.name), self._vol_profile.strict)
 
     def __format__(self, formatspec):
         return format(self.v(), formatspec)
@@ -524,7 +523,7 @@ class Pointer(NativeType):
                                  name = self.name)
             return result
         else:
-            return NoneObject("Pointer {0} invalid".format(self.name), self.profile.strict)
+            return NoneObject("Pointer {0} invalid".format(self.name), self.vm.profile.strict)
 
     def cdecl(self):
         return "Pointer {0}".format(self.v())
@@ -626,7 +625,7 @@ class Array(BaseObject):
                                   name = "{0} {1}".format(self.name, position))
             else:
                 yield NoneObject("Array {0}, Invalid position {1}".format(self.name, position),
-                                 self.profile.strict)
+                                 self.vm.profile.strict)
 
     def __repr__(self):
         result = [ x.__str__() for x in self ]
@@ -655,7 +654,7 @@ class Array(BaseObject):
                                vm = self.vm, parent = self)
         else:
             return NoneObject("Array {0} invalid member {1}".format(self.name, pos),
-                              self.profile.strict)
+                              self.vm.profile.strict)
 
 class CType(BaseObject):
     """ A CType is an object which represents a c struct """
