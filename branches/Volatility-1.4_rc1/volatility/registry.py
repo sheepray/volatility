@@ -169,6 +169,9 @@ class MemoryRegistry(object):
                 except AttributeError, e:
                     debug.debug("Failed to load {0} '{1}': {2}".format(self.ParentClass, Class, e))
                     continue
+            else:
+                if hasattr(Class, 'register_options'):
+                    Class.register_options(config)
 
     def get_subclasses(self, cls):
         """Returns a list of all subclasses"""
