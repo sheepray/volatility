@@ -252,7 +252,7 @@ def Object(theType, offset, vm, parent = None, name = None, **kwargs):
 class BaseObject(object):
     def __init__(self, theType, offset, vm, parent = None, name = None):
         self.vm = vm
-        self.parent = parent
+        self._vol_parent = parent
         self.profile = vm.profile
         self._vol_offset = offset
         self.name = name
@@ -268,6 +268,10 @@ class BaseObject(object):
     @property
     def v_theType(self):
         return self._vol_theType
+
+    @property
+    def v_parent(self):
+        return self._vol_parent
 
     def rebase(self, offset):
         return self.__class__(self.v_theType, offset, vm = self.vm)
@@ -516,7 +520,7 @@ class Pointer(NativeType):
     def dereference(self):
         offset = self.v()
         if self.vm.is_valid_address(offset):
-            result = self.target(offset = offset, vm = self.vm, parent = self.parent,
+            result = self.target(offset = offset, vm = self.vm, parent = self.v_parent,
                                  name = self.name)
             return result
         else:

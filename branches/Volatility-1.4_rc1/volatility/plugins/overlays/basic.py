@@ -167,7 +167,7 @@ class VolatilityDTB(obj.VolatilityMagic):
                 break
 
             while 1:
-                found = data.find(str(self.parent.DTBSignature), found + 1)
+                found = data.find(str(self.v_parent.DTBSignature), found + 1)
                 if found >= 0:
                     # (_type, _size) = unpack('=HH', data[found:found+4])
                     proc = obj.Object("_EPROCESS",

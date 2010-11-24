@@ -99,7 +99,7 @@ class _LIST_ENTRY(obj.CType):
             ## Instantiate the object
             item = obj.Object(type, offset = lst.v_offset - offset,
                                     vm = self.vm,
-                                    parent = self.parent,
+                                    parent = self.v_parent,
                                     name = type)
 
 
@@ -119,7 +119,7 @@ class _LIST_ENTRY(obj.CType):
         return bool(self.Flink) or bool(self.Blink)
 
     def __iter__(self):
-        return self.list_of_type(self.parent.name, self.name)
+        return self.list_of_type(self.v_parent.name, self.name)
 
 AbstractWindows.object_classes['_LIST_ENTRY'] = _LIST_ENTRY
 
