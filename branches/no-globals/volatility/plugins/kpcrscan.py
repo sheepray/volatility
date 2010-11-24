@@ -43,7 +43,7 @@ class KPCRScan(commands.command):
         )
 
     @staticmethod
-    def register_class(config):
+    def register_options(config):
         config.add_option('KPCR', short_option = 'k', default = None, type = 'int',
                           help = "Specify a specific KPCR address")
 

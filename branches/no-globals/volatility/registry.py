@@ -188,7 +188,6 @@ class MemoryRegistry(object):
             if hasattr(Class, 'register_options'):
                 Class.register_options(config)
 
-            self.filenames[self.get_name(Class)] = filename
             try:
                 self.order.append(Class.order)
             except AttributeError:

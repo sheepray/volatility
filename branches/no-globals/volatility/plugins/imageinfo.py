@@ -21,17 +21,14 @@
 import volatility.win32.tasks as tasks
 import volatility.timefmt as timefmt
 import volatility.utils as utils
-import volatility.conf as conf
 import volatility.obj as obj
 import volatility.registry as registry
 import volatility.plugins.datetime as datetime
 
-config = conf.ConfObject()
-
 class ImageInfo(datetime.DateTime):
     """ Identify information for the image """
-    def __init__(self, args = None):
-        datetime.DateTime.__init__(self, args)
+    def __init__(self, config, args = None):
+        datetime.DateTime.__init__(self, config, args)
 
     def render_text(self, outfd, data):
         """Renders the calculated data as text to outfd"""
@@ -41,11 +38,11 @@ class ImageInfo(datetime.DateTime):
     def calculate(self):
         """Calculates various information about the image"""
         print "Determining profile based on DTB search..."
-        profilelist = [config.PROFILE] + [ p.__name__ for p in registry.PROFILES.classes if p.__name__ != config.PROFILE]
+        profilelist = [self._config.PROFILE] + [ p.__name__ for p in registry.PROFILES.classes if p.__name__ != self._config.PROFILE]
 
         for profile in profilelist:
-            config.update('PROFILE', profile)
-            addr_space = utils.load_as()
+            self._config.update('PROFILE', profile)
+            addr_space = utils.load_as(self._config)
             if hasattr(addr_space, "dtb"):
                 yield ('Suggested Profile', profile)
                 break

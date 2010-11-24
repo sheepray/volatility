@@ -36,9 +36,7 @@ import re
 import pickle
 import struct, copy, operator
 import volatility.debug as debug
-import volatility.conf as conf
 import volatility.utils as utils
-config = conf.ConfObject()
 
 ## Curry is now a standard python feature
 import functools
@@ -739,9 +737,7 @@ class VolatilityMagic(BaseObject):
         # If we've been given a configname override,
         # then override the value with the one from the config
         if configname:
-            # When we kill off globals,
-            # use the self.vm's config
-            configval = getattr(config, configname)
+            configval = getattr(self.vm.get_config(), configname)
             # Check the configvalue is actually set to something
             if configval:
                 value = configval
