@@ -26,14 +26,12 @@ import volatility.plugins.procdump as procdump
 import volatility.win32.tasks as tasks
 import volatility.debug as debug
 import volatility.utils as utils
-import volatility.conf as conf
-config = conf.ConfObject()
 
 class DLLDump(procdump.ProcExeDump):
     """Dump a DLL from a process address space"""
 
-    def __init__(self, *args):
-        procdump.ProcExeDump.__init__(self, *args)
+    def __init__(self, config, *args):
+        procdump.ProcExeDump.__init__(self, config, *args)
         config.remove_option("OFFSET")
         config.add_option('REGEX', short_option = 'r',
                       help = 'Dump dlls matching REGEX',
@@ -46,19 +44,19 @@ class DLLDump(procdump.ProcExeDump):
                           action = 'store', type = 'int')
 
     def calculate(self):
-        addr_space = utils.load_as()
+        addr_space = utils.load_as(self._config)
 
-        if config.DUMP_DIR == None:
+        if self._config.DUMP_DIR == None:
             debug.error("Please specify a dump directory (--dump-dir)")
-        if not os.path.isdir(config.DUMP_DIR):
-            debug.error(config.DUMP_DIR + " is not a directory")
+        if not os.path.isdir(self._config.DUMP_DIR):
+            debug.error(self._config.DUMP_DIR + " is not a directory")
 
-        if config.regex:
+        if self._config.regex:
             try:
-                if config.ignore_case:
-                    mod_re = re.compile(config.regex, re.I)
+                if self._config.ignore_case:
+                    mod_re = re.compile(self._config.regex, re.I)
                 else:
-                    mod_re = re.compile(config.regex)
+                    mod_re = re.compile(self._config.regex)
             except re.error, e:
                 debug.error('Error parsing regular expression: %s' % e)
 
@@ -70,14 +68,14 @@ class DLLDump(procdump.ProcExeDump):
 
             mods = dict((mod.DllBase.v(), mod) for mod in self.list_modules(proc))
 
-            if config.offset:
-                if mods.has_key(config.offset):
-                    yield addr_space, mods[config.offset]
+            if self._config.offset:
+                if mods.has_key(self._config.offset):
+                    yield addr_space, mods[self._config.offset]
                 else:
-                    raise StopIteration('No such module at 0x{0:X}'.format(config.offset))
+                    raise StopIteration('No such module at 0x{0:X}'.format(self._config.offset))
             else:
                 for mod in mods.values():
-                    if config.regex:
+                    if self._config.regex:
                         if not mod_re.search(str(mod.FullDllName)) and not mod_re.search(str(mod.BaseDllName)):
                             continue
                     yield proc, ps_ad, mod
@@ -88,7 +86,7 @@ class DLLDump(procdump.ProcExeDump):
                 process_offset = ps_ad.vtop(proc.offset)
                 dump_file = "module.{0:x}.{1:x}.dll".format(process_offset, mod.DllBase)
                 outfd.write("Dumping {0}, Process: {1}, Base: {2:8x} output: {3}\n".format(mod.BaseDllName, proc.ImageFileName, mod.DllBase, dump_file))
-                of = open(os.path.join(config.DUMP_DIR, dump_file), 'wb')
+                of = open(os.path.join(self._config.DUMP_DIR, dump_file), 'wb')
                 try:
                     for chunk in self.get_image(outfd, ps_ad, mod.DllBase):
                         offset, code = chunk

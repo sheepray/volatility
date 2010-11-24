@@ -27,14 +27,12 @@ import volatility.win32.modules as modules
 import volatility.win32.tasks as tasks
 import volatility.utils as utils
 import volatility.debug as debug
-import volatility.conf as conf
-config = conf.ConfObject()
 
 class ModDump(procdump.ProcExeDump):
     """Dump a kernel driver to an executable file sample"""
 
-    def __init__(self, *args):
-        procdump.ProcExeDump.__init__(self, *args)
+    def __init__(self, config, *args):
+        procdump.ProcExeDump.__init__(self, config, *args)
         config.remove_option("PID")
         config.remove_option("OFFSET")
         config.add_option('REGEX', short_option = 'r',
@@ -59,19 +57,19 @@ class ModDump(procdump.ProcExeDump):
         return None
 
     def calculate(self):
-        addr_space = utils.load_as()
+        addr_space = utils.load_as(self._config)
 
-        if config.DUMP_DIR == None:
+        if self._config.DUMP_DIR == None:
             debug.error("Please specify a dump directory (--dump-dir)")
-        if not os.path.isdir(config.DUMP_DIR):
-            debug.error(config.DUMP_DIR + " is not a directory")
+        if not os.path.isdir(self._config.DUMP_DIR):
+            debug.error(self._config.DUMP_DIR + " is not a directory")
 
-        if config.regex:
+        if self._config.regex:
             try:
-                if config.ignore_case:
-                    mod_re = re.compile(config.regex, re.I)
+                if self._config.ignore_case:
+                    mod_re = re.compile(self._config.regex, re.I)
                 else:
-                    mod_re = re.compile(config.regex)
+                    mod_re = re.compile(self._config.regex)
             except re.error, e:
                 debug.error('Error parsing regular expression: %s' % e)
 
@@ -80,14 +78,14 @@ class ModDump(procdump.ProcExeDump):
         # instead of inside the find_space function, so we only have to do it once. 
         procs = list(tasks.pslist(addr_space))
 
-        if config.offset:
-            if mods.has_key(config.offset):
-                yield addr_space, procs, mods[config.offset]
+        if self._config.offset:
+            if mods.has_key(self._config.offset):
+                yield addr_space, procs, mods[self._config.offset]
             else:
-                raise StopIteration('No such module at 0x{0:X}'.format(config.offset))
+                raise StopIteration('No such module at 0x{0:X}'.format(self._config.offset))
         else:
             for mod in mods.values():
-                if config.regex:
+                if self._config.regex:
                     if not mod_re.search(str(mod.FullDllName)) and not mod_re.search(str(mod.BaseDllName)):
                         continue
                 yield addr_space, procs, mod
@@ -98,7 +96,7 @@ class ModDump(procdump.ProcExeDump):
             if space != None:
                 dump_file = "driver.{0:x}.sys".format(mod.DllBase)
                 outfd.write("Dumping {0}, Base: {1:8x} output: {2}\n".format(mod.BaseDllName, mod.DllBase, dump_file))
-                of = open(os.path.join(config.DUMP_DIR, dump_file), 'wb')
+                of = open(os.path.join(self._config.DUMP_DIR, dump_file), 'wb')
                 try:
                     for chunk in self.get_image(outfd, space, mod.DllBase):
                         offset, code = chunk
