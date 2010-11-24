@@ -29,8 +29,6 @@
 import volatility.plugins.registry.hivescan as hs
 import volatility.obj as obj
 import volatility.utils as utils
-import volatility.conf as conf
-config = conf.ConfObject()
 
 class HiveList(hs.HiveScan):
     """Print list of registry hives.
@@ -49,12 +47,11 @@ class HiveList(hs.HiveScan):
     meta_info['os'] = 'WIN_32_XP_SP2'
     meta_info['version'] = '1.0'
 
-    def __init__(self, *args):
+    def __init__(self, config, *args):
+        hs.HiveScan.__init__(self, config, *args)
         config.add_option("HIVE-OFFSET", short_option = 'o',
                           default = None, type = 'int',
                           help = "Offset to registry hive")
-
-        hs.HiveScan.__init__(self, *args)
 
     def render_text(self, outfd, result):
         outfd.write("Address      Name\n")
@@ -73,8 +70,8 @@ class HiveList(hs.HiveScan):
 
         hives = hs.HiveScan.calculate(self)
 
-        if config.HIVE_OFFSET:
-            hives = [config.HIVE_OFFSET]
+        if self._config.HIVE_OFFSET:
+            hives = [self._config.HIVE_OFFSET]
 
         def generate_results():
             ## The first hive is normally given in physical address space
