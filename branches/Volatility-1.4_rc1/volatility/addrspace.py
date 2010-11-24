@@ -57,12 +57,6 @@ def check_valid_profile(option, _opt_str, value, parser):
             debug.error("Invalid profile " + value + " selected")
         setattr(parser.values, option.dest, value)
 
-
-class ASAssertionError(AssertionError):
-
-    def __init__(self, *args, **kwargs):
-        AssertionError.__init__(self, *args, **kwargs)
-
 class BaseAddressSpace(object):
     """ This is the base class of all Address Spaces. """
     def __init__(self, base, config, **kwargs):
