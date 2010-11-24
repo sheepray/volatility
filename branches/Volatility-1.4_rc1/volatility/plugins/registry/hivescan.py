@@ -64,7 +64,7 @@ class HiveScan(commands.command):
 
     def calculate(self):
         ## Just grab the AS and scan it using our scanner
-        address_space = utils.load_as(astype = 'physical')
+        address_space = utils.load_as(self._config, astype = 'physical')
 
         return PoolScanHiveFast2().scan(address_space)
 
