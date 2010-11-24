@@ -119,7 +119,7 @@ class _LIST_ENTRY(obj.CType):
         return bool(self.Flink) or bool(self.Blink)
 
     def __iter__(self):
-        return self.list_of_type(self.v_parent.name, self.name)
+        return self.list_of_type(self.v_parent.v_name, self.v_name)
 
 AbstractWindows.object_classes['_LIST_ENTRY'] = _LIST_ENTRY
 

@@ -207,12 +207,6 @@ class MemoryRegistry(object):
         if Class.__name__ in prohibited_class_names:
             raise NotImplementedError("This class name is prohibited from the Registry")
 
-    def get_name(self, cls):
-        try:
-            return cls.name
-        except AttributeError:
-            return ("{0}".format(cls)).split(".")[-1]
-
 class VolatilityCommandRegistry(MemoryRegistry):
     """ A class to manage commands """
     def __getitem__(self, command_name):

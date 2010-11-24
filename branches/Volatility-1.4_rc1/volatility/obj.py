@@ -254,7 +254,7 @@ class BaseObject(object):
         self._vol_vm = vm
         self._vol_parent = parent
         self._vol_offset = offset
-        self.name = name
+        self._vol_name = name
         self._vol_theType = theType
 
         if not self._vol_vm.is_valid_address(self._vol_offset):
@@ -275,6 +275,10 @@ class BaseObject(object):
     @property
     def v_parent(self):
         return self._vol_parent
+
+    @property
+    def v_name(self):
+        return self._vol_name
 
     def rebase(self, offset):
         return self.__class__(self.v_theType, offset, vm = self._vol_vm)
@@ -298,7 +302,7 @@ class BaseObject(object):
         proxied = self.proxied(attr)
         # Don't do a __nonzero__ check on proxied or things like '' will fail
         if proxied is None:
-            raise AttributeError("Unable to resolve attribute {0} on {1}".format(attr, self.name))
+            raise AttributeError("Unable to resolve attribute {0} on {1}".format(attr, self.v_name))
 
         return getattr(proxied, attr)
 
@@ -335,7 +339,7 @@ class BaseObject(object):
                                      (self.v_offset == other.v_offset) and (self.v_vm == other.v_vm))
 
     def __hash__(self):
-        return hash(self.name) ^ hash(self.v_offset)
+        return hash(self.v_name) ^ hash(self.v_offset)
 
     def m(self, memname):
         raise AttributeError("No member {0}".format(memname))
@@ -344,7 +348,7 @@ class BaseObject(object):
         return self.v_vm.is_valid_address(self.v_offset)
 
     def dereference(self):
-        return NoneObject("Can't dereference {0}".format(self.name), self._vol_profile.strict)
+        return NoneObject("Can't dereference {0}".format(self.v_name), self._vol_profile.strict)
 
     def dereference_as(self, derefType):
         return Object(derefType, self.v(), self.v_vm, parent = self)
@@ -355,7 +359,7 @@ class BaseObject(object):
     def v(self):
         """ Do the actual reading and decoding of this member
         """
-        return NoneObject("No value for {0}".format(self.name), self._vol_profile.strict)
+        return NoneObject("No value for {0}".format(self.v_name), self._vol_profile.strict)
 
     def __format__(self, formatspec):
         return format(self.v(), formatspec)
@@ -364,7 +368,7 @@ class BaseObject(object):
         return str(self.v())
 
     def __repr__(self):
-        return "[{0} {1}] @ 0x{2:08X}".format(self.__class__.__name__, self.name or '',
+        return "[{0} {1}] @ 0x{2:08X}".format(self.__class__.__name__, self.v_name or '',
                                               self.v_offset)
 
     def d(self):
@@ -378,14 +382,14 @@ class BaseObject(object):
         except:
             thetype = self.v_theType
 
-        return dict(offset = self.v_offset, name = self.name, vm = self.v_vm, theType = thetype)
+        return dict(offset = self.v_offset, name = self.v_name, vm = self.v_vm, theType = thetype)
 
     def __setstate__(self, state):
         #pdb.set_trace()
         ## What we want to do here is to instantiate a new object and then copy it into ourselves
         new_object = Object(state['theType'], state['offset'], state['vm'], name = state['name'])
         if not new_object:
-            raise pickle.UnpicklingError("Object {0} at 0x{1:08x} invalid".format(state.name, state.v_offset))
+            raise pickle.UnpicklingError("Object {0} at 0x{1:08x} invalid".format(state.v_name, state.v_offset))
 
         ## (Scudette) Im not sure how much of a hack this is - we
         ## basically take over all the new object's members. This is
@@ -472,13 +476,13 @@ class NativeType(BaseObject, NumericProxyMixIn):
         return val
 
     def cdecl(self):
-        return self.name
+        return self.v_name
 
     def __repr__(self):
         return " [{0}]: {1}".format(self.v_theType, self.v())
 
     def d(self):
-        return " [{0} {1} | {2}]: {3}".format(self.__class__.__name__, self.name or '',
+        return " [{0} {1} | {2}]: {3}".format(self.__class__.__name__, self.v_name or '',
                                               self.v_theType, self.v())
 
 class BitField(NativeType):
@@ -524,10 +528,10 @@ class Pointer(NativeType):
         offset = self.v()
         if self.v_vm.is_valid_address(offset):
             result = self.target(offset = offset, vm = self.v_vm, parent = self.v_parent,
-                                 name = self.name)
+                                 name = self.v_name)
             return result
         else:
-            return NoneObject("Pointer {0} invalid".format(self.name), self.v_vm.profile.strict)
+            return NoneObject("Pointer {0} invalid".format(self.v_name), self.v_vm.profile.strict)
 
     def cdecl(self):
         return "Pointer {0}".format(self.v())
@@ -541,7 +545,7 @@ class Pointer(NativeType):
 
     def d(self):
         target = self.dereference()
-        return "<{0} {1} pointer to [0x{2:08X}]>".format(target.__class__.__name__, self.name or '', self.v())
+        return "<{0} {1} pointer to [0x{2:08X}]>".format(target.__class__.__name__, self.v_name or '', self.v())
 
     def __getattribute__(self, attr):
         try:
@@ -567,7 +571,7 @@ class Void(NativeType):
         return "Void (0x{0:08X})".format(self.v())
 
     def d(self):
-        return "Void[{0} {1}] (0x{2:08X})".format(self.__class__.__name__, self.name or '', self.v())
+        return "Void[{0} {1}] (0x{2:08X})".format(self.__class__.__name__, self.v_name or '', self.v())
 
     def __nonzero__(self):
         return bool(self.dereference())
@@ -626,9 +630,9 @@ class Array(BaseObject):
             if self.v_vm.is_valid_address(offset):
                 yield self.target(offset = offset, vm = self.v_vm,
                                   parent = self,
-                                  name = "{0} {1}".format(self.name, position))
+                                  name = "{0} {1}".format(self.v_name, position))
             else:
-                yield NoneObject("Array {0}, Invalid position {1}".format(self.name, position),
+                yield NoneObject("Array {0}, Invalid position {1}".format(self.v_name, position),
                                  self.v_vm.profile.strict)
 
     def __repr__(self):
@@ -637,7 +641,7 @@ class Array(BaseObject):
 
     def d(self):
         result = [ x.__str__() for x in self ]
-        return "<Array[{0} {1}] {2}>".format(self.__class__.__name__, self.name or '', ",".join(result))
+        return "<Array[{0} {1}] {2}>".format(self.__class__.__name__, self.v_name or '', ",".join(result))
 
     def __eq__(self, other):
         if self.count != len(other):
@@ -657,7 +661,7 @@ class Array(BaseObject):
             return self.target(offset = offset,
                                vm = self.v_vm, parent = self)
         else:
-            return NoneObject("Array {0} invalid member {1}".format(self.name, pos),
+            return NoneObject("Array {0} invalid member {1}".format(self.v_name, pos),
                               self.v_vm.profile.strict)
 
 class CType(BaseObject):
@@ -679,7 +683,7 @@ class CType(BaseObject):
         return self.struct_size
 
     def __repr__(self):
-        return "[{0} {1}] @ 0x{2:08X}".format(self.__class__.__name__, self.name or '',
+        return "[{0} {1}] @ 0x{2:08X}".format(self.__class__.__name__, self.v_name or '',
                                      self.v_offset)
     def d(self):
         result = self.__repr__() + "\n"
@@ -698,8 +702,8 @@ class CType(BaseObject):
             offset, cls = self.members[attr]
         except KeyError:
             ## hmm - tough choice - should we raise or should we not
-            #return NoneObject("Struct {0} has no member {1}".format(self.name, attr))
-            raise AttributeError("Struct {0} has no member {1}".format(self.name, attr))
+            #return NoneObject("Struct {0} has no member {1}".format(self.v_name, attr))
+            raise AttributeError("Struct {0} has no member {1}".format(self.v_name, attr))
 
         if callable(offset):
             ## If offset is specified as a callable its an absolute
