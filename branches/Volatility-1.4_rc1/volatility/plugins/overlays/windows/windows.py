@@ -93,11 +93,11 @@ class _LIST_ENTRY(obj.CType):
         offset = self.profile.get_obj_offset(type, member)
 
         seen = set()
-        seen.add(lst.offset)
+        seen.add(lst.v_offset)
 
         while 1:
             ## Instantiate the object
-            item = obj.Object(type, offset = lst.offset - offset,
+            item = obj.Object(type, offset = lst.v_offset - offset,
                                     vm = self.vm,
                                     parent = self.parent,
                                     name = type)
@@ -108,9 +108,9 @@ class _LIST_ENTRY(obj.CType):
             else:
                 lst = item.m(member).Blink.dereference()
 
-            if not lst.is_valid() or lst.offset in seen:
+            if not lst.is_valid() or lst.v_offset in seen:
                 return
-            seen.add(lst.offset)
+            seen.add(lst.v_offset)
 
             yield item
 

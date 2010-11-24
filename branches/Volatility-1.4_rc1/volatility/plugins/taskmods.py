@@ -132,7 +132,7 @@ class Files(DllList):
     def handle_list(self, task):
         for h in task.handles():
             if str(h.Type.Name) == self.handle_type:
-                yield obj.Object(self.handle_obj, h.Body.offset, task.vm, parent = task)
+                yield obj.Object(self.handle_obj, h.Body.v_offset, task.vm, parent = task)
 
 class PSList(DllList):
     """ print all running processes by following the EPROCESS lists """

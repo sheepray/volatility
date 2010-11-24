@@ -59,7 +59,7 @@ ver_types = {
   'ValueLength': [0x2, ['unsigned short']],
   'Type': [0x4, ['unsigned short']],
   'Key': [0x6, ['array', len("VS_VERSION_INFO "), ['unsigned short']]],
-  'FileInfo': [lambda x: (((x.Key.offset + x.Key.size() + 3) / 4) * 4), ['_VS_FIXEDFILEINFO']],
+  'FileInfo': [lambda x: (((x.Key.v_offset + x.Key.size() + 3) / 4) * 4), ['_VS_FIXEDFILEINFO']],
 } ],
 'VerStruct' : [0x26, {
   'Length': [0x0, ['unsigned short']],
@@ -119,8 +119,8 @@ class VerStruct(obj.CType):
                 # If the letter's valid, then deal with it
                 if n == 0:
                     if findend:
-                        return n.offset + n.size()
-                    name = self.vm.read(self.Key.offset, n.offset - self.Key.offset).decode("utf16", "ignore").encode("ascii", 'backslashreplace')
+                        return n.v_offset + n.size()
+                    name = self.vm.read(self.Key.v_offset, n.v_offset - self.Key.v_offset).decode("utf16", "ignore").encode("ascii", 'backslashreplace')
                     break
             return name
         return self.Key
@@ -145,10 +145,10 @@ class VerStruct(obj.CType):
 
     def _recurse_children(self, offset):
         """Recurses thorugh the available children"""
-        while offset < self.offset + self.Length:
+        while offset < self.v_offset + self.Length:
             item = obj.Object("VerStruct", offset = offset, vm = self.vm, parent = self)
             if item.Length < 1 or item.get_key() == None:
-                raise StopIteration("Could not recover a key for a child at offset {0}".format(item.offset))
+                raise StopIteration("Could not recover a key for a child at offset {0}".format(item.v_offset))
             yield item.get_key(), item.get_children()
             offset = self.offset_pad(offset + item.Length)
         raise StopIteration("No children")
@@ -158,7 +158,7 @@ class _VS_VERSION_INFO(VerStruct):
 
     def get_children(self):
         """Recurses through the children of a Version Info records"""
-        offset = self.offset_pad(self.FileInfo.offset + self.ValueLength)
+        offset = self.offset_pad(self.FileInfo.v_offset + self.ValueLength)
         return self._recurse_children(offset)
 
 class _VS_FIXEDFILEINFO(obj.CType):
@@ -244,7 +244,7 @@ class _IMAGE_RESOURCE_DIR_STRING_U(obj.CType):
             length = self.Length.v()
             if length > 1024:
                 length = 0
-            data = self.vm.read(self.Value.offset, length)
+            data = self.vm.read(self.Value.v_offset, length)
             return data.decode("utf16", "ignore").encode("ascii", 'backslashreplace')
         except Exception, _e:
             return ''

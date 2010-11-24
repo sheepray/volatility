@@ -91,7 +91,7 @@ class ProcExeDump(taskmods.DllList):
     def get_sections(self, addr_space, nt_header):
         """Returns the sectors from a process"""
         sect_size = addr_space.profile.get_obj_size("_IMAGE_SECTION_HEADER")
-        start_addr = nt_header.FileHeader.SizeOfOptionalHeader + nt_header.OptionalHeader.offset
+        start_addr = nt_header.FileHeader.SizeOfOptionalHeader + nt_header.OptionalHeader.v_offset
 
         for i in range(nt_header.FileHeader.NumberOfSections):
             s_addr = start_addr + (i * sect_size)
@@ -179,7 +179,7 @@ class ProcMemDump(ProcExeDump):
     def replace_header_field(self, sect, header, item, value):
         """Replaces a field in a sector header"""
         field_size = item.size()
-        start = item.offset - sect.offset
+        start = item.v_offset - sect.v_offset
         end = start + field_size
         newval = struct.pack(item.format_string, int(value))
         result = header[:start] + newval + header[end:]
@@ -203,9 +203,9 @@ class ProcMemDump(ProcExeDump):
         sect_sizes.append(self.round(prevsect.Misc.VirtualSize, sa, up = True))
 
         counter = 0
-        start_addr = nt_header.FileHeader.SizeOfOptionalHeader + (nt_header.OptionalHeader.offset - base_addr)
+        start_addr = nt_header.FileHeader.SizeOfOptionalHeader + (nt_header.OptionalHeader.v_offset - base_addr)
         for sect in self.get_sections(addr_space, nt_header):
-            sectheader = addr_space.read(sect.offset, shs)
+            sectheader = addr_space.read(sect.v_offset, shs)
             # Change the PointerToRawData
             sectheader = self.replace_header_field(sect, sectheader, sect.PointerToRawData, sect.VirtualAddress)
             sectheader = self.replace_header_field(sect, sectheader, sect.SizeOfRawData, sect_sizes[counter])

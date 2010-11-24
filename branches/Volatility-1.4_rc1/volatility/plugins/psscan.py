@@ -54,17 +54,17 @@ class DispatchHeaderCheck(scan.ScannerCheck):
         eprocess = obj.Object("_EPROCESS", vm = address_space, offset = 0)
         self.type = eprocess.Pcb.Header.Type
         self.size = eprocess.Pcb.Header.Size
-        self.buffer_size = max(self.size.offset, self.type.offset) + 2
+        self.buffer_size = max(self.size.v_offset, self.type.v_offset) + 2
         scan.ScannerCheck.__init__(self, address_space)
 
     def check(self, offset):
-        data = self.address_space.read(offset + self.type.offset, self.buffer_size)
-        return data[self.type.offset] == "\x03" and data[self.size.offset] == "\x1b"
+        data = self.address_space.read(offset + self.type.v_offset, self.buffer_size)
+        return data[self.type.v_offset] == "\x03" and data[self.size.v_offset] == "\x1b"
 
     def skip(self, data, offset):
         try:
             nextval = data.index("\x03", offset + 1)
-            return nextval - self.type.offset - offset
+            return nextval - self.type.v_offset - offset
         except ValueError:
             ## Substring is not found - skip to the end of this data buffer
             return len(data) - offset
@@ -79,16 +79,16 @@ class DispatchThreadHeaderCheck(DispatchHeaderCheck):
         ethread = obj.Object("_ETHREAD", vm = address_space, offset = 0)
         self.type = ethread.Tcb.Header.Type
         self.size = ethread.Tcb.Header.Size
-        self.buffer_size = max(self.size.offset, self.type.offset) + 2
+        self.buffer_size = max(self.size.v_offset, self.type.v_offset) + 2
 
     def check(self, offset):
-        data = self.address_space.read(offset + self.type.offset, self.buffer_size)
-        return data[self.type.offset] == "\x06" and data[self.size.offset] == "\x70"
+        data = self.address_space.read(offset + self.type.v_offset, self.buffer_size)
+        return data[self.type.v_offset] == "\x06" and data[self.size.v_offset] == "\x70"
 
     def skip(self, data, offset):
         try:
             nextval = data.index("\x06", offset + 1)
-            return nextval - self.type.offset - offset
+            return nextval - self.type.v_offset - offset
         except ValueError:
             ## Substring is not found - skip to the end of this data buffer
             return len(data) - offset
@@ -199,7 +199,7 @@ class ThrdScan(commands.command):
                                                                            ethread.Cid.UniqueThread,
                                                                            ethread.CreateTime or '',
                                                                            ethread.ExitTime or '',
-                                                                           ethread.offset))
+                                                                           ethread.v_offset))
 
 class PSScanner(scan.DiscontigScanner):
     """ This scanner carves things that look like _EPROCESS structures.
@@ -275,6 +275,6 @@ class PSScan(commands.command, cache.Testable):
                 eprocess.InheritedFromUniqueProcessId,
                 eprocess.CreateTime or '',
                 eprocess.ExitTime or '',
-                eprocess.offset,
+                eprocess.v_offset,
                 eprocess.Pcb.DirectoryTableBase,
                 eprocess.ImageFileName))

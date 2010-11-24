@@ -38,7 +38,7 @@ import volatility.commands as commands
 #                  help = "Offset to reg hive")
 
 def vol(k):
-    return bool(k.offset & 0x80000000)
+    return bool(k.v_offset & 0x80000000)
 
 FILTER = ''.join([(len(repr(chr(x))) == 3) and chr(x) or '.' for x in range(256)])
 

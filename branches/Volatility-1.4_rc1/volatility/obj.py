@@ -254,12 +254,16 @@ class BaseObject(object):
         self.vm = vm
         self.parent = parent
         self.profile = vm.profile
-        self.offset = offset
+        self._vol_offset = offset
         self.name = name
         self.theType = theType
 
-        if not self.vm.is_valid_address(self.offset):
+        if not self.vm.is_valid_address(self._vol_offset):
             raise InvalidOffsetError("Invalid Address 0x{0:08X}, instantiating {1}".format(offset, name))
+
+    @property
+    def v_offset(self):
+        return self._vol_offset
 
     def rebase(self, offset):
         return self.__class__(self.theType, offset, vm = self.vm)
@@ -312,21 +316,21 @@ class BaseObject(object):
 
         the later form is not going to work when X is a NoneObject. 
         """
-        result = self.vm.is_valid_address(self.offset)
+        result = self.vm.is_valid_address(self.v_offset)
         return result
 
     def __eq__(self, other):
         return self.v() == other or ((self.__class__ == other.__class__) and
-                                     (self.offset == other.offset) and (self.vm == other.vm))
+                                     (self.v_offset == other.v_offset) and (self.vm == other.vm))
 
     def __hash__(self):
-        return hash(self.name) ^ hash(self.offset)
+        return hash(self.name) ^ hash(self.v_offset)
 
     def m(self, memname):
         raise AttributeError("No member {0}".format(memname))
 
     def is_valid(self):
-        return self.vm.is_valid_address(self.offset)
+        return self.vm.is_valid_address(self.v_offset)
 
     def dereference(self):
         return NoneObject("Can't dereference {0}".format(self.name), self.profile.strict)
@@ -335,7 +339,7 @@ class BaseObject(object):
         return Object(derefType, self.v(), self.vm, parent = self)
 
     def cast(self, castString):
-        return Object(castString, self.offset, self.vm)
+        return Object(castString, self.v_offset, self.vm)
 
     def v(self):
         """ Do the actual reading and decoding of this member
@@ -350,7 +354,7 @@ class BaseObject(object):
 
     def __repr__(self):
         return "[{0} {1}] @ 0x{2:08X}".format(self.__class__.__name__, self.name or '',
-                                              self.offset)
+                                              self.v_offset)
 
     def d(self):
         """Display diagnostic information"""
@@ -363,14 +367,14 @@ class BaseObject(object):
         except:
             thetype = self.theType
 
-        return dict(offset = self.offset, name = self.name, vm = self.vm, theType = thetype)
+        return dict(offset = self.v_offset, name = self.name, vm = self.vm, theType = thetype)
 
     def __setstate__(self, state):
         #pdb.set_trace()
         ## What we want to do here is to instantiate a new object and then copy it into ourselves
         new_object = Object(state['theType'], state['offset'], state['vm'], name = state['name'])
         if not new_object:
-            raise pickle.UnpicklingError("Object {0} at 0x{1:08x} invalid".format(state.name, state.offset))
+            raise pickle.UnpicklingError("Object {0} at 0x{1:08x} invalid".format(state.name, state.v_offset))
 
         ## (Scudette) Im not sure how much of a hack this is - we
         ## basically take over all the new object's members. This is
@@ -436,7 +440,7 @@ class NativeType(BaseObject, NumericProxyMixIn):
     def write(self, data):
         """Writes the data back into the address space"""
         output = struct.pack(self.format_string, data)
-        return self.vm.write(self.offset, output)
+        return self.vm.write(self.v_offset, output)
 
     def rebase(self, offset):
         return self.__class__(None, offset, self.vm, format_string = self.format_string)
@@ -448,9 +452,9 @@ class NativeType(BaseObject, NumericProxyMixIn):
         return struct.calcsize(self.format_string)
 
     def v(self):
-        data = self.vm.read(self.offset, self.size())
+        data = self.vm.read(self.v_offset, self.size())
         if not data:
-            return NoneObject("Unable to read {0} bytes from {1}".format(self.size(), self.offset))
+            return NoneObject("Unable to read {0} bytes from {1}".format(self.size(), self.v_offset))
 
         (val,) = struct.unpack(self.format_string, data)
 
@@ -665,7 +669,7 @@ class CType(BaseObject):
 
     def __repr__(self):
         return "[{0} {1}] @ 0x{2:08X}".format(self.__class__.__name__, self.name or '',
-                                     self.offset)
+                                     self.v_offset)
     def d(self):
         result = self.__repr__() + "\n"
         for k in self.members.keys():
@@ -676,7 +680,7 @@ class CType(BaseObject):
     def v(self):
         """ When a struct is evaluated we just return our offset.
         """
-        return self.offset
+        return self.v_offset
 
     def m(self, attr):
         try:
@@ -692,7 +696,7 @@ class CType(BaseObject):
             offset = int(offset(self))
         else:
             ## Otherwise its relative to the start of our struct
-            offset = int(offset) + int(self.offset)
+            offset = int(offset) + int(self.v_offset)
 
         result = cls(offset = offset, vm = self.vm,
                      parent = self, name = attr)

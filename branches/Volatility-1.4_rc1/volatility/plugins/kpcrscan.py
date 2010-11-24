@@ -68,9 +68,9 @@ class KPCRScannerCheck(scan.ScannerCheck):
     def __init__(self, address_space):
         scan.ScannerCheck.__init__(self, address_space)
         kpcr = obj.Object("_KPCR", vm = self.address_space, offset = 0)
-        self.SelfPcr_offset = kpcr.SelfPcr.offset
-        self.Prcb_offset = kpcr.Prcb.offset
-        self.PrcbData_offset = kpcr.PrcbData.offset
+        self.SelfPcr_offset = kpcr.SelfPcr.v_offset
+        self.Prcb_offset = kpcr.Prcb.v_offset
+        self.PrcbData_offset = kpcr.PrcbData.v_offset
         self.KPCR = None
 
     def check(self, offset):

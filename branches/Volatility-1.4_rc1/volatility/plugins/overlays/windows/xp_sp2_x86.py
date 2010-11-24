@@ -323,7 +323,7 @@ class _MMVAD(obj.CType):
         ## _EPROCESS over our parent, and having it give us the
         ## correct AS
         if vm.name.startswith("Kernel"):
-            eprocess = obj.Object("_EPROCESS", offset = parent.offset, vm = vm)
+            eprocess = obj.Object("_EPROCESS", offset = parent.v_offset, vm = vm)
             vm = eprocess.get_process_address_space()
             if not vm:
                 return vm
@@ -357,17 +357,17 @@ class _MMVAD_SHORT(obj.CType):
             visited = set()
 
         ## We try to prevent loops here
-        if self.offset in visited:
+        if self.v_offset in visited:
             return
 
         yield self
 
         for c in self.LeftChild.traverse(visited = visited):
-            visited.add(c.offset)
+            visited.add(c.v_offset)
             yield c
 
         for c in self.RightChild.traverse(visited = visited):
-            visited.add(c.offset)
+            visited.add(c.v_offset)
             yield c
 
 class _MMVAD_LONG(_MMVAD_SHORT):

@@ -68,11 +68,11 @@ class DLLDump(procdump.ProcExeDump):
 
             mods = dict((mod.DllBase.v(), mod) for mod in self.list_modules(proc))
 
-            if self._config.offset:
-                if mods.has_key(self._config.offset):
-                    yield addr_space, mods[self._config.offset]
+            if self._config.OFFSET:
+                if mods.has_key(self._config.OFFSET):
+                    yield addr_space, mods[self._config.OFFSET]
                 else:
-                    raise StopIteration('No such module at 0x{0:X}'.format(self._config.offset))
+                    raise StopIteration('No such module at 0x{0:X}'.format(self._config.OFFSET))
             else:
                 for mod in mods.values():
                     if self._config.regex:
@@ -83,7 +83,7 @@ class DLLDump(procdump.ProcExeDump):
     def render_text(self, outfd, data):
         for proc, ps_ad, mod in data:
             if ps_ad.is_valid_address(mod.DllBase):
-                process_offset = ps_ad.vtop(proc.offset)
+                process_offset = ps_ad.vtop(proc.v_offset)
                 dump_file = "module.{0:x}.{1:x}.dll".format(process_offset, mod.DllBase)
                 outfd.write("Dumping {0}, Process: {1}, Base: {2:8x} output: {3}\n".format(mod.BaseDllName, proc.ImageFileName, mod.DllBase, dump_file))
                 of = open(os.path.join(self._config.DUMP_DIR, dump_file), 'wb')

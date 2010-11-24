@@ -58,7 +58,7 @@ class VADInfo(taskmods.DllList):
     def write_vad_short(self, outfd, vad):
         """Renders a text version of a Short Vad"""
         outfd.write("VAD node @{0:08x} Start {1:08x} End {2:08x} Tag {3:4}\n".format(
-            vad.offset, vad.StartingVpn << 12, ((vad.EndingVpn + 1) << 12) - 1, vad.Tag))
+            vad.v_offset, vad.StartingVpn << 12, ((vad.EndingVpn + 1) << 12) - 1, vad.Tag))
         outfd.write("Flags: {0}\n".format(vad.Flags))
         outfd.write("Commit Charge: {0} Protection: {1:x}\n".format(
             vad.Flags.CommitCharge,
@@ -71,7 +71,7 @@ class VADInfo(taskmods.DllList):
             #debug.b()
             return
 
-        outfd.write("ControlArea @{0:08x} Segment {1:08x}\n".format(CA.dereference().offset, CA.Segment))
+        outfd.write("ControlArea @{0:08x} Segment {1:08x}\n".format(CA.dereference().v_offset, CA.Segment))
         outfd.write("Dereference list: Flink {0:08x}, Blink {1:08x}\n".format(CA.DereferenceList.Flink, CA.DereferenceList.Blink))
         outfd.write("NumberOfSectionReferences: {0:10} NumberOfPfnReferences:  {1:10}\n".format(CA.NumberOfSectionReferences, CA.NumberOfPfnReferences))
         outfd.write("NumberOfMappedViews:       {0:10} NumberOfSubsections:    {1:10}\n".format(CA.NumberOfMappedViews, CA.NumberOfSubsections))
@@ -80,7 +80,7 @@ class VADInfo(taskmods.DllList):
         outfd.write("Flags: {0}\n".format(CA.Flags))
 
         if CA.FilePointer:
-            outfd.write("FileObject @{0:08x}           , Name: {1}\n".format(CA.FilePointer.dereference().offset, CA.FilePointer.FileName))
+            outfd.write("FileObject @{0:08x}           , Name: {1}\n".format(CA.FilePointer.dereference().v_offset, CA.FilePointer.FileName))
         else:
             outfd.write("FileObject: none\n")
 
@@ -108,8 +108,8 @@ class VADTree(VADInfo):
             levels = {}
             for vad in task.VadRoot.traverse():
                 if vad:
-                    level = levels.get(vad.Parent.dereference().offset, -1) + 1
-                    levels[vad.offset] = level
+                    level = levels.get(vad.Parent.dereference().v_offset, -1) + 1
+                    levels[vad.v_offset] = level
                     outfd.write(" " * level + "{0:08x} - {1:08x}\n".format(
                                 vad.StartingVpn << 12,
                                 ((vad.EndingVpn + 1) << 12) - 1))
@@ -123,10 +123,10 @@ class VADTree(VADInfo):
             for vad in task.VadRoot.traverse():
                 if vad:
                     if vad.Parent:
-                        outfd.write("vad_{0:08x} -> vad_{1:08x}\n".format(vad.Parent.dereference().offset, vad.offset))
+                        outfd.write("vad_{0:08x} -> vad_{1:08x}\n".format(vad.Parent.dereference().v_offset, vad.v_offset))
                     outfd.write("vad_{0:08x} [label = \"{{ {1}\\n{2:08x} - {3:08x} }}\""
                                 "shape = \"record\" color = \"blue\"];\n".format(
-                        vad.offset,
+                        vad.v_offset,
                         vad.Tag,
                         vad.StartingVpn << 12,
                         ((vad.EndingVpn + 1) << 12) - 1))
@@ -145,10 +145,10 @@ class VADWalk(VADInfo):
                 # Ignore Vads with bad tags (which we explicitly include as None)
                 if vad:
                     outfd.write("{0:08x} {1:08x} {2:08x} {3:08x} {4:08x} {5:08x} {6:4}\n".format(
-                        vad.offset,
-                        vad.Parent.dereference().offset or 0,
-                        vad.LeftChild.dereference().offset or 0,
-                        vad.RightChild.dereference().offset or 0,
+                        vad.v_offset,
+                        vad.Parent.dereference().v_offset or 0,
+                        vad.LeftChild.dereference().v_offset or 0,
+                        vad.RightChild.dereference().v_offset or 0,
                         vad.StartingVpn << 12,
                         ((vad.EndingVpn + 1) << 12) - 1,
                         vad.Tag))
@@ -177,7 +177,7 @@ class VADDump(VADInfo):
             # Get the task and all process specific information
             task_space = task.get_process_address_space()
             name = task.ImageFileName
-            offset = task_space.vtop(task.offset)
+            offset = task_space.vtop(task.v_offset)
 
             outfd.write("*" * 72 + "\n")
             for vad in task.VadRoot.traverse():

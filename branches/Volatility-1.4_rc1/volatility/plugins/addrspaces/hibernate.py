@@ -121,8 +121,8 @@ class WindowsHiberFileSpace32(standard.FileAddressSpace):
     def build_page_cache(self):
         XpressIndex = 0
         XpressHeader = obj.Object("_IMAGE_XPRESS_HEADER",
-                                         (self._get_first_table_page() + 1) * 4096, \
-                                         self.base)
+                                  (self._get_first_table_page() + 1) * 4096,
+                                  self.base)
 
         XpressBlockSize = self.get_xpress_block_size(XpressHeader)
 
@@ -152,17 +152,16 @@ class WindowsHiberFileSpace32(standard.FileAddressSpace):
                     PageNumber = start + j
                     XpressPage = XpressIndex % 0x10
                     #print [(PageNumber,XpressBlockSize,XpressPage)]
-                    if XpressHeader.offset not in self.PageDict:
-                        self.PageDict[XpressHeader.offset] = \
-                            [(PageNumber, XpressBlockSize, XpressPage)]
+                    if XpressHeader.v_offset not in self.PageDict:
+                        self.PageDict[XpressHeader.v_offset] = [
+                            (PageNumber, XpressBlockSize, XpressPage)]
                     else:
-                        self.PageDict[XpressHeader.offset].append(
-                            (PageNumber, \
-                             XpressBlockSize, XpressPage))
+                        self.PageDict[XpressHeader.v_offset].append(
+                            (PageNumber, XpressBlockSize, XpressPage))
 
                     ## Update the lookup cache
                     self.LookupCache[PageNumber] = (
-                        XpressHeader.offset, XpressBlockSize, XpressPage)
+                        XpressHeader.v_offset, XpressBlockSize, XpressPage)
 
                     self.PageIndex += 1
                     XpressIndex += 1
@@ -196,7 +195,7 @@ class WindowsHiberFileSpace32(standard.FileAddressSpace):
             yield page_count
 
     def next_xpress(self, XpressHeader, XpressBlockSize):
-        XpressHeaderOffset = XpressBlockSize + XpressHeader.offset + \
+        XpressHeaderOffset = XpressBlockSize + XpressHeader.v_offset + \
                              XpressHeader.size()
 
         ## We only search this far

@@ -78,11 +78,11 @@ class ModDump(procdump.ProcExeDump):
         # instead of inside the find_space function, so we only have to do it once. 
         procs = list(tasks.pslist(addr_space))
 
-        if self._config.offset:
-            if mods.has_key(self._config.offset):
-                yield addr_space, procs, mods[self._config.offset]
+        if self._config.OFFSET:
+            if mods.has_key(self._config.OFFSET):
+                yield addr_space, procs, mods[self._config.OFFSET]
             else:
-                raise StopIteration('No such module at 0x{0:X}'.format(self._config.offset))
+                raise StopIteration('No such module at 0x{0:X}'.format(self._config.OFFSET))
         else:
             for mod in mods.values():
                 if self._config.regex:

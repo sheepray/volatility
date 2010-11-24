@@ -87,4 +87,4 @@ class SockScan(commands.command):
         for sock_obj in data:
             outfd.write("{0:6} {1:6} {2:6} {3:26} 0x{4:08x}\n".format(sock_obj.Pid, sock_obj.LocalPort,
                                                                       sock_obj.Protocol,
-                                                                      sock_obj.CreateTime, sock_obj.offset))
+                                                                      sock_obj.CreateTime, sock_obj.v_offset))
