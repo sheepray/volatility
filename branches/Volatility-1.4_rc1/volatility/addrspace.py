@@ -70,7 +70,7 @@ class BaseAddressSpace(object):
     @staticmethod
     def register_options(config):
         ## By default load the profile that the user asked for
-        config.add_option("PROFILE", default = 'WinXPSP2', type = 'str',
+        config.add_option("PROFILE", default = 'WinXPSP2x86', type = 'str',
                           nargs = 1, action = "callback", callback = check_valid_profile,
                           help = "Name of the profile to load")
 

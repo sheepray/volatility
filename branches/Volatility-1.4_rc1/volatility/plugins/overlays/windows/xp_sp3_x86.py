@@ -47,7 +47,7 @@ xpsp3overlays['_MMVAD_LONG'][1]['Flags2'][0] = lambda x: x.u2.obj_offset
 xp_sp3_x86_vtypes.ntoskrnl_types.update(crashdump.crash_vtypes)
 xp_sp3_x86_vtypes.ntoskrnl_types.update(hibernate_vtypes.hibernate_vtypes)
 
-class WinXPSP3(windows.AbstractWindows):
+class WinXPSP3x86(windows.AbstractWindows):
     """ A Profile for windows XP SP3 """
     abstract_types = xp_sp3_x86_vtypes.ntoskrnl_types
     overlay = xpsp3overlays

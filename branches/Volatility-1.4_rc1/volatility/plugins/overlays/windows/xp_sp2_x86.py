@@ -206,7 +206,7 @@ xpsp2overlays['_MMVAD_LONG'] = [ None, {
   } ] ],
     } ]
 
-class WinXPSP2(windows.AbstractWindows):
+class WinXPSP2x86(windows.AbstractWindows):
     """ A Profile for Windows XP SP2 """
     abstract_types = xp_sp2_x86_vtypes.xpsp2types
     overlay = xpsp2overlays
