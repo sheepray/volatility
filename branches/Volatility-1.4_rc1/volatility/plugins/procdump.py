@@ -42,7 +42,7 @@ class ProcExeDump(taskmods.DllList):
         if self._config.DUMP_DIR == None:
             debug.error("Please specify a dump directory (--dump-dir)")
         if not os.path.isdir(self._config.DUMP_DIR):
-            debug.error(config.DUMP_DIR + " is not a directory")
+            debug.error(self._config.DUMP_DIR + " is not a directory")
 
         for task in data:
             pid = task.UniqueProcessId
@@ -123,14 +123,14 @@ class ProcExeDump(taskmods.DllList):
         if data_size < first_block:
             data_read = addr_space.zread(data_start, data_size)
             if paddr == None:
-                if self.config.verbose:
+                if self._config.verbose:
                     outfd.write("Memory Not Accessible: Virtual Address: 0x{0:x} File Offset: 0x{1:x} Size: 0x{2:x}\n".format(data_start, offset, data_size))
             code += data_read
             return (offset, code)
 
         data_read = addr_space.zread(data_start, first_block)
         if paddr == None:
-            if self.config.verbose:
+            if self._config.verbose:
                 outfd.write("Memory Not Accessible: Virtual Address: 0x{0:x} File Offset: 0x{1:x} Size: 0x{2:x}\n".format(data_start, offset, first_block))
         code += data_read
 
@@ -140,7 +140,7 @@ class ProcExeDump(taskmods.DllList):
         for _i in range(0, full_blocks):
             data_read = addr_space.zread(new_vaddr, 0x1000)
             if addr_space.vtop(new_vaddr) == None:
-                if self.config.verbose:
+                if self._config.verbose:
                     outfd.write("Memory Not Accessible: Virtual Address: 0x{0:x} File Offset: 0x{1:x} Size: 0x{2:x}\n".format(new_vaddr, offset, 0x1000))
             code += data_read
             new_vaddr = new_vaddr + 0x1000
@@ -149,7 +149,7 @@ class ProcExeDump(taskmods.DllList):
         if left_over > 0:
             data_read = addr_space.zread(new_vaddr, left_over)
             if addr_space.vtop(new_vaddr) == None:
-                if self.config.verbose:
+                if self._config.verbose:
                     outfd.write("Memory Not Accessible: Virtual Address: 0x{0:x} File Offset: 0x{1:x} Size: 0x{2:x}\n".format(new_vaddr, offset, left_over))
             code += data_read
         return (offset, code)
