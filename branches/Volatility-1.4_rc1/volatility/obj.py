@@ -269,10 +269,6 @@ class BaseObject(object):
         return self._vol_offset
 
     @property
-    def v_theType(self):
-        return self._vol_theType
-
-    @property
     def obj_parent(self):
         return self._vol_parent
 
@@ -281,7 +277,7 @@ class BaseObject(object):
         return self._vol_name
 
     def rebase(self, offset):
-        return self.__class__(self.v_theType, offset, vm = self._vol_vm)
+        return self.__class__(self._vol_theType, offset, vm = self._vol_vm)
 
     def proxied(self, attr):
         return None
@@ -378,9 +374,9 @@ class BaseObject(object):
     def __getstate__(self):
         """ This controls how we pickle and unpickle the objects """
         try:
-            thetype = self.v_theType.__name__
+            thetype = self._vol_theType.__name__
         except:
-            thetype = self.v_theType
+            thetype = self._vol_theType
 
         return dict(offset = self.obj_offset, name = self.obj_name, vm = self.obj_vm, theType = thetype)
 
@@ -479,11 +475,11 @@ class NativeType(BaseObject, NumericProxyMixIn):
         return self.obj_name
 
     def __repr__(self):
-        return " [{0}]: {1}".format(self.v_theType, self.v())
+        return " [{0}]: {1}".format(self._vol_theType, self.v())
 
     def d(self):
         return " [{0} {1} | {2}]: {3}".format(self.__class__.__name__, self.obj_name or '',
-                                              self.v_theType, self.v())
+                                              self._vol_theType, self.v())
 
 class BitField(NativeType):
     """ A class splitting an integer into a bunch of bit. """
