@@ -1,0 +1,15 @@
+#summary List of dependencies for some Volatility plugins
+
+= Introduction =
+
+List of dependencies for some Volatility plugins
+
+
+= Details =
+
+|| *Dependency* || *url* ||
+|| Libdasm || http://libdasm.googlecode.com ||
+|| Pefile || http://pefile.googlecode.com ||
+|| Pycrypto || http://gitweb.pycrypto.org/?p=crypto/pycrypto-2.0.x.git;a=summary ||
+|| sqlite3 || http://docs.python.org/library/sqlite3.htm ||
+|| Yara || http://yara-project.googlecode.com ||
