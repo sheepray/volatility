@@ -22,8 +22,44 @@ import volatility.win32.tasks as tasks
 import volatility.timefmt as timefmt
 import volatility.utils as utils
 import volatility.obj as obj
+import volatility.scan as scan
+import volatility.addrspace as addrspace
 import volatility.registry as registry
 import volatility.plugins.datetime as datetime
+
+class MultiStringFinderCheck(scan.ScannerCheck):
+    def __init__(self, address_space, needles = None):
+        scan.ScannerCheck.__init__(self, address_space)
+        if not needles:
+            needles = []
+        self.needles = needles
+        self.maxlen = 0
+        for needle in needles:
+            self.maxlen = max(self.maxlen, len(needle))
+        if not self.maxlen:
+            raise RuntimeError("No needles of any length were found for the MultiStringFinderCheck")
+
+    def check(self, offset):
+        verify = self.address_space.read(offset, self.maxlen)
+        for match in self.needles:
+            if verify[:len(match)] == match:
+                return True
+        return False
+
+    def skip(self, data, offset):
+        nextval = len(data)
+        for needle in self.needles:
+            dindex = data.find(needle, offset + 1)
+            if dindex > -1:
+                nextval = min(nextval, dindex)
+        return nextval - offset
+
+class KDBGScanner(scan.DiscontigScanner):
+    checks = [ ]
+
+    def __init__(self, window_size = 8, needles = None):
+        self.checks = [ ("MultiStringFinderCheck", {'needles':needles})]
+        scan.DiscontigScanner.__init__(self, window_size)
 
 class ImageInfo(datetime.DateTime):
     """ Identify information for the image """
@@ -35,11 +71,45 @@ class ImageInfo(datetime.DateTime):
         for k, v in data:
             outfd.write("{0:>30} : {1}\n".format(k, v))
 
+    def suggest_profile(self, profilelist):
+        """Does a scan of the physical address space, looking for a KDBG header"""
+
+        proflens = {}
+        maxlen = 0
+        for p in profilelist:
+            self._config.update('PROFILE', p)
+            buf = addrspace.BufferAddressSpace(self._config)
+            volmag = obj.Object('VOLATILITY_MAGIC', offset = 0, vm = buf)
+            proflens[p] = str(volmag.KDBGHeader)
+            maxlen = max(maxlen, len(proflens[p]))
+
+        scanner = KDBGScanner(needles = proflens.values())
+
+        flat = utils.load_as(self._config, astype = 'physical')
+
+        for offset in scanner.scan(flat):
+            val = flat.read(offset, maxlen)
+            for l in proflens:
+                if proflens[l] == val[:len(proflens[l])]:
+                    return l
+
+        #XP = '\x90\x02'
+        #vista = '\x28\x03'
+        #win7 = '\x40\x03'
+        #w2k3 = '\x18\x03'
+        #w2k8 = '\x30\x03'
+
+        return None
+
     def calculate(self):
         """Calculates various information about the image"""
-        print "Determining profile based on DTB search..."
-        profilelist = [self._config.PROFILE] + [ p.__name__ for p in registry.PROFILES.classes if p.__name__ != self._config.PROFILE]
+        print "Determining profile based on KDBG search..."
+        profilelist = [ p.__name__ for p in registry.PROFILES.classes ]
 
+        profile = self.suggest_profile(profilelist)
+
+        # Set our suggested profile first, then run through the list
+        profilelist = [profile] + profilelist
         for profile in profilelist:
             self._config.update('PROFILE', profile)
             addr_space = utils.load_as(self._config)
