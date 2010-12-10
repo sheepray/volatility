@@ -311,9 +311,9 @@ def dump_hashes(sysaddr, samaddr):
         yield "{0}:{1}:{2}:{3}:::".format(get_user_name(user), int(str(user.Name), 16),
                                           lmhash.encode('hex'), nthash.encode('hex'))
 
-def dump_memory_hashes(addr_space, syshive, samhive):
-    sysaddr = hive.HiveAddressSpace(addr_space, syshive)
-    samaddr = hive.HiveAddressSpace(addr_space, samhive)
+def dump_memory_hashes(addr_space, config, syshive, samhive):
+    sysaddr = hive.HiveAddressSpace(addr_space, config, syshive)
+    samaddr = hive.HiveAddressSpace(addr_space, config, samhive)
     return dump_hashes(sysaddr, samaddr)
 
 def dump_file_hashes(syshive_fname, samhive_fname):

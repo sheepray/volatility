@@ -79,7 +79,7 @@ class PrintKey(commands.command):
         if not self._config.hive_offset:
             debug.error("No hive offset provided!")
 
-        hive = hivemod.HiveAddressSpace(addr_space, self._config.hive_offset)
+        hive = hivemod.HiveAddressSpace(addr_space, self._config, self._config.hive_offset)
         root = rawreg.get_root(hive)
         if not root:
             debug.error("Unable to find root key. Is the hive offset correct?")

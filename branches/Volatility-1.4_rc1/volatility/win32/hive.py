@@ -43,8 +43,8 @@ CI_OFF_SHIFT = 0x0
 BLOCK_SIZE = 0x1000
 
 class HiveAddressSpace(addrspace.BaseAddressSpace):
-    def __init__(self, baseAddressSpace, hive_addr):
-        addrspace.BaseAddressSpace.__init__(self, baseAddressSpace)
+    def __init__(self, baseAddressSpace, config, hive_addr):
+        addrspace.BaseAddressSpace.__init__(self, baseAddressSpace, config)
         self.base = baseAddressSpace
         self.hive = obj.Object("_HHIVE", hive_addr, baseAddressSpace)
         self.baseblock = self.hive.BaseBlock.v()

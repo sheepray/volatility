@@ -77,7 +77,7 @@ class LSADump(commands.command):
         if not self._config.sys_offset or not self._config.sec_offset:
             debug.error("Both SYSTEM and SECURITY offsets must be provided")
 
-        secrets = lsasecrets.get_memory_secrets(addr_space, self._config.sys_offset, self._config.sec_offset)
+        secrets = lsasecrets.get_memory_secrets(addr_space, self._config, self._config.sys_offset, self._config.sec_offset)
         if not secrets:
             debug.error("Unable to read LSA secrets from registry")
 
@@ -104,7 +104,7 @@ class HashDump(commands.command):
         if not self._config.sys_offset or not self._config.sam_offset:
             debug.error("Both SYSTEM and SAM offsets must be provided")
 
-        return hashdumpmod.dump_memory_hashes(addr_space, self._config.sys_offset, self._config.sam_offset)
+        return hashdumpmod.dump_memory_hashes(addr_space, self._config, self._config.sys_offset, self._config.sam_offset)
 
     def render_text(self, outfd, data):
         for d in data:
@@ -123,7 +123,7 @@ class HiveDump(commands.command):
         if not self._config.hive_offset:
             debug.error("A Hive offset must be provided (--hive-offset)")
 
-        h = hive.HiveAddressSpace(addr_space, self._config.hive_offset)
+        h = hive.HiveAddressSpace(addr_space, self._config, self._config.hive_offset)
         return rawreg.get_root(h)
 
     def render_text(self, outfd, data):

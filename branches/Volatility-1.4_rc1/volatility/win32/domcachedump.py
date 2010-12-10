@@ -114,9 +114,9 @@ def dump_hashes(sysaddr, secaddr):
 
     return hashes
 
-def dump_memory_hashes(addr_space, syshive, sechive):
-    sysaddr = hive.HiveAddressSpace(addr_space, syshive)
-    secaddr = hive.HiveAddressSpace(addr_space, sechive)
+def dump_memory_hashes(addr_space, config, syshive, sechive):
+    sysaddr = hive.HiveAddressSpace(addr_space, config, syshive)
+    secaddr = hive.HiveAddressSpace(addr_space, config, sechive)
 
     for (u, d, dn, hashh) in dump_hashes(sysaddr, secaddr):
         print "{0}:{1}:{2}:{3}".format(u.lower(), hashh.encode('hex'),

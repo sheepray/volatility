@@ -137,9 +137,9 @@ def get_secrets(sysaddr, secaddr):
 
     return secrets
 
-def get_memory_secrets(addr_space, syshive, sechive):
-    sysaddr = hive.HiveAddressSpace(addr_space, syshive)
-    secaddr = hive.HiveAddressSpace(addr_space, sechive)
+def get_memory_secrets(addr_space, config, syshive, sechive):
+    sysaddr = hive.HiveAddressSpace(addr_space, config, syshive)
+    secaddr = hive.HiveAddressSpace(addr_space, config, sechive)
 
     return get_secrets(sysaddr, secaddr)
 
