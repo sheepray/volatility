@@ -83,6 +83,14 @@ class ImageInfo(datetime.DateTime):
             proflens[p] = str(volmag.KDBGHeader)
             maxlen = max(maxlen, len(proflens[p]))
 
+        proflens.update({'WinXPSP0x64':'\x00\xf8\xff\xffKDBG\x90\x02',
+                         'Win7SP0x64':'\x00\xf8\xff\xffKDBG\x40\x03',
+                         'Win2003SP0x64':'\x00\xf8\xff\xffKDBG\x18\x03',
+                         'Win2003SP0x86':'\x00\x00\x00\x00\x00\x00\x00\x00KDBG\x18\x03',
+                         'Win2008SP0x64':'\x00\xf8\xff\xffKDBG\x30\x03',
+                         'Win2008SP0x86':'\x00\x00\x00\x00\x00\x00\x00\x00KDBG\x30\x03',
+                         'VistaSP0x64':'\x00\xf8\xff\xffKDBG\x28\x03'})
+
         scanner = KDBGScanner(needles = proflens.values())
 
         flat = utils.load_as(self._config, astype = 'physical')
@@ -106,16 +114,23 @@ class ImageInfo(datetime.DateTime):
         print "Determining profile based on KDBG search..."
         profilelist = [ p.__name__ for p in registry.PROFILES.classes ]
 
-        profile = self.suggest_profile(profilelist)
+        suggestion = self.suggest_profile(profilelist)
 
         # Set our suggested profile first, then run through the list
-        profilelist = [profile] + profilelist
+        if suggestion in profilelist:
+            profilelist = [suggestion] + profilelist
+        chosen = 'None'
         for profile in profilelist:
             self._config.update('PROFILE', profile)
             addr_space = utils.load_as(self._config)
             if hasattr(addr_space, "dtb"):
-                yield ('Suggested Profile', profile)
+                chosen = profile
                 break
+
+        if suggestion != chosen:
+            suggestion += ' (Instantiated as ' + chosen + ')'
+
+        yield ('Suggested Profile', suggestion)
 
         tmpas = addr_space
         count = 0
