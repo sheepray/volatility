@@ -214,7 +214,7 @@ class _VS_FIXEDFILEINFO(obj.CType):
     def flags(self):
         """Returns the file's flags"""
         data = struct.pack('=I', self.FileFlags & self.FileFlagsMask)
-        addr_space = addrspace.BufferAddressSpace(self._config, 0, data)
+        addr_space = addrspace.BufferAddressSpace(self.obj_vm.get_config(), 0, data)
         bitmap = {'Debug': 0,
                   'Prerelease': 1,
                   'Patched': 2,
@@ -302,7 +302,7 @@ class VerInfo(procdump.ProcExeDump):
     def __init__(self, config, *args):
         procdump.ProcExeDump.__init__(self, config, *args)
         config.remove_option("OFFSET")
-        config.remove_option("PIDS")
+        config.remove_option("PID")
         config.add_option("OFFSET", short_option = "o", type = 'int',
                           help = "Offset of the module to print the version information for")
         config.add_option('PATTERN', short_option = "p", default = None,
@@ -313,6 +313,8 @@ class VerInfo(procdump.ProcExeDump):
     def calculate(self):
         """Returns a unique list of modules"""
         addr_space = utils.load_as(self._config)
+        for cls in [_IMAGE_RESOURCE_DIRECTORY, _IMAGE_RESOURCE_DIR_STRING_U, _VS_FIXEDFILEINFO, _VS_VERSION_INFO, VerStruct]:
+            addr_space.profile.object_classes[cls.__name__] = cls
         addr_space.profile.add_types(ver_types)
 
         if self._config.PATTERN is not None:
@@ -336,7 +338,7 @@ class VerInfo(procdump.ProcExeDump):
             for m in self.list_modules(task):
                 if self._config.PATTERN is not None:
                     if not (module_pattern.search(str(m.FullDllName))
-                            or module_pattern.search(str(m.ModuleName))):
+                            or module_pattern.search(str(m.BaseDllName))):
                         continue
 
                 yield task.get_process_address_space(), m
