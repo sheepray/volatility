@@ -93,7 +93,7 @@ class FileScan(commands.command):
             ## The _OBJECT_HEADER is immediately below the _FILE_OBJECT
             object_obj = obj.Object("_OBJECT_HEADER", vm = address_space,
                                    offset = file_obj.obj_offset - \
-                                   address_space.profile.get_obj_size("_OBJECT_HEADER")
+                                   address_space.profile.get_obj_offset('_OBJECT_HEADER', 'Body')
                                    )
 
             ## Skip unallocated objects
@@ -164,18 +164,20 @@ class DriverScan(FileScan):
             object_obj = obj.Object(
                 "_OBJECT_HEADER", vm = address_space,
                 offset = driver_obj.obj_offset - \
-                address_space.profile.get_obj_size("_OBJECT_HEADER")
+                address_space.profile.get_obj_offset('_OBJECT_HEADER', 'Body')
                 )
 
             ## Skip unallocated objects
             if object_obj.Type == 0xbad0b0b0:
                 continue
 
-            ## Now we need to work out the _OBJECT_NAME_INFORMATION object
-            object_name_info_obj = obj.Object("_OBJECT_NAME_INFORMATION", vm = address_space,
-                                                 offset = object_obj.obj_offset - \
-                                                 object_obj.NameInfoOffset
-                                                 )
+            ## Now work out the OBJECT_HEADER_NAME_INFORMATION object
+            object_name_info_obj = \
+                obj.Object("_OBJECT_HEADER_NAME_INFORMATION", \
+                vm = address_space, \
+                offset = object_obj.obj_offset - \
+                object_obj.NameInfoOffset
+                )
 
             yield (object_obj, driver_obj, extension_obj, object_name_info_obj)
 
@@ -233,18 +235,20 @@ class MutantScan(FileScan):
             object_obj = obj.Object(
                 "_OBJECT_HEADER", vm = address_space,
                 offset = mutant.obj_offset - \
-                address_space.profile.get_obj_size("_OBJECT_HEADER")
+                address_space.profile.get_obj_offset('_OBJECT_HEADER', 'Body')
                 )
 
             ## Skip unallocated objects
             ##if object_obj.Type == 0xbad0b0b0:
             ##   continue
 
-            ## Now we need to work out the _OBJECT_NAME_INFORMATION object
-            object_name_info_obj = obj.Object("_OBJECT_NAME_INFORMATION", vm = address_space,
-                                                     offset = object_obj.obj_offset - \
-                                                     object_obj.NameInfoOffset
-                                                     )
+            ## Now work out the OBJECT_HEADER_NAME_INFORMATION object
+            object_name_info_obj = \
+                obj.Object("_OBJECT_HEADER_NAME_INFORMATION", \
+                vm = address_space, \
+                offset = object_obj.obj_offset - \
+                object_obj.NameInfoOffset \
+                )
 
             if self._config.SILENT:
                 if object_obj.NameInfoOffset == 0:

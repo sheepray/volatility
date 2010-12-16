@@ -178,7 +178,12 @@ class PoolScanner(DiscontigScanner):
         """ This returns the offset of the object contained within
         this pool allocation.
         """
-        return found + sum([self.buffer.profile.get_obj_size(c) for c in self.preamble]) - 4
+
+        ## The offset of the object is determined by subtracting the offset
+        ## of the PoolTag member to get the start of Pool Object and then
+        ## adding the size of the preamble data structures. This done 
+        ## because PoolScanners search for the PoolTag.
+        return found + sum([self.buffer.profile.get_obj_size(c) for c in self.preamble]) - self.buffer.profile.get_obj_offset('_POOL_HEADER', 'PoolTag')
 
     def scan(self, address_space, offset = 0, maxlen = None):
         for i in DiscontigScanner.scan(self, address_space, offset, maxlen):

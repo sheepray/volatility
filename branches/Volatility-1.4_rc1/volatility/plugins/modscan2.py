@@ -86,7 +86,10 @@ class CheckThreads(scan.ScannerCheck):
 
     def check(self, found):
         start_of_object = self.address_space.profile.get_obj_size("_POOL_HEADER") + \
-                          self.address_space.profile.get_obj_size("_OBJECT_HEADER") - 4
+                          self.address_space.profile.get_obj_size("_OBJECT_HEADER") - \
+                          self.address_space.profile.get_obj_offset('_POOL_HEADER', 'PoolTag') - \
+                          (self.address_space.profile.get_obj_size('_OBJECT_HEADER') - \
+                          self.address_space.profile.get_obj_offset('_OBJECT_HEADER', 'Body'))
 
         thread = obj.Object('_ETHREAD', vm = self.address_space,
                            offset = found + start_of_object)
@@ -114,6 +117,28 @@ class CheckThreads(scan.ScannerCheck):
 class PoolScanThreadFast2(scan.PoolScanner):
     """ Carve out threat objects using the pool tag """
     preamble = ['_POOL_HEADER', '_OBJECT_HEADER' ]
+
+    def object_offset(self, found):
+        """ This returns the offset of the object contained within
+        this pool allocation.
+        """
+
+        ## The offset of the object is determined by subtracting the offset
+        ## of the PoolTag member to get the start of Pool Object and then
+        ## adding the size of the preamble data structures. This done
+        ## because PoolScanners search for the PoolTag. 
+        
+        pool_base = found - self.buffer.profile.get_obj_offset('_POOL_HEADER', 'PoolTag')
+        
+        ## Next we add the size of the preamble data structures
+        object_base = pool_base +  \
+               sum([self.buffer.profile.get_obj_size(c) for c in self.preamble]) 
+
+        object_base = object_base - \
+               (self.buffer.profile.get_obj_size('_OBJECT_HEADER') - \
+               self.buffer.profile.get_obj_offset('_OBJECT_HEADER', 'Body'))
+
+        return object_base
 
     checks = [ ('PoolTagCheck', dict(tag = '\x54\x68\x72\xe5')),
                ('CheckPoolSize', dict(condition = lambda x: x >= 0x278)),
