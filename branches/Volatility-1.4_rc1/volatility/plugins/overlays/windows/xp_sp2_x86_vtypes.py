@@ -1,5 +1,3 @@
-__namespace__ = "overlays.windows"
-
 xpsp2types = {
   'LIST_ENTRY64' : [ 0x10, {
     'Flink' : [ 0x0, ['unsigned long long']],
