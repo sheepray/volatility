@@ -88,13 +88,21 @@ class DllList(commands.command, cache.Testable):
 
         return tasks
 
-    @cache.CacheDecorator(lambda self: "tests/pslist/pid={0}".format(self._config.PID))
+    @cache.CacheDecorator(lambda self: "tests/pslist/pid={0}/offset={1}".format(self._config.PID, self._config.OFFSET))
     def calculate(self):
         """Produces a list of processes, or just a single process based on an OFFSET"""
         addr_space = utils.load_as(self._config)
 
         if self._config.OFFSET != None:
-            tasks = [obj.Object("_EPROCESS", self._config.OFFSET, addr_space)]
+            # Since this is a physical offset, we find the process
+            flat_addr_space = utils.load_as(self._config, astype = 'physical')
+            flateproc = obj.Object("_EPROCESS", self._config.OFFSET, flat_addr_space)
+            # then use the virtual address of its first thread to get into virtual land
+            # (Note: the addr_space and flat_addr_space use the same config, so should have the same profile)
+            offset = addr_space.profile.get_obj_offset("_ETHREAD", "ThreadListEntry")
+            ethread = obj.Object("_ETHREAD", offset = flateproc.ThreadListHead.Flink.v() - offset, vm = addr_space)
+            # and ask for the thread's process to get an _EPROCESS with a virtual address space
+            tasks = [ethread.ThreadsProcess.dereference()]
         else:
             tasks = self.filter_tasks(win32.tasks.pslist(addr_space))
 
