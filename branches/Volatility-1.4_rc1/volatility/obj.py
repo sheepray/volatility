@@ -344,7 +344,7 @@ class BaseObject(object):
         return self.obj_vm.is_valid_address(self.obj_offset)
 
     def dereference(self):
-        return NoneObject("Can't dereference {0}".format(self.obj_name), self._vol_profile.strict)
+        return NoneObject("Can't dereference {0}".format(self.obj_name), self.obj_vm.profile.strict)
 
     def dereference_as(self, derefType):
         return Object(derefType, self.v(), self.obj_vm, parent = self)
@@ -355,7 +355,7 @@ class BaseObject(object):
     def v(self):
         """ Do the actual reading and decoding of this member
         """
-        return NoneObject("No value for {0}".format(self.obj_name), self._vol_profile.strict)
+        return NoneObject("No value for {0}".format(self.obj_name), self.obj_vm.profile.strict)
 
     def __format__(self, formatspec):
         return format(self.v(), formatspec)
@@ -668,7 +668,9 @@ class CType(BaseObject):
         will be instantiated when accessed.
         """
         if not members:
-            raise RuntimeError("No members specified for CType")
+            # Warn rather than raise an error, since some types (_HARDWARE_PTE, for example) are generated without members
+            debug.debug("No members specified for CType {0} named {1}".format(theType, name), level = 2)
+            members = {}
 
         self.members = members
         self.struct_size = size
