@@ -200,7 +200,8 @@ class ProcMemDump(ProcExeDump):
             if prevsect is not None:
                 sect_sizes.append(sect.VirtualAddress - prevsect.VirtualAddress)
             prevsect = sect
-        sect_sizes.append(self.round(prevsect.Misc.VirtualSize, sa, up = True))
+        if prevsect is not None:
+            sect_sizes.append(self.round(prevsect.Misc.VirtualSize, sa, up = True))
 
         counter = 0
         start_addr = nt_header.FileHeader.SizeOfOptionalHeader + (nt_header.OptionalHeader.obj_offset - base_addr)
