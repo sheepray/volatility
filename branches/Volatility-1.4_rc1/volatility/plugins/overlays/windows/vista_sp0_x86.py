@@ -30,11 +30,12 @@ for SP3.
 
 
 import copy
-import vista_sp0_x86_vtypes as vista_sp0_x86_vtypes
-import xp_sp2_x86 as xp_sp2_x86
-import windows as windows
-import crashdump as crashdump
-import hibernate_vtypes as hibernate_vtypes
+import vista_sp0_x86_vtypes
+import xp_sp2_x86
+import windows
+import tcpip_vtypes
+import crash_vtypes
+import hibernate_vtypes
 import volatility.debug as debug #pylint: disable-msg=W0611
 
 vistasp0x86overlays = copy.deepcopy(xp_sp2_x86.xpsp2overlays)
@@ -48,9 +49,9 @@ vistasp0x86overlays['VOLATILITY_MAGIC'][1]['DTBSignature'][1] = ['VolatilityMagi
 vistasp0x86overlays['VOLATILITY_MAGIC'][1]['KPCR'][1] = ['VolatilityKPCR', dict(configname = 'KPCR')]
 vistasp0x86overlays['VOLATILITY_MAGIC'][1]['KDBGHeader'][1] = ['VolatilityMagic', dict(value = '\x00\x00\x00\x00\x00\x00\x00\x00KDBG\x28\x03')]
 
-vista_sp0_x86_vtypes.ntkrnlmp_types.update(crashdump.crash_vtypes)
+vista_sp0_x86_vtypes.ntkrnlmp_types.update(crash_vtypes.crash_vtypes)
 vista_sp0_x86_vtypes.ntkrnlmp_types.update(hibernate_vtypes.hibernate_vtypes)
-
+vista_sp0_x86_vtypes.ntkrnlmp_types.update(tcpip_vtypes.tcpip_vtypes)
 
 class VistaSP0x86(windows.AbstractWindows):
     """ A Profile for Windows Vista SP0 x86 """

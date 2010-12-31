@@ -29,11 +29,12 @@ for SP3.
 #pylint: disable-msg=C0111
 
 import copy
-import win7_sp0_x86_vtypes as win7_sp0_x86_vtypes
-import xp_sp2_x86 as xp_sp2_x86
-import windows as windows
-import crashdump as crashdump
-import hibernate_vtypes as hibernate_vtypes
+import win7_sp0_x86_vtypes
+import xp_sp2_x86
+import windows
+import crash_vtypes
+import hibernate_vtypes
+import tcpip_vtypes
 import volatility.debug as debug #pylint: disable-msg=W0611
 
 win7sp0x86overlays = copy.deepcopy(xp_sp2_x86.xpsp2overlays)
@@ -47,8 +48,9 @@ win7sp0x86overlays['VOLATILITY_MAGIC'][1]['DTBSignature'][1] = ['VolatilityMagic
 win7sp0x86overlays['VOLATILITY_MAGIC'][1]['KPCR'][1] = ['VolatilityKPCR', dict(configname = 'KPCR')]
 win7sp0x86overlays['VOLATILITY_MAGIC'][1]['KDBGHeader'][1] = ['VolatilityMagic', dict(value = '\x00\x00\x00\x00\x00\x00\x00\x00KDBG\x40\x03')]
 
-win7_sp0_x86_vtypes.ntkrpamp_types.update(crashdump.crash_vtypes)
+win7_sp0_x86_vtypes.ntkrpamp_types.update(crash_vtypes.crash_vtypes)
 win7_sp0_x86_vtypes.ntkrpamp_types.update(hibernate_vtypes.hibernate_vtypes)
+win7_sp0_x86_vtypes.ntkrpamp_types.update(tcpip_vtypes.tcpip_vtypes)
 
 class Win7SP0x86(windows.AbstractWindows):
     """ A Profile for Windows 7 SP0 x86 """
