@@ -117,11 +117,7 @@ Note: MHL's malware plugins for Volatility 1.4 can be found at [http://code.goog
 = Plugins Left to Port to 1.4 =
 
 ||Plugin||Description||Primary Maintainer||Core Vote||
-||DriverIRP||Prints driver IRP function addresses||.||Yes||
-||IDT||Prints the Interrupt Descriptor Table (IDT) addresses for one processor||.||Yes||
-||kernel_hooks||Detects IAT, EAT, and in-line hooks in kernel drivers instead of usermode modules||.||Yes||
 ||objtypescan||Enumerates Windows kernel object types. (Note: If running the SVN version of Volatility, just install the plugin file from this archive)||.||Yes||
 ||psscan3||Scans the physical address space looking for memory resident data structures associated with processes||.|| Yes ||
 ||raw2dmp||Convert a raw dump to a crash dump||.||.||
 ||symlinkobjscan||Extracts symbolic link objects from the Windows kernel.(Note: If running the SVN version of Volatility, just install the plugin file from this archive.)||.||Yes||
-||usermode_hooks||Inline rootkit hooks||.||Yes||
