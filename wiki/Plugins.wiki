@@ -4,10 +4,7 @@
 
 A list of known Volatility plugins.
 
-----
-
 = Existing 1.4 plugins =
-
 
 Note: MHL's malware plugins for Volatility 1.4 can be found at [http://code.google.com/p/malwarecookbook/source/browse/trunk/ The Malware Cookbook Code Repository (malware.py)]
 
@@ -72,9 +69,10 @@ Note: MHL's malware plugins for Volatility 1.4 can be found at [http://code.goog
 ||vadwalk||Walk the VAD tree||.||.||
 
 
-----
 
 = Plugins Left to Port to 1.4 =
+
+
 
 ||Plugin||Description||Primary Maintainer||Core Vote||
 ||objtypescan||Enumerates Windows kernel object types. (Note: If running the SVN version of Volatility, just install the plugin file from this archive)||.||Yes||
@@ -83,7 +81,9 @@ Note: MHL's malware plugins for Volatility 1.4 can be found at [http://code.goog
 ||symlinkobjscan||Extracts symbolic link objects from the Windows kernel.(Note: If running the SVN version of Volatility, just install the plugin file from this archive.)||.||Yes||
 
 
+
 = Plugins (1.3) =
+
 
 
 ||Plugin||Author||URL||Description||Status||Supported OSes||Core Vote||
@@ -118,5 +118,3 @@ Note: MHL's malware plugins for Volatility 1.4 can be found at [http://code.goog
 ||verinfo||MA||[http://code.google.com/p/volatility/source/browse/branches/Volatility-1.4_rc1/plugins/internal/verinfo.py url]||Prints out the version information from PE images||.||.||NO||
 ||Volatility Analyst Pack 0.1||MHL||[http://mhl-malware-scripts.googlecode.com/files/vap-0.1.zip url]||[http://mnin.blogspot.com/2009/12/new-and-updated-volatility-plug-ins.html A pack which contains updates to many of the listed modules]||.||.||(included above)||
 ||volshell||Moyix||[http://moyix.blogspot.com/2008/08/indroducing-volshell.html url]||[http://moyix.blogspot.com/2008/08/indroducing-volshell.html Creates a python shell can be used with the framework]||.||.||No||
-
-
