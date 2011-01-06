@@ -141,14 +141,16 @@ value_formats = {"REG_DWORD": "<L",
                  "REG_QWORD": "<Q"}
 
 def value_data(val):
-    valtype = VALUE_TYPES[val.Type.v()]
     inline = val.DataLength & 0x80000000
 
     if inline:
+        if val.DataLength == 0x80000000:
+            return ("REG_DWORD", val.Type.v())
         valdata = val.obj_vm.read(val.Data.obj_offset, val.DataLength & 0x7FFFFFFF)
     else:
         valdata = val.obj_vm.read(val.Data, val.DataLength)
 
+    valtype = VALUE_TYPES[val.Type.v()]
     if valtype in ["REG_DWORD", "REG_DWORD_BIG_ENDIAN", "REG_QWORD"]:
         if len(valdata) != struct.calcsize(value_formats[valtype]):
             return (valtype, obj.NoneObject("Value data did not match the expected data size for a {0}".format(valtype)))
