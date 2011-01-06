@@ -2,7 +2,7 @@
 
 = Introduction =
 
-List of dependencies for some Volatility plugins
+List of dependencies for some Volatility [Plugins]
 
 
 = Volatility 1.4 =
