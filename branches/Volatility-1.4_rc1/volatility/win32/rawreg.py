@@ -136,6 +136,10 @@ def values(key):
 def key_flags(key):
     return [ k for k in KEY_FLAGS if key.Flags & KEY_FLAGS[k] ]
 
+value_formats = {"REG_DWORD": "<L",
+                 "REG_DWORD_BIG_ENDIAN": ">L",
+                 "REG_QWORD": "<Q"}
+
 def value_data(val):
     valtype = VALUE_TYPES[val.Type.v()]
     inline = val.DataLength & 0x80000000
@@ -145,17 +149,16 @@ def value_data(val):
     else:
         valdata = val.obj_vm.read(val.Data, val.DataLength)
 
-    if (valtype == "REG_SZ" or valtype == "REG_EXPAND_SZ" or
-        valtype == "REG_LINK"):
+    if valtype in ["REG_DWORD", "REG_DWORD_BIG_ENDIAN", "REG_QWORD"]:
+        if len(valdata) != struct.calcsize(value_formats[valtype]):
+            return (valtype, obj.NoneObject("Value data did not match the expected data size for a {0}".format(valtype)))
+
+    if valtype in ["REG_SZ", "REG_EXPAND_SZ", "REG_LINK"]:
         valdata = valdata.decode('utf-16-le', "ignore")
     elif valtype == "REG_MULTI_SZ":
         valdata = valdata.decode('utf-16-le', "ignore").split('\0')
-    elif valtype == "REG_DWORD":
-        valdata = struct.unpack("<L", valdata)[0]
-    elif valtype == "REG_DWORD_BIG_ENDIAN":
-        valdata = struct.unpack(">L", valdata)[0]
-    elif valtype == "REG_QWORD":
-        valdata = struct.unpack("<Q", valdata)[0]
+    elif valtype in ["REG_DWORD", "REG_DWORD_BIG_ENDIAN", "REG_QWORD"]:
+        valdata = struct.unpack(value_formats[valtype], valdata)[0]
     return (valtype, valdata)
 
 def walk(root):
