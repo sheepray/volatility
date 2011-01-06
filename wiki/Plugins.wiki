@@ -5,7 +5,7 @@
 A list of known Volatility plugins.
 
 
-= Plugins =
+= Plugins (1.3) =
 
 
 ||Plugin||Author||URL||Description||Status||Supported OSes||Core Vote||
@@ -47,14 +47,20 @@ A list of known Volatility plugins.
 
 = Existing 1.4 plugins =
 
+
+Note: MHL's malware plugins for Volatility 1.4 can be found at [http://code.google.com/p/malwarecookbook/source/browse/trunk/ The Malware Cookbook Code Repository (malware.py)]
+
 ||Plugin||Description||Primary Maintainer||Core Vote||
+||  apihooks || Find API hooks  || MHL || .||
 ||bioskbd||Reads the keyboard buffer from Real Mode memory||MA||Yes||
 ||connections||Print list of open connections||.||Yes||
 ||connscan2||Scan Physical memory for _TCPT_OBJECT objects (tcp connections)||.||Yes||
 ||crashdump||Dumps the crashdump file to a raw file||.||Yes||
 ||crashinfo||Dump crash-dump information||.||Yes||
+|| csrpslist ||Find hidden processes with csrss handles and CsrRootProcess  || MHL || .||
 ||datetime||Get date/time information for image||MA||Yes||
 ||dlllist||Print list of loaded dlls for each process||.||Yes||
+||driverirp||Driver IRP hook detection||MHL||.||
 ||driverscan||Scan for driver objects _DRIVER_OBJECT||.||.||
 ||files||Print list of open files for each process||.||Yes||
 ||filescan||Scan Physical memory for _FILE_OBJECT pool allocations||.||.||
@@ -65,14 +71,21 @@ A list of known Volatility plugins.
 ||hivedump||Prints out a hive||moyix||Yes||
 ||hivelist||Print list of registry hives.||moyix||Yes||
 ||hivescan||Scan Physical memory for _CMHIVE objects (registry hives)||moyix||Yes||
-||ident||Identify information for the image||MA||Yes||
+|| idt || Display Interrupt Descriptor Table || MHL || .||
+||imageinfo||Identify information for the image||MA||Yes||
+||impscan || Scan a module for imports (API calls) || MHL || .||
+|| ldrmodules || Detect unlinked DLLs || MHL || .||
 ||kpcrscan||Search for and dump potential KPCR values||scudette||Yes||
 ||lsadump||Dump (decrypted) LSA secrets from the registry||moyix||Yes||
+|| malfind || Find hidden and injected code || MHL || .||
 ||memdump||Dump the addressable memory for a process||.||Yes||
 ||memmap||Print the memory map||.||Yes||
 ||modscan2||Scan Physical memory for _LDR_DATA_TABLE_ENTRY objects||.||Yes||
 ||modules||Print list of loaded modules||MA||.||
 ||mutantscan||Scan for mutant objects _KMUTANT||.||.||
+|| mutantscandb || mutantscan extension for highlighting suspicious mutexes || MHL || .||
+|| notifyroutines || Print system-wide notification routines || MHL || .||
+||  orphanthread || Locate hidden threads || MHL || .||
 ||patcher||Patches memory based on page scans||MA||Yes||
 ||printkey||Print a registry key, and its subkeys and values||moyix||Yes||
 ||procexedump||Dump a process to an executable file sample||.||Yes||
@@ -84,13 +97,17 @@ A list of known Volatility plugins.
 ||sockets||Print list of open sockets||.||Yes||
 ||sockscan||Scan Physical memory for _ADDRESS_OBJECT objects (tcp sockets)||.||Yes||
 ||ssdt||Display SSDT entries||moyix||Yes||
+|| ssdt_by_threads || SSDT hooks by thread || MHL || .||
+|| ssdt_ex || SSDT Hook Explorer for IDA Pro (and SSDT by thread) || MHL || .||
 ||strings||Match physical offsets to virtual addresses (may take a while, VERY verbose)||.||.||
+||  svcscan|| Scan for Windows services || MHL || .||
 ||thrdscan||Scan Physical memory for _ETHREAD objects||.||Yes||
 ||thrdscan2||Scan physical memory for _ETHREAD objects||.||Yes||
 ||vaddump||Dumps out the vad sections to a file||.||.||
 ||vadinfo||Dump the VAD info||.||.||
 ||vadtree||Walk the VAD tree and display in tree format||.||.||
 ||vadwalk||Walk the VAD tree||.||.||
+
 
 
 ----
