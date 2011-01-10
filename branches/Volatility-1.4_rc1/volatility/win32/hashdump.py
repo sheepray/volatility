@@ -121,6 +121,8 @@ def get_bootkey(sysaddr):
     lsa_base = ["ControlSet{0:03}".format(cs), "Control", "Lsa"]
     lsa_keys = ["JD", "Skew1", "GBG", "Data"]
 
+
+
     root = rawreg.get_root(sysaddr)
     if not root:
         return None
@@ -144,6 +146,9 @@ def get_bootkey(sysaddr):
 
 def get_hbootkey(samaddr, bootkey):
     sam_account_path = ["SAM", "Domains", "Account"]
+
+    if not bootkey:
+        return None
 
     root = rawreg.get_root(samaddr)
     if not root:
@@ -302,14 +307,15 @@ def dump_hashes(sysaddr, samaddr):
     bootkey = get_bootkey(sysaddr)
     hbootkey = get_hbootkey(samaddr, bootkey)
 
-    for user in get_user_keys(samaddr):
-        lmhash, nthash = get_user_hashes(user, hbootkey)
-        if not lmhash:
-            lmhash = empty_lm
-        if not nthash:
-            nthash = empty_nt
-        yield "{0}:{1}:{2}:{3}:::".format(get_user_name(user), int(str(user.Name), 16),
-                                          lmhash.encode('hex'), nthash.encode('hex'))
+    if hbootkey:
+        for user in get_user_keys(samaddr):
+            lmhash, nthash = get_user_hashes(user, hbootkey)
+            if not lmhash:
+                lmhash = empty_lm
+            if not nthash:
+                nthash = empty_nt
+            yield "{0}:{1}:{2}:{3}:::".format(get_user_name(user), int(str(user.Name), 16),
+                                              lmhash.encode('hex'), nthash.encode('hex'))
 
 def dump_memory_hashes(addr_space, config, syshive, samhive):
     sysaddr = hive.HiveAddressSpace(addr_space, config, syshive)

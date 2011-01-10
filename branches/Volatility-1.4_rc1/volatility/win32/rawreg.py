@@ -25,6 +25,7 @@
 @contact:      bdolangavitt@wesleyan.edu
 """
 
+import volatility.debug as debug
 import volatility.obj as obj
 import struct
 
@@ -81,7 +82,7 @@ def open_key(root, key):
     for s in subkeys(root):
         if s.Name.upper() == keyname.upper():
             return open_key(s, key)
-    print "ERR: Couldn't find subkey {0} of {1}".format(keyname, root.Name)
+    debug.warning("Couldn't find subkey {0} of {1}".format(keyname, root.Name))
     return None
 
 def read_sklist(sk):
