@@ -8,7 +8,7 @@ List of dependencies for some Volatility [Plugins]
 = Volatility 1.4 =
 
 || *Dependency* || *Needed by* || *url* ||
-|| Libdasm || Various plugins in MHL's malware.py || http://libdasm.googlecode.com ||
+|| Distorm3 || Various plugins in MHL's malware.py || http://code.google.com/p/distorm ||
 || Pycrypto || Core win32 registry code || http://gitweb.pycrypto.org/?p=crypto/pycrypto-2.0.x.git;a=summary ||
 || sqlite3 || mutantscandb (malware.py) || http://docs.python.org/library/sqlite3.html ||
 || Yara || malfind (malware.py) || http://yara-project.googlecode.com ||
