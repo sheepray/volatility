@@ -24,15 +24,16 @@
 """
 
 import struct
+import sys
 import volatility.commands as commands
 import volatility.win32 as win32
 import volatility.utils as utils
 import volatility.obj as obj
 
 try:
-    import distorm #pylint: disable-msg=F0401
+    import distorm3 #pylint: disable-msg=F0401
 except ImportError:
-    distorm = None
+    pass
 
 class volshell(commands.command):
     """Shell in the memory image"""
@@ -281,7 +282,7 @@ class volshell(commands.command):
             profile = self.eproc.obj_vm.profile
 
             if address is not None:
-                objct = obj.Object(obj, address, self.eproc.get_process_address_space())
+                objct = obj.Object(objct, address, self.eproc.get_process_address_space())
 
             if isinstance(objct, str):
                 size = profile.get_obj_size(objct)
@@ -314,15 +315,15 @@ class volshell(commands.command):
             Note: This feature requires distorm, available at
                 http://www.ragestorm.net/distorm/
             """
-            if not distorm:
+            if not sys.modules.has_key("distorm3"):
                 print "ERROR: Disassembly unavailable, distorm not found"
                 return
             if not space:
-                space = self.eproc.get_processs_address_space()
+                space = self.eproc.get_process_address_space()
             data = space.read(address, length)
-            disasm = distorm.Decode(address, data, distorm.Decode32Bits)
-            for addr, _, mnem, bbytes in disasm:
-                print "{0:08x}     {1:30s} {2}".format(addr, mnem, bbytes)
+            iterable = distorm3.DecodeGenerator(address, data, distorm3.Decode32Bits)
+            for (offset, size, instruction, hexdump) in iterable:
+                print "{0:<#8x} {1:<32} {2}".format(offset, hexdump, instruction)
 
         shell_funcs = { 'cc': cc, 'dd': dd, 'db': db, 'ps': ps, 'dt': dt, 'list_entry': list_entry, 'dis': dis}
         def hh(cmd = None):
