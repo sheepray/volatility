@@ -26,7 +26,11 @@ Volatility currently requires python-2.6 or greater.
  * Whitespace on either side of all operators, and a space after all commas.
    * This includes the = in method(arg = default).
    * PEP8, clarity.
+ * No whitespace at the end of a line
+   * clarity, easier diffs.
  * No need for docstrings on __init__, since they're implicit.
    * Pylint, obvious.
  * Use "{0:spec}".format(blah) over "%spec" % blah.
    * In preparation for python-3, % is evil.
+ * Use lowercase format specifier when outputting hex offsets ("{0:08x}" or "{0:#010x}").
+   * Consistency, ease of reading (particularly 0x123 vs 0X123).
