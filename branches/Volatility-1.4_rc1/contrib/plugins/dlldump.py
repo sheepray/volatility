@@ -22,13 +22,14 @@
 
 import os
 import re
+import volatility.obj as obj
 import volatility.plugins.procdump as procdump
 import volatility.win32.tasks as tasks
 import volatility.debug as debug
 import volatility.utils as utils
 
 class DLLDump(procdump.ProcExeDump):
-    """Dump a DLL from a process address space"""
+    """Dump DLLs from a process address space"""
 
     def __init__(self, config, *args):
         procdump.ProcExeDump.__init__(self, config, *args)
@@ -40,7 +41,10 @@ class DLLDump(procdump.ProcExeDump):
                       help = 'Ignore case in pattern match',
                       action = 'store_true', default = False, dest = 'ignore_case')
         config.add_option('OFFSET', short_option = 'o', default = None,
-                          help = 'Dump DLL with base address OFFSET (in hex)',
+                          help = 'Dump DLLs for Process with physical address OFFSET',
+                          action = 'store', type = 'int')
+        config.add_option('BASE', short_option = 'b', default = None,
+                          help = 'Dump DLLS at the specified BASE offset in the process address space',
                           action = 'store', type = 'int')
 
     def calculate(self):
@@ -51,6 +55,20 @@ class DLLDump(procdump.ProcExeDump):
         if not os.path.isdir(self._config.DUMP_DIR):
             debug.error(self._config.DUMP_DIR + " is not a directory")
 
+        if self._config.OFFSET != None:
+            # Since this is a physical offset, we find the process
+            flat_addr_space = utils.load_as(self._config, astype = 'physical')
+            flateproc = obj.Object("_EPROCESS", self._config.OFFSET, flat_addr_space)
+            # then use the virtual address of its first thread to get into virtual land
+            # (Note: the addr_space and flat_addr_space use the same config, so should have the same profile)
+            offset = addr_space.profile.get_obj_offset("_ETHREAD", "ThreadListEntry")
+            ethread = obj.Object("_ETHREAD", offset = flateproc.ThreadListHead.Flink.v() - offset, vm = addr_space)
+            # and ask for the thread's process to get an _EPROCESS with a virtual address space
+            data = [ethread.ThreadsProcess.dereference()]
+        else:
+            data = self.filter_tasks(tasks.pslist(addr_space))
+
+
         if self._config.regex:
             try:
                 if self._config.ignore_case:
@@ -60,25 +78,21 @@ class DLLDump(procdump.ProcExeDump):
             except re.error, e:
                 debug.error('Error parsing regular expression: %s' % e)
 
-        for proc in self.filter_tasks(tasks.pslist(addr_space)):
-
+        for proc in data:
             ps_ad = proc.get_process_address_space()
             if ps_ad == None:
                 continue
 
-            mods = dict((mod.DllBase.v(), mod) for mod in self.list_modules(proc))
+            mods = [(mod.DllBase.v(), mod) for mod in self.list_modules(proc)]
 
-            if self._config.OFFSET:
-                if mods.has_key(self._config.OFFSET):
-                    yield addr_space, mods[self._config.OFFSET]
-                else:
-                    raise StopIteration('No such module at 0x{0:X}'.format(self._config.OFFSET))
-            else:
-                for mod in mods.values():
-                    if self._config.regex:
-                        if not mod_re.search(str(mod.FullDllName)) and not mod_re.search(str(mod.BaseDllName)):
-                            continue
-                    yield proc, ps_ad, mod
+            for (base, mod) in mods:
+                if self._config.regex:
+                    if not mod_re.search(str(mod.FullDllName)) and not mod_re.search(str(mod.BaseDllName)):
+                        continue
+                if self._config.BASE:
+                    if base != self._config.BASE:
+                        continue
+                yield proc, ps_ad, mod
 
     def render_text(self, outfd, data):
         for proc, ps_ad, mod in data:
