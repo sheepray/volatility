@@ -39,10 +39,15 @@ class CheckHiveSig(scan.ScannerCheck):
 
 class PoolScanHiveFast2(scan.PoolScanner):
     checks = [ ('PoolTagCheck', dict(tag = "CM10")),
-               ('CheckPoolSize', dict(condition = lambda x: x == 0x4a8)),
-               ('CheckPoolType', dict(paged = True)),
+               # Dummy condition, since this will be changed during initialization
+               ('CheckPoolSize', dict(condition = lambda x: x == 0x638)),
+               #('CheckPoolType', dict(non_paged = True)), #doesn't work for win7 and vista
                ('CheckHiveSig', {})
                ]
+
+    def __init__(self, poolsize):
+        self.checks[1] = ('CheckPoolSize', dict(condition = lambda x: x >= poolsize))
+        scan.PoolScanner.__init__(self)
 
 class HiveScan(commands.command):
     """ Scan Physical memory for _CMHIVE objects (registry hives)
@@ -65,10 +70,14 @@ class HiveScan(commands.command):
     def calculate(self):
         ## Just grab the AS and scan it using our scanner
         address_space = utils.load_as(self._config, astype = 'physical')
+        volmag = obj.Object('VOLATILITY_MAGIC', offset = 0, vm = address_space)
+        o = volmag.HiveListPoolSize
 
-        return PoolScanHiveFast2().scan(address_space)
+        poolsize = o.v()
+
+        return PoolScanHiveFast2(poolsize).scan(address_space)
 
     def render_text(self, outfd, data):
         outfd.write("{0:15} {1:15}\n".format("Offset", "(hex)"))
         for offset in data:
-            outfd.write("{0:<15} 0x{1:08X}\n".format(offset, offset))
+            outfd.write("{0:<15} {1:#010x}\n".format(offset, offset))

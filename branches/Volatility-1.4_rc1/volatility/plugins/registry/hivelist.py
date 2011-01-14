@@ -54,14 +54,18 @@ class HiveList(hs.HiveScan):
                           help = "Offset to registry hive")
 
     def render_text(self, outfd, result):
-        outfd.write("Address      Name\n")
+        outfd.write("{0:10}  {1:10}  {2}\n".format("Virtual", "Physical", "Name"))
 
         hive_offsets = []
 
         for hive in result:
             if hive.obj_offset not in hive_offsets:
-                name = hive.FileFullPath.v() or "[no name]"
-                outfd.write("{0:#X}  {1}\n".format(hive.obj_offset, name))
+                try:
+                    name = hive.FileFullPath.v() or hive.FileUserName.v() or hive.HiveRootPath.v() or "[no name]"
+                except AttributeError:
+                    name = "[no name]"
+                # Spec of 10 rather than 8 width, since the # puts 0x at the start, which is included in the width
+                outfd.write("{0:#010x}  {1:#010x}  {2}\n".format(hive.obj_offset, hive.obj_vm.vtop(hive.obj_offset), name))
                 hive_offsets.append(hive.obj_offset)
 
     def calculate(self):
@@ -81,8 +85,10 @@ class HiveList(hs.HiveScan):
             ## could go from physical to virtual memroy easier.
             for offset in hives:
                 hive = obj.Object("_CMHIVE", int(offset), flat)
+                volmag = obj.Object('VOLATILITY_MAGIC', offset = 0, vm = flat)
+                o = volmag.HiveListOffset
                 if hive.HiveList.Flink.v():
-                    start_hive_offset = hive.HiveList.Flink.v() - 0x224
+                    start_hive_offset = hive.HiveList.Flink.v() - o.v()
 
                     ## Now instantiate the first hive in virtual address space as normal
                     start_hive = obj.Object("_CMHIVE", start_hive_offset, addr_space)
