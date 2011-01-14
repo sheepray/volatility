@@ -2,6 +2,8 @@
 
 = Long Term Goals =
 
+== Design ==
+
   * Consider output formats (UI/unified plugin data output)
     * Report output
     * Command-line (low-latency) output
@@ -11,6 +13,9 @@
   * Consider overhauling the config system
     * Potentially moving to argparse, to allow subcommand options specified by the plugins.
   * Further remove/reduce the use of globals to allow volatility to be used as a library.
+
+== Practical ==
+
   * Improve Hive AS integration
   * Allow module loading from http/other locations
   * Implement/improve linux support
@@ -20,7 +25,7 @@
   * Support arches other than x86
   * Conversion to Python 3+
   * Integrate pdbparse into the framework?
-
+  * Create "scan3" versions of the scanners, so accurate structure locators like psscan3, but for sockscan and driverscan, etc.
 
 = Features for current Beta =
 
