@@ -49,7 +49,7 @@ class CheckSocketCreateTime(scan.ScannerCheck):
 
 class PoolScanSockFast(scan.PoolScanner):
     checks = [ ('PoolTagCheck', dict(tag = "TCPA")),
-               ('CheckPoolSize', dict(condition = lambda x: x == 0x170)),
+               ('CheckPoolSize', dict(condition = lambda x: x >= 0x170)),
                ('CheckPoolType', dict(non_paged = True, free = True)),
                ## Valid sockets have time > 0
                ('CheckSocketCreateTime', dict(condition = lambda x: x > 0)),

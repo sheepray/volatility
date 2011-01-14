@@ -128,7 +128,7 @@ class PoolScanDriver(PoolScanFile):
     """ Scanner for _DRIVER_OBJECT """
     ## No preamble
     checks = [ ('PoolTagCheck', dict(tag = "Dri\xf6")),
-               ('CheckPoolSize', dict(condition = lambda x: x == 0xf8)),
+               ('CheckPoolSize', dict(condition = lambda x: x >= 0xf8)),
                ('CheckPoolType', dict(non_paged = True)),
                ('CheckPoolIndex', dict(value = 0)),
                ]
