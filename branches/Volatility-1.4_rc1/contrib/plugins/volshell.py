@@ -68,18 +68,18 @@ class volshell(commands.command):
         return win32.tasks.pslist(self.addrspace)
 
     def context_display(self):
-        print "Current context: process %s, pid=%d, ppid=%d DTB=%#x" % (self.eproc.ImageFileName,
-                                                                        self.eproc.UniqueProcessId.v(),
-                                                                        self.eproc.InheritedFromUniqueProcessId.v(),
-                                                                        self.eproc.Pcb.DirectoryTableBase.v())
+        print "Current context: process {0}, pid={1}, ppid={2} DTB={3:#x}".format(self.eproc.ImageFileName,
+                                                                                  self.eproc.UniqueProcessId.v(),
+                                                                                  self.eproc.InheritedFromUniqueProcessId.v(),
+                                                                                  self.eproc.Pcb.DirectoryTableBase.v())
 
     def ps(self, procs = None):
-        print "%-16s %-6s %-6s %-8s" % ("Name", "PID", "PPID", "Offset")
+        print "{0:16} {1:6} {2:6} {3:8}".format("Name", "PID", "PPID", "Offset")
         for eproc in procs or self.getpidlist():
-            print "%-16s %-6d %-6d %#08x" % (eproc.ImageFileName,
-                                             eproc.UniqueProcessId.v(),
-                                             eproc.InheritedFromUniqueProcessId.v(),
-                                             eproc.obj_offset)
+            print "{0:16} {1:<6} {2:<6} {3:#08x}".format(eproc.ImageFileName,
+                                                       eproc.UniqueProcessId.v(),
+                                                       eproc.InheritedFromUniqueProcessId.v(),
+                                                       eproc.obj_offset)
 
     def set_context(self, offset = None, pid = None, name = None):
         if pid is not None:
@@ -88,10 +88,10 @@ class volshell(commands.command):
                 if p.UniqueProcessId.v() == pid:
                     offsets.append(p)
             if not offsets:
-                print "Unable to find process matching pid %d" % pid
+                print "Unable to find process matching pid {0}".format(pid)
                 return
             elif len(offsets) > 1:
-                print "Multiple processes match %d, please specify by offset" % pid
+                print "Multiple processes match {0}, please specify by offset".format(pid)
                 print "Matching processes:"
                 self.ps(offsets)
                 return
@@ -103,10 +103,10 @@ class volshell(commands.command):
                 if p.ImageFileName.find(name) >= 0:
                     offsets.append(p)
             if not offsets:
-                print "Unable to find process matching name %s" % name
+                print "Unable to find process matching name {0}".format(name)
                 return
             elif len(offsets) > 1:
-                print "Multiple processes match name %s, please specify by PID or offset" % name
+                print "Multiple processes match name {0}, please specify by PID or offset".format(name)
                 print "Matching processes:"
                 self.ps(offsets)
                 return
@@ -169,16 +169,16 @@ class volshell(commands.command):
             #    length = (length+4) - (length%4)
             data = space.read(address, length)
             if not data:
-                print "Memory unreadable at %08x" % address
+                print "Memory unreadable at {0:08x}".format(address)
                 return
 
             FILTER = ''.join([(len(repr(chr(x))) == 3) and chr(x) or '.' for x in range(256)])
             N = 0; result = ''
             while data:
                 s, data = data[:width], data[width:]
-                hexa = ' '.join(["%02X" % ord(x) for x in s])
+                hexa = ' '.join(["{0:02x}".format(ord(x)) for x in s])
                 s = s.translate(FILTER)
-                result += "%08X   %-*s   %s\n" % (address + N, width * 3, hexa, s)
+                result += "{0:08x}   {2:{1}}   {3}\n".format(address + N, width * 3, hexa, s)
                 N += width
             print result
 
@@ -201,7 +201,7 @@ class volshell(commands.command):
                 length = (length + 4) - (length % 4)
             data = space.read(address, length)
             if not data:
-                print "Memory unreadable at %08x" % address
+                print "Memory unreadable at {0:08x}".format(address)
                 return
             dwords = []
             for i in range(0, length, 4):
@@ -214,7 +214,7 @@ class volshell(commands.command):
             for i in range(lines):
                 ad = address + i * 0x10
                 lwords = dwords[i * 4:i * 4 + 4]
-                print ("%08x  " % ad) + " ".join("%08x" % l for l in lwords)
+                print ("{0:08x}  ".format(ad)) + " ".join("{0:08x}".format(l) for l in lwords)
 
         def ps():
             """Print a process listing.
@@ -334,7 +334,7 @@ class volshell(commands.command):
                 for f in shell_funcs:
                     doc = pydoc.getdoc(shell_funcs[f])
                     synop, _full = pydoc.splitdoc(doc)
-                    print "%-40s : %s" % (f + formatargspec(*getargspec(shell_funcs[f])), synop)
+                    print "{0:40} : {1}".format(f + formatargspec(*getargspec(shell_funcs[f])), synop)
                 print
                 print "For help on a specific command, type 'hh(<command>)'"
             elif type(cmd) == str:
