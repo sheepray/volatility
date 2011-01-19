@@ -71,6 +71,8 @@ def log(msg, level):
             frm = frm.f_back
             mod = inspect.getmodule(frm)
             modname = mod.__name__
+    except AttributeError:
+        pass
     finally:
         del frm
     _log(msg, modname, level)
