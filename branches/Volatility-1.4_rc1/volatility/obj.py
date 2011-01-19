@@ -929,24 +929,25 @@ class Profile(object):
         debug.warning("Unable to find a type for {0}, assuming int".format(typeList[0]))
         return Curry(self.types['int'], name = name)
 
-    def get_obj_offset(self, name, member):
-        """ Returns a members offset within the struct """
+    def _get_dummy_obj(self, name):
         class dummy(object):
             profile = self
+            name = 'dummy'
             def is_valid_address(self, _offset):
                 return True
-        tmp = self.types[name](name, dummy())
+        tmp = self.types[name](offset = 0, name = name, vm = dummy(), parent = None)
+        return tmp
+
+    def get_obj_offset(self, name, member):
+        """ Returns a members offset within the struct """
+        tmp = self._get_dummy_obj(name)
         offset, _cls = tmp.members[member]
 
         return offset
 
     def get_obj_size(self, name):
         """Returns the size of a struct"""
-        class dummy(object):
-            profile = self
-            def is_valid_address(self, _offset):
-                return True
-        tmp = self.types[name](name, dummy())
+        tmp = self._get_dummy_obj(name)
         return tmp.size()
 
     def apply_overlay(self, type_member, overlay):
