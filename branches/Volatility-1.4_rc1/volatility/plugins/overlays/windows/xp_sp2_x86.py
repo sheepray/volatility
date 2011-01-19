@@ -352,6 +352,7 @@ class _MMVAD(obj.CType):
                   'VadS': '_MMVAD_SHORT',
                   'Vad ': '_MMVAD_LONG',
                   'VadF': '_MMVAD_SHORT',
+                  'Vadm': '_MMVAD_SHORT',
                   }
 
         ## All VADs are done in the process AS - so we might need to
@@ -405,6 +406,15 @@ class _MMVAD_SHORT(obj.CType):
         for c in self.RightChild.traverse(visited = visited):
             visited.add(c.obj_offset)
             yield c
+
+    def get_parent(self):
+        return self.Parent
+
+    def get_control_area(self):
+        return self.ControlArea
+
+    def get_file_object(self):
+        return self.ControlArea.FilePointer
 
 class _MMVAD_LONG(_MMVAD_SHORT):
     pass

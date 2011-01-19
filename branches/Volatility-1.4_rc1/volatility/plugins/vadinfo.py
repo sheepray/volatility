@@ -66,7 +66,7 @@ class VADInfo(taskmods.DllList):
 
     def write_vad_control(self, outfd, vad):
         """Renders a text version of a (non-short) Vad's control information"""
-        CA = vad.ControlArea
+        CA = vad.get_control_area()
         if not CA:
             #debug.b()
             return
@@ -74,18 +74,16 @@ class VADInfo(taskmods.DllList):
         outfd.write("ControlArea @{0:08x} Segment {1:08x}\n".format(CA.dereference().obj_offset, CA.Segment))
         outfd.write("Dereference list: Flink {0:08x}, Blink {1:08x}\n".format(CA.DereferenceList.Flink, CA.DereferenceList.Blink))
         outfd.write("NumberOfSectionReferences: {0:10} NumberOfPfnReferences:  {1:10}\n".format(CA.NumberOfSectionReferences, CA.NumberOfPfnReferences))
-        outfd.write("NumberOfMappedViews:       {0:10} NumberOfSubsections:    {1:10}\n".format(CA.NumberOfMappedViews, CA.NumberOfSubsections))
-        outfd.write("FlushInProgressCount:      {0:10} NumberOfUserReferences: {1:10}\n".format(CA.FlushInProgressCount, CA.NumberOfUserReferences))
-
+        outfd.write("NumberOfMappedViews:       {0:10} NumberOfUserReferences: {1:10}\n".format(CA.NumberOfMappedViews, CA.NumberOfUserReferences))
+        outfd.write("WaitingForDeletion Event:  {0:08x}\n".format(CA.WaitingForDeletion))
         outfd.write("Flags: {0}\n".format(CA.Flags))
 
-        if CA.FilePointer:
-            outfd.write("FileObject @{0:08x}           , Name: {1}\n".format(CA.FilePointer.dereference().obj_offset, CA.FilePointer.FileName))
+        FO = vad.get_file_object()
+
+        if FO:
+            outfd.write("FileObject @{0:08x} FileBuffer @ {1:08x}          , Name: {2}\n".format(FO.obj_offset, FO.FileName.Buffer, FO.FileName))
         else:
             outfd.write("FileObject: none\n")
-
-        outfd.write("WaitingForDeletion Event: {0:08x}\n".format(CA.WaitingForDeletion))
-        outfd.write("ModifiedWriteCount: {0:8} NumberOfSystemCacheViews: {1:8}\n".format(CA.ModifiedWriteCount, CA.NumberOfSystemCacheViews))
 
     def write_vad_ext(self, outfd, vad):
         """Renders a text version of a Long Vad"""
@@ -108,7 +106,7 @@ class VADTree(VADInfo):
             levels = {}
             for vad in task.VadRoot.traverse():
                 if vad:
-                    level = levels.get(vad.Parent.dereference().obj_offset, -1) + 1
+                    level = levels.get(vad.get_parent().dereference().obj_offset, -1) + 1
                     levels[vad.obj_offset] = level
                     outfd.write(" " * level + "{0:08x} - {1:08x}\n".format(
                                 vad.StartingVpn << 12,
@@ -122,8 +120,8 @@ class VADTree(VADInfo):
             outfd.write("graph [rankdir = \"TB\"];\n")
             for vad in task.VadRoot.traverse():
                 if vad:
-                    if vad.Parent:
-                        outfd.write("vad_{0:08x} -> vad_{1:08x}\n".format(vad.Parent.dereference().obj_offset, vad.obj_offset))
+                    if vad.get_parent() and vad.get_parent().dereference():
+                        outfd.write("vad_{0:08x} -> vad_{1:08x}\n".format(vad.get_parent().dereference().obj_offset or 0, vad.obj_offset))
                     outfd.write("vad_{0:08x} [label = \"{{ {1}\\n{2:08x} - {3:08x} }}\""
                                 "shape = \"record\" color = \"blue\"];\n".format(
                         vad.obj_offset,
@@ -146,7 +144,7 @@ class VADWalk(VADInfo):
                 if vad:
                     outfd.write("{0:08x} {1:08x} {2:08x} {3:08x} {4:08x} {5:08x} {6:4}\n".format(
                         vad.obj_offset,
-                        vad.Parent.dereference().obj_offset or 0,
+                        vad.get_parent().dereference().obj_offset or 0,
                         vad.LeftChild.dereference().obj_offset or 0,
                         vad.RightChild.dereference().obj_offset or 0,
                         vad.StartingVpn << 12,

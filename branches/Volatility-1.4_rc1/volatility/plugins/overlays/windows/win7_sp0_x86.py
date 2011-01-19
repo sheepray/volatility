@@ -30,19 +30,14 @@ for SP3.
 
 import copy
 import win7_sp0_x86_vtypes
-import xp_sp2_x86
+import vista_sp0_x86
 import windows
 import crash_vtypes
 import hibernate_vtypes
 import tcpip_vtypes
 import volatility.debug as debug #pylint: disable-msg=W0611
 
-win7sp0x86overlays = copy.deepcopy(xp_sp2_x86.xpsp2overlays)
-
-win7sp0x86overlays['_MMVAD_SHORT'][1]['Flags'][0] = lambda x: x.u.obj_offset
-win7sp0x86overlays['_CONTROL_AREA'][1]['Flags'][0] = lambda x: x.u.obj_offset
-win7sp0x86overlays['_MMVAD_LONG'][1]['Flags'][0] = lambda x: x.u.obj_offset
-win7sp0x86overlays['_MMVAD_LONG'][1]['Flags2'][0] = lambda x: x.u2.obj_offset
+win7sp0x86overlays = copy.deepcopy(vista_sp0_x86.vistasp0x86overlays)
 
 win7sp0x86overlays['VOLATILITY_MAGIC'][1]['DTBSignature'][1] = ['VolatilityMagic', dict(value = "\x03\x00\x26\x00")]
 win7sp0x86overlays['VOLATILITY_MAGIC'][1]['KPCR'][1] = ['VolatilityKPCR', dict(configname = 'KPCR')]
@@ -58,3 +53,4 @@ class Win7SP0x86(windows.AbstractWindows):
     """ A Profile for Windows 7 SP0 x86 """
     abstract_types = win7_sp0_x86_vtypes.ntkrpamp_types
     overlay = win7sp0x86overlays
+    object_classes = copy.deepcopy(vista_sp0_x86.VistaSP0x86.object_classes)
