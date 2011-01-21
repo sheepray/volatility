@@ -39,7 +39,7 @@ class PoolScanModuleFast2(scan.PoolScanner):
 
     checks = [ ('PoolTagCheck', dict(tag = 'MmLd')),
                ('CheckPoolSize', dict(condition = lambda x: x > 0x4c)),
-               ('CheckPoolType', dict(non_paged = True, free = True)),
+               ('CheckPoolType', dict(paged = True, non_paged = True, free = True)),
                ('CheckPoolIndex', dict(value = 0)),
                ]
 
@@ -85,18 +85,26 @@ class CheckThreads(scan.ScannerCheck):
     kernel = 0x80000000
 
     def check(self, found):
+ 
         start_of_object = self.address_space.profile.get_obj_size("_POOL_HEADER") + \
-                          self.address_space.profile.get_obj_size("_OBJECT_HEADER") - \
-                          self.address_space.profile.get_obj_offset('_POOL_HEADER', 'PoolTag') - \
-                          (self.address_space.profile.get_obj_size('_OBJECT_HEADER') - \
-                          self.address_space.profile.get_obj_offset('_OBJECT_HEADER', 'Body'))
+                          self.address_space.profile.get_obj_offset('_OBJECT_HEADER', 'Body') - \
+                          self.address_space.profile.get_obj_offset('_POOL_HEADER', 'PoolTag')
+
+        ## The preamble needs to be augmented for Windows7
+        volmagic = obj.Object("VOLATILITY_MAGIC", 0x0, self.address_space)
+        try:
+            ObjectPreamble = volmagic.ObjectPreamble.v()
+            offsetupdate = self.address_space.profile.get_obj_size(ObjectPreamble)
+        except AttributeError:
+            offsetupdate = 0
+            pass
 
         thread = obj.Object('_ETHREAD', vm = self.address_space,
-                           offset = found + start_of_object)
+                           offset = found + start_of_object + offsetupdate)
 
-        if thread.Cid.UniqueProcess.v() != 0 and \
-           thread.ThreadsProcess.v() <= self.kernel:
-            return False
+        #if thread.Cid.UniqueProcess.v() != 0 and \
+        #   thread.ThreadsProcess.v() <= self.kernel:
+        #    return False
 
         ## check the start address
         if thread.Cid.UniqueProcess.v() != 0 and \
@@ -105,11 +113,11 @@ class CheckThreads(scan.ScannerCheck):
 
         ## Check the Semaphores
         if thread.Tcb.SuspendSemaphore.Header.Size != 0x05 and \
-               thread.Tcb.SuspendSemaphore.Header.Size != 0x05:
+               thread.Tcb.SuspendSemaphore.Header.Type != 0x05:
             return False
 
-        if thread.LpcReplySemaphore.Header.Size != 5 and \
-               thread.LpcReplySemaphore.Header.Type != 5:
+        if thread.KeyedWaitSemaphore.Header.Size != 0x05 and \
+               thread.KeyedWaitSemaphore.Header.Type != 0x05:
             return False
 
         return True
@@ -129,7 +137,15 @@ class PoolScanThreadFast2(scan.PoolScanner):
         ## because PoolScanners search for the PoolTag. 
         
         pool_base = found - self.buffer.profile.get_obj_offset('_POOL_HEADER', 'PoolTag')
-        
+
+        ## Another data structure is added to the preamble for Win7.
+        volmagic = obj.Object("VOLATILITY_MAGIC", 0x0, self.buffer)
+        try:
+            if not volmagic.ObjectPreamble.v() in self.preamble:
+                self.preamble.append(volmagic.ObjectPreamble.v())
+        except AttributeError:
+            pass
+
         ## Next we add the size of the preamble data structures
         object_base = pool_base +  \
                sum([self.buffer.profile.get_obj_size(c) for c in self.preamble]) 
@@ -142,7 +158,7 @@ class PoolScanThreadFast2(scan.PoolScanner):
 
     checks = [ ('PoolTagCheck', dict(tag = '\x54\x68\x72\xe5')),
                ('CheckPoolSize', dict(condition = lambda x: x >= 0x278)),
-               ('CheckPoolType', dict(non_paged = True, free = True)),
+               ('CheckPoolType', dict(paged = True, non_paged = True, free = True)),
                ('CheckPoolIndex', dict(value = 0)),
                ('CheckThreads', {}),
                ]
@@ -171,5 +187,107 @@ class ThrdScan2(ModScan2):
                                                                            thread.ExitTime or '',
                                                                            thread.obj_offset))
 
+class CheckProcess(scan.ScannerCheck):
+    """ Check sanity of _EPROCESS """
+    kernel = 0x80000000
 
+    def check(self, found):
 
+        start_of_object = self.address_space.profile.get_obj_size("_POOL_HEADER") + \
+                          self.address_space.profile.get_obj_offset('_OBJECT_HEADER', 'Body') - \
+                          self.address_space.profile.get_obj_offset('_POOL_HEADER', 'PoolTag')
+
+        ## The preamble needs to be augmented for Windows7
+        volmagic = obj.Object("VOLATILITY_MAGIC", 0x0, self.address_space)
+        try:
+            ObjectPreamble = volmagic.ObjectPreamble.v()
+            offsetupdate = self.address_space.profile.get_obj_size(ObjectPreamble)
+        except AttributeError:
+            offsetupdate = 0
+            pass
+        
+        eprocess = obj.Object('_EPROCESS', vm = self.address_space,
+                           offset = (found + start_of_object + offsetupdate))
+
+        if (eprocess.Pcb.DirectoryTableBase == 0):
+            return False   
+
+        if (eprocess.Pcb.DirectoryTableBase % 0x20 != 0):
+            return False         
+
+        list_head = eprocess.ThreadListHead
+
+        if (list_head.Flink < self.kernel) or (list_head.Blink < self.kernel):
+            return False
+
+        return True
+
+class PoolScanProcessFast2(scan.PoolScanner):
+    """ Carve out threat objects using the pool tag """
+    preamble = ['_POOL_HEADER', '_OBJECT_HEADER' ]
+
+    def object_offset(self, found):
+        """ This returns the offset of the object contained within
+        this pool allocation.
+        """
+
+        ## The offset of the object is determined by subtracting the offset
+        ## of the PoolTag member to get the start of Pool Object and then
+        ## adding the size of the preamble data structures. This done
+        ## because PoolScanners search for the PoolTag. 
+        
+        pool_base = found - self.buffer.profile.get_obj_offset('_POOL_HEADER', 'PoolTag')
+
+        ## Another data structure is added to the preamble for Win7.
+        volmagic = obj.Object("VOLATILITY_MAGIC", 0x0, self.buffer)
+        try:
+            if not volmagic.ObjectPreamble.v() in self.preamble:
+                self.preamble.append(volmagic.ObjectPreamble.v())
+        except AttributeError:
+            pass
+
+        ## Next we add the size of the preamble data structures
+        object_base = pool_base +  \
+               sum([self.buffer.profile.get_obj_size(c) for c in self.preamble]) 
+
+        object_base = object_base - \
+               (self.buffer.profile.get_obj_size('_OBJECT_HEADER') - \
+               self.buffer.profile.get_obj_offset('_OBJECT_HEADER', 'Body'))
+
+        return object_base
+
+    checks = [ ('PoolTagCheck', dict(tag = '\x50\x72\x6F\xe3')),
+               ('CheckPoolSize', dict(condition = lambda x: x >= 0x280)),
+               ('CheckPoolType', dict(paged = True, non_paged = True, free = True)),
+               ('CheckPoolIndex', dict(value = 0)),
+               ('CheckProcess', {}),
+               ]
+
+class PSScan2(ModScan2):
+    """Scan physical memory for _ETHREAD objects"""
+    def calculate(self):
+        ## Here we scan the physical address space
+        address_space = utils.load_as(self._config, astype = 'physical')
+
+        scanner = PoolScanProcessFast2()
+        for found in scanner.scan(address_space):
+            eprocess = obj.Object('_EPROCESS', vm = address_space,
+                               offset = found)
+
+            yield eprocess
+
+    def render_text(self, outfd, data):
+
+        outfd.write("PID    PPID   Time created             Time exited              Offset     PDB        Remarks\n" + \
+                    "------ ------ ------------------------ ------------------------ ---------- ---------- ----------------\n")
+
+        for eprocess in data:
+
+            outfd.write("{0:6} {1:6} {2:24} {3:24} 0x{4:08x} 0x{5:08x} {6:16}\n".format(
+                eprocess.UniqueProcessId,
+                eprocess.InheritedFromUniqueProcessId,
+                eprocess.CreateTime or '',
+                eprocess.ExitTime or '',
+                eprocess.obj_offset,
+                eprocess.Pcb.DirectoryTableBase,
+                eprocess.ImageFileName))

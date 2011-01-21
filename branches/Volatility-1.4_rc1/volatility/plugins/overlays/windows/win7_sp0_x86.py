@@ -45,6 +45,9 @@ win7sp0x86overlays['VOLATILITY_MAGIC'][1]['KDBGHeader'][1] = ['VolatilityMagic',
 win7sp0x86overlays['VOLATILITY_MAGIC'][1]['HiveListOffset'][1] = ['VolatilityMagic', dict(value = 0x30c)]
 win7sp0x86overlays['VOLATILITY_MAGIC'][1]['HiveListPoolSize'][1] = ['VolatilityMagic', dict(value = 0x638)]
 
+# Add a new member to the VOLATILIY_MAGIC type
+win7sp0x86overlays['VOLATILITY_MAGIC'][1]['ObjectPreamble'] = [ 0x0, ['VolatilityMagic', dict(value = '_OBJECT_HEADER_CREATOR_INFO')]]
+
 win7_sp0_x86_vtypes.ntkrpamp_types.update(crash_vtypes.crash_vtypes)
 win7_sp0_x86_vtypes.ntkrpamp_types.update(hibernate_vtypes.hibernate_vtypes)
 win7_sp0_x86_vtypes.ntkrpamp_types.update(tcpip_vtypes.tcpip_vtypes)
