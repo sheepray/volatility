@@ -85,7 +85,7 @@ class CheckThreads(scan.ScannerCheck):
     kernel = 0x80000000
 
     def check(self, found):
- 
+
         start_of_object = self.address_space.profile.get_obj_size("_POOL_HEADER") + \
                           self.address_space.profile.get_obj_offset('_OBJECT_HEADER', 'Body') - \
                           self.address_space.profile.get_obj_offset('_POOL_HEADER', 'PoolTag')
@@ -97,7 +97,6 @@ class CheckThreads(scan.ScannerCheck):
             offsetupdate = self.address_space.profile.get_obj_size(ObjectPreamble)
         except AttributeError:
             offsetupdate = 0
-            pass
 
         thread = obj.Object('_ETHREAD', vm = self.address_space,
                            offset = found + start_of_object + offsetupdate)
@@ -135,7 +134,7 @@ class PoolScanThreadFast2(scan.PoolScanner):
         ## of the PoolTag member to get the start of Pool Object and then
         ## adding the size of the preamble data structures. This done
         ## because PoolScanners search for the PoolTag. 
-        
+
         pool_base = found - self.buffer.profile.get_obj_offset('_POOL_HEADER', 'PoolTag')
 
         ## Another data structure is added to the preamble for Win7.
@@ -147,8 +146,8 @@ class PoolScanThreadFast2(scan.PoolScanner):
             pass
 
         ## Next we add the size of the preamble data structures
-        object_base = pool_base +  \
-               sum([self.buffer.profile.get_obj_size(c) for c in self.preamble]) 
+        object_base = pool_base + \
+               sum([self.buffer.profile.get_obj_size(c) for c in self.preamble])
 
         object_base = object_base - \
                (self.buffer.profile.get_obj_size('_OBJECT_HEADER') - \
@@ -204,16 +203,15 @@ class CheckProcess(scan.ScannerCheck):
             offsetupdate = self.address_space.profile.get_obj_size(ObjectPreamble)
         except AttributeError:
             offsetupdate = 0
-            pass
-        
+
         eprocess = obj.Object('_EPROCESS', vm = self.address_space,
                            offset = (found + start_of_object + offsetupdate))
 
         if (eprocess.Pcb.DirectoryTableBase == 0):
-            return False   
+            return False
 
         if (eprocess.Pcb.DirectoryTableBase % 0x20 != 0):
-            return False         
+            return False
 
         list_head = eprocess.ThreadListHead
 
@@ -235,7 +233,7 @@ class PoolScanProcessFast2(scan.PoolScanner):
         ## of the PoolTag member to get the start of Pool Object and then
         ## adding the size of the preamble data structures. This done
         ## because PoolScanners search for the PoolTag. 
-        
+
         pool_base = found - self.buffer.profile.get_obj_offset('_POOL_HEADER', 'PoolTag')
 
         ## Another data structure is added to the preamble for Win7.
@@ -247,8 +245,8 @@ class PoolScanProcessFast2(scan.PoolScanner):
             pass
 
         ## Next we add the size of the preamble data structures
-        object_base = pool_base +  \
-               sum([self.buffer.profile.get_obj_size(c) for c in self.preamble]) 
+        object_base = pool_base + \
+               sum([self.buffer.profile.get_obj_size(c) for c in self.preamble])
 
         object_base = object_base - \
                (self.buffer.profile.get_obj_size('_OBJECT_HEADER') - \
