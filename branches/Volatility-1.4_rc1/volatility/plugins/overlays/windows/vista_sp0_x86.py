@@ -30,6 +30,7 @@ for SP3.
 
 import copy
 import vista_sp0_x86_vtypes
+import vista_sp0_x86_syscalls
 import xp_sp2_x86
 import windows
 import tcpip_vtypes
@@ -62,6 +63,7 @@ class VistaSP0x86(windows.AbstractWindows):
     abstract_types = vista_sp0_x86_vtypes.ntkrnlmp_types
     overlay = vistasp0x86overlays
     object_classes = windows.AbstractWindows.object_classes.copy()
+    syscalls = vista_sp0_x86_syscalls.syscalls
 
 class _MM_AVL_TABLE(obj.CType):
     def traverse(self):

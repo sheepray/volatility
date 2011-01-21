@@ -30,6 +30,7 @@ for SP3.
 
 import copy
 import win7_sp0_x86_vtypes
+import win7_sp0_x86_syscalls
 import vista_sp0_x86
 import windows
 import crash_vtypes
@@ -57,3 +58,4 @@ class Win7SP0x86(windows.AbstractWindows):
     abstract_types = win7_sp0_x86_vtypes.ntkrpamp_types
     overlay = win7sp0x86overlays
     object_classes = copy.deepcopy(vista_sp0_x86.VistaSP0x86.object_classes)
+    syscalls = win7_sp0_x86_syscalls.syscalls

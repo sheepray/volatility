@@ -30,6 +30,7 @@ for SP2.
 
 import windows
 import xp_sp2_x86_vtypes
+import xp_sp2_x86_syscalls
 import crash_vtypes
 import hibernate_vtypes
 import tcpip_vtypes
@@ -246,6 +247,7 @@ class WinXPSP2x86(windows.AbstractWindows):
     """ A Profile for Windows XP SP2 """
     abstract_types = xp_sp2_x86_vtypes.xpsp2types
     overlay = xpsp2overlays
+    syscalls = xp_sp2_x86_syscalls.syscalls
 
 class _EPROCESS(obj.CType):
     """ An extensive _EPROCESS with bells and whistles """

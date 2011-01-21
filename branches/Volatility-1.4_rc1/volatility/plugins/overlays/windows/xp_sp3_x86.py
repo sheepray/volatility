@@ -30,6 +30,7 @@ for SP3.
 
 
 import xp_sp3_x86_vtypes
+import xp_sp2_x86_syscalls
 import xp_sp2_x86
 import windows
 import crash_vtypes
@@ -53,3 +54,4 @@ class WinXPSP3x86(windows.AbstractWindows):
     """ A Profile for windows XP SP3 """
     abstract_types = xp_sp3_x86_vtypes.ntoskrnl_types
     overlay = xpsp3overlays
+    syscalls = xp_sp2_x86_syscalls.syscalls
