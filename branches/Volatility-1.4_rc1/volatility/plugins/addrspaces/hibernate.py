@@ -64,8 +64,8 @@ class WindowsHiberFileSpace32(standard.FileAddressSpace):
     """
     order = 10
     def __init__(self, base, config, **kwargs):
-        standard.FileAddressSpace.__init__(self, base, config, layered = True, **kwargs)
         self.as_assert(base, "No base Address Space")
+        standard.FileAddressSpace.__init__(self, base, config, layered = True, **kwargs)
         self.runs = []
         self.PageDict = {}
         self.HighestPage = 0
@@ -75,10 +75,10 @@ class WindowsHiberFileSpace32(standard.FileAddressSpace):
         self.PageCache = Store(50)
         self.MemRangeCnt = 0
         self.offset = 0
-        # Extract header information
-        self.header = obj.Object('_IMAGE_HIBER_HEADER', 0, base)
 
-        self.as_assert(self.header, "_IMAGE_HIBER_HEADER not available in profile")
+        # Extract header information
+        self.as_assert(self.profile.has_type("_IMAGE_HIBER_HEADER"), "_IMAGE_HIBER_HEADER not available in profile")
+        self.header = obj.Object('_IMAGE_HIBER_HEADER', 0, base)
 
         ## Is the signature right?
         if self.header.Signature.lower() not in ['hibr', 'wake']:

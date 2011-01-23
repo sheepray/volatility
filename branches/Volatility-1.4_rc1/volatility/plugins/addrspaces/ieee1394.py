@@ -92,7 +92,6 @@ class FirewireAddressSpace(addrspace.BaseAddressSpace):
     ## We should be *almost* the AS of last resort
     order = 99
     def __init__(self, base, config, layered = False, **kargs):
-        addrspace.BaseAddressSpace.__init__(self, base, config, **kargs)
         self.as_assert(base == None or layered, 'Must be first Address Space')
         try:
             (scheme, netloc, path, _, _, _) = urlparse.urlparse(config.LOCATION)
@@ -100,6 +99,7 @@ class FirewireAddressSpace(addrspace.BaseAddressSpace):
             self._fwimpl = FirewireRW(netloc, path)
         except (AttributeError, ValueError):
             self.as_assert(False, "Unable to parse {0} as a URL".format(config.LOCATION))
+        addrspace.BaseAddressSpace.__init__(self, base, config, **kargs)
         self.as_assert(self._fwimpl is not None, "Unable to locate {0} implementation.".format(netloc))
         valid, reason = self._fwimpl.is_valid()
         self.as_assert(valid, reason)

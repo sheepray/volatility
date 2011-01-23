@@ -57,6 +57,9 @@ class JKIA32PagedMemory(standard.AbstractWritablePagedMemory, addrspace.BaseAddr
     paging_address_space = True
 
     def __init__(self, base, config, dtb = 0, astype = None, **kwargs):
+        ## We must be stacked on someone else:
+        self.as_assert(base, "No base Address Space")
+
         ## We allow users to disable us in favour of the old legacy
         ## modules.
         self.as_assert(not config.USE_OLD_AS, "Module disabled")
@@ -65,9 +68,6 @@ class JKIA32PagedMemory(standard.AbstractWritablePagedMemory, addrspace.BaseAddr
         self.as_assert(astype != 'physical', "User requested physical AS")
 
         self.astype = astype
-
-        ## We must be stacked on someone else:
-        self.as_assert(base, "No base Address Space")
 
         ## We can not stack on someone with a dtb
         try:
