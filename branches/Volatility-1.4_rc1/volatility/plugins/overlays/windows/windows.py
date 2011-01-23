@@ -19,34 +19,14 @@
 
 import datetime
 import socket, struct
+import volatility.plugins.overlays.basic as basic
 import volatility.plugins.kpcrscan as kpcr
 import volatility.timefmt as timefmt
 import volatility.obj as obj
 
-## The following is a conversion of basic C99 types to python struct
-## format strings. NOTE: since volatility is analysing images which
-## are not necessarily the same bit size as the currently running
-## platform you may not use platform specific format specifiers here
-## like l or L - you must use i or I.
-x86_native_types_32bit = { \
-    'int' : [4, 'i'], \
-    'long': [4, 'i'], \
-    'unsigned long' : [4, 'I'], \
-    'unsigned int' : [4, 'I'], \
-    'address' : [4, 'I'], \
-    'char' : [1, 'c'], \
-    'unsigned char' : [1, 'B'], \
-    'unsigned short int' : [2, 'H'], \
-    'unsigned short' : [2, 'H'], \
-    'unsigned be short' : [2, '>H'], \
-    'short' : [2, 'h'], \
-    'long long' : [8, 'q'], \
-    'unsigned long long' : [8, 'Q'], \
-    }
-
 class AbstractWindows(obj.Profile):
     """ A Profile for Windows systems """
-    native_types = x86_native_types_32bit
+    native_types = basic.x86_native_types_32bit
 
 class _UNICODE_STRING(obj.CType):
     """Class representing a _UNICODE_STRING
