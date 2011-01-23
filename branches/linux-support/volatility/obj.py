@@ -829,6 +829,9 @@ class Profile(object):
 
         self.add_types(self.abstract_types, self.overlay)
 
+    def has_type(self, theType):
+        return theType in self.object_classes or theType in self.types
+
     def add_types(self, abstract_types, overlay = None):
         overlay = overlay or {}
 

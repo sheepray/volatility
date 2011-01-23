@@ -33,9 +33,10 @@ class WindowsCrashDumpSpace32(standard.FileAddressSpace):
     """ This AS supports windows Crash Dump format """
     order = 30
     def __init__(self, base, config, **kwargs):
-        standard.FileAddressSpace.__init__(self, base, config, layered = True, **kwargs)
         ## We must have an AS below us
         self.as_assert(base, "No base Address Space")
+
+        standard.FileAddressSpace.__init__(self, base, config, layered = True, **kwargs)
 
         ## Must start with the magic PAGEDUMP
         self.as_assert((base.read(0, 8) == 'PAGEDUMP'), "Header signature invalid")
@@ -45,9 +46,8 @@ class WindowsCrashDumpSpace32(standard.FileAddressSpace):
         self.offset = 0 # config.OFFSET
         self.fname = ''
 
+        self.as_assert(self.profile.has_type("_DMP_HEADER"), "_DMP_HEADER not available in profile")
         self.header = obj.Object("_DMP_HEADER", self.offset, base)
-
-        self.as_assert(self.header, "_DMP_HEADER not available in profile")
 
         self.runs = [ (x.BasePage.v(), x.PageCount.v()) \
                       for x in self.header.PhysicalMemoryBlockBuffer.Run ]
