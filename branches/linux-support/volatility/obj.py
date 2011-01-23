@@ -862,8 +862,9 @@ class Profile(object):
             ## We need to protect our virgin overlay dict here - since
             ## the following functions modify it, we need to make a
             ## deep copy:
-            self.types[name] = self.convert_members(
-                name, self.typeDict, copy.deepcopy(self.overlayDict))
+
+            if name.find("unknown_") == -1:
+                self.types[name] = self.convert_members(name, self.typeDict, copy.deepcopy(self.overlayDict))
 
     def list_to_type(self, name, typeList, typeDict = None):
         """ Parses a specification list and returns a VType object.
@@ -922,11 +923,18 @@ class Profile(object):
                 args = {}
 
             obj_name = typeList[0]
-            return Curry(Object, obj_name, name = name, **args)
+
+            # FIXME: Probably shouldn't be passing on all exceptions
+            try:
+                xret = Curry(Object, obj_name, name = name, **args)
+                return xret
+            except:
+                pass
+
 
         ## If we get here we have no idea what this list is
         #raise RuntimeError("Error in parsing list {0}".format(typeList))
-        debug.warning("Unable to find a type for {0}, assuming int".format(typeList[0]))
+        #debug.warning("Unable to find a type for {0}, assuming int".format(typeList[0]))
         return Curry(self.types['int'], name = name)
 
     def _get_dummy_obj(self, name):

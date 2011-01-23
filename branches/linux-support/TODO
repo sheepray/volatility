@@ -1,0 +1,41 @@
+- halffinished plugins
+	- ifconfig - only gets names now, need ip address
+	- mounts - use mnt_cache when kmem_cache support is added
+
+- add overlay for:
+	- getting dentry of file
+	- task uid/gid/etc
+	- file array of files_struct
+
+- general analysis
+	- process from htable
+	- network buffers
+	- UNIX sockets in netstat
+	- ifconfig
+
+- kmem_cache
+	- slab
+	- slub
+
+	- info
+		- nat
+		- mount
+
+- tmpfs ?
+
+- aufs (blackhat code)
+	
+- auto pick of profile
+
+- basic anti-rootkit
+	- idt
+	- system call table
+
+- real anti-rootkit
+
+	- tasks
+	- memory maps
+	- files
+
+- test against 2.6.11 
+- test against 2.6.26
