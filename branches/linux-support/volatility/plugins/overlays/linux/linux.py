@@ -41,7 +41,6 @@ class AbstractLinuxProfile(obj.Profile):
 
     # setup native_types and overlays, abstract_types set in each profile
     native_types = basic.x86_native_types_32bit
-    object_classes = {}
     overlay = {}
     apply_overlays(overlay)
 
