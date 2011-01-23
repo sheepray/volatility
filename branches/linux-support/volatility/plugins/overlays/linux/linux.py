@@ -30,17 +30,6 @@ config = conf.ConfObject()
 def compute_kernel_version(a, b, c):
     return a * 65536 + b * 256 + c
 
-class task_struct:
-
-    def get_uid(self, task):
-
-        if hasattr(task, "uid"):
-            ret = task.uid
-        else:
-            ret = task.cred.uid
-
-        return ret
-
 def apply_overlays(overlay):
 
     overlay.update({'task_struct' : [None, { 'comm' : [ None , ['String', dict(length = 16)]]}]})
@@ -52,14 +41,22 @@ class AbstractLinuxProfile(obj.Profile):
 
     # setup native_types and overlays, abstract_types set in each profile
     native_types = basic.x86_native_types_32bit
-
+    object_classes = {}
     overlay = {}
-
     apply_overlays(overlay)
 
     # add the system map file option
     config.add_option('SYSTEM_MAP', short_option = 's', type = 'string', help = 'Name of System Map File')
 
-    ts = task_struct()
+class task_struct(obj.CType):
 
+    def get_uid(self):
 
+        if hasattr(self, "uid"):
+            ret = self.uid
+        else:
+            ret = self.cred.uid
+
+        return ret
+
+AbstractLinuxProfile.object_classes['task_struct'] = task_struct
