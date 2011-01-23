@@ -23,24 +23,9 @@
 
 import volatility.obj as obj
 import volatility.conf as conf
+import volatility.plugins.overlays.basic as basic
 
 config = conf.ConfObject()
-
-x86_native_types_32bit = { \
-    'int' : [4, 'i'], \
-    'long': [4, 'i'], \
-    'unsigned long' : [4, 'I'], \
-    'unsigned int' : [4, 'I'], \
-    'address' : [4, 'I'], \
-    'char' : [1, 'c'], \
-    'unsigned char' : [1, 'B'], \
-    'unsigned short int' : [2, 'H'], \
-    'unsigned short' : [2, 'H'], \
-    'unsigned be short' : [2, '>H'], \
-    'short' : [2, 'h'], \
-    'long long' : [8, 'q'], \
-    'unsigned long long' : [8, 'Q'], \
-   }
 
 def compute_kernel_version(a, b, c):
     return a * 65536 + b * 256 + c
@@ -66,7 +51,7 @@ def apply_overlays(overlay):
 class AbstractLinuxProfile(obj.Profile):
 
     # setup native_types and overlays, abstract_types set in each profile
-    native_types = x86_native_types_32bit
+    native_types = basic.x86_native_types_32bit
 
     overlay = {}
 
