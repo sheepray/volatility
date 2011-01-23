@@ -31,7 +31,7 @@ def mask_number(num):
 class AbstractLinuxCommand(commands.command):
 
     def __init__(self, *args, **kwargs):
-        commands.command.__init__(*args, **kwargs)
+        commands.command.__init__(self, *args, **kwargs)
         self.addr_space = utils.load_as(self._config)
         self.profile = self.addr_space.profile
         vmagic = obj.Object('VOLATILITY_MAGIC', vm = self.addr_space, offset = 0x00)
