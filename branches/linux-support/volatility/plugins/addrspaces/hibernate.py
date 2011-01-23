@@ -78,6 +78,8 @@ class WindowsHiberFileSpace32(standard.FileAddressSpace):
         # Extract header information
         self.header = obj.Object('_IMAGE_HIBER_HEADER', 0, base)
 
+        self.as_assert(self.header, "_IMAGE_HIBER_HEADER not available in profile")
+
         ## Is the signature right?
         if self.header.Signature.lower() not in ['hibr', 'wake']:
             self.header = obj.NoneObject("Invalid hibernation header")
