@@ -30,18 +30,28 @@ class linux_ifconfig(linux_common.AbstractLinuxCommand):
 
     def calculate(self):
 
-        inet6_ifaddr = self.smap["inet6_addr_lst"] #obj.Object('Pointer', offset=self.smap["inet6_addr_lst"], vm=self.addr_space)
+        nslist_addr = self.smap["net_namespace_list"]
+        nethead = obj.Object("list_head", offset = nslist_addr, vm = self.addr_space)
 
-        ifs = obj.Object(theType = 'Array', offset = inet6_ifaddr, vm = self.addr_space, targetType = 'Pointer', count = 16)
+        # walk each network namespace
+        # http://www.linuxquestions.org/questions/linux-kernel-70/accessing-ip-address-from-kernel-ver-2-6-31-13-module-815578/
+        for net in linux_common.walk_list_head("net", "list", nethead, self.addr_space):
 
-        for i in xrange(0, 16):
-            iface = ifs[i]
+            # walk each device in the current namespace
+            for net_dev in linux_common.walk_list_head("net_device", "dev_list", net.dev_base_head, self.addr_space):
 
-            if iface:
-                iface = obj.Object("inet6_ifaddr", offset = iface, vm = self.addr_space)
-                yield iface
+                in_dev = obj.Object("in_device", offset = net_dev.ip_ptr, vm = self.addr_space)
+
+                yield net_dev, in_dev
 
     def render_text(self, outfd, data):
 
-        for iface in data:
-            outfd.write("iface: {0:s}\n".format(iface.idev.dev.name))
+        for net_dev, in_dev in data:
+
+            ip = in_dev.ifa_list.ifa_address.v()
+
+            mac_addr = ":".join(["%.02x" % x for x in net_dev.perm_addr][:6])
+
+            # perm_addr
+            outfd.write("{0:8s} {1:16s} {2:32s}\n".format(net_dev.name, linux_common.ip2str(ip), mac_addr))
+

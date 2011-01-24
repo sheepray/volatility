@@ -44,8 +44,48 @@ class AbstractLinuxProfile(obj.Profile):
     overlay = {}
     apply_overlays(overlay)
 
-    # add the system map file option
-    config.add_option('SYSTEM_MAP', short_option = 's', type = 'string', help = 'Name of System Map File')
+
+# really 'file' but don't want to mess with python's version
+class linux_file(obj.CType):
+
+    def get_dentry(self):
+
+        if hasattr(self, "dentry"):
+            ret = self.dentry
+        else:
+            ret = self.f_path.dentry
+
+        return ret
+
+    def get_vfsmnt(self):
+
+        if hasattr(self, "f_vfsmnt"):
+            ret = self.f_vfsmnt
+        else:
+            ret = self.f_path.mnt
+
+        return ret
+
+class files_struct(obj.CType):
+
+    def get_fds(self):
+
+        if hasattr(self, "fdt"):
+            fdt = self.fdt
+            ret = fdt.fd.dereference()
+        else:
+            ret = self.fd.dereference()
+
+        return ret
+
+    def max_fds(self):
+
+        if hasattr(self, "fdt"):
+            ret = self.fdt.max_fds
+        else:
+            ret = self.max_fds
+
+        return ret
 
 class task_struct(obj.CType):
 
@@ -58,4 +98,28 @@ class task_struct(obj.CType):
 
         return ret
 
+    def get_gid(self):
+
+        if hasattr(self, "gid"):
+            ret = self.uid
+        else:
+            ret = self.cred.gid
+
+        return ret
+
+    def get_euid(self):
+
+        if hasattr(self, "euid"):
+            ret = self.uid
+        else:
+            ret = self.cred.euid
+
+        return ret
+
 AbstractLinuxProfile.object_classes['task_struct'] = task_struct
+AbstractLinuxProfile.object_classes['files_struct'] = files_struct
+AbstractLinuxProfile.object_classes['file'] = linux_file
+
+
+
+

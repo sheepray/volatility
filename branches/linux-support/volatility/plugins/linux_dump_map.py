@@ -38,7 +38,7 @@ class linux_dump_map(linux_common.AbstractLinuxCommand):
             if vma.vm_file:
                 path = []
 
-                (dentry, inode) = linux_common.file_info(vma.vm_file)
+                #(dentry, inode) = linux_common.file_info(vma.vm_file)
             else:
                 length = vma.vm_end - vma.vm_start
                 current = vma.vm_start

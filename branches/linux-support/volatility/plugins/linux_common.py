@@ -108,9 +108,9 @@ def IS_ROOT(dentry):
 def get_path(task, filp, addr_space):
 
     root = task.fs.root
-    dentry = filp.f_path.dentry
+    dentry = filp.get_dentry()
     inode = dentry.d_inode
-    vfsmnt = filp.f_path.mnt
+    vfsmnt = filp.get_vfsmnt()
     ret_path = []
 
     while 1:
@@ -140,16 +140,20 @@ def get_path(task, filp, addr_space):
 
     if ret_val.startswith(("socket:", "pipe:")):
         ret_val = ret_val[:-1] + "[{0}]".format(inode.i_ino)
-    else:
+
+    elif ret_val != "inotify":
         ret_val = '/' + ret_val
 
     return ret_val
 
-# returns the dentry and inode of a file
-def file_info(filp, addr_space):
+# this is here b/c python is retarded and its inet_ntoa can't handle integers...
+def ip2str(ip):
 
-    fobj = obj.Object("file", offset = filp, vm = addr_space)
-    dentry = obj.Object("dentry", offset = fobj.f_path.dentry, vm = addr_space)
-    inode = obj.Object("inode", offset = dentry.d_inode, vm = addr_space)
+    a = ip & 0xff
+    b = (ip >> 8) & 0xff
+    c = (ip >> 16) & 0xff
+    d = (ip >> 24) & 0xff
 
-    return (dentry, inode)
+    return "%d.%d.%d.%d" % (a, b, c, d)
+
+

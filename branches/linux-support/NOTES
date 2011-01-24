@@ -1,0 +1,5 @@
+each net/sock has a namespace if net_ns:
+http://lxr.linux.no/linux+v2.6.32/include/net/sock.h#L1536
+
+init_net, other nets, get each device:
+http://lxr.linux.no/linux+v2.6.32/net/core/dev.c#L587

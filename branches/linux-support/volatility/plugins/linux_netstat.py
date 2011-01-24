@@ -39,7 +39,7 @@ class linux_netstat(lof.linux_list_open_files):
             # its a socket!
             if filp.f_op == self.smap["socket_file_ops"]:
 
-                iaddr = filp.f_path.dentry.d_inode
+                iaddr = filp.get_dentry().d_inode
                 skt = self.SOCKET_I(iaddr)
                 inet_sock = obj.Object("inet_sock", offset = skt.sk, vm = self.addr_space)
 
@@ -56,20 +56,11 @@ class linux_netstat(lof.linux_list_open_files):
             if proto in ("TCP", "UDP"):
                 outfd.write("{0:8s} {1}:{2:<5} {3}:{4:<5} {5:s} {6:>17s}/{7:<5d}\n".format(proto, saddr, sport, daddr, dport, state, task.comm, task.pid))
 
-    # this is here b/c python is retarded and its inet_ntoa can't handle integers...
-    def ip2str(self, ip):
-
-        a = ip & 0xff
-        b = (ip >> 8) & 0xff
-        c = (ip >> 16) & 0xff
-        d = (ip >> 24) & 0xff
-
-        return "%d.%d.%d.%d" % (a, b, c, d)
 
     def format_ip_port(self, inet_sock):
 
-        daddr = self.ip2str(inet_sock.daddr.v())
-        saddr = self.ip2str(inet_sock.rcv_saddr.v())
+        daddr = linux_common.ip2str(inet_sock.daddr.v())
+        saddr = linux_common.ip2str(inet_sock.rcv_saddr.v())
         dport = socket.htons(inet_sock.dport)
         sport = socket.htons(inet_sock.sport)
 

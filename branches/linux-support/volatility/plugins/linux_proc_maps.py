@@ -48,7 +48,7 @@ class linux_proc_maps(ltps.linux_task_list_ps):
         for task, vma in data:
 
             if vma.vm_file:
-                (_dentry, inode) = linux_common.file_info(vma.vm_file, self.addr_space)
+                inode = vma.vm_file.get_dentry().d_inode
                 sb = obj.Object("super_block", offset = inode.i_sb, vm = self.addr_space)
                 dev = sb.s_dev
                 ino = inode.i_ino

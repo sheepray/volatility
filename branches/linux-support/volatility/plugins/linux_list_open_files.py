@@ -35,9 +35,10 @@ class linux_list_open_files(ltps.linux_task_list_ps):
         tasks = ltps.linux_task_list_ps.calculate(self)
 
         for task in tasks:
-            fdt = task.files.fdt
-            fds = fdt.fd.dereference()#.dereference()
-            max_fds = fdt.max_fds
+
+            fds = task.files.get_fds()
+
+            max_fds = task.files.max_fds()
 
             fds = obj.Object(theType = 'Array', offset = fds.obj_offset, vm = self.addr_space, targetType = 'Pointer', count = max_fds)
 
