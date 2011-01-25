@@ -59,14 +59,3 @@ def pslist(addr_space):
             yield l
     else:
         raise TasksNotFound("Could not list tasks, please verify the --profile option and whether this image is valid")
-
-def create_addr_space(kaddr_space, directory_table_base):
-
-    try:
-        process_address_space = kaddr_space.__class__(kaddr_space.base, directory_table_base)
-    except:
-        return None
-
-    return process_address_space
-
-
