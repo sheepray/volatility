@@ -98,7 +98,7 @@ class DLLDump(procdump.ProcExeDump):
         for proc, ps_ad, mod in data:
             if ps_ad.is_valid_address(mod.DllBase):
                 process_offset = ps_ad.vtop(proc.obj_offset)
-                dump_file = "module.{0:x}.{1:x}.dll".format(process_offset, mod.DllBase)
+                dump_file = "module.{0:x}.{1:x}.{2:x}.dll".format(proc.UniqueProcessId, process_offset, mod.DllBase)
                 outfd.write("Dumping {0}, Process: {1}, Base: {2:8x} output: {3}\n".format(mod.BaseDllName, proc.ImageFileName, mod.DllBase, dump_file))
                 of = open(os.path.join(self._config.DUMP_DIR, dump_file), 'wb')
                 try:
