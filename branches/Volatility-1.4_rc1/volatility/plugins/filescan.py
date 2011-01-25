@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 #
 #       fileobjscan.py
-#       
 #       Copyright 2009 Andreas Schuster <a.schuster@yendor.net>
+#       Copyright (C) 2009-2011 Volatile Systems
 #       
 #       This program is free software; you can redistribute it and/or modify
 #       it under the terms of the GNU General Public License as published by
@@ -39,7 +39,7 @@ class PoolScanFile(scan.PoolScanner):
     preamble = []
     checks = [ ('PoolTagCheck', dict(tag = "Fil\xe5")),
                ('CheckPoolSize', dict(condition = lambda x: x >= 0x98)),
-               ('CheckPoolType', dict(non_paged = True)),
+               ('CheckPoolType', dict(paged = True, non_paged = True, free = True)),
                ('CheckPoolIndex', dict(value = 0)),
                ]
 
@@ -70,7 +70,7 @@ class FileScan(commands.command):
         string = self.kernel_address_space.read(string_offset, string_length)
         if not string:
             return ''
-        return string[:255].decode("utf16", "ignore").encode("utf8", "ignore")
+        return repr(string[:255].decode("utf16", "ignore").encode("utf8", "xmlcharrefreplace"))
 
     def calculate(self):
         ## Just grab the AS and scan it using our scanner
@@ -80,6 +80,7 @@ class FileScan(commands.command):
         self.kernel_address_space = utils.load_as(self._config)
 
         for offset in PoolScanFile().scan(address_space):
+
             pool_obj = obj.Object("_POOL_HEADER", vm = address_space,
                                  offset = offset)
 
@@ -96,12 +97,21 @@ class FileScan(commands.command):
                                    address_space.profile.get_obj_offset('_OBJECT_HEADER', 'Body')
                                    )
 
-            ## Skip unallocated objects
-            if object_obj.Type == 0xbad0b0b0:
-                continue
+            ## Account for changes to the object header for Windows 7
+            volmagic = obj.Object("VOLATILITY_MAGIC", 0x0, address_space)
+            try:
+                # New object header
+                if object_obj.TypeIndex != volmagic.TypeIndexMap.v()['File']:
+                    continue
+            except AttributeError:
+                # Default to old Object header
+                # Skip unallocated objects
+                #if object_obj.Type == 0xbad0b0b0:
+                #    continue
+                pass
 
-            Name = self.parse_string(file_obj.FileName)
             ## If the string is not reachable we skip it
+            Name = self.parse_string(file_obj.FileName)
             if not Name:
                 continue
 
@@ -120,8 +130,18 @@ class FileScan(commands.command):
                         ((file_obj.SharedWrite > 0 and "w") or '-') + \
                         ((file_obj.SharedDelete > 0 and "d") or '-')
 
+            ## Account for changes to the object header for Windows 7
+            volmagic = obj.Object("VOLATILITY_MAGIC", 0x0, self.kernel_address_space)
+            try:
+                # New object header
+                info_mask_to_offset = volmagic.InfoMaskToOffset.v()
+                type_info = object_obj.TypeIndex
+            except AttributeError:
+                # Default to old Object header
+                type_info = object_obj.Type
+
             outfd.write("0x{0:08x} 0x{1:08x} {2:4} {3:4} {4:6} {5}\n".format(
-                         object_obj.obj_offset, object_obj.Type, object_obj.PointerCount,
+                         object_obj.obj_offset, type_info, object_obj.PointerCount,
                          object_obj.HandleCount, AccessStr, Name))
 
 class PoolScanDriver(PoolScanFile):
@@ -129,7 +149,7 @@ class PoolScanDriver(PoolScanFile):
     ## No preamble
     checks = [ ('PoolTagCheck', dict(tag = "Dri\xf6")),
                ('CheckPoolSize', dict(condition = lambda x: x >= 0xf8)),
-               ('CheckPoolType', dict(non_paged = True)),
+               ('CheckPoolType', dict(paged = True, non_paged = True, free = True)),
                ('CheckPoolIndex', dict(value = 0)),
                ]
 
@@ -168,18 +188,43 @@ class DriverScan(FileScan):
                 )
 
             ## Skip unallocated objects
-            if object_obj.Type == 0xbad0b0b0:
-                continue
+            #if object_obj.Type == 0xbad0b0b0:
+            #    continue
 
-            ## Now work out the OBJECT_HEADER_NAME_INFORMATION object
-            object_name_info_obj = \
-                obj.Object("_OBJECT_HEADER_NAME_INFORMATION", \
-                vm = address_space, \
-                offset = object_obj.obj_offset - \
-                object_obj.NameInfoOffset
-                )
+            ## Account for changes to the object header for Windows 7
+            volmagic = obj.Object("VOLATILITY_MAGIC", 0x0, address_space)
+            try:
+                # New object header
+                if object_obj.TypeIndex != volmagic.TypeIndexMap.v()['Driver']:
+                    continue
+                info_mask_to_offset = volmagic.InfoMaskToOffset.v()
+                OBJECT_HEADER_NAME_INFO = \
+                    volmagic.InfoMaskMap.v()['_OBJECT_HEADER_NAME_INFO']
+                info_mask_to_offset_index = \
+                    object_obj.InfoMask & \
+                    (OBJECT_HEADER_NAME_INFO | (OBJECT_HEADER_NAME_INFO-1))
+                if info_mask_to_offset_index in info_mask_to_offset:
+                    name_info_offset = \
+                      info_mask_to_offset[info_mask_to_offset_index]
+                else:
+                    name_info_offset = 0
+            except AttributeError:
+                # Default to old Object header
+                name_info_offset = object_obj.NameInfoOffset
+                pass
 
-            yield (object_obj, driver_obj, extension_obj, object_name_info_obj)
+            object_name_string = ""
+
+            if name_info_offset:
+                ## Now work out the OBJECT_HEADER_NAME_INFORMATION object
+                object_name_info_obj = \
+                    obj.Object("_OBJECT_HEADER_NAME_INFORMATION", \
+                    vm = address_space, \
+                    offset = object_obj.obj_offset - \
+                    name_info_offset \
+                    )
+                object_name_string = self.parse_string(object_name_info_obj.Name)
+            yield (object_obj, driver_obj, extension_obj, object_name_string)
 
 
     def render_text(self, outfd, data):
@@ -188,20 +233,31 @@ class DriverScan(FileScan):
                      'Phys.Addr.', 'Obj Type', '#Ptr', '#Hnd',
                      'Start', 'Size', 'Service key', 'Name'))
 
-        for object_obj, driver_obj, extension_obj, object_name_info_obj in data:
+        for object_obj, driver_obj, extension_obj, ObjectNameString in data:
+
+            ## Account for changes to the object header for Windows 7
+            volmagic = obj.Object("VOLATILITY_MAGIC", 0x0, self.kernel_address_space)
+            try:
+                # New object header
+                info_mask_to_offset = volmagic.InfoMaskToOffset.v()
+                type_info = object_obj.TypeIndex
+            except AttributeError:
+                # Default to old Object header
+                type_info = object_obj.Type
+
             outfd.write("0x{0:08x} 0x{1:08x} {2:4} {3:4} 0x{4:08x} {5:6} {6:20} {7:12} {8}\n".format(
-                         driver_obj.obj_offset, object_obj.Type, object_obj.PointerCount,
+                         driver_obj.obj_offset, type_info, object_obj.PointerCount,
                          object_obj.HandleCount,
                          driver_obj.DriverStart, driver_obj.DriverSize,
                          self.parse_string(extension_obj.ServiceKeyName),
-                         self.parse_string(object_name_info_obj.Name),
+                         ObjectNameString,
                          self.parse_string(driver_obj.DriverName)))
 
 class PoolScanMutant(PoolScanDriver):
     """ Scanner for Mutants _KMUTANT """
     checks = [ ('PoolTagCheck', dict(tag = "Mut\xe1")),
                ('CheckPoolSize', dict(condition = lambda x: x >= 0x40)),
-               ('CheckPoolType', dict(non_paged = True)),
+               ('CheckPoolType', dict(paged = True, non_paged = True, free = True)),
                ('CheckPoolIndex', dict(value = 0)),
                ]
 
@@ -241,20 +297,46 @@ class MutantScan(FileScan):
             ## Skip unallocated objects
             ##if object_obj.Type == 0xbad0b0b0:
             ##   continue
+           
+            ## Account for changes to the object header for Windows 7
+            volmagic = obj.Object("VOLATILITY_MAGIC", 0x0, address_space)
+            try:
+                # New object header
+                if object_obj.TypeIndex != volmagic.TypeIndexMap.v()['Mutant']:
+                    continue
+                info_mask_to_offset = volmagic.InfoMaskToOffset.v()
+                OBJECT_HEADER_NAME_INFO = \
+                    volmagic.InfoMaskMap.v()['_OBJECT_HEADER_NAME_INFO']
+                info_mask_to_offset_index = \
+                    object_obj.InfoMask & \
+                    (OBJECT_HEADER_NAME_INFO | (OBJECT_HEADER_NAME_INFO-1))
+                if info_mask_to_offset_index in info_mask_to_offset:
+                    name_info_offset = \
+                      info_mask_to_offset[info_mask_to_offset_index]
+                else:
+                    name_info_offset = 0
+            except AttributeError:
+                # Default to old Object header
+                name_info_offset = object_obj.NameInfoOffset 
+                pass
 
-            ## Now work out the OBJECT_HEADER_NAME_INFORMATION object
-            object_name_info_obj = \
-                obj.Object("_OBJECT_HEADER_NAME_INFORMATION", \
-                vm = address_space, \
-                offset = object_obj.obj_offset - \
-                object_obj.NameInfoOffset \
-                )
+            object_name_string = ""
 
+            if name_info_offset:
+                ## Now work out the OBJECT_HEADER_NAME_INFORMATION object
+                object_name_info_obj = \
+                    obj.Object("_OBJECT_HEADER_NAME_INFORMATION", \
+                    vm = address_space, \
+                    offset = object_obj.obj_offset - \
+                    name_info_offset \
+                    )
+                object_name_string = self.parse_string(object_name_info_obj.Name)
+                
             if self._config.SILENT:
-                if object_obj.NameInfoOffset == 0:
+                if name_info_offset == 0:
                     continue
 
-            yield (object_obj, mutant, object_name_info_obj)
+            yield (object_obj, mutant, object_name_string)
 
 
     def render_text(self, outfd, data):
@@ -263,7 +345,7 @@ class MutantScan(FileScan):
                      'Phys.Addr.', 'Obj Type', '#Ptr', '#Hnd', 'Signal',
                      'Thread', 'CID', 'Name'))
 
-        for object_obj, mutant, object_name_info_obj in data:
+        for object_obj, mutant, ObjectNameString in data:
             if mutant.OwnerThread > 0x80000000:
                 thread = obj.Object("_ETHREAD", vm = self.kernel_address_space,
                                    offset = mutant.OwnerThread)
@@ -271,9 +353,19 @@ class MutantScan(FileScan):
             else:
                 CID = ""
 
+            ## Account for changes to the object header for Windows 7
+            volmagic = obj.Object("VOLATILITY_MAGIC", 0x0, self.kernel_address_space)
+            try:
+                # New object header
+                info_mask_to_offset = volmagic.InfoMaskToOffset.v()
+                type_info = object_obj.TypeIndex
+            except AttributeError:
+                # Default to old Object header
+                type_info = object_obj.Type
+
             outfd.write("0x{0:08x} 0x{1:08x} {2:4} {3:4} {4:6} 0x{5:08x} {6:10} {7}\n".format(
-                         mutant.obj_offset, object_obj.Type, object_obj.PointerCount,
+                         mutant.obj_offset, type_info, object_obj.PointerCount,
                          object_obj.HandleCount, mutant.Header.SignalState,
                          mutant.OwnerThread, CID,
-                         self.parse_string(object_name_info_obj.Name)
+                         ObjectNameString
                          ))
