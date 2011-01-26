@@ -53,7 +53,7 @@ class KPCRScan(commands.command):
 
         scanner = KPCRScanner()
         for o in scanner.scan(addr_space):
-            print "Phys addr", "{0:08x}".format(addr_space.vtop(o)), "Virt addr", "{0:08x}".format(o)
+            # print "Phys addr", "{0:08x}".format(addr_space.vtop(o)), "Virt addr", "{0:08x}".format(o)
             yield o
 
     def render_text(self, outfd, data):

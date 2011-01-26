@@ -21,6 +21,7 @@ import datetime
 import socket, struct
 import volatility.plugins.overlays.basic as basic
 import volatility.plugins.kpcrscan as kpcr
+import volatility.plugins.kdbgscan as kdbg
 import volatility.timefmt as timefmt
 import volatility.obj as obj
 
@@ -187,3 +188,15 @@ class VolatilityKPCR(obj.VolatilityMagic):
             yield val
 
 AbstractWindows.object_classes['VolatilityKPCR'] = VolatilityKPCR
+
+class VolatilityKDBG(obj.VolatilityMagic):
+
+    def generate_suggestions(self):
+        volmag = obj.Object('VOLATILITY_MAGIC', offset = 0, vm = self.obj_vm)
+
+        scanner = kdbg.KDBGScanner(needles = [volmag.KDBGHeader.v()])
+        for val in scanner.scan(self.obj_vm):
+            yield val
+
+AbstractWindows.object_classes['VolatilityKDBG'] = VolatilityKDBG
+

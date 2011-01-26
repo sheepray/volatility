@@ -22,99 +22,29 @@ import volatility.win32.tasks as tasks
 import volatility.timefmt as timefmt
 import volatility.utils as utils
 import volatility.obj as obj
-import volatility.scan as scan
-import volatility.addrspace as addrspace
 import volatility.registry as registry
 import volatility.plugins.datetime as datetime
+import volatility.plugins.kdbgscan as kdbg
 
-class MultiStringFinderCheck(scan.ScannerCheck):
-    def __init__(self, address_space, needles = None):
-        scan.ScannerCheck.__init__(self, address_space)
-        if not needles:
-            needles = []
-        self.needles = needles
-        self.maxlen = 0
-        for needle in needles:
-            self.maxlen = max(self.maxlen, len(needle))
-        if not self.maxlen:
-            raise RuntimeError("No needles of any length were found for the MultiStringFinderCheck")
-
-    def check(self, offset):
-        verify = self.address_space.read(offset, self.maxlen)
-        for match in self.needles:
-            if verify[:len(match)] == match:
-                return True
-        return False
-
-    def skip(self, data, offset):
-        nextval = len(data)
-        for needle in self.needles:
-            dindex = data.find(needle, offset + 1)
-            if dindex > -1:
-                nextval = min(nextval, dindex)
-        return nextval - offset
-
-class KDBGScanner(scan.DiscontigScanner):
-    checks = [ ]
-
-    def __init__(self, window_size = 8, needles = None):
-        self.checks = [ ("MultiStringFinderCheck", {'needles':needles})]
-        scan.DiscontigScanner.__init__(self, window_size)
-
-class ImageInfo(datetime.DateTime):
+class ImageInfo(datetime.DateTime, kdbg.KDBGScan):
     """ Identify information for the image """
     def __init__(self, config, args = None):
         datetime.DateTime.__init__(self, config, args)
+        kdbg.KDBGScan.__init__(self, config, args)
 
     def render_text(self, outfd, data):
         """Renders the calculated data as text to outfd"""
         for k, v in data:
             outfd.write("{0:>30} : {1}\n".format(k, v))
 
-    def suggest_profile(self, profilelist):
-        """Does a scan of the physical address space, looking for a KDBG header"""
-
-        proflens = {}
-        maxlen = 0
-        for p in profilelist:
-            self._config.update('PROFILE', p)
-            buf = addrspace.BufferAddressSpace(self._config)
-            volmag = obj.Object('VOLATILITY_MAGIC', offset = 0, vm = buf)
-            proflens[p] = str(volmag.KDBGHeader)
-            maxlen = max(maxlen, len(proflens[p]))
-
-        proflens.update({'WinXPSP0x64':'\x00\xf8\xff\xffKDBG\x90\x02',
-                         'Win7SP0x64':'\x00\xf8\xff\xffKDBG\x40\x03',
-                         'Win2003SP0x64':'\x00\xf8\xff\xffKDBG\x18\x03',
-                         'Win2003SP0x86':'\x00\x00\x00\x00\x00\x00\x00\x00KDBG\x18\x03',
-                         'Win2008SP0x64':'\x00\xf8\xff\xffKDBG\x30\x03',
-                         'Win2008SP0x86':'\x00\x00\x00\x00\x00\x00\x00\x00KDBG\x30\x03',
-                         'VistaSP0x64':'\x00\xf8\xff\xffKDBG\x28\x03'})
-
-        scanner = KDBGScanner(needles = proflens.values())
-
-        flat = utils.load_as(self._config, astype = 'physical')
-
-        for offset in scanner.scan(flat):
-            val = flat.read(offset, maxlen)
-            for l in proflens:
-                if proflens[l] == val[:len(proflens[l])]:
-                    return l
-
-        #XP = '\x90\x02'
-        #vista = '\x28\x03'
-        #win7 = '\x40\x03'
-        #w2k3 = '\x18\x03'
-        #w2k8 = '\x30\x03'
-
-        return None
-
     def calculate(self):
         """Calculates various information about the image"""
         print "Determining profile based on KDBG search..."
         profilelist = [ p.__name__ for p in registry.PROFILES.classes ]
 
-        suggestion = self.suggest_profile(profilelist)
+        suggestion = None
+        for suggestion, _offset in kdbg.KDBGScan.calculate(self):
+            break
 
         # Set our suggested profile first, then run through the list
         if suggestion in profilelist:

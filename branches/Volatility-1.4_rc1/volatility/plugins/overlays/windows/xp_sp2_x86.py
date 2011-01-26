@@ -53,6 +53,7 @@ xpsp2overlays = {
     'DTBSignature' : [ 0x0, ['VolatilityMagic', dict(value = "\x03\x00\x1b\x00")]],
     'KPCR' : [ 0x0, ['VolatilityMagic', dict(value = 0xffdff000, configname = "KPCR")]],
     'KUSER_SHARED_DATA' : [ 0x0, ['VolatilityMagic', dict(value = 0xFFDF0000)]],
+    'KDBG' : [ 0x0, ['VolatilityKDBG', dict(configname = "KDBG")]],
     'KDBGHeader' : [ 0x0, ['VolatilityMagic', dict(value = '\x00\x00\x00\x00\x00\x00\x00\x00KDBG\x90\x02')]],
     'HiveListOffset' : [ 0x0, ['VolatilityMagic', dict(value = 0x224)]],
     'HiveListPoolSize': [ 0x0, ['VolatilityMagic', dict(value = 0x4a8)]]
