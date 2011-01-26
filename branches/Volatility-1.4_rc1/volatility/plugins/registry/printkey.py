@@ -90,7 +90,7 @@ class PrintKey(commands.command):
 
     def render_text(self, outfd, key):
         if not key:
-            outfd.write("Unable to find requested key")
+            outfd.write("Unable to find requested key\n")
             return
         outfd.write("Key name: " + key.Name + "\n")
         outfd.write("(Volatile)\n" if vol(key) else "(Stable)\n")
