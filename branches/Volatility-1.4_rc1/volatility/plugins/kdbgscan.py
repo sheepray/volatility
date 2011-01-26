@@ -104,9 +104,9 @@ class KDBGScan(commands.command):
         flat = utils.load_as(self._config)
 
         for offset in scanner.scan(flat):
-            val = flat.read(offset, maxlen)
+            val = flat.read(offset, maxlen + 0x10)
             for l in proflens:
-                if proflens[l] == val[:len(proflens[l])]:
+                if val.find(proflens[l]) >= 0:
                     yield l, offset
 
         #XP = '\x90\x02'
