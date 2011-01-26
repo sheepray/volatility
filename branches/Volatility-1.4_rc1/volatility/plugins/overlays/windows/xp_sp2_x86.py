@@ -96,10 +96,6 @@ xpsp2overlays = {
     'Body' : [ None, ['unsigned int']],
     }],
 
-    '_KDDEBUGGER_DATA64' : [ None, {
-    'PsActiveProcessHead' : [ None, ['pointer', ['unsigned long']]], \
-    }],
-
     '_DBGKD_GET_VERSION64' : [  None, {
     'DebuggerDataList' : [ None, ['pointer', ['unsigned long']]], \
     }],

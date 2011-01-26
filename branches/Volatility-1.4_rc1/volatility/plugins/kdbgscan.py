@@ -56,8 +56,19 @@ class KDBGScanner(scan.DiscontigScanner):
     checks = [ ]
 
     def __init__(self, window_size = 8, needles = None):
+        self.needles = needles
         self.checks = [ ("MultiStringFinderCheck", {'needles':needles})]
         scan.DiscontigScanner.__init__(self, window_size)
+
+    def scan(self, address_space, offset = 0, maxlen = None):
+        for offset in scan.DiscontigScanner.scan(self, address_space, offset, maxlen):
+            # Compensate for KDBG appearing within the searched for structure
+            # (0x10 should really be the offset of OwnerTag from with the structure)
+            # FIXME: this will not work correctly for _KDDEBUGGER_DATA32 structures
+            #        however they're only necessary for NT or older
+            val = address_space.read(offset, max([len(needle) for needle in self.needles]))
+            offset = offset + val.find('KDBG') - 0x10
+            yield offset
 
 class KDBGScan(commands.command):
     """Search for and dump potential KDBG values"""

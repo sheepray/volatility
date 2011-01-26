@@ -43,12 +43,16 @@ crash_vtypes = {
     'reserved3' : [ 0xfc8, ['array', 56, ['unsigned char']]], \
 } ], \
   '_KDDEBUGGER_DATA32' : [ 0x44, { \
+  'OwnerTag' : [ 0x08, ['unsigned long']], \
+  'Size' : [ 0x0C, ['unsigned long']], \
   'PsLoadedModuleList' : [ 0x70, ['pointer', ['void']]], \
   'PsActiveProcessHead' : [ 0x78, ['pointer', ['void']]], \
 } ], \
   '_KDDEBUGGER_DATA64' : [ 0x44, { \
-  'PsLoadedModuleList' : [ 0x48, ['pointer', ['void']]], \
-  'PsActiveProcessHead' : [ 0x50, ['pointer', ['void']]], \
+  'OwnerTag' : [ 0x10, ['unsigned long']], \
+  'Size' : [ 0x14, ['unsigned long']], \
+  'PsLoadedModuleList' : [ 0x48, ['pointer', ['unsigned long']]], \
+  'PsActiveProcessHead' : [ 0x50, ['pointer', ['unsigned long']]], \
   'MmPfnDatabase' : [ 0xC0, ['unsigned long']], \
 } ], \
 '_DBGKD_GET_VERSION64' : [  0x2a, { \
