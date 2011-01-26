@@ -105,34 +105,6 @@ well_known_sids = {
   'S-1-5-32-562': 'BUILTIN\Distributed COM Users',
 }
 
-token_types = {
-  '_EPROCESS': [ None, {
-    'Token' : [ 0xc8, ['_EX_FAST_REF']],
-} ],
-  '_TOKEN' : [ 0xa8, {
-    'UserAndGroupCount' : [ 0x4c, ['unsigned long']],
-    'UserAndGroups' : [ 0x68, ['pointer', ['array', lambda x: x.UserAndGroupCount,
-                                 ['_SID_AND_ATTRIBUTES']]]],
-} ],
-  '_SID_AND_ATTRIBUTES' : [ 0x8, {
-    'Sid' : [ 0x0, ['pointer', ['_SID']]],
-    'Attributes' : [ 0x4, ['unsigned long']],
-} ],
-  '_SID' : [ 0xc, {
-    'Revision' : [ 0x0, ['unsigned char']],
-    'SubAuthorityCount' : [ 0x1, ['unsigned char']],
-    'IdentifierAuthority' : [ 0x2, ['_SID_IDENTIFIER_AUTHORITY']],
-    'SubAuthority' : [ 0x8, ['array', lambda x: x.SubAuthorityCount, ['unsigned long']]],
-} ],
-  '_SID_IDENTIFIER_AUTHORITY' : [ 0x6, {
-    'Value' : [ 0x0, ['array', 6, ['unsigned char']]],
-} ],
-  '_EX_FAST_REF' : [ 0x4, {
-    'Object' : [ 0x0, ['pointer', ['void']]],
-    'Value' : [ 0x0, ['unsigned long']],
-} ],
-}
-
 class GetSIDs(taskmods.DllList):
     """Print the SIDs owning each process"""
 
@@ -150,7 +122,6 @@ class GetSIDs(taskmods.DllList):
     def calculate(self):
         """Produces a list of processes, or just a single process based on an OFFSET"""
         addr_space = utils.load_as(self._config)
-        addr_space.profile.add_types(token_types)
 
         if self._config.OFFSET != None:
             tasks = [obj.Object("_EPROCESS", self._config.OFFSET, addr_space)]
@@ -168,7 +139,7 @@ class GetSIDs(taskmods.DllList):
             tok = obj.Object('_TOKEN', task.Token.Value & ~0x7, task.obj_vm)
 
             for sa in tok.UserAndGroups.dereference():
-                sid = sa.Sid.dereference()
+                sid = sa.Sid.dereference_as('_SID')
                 for i in sid.IdentifierAuthority.Value:
                     id_auth = i
                 sid_string = "S-" + "-".join(str(i) for i in (sid.Revision, id_auth) + tuple(sid.SubAuthority))

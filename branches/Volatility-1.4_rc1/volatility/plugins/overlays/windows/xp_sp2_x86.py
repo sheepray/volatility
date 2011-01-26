@@ -138,6 +138,19 @@ xpsp2overlays = {
     'Run' : [ None, ['array', lambda x: x.NumberOfRuns, ['_PHYSICAL_MEMORY_RUN']]], \
     } ], \
 
+    '_TOKEN' : [ None, { \
+    'UserAndGroupCount' : [ None, ['unsigned long']],\
+    'UserAndGroups' : [ None, ['pointer', ['array', lambda x: x.UserAndGroupCount,\
+                                 ['_SID_AND_ATTRIBUTES']]]],\
+    } ],\
+
+    '_SID' : [ None, {\
+    'Revision' : [ None, ['unsigned char']],\
+    'SubAuthorityCount' : [ None, ['unsigned char']],\
+    'IdentifierAuthority' : [ None, ['_SID_IDENTIFIER_AUTHORITY']],\
+    'SubAuthority' : [ None, ['array', lambda x: x.SubAuthorityCount, ['unsigned long']]],\
+    } ],\
+
     ## This is different between Windows 2000 and WinXP. This overlay
     ## is for xp.
     '_POOL_HEADER' : [ None, { \
