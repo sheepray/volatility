@@ -119,17 +119,6 @@ class GetSIDs(taskmods.DllList):
     meta_info['os'] = 'WIN_32_XP_SP2'
     meta_info['version'] = '1.0'
 
-    def calculate(self):
-        """Produces a list of processes, or just a single process based on an OFFSET"""
-        addr_space = utils.load_as(self._config)
-
-        if self._config.OFFSET != None:
-            tasks = [obj.Object("_EPROCESS", self._config.OFFSET, addr_space)]
-        else:
-            tasks = self.filter_tasks(win32.tasks.pslist(addr_space))
-
-        return tasks
-
     def render_text(self, outfd, data):
         """Renders the sids as text"""
         for task in data:
