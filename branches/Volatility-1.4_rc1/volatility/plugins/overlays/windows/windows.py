@@ -160,6 +160,181 @@ class WinTimeStamp(obj.NativeType):
 
 AbstractWindows.object_classes['WinTimeStamp'] = WinTimeStamp
 
+class _EPROCESS(obj.CType):
+    """ An extensive _EPROCESS with bells and whistles """
+    def _Peb(self, _attr):
+        """ Returns a _PEB object which is using the process address space.
+
+        The PEB structure is referencing back into the process address
+        space so we need to switch address spaces when we look at
+        it. This method ensure this happens automatically.
+        """
+        process_ad = self.get_process_address_space()
+        if process_ad:
+            offset = self.m("Peb").v()
+            peb = obj.Object("_PEB", offset, vm = process_ad,
+                                    name = "Peb", parent = self)
+
+            if peb.is_valid():
+                return peb
+
+        return obj.NoneObject("Peb not found")
+
+    def get_process_address_space(self):
+        """ Gets a process address space for a task given in _EPROCESS """
+        directory_table_base = self.Pcb.DirectoryTableBase.v()
+
+        try:
+            process_as = self.obj_vm.__class__(self.obj_vm.base, self.obj_vm.get_config(), dtb = directory_table_base)
+        except AssertionError, _e:
+            return obj.NoneObject("Unable to get process AS")
+
+        process_as.name = "Process {0}".format(self.UniqueProcessId)
+
+        return process_as
+
+    def _make_handle_array(self, offset, level):
+        """ Returns an array of _HANDLE_TABLE_ENTRY rooted at offset,
+        and iterates over them.
+
+        """
+        if level > 0:
+            count = 0x400
+            targetType = "unsigned int"
+        else:
+            count = 0x200
+            targetType = "_HANDLE_TABLE_ENTRY"
+
+        table = obj.Object("Array", offset = offset, vm = self.obj_vm, count = count,
+                           targetType = targetType, parent = self)
+
+        if table:
+            for entry in table:
+                if not entry.is_valid():
+                    break
+
+                if level > 0:
+                    ## We need to go deeper:
+                    for h in self._make_handle_array(entry, level - 1):
+                        yield h
+                else:
+                    ## OK We got to the bottom table, we just resolve
+                    ## objects here:
+                    offset = int(entry.Object.v()) & ~0x00000007
+                    item = obj.Object("_OBJECT_HEADER", offset, self.obj_vm,
+                                            parent = self)
+                    try:
+                        # New object header
+                        if item.TypeIndex != 0x0:
+                            yield item
+                    except AttributeError:
+                        if item.Type.Name:
+                            yield item
+
+    def handles(self):
+        """ A generator which yields this process's handles
+
+        _HANDLE_TABLE tables are multi-level tables at the first level
+        they are pointers to second level table, which might be
+        pointers to third level tables etc, until the final table
+        contains the real _OBJECT_HEADER table.
+
+        This generator iterates over all the handles recursively
+        yielding all handles. We take care of recursing into the
+        nested tables automatically.
+        """
+        h = self.ObjectTable
+        if h.is_valid():
+            TableCode = h.TableCode.v() & LEVEL_MASK
+            table_levels = h.TableCode.v() & ~LEVEL_MASK
+            offset = TableCode
+
+            for h in self._make_handle_array(offset, table_levels):
+                yield h
+
+LEVEL_MASK = 0xfffffff8
+
+AbstractWindows.object_classes['_EPROCESS'] = _EPROCESS
+
+## This is an object which provides access to the VAD tree.
+class _MMVAD(obj.CType):
+    ## parent is the containing _EPROCESS right now
+    def __new__(cls, theType, offset, vm, parent, **args):
+        ## Find the tag (4 bytes below the current offset). This can
+        ## not have ourselves as a target.
+        switch = {"Vadl": '_MMVAD_LONG',
+                  'VadS': '_MMVAD_SHORT',
+                  'Vad ': '_MMVAD_LONG',
+                  'VadF': '_MMVAD_SHORT',
+                  'Vadm': '_MMVAD_SHORT',
+                  }
+
+        ## All VADs are done in the process AS - so we might need to
+        ## switch Address spaces now. We do this by instantiating an
+        ## _EPROCESS over our parent, and having it give us the
+        ## correct AS
+        if vm.name.startswith("Kernel"):
+            eprocess = obj.Object("_EPROCESS", offset = parent.obj_offset, vm = vm)
+            vm = eprocess.get_process_address_space()
+            if not vm:
+                return vm
+
+        ## What type is this struct?
+        tag = vm.read(offset - 4, 4)
+        theType = switch.get(tag)
+
+        if not theType:
+            return obj.NoneObject("Tag {0} not knowns".format(tag))
+
+        ## Note that since we were called from __new__ we can return a
+        ## completely different object here (including
+        ## NoneObject). This also means that we can not add any
+        ## specialist methods to the _MMVAD class.
+        result = obj.Object(theType, offset = offset, vm = vm, parent = parent, **args)
+        result.newattr('Tag', tag)
+
+        return result
+
+AbstractWindows.object_classes['_MMVAD'] = _MMVAD
+
+class _MMVAD_SHORT(obj.CType):
+    def traverse(self, visited = None):
+        """ Traverse the VAD tree by generating all the left items,
+        then the right items.
+
+        We try to be tolerant of cycles by storing all offsets visited.
+        """
+        if visited == None:
+            visited = set()
+
+        ## We try to prevent loops here
+        if self.obj_offset in visited:
+            return
+
+        yield self
+
+        for c in self.LeftChild.traverse(visited = visited):
+            visited.add(c.obj_offset)
+            yield c
+
+        for c in self.RightChild.traverse(visited = visited):
+            visited.add(c.obj_offset)
+            yield c
+
+    def get_parent(self):
+        return self.Parent
+
+    def get_control_area(self):
+        return self.ControlArea
+
+    def get_file_object(self):
+        return self.ControlArea.FilePointer
+
+class _MMVAD_LONG(_MMVAD_SHORT):
+    pass
+
+AbstractWindows.object_classes['_MMVAD_SHORT'] = _MMVAD_SHORT
+AbstractWindows.object_classes['_MMVAD_LONG'] = _MMVAD_LONG
 
 class ThreadCreateTimeStamp(WinTimeStamp):
 

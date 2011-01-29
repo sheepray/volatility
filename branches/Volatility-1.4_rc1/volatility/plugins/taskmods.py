@@ -1,9 +1,5 @@
 # Volatility
-# Copyright (C) 2007,2008 Volatile Systems
-#
-# Original source:
-# Volatools Basic
-# Copyright (C) 2007 Komoku, Inc.
+# Copyright (C) 2007-2011 Volatile Systems
 #
 # Additional Authors:
 # Michael Cohen <scudette@users.sourceforge.net>
@@ -127,7 +123,8 @@ class Files(DllList):
 
             for h in handles:
                 if h.FileName:
-                    outfd.write("{0:6} {1:40}\n".format("File", h.FileName))
+                    file_name = self.parse_string(h.FileName)
+                    outfd.write("{0:6} {1:40}\n".format("File", file_name))
 
     def calculate(self):
         tasks = self.filter_tasks(DllList.calculate(self))
@@ -139,8 +136,30 @@ class Files(DllList):
 
     def handle_list(self, task):
         for h in task.handles():
-            if str(h.Type.Name) == self.handle_type:
-                yield obj.Object(self.handle_obj, h.Body.obj_offset, task.obj_vm, parent = task)
+            ## Account for changes to the object header for Windows 7
+            volmagic = obj.Object("VOLATILITY_MAGIC", 0x0, task.obj_vm)
+            try:
+                # New object header
+                if h.TypeIndex == volmagic.TypeIndexMap.v()[self.handle_type]:
+                    yield obj.Object(self.handle_obj, h.Body.obj_offset, task.obj_vm, parent = task)
+            except AttributeError:
+                # Old object header
+                if (h.Type.Name):
+                    if str(h.Type.Name) == self.handle_type:
+                        yield obj.Object(self.handle_obj, h.Body.obj_offset, task.obj_vm, parent = task)
+                pass
+
+    def parse_string(self, unicode_obj):
+        """Unicode string parser"""
+        ## We need to do this because the unicode_obj buffer is in
+        ## kernel_address_space
+        string_length = unicode_obj.Length
+        string_offset = unicode_obj.Buffer
+
+        string = unicode_obj.obj_vm.read(string_offset, string_length)
+        if not string:
+            return ''
+        return repr(string[:255].decode("utf16", "ignore").encode("utf8", "xmlcharrefreplace"))
 
 class PSList(DllList):
     """ print all running processes by following the EPROCESS lists """
