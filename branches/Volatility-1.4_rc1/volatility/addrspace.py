@@ -159,3 +159,6 @@ class BufferAddressSpace(BaseAddressSpace):
             return False
         self.data = self.data[:addr] + data + self.data[addr + len(data):]
         return True
+
+    def get_available_addresses(self):
+        yield (self.base_offset, len(self.data))
