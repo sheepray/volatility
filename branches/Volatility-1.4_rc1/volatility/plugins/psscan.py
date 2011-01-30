@@ -173,7 +173,7 @@ class CheckThreadStartAddress(scan.ScannerCheck):
         if ethread.Cid.UniqueProcess == 0 or ethread.StartAddress != 0:
             return True
 
-class ThreadScan(scan.BaseScanner):
+class ThreadScan(scan.DiscontigScanner):
     """ Carves out _ETHREAD structures """
     checks = [ ("DispatchThreadHeaderCheck", {}),
                ("CheckThreadProcess", {}),
