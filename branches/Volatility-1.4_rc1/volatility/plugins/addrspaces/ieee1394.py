@@ -68,9 +68,9 @@ class FWForensic1394(object):
             time.sleep(2)
             devices = self._bus.devices()
             # FIXME: Base the device off the location rather than hardcoded first remote device
-            self._device = devices[0]
-            if not self._device.isopen():
-                self._device.open()
+            #self._device = devices[0]
+            #if not self._device.isopen():
+            #    self._device.open()
             # The device requires time to settle before it can be used
             return True, "Valid"
         except IOError, e:
@@ -106,7 +106,8 @@ class FirewireAddressSpace(addrspace.BaseAddressSpace):
 
         # We have a list of exclusions because we know that trying to read anything in these sections
         # will cause the target machine to bluescreen
-        self._exclusions = sorted([(0xa0000, 0xfffff, "Upper Memory Area")])
+        # Exceptions are in the form (start, length, "Reason")
+        self._exclusions = sorted([(0xa0000, 0xfffff - 0xa0000, "Upper Memory Area")])
 
         self.name = "Firewire using " + str(netloc) + " at " + str(path)
         self.offset = 0
@@ -115,27 +116,27 @@ class FirewireAddressSpace(addrspace.BaseAddressSpace):
         # TODO: Find a way of determining the size safely and reliably from the space itself 
         self.size = 0xFFFFFFFF
 
-    def intervals(self, start, end):
-        """Returns a list of intervals, from start to end, that do not include the exclusions"""
-        return self._intervals(sorted(self._exclusions), start, end, [])
+    def intervals(self, start, size):
+        """Returns a list of intervals, from start of length size, that do not include the exclusions"""
+        return self._intervals(sorted(self._exclusions), start, size + start, [])
 
     def _intervals(self, exclusions, start, end, accumulator):
         """Accepts a sorted list of intervals and a start and end
         
-           This will return a list of intervals between start and length
+           This will return a list of intervals between start and end
            that does not contain any of the intervals in the list of exclusions.
         """
         if not len(exclusions):
             # We're done
-            return accumulator + [(start, end)]
+            return accumulator + [(start, end - start)]
 
         e = exclusions[0]
         estart = e[0]
-        eend = e[1]
+        eend = e[1] + estart
 
         # e and range overlap
         if (eend < start or estart > end):
-            # Ignore this exclusions
+            # Ignore this exclusion
             return self._intervals(exclusions[1:], start, end, accumulator)
         if estart < start:
             if eend < end:
@@ -147,26 +148,26 @@ class FirewireAddressSpace(addrspace.BaseAddressSpace):
         else:
             if eend < end:
                 # Covers a section of the remaining length
-                return self._intervals(exclusions[1:], eend, end, accumulator + [(start, estart)])
+                return self._intervals(exclusions[1:], eend, end, accumulator + [(start, estart - start)])
             else:
                 # Covers the end of the remaining length
-                return accumulator + [(start, estart)]
+                return accumulator + [(start, estart - start)]
 
     def read(self, offset, length):
         """Reads a specified size in bytes from the current offset
         
            Fills any excluded holes with zeros (so in that sense, similar to zread
         """
-        ints = self.intervals(offset, offset + length)
+        ints = self.intervals(offset, length)
         output = "\x00" * length
         try:
             for i in ints:
-                if i[1] > i[0]:
+                if i[1] > 0:
                     # node.read won't work on 0 byte
-                    readdata = self._fwimpl.read(i[0], i[1] - i[0])
+                    readdata = self._fwimpl.read(i[0], i[1])
                     # I'm not sure why, but sometimes readdata comes out longer than the requested size
                     # We just truncate it to the right length
-                    output = output[: i[0] - offset] + readdata[:i[1] - i[0]] + output[i[1] - offset:]
+                    output = output[:i[0]] + readdata[:i[1]] + output[i[0] + i[1]:]
         except IOError, e:
             print repr(e)
             raise RuntimeError("Failed to read from firewire device")
@@ -178,11 +179,11 @@ class FirewireAddressSpace(addrspace.BaseAddressSpace):
         if not self._config.WRITE:
             return False
 
-        ints = self.intervals(offset, offset + len(data))
+        ints = self.intervals(offset, len(data))
         try:
             for i in ints:
-                if i[1] > i[0]:
-                    self._fwimpl.write(i[0], data)
+                if i[1] > 0:
+                    self._fwimpl.write(i[0], data[i[0]:i[0] + i[1]])
         except IOError:
             raise RuntimeError("Failed to write to the firewire device")
         return True
@@ -193,7 +194,8 @@ class FirewireAddressSpace(addrspace.BaseAddressSpace):
 
     def get_available_addresses(self):
         """Returns a list of available addresses"""
-        return self.intervals(0, self.size)
+        for i in self.intervals(0, self.size):
+            yield i
 
 fw_implementations = {}
 

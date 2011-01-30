@@ -111,7 +111,7 @@ class BaseAddressSpace(object):
         """ Read some date from a certain offset """
 
     def get_available_addresses(self):
-        """ Return a generator of address ranges covered by this AS """
+        """ Return a generator of address ranges as (offset, size) covered by this AS """
         raise StopIteration
 
     def is_valid_address(self, _addr):

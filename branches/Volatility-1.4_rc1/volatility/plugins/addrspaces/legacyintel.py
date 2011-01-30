@@ -242,14 +242,14 @@ class IA32PagedMemory(standard.AbstractWritablePagedMemory, addrspace.BaseAddres
             entry = self.read_long_phys(pgd_curr)
             pgd_curr = pgd_curr + 4
             if self.entry_present(entry) and self.page_size_flag(entry):
-                yield [start, 0x400000]
+                yield (start, 0x400000)
             elif self.entry_present(entry):
                 pte_curr = entry & ~((1 << page_shift) - 1)
                 for j in range(0, ptrs_per_pte):
                     pte_entry = self.read_long_phys(pte_curr)
                     pte_curr = pte_curr + 4
                     if self.entry_present(pte_entry):
-                        yield [start + j * 0x1000, 0x1000]
+                        yield (start + j * 0x1000, 0x1000)
 
 class IA32PagedMemoryPae(IA32PagedMemory):
     """ Legacy x86 PAE address space (to use specify --use_old_as)
@@ -347,11 +347,11 @@ class IA32PagedMemoryPae(IA32PagedMemory):
                 entry = self._read_long_long_phys(pgd_curr)
                 pgd_curr = pgd_curr + 8
                 if self.entry_present(entry) and self.page_size_flag(entry):
-                    yield [soffset, 0x200000]
+                    yield (soffset, 0x200000)
                 elif self.entry_present(entry):
                     pte_curr = entry & ~((1 << page_shift) - 1)
                     for k in range(0, ptrs_per_pae_pte):
                         pte_entry = self._read_long_long_phys(pte_curr)
                         pte_curr = pte_curr + 8
                         if self.entry_present(pte_entry):
-                            yield [soffset + k * 0x1000, 0x1000]
+                            yield (soffset + k * 0x1000, 0x1000)
