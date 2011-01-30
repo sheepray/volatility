@@ -42,14 +42,14 @@ class ImageInfo(datetime.DateTime, kdbg.KDBGScan):
         print "Determining profile based on KDBG search..."
         profilelist = [ p.__name__ for p in registry.PROFILES.classes ]
 
-        suggestion = None
+        suggestion = "No suggestion"
         for suggestion, _offset in kdbg.KDBGScan.calculate(self):
             break
 
         # Set our suggested profile first, then run through the list
         if suggestion in profilelist:
             profilelist = [suggestion] + profilelist
-        chosen = 'None'
+        chosen = 'no profile'
         for profile in profilelist:
             self._config.update('PROFILE', profile)
             addr_space = utils.load_as(self._config)
@@ -58,7 +58,7 @@ class ImageInfo(datetime.DateTime, kdbg.KDBGScan):
                 break
 
         if suggestion != chosen:
-            suggestion += ' (Instantiated as ' + chosen + ')'
+            suggestion += ' (Instantiated with ' + chosen + ')'
 
         yield ('Suggested Profile', suggestion)
 
@@ -80,17 +80,19 @@ class ImageInfo(datetime.DateTime, kdbg.KDBGScan):
         volmagic = obj.Object('VOLATILITY_MAGIC', 0x0, addr_space)
         kpcroffset = None
         if hasattr(addr_space, "dtb"):
+            kdbgoffset = volmagic.KDBG.v()
+            yield ('KDBG', hex(kdbgoffset))
+
             kpcroffset = volmagic.KPCR.v()
             yield ('KPCR', hex(kpcroffset))
+            if kpcroffset:
+                KUSER_SHARED_DATA = volmagic.KUSER_SHARED_DATA.v()
+                yield ('KUSER_SHARED_DATA', hex(KUSER_SHARED_DATA))
 
-        if kpcroffset:
-            KUSER_SHARED_DATA = volmagic.KUSER_SHARED_DATA.v()
-            yield ('KUSER_SHARED_DATA', hex(KUSER_SHARED_DATA))
+                data = self.get_image_time(addr_space)
 
-            data = self.get_image_time(addr_space)
-
-            yield ('Image date and time', data['ImageDatetime'])
-            yield ('Image local date and time', timefmt.display_datetime(data['ImageDatetime'].as_datetime(), data['ImageTz']))
+                yield ('Image date and time', data['ImageDatetime'])
+                yield ('Image local date and time', timefmt.display_datetime(data['ImageDatetime'].as_datetime(), data['ImageTz']))
 
         try:
             yield ('Image Type', self.find_csdversion(addr_space))
