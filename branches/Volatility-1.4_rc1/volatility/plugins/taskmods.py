@@ -84,21 +84,30 @@ class DllList(commands.command, cache.Testable):
 
         return tasks
 
+    def virtual_process_from_physical_offset(self, addr_space, offset):
+        """ Returns a virtual process from a physical offset in memory """
+        # Since this is a physical offset, we find the process
+        flat_addr_space = utils.load_as(addr_space.get_config(), astype = 'physical')
+        flateproc = obj.Object("_EPROCESS", offset, flat_addr_space)
+        # then use the virtual address of its first thread to get into virtual land
+        # (Note: the addr_space and flat_addr_space use the same config, so should have the same profile)
+        tleoffset = addr_space.profile.get_obj_offset("_ETHREAD", "ThreadListEntry")
+        ethread = obj.Object("_ETHREAD", offset = flateproc.ThreadListHead.Flink.v() - tleoffset, vm = addr_space)
+        # and ask for the thread's process to get an _EPROCESS with a virtual address space
+        # For Vista/windows 7
+        if hasattr(ethread.Tcb, 'Process'):
+            return ethread.Tcb.Process.dereference_as('_EPROCESS')
+        elif hasattr(ethread, 'ThreadsProcess'):
+            return ethread.ThreadsProcess.dereference()
+        return obj.NoneObject("Unable to bounce back from virtual _ETHREAD to virtual _EPROCESS")
+
     @cache.CacheDecorator(lambda self: "tests/pslist/pid={0}/offset={1}".format(self._config.PID, self._config.OFFSET))
     def calculate(self):
         """Produces a list of processes, or just a single process based on an OFFSET"""
         addr_space = utils.load_as(self._config)
 
         if self._config.OFFSET != None:
-            # Since this is a physical offset, we find the process
-            flat_addr_space = utils.load_as(self._config, astype = 'physical')
-            flateproc = obj.Object("_EPROCESS", self._config.OFFSET, flat_addr_space)
-            # then use the virtual address of its first thread to get into virtual land
-            # (Note: the addr_space and flat_addr_space use the same config, so should have the same profile)
-            offset = addr_space.profile.get_obj_offset("_ETHREAD", "ThreadListEntry")
-            ethread = obj.Object("_ETHREAD", offset = flateproc.ThreadListHead.Flink.v() - offset, vm = addr_space)
-            # and ask for the thread's process to get an _EPROCESS with a virtual address space
-            tasks = [ethread.ThreadsProcess.dereference()]
+            tasks = [self.virtual_process_from_physical_offset(addr_space, self._config.OFFSET)]
         else:
             tasks = self.filter_tasks(win32.tasks.pslist(addr_space))
 

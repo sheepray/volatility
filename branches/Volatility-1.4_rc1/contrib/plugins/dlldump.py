@@ -56,15 +56,7 @@ class DLLDump(procdump.ProcExeDump):
             debug.error(self._config.DUMP_DIR + " is not a directory")
 
         if self._config.OFFSET != None:
-            # Since this is a physical offset, we find the process
-            flat_addr_space = utils.load_as(self._config, astype = 'physical')
-            flateproc = obj.Object("_EPROCESS", self._config.OFFSET, flat_addr_space)
-            # then use the virtual address of its first thread to get into virtual land
-            # (Note: the addr_space and flat_addr_space use the same config, so should have the same profile)
-            offset = addr_space.profile.get_obj_offset("_ETHREAD", "ThreadListEntry")
-            ethread = obj.Object("_ETHREAD", offset = flateproc.ThreadListHead.Flink.v() - offset, vm = addr_space)
-            # and ask for the thread's process to get an _EPROCESS with a virtual address space
-            data = [ethread.ThreadsProcess.dereference()]
+            data = [self.virtual_process_from_physical_offset(addr_space, self._config.OFFSET)]
         else:
             data = self.filter_tasks(tasks.pslist(addr_space))
 
