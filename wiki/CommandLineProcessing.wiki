@@ -75,14 +75,9 @@ Note also that to avoid confusion, the (-h) option also lists the current value 
 
 == Registering a new command line option ==
 
-In order to use the configuration system a plugin must import it:
+All plugins and address spaces are passed a config option, which they can use to determine information about their calling environment.
 
-{{{
-import volatility.conf as conf
-config = conf.ConfObject()
-}}}
-
-The config variable is a singleton object which gets access to the configuration system. In order to use it we need to register an option:
+The config variable is (currently) a singleton object which gets access to the configuration system. In order to use it we need to register an option:
 
 {{{                 
         config.add_option("HIVE-OFFSET", short_option='o',
@@ -101,7 +96,17 @@ if config.HIVE_OFFSET:
 
 There are two types of options in general. The first type are system wide, these can be used between modules, and are commonly needed for all modules. Examples include --filename, --dtb or --output.
 
-To set global options, the config.add_option() call can be made in the plugin module body. This will add the config option once the plugin is loaded into the system, i.e. at the start of every run. Therefore your option will appear even when another plugin command is selected.
+To set global options, the config.add_option() call can be made in the plugin module body in a staticmethod called register_options:
+
+{{{
+   class Plugin(commands.command):
+
+     @staticmethod
+     def register_options(config):
+       config.add_option(...)
+}}}
+
+This will add the config option once the plugin is loaded into the system, i.e. at the start of every run. Therefore your option will appear even when another plugin command is selected.
 
 Some parameters should only be registered for your own plugin - these are private options. Generally plugin writers should only use private options to prevent polluting the whole program with their options.
 
