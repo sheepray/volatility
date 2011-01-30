@@ -108,14 +108,14 @@ Some parameters should only be registered for your own plugin - these are privat
 To set private options, the options should only be declared after the command in your plugin was selected to run. When a user selects to run your command, the class will be instantiated, and that is a good place to add the config option:
 
 {{{
-    def __init__(self, *args):
+    def __init__(self, config, *args):
         ## Add the option only after we got selected
         config.add_option("HIVE-OFFSET", short_option='o',
                           default = None, type='int',
                           help = "Offset to registry hive")
 
         ## Call the baseclass constructor
-        hs.hivescan.__init__(self, *args)
+        hs.hivescan.__init__(self, config, *args)
 }}}
 
 The above examples were taken from hivelist.py
