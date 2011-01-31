@@ -76,6 +76,8 @@ win7sp0x86overlays['VOLATILITY_MAGIC'][1]['TypeIndexMap'] = [ 0x0, ['VolatilityM
 win7_sp0_x86_vtypes.ntkrpamp_types.update(crash_vtypes.crash_vtypes)
 win7_sp0_x86_vtypes.ntkrpamp_types.update(hibernate_vtypes.hibernate_vtypes)
 win7_sp0_x86_vtypes.ntkrpamp_types.update(tcpip_vtypes.tcpip_vtypes)
+win7_sp0_x86_vtypes.ntkrpamp_types.update(tcpip_vtypes.tcpip_vtypes_vista)
+win7_sp0_x86_vtypes.ntkrpamp_types.update(tcpip_vtypes.tcpip_vtypes_7)
 
 win7_sp0_x86_vtypes.ntkrpamp_types.update({\
   '_OBJECT_HEADER_NAME_INFORMATION' : [ 0xc, {

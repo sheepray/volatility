@@ -57,6 +57,7 @@ vistasp0x86overlays['VOLATILITY_MAGIC'][1]['HiveListPoolSize'][1] = ['Volatility
 vista_sp0_x86_vtypes.ntkrnlmp_types.update(crash_vtypes.crash_vtypes)
 vista_sp0_x86_vtypes.ntkrnlmp_types.update(hibernate_vtypes.hibernate_vtypes)
 vista_sp0_x86_vtypes.ntkrnlmp_types.update(tcpip_vtypes.tcpip_vtypes)
+vista_sp0_x86_vtypes.ntkrnlmp_types.update(tcpip_vtypes.tcpip_vtypes_vista)
 
 class VistaSP0x86(windows.AbstractWindows):
     """ A Profile for Windows Vista SP0 x86 """
