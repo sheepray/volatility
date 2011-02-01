@@ -48,7 +48,7 @@ vista_sp2_x86_vtypes.ntkrnlmp_types.update(tcpip_vtypes.tcpip_vtypes)
 vista_sp2_x86_vtypes.ntkrnlmp_types.update(tcpip_vtypes.tcpip_vtypes_vista)
 
 class VistaSP2x86(windows.AbstractWindows):
-    """ A Profile for Windows Vista SP0 x86 """
+    """ A Profile for Windows Vista SP2 x86 """
     abstract_types = vista_sp2_x86_vtypes.ntkrnlmp_types
     overlay = vistasp2x86overlays
     object_classes = copy.deepcopy(vista_sp1_x86.VistaSP1x86.object_classes)
