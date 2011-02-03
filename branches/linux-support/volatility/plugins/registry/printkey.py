@@ -88,21 +88,32 @@ class PrintKey(commands.command):
             return rawreg.open_key(root, self._config.KEY.split('\\'))
         return root
 
+    def voltext(self, key):
+        return "(V)" if vol(key) else "(S)"
+
     def render_text(self, outfd, key):
         if not key:
-            outfd.write("Unable to find requested key")
+            outfd.write("Unable to find requested key\n")
             return
-        outfd.write("Key name: " + key.Name + "\n")
-        outfd.write("(Volatile)\n" if vol(key) else "(Stable)\n")
+        outfd.write("Legend: (S) = Stable   (V) = Volatile\n\n")
+        outfd.write("Key name: {0} {1:3s}\n".format(key.Name, self.voltext(key)))
         outfd.write("Last updated: {0}\n".format(key.LastWriteTime))
         outfd.write("\n")
         outfd.write("Subkeys:\n")
         for s in rawreg.subkeys(key):
-            outfd.write("  " + s.Name + ("(Volatile)\n" if vol(s) else "(Stable)\n"))
+            if s.Name == None:
+                outfd.write("  Unknown subkey: " + s.Name.reason + "\n")
+            else:
+                outfd.write("  {1:3s} {0}\n".format(s.Name, self.voltext(s)))
         outfd.write("\n")
         outfd.write("Values:\n")
         for v in rawreg.values(key):
             tp, dat = rawreg.value_data(v)
             if tp == 'REG_BINARY':
                 dat = "\n" + hd(dat, length = 16)
-            outfd.write("{0:9} {1:10} : {2} {3}\n".format(tp, v.Name, dat, "(Volatile)" if vol(v) else "(Stable)"))
+            if tp in ['REG_SZ', 'REG_EXPAND_SZ', 'REG_LINK']:
+                dat = dat.encode("ascii", 'backslashreplace')
+            if tp == 'REG_MULTI_SZ':
+                for i in range(len(dat)):
+                    dat[i] = dat[i].encode("ascii", 'backslashreplace')
+            outfd.write("{0:13} {1:15} : {3:3s} {2}\n".format(tp, v.Name, dat, self.voltext(v)))
