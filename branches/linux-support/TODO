@@ -1,36 +1,52 @@
-- general analysis
-	- process from htable
-	- network buffers
-	- UNIX sockets in netstat
+--plugins--
+ 
+    - general analysis
+	    - process from htable
+    	- network buffers
+	    - UNIX sockets in netstat
+    	- nat table
+	    - mount
 
-- kmem_cache
-	- slub
+    - kmem_cache
+    	- slub
 
-	- info
-		- nat table
-		- mount
+    - deallocated
+        - processes
+        - ?memory maps?
+        - check paper for more
 
-- halffinished plugins
-    - dump_maps ....
-    - psaux - need to figure out start time
+--functionality--
 
-- aliases for ifconfig
+    - handle modules in vtype generation
 
-- blackhat stuff
-    - tmpfs
-    - aufs
+    - make function for requesting symbol that could be from module
+
+    - blackhat stuff
+        - tmpfs
+        - aufs
 	
-- auto pick of profile
+    - auto pick of profile
 
-- basic anti-rootkit
-	- idt
-	- system call table
+--after--
 
-- real anti-rootkit
+    - halffinished plugins
+        - aliases for ifconfig
+        - dump_maps ....
+        - psaux - need to figure out start time
 
-	- tasks
-	- memory maps
-	- files
+--testing--
+    2.6.11 
+    2.6.18 DFRWS 2008 challenge image
 
-- test against 2.6.11 
-- test against 2.6.26
+--V2--
+    - anti-rootkit
+        - basic
+    	    - idt
+    	    - system call table
+
+        - real
+    	    - tasks
+    	    - memory maps
+        	- files
+
+

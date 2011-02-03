@@ -48,7 +48,11 @@ class linux_ifconfig(linux_common.AbstractLinuxCommand):
 
         for net_dev, in_dev in data:
 
-            ip = in_dev.ifa_list.ifa_address.v()
+            # for interfaces w/o an ip address (dummy/bond)
+            if in_dev.ifa_list:
+                ip = in_dev.ifa_list.ifa_address.v()
+            else:
+                ip = 0
 
             mac_addr = ":".join(["%.02x" % x for x in net_dev.perm_addr][:6])
 
