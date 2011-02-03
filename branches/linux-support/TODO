@@ -1,24 +1,24 @@
-- halffinished plugins
-	- mounts - use mnt_cache when kmem_cache support is added
-
 - general analysis
 	- process from htable
 	- network buffers
 	- UNIX sockets in netstat
 
 - kmem_cache
-	- slab
 	- slub
 
 	- info
-		- nat
+		- nat table
 		- mount
+
+- halffinished plugins
+    - dump_maps ....
+    - psaux - need to figure out start time
 
 - aliases for ifconfig
 
-- tmpfs ?
-
-- aufs (blackhat code)
+- blackhat stuff
+    - tmpfs
+    - aufs
 	
 - auto pick of profile
 

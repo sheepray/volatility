@@ -52,6 +52,5 @@ class linux_ifconfig(linux_common.AbstractLinuxCommand):
 
             mac_addr = ":".join(["%.02x" % x for x in net_dev.perm_addr][:6])
 
-            # perm_addr
             outfd.write("{0:8s} {1:16s} {2:32s}\n".format(net_dev.name, linux_common.ip2str(ip), mac_addr))
 

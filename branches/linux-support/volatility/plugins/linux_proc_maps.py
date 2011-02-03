@@ -47,6 +47,8 @@ class linux_proc_maps(ltps.linux_task_list_ps):
 
         for task, vma in data:
 
+            mm = task.mm
+
             if vma.vm_file:
                 inode = vma.vm_file.get_dentry().d_inode
                 sb = obj.Object("super_block", offset = inode.i_sb, vm = self.addr_space)
@@ -56,7 +58,15 @@ class linux_proc_maps(ltps.linux_task_list_ps):
                 fname = linux_common.get_path(task, vma.vm_file, self.addr_space)
             else:
                 (dev, ino, pgoff) = [0] * 3
-                fname = ""
+
+                if vma.vm_start <= mm.start_brk and vma.vm_end >= mm.brk:
+                    fname = "[heap]"
+
+                elif vma.vm_start <= mm.start_stack and vma.vm_end >= mm.start_stack:
+                    fname = "[stack]"
+
+                else:
+                    fname = ""
 
             outfd.write("{0:#16x}-{1:#16x} {2:3} {3:10d} {4:#2d}:{5:#2d} {6:#12d} {7}\n".format(
                     mn(vma.vm_start), mn(vma.vm_end), self.format_perms(vma.vm_flags),
