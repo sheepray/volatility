@@ -68,10 +68,48 @@ win7sp0x86overlays['VOLATILITY_MAGIC'][1]['InfoMaskMap'] = [ 0x0, ['VolatilityMa
                       '_OBJECT_HEADER_PROCESS_INFO': 0x10 })]]
 
 win7sp0x86overlays['VOLATILITY_MAGIC'][1]['TypeIndexMap'] = [ 0x0, ['VolatilityMagic', \
-      dict(value = { 'Mutant'       : 0xe, \
-                      'Driver'       : 0x1a, \
-                      'Key'          : 0x23, \
-                      'File'         : 0x1c })]]
+      dict(value = { 'Type' : 0x2, \
+                    'Directory' : 0x3, \
+                    'SymbolicLink' : 0x4, \
+                    'Token' : 0x5, \
+                    'Job' : 0x6, \
+                    'Process' : 0x7, \
+                    'Thread' : 0x8, \
+                    'UserApcReserve' : 0x9, \
+                    'IoCompletionReserve' : 0xa, \
+                    'DebugObject' : 0xb, \
+                    'Event' : 0xc, \
+                    'EventPair' : 0xd, \
+                    'Mutant' : 0xe, \
+                    'Callback' : 0xf, \
+                    'Semaphore' : 0x10, \
+                    'Timer' : 0x11, \
+                    'Profile' : 0x12, \
+                    'KeyedEvent' : 0x13, \
+                    'WindowStation' : 0x14, \
+                    'Desktop' : 0x15, \
+                    'TpWorkerFactory' : 0x16, \
+                    'Adapter' : 0x17, \
+                    'Controller' : 0x18, \
+                    'Device' : 0x19, \
+                    'Driver' : 0x1a, \
+                    'IoCompletion' : 0x1b, \
+                    'File' : 0x1c, \
+                    'TmTm' : 0x1d, \
+                    'TmTx' : 0x1e, \
+                    'TmRm' : 0x1f, \
+                    'TmEn' : 0x20, \
+                    'Section' : 0x21, \
+                    'Session' : 0x22, \
+                    'Key' : 0x23, \
+                    'ALPC Port' : 0x24, \
+                    'PowerRequest' : 0x25, \
+                    'WmiGuid' : 0x26, \
+                    'EtwRegistration' : 0x27, \
+                    'EtwConsumer' : 0x28, \
+                    'FilterConnectionPort' : 0x29, \
+                    'FilterCommunicationPort' : 0x2a, \
+                    'PcwObject' : 0x2b })]]
 
 win7_sp0_x86_vtypes.ntkrpamp_types.update(crash_vtypes.crash_vtypes)
 win7_sp0_x86_vtypes.ntkrpamp_types.update(hibernate_vtypes.hibernate_vtypes)
