@@ -22,8 +22,6 @@
 """
 
 import volatility.obj as obj
-import volatility.utils as utils
-import linux_common
 import volatility.plugins.linux_task_list_ps as ltps
 import time
 

@@ -25,7 +25,7 @@ import volatility.obj as obj
 import linux_common
 import sys
 
-class linux_kmem_cache_slab:
+class linux_kmem_cache_slab(object):
 
     ''' implements walking SLAB backed kmem_caches '''
     def __init__(self, addr_space):

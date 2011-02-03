@@ -21,8 +21,6 @@
 @organization: Digital Forensics Solutions
 """
 
-import volatility.obj as obj
-import linux_common
 import volatility.plugins.linux_task_list_ps as ltps
 import linux_kmem_cache
 
@@ -38,13 +36,13 @@ class linux_tasklist_kmem_cache(ltps.linux_task_list_ps):
 
         for task_addr in tasks:
             task = tasks[task_addr]
-        
+
             yield task_addr, task
 
 
     def render_text(self, outfd, data):
 
-        for task_addr, task in data:
+        for _task_addr, task in data:
             print "%s" % task.comm
 
 

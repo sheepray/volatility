@@ -21,13 +21,11 @@
 @organization: Digital Forensics Solutions
 """
 
-import volatility.obj as obj
-import linux_common
 import sys
 import linux_kmem_cache_slab
 #import linux_kmem_cache_slub
 
-class linux_kmem_cache:
+class linux_kmem_cache(object):
 
     ''' allocator generic kmem_cache interface '''
     def __init__(self, addr_space):
