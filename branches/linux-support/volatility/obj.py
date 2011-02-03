@@ -866,7 +866,8 @@ class Profile(object):
             ## the following functions modify it, we need to make a
             ## deep copy:
 
-            if name.find("unknown_") == -1:
+            # FIXME: Remove this filthy disgusting hardcoded hack!!!  5;)
+            if name.find("unknown_") == -1 or name == "unknown_55437":
                 self.types[name] = self.convert_members(name, self.typeDict, copy.deepcopy(self.overlayDict))
 
     def list_to_type(self, name, typeList, typeDict = None):

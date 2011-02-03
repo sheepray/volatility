@@ -22,7 +22,12 @@
 """
 
 import volatility.obj as obj
-import linux_common
+import linux_common, linux_flags
+
+class fake_root:
+    def __init__(self, dentry, vfsmnt):
+        self.dentry = dentry
+        self.mnt = vfsmnt
 
 class linux_mount(linux_common.AbstractLinuxCommand):
 
@@ -30,16 +35,53 @@ class linux_mount(linux_common.AbstractLinuxCommand):
 
     def calculate(self):
 
-        sbs_addr = self.smap["super_blocks"]
+        mntptr = obj.Object("unsigned long", offset = self.smap["mount_hashtable"], vm = self.addr_space)
 
-        super_blocks = obj.Object("list_head", vm = self.addr_space, offset = sbs_addr)
+        mnt_list = obj.Object(theType = "Array", offset = mntptr, vm = self.addr_space, targetType = "list_head", count = 512) # TODO 64bit
 
-        # walk the modules list
-        for super_block in linux_common.walk_list_head("super_block", "s_list", super_blocks, self.addr_space):
+        # get each list_head out of the array
+        for outerlist in mnt_list:
 
-            yield super_block
+            for vfsmnt in linux_common.walk_list_head("vfsmount", "mnt_hash", outerlist, self.addr_space):
+                yield vfsmnt
+
 
     def render_text(self, outfd, data):
 
-        for sb in data:
-            outfd.write("{0:s}\n".format(sb.s_id))
+        for vfsmnt in data:
+            dev_name = linux_common.get_string(vfsmnt.mnt_devname, self.addr_space)
+
+            root = fake_root(vfsmnt.mnt_sb.s_root, vfsmnt.mnt_parent)
+            path = linux_common.do_get_path(root, vfsmnt.mnt_root, vfsmnt, self.addr_space)
+
+            fstype = linux_common.get_string(vfsmnt.mnt_sb.s_type.name, self.addr_space)
+
+            if (vfsmnt.mnt_flags & 0x40) or (vfsmnt.mnt_sb.s_flags & 0x1):
+                rr = "ro"
+            else:
+                rr = "rw"
+
+            mnt_string = self.calc_mnt_string(vfsmnt)
+
+            outfd.write("{0:15s} {1:15s} {2:8s} {3:2s},{4:64s}\n".format(dev_name, path, fstype, rr, mnt_string))
+
+    def calc_mnt_string(self, vfsmnt):
+
+        ret = ""
+
+        for mflag in linux_flags.mnt_flags:
+            if mflag & vfsmnt.mnt_flags:
+                ret = ret + linux_flags.mnt_flags[mflag]
+
+        return ret
+
+
+
+
+
+
+
+
+
+
+

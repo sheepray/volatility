@@ -51,17 +51,22 @@ def walk_list_head(struct_name, list_member, list_head_ptr, addr_space):
 
     list_ptr = list_head_ptr.next
 
+    # this happens in rare instances where list_heads get pre-initlized
+    # the caller needs to check for not return value
+    # currently only needed by linux_mount when walking mount_hashtable
+    if list_ptr == list_head_ptr:
+        return
+
     while 1:
 
         # return the address of the beginning of the strucutre, similar to list.h in kernel
         yield obj.Object(struct_name, offset = list_ptr - offsetof(struct_name, list_member, addr_space.profile), vm = addr_space)
 
-        list_ptr = obj.Object("list_head", vm = addr_space, offset = list_ptr)
-
         list_ptr = list_ptr.next
 
         if list_ptr == list_head_ptr:
             break
+
 
 def walk_internal_list(struct_name, list_member, list_start, addr_space):
 
@@ -105,13 +110,11 @@ def IS_ROOT(dentry):
 
 # based on __d_path
 # TODO: (deleted) support
-def get_path(task, filp, addr_space):
+def do_get_path(root, dentry, vfsmnt, addr_space):
 
-    root = task.fs.root
-    dentry = filp.get_dentry()
-    inode = dentry.d_inode
-    vfsmnt = filp.get_vfsmnt()
     ret_path = []
+
+    inode = dentry.d_inode
 
     while 1:
 
@@ -145,6 +148,14 @@ def get_path(task, filp, addr_space):
         ret_val = '/' + ret_val
 
     return ret_val
+
+def get_path(task, filp, addr_space):
+
+    root = task.fs.root
+    dentry = filp.get_dentry()
+    vfsmnt = filp.get_vfsmnt()
+
+    return do_get_path(root, dentry, vfsmnt, addr_space)
 
 # this is here b/c python is retarded and its inet_ntoa can't handle integers...
 def ip2str(ip):

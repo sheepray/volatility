@@ -50,3 +50,21 @@ tcp_states = ("",
               "LISTEN",
               "CLOSING")
 
+MNT_NOSUID = 0x01
+MNT_NODEV  = 0x02
+MNT_NOEXEC = 0x04
+MNT_NOATIME = 0x08
+MNT_NODIRATIME = 0x10
+MNT_RELATIME = 0x20
+
+mnt_flags = {
+    MNT_NOSUID:     ",nosuid",
+    MNT_NODEV:      ",nodev",
+    MNT_NOEXEC:     ",noexec",
+    MNT_NOATIME:    ",noatime",
+    MNT_NODIRATIME: ",nodiratime",
+    MNT_RELATIME:   ",relatime"
+    }
+
+
+

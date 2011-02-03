@@ -77,7 +77,8 @@ class linux_netstat(lof.linux_list_open_files):
         proto = inet_sock.sk.sk_protocol
 
         # VTYPE BUG - remove when vtypes handle bit fields
-        proto = ((proto.v() & 0xff00) >> 8) & 0xff
+        #proto = ((proto.v() & 0xff00) >> 8) & 0xff
+        proto = proto.v()
 
         if proto in linux_flags.protocol_strings:
             ret = linux_flags.protocol_strings[proto]
