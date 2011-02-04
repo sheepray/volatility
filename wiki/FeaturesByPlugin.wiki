@@ -18,19 +18,83 @@ If the OS Support column contains the word "All", that doesn't mean it works on 
 == Processes and DLLs ==
 
 ||Command||Description||OS Support||
-||pslist||Print active processes by walking the PsActiveProcessHead linked list.<br>For inactive/terminated or hidden/unlinked processes, see psscan2.||All||
+||pslist||Print active processes by walking the !PsActiveProcessHead linked list.<br>For inactive/terminated or hidden/unlinked processes, see psscan2.||All||
 ||pstree||Print process list as a tree so you can visualize the parent/child relationships||All||
 ||psscan2||Find _EPROCESS objects using pool tag scanning||All||
-||dlllist||Print loaded DLLs by walking the InLoadOrderModuleList in the PEB.<br>Print DLLs in unlinked/hidden processes by specifying an _EPROCESS offset.<br>To cross reference this list with 3 other sources of information, see LdrModules.||All||
+||dlllist||Print loaded DLLs by walking the !InLoadOrderModuleList in the PEB.<br>Print DLLs in unlinked/hidden processes by specifying an _EPROCESS offset.<br>To cross reference this list with 3 other sources of information, see !LdrModules.||All||
 ||dlldump||Extract DLLs to executable files.<br>Dump a PE from process memory (even if it's not in the DLL list) by specifying a base address.||All||
 ||files||Print list of open files for each process||All||
 ||regobjkeys||Print list of open regkeys for each process||All||
 ||getsids||Print the SIDs owning each process||All||
 
+== Processes Memory ==
+
+||Command||Description||OS Support||
+||memmap||Print the virtual addresses, physical addresses, and size of each page accessible to a process||All||
+||memdump||Dump the addressable memory for a process (outputs 1 file per process)||All||
+||procmemdump||Extract a process's executable, preserving slack space||All||
+||procexedump||Extract a process's executable, do not preserve slack space||All||
+||vadwalk||Walk the VAD tree and print basic information||All||
+||vadtree||Walk the VAD tree and display in tree format||All||
+||vadinfo||Walk the VAD tree and print extended information||All||
+||vaddump||Dumps out the VAD sections (outputs multiple files per process)||All||
+
+== Kernel Memory and Objects ==
+
+||Command||Description||OS Support||
+||modules||Print loaded kernel drivers by walking the !PsLoadedModuleList linked list||All||
+||modscan2||Scan physical memory for LDR_DATA_TABLE_ENTRY objects.<br>Can locate unloaded and unlinked kernel drivers.||All||
+||moddump||Extract a kernel driver to disk (by base address or regular expression)||All||
+||ssdt||Print the Native and GDI System Service Descriptor Tables||All||
+||driverscan||Scan physical memory for DRIVER_OBJECT objects||All||
+||filescan||Scan physical memory for FILE_OBJECT objects||All||
+||mutantscan||Scan physical memory for KMUTANT objects||All||
+||thrdscan2||Scan physical memory for ETHREAD objects||All||
+
+== Networking ==
+
+||Command||Description||OS Support||
+||connections||Display open network connections by walking the linked list in tcpip.sys||Windows XP||
+||connscan2||Scan physical memory for connection objects||Windows XP||
+||sockets||Display open client and server (listening) sockets by walking the linked list in tcpip.sys||Windows XP||
+||sockscan2||Scan physical memory for socket objects||Windows XP||
+||netscan||Scan physical memory for connection and socket objects.<br>Distinguishes between IPv4 and IPv6.<br>Shows owning process, creation time, and state (for TCP connections).||Windows Vista and 7||
+
+== Registry ==
+
+||Command||Description||OS Support||
+||hivescan||Scan Physical memory for _CMHIVE objects (registry hives)||All||
+||hivelist||Walk the linked list of registry hives and print their virtual addresses and corresponding paths on disk||All||
+||printkey||Print the contents of a registry key, its values, timestamps, and data||All||
+||hashdump||Dumps passwords hashes (LM/NTLM) from memory||All||
+||lsadump||Dump (decrypted) LSA secrets from the registry||Windows XP||
+
+== Crash Dumps and Hibernation Files ==
+
+||Command||Description||OS Support||
+||crashdump||Dumps the crashdump file to a raw file||||
+||crashinfo||Dump crash-dump information||||
+||hibdump||Dumps the hibernation file to a raw file||||
+||hibinfo||Dump hibernation file information||||
+
+== Malware/Rootkits ==
+
+||Command||Description||OS Support||
+||malfind||Extract injected DLLs, injected code, unpacker stubs, API hook trampolines.<br>Scan for any ANSI string, Unicode string, regular expression, or byte sequence in process or kernel driver memory.||All||
+||svcscan||Scan the Service Control Manager for information on Windows services.<br>Shows binary path, process ID or driver object, current state, etc).||All||
+||ldrmodules||Detect unlinked DLLs by cross-referencing memory mapped files with the 3 PEB DLL lists||All||
+||impscan||Scan for calls to imported functions.<br>Does not rely on the Import Address Table (for example it works when the PE header has been erased).<br>Automatically generates a labeled IDA Pro Database.<br>Works on EXEs, DLLs, arbitrary executable ranges of process memory, and kernel drivers.||All||
+||apihooks||Detect IAT, EAT, and Inline hooks in process or kernel memory.<br>For inline hooks, it checks direct calls, direct jumps, indirect calls, indirect jumps, and push/ret instructions.<br>Detects calls to unknown code pages in kernel drivers.<br>Detects redirected system calls in ntdll.dll.||All||
+||idt||Dumps the Interrupt Descriptor Table.<br>Checks for inline API hooks of all IDT entries.||All||
+||orphanthreads||Checks for kernel threads that don't map back to known drivers||All||
+||notifyroutines||Prints kernel callbacks of the following types:<br>!PsSetCreateProcessNotifyRoutine (process creation).<br>!PsSetCreateThreadNotifyRoutine (thread creation).<br>!PsSetImageLoadNotifyRoutine (DLL/image load).<br>!IoRegisterFsRegistrationChange (file system registration).<br>!KeRegisterBugCheck and !KeRegisterBugCheckReasonCallback.<br>!CmRegisterCallback (registry callbacks on XP).<br>!CmRegisterCallbackEx (registry callbacks on Vista and 7).<br>!IoRegisterShutdownNotification (shutdown callbacks).<br>!DbgSetDebugPrintCallback (debug print callbacks on Vista and 7).<br>!DbgkLkmdRegisterCallback (debug callbacks on 7).||All||
+||driverirp||Print the 28 IRP handlers for each driver object.<br>Checks for inline API hooks of each function.||All||
+||csrpslist||Detect hidden processes using alternate process listings in csrss.exe.<br>Checks the handle table and internal linked list of processes.||All, but no internal list on Vista and 7||
+||ssdt_ex||Automated SSDT hook explorer for use with IDA Pro.<br>Detects which SSDT functions are hooked.<br>Extracts the hooking driver and creates an IDA Database.<br>Labels the rootkit function in the IDA Database.||All||
+||ssdt_by_threads||Prints which threads in which processes are calling through an SSDT with any hooks present||All||
 
 == Miscellaneous ==
 
 ||Command||Description||OS Support||
 ||strings||Match physical offsets to virtual addresses||All||
 ||volshell||Shell to interactively explore a memory image||All||
-
