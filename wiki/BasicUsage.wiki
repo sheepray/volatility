@@ -89,4 +89,8 @@ $ python volatility.py mutantscandb -f win7.dd --output=html --output-file=mutan
 
 Here we can see that we are using html output and saving the output to a file called mutants.html
 
+== Other Resources ==
+
+For a list of plugins and their features look at FeaturesByPlugin 
+
 For more details on commandlines look at CommandLineProcessing
