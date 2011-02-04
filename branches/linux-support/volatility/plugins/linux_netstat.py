@@ -68,17 +68,13 @@ class linux_netstat(lof.linux_list_open_files):
 
     def get_state_str(self, inet_sock):
 
-        state = inet_sock.sk.sk_common.skc_state
+        state = inet_sock.sk.__sk_common.skc_state
 
         return linux_flags.tcp_states[state]
 
     def get_proto_str(self, inet_sock):
 
-        proto = inet_sock.sk.sk_protocol
-
-        # VTYPE BUG - remove when vtypes handle bit fields
-        #proto = ((proto.v() & 0xff00) >> 8) & 0xff
-        proto = proto.v()
+        proto = inet_sock.sk.sk_protocol.v()
 
         if proto in linux_flags.protocol_strings:
             ret = linux_flags.protocol_strings[proto]
