@@ -124,15 +124,6 @@ def base_type_name(parsed):
         else:
             return sz2tp[sz]
 
-def print_vtypes(vtypes):
-    print "the_types = {"
-    for t in vtypes:
-        print "  '%s': [ %#x, {" % (t, vtypes[t][0])
-        for m in sorted(vtypes[t][1],key=lambda m: vtypes[t][1][m][0]):
-            print "    '%s': [%#x, %s]," % (m, vtypes[t][1][m][0], vtypes[t][1][m][1])
-        print "}],"
-    print "}"
-
 if __name__ == "__main__":
     from optparse import OptionParser
     parser = OptionParser()
