@@ -124,6 +124,15 @@ def base_type_name(parsed):
         else:
             return sz2tp[sz]
 
+def print_vtypes(vtypes):
+    print "the_types = {"
+    for t in vtypes:
+        print "  '%s': [ %#x, {" % (t, vtypes[t][0])
+        for m in sorted(vtypes[t][1],key=lambda m: vtypes[t][1][m][0]):
+            print "    '%s': [%#x, %s]," % (m, vtypes[t][1][m][0], vtypes[t][1][m][1])
+        print "}],"
+    print "}"
+
 if __name__ == "__main__":
     from optparse import OptionParser
     parser = OptionParser()
@@ -270,8 +279,13 @@ if __name__ == "__main__":
                 anons += 1
             off = int(parsed['data']['DW_AT_data_member_location'].split()[1])
             if 'DW_AT_bit_size' in parsed['data'] and 'DW_AT_bit_offset' in parsed['data']:
+                full_size = int(parsed['data']['DW_AT_byte_size'])*8
                 stbit = int(parsed['data']['DW_AT_bit_offset'])
                 edbit = stbit + int(parsed['data']['DW_AT_bit_size'])
+                stbit = full_size - stbit
+                edbit = full_size - edbit
+                stbit,edbit = edbit,stbit
+                assert stbit < edbit
                 memb_tp = ['BitField', dict(start_bit = stbit, end_bit = edbit)]
             else:
                 memb_tp = parsed['data']['DW_AT_type']
