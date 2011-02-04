@@ -37,7 +37,7 @@ $ python volatility.py -f [image] --profile=[PROFILE] [plugin]
 
 Options with dashes must maintain their order however (e.g. -f [image]).  The above commands will run the given plugin on the given image using the given profile.  
 
-To get a list of available plugins and CommandLineOptions you can type:
+To get a list of available plugins and commandline options you can type:
 
 {{{
 $ python volatility.py -h
@@ -88,3 +88,5 @@ $ python volatility.py mutantscandb -f win7.dd --output=html --output-file=mutan
 }}}
 
 Here we can see that we are using html output and saving the output to a file called mutants.html
+
+For more details on commandlines look at CommandLineProcessing
