@@ -1,4 +1,5 @@
 #summary This wiki contains urls of known available memory samples
+#labels Deprecated
 
 = Introduction =
 
