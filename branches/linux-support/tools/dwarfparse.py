@@ -1,4 +1,31 @@
 #!/usr/bin/env python2.6
+#  -*- mode: python; -*-
+#
+# dwarfparse.py
+# Copyright (C) 2010 Brendan Dolan-Gavitt
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or (at
+# your option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# General Public License for more details. 
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA 
+#
+
+"""
+@author:       Brendan Dolan-Gavitt
+@license:      GNU General Public License 2.0 or later
+@contact:      brendandg@gatech.edu
+@organization: Georgia Institute of Technology
+"""
+
 
 from pprint import pprint
 import fileinput
@@ -181,11 +208,11 @@ if __name__ == "__main__":
                 anons += 1
             name_stack[-1] = (name_stack[-1][0], name)
             id_to_name[parsed['id']] = [name]
-            
+
             # If it's just a forward declaration, we want the name around,
             # but there won't be a size
             if 'DW_AT_declaration' in parsed['data']: continue
-
+            
             vtypes[name] = [ int(parsed['data']['DW_AT_byte_size']), {} ]
         elif parsed['kind'] == 'DW_TAG_union_type':
             try:
@@ -207,6 +234,11 @@ if __name__ == "__main__":
                 anons += 1
             name_stack[-1] = (name_stack[-1][0], name)
             id_to_name[parsed['id']] = [name]
+
+            # If it's just a forward declaration, we want the name around,
+            # but there won't be a size
+            if 'DW_AT_declaration' in parsed['data']: continue
+
             sz = int(parsed['data']['DW_AT_byte_size'])
             enums[name] = [sz,{}]
         elif parsed['kind'] == 'DW_TAG_pointer_type':
