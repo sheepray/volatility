@@ -3,7 +3,7 @@
 
 = Introduction =
 
-This is a list of Volatility features organized by plugins and categories. It applies to the current version of Volatility. Plugins for older versions of Volatility can be found on [http://www.forensicswiki.org/wiki/List_of_Volatility_Plugins The Forensics Wiki] or in the [http://code.google.com/p/volatility/wiki/Plugins deprecated Plugins page].
+This is a list of Volatility features organized by plugins and categories. It applies to the current version of Volatility. Plugins for older versions of Volatility can be found on [http://www.forensicswiki.org/wiki/List_of_Volatility_Plugins The Forensics Wiki] or in the [http://code.google.com/p/volatility/wiki/FAQ deprecated Plugins page].
 
 If the OS Support column contains the word "All", that doesn't mean it works on all operating systems - it just means it works on all operating systems that Volatility supports. For a list, see the [http://code.google.com/p/volatility/wiki/Plugins FAQ page]. 
 
@@ -12,7 +12,6 @@ If the OS Support column contains the word "All", that doesn't mean it works on 
 ||Command||Description||OS Support||
 ||datetime||Get date/time information for image||All||
 ||imageinfo||Prints the suggested profile (OS version and patch level).<br>Tells you if the system is PAE vs no PAE.<br>Locates the DTB, KDBG, KPCR, and KUSER_SHARED_DATA.<br>Prints the date/time info.||All||
-||imagecopy||Copies a physical address space out as a raw DD image||||
 ||kdbgscan||Search for and dump potential KDBG values||All||
 ||kpcrscan||Search for and dump potential KDBG values||All||
 
@@ -72,13 +71,14 @@ If the OS Support column contains the word "All", that doesn't mean it works on 
 ||hashdump||Dumps passwords hashes (LM/NTLM) from memory||All||
 ||lsadump||Dump (decrypted) LSA secrets from the registry||Windows XP||
 
-== Crash Dumps and Hibernation Files ==
+== Crash Dumps, Hibernation, and Conversion ==
 
 ||Command||Description||OS Support||
 ||crashdump||Dumps the crashdump file to a raw file||||
 ||crashinfo||Dump crash-dump information||||
 ||hibdump||Dumps the hibernation file to a raw file||||
 ||hibinfo||Dump hibernation file information||||
+||imagecopy||Copies a physical address space out as a raw DD image||||
 
 == Malware/Rootkits ==
 
