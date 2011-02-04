@@ -1,4 +1,5 @@
 #summary List of dependencies for some Volatility plugins
+#labels Deprecated
 
 = Introduction =
 
