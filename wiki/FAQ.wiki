@@ -1,10 +1,6 @@
 #summary Frequently Asked Questions
 #labels Featured
 
-= Introduction =
-
-Add your content here.
-
 *Q:* What is the latest version of Volatility? <br>
 *A:* 
 
