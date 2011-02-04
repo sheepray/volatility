@@ -1,4 +1,5 @@
 #summary Volatility Features by Plugin
+#labels Featured
 
 = Introduction =
 
@@ -26,6 +27,7 @@ If the OS Support column contains the word "All", that doesn't mean it works on 
 ||files||Print list of open files for each process||All||
 ||regobjkeys||Print list of open regkeys for each process||All||
 ||getsids||Print the SIDs owning each process||All||
+||verinfo||Print the version information compiled into a process or DLL's PE file||All||
 
 == Processes Memory ==
 
@@ -66,6 +68,7 @@ If the OS Support column contains the word "All", that doesn't mean it works on 
 ||hivescan||Scan Physical memory for _CMHIVE objects (registry hives)||All||
 ||hivelist||Walk the linked list of registry hives and print their virtual addresses and corresponding paths on disk||All||
 ||printkey||Print the contents of a registry key, its values, timestamps, and data||All||
+||hivedump||Recursively prints all keys and timestamps in a given hive||All||
 ||hashdump||Dumps passwords hashes (LM/NTLM) from memory||All||
 ||lsadump||Dump (decrypted) LSA secrets from the registry||Windows XP||
 
@@ -98,3 +101,7 @@ If the OS Support column contains the word "All", that doesn't mean it works on 
 ||Command||Description||OS Support||
 ||strings||Match physical offsets to virtual addresses||All||
 ||volshell||Shell to interactively explore a memory image||All||
+||bioskbd||Reads the keyboard buffer from Real Mode memory||||
+||inspectcache||Inspect the contents of a cache||||
+||patcher||Patches memory based on page scans||||
+||testsuite||Run unit test suit using the Cache||||
