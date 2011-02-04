@@ -68,7 +68,7 @@ If you are still using the 1.3 branch of Volatility, then you may need:
 *A:* See the AUTHORS.txt and CREDITS.txt files provided with the Volatility source code. 
 
 *Q:* How can I contribute to Volatility? <br>
-*A:* If you have code or ideas to contribute, use one of the following methods:
+*A:* If you have documentation, code or ideas to contribute, use one of the following methods:
 
  * Through the [http://code.google.com/p/volatility/issues/list Google Code web interface]
  * Through IRC: #volatility on freenode 
