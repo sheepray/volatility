@@ -15,6 +15,8 @@ This table provides information concerning the internals of volatility 1.4, that
 
  * *[Vol14Objects Objects]* - Once an address space has been loaded, most plugins will begin accessing objects are offsets within the space.  This document describes the object model, standard routines that can be used on objects and how to construct more complex objects.
 
+ * *[Vol14VolatilityMagic Profile-specific Constants/Algorithms]* - Occasionally there will be a particular offset in memory (the KernelProcessorControlRegister or KPCR, for example) which is at a fixed location for each profile, but that fixed location may change, or certain profiles need to be located algorithmically.  In Volatility 1.4, there are special objects called [Vol14VolatilityMagic VolatilityMagic] objects that can be used to access this information from a plugin without hard-coding the different possibilities into the plugin.
+
  * *[Scanners Scanners]* - This document will describe how scanners can be created to search through large address spaces efficiently to locate sections of memory of interest.
 
 = Miscellaneous =
