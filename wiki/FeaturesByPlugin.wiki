@@ -3,7 +3,7 @@
 
 = Introduction =
 
-This is a list of Volatility features organized by plugins and categories. It applies to the current version of Volatility. Plugins for older versions of Volatility can be found on [http://www.forensicswiki.org/wiki/List_of_Volatility_Plugins The Forensics Wiki] or in the [http://code.google.com/p/volatility/wiki/FAQ deprecated Plugins page].
+This is a list of Volatility features organized by plugins and categories. It applies to the current version of Volatility. Plugins for older versions of Volatility can be found on [http://www.forensicswiki.org/wiki/List_of_Volatility_Plugins The Forensics Wiki] or in the [http://code.google.com/p/volatility/wiki/Plugins deprecated Plugins page].
 
 If the OS Support column contains the word "All", that doesn't mean it works on all operating systems - it just means it works on all operating systems that Volatility supports. For a list, see the [http://code.google.com/p/volatility/wiki/FAQ FAQ page]. 
 
