@@ -73,9 +73,14 @@ Then overlay it on the VOLATILITY_MAGIC class, as usual.
 
 {{{
 'VOLATILITY_MAGIC' : [None, { 
-    'DTB' : [ 0x0, ['VolatilityDTB']],
+    'DTB' : [ 0x0, ['VolatilityDTB', dict(configname = "DTB")]],
 }
 }}}
+
+== Creating configurable constants ==
+
+A user may want to override a !VolatilyMagic object (in case the initial suggestion isn't valid, or the user already knows the correct location and does not want to spend the time generating it again).  They can do this by passing the 
+`configname` parameter as shown in the above example.  Here a new *global* configuration object, called DTB will be created (without a short option).  If a value is ever specified for this option, then it will always be returned by the !VolatilityMagic object, instead of any constant or generated value.
 
 == Using existing Scanners ==
 
