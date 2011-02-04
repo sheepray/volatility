@@ -35,6 +35,7 @@ This page documents the things we want to accomplish in the 1.4 branch, so we ca
 
   * Write a raw2dump plugin (possibly dependent on write support)
   * ~~Convert over some malware plugins~~
+  * Convert psscan3, objtypescan, symlinkobjscan (tasks carried over from the deprecated [http://code.google.com/p/volatility/wiki/Plugins Plugins page])
 
 == Longterm Tasks ==
 
