@@ -8,7 +8,7 @@
 
 To keep conflicts between generated vtypes and `VolatilityMagic` values separate, a fixed CType of `VOLATILITY_MAGIC` is added to each profile.  The difference between this CType and any other normal CType is that this will *not* verify the address of its members in the underlying address space (since the values aren't read from the address space, but are instead constant or generated some other way).
 
-= VolatilityMagic object =
+= !VolatilityMagic object =
 
 This object has the following methods:
 
@@ -16,7 +16,7 @@ This object has the following methods:
   * `v()`: Returns the value of the object (either value passed during creation or `get_best_suggestion()`).
   * `get_suggestions()`: Returns a list of possible values (including any value specified during creation time, or any relevant config value), ordered best fit to worst fit.  This function is not intended to be overridden, please define `generate_suggestion` where required.
   * `generate_suggestions()`: Returns a list of possible values, ordered best fit to worst fit.  Intended to be overriden.
-  * `get_best_suggestion()`: By default, returns the first item from get_suggestion (or NoneObject if no suggestions are available).
+  * `get_best_suggestion()`: By default, returns the first item from get_suggestion (or !NoneObject if no suggestions are available).
 
 = Examples =
 
