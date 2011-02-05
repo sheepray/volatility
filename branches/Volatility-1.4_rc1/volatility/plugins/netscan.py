@@ -11,11 +11,11 @@
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-# General Public License for more details. 
+# General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA 
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 #
 
 import volatility.utils as utils
@@ -44,9 +44,64 @@ tcp_states = [
 AF_INET = 2
 AF_INET6 = 0x17
 
+# Compensate for Windows python not supporting socket.inet_ntop
+try:
+    inet_ntop = socket.inet_ntop
+except AttributeError:
+    import itertools
+
+    def inet_ntop(address_family, packed_ip):
+
+        def inet_ntop4(packed_ip):
+            if not isinstance(packed_ip, str):
+                raise TypeError("must be string, not {0}".format(type(packed_ip)))
+            if len(packed_ip) != 4:
+                raise ValueError("invalid length of packed IP address string")
+            return "{0}.{1}.{2}.{3}".format(*[ord(x) for x in packed_ip])
+
+        def inet_ntop6(packed_ip):
+            if not isinstance(packed_ip, str):
+                raise TypeError("must be string, not {0}".format(type(packed_ip)))
+            if len(packed_ip) != 16:
+                raise ValueError("invalid length of packed IP address string")
+
+            words = []
+            for i in range(0, 16, 2):
+                words.append((ord(packed_ip[i]) << 8) | ord(packed_ip[i + 1]))
+
+            # Replace a run of 0x00s with None
+            numlen = [(k, len(list(g))) for k, g in itertools.groupby(words)]
+            max_zero_run = sorted(sorted(numlen, key = lambda x: x[1], reverse = True), key = lambda x: x[0])[0]
+            words = []
+            for k, l in numlen:
+                if (k == 0) and (l == max_zero_run[1]) and not (None in words):
+                    words.append(None)
+                else:
+                    for i in range(l):
+                        words.append(k)
+
+            # Handle encapsulated IPv4 addresses
+            encapsulated = ""
+            if (words[0] is None) and (len(words) == 3 or (len(words) == 4 and words[1] == 0xffff)):
+                words = words[:-2]
+                encapsulated = inet_ntop4(packed_ip[-4:])
+            # If we start or end with None, then add an additional :
+            if words[0] is None:
+                words = [None] + words
+            if words[-1] is None:
+                words += [None]
+            # Join up everything we've got using :s
+            return ":".join(["{0:x}".format(w) if w is not None else "" for w in words]) + encapsulated
+
+        if address_family == socket.AF_INET:
+            return inet_ntop4(packed_ip)
+        elif address_family == socket.AF_INET6:
+            return inet_ntop6(packed_ip)
+        raise socket.error("[Errno 97] Address family not supported by protocol")
+
 # String representations of INADDR_ANY and INADDR6_ANY
-inaddr_any = socket.inet_ntop(socket.AF_INET, '\0' * 4)
-inaddr6_any = socket.inet_ntop(socket.AF_INET6, '\0' * 16)
+inaddr_any = inet_ntop(socket.AF_INET, '\0' * 4)
+inaddr6_any = inet_ntop(socket.AF_INET6, '\0' * 16)
 
 class PoolScanUdpEndpoint(scan.PoolScanner):
     """PoolScanner for Udp Endpoints"""
@@ -87,16 +142,16 @@ class Netscan(commands.command):
 
     def enumerate_listeners(self, theObject, vspace = None):
         """
-        Enumerate the listening IPv4 and IPv6 information. If vspace is 
-        provided, then it is assumed that theObject is in physical space, in 
+        Enumerate the listening IPv4 and IPv6 information. If vspace is
+        provided, then it is assumed that theObject is in physical space, in
         which case we convert into the virtual space for handling pointers.
 
-        Unlike XP, where you needed to create two sockets (one for IPv4 and 
-        one for IPv4), starting with Vista, Windows supports dual-stack sockets 
-        (http://msdn.microsoft.com/en-us/library/bb513665.aspx) which allows one 
+        Unlike XP, where you needed to create two sockets (one for IPv4 and
+        one for IPv4), starting with Vista, Windows supports dual-stack sockets
+        (http://msdn.microsoft.com/en-us/library/bb513665.aspx) which allows one
         socket to be created that can use both protocols. This is why our plugin
         prints an IPv4 address for all IPv6 sockets, however its also possible
-        to create an IPv6 only socket by calling setsockopt with IPV6_V6ONLY. 
+        to create an IPv6 only socket by calling setsockopt with IPV6_V6ONLY.
         """
 
         if vspace != None:
@@ -108,17 +163,17 @@ class Netscan(commands.command):
             InetAF = theObject.InetAF
             Owner = theObject.Owner
 
-        # We only handle IPv4 and IPv6 sockets at the moment 
+        # We only handle IPv4 and IPv6 sockets at the moment
         if InetAF.AddressFamily != AF_INET and InetAF.AddressFamily != AF_INET6:
             raise StopIteration
 
         if LocalAddr != None:
             inaddr = LocalAddr.pData.dereference().dereference().v()
             if InetAF.AddressFamily == AF_INET:
-                laddr = socket.inet_ntop(socket.AF_INET, vspace.zread(inaddr, 4))
+                laddr = inet_ntop(socket.AF_INET, vspace.zread(inaddr, 4))
                 yield "v4", laddr, inaddr_any, Owner
             else:
-                laddr = socket.inet_ntop(socket.AF_INET6, vspace.zread(inaddr, 16))
+                laddr = inet_ntop(socket.AF_INET6, vspace.zread(inaddr, 16))
                 yield "v6", laddr, inaddr6_any, Owner
         else:
             yield "v4", inaddr_any, inaddr_any, Owner
@@ -161,12 +216,12 @@ class Netscan(commands.command):
 
             if InetAF.AddressFamily == AF_INET:
                 proto = "TCPv4"
-                laddr = socket.inet_ntop(socket.AF_INET, vspace.zread(l_inaddr, 4))
-                raddr = socket.inet_ntop(socket.AF_INET, vspace.zread(r_inaddr, 4))
+                laddr = inet_ntop(socket.AF_INET, vspace.zread(l_inaddr, 4))
+                raddr = inet_ntop(socket.AF_INET, vspace.zread(r_inaddr, 4))
             elif InetAF.AddressFamily == AF_INET6:
                 proto = "TCPv6"
-                laddr = socket.inet_ntop(socket.AF_INET6, vspace.zread(l_inaddr, 16))
-                raddr = socket.inet_ntop(socket.AF_INET6, vspace.zread(r_inaddr, 16))
+                laddr = inet_ntop(socket.AF_INET6, vspace.zread(l_inaddr, 16))
+                raddr = inet_ntop(socket.AF_INET6, vspace.zread(r_inaddr, 16))
             else:
                 continue
 
