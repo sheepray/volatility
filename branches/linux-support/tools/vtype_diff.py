@@ -33,6 +33,8 @@ import hashlib, os, sys
 
 class VtypeHolder(object):
 
+    unstable_var_prefix = "unknown_"
+
     def __init__(self):
         self.vtypes = None
         self.arrayname = None
@@ -83,7 +85,7 @@ class VtypeHolder(object):
             return tuple(sorted([self._tuplify(types, x) for x in t]))
         elif isinstance(t, dict):
             return self._tuplify(types, t.items())
-        elif isinstance(t, str) and 'unnamed' in t:
+        elif isinstance(t, str) and t.startswith(self.unstable_var_prefix):
             return self._tuplify(types, types[t])
         else:
             return t
@@ -133,11 +135,11 @@ class VtypeHolder(object):
         if not self.vtypes:
             return False
         namemap = {}
-        unnamed = [t for t in self.vtypes if t.startswith('__unnamed')]
+        unnamed = [t for t in self.vtypes if t.startswith(self.unstable_var_prefix)]
 
         # Create the namemap
         for t in unnamed:
-            newname = "unnamed_" + hashlib.md5(str(self._tuplify(self.vtypes, self.vtypes[t]))).hexdigest()
+            newname = "__volstablename_" + hashlib.md5(str(self._tuplify(self.vtypes, self.vtypes[t]))).hexdigest()
             if t in namemap:
                 print "Conflicting names for {0}: {1} and {2}".format(t, newname, self.namemap[t])
             if newname in self.vtypes:
