@@ -128,7 +128,7 @@ if __name__ == "__main__":
     from optparse import OptionParser
     parser = OptionParser()
     parser.add_option('-l', '--locals', action="store_true", dest="locals", default=False, help="print locals")
-    parser.add_option('-s', '--system_map', action="store", dest="map_file", default=True, help="system map file path")
+    parser.add_option('-s', '--system_map', action="store", dest="map_file", default="", help="system map file path")
     (options, args) = parser.parse_args()
 
     current_level = -1
@@ -204,7 +204,7 @@ if __name__ == "__main__":
             try:
                 name = parsed['data']['DW_AT_name']
             except KeyError:
-                name = "unknown_%d" % anons
+                name = "__unnamed_%d" % anons
                 anons += 1
             name_stack[-1] = (name_stack[-1][0], name)
             id_to_name[parsed['id']] = [name]
@@ -218,7 +218,7 @@ if __name__ == "__main__":
             try:
                 name = parsed['data']['DW_AT_name']
             except KeyError:
-                name = "unknown_%d" % anons
+                name = "__unnamed_%d" % anons
                 anons += 1
             name_stack[-1] = (name_stack[-1][0], name)
             id_to_name[parsed['id']] = [name]
@@ -230,7 +230,7 @@ if __name__ == "__main__":
             try:
                 name = parsed['data']['DW_AT_name']
             except KeyError:
-                name = "unknown_%d" % anons
+                name = "__unnamed_%d" % anons
                 anons += 1
             name_stack[-1] = (name_stack[-1][0], name)
             id_to_name[parsed['id']] = [name]
@@ -266,7 +266,7 @@ if __name__ == "__main__":
             try:
                 name = parsed['data']['DW_AT_name']
             except KeyError:    # Anonymous struct member, for example
-                name = "unknown_%d" % anons
+                name = "__unnamed_%d" % anons
                 anons += 1
             off = int(parsed['data']['DW_AT_data_member_location'].split()[1])
             if 'DW_AT_bit_size' in parsed['data'] and 'DW_AT_bit_offset' in parsed['data']:
@@ -285,7 +285,7 @@ if __name__ == "__main__":
             try:
                 name = parsed['data']['DW_AT_name']
             except KeyError:    # Anonymous union member, for example
-                name = "unknown_%d" % anons
+                name = "__unnamed_%d" % anons
                 anons += 1
             vtypes[parent_name][1][name] = [0, parsed['data']['DW_AT_type']]
         elif parsed['kind'] == 'DW_TAG_enumerator' and parent_kind == 'DW_TAG_enumeration_type':
@@ -334,7 +334,7 @@ if __name__ == "__main__":
         for m in all_vars:
             s.add(get_deepest(all_vars[m][1]))
         for v in list(all_vtypes):
-            if v.startswith('unknown_') and v not in s:
+            if v.startswith('__unnamed_') and v not in s:
                 del all_vtypes[v]
                 changed = True
 
@@ -358,10 +358,11 @@ if __name__ == "__main__":
     else:
         print "linux_types = {"
 
-        system_map = parse_system_map(options.map_file)
-        dtb = system_map["swapper_pg_dir"] - 0xc0000000
-        print "'VOLATILITY_MAGIC' : [None, {'DTB' : [ 0x00, ['VolatilityMagic', dict(value = %d)]]," % dtb
-        print "'system_map' : [  0x00, ['VolatilityMagic',dict(value = " + str(system_map) + " )]], }], "
+        if options.map_file:
+            system_map = parse_system_map(options.map_file)
+            dtb = system_map["swapper_pg_dir"] - 0xc0000000
+            print "'VOLATILITY_MAGIC' : [None, {'DTB' : [ 0x00, ['VolatilityMagic', dict(value = %d)]]," % dtb
+            print "'system_map' : [  0x00, ['VolatilityMagic',dict(value = " + str(system_map) + " )]], }], "
 
         for t in all_vtypes:
             print "  '%s': [ %#x, {" % (t, all_vtypes[t][0])
