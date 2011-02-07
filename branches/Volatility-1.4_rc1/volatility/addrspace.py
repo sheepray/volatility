@@ -107,6 +107,9 @@ class BaseAddressSpace(object):
         return self.__class__ == other.__class__ and \
                self.profile == other.profile and self.base == other.base
 
+    def __ne__(self, other):
+        return not self == other
+
     def read(self, addr, length):
         """ Read some date from a certain offset """
 
