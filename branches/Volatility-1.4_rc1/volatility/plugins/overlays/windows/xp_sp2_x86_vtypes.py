@@ -1,4 +1,4 @@
-xpsp2types = {
+xpsp2_types = {
   'LIST_ENTRY64' : [ 0x10, {
     'Flink' : [ 0x0, ['unsigned long long']],
     'Blink' : [ 0x8, ['unsigned long long']],
