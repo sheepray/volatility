@@ -356,7 +356,7 @@ if __name__ == "__main__":
         print "\n".join("  " + str(l) + "," for l in local_vars)
         #print "]"
     else:
-        print "linux_vtypes = {"
+        print "linux_types = {"
 
         system_map = parse_system_map(options.map_file)
         dtb = system_map["swapper_pg_dir"] - 0xc0000000
