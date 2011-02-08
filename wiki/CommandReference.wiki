@@ -67,7 +67,7 @@ Potential KPCR structure virtual addresses:
 
 == pslist ==
 
-To list the active processes of a system, use the pslist command. This walks the doubly-linked list known as PsActiveProcessHead. It does not detect hidden or unlinked processes. 
+To list the active processes of a system, use the pslist command. This walks the doubly-linked list known as !PsActiveProcessHead. It does not detect hidden or unlinked processes. 
 
 {{{
 $ python volatility.py --profile=Win7SP0x86 -f win7.dmp --kpcr=0x8296dc00 pslist
@@ -141,7 +141,7 @@ If a process has previously terminated, the Time exited field will show the exit
 
 == dlllist ==
 
-To display a process's loaded DLLs, use the dlllist command. It walks the doubly-linked list of LDR_DATA_TABLE_ENTRY structures which is pointed to by PEB.InLoadOrderModuleList. 
+To display a process's loaded DLLs, use the dlllist command. It walks the doubly-linked list of LDR_DATA_TABLE_ENTRY structures which is pointed to by the PEB's !InLoadOrderModuleList. 
 
 {{{
 $ python volatility.py --profile=Win7SP0x86 -f win7.dmp --kpcr=0x8296dc00 dlllist
@@ -334,19 +334,248 @@ You can also reference the verinfo plugin for an example of how to parse PE head
 = Process Memory =
 
 == memmap ==
+
+For a brief inspection of the addressable memory pages in a process, use the memmap command. 
+
+{{{
+$ python volatility.py --profile=Win7SP0x86 -f win7.dmp --kpcr=0x8296dc00 -p 1880 memmap 
+explorer.exe pid:   1880
+Virtual      Physical     Size        
+0x0000010000 0x00075cb000 0x000000001000
+0x0000021000 0x0009c2c000 0x000000001000
+0x0000030000 0x0002adf000 0x000000001000
+0x0000031000 0x0000d99000 0x000000001000
+0x0000032000 0x000583a000 0x000000001000
+0x0000040000 0x000a25b000 0x000000001000
+0x0000041000 0x00044d6000 0x000000001000
+0x0000050000 0x00099ee000 0x000000001000
+0x0000060000 0x000b155000 0x000000001000
+[snip]
+}}}
+
 == memdump ==
+
+To extract all data from the various memory segments in a process and dump them to a single file, use the memdump command. 
+
+{{{
+$ python volatility.py --profile=Win7SP0x86 -f win7.dmp --kpcr=0x8296dc00 -p 1880 memdump -D memory/
+Volatile Systems Volatility Framework 1.4_rc1
+************************************************************************
+Writing explorer.exe [  1880] to 1880.dmp
+
+$ ls -alh memory/1880.dmp 
+-rw-r--r--  1 User  staff   140M Feb  8 15:13 memory/1880.dmp
+}}}
+
 == procmemdump ==
+
+To dump a process's executable (including the slack space), use the procmemdump command. Optionally, pass the --unsafe or -u flags to bypass certain sanity checks used when parsing the PE header. For example, some malware will intentionally forge size fields in the PE header so that memory dumping tools fail. 
+
+{{{
+$ python volatility.py --profile=Win7SP0x86 -f win7.dmp --kpcr=0x8296dc00 -p 1880 procmemdump -D memory/
+Volatile Systems Volatility Framework 1.4_rc1
+************************************************************************
+Dumping explorer.exe, pid:   1880 output: executable.1880.exe
+
+$ file memory/executable.1880.exe 
+memory/executable.1880.exe: PE32 executable for MS Windows (GUI) Intel 80386 32-bit
+}}}
+
 == procexedump ==
+
+To dump a process's executable (*not* including the slack space), use the procexedump command. The syntax is identical to procmemdump.
+
 == vadwalk ==
+
+To briefly inspect a process's VAD nodes, use the vadwalk command. For more information on the VAD, see BDG's [http://www.dfrws.org/2007/proceedings/p62-dolan-gavitt.pdf The VAD Tree: A Process-Eye View of Physical Memory].
+
+{{{
+$ python volatility.py --profile=Win7SP0x86 -f win7.dmp --kpcr=0x8296dc00 -p 1880 vadwalk
+Volatile Systems Volatility Framework 1.4_rc1
+************************************************************************
+Pid:   1880
+Address  Parent   Left     Right    Start    End      Tag  Flags
+8d5487b8 00000000 8d6a4a20 8d7d5ef8 6ce80000 6ceeefff Vad 
+8d6a4a20 00000000 8d57ed70 84e4e7f8 02e30000 02e31fff VadS
+8d57ed70 8d6a4a20 8d6cffb8 8d7c5c20 01c90000 01e8ffff Vadm
+8d6cffb8 00000000 8d760e58 8d457268 00a20000 00ca0fff Vadm
+8d760e58 00000000 84d529c0 84d2a1b8 00090000 000cffff VadS
+84d529c0 00000000 84e689a0 8d782428 00040000 00041fff Vad 
+84e689a0 84d529c0 84d52708 83efff78 00020000 00021fff Vad 
+84d52708 84e689a0 00000000 00000000 00010000 0001ffff Vad 
+83efff78 84e689a0 00000000 00000000 00030000 00033fff Vad 
+[snip]
+}}}
+
 == vadtree ==
+
+To display the VAD nodes in a visual tree form, use the vadtree command. 
+
+{{{
+$ python volatility.py --profile=Win7SP0x86 -f win7.dmp --kpcr=0x8296dc00 -p 1880 vadtree
+Volatile Systems Volatility Framework 1.4_rc1
+************************************************************************
+Pid:   1880
+6ce80000 - 6ceeefff
+02e30000 - 02e31fff
+ 01c90000 - 01e8ffff
+00a20000 - 00ca0fff
+00090000 - 000cffff
+00040000 - 00041fff
+ 00020000 - 00021fff
+  00010000 - 0001ffff
+}}}
+
+If you want to view the balanced binary tree in Graphviz format, use the dot output rendering:
+
+{{{
+$ python volatility.py --profile=Win7SP0x86 -f win7.dmp --kpcr=0x8296dc00 -p 1880 vadtree --output=dot --output-file=graph.dot
+}}}
+
+Now you can open graph.dot in any Graphviz-compatible viewer. 
+
 == vadinfo ==
+
+The vadinfo command displays extended information about a process's VAD nodes. In particular, it shows:
+
+  * The address of the MMVAD structure in kernel memory
+  * The starting and ending virtual addresses
+  * The VAD Tag 
+  * The memory protection constant (permissions)
+  * The name of the memory mapped file (if one exists)
+
+{{{
+$ python volatility.py --profile=Win7SP0x86 -f win7.dmp --kpcr=0x8296dc00 -p 1880 vadinfo
+
+VAD node @8d570798 Start 05330000 End 0536ffff Tag VadS
+Flags: PrivateMemory
+Commit Charge: 18 Protection: 4
+
+VAD node @8d6d78a0 Start 05850000 End 0588ffff Tag VadS
+Flags: PrivateMemory
+Commit Charge: 16 Protection: 4
+
+VAD node @84f40530 Start 6c750000 End 6c756fff Tag Vad 
+Flags: UserPhysicalPages
+Commit Charge: 2 Protection: 7
+ControlArea @84d501e8 Segment 99e28118
+Dereference list: Flink 00000000, Blink 00000000
+NumberOfSectionReferences:          0 NumberOfPfnReferences:           1
+NumberOfMappedViews:                1 NumberOfUserReferences:          1
+WaitingForDeletion Event:  00000000
+Flags: File, Image
+FileObject @84e8e910 FileBuffer @ 9c52c7b0          , Name: \Windows\System32\msiltcfg.dll
+First prototype PTE: 99e28144 Last contiguous PTE: fffffffc
+Flags2: Inherit
+File offset: 00000000
+
+[snip]
+}}}
+
 == vaddump ==
+
+To extract the data contained within each VAD segment, use the vaddump command. This is similar to memdump, except the data ends up in separate files, named according to the address in process memory where the data was found. 
+
+{{{
+$ python volatility.py --profile=Win7SP0x86 -f win7.dmp --kpcr=0x8296dc00 vaddump -D vads
+Volatile Systems Volatility Framework 1.4_rc1
+Pid:      4
+************************************************************************
+Pid:    252
+************************************************************************
+Pid:    348
+************************************************************************
+Pid:    384
+************************************************************************
+Pid:    396
+************************************************************************
+Pid:    424
+[snip]
+
+$ ls -alh vads/
+-rw-r--r--    1 User  staff   128K Feb  8 15:29 System.a2d960.00120000-0013ffff.dmp
+-rw-r--r--    1 User  staff   128K Feb  8 15:29 System.a2d960.00140000-0015ffff.dmp
+-rw-r--r--    1 User  staff   128K Feb  8 15:29 System.a2d960.00160000-0017ffff.dmp
+-rw-r--r--    1 User  staff   128K Feb  8 15:29 System.a2d960.00180000-0019ffff.dmp
+-rw-r--r--    1 User  staff   1.2M Feb  8 15:29 System.a2d960.778a0000-779dbfff.dmp
+-rw-r--r--    1 User  staff   1.0M Feb  8 15:29 csrss.exe.3164d40.00000000-000fffff.dmp
+-rw-r--r--    1 User  staff   412K Feb  8 15:29 csrss.exe.3164d40.00100000-00166fff.dmp
+-rw-r--r--    1 User  staff   4.0K Feb  8 15:29 csrss.exe.3164d40.00170000-00170fff.dmp
+-rw-r--r--    1 User  staff   8.0K Feb  8 15:29 csrss.exe.3164d40.00180000-00181fff.dmp
+-rw-r--r--    1 User  staff   4.0K Feb  8 15:29 csrss.exe.3164d40.00190000-00190fff.dmp
+[snip]
+}}}
+
+The files are named like this:
+
+[!ProcessName].[!PhysicalOffset].[!StartingVPN].[!EndingVPN].dmp
 
 = Kernel Memory and Objects =
 
 == modules ==
+
+To view the list of kernel drivers loaded on the system, use the modules command. This walks the doubly-linked list of LDR_DATA_TABLE_ENTRY structures pointed to by !PsLoadedModuleList. It cannot find hidden/unlinked kernel drivers.
+
+{{{
+$ python volatility.py --profile=Win7SP0x86 -f win7.dmp --kpcr=0x8296dc00 modules
+Volatile Systems Volatility Framework 1.4_rc1
+File                                               Base         Size     Name
+\SystemRoot\system32\ntoskrnl.exe                  0x008284c000 0x400000 ntoskrnl.exe
+\SystemRoot\system32\halmacpi.dll                  0x0082815000 0x037000 hal.dll
+\SystemRoot\system32\kdcom.dll                     0x0080bcc000 0x008000 kdcom.dll
+\SystemRoot\system32\mcupdate_GenuineIntel.dll     0x0085c2d000 0x078000 mcupdate.dll
+\SystemRoot\system32\PSHED.dll                     0x0085ca5000 0x011000 PSHED.dll
+\SystemRoot\system32\BOOTVID.dll                   0x0085cb6000 0x008000 BOOTVID.dll
+\SystemRoot\system32\CLFS.SYS                      0x0085cbe000 0x042000 CLFS.SYS
+\SystemRoot\system32\CI.dll                        0x0085d00000 0x0ab000 CI.dll
+\SystemRoot\system32\drivers\Wdf01000.sys          0x0085dab000 0x071000 Wdf01000.sys
+\SystemRoot\system32\drivers\WDFLDR.SYS            0x0085e1c000 0x00e000 WDFLDR.SYS
+\SystemRoot\system32\DRIVERS\ACPI.sys              0x0085e2a000 0x048000 ACPI.sys
+\SystemRoot\system32\DRIVERS\WMILIB.SYS            0x0085e72000 0x009000 WMILIB.SYS
+[snip] 
+}}}
+
 == modscan2 ==
+
+To scan physical memory for kernel modules, use the modscan2 command. This can pick up previously unloaded drivers and drivers that have been hidden/unlinked by rootkits. 
+
+{{{
+$ python volatility.py --profile=Win7SP0x86 -f win7.dmp --kpcr=0x8296dc00 modscan2
+Volatile Systems Volatility Framework 1.4_rc1
+File                                               Base         Size     Name
+'\\SystemRoot\\System32\\Drivers\\spldr.sys'       0x00865c9000 0x008000 'spldr.sys'
+'\\SystemRoot\\system32\\DRIVERS\\volsnap.sys'     0x008658a000 0x03f000 'volsnap.sys'
+'\\SystemRoot\\system32\\DRIVERS\\vmstorfl.sys'    0x0086581000 0x009000 'vmstorfl.sys'
+'\\SystemRoot\\System32\\drivers\\fwpkclnt.sys'    0x0086550000 0x031000 'fwpkclnt.sys'
+'\\SystemRoot\\System32\\drivers\\tcpip.sys'       0x0086407000 0x149000 'tcpip.sys'
+'\\SystemRoot\\System32\\Drivers\\ksecpkg.sys'     0x0086333000 0x025000 'ksecpkg.sys'
+'\\SystemRoot\\system32\\drivers\\NETIO.SYS'       0x00862f5000 0x03e000 'NETIO.SYS'
+'\\SystemRoot\\system32\\drivers\\ndis.sys'        0x008623e000 0x0b7000 'ndis.sys'
+'\\SystemRoot\\System32\\Drivers\\Fs_Rec.sys'      0x0086235000 0x009000 'Fs_Rec.sys'
+'\\SystemRoot\\System32\\drivers\\pcw.sys'         0x0086227000 0x00e000 'pcw.sys'
+'\\SystemRoot\\System32\\Drivers\\cng.sys'         0x00861ca000 0x05d000 'cng.sys'
+'\\SystemRoot\\System32\\Drivers\\ksecdd.sys'      0x00861b7000 0x013000 'ksecdd.sys'
+[snip]
+}}}
+
 == moddump ==
+
+To extract a kernel driver to a file, use the moddump command. It supports filtering by regular expression (case sensitive or not) and by physical offsets. To dump all drivers, don't use any command-line filters. For example:
+
+{{{
+$ python volatility.py --profile=Win7SP0x86 -f win7.dmp --kpcr=0x8296dc00 moddump -D mods/
+Volatile Systems Volatility Framework 1.4_rc1
+Dumping ntoskrnl.exe, Base: 8284c000 output: driver.8284c000.sys
+Dumping hal.dll, Base: 82815000 output: driver.82815000.sys
+Dumping fwpkclnt.sys, Base: 86550000 output: driver.86550000.sys
+Dumping kdcom.dll, Base: 80bcc000 output: driver.80bcc000.sys
+Dumping NDProxy.SYS, Base: 8c7ec000 output: driver.8c7ec000.sys
+Dumping CLFS.SYS, Base: 85cbe000 output: driver.85cbe000.sys
+Dumping luafv.sys, Base: 8840c000 output: driver.8840c000.sys
+Dumping peauth.sys, Base: 8857c000 output: driver.8857c000.sys
+[snip]
+}}}
+
 == ssdt ==
 == driverscan ==
 == filescan ==
