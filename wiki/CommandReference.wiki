@@ -28,7 +28,7 @@ Determining profile based on KDBG search...
                     Image Type : 
 }}}
 
-Among other things, the imageinfo output tells you the suggested profile that you should pass as the parameter to --profile=[PROFILE]. It also tells you the address of the KPCR, which you can use like --kpcr=[ADDRESS]. By supplying the profile and KPCR to other Volatility commands, you'll get the most accurate and fastest results possible.
+Among other things, the imageinfo output tells you the suggested profile that you should pass as the parameter to --profile=PROFILE. It also tells you the address of the KPCR, which you can use like --kpcr=ADDRESS. By supplying the profile and KPCR to other Volatility commands, you'll get the most accurate and fastest results possible.
 
 == datetime ==
 
@@ -857,12 +857,126 @@ Offset     Proto    Local Address                  Foreign Address      State   
 
 = Registry =
 
+Volatility is the only memory forensics framework with the ability to carve registry data. For more information, see BDG's [http://moyix.blogspot.com/2009/01/memory-registry-tools.html Memory Registry Tools] and [http://moyix.blogspot.com/2009/01/registry-code-updates.html Registry Code Updates]. 
+
 == hivescan ==
+
+To find the physical addresses of CMHIVEs (registry hives) in memory, use the hivescan command. You would take the output of this command and feed it to the hivelist. For more information, see BDG's [http://moyix.blogspot.com/2008/02/enumerating-registry-hives.html Enumerating Registry Hives].
+
+{{{
+$ python volatility.py --profile=Win7SP0x86 -f win7.dmp hivescan
+Volatile Systems Volatility Framework 1.4_rc1
+Offset          (hex)          
+1493000         0x0016c808
+37018064        0x0234d9d0
+66253488        0x03f2f2b0
+73746896        0x046549d0
+86327304        0x05254008
+148837272       0x08df1398
+148838864       0x08df19d0
+153573840       0x092759d0
+[snip]
+}}}
+
 == hivelist ==
+
+To locate the virtual addresses of registry hives in memory, and the full paths to the corresponding hive on disk, use the hivelist command. Feed it any of the values output by hivescan. 
+
+{{{
+$ python volatility.py --profile=Win7SP0x86 -f win7.dmp hivelist -o 0x0016c808
+Volatile Systems Volatility Framework 1.4_rc1
+Virtual     Physical    Name
+0x99f0d008  0x0da7d008  \??\C:\Windows\ServiceProfiles\LocalService\NTUSER.DAT
+0x9c1692b0  0x03f2f2b0  \??\C:\Users\admin\ntuser.dat
+0x9c7dc5c8  0x0d46d5c8  \??\C:\Users\admin\AppData\Local\Microsoft\Windows\UsrClass.dat
+0x9cc839d0  0x046549d0  \??\C:\Windows\System32\SMI\Store\Machine\SCHEMA.DAT
+0x82baa140  0x02baa140  [no name]
+0x8780c008  0x0ac97008  [no name]
+0x878197b8  0x0ab5e7b8  \REGISTRY\MACHINE\SYSTEM
+0x878419d0  0x0a7489d0  \REGISTRY\MACHINE\HARDWARE
+0x8c089398  0x08df1398  \SystemRoot\System32\Config\SOFTWARE
+0x8c0899d0  0x08df19d0  \SystemRoot\System32\Config\SECURITY
+0x8c18f9d0  0x092759d0  \SystemRoot\System32\Config\DEFAULT
+0x8e23e008  0x05254008  \SystemRoot\System32\Config\SAM
+0x980e75e0  0x0dccd5e0  \??\C:\Windows\System32\config\COMPONENTS
+0x984709d0  0x0234d9d0  \Device\HarddiskVolume1\Boot\BCD
+0x99e22808  0x0016c808  \??\C:\System Volume Information\Syscache.hve
+[snip]
+}}}
+
 == printkey ==
+
+To display the subkeys, values, data, and data types contained within a specified registry key, use the printkey command. It accepts a virtual address to the hive in which you want to search for a key. For example, to see the contents of HKEY_LOCAL_MACHINE, do the following:
+
+{{{
+$ python volatility.py --profile=Win7SP0x86 -f win7.dmp printkey -o 0x8c089398 
+Volatile Systems Volatility Framework 1.4_rc1
+Key name: CMI-CreateHive{3D971F19-49AB-4000-8D39-A6D9C673D809}
+(Stable)
+Last updated: 2010-03-10 22:48:38 
+
+Subkeys:
+  AccessData(Stable)
+  BreakPoint(Stable)
+  Classes(Stable)
+  Clients(Stable)
+  Foxit Software(Stable)
+  Intel(Stable)
+  Microsoft(Stable)
+  Mozilla(Stable)
+  mozilla.org(Stable)
+[snip]
+}}}
+
+Now say you want to traverse into the HKEY_LOCAL_MACHINE\Microsoft\Security Center\Svc key. You can do that:
+
+{{{
+$ python volatility.py --profile=Win7SP0x86 -f win7.dmp printkey -o 0x8c089398 -K 'Microsoft\Security Center\Svc'
+Volatile Systems Volatility Framework 1.4_rc1
+Key name: Svc
+(Stable)
+Last updated: 2010-07-06 22:33:20 
+
+Subkeys:
+
+Values:
+REG_QWORD VistaSp1   : 128920209537502489 (Stable)
+REG_DWORD AntiVirusOverride : 0 (Stable)
+REG_DWORD AntiSpywareOverride : 0 (Stable)
+REG_DWORD FirewallOverride : 0 (Stable)
+}}}
+
 == hivedump ==
+
+To recursively list all subkeys in a hive, use the hivedump command and pass it the virtual address to the desired hive. 
+
+{{{
+$ python volatility.py --profile=Win7SP0x86 -f win7.dmp hivedump -o 0x8e23e008
+2010-03-09 19:50:19  \CMI-CreateHive{899121E8-11D8-44B6-ACEB-301713D5ED8C}\SAM\Domains\Builtin\Aliases\Names
+2010-03-09 19:50:19  \CMI-CreateHive{899121E8-11D8-44B6-ACEB-301713D5ED8C}\SAM\Domains\Builtin\Aliases\Names\Administrators
+2010-03-09 19:50:19  \CMI-CreateHive{899121E8-11D8-44B6-ACEB-301713D5ED8C}\SAM\Domains\Builtin\Aliases\Names\Backup Operators
+2010-03-09 19:50:19  \CMI-CreateHive{899121E8-11D8-44B6-ACEB-301713D5ED8C}\SAM\Domains\Builtin\Aliases\Names\Cryptographic Operators
+2010-03-09 19:50:19  \CMI-CreateHive{899121E8-11D8-44B6-ACEB-301713D5ED8C}\SAM\Domains\Builtin\Aliases\Names\Distributed COM Users
+2010-03-09 19:50:19  \CMI-CreateHive{899121E8-11D8-44B6-ACEB-301713D5ED8C}\SAM\Domains\Builtin\Aliases\Names\Event Log Readers
+2010-03-09 19:50:19  \CMI-CreateHive{899121E8-11D8-44B6-ACEB-301713D5ED8C}\SAM\Domains\Builtin\Aliases\Names\Guests
+2010-03-09 19:50:19  \CMI-CreateHive{899121E8-11D8-44B6-ACEB-301713D5ED8C}\SAM\Domains\Builtin\Aliases\Names\IIS_IUSRS
+2010-03-09 19:50:19  \CMI-CreateHive{899121E8-11D8-44B6-ACEB-301713D5ED8C}\SAM\Domains\Builtin\Aliases\Names\Network Configuration Operators
+2010-03-09 19:50:19  \CMI-CreateHive{899121E8-11D8-44B6-ACEB-301713D5ED8C}\SAM\Domains\Builtin\Aliases\Names\Performance Log Users
+2010-03-09 19:50:19  \CMI-CreateHive{899121E8-11D8-44B6-ACEB-301713D5ED8C}\SAM\Domains\Builtin\Aliases\Names\Performance Monitor Users
+2010-03-09 19:50:19  \CMI-CreateHive{899121E8-11D8-44B6-ACEB-301713D5ED8C}\SAM\Domains\Builtin\Aliases\Names\Power Users
+2010-03-09 19:50:19  \CMI-CreateHive{899121E8-11D8-44B6-ACEB-301713D5ED8C}\SAM\Domains\Builtin\Aliases\Names\Remote Desktop Users
+2010-03-09 19:50:19  \CMI-CreateHive{899121E8-11D8-44B6-ACEB-301713D5ED8C}\SAM\Domains\Builtin\Aliases\Names\Replicator
+2010-03-09 19:50:19  \CMI-CreateHive{899121E8-11D8-44B6-ACEB-301713D5ED8C}\SAM\Domains\Builtin\Aliases\Names\Users
+[snip]
+}}}
+
 == hashdump ==
+
+To extract and decrypt cached domain credentials stored in the registry, use the hashdump command. For more information, see BDG's [http://moyix.blogspot.com/2008/02/cached-domain-credentials.html Cached Domain Credentials].
+
 == lsadump ==
+
+For more information, see BDG's [http://moyix.blogspot.com/2008/02/decrypting-lsa-secrets.html Decrypting LSA Secrets].
 
 = Crash Dumps, Hibernation, and Conversion =
 
@@ -891,6 +1005,9 @@ Offset     Proto    Local Address                  Foreign Address      State   
 
 == strings ==
 == volshell ==
+
+For more information, see BDG's [http://moyix.blogspot.com/2008/08/indroducing-volshell.html Introducing Volshell]. 
+
 == bioskbd ==
 == inspectcache ==
 == patcher ==
