@@ -7,22 +7,329 @@ This page contains
 
 = Image Identification =
 
-== datetime ==
 == imageinfo ==
+
+If you don't know what type of system your image came from, use the imageinfo command. 
+
+{{{
+$ python volatility.py -f win7.dmp imageinfo
+Volatile Systems Volatility Framework 1.4_rc1
+Determining profile based on KDBG search...
+             Suggested Profile : Win7SP0x86
+                     AS Layer1 : JKIA32PagedMemory (Kernel AS)
+                     AS Layer2 : FileAddressSpace (/Users/M/Desktop/win7.dmp)
+                      PAE type : No PAE
+                           DTB : 0x185000
+                          KDBG : 0x8296cbe8
+                          KPCR : 0x8296dc00
+             KUSER_SHARED_DATA : 0xffdf0000
+           Image date and time : 2010-07-06 22:40:28 
+     Image local date and time : 2010-07-06 22:40:28 
+                    Image Type : 
+}}}
+
+Among other things, the imageinfo output tells you the suggested profile that you should pass as the parameter to --profile=[PROFILE]. It also tells you the address of the KPCR, which you can use like --kpcr=[ADDRESS]. By supplying the profile and KPCR to other Volatility commands, you'll get the most accurate and fastest results possible.
+
+== datetime ==
+
+Use datetime to get the date and time information from when the memory image was acquired. 
+
+{{{
+$ python volatility.py --profile=Win7SP0x86 -f win7.dmp datetime
+Volatile Systems Volatility Framework 1.4_rc1
+Image date and time       : 2010-07-06 22:40:28 
+Image local date and time : 2010-07-06 22:40:28
+}}}
+
 == kdbgscan ==
+
+Use this command to scan for potential KDBG structures. 
+
+{{{
+$ python volatility.py --profile=Win7SP0x86 -f win7.dmp kdbgscan
+Volatile Systems Volatility Framework 1.4_rc1
+Potential KDBG structure virtual addresses:
+ _KDBG: 0x0296cbe8  (Win7SP0x86)
+}}}
+
 == kprcscan ==
+
+Use this command to scan for potential KPCR structures. 
+
+{{{
+$ python volatility.py --profile=Win7SP0x86 -f win7.dmp kpcrscan
+Volatile Systems Volatility Framework 1.4_rc1
+Potential KPCR structure virtual addresses:
+ _KPCR: 8296dc00
+}}}
 
 = Processes and DLLs =
 
 == pslist ==
+
+To list the active processes of a system, use the pslist command. This walks the doubly-linked list known as PsActiveProcessHead. It does not detect hidden or unlinked processes. 
+
+{{{
+$ python volatility.py --profile=Win7SP0x86 -f win7.dmp --kpcr=0x8296dc00 pslist
+Volatile Systems Volatility Framework 1.4_rc1
+Name                 Pid    PPid   Thds   Hnds   Time  
+System                    4      0     90    516 2010-07-06 22:28:46       
+smss.exe                252      4      2     29 2010-07-06 22:28:46       
+csrss.exe               348    340     10    441 2010-07-06 22:28:53       
+wininit.exe             384    340      3     73 2010-07-06 22:28:53       
+csrss.exe               396    376      8    187 2010-07-06 22:28:53       
+winlogon.exe            424    376      5    129 2010-07-06 22:28:54       
+services.exe            492    384     12    216 2010-07-06 22:28:54       
+lsass.exe               500    384      7    559 2010-07-06 22:28:54       
+lsm.exe                 508    384     10    142 2010-07-06 22:28:54       
+svchost.exe             616    492     10    348 2010-07-06 22:28:55
+[snip]
+}}}
+
+The columns display the process ID, the parent process ID, number of threads, number of handles, and date/time when the process started. 
+
 == pstree ==
+
+To view the process listing in tree form, use the pstree command. This enumerates processes using the same technique as pslist, so it will also not show hidden or unlinked processes. Child process are indicated using indention and periods.
+
+{{{
+$ python volatility.py --profile=Win7SP0x86 -f win7.dmp --kpcr=0x8296dc00 pstree
+Volatile Systems Volatility Framework 1.4_rc1
+Name                                        Pid    PPid   Thds   Hnds   Time  
+ 0x84E6E3D8:wininit.exe                        384    340      3     73 2010-07-06 22:28:53       
+. 0x8D4CC030:services.exe                      492    384     12    216 2010-07-06 22:28:54       
+.. 0x84E19030:svchost.exe                     1920    492      8    115 2010-07-06 22:33:17       
+.. 0x8D4E5BB0:schtasks.exe                    2512    492      2     60 2010-07-06 22:39:09       
+.. 0x8D7E9030:wsqmcons.exe                    2576    492      1      3 2010-07-06 22:39:11       
+.. 0x8D5B18A8:dllhost.exe                     1944    492     16    187 2010-07-06 22:31:21       
+.. 0x8D7EE030:taskhost.exe                    1156    492     10    155 2010-07-06 22:37:54       
+.. 0x84D79D40:msdtc.exe                        284    492     15    152 2010-07-06 22:31:24       
+.. 0x8D6781D8:svchost.exe                     1056    492     16    589 2010-07-06 22:29:31       
+.. 0x8D777D40:taskhost.exe                    2520    492     11    224 2010-07-06 22:39:10       
+.. 0x8D759470:sdclt.exe                       2504    492      1      4 2010-07-06 22:39:09       
+.. 0x8D5574D8:rundll32.exe                    2484    492      1      5 2010-07-06 22:39:08       
+.. 0x84D82C08:SearchIndexer.                  1464    492     18    624 2010-07-06 22:33:20       
+... 0x8D759760:SearchFilterHo                 1724   1464      6     82 2010-07-06 22:37:36       
+... 0x8D55E678:SearchProtocol                 2680   1464      8    231 2010-07-06 22:39:27       
+.. 0x8D5CC030:svchost.exe                     1140    492     17    375 2010-07-06 22:29:51
+[snip]
+}}}
+
 == psscan2 ==
+
+To enumerate processes using pool tag scanning, use the psscan2 command. This can find processes that previously terminated (inactive) and processes that have been hidden or unlinked by a rootkit. 
+
+{{{
+$ python volatility.py --profile=Win7SP0x86 -f win7.dmp psscan2
+Volatile Systems Volatility Framework 1.4_rc1
+PID    PPID   Time created             Time exited              Offset     PDB        Remarks
+------ ------ ------------------------ ------------------------ ---------- ---------- ----------------
+  2568    348 2010-07-06 22:39:11                               0x002cc030 0x09d54000 conhost.exe     
+  1944    492 2010-07-06 22:31:21                               0x00ef48a8 0x08d61000 dllhost.exe     
+  1312    492 2010-07-06 22:31:06                               0x00ffcd40 0x069a9000 spoolsv.exe     
+  2484    492 2010-07-06 22:39:08                               0x01e584d8 0x07bdc000 rundll32.exe    
+   348    340 2010-07-06 22:28:53                               0x03164d40 0x0cd84000 csrss.exe       
+   492    384 2010-07-06 22:28:54                               0x040e2030 0x0dcb9000 services.exe    
+  1880   1720 2010-07-06 22:38:07                               0x04a291a8 0x0db11000 explorer.exe    
+  3064   1488 2010-07-06 22:40:27                               0x04b365b8 0x01961000 VMwareResoluti  
+  2512    492 2010-07-06 22:39:09                               0x04dc3bb0 0x0fba2000 schtasks.exe    
+  2576    492 2010-07-06 22:39:11                               0x053fe030 0x06e43000 wsqmcons.exe
+[snip]
+}}}
+
+If a process has previously terminated, the Time exited field will show the exit time. If you want to investigate a hidden process (such as displaying its DLLs), then you'll need physical offset of the EPROCESS object, which is shown in the far left column.
+
 == dlllist ==
+
+To display a process's loaded DLLs, use the dlllist command. It walks the doubly-linked list of LDR_DATA_TABLE_ENTRY structures which is pointed to by PEB.InLoadOrderModuleList. 
+
+{{{
+$ python volatility.py --profile=Win7SP0x86 -f win7.dmp --kpcr=0x8296dc00 dlllist
+
+[snip]
+
+************************************************************************
+services.exe pid:    492
+Command line : C:\Windows\system32\services.exe
+
+Base         Size         Path
+0x00a50000   0x041000     C:\Windows\system32\services.exe
+0x778a0000   0x13c000     C:\Windows\SYSTEM32\ntdll.dll
+0x779f0000   0x0d4000     C:\Windows\system32\kernel32.dll
+0x75ca0000   0x04a000     C:\Windows\system32\KERNELBASE.dll
+0x75e40000   0x0ac000     C:\Windows\system32\msvcrt.dll
+0x76650000   0x0a1000     C:\Windows\system32\RPCRT4.dll
+0x758d0000   0x01a000     C:\Windows\system32\SspiCli.dll
+0x759f0000   0x00b000     C:\Windows\system32\profapi.dll
+0x75d80000   0x019000     C:\Windows\SYSTEM32\sechost.dll
+0x75940000   0x00c000     C:\Windows\system32\CRYPTBASE.dll
+0x758c0000   0x00f000     C:\Windows\system32\scext.dll
+0x764a0000   0x0c9000     C:\Windows\system32\USER32.dll
+0x765b0000   0x04e000     C:\Windows\system32\GDI32.dll
+0x76330000   0x00a000     C:\Windows\system32\LPK.dll
+[snip]
+}}}
+
+To display the DLLs for a specific process instead of all processes, use the -p or --pid filter like this:
+
+{{{
+$ python volatility.py --profile=Win7SP0x86 -f win7.dmp --kpcr=0x8296dc00 dlllist --pid=492
+}}}
+
+To display the DLLs for a process that is hidden or unlinked by a rootkit, first use the psscan2 to get the physical offset of the EPROCESS object and then:
+
+{{{
+$ python volatility.py --profile=Win7SP0x86 -f win7.dmp --kpcr=0x8296dc00 dlllist --offset=0x04a291a8
+}}}
+
+For more ways to list DLLs in a process, see the ldrmodules command.
+
 == dlldump ==
+
+To extract a DLL from a process's memory space and dump it to disk for analysis, use the dlldump command. The syntax is nearly the same as what we've shown for dlllist above. You can:
+
+  * Dump all DLLs from all processes
+  * Dump all DLLs from a specific process (with --pid=PID)
+  * Dump all DLLs from a hidden/unlinked process (with --offset=OFFSET)
+
+To specify an output directory, use --dump-dir=DIR or -d DIR. You can also supply a regular expression to dump a DLL with a particular pattern in its name. 
+
+{{{
+$ python volatility.py --profile=Win7SP0x86 -f win7.dmp --kpcr=0x8296dc00 dlldump -r kernel32 -D out
+Cannot dump TrustedInstall@kernel32.dll at 779f0000
+Cannot dump WmiPrvSE.exe@kernel32.dll at 779f0000
+Dumping kernel32.dll, Process: SearchFilterHo, Base: 779f0000 output: module.6bc.da1d760.779f0000.dll
+Dumping kernel32.dll, Process: taskhost.exe, Base: 779f0000 output: module.484.546d030.779f0000.dll
+Cannot dump dwm.exe@kernel32.dll at 779f0000
+Dumping kernel32.dll, Process: explorer.exe, Base: 779f0000 output: module.758.4a291a8.779f0000.dll
+Cannot dump wuauclt.exe@kernel32.dll at 779f0000
+Dumping kernel32.dll, Process: VMwareTray.exe, Base: 779f0000 output: module.860.fe828d8.779f0000.dll
+[snip]
+}}}
+
+If the extraction fails, as it did for a few processes above, it probably means that some of the memory pages in that process were not memory resident at the time (due to paging). 
+
+To dump a PE file that doesn't exist in the DLLs list (for example, due to code injection or malicious unlinking), just specify the base address of the PE in process memory:
+
+{{{
+$ python volatility.py --profile=Win7SP0x86 -f win7.dmp --kpcr=0x8296dc00 dlldump --pid=492 -D out --base=0x00680000
+}}}
+
 == files ==
+
+To display the open file handles in a process, use the files command. 
+
+{{{
+$ python volatility.py --profile=Win7SP0x86 -f win7.dmp --kpcr=0x8296dc00 files -p 4
+Volatile Systems Volatility Framework 1.4_rc1
+Pid:      4
+File   '\\Windows\\System32\\wdi\\LogFiles\\WdiContextLog.etl.001'
+File   '\\Windows\\System32\\config\\RegBack\\SECURITY'
+File   '\\Windows\\System32\\config\\SECURITY' 
+File   '\\Windows\\System32\\config\\RegBack\\DEFAULT'
+File   '\\Windows\\System32\\config\\RegBack\\SAM'
+File   '\\pagefile.sys'                        
+File   '\\Windows\\System32\\config\\SYSTEM'   
+File   '\\Windows\\System32\\LogFiles\\WMI\\RtBackup\\EtwRTUBPM.etl'
+File   '\\Windows\\System32\\config\\DEFAULT.LOG1'
+File   '\\Windows\\System32\\config\\DEFAULT.LOG2'
+File   '\\Windows\\System32\\config\\DEFAULT'  
+[snip]
+}}}
+
 == regobjkeys ==
+
+To display the open registry handles in a process, use the regobjkeys command.
+
+{{{
+$ python volatility.py --profile=Win7SP0x86 -f win7.dmp --kpcr=0x8296dc00 regobjkeys -p 4
+Volatile Systems Volatility Framework 1.4_rc1
+Pid:      4
+Key    MACHINE\SYSTEM\CONTROLSET001\CONTROL\HIVELIST                        
+Key    MACHINE\SYSTEM\CONTROLSET001\CONTROL\PRODUCTOPTIONS
+Key    MACHINE\SYSTEM\CONTROLSET001\CONTROL\SESSION MANAGER\MEMORY MANAGEMENT\PREFETCHPARAMETERS
+Key    MACHINE\SYSTEM\SETUP                    
+Key    MACHINE\HARDWARE\DESCRIPTION\SYSTEM\MULTIFUNCTIONADAPTER
+Key    MACHINE\SYSTEM\CONTROLSET001            
+Key    MACHINE\SYSTEM\CONTROLSET001\ENUM       
+Key    MACHINE\SYSTEM\CONTROLSET001\CONTROL\CLASS
+Key    MACHINE\SYSTEM\CONTROLSET001\SERVICES   
+Key    MACHINE\SYSTEM\CONTROLSET001\CONTROL\WMI\SECURITY
+Key    MACHINE\SYSTEM\CONTROLSET001\CONTROL\LSA
+[snip]
+}}}
+
 == getsids ==
+
+To view the SIDs (Security Identifiers) associated with a process, use the getsids command. Among other things, this can help you identify processes which have maliciously elevated privileges. 
+
+For more information, see BDG's [http://moyix.blogspot.com/2008/08/linking-processes-to-users.html Linking Processes To Users].
+
+{{{
+$ python volatility.py --profile=Win7SP0x86 -f win7.dmp --kpcr=0x8296dc00 getsids 
+Volatile Systems Volatility Framework 1.4_rc1
+System (4): S-1-5-18 (Local System)
+System (4): S-1-5-32-544 (Administrators)
+System (4): S-1-1-0 (Everyone)
+System (4): S-1-5-11 (Authenticated Users)
+System (4): S-1-16-16384 (System Mandatory Level)
+smss.exe (252): S-1-5-18 (Local System)
+smss.exe (252): S-1-5-32-544 (Administrators)
+smss.exe (252): S-1-1-0 (Everyone)
+smss.exe (252): S-1-5-11 (Authenticated Users)
+smss.exe (252): S-1-16-16384 (System Mandatory Level)
+[snip]
+}}}
+
 == verinfo ==
+
+To display the version information embedded in PE files, use the verinfo command. Not all PE files have version information, and many malware authors forge it to include false data, but nonetheless this command can be very helpful with identifying binaries and for making correlations with other files. 
+
+This command supports filtering by process ID, regular expression, and EPROCESS offset. 
+
+{{{
+$ python volatility.py --profile=Win7SP0x86 -f win7.dmp --kpcr=0x8296dc00 verinfo
+[snip]
+
+C:\Windows\system32\CRYPTBASE.dll
+C:\Windows\system32\winlogon.exe
+  File version    : 6.1.7600.16447
+  Product version : 6.1.7600.16447
+  Flags           : 
+  OS              : Windows NT
+  File Type       : Application
+  File Date       : 
+  CompanyName : Microsoft Corporation
+  FileDescription : Windows Logon Application
+  FileVersion : 6.1.7600.16447 (win7_gdr.091027-1503)
+  InternalName : winlogon
+  LegalCopyright : \xa9 Microsoft Corporation. All rights reserved.
+  OriginalFilename : WINLOGON.EXE
+  ProductName : Microsoft\xae Windows\xae Operating System
+  ProductVersion : 6.1.7600.16447
+
+[snip] 
+
+C:\Windows\System32\ntlanman.dll
+  File version    : 6.1.7600.16385
+  Product version : 6.1.7600.16385
+  Flags           : 
+  OS              : Windows NT
+  File Type       : Dynamic Link Library
+  File Date       : 
+  CompanyName : Microsoft Corporation
+  FileDescription : Microsoft\xae Lan Manager
+  FileVersion : 6.1.7600.16385 (win7_rtm.090713-1255)
+  InternalName : ntlanman.dll
+  LegalCopyright : \xa9 Microsoft Corporation. All rights reserved.
+  OriginalFilename : ntlanman.dll
+  ProductName : Microsoft\xae Windows\xae Operating System
+  ProductVersion : 6.1.7600.16385
+
+[snip]
+}}}
+
+You can also reference the verinfo plugin for an example of how to parse PE headers in memory images, if you happen to be looking for other information such as digital signatures, resources, import and export tables, etc. 
 
 = Process Memory =
 
