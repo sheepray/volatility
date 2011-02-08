@@ -7,6 +7,8 @@ This is a list of Volatility features organized by plugins and categories. It ap
 
 If the OS Support column contains the word "All", that doesn't mean it works on all operating systems - it just means it works on all operating systems that Volatility supports. For a list, see the [http://code.google.com/p/volatility/wiki/FAQ FAQ page]. 
 
+Before using these plugins, make sure to read the BasicUsage instructions. To see example use cases and example output from the plugins, see the CommandReference. 
+
 == Image Identification ==
 
 ||Command||Description||OS Support||
