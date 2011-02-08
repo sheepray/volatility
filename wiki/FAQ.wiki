@@ -19,7 +19,8 @@ Linux:
 
 = Can Volatility acquire physical memory? =
 
-No, to acquire memory, you must use another tool. For a list of possibilities, see: [http://www.forensicswiki.org/wiki/Tools:Memory_Imaging The Forensics Wiki]
+Short answer: No.  
+Long Answer: The imagecopy plugin can be used to copy one address space to a file (allowing aquisition from address spaces such as IEEE 1394), but in general no, to acquire memory, you must use another tool. For a list of possibilities, see: [http://www.forensicswiki.org/wiki/Tools:Memory_Imaging The Forensics Wiki]
 
 = Are there any public memory samples available that I can use for testing? =
 
