@@ -57,7 +57,7 @@ Hit “Next” and Python will now install. Hit “Finish” when installation c
 
 After Python is installed, you should make sure that the Python extensions are registered. If you have a regular start menu, click on start and then right click on “Computer” and choose properties.  If you have the classic start menu, just right click on “My Computer” and choose properties. 
 
-<img src="https://lh5.googleusercontent.com/_55uSCYxbQ8M/TVK41X4ZnRI/AAAAAAAAAw0/99TMpPkk-hg/0.jpg">
+<img width=400 height=250 src="https://lh5.googleusercontent.com/_55uSCYxbQ8M/TVK41X4ZnRI/AAAAAAAAAw0/99TMpPkk-hg/0.jpg">
 
 
 If you have Windows 7 you will see the following screen.  Choose "Advanced System Settings".  You should see the following (some personal details removed):
@@ -66,11 +66,11 @@ If you have Windows 7 you will see the following screen.  Choose "Advanced Syste
 
 Make sure you are on the "Advanced" tab and choose "Environmental Variables":
 
-<img src="https://lh3.googleusercontent.com/_55uSCYxbQ8M/TVK41oIOyiI/AAAAAAAAAw8/NRRSBCkAF-E/2.jpg">
+<img width=270 height=400 src="https://lh3.googleusercontent.com/_55uSCYxbQ8M/TVK41oIOyiI/AAAAAAAAAw8/NRRSBCkAF-E/2.jpg">
 
 On the next screen find the "Path" variable and click "Edit":
 
-<img src="https://lh4.googleusercontent.com/_55uSCYxbQ8M/TVK418SCMeI/AAAAAAAAAxA/4km0Lnk3PTc/3.png">
+<img width=270 height=400 src="https://lh4.googleusercontent.com/_55uSCYxbQ8M/TVK418SCMeI/AAAAAAAAAxA/4km0Lnk3PTc/3.png">
 
 Click on the text and scroll all the way to the end.  Append the path of our Python installation to the end of the existing Path variable. Where it says “Variable Value” go to the end of the line and add the following:
 {{{
@@ -82,11 +82,11 @@ The semicolon separates our new Path location from the current values. If the lo
 
 Now we are ready to test that we have set up everything correctly. Open a command prompt by clicking on the "Start Menu" and clicking on "Run".  For Windows 7, click "Start" and type "cmd" in the search text box and hit "Enter":
 
-<img src="https://lh3.googleusercontent.com/_55uSCYxbQ8M/TVLE-Z03hHI/AAAAAAAAAxc/YnkqyU25rUo/8.jpg">
+<img width=270 height=400 src="https://lh3.googleusercontent.com/_55uSCYxbQ8M/TVLE-Z03hHI/AAAAAAAAAxc/YnkqyU25rUo/8.jpg">
 
 Type "python" into the command prompt.  You should then see the Python header and command prompt >>>  Type "quit()" to exit.  If this works, Python is installed correctly.
 
-<img src="https://lh6.googleusercontent.com/_55uSCYxbQ8M/TVLE-jONBVI/AAAAAAAAAxg/N1k72j0BFbE/10.png">
+<img width=450 height=250 src="https://lh6.googleusercontent.com/_55uSCYxbQ8M/TVLE-jONBVI/AAAAAAAAAxg/N1k72j0BFbE/10.png">
 
 === Installing Dependencies ===
 
@@ -95,35 +95,35 @@ Type "python" into the command prompt.  You should then see the Python header an
 
 Occasionally you will need a C/C++ compiler in order to install Python libraries.  If you install Distorm3 or Pycrypto from source, you will need a compiler.  Download the compiler from the [http://sourceforge.net/projects/mingw/files/Automated%20MinGW%20Installer/mingw-get-inst/mingw-get-inst-20101030/ Sourceforge] site.  Make sure you get the "ming-get-inst" installer as shown below:
 
-<img src="https://lh5.googleusercontent.com/_55uSCYxbQ8M/TVLT6Y753BI/AAAAAAAAAx4/mR34Go3_kms/1.jpg">
+<img width=550 height=250 src="https://lh5.googleusercontent.com/_55uSCYxbQ8M/TVLT6Y753BI/AAAAAAAAAx4/mR34Go3_kms/1.jpg">
 
 Double click the installer.  You should see the following picture.  Hit Next to continue.
 
-<img src="https://lh6.googleusercontent.com/_55uSCYxbQ8M/TVLT6R76xgI/AAAAAAAAAx8/9o1jGaZplqE/2.png">
+<img width=450 height=280 src="https://lh6.googleusercontent.com/_55uSCYxbQ8M/TVLT6R76xgI/AAAAAAAAAx8/9o1jGaZplqE/2.png">
 
 If you are running as Administrator you will see the following screen.  Just hit Next.
 
-<img src="https://lh3.googleusercontent.com/_55uSCYxbQ8M/TVLT6n_CESI/AAAAAAAAAyA/mHVU9Ak3X94/3.png">
+<img width=450 height=280 src="https://lh3.googleusercontent.com/_55uSCYxbQ8M/TVLT6n_CESI/AAAAAAAAAyA/mHVU9Ak3X94/3.png">
 
 You will have a choice to install the latest MinGW build or prepackaged binaries.
 
-<img src="https://lh3.googleusercontent.com/_55uSCYxbQ8M/TVLT64VhyhI/AAAAAAAAAyE/ialoUjmYAWY/4.png">
+<img width=450 height=280 src="https://lh3.googleusercontent.com/_55uSCYxbQ8M/TVLT64VhyhI/AAAAAAAAAyE/ialoUjmYAWY/4.png">
 
 Accept the agreement.
 
-<img src="https://lh5.googleusercontent.com/_55uSCYxbQ8M/TVLT65ovpTI/AAAAAAAAAyI/H0i0f-chxPA/5.png">
+<img width=450 height=280 src="https://lh5.googleusercontent.com/_55uSCYxbQ8M/TVLT65ovpTI/AAAAAAAAAyI/H0i0f-chxPA/5.png">
 
 Choose a location to install MinGW.  
 
-<img src="https://lh6.googleusercontent.com/_55uSCYxbQ8M/TVLUEt0hGsI/AAAAAAAAAyM/E1RtoCiEOw0/6.png">
+<img width=450 height=280 src="https://lh6.googleusercontent.com/_55uSCYxbQ8M/TVLUEt0hGsI/AAAAAAAAAyM/E1RtoCiEOw0/6.png">
 
 Keep accepting defaults until you get to the "Select Components" screen.  Here you will need to make sure you have at least the C++ compiler checked as well as "MSYS Basic System" so you will have the "make" utility.
 
-<img src="https://lh6.googleusercontent.com/_55uSCYxbQ8M/TVLUE9HcoeI/AAAAAAAAAyU/btBayTL2qUI/8.jpg">
+<img width=450 height=280 src="https://lh6.googleusercontent.com/_55uSCYxbQ8M/TVLUE9HcoeI/AAAAAAAAAyU/btBayTL2qUI/8.jpg">
 
 Hit Next.  A black command prompt may appear as things are installing; just ignore it.  If all goes well you will see the "Finish" screen.  Just hit "Finish".
 
-<img src="https://lh4.googleusercontent.com/_55uSCYxbQ8M/TVLUFazQSkI/AAAAAAAAAyc/BDKXXAUDXZk/10.png">
+<img width=450 height=280 src="https://lh4.googleusercontent.com/_55uSCYxbQ8M/TVLUFazQSkI/AAAAAAAAAyc/BDKXXAUDXZk/10.png">
 
 Add the "bin" directory of MinGW to your path like you did for Python.  If you accepted the default installation directory the text to add would be:
 
@@ -157,7 +157,7 @@ Double click the tar file inside and click the "Extract" button.
 
 Choose a location to extract the folder to:
 
-<img src="https://lh6.googleusercontent.com/_55uSCYxbQ8M/TVLe9f5CgzI/AAAAAAAAAy4/mGCt9jcOfM8/4.png">
+<img width=450 height=280 src="https://lh6.googleusercontent.com/_55uSCYxbQ8M/TVLe9f5CgzI/AAAAAAAAAy4/mGCt9jcOfM8/4.png">
 
 Once the folder is extracted, open the command prompt and change directory into that folder.  In this case, the folder was extracted onto the Desktop, so the command issued is:
 
@@ -167,7 +167,7 @@ cd Desktop\pycrypto-2.0.x
 
 Once inside you can issue a "dir" command to make sure you have all the files, including "setup.py"
 
-<img src="https://lh3.googleusercontent.com/_55uSCYxbQ8M/TVLe9rg6WxI/AAAAAAAAAy8/P6_zwZQTjlo/5.png">
+<img width=450 height=250 src="https://lh3.googleusercontent.com/_55uSCYxbQ8M/TVLe9rg6WxI/AAAAAAAAAy8/P6_zwZQTjlo/5.png">
 
 Type the following commands to install (wait until the first one finishes before typing the second one):
 
