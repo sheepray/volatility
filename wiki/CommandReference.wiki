@@ -508,7 +508,7 @@ $ ls -alh vads/
 
 The files are named like this:
 
-!ProcessName.!PhysicalOffset.!StartingVPN.!EndingVPN.dmp
+!ProcessName.!PhysicalOffset.StartingVPN.EndingVPN.dmp
 
 The reason the !PhysicalOffset field exists is so you can distinguish between two processes with the same name. 
 
@@ -1282,7 +1282,75 @@ PID    TID    Create Time               Exit Time                 Offset     Sta
 }}}
 
 == notifyroutines ==
+
+Volatility is the only memory forensics platform with the ability to print an assortment of important notification routines and kernel callbacks. Rootkits, anti-virus suites, dynamic analysis tools (such as Sysinternals' Process Monitor and Tcpview), and many components of the Windows kernel use of these callbacks to monitor and/or react to events. We detect the following:
+
+  * PsSetCreateProcessNotifyRoutine (process creation).
+  * PsSetCreateThreadNotifyRoutine (thread creation).
+  * PsSetImageLoadNotifyRoutine (DLL/image load).
+  * IoRegisterFsRegistrationChange (file system registration).
+  * KeRegisterBugCheck and KeRegisterBugCheckReasonCallback.
+  * CmRegisterCallback (registry callbacks on XP).
+  * CmRegisterCallbackEx (registry callbacks on Vista and 7).
+  * IoRegisterShutdownNotification (shutdown callbacks).
+  * DbgSetDebugPrintCallback (debug print callbacks on Vista and 7).
+  * DbgkLkmdRegisterCallback (debug callbacks on 7).
+
+Here's an example of detecting the thread creation callback installed by the !BlackEnergy 2 malware. You can spot the malicious callback because the owner is 00004A2A - and !BlackEnergy 2 uses a module name composed of eight hex characters. 
+
+{{{
+$ python volatility.py -f be2.vmem notifyroutines
+Volatile Systems Volatility Framework 1.4_rc1
+Type                                 Callback   Owner
+PsSetCreateThreadNotifyRoutine       0xff0d2ea7 00004A2A
+PsSetCreateProcessNotifyRoutine      0xfc58e194 vmci.sys
+KeBugCheckCallbackListHead           0xfc1e85ed NDIS.sys (Ndis miniport)
+KeBugCheckCallbackListHead           0x806d57ca hal.dll (ACPI 1.0 - APIC platform UP)
+KeRegisterBugCheckReasonCallback     0xfc967ac0 mssmbios.sys (SMBiosData)
+KeRegisterBugCheckReasonCallback     0xfc967a78 mssmbios.sys (SMBiosRegistry)
+[snip]
+}}}
+
+Here is an example of detecting the malicious process creation callback installed by the Rustock rootkit (points to memory owned by \Driver\pe386).
+
+{{{
+$ python volatility.py -f rustock.vmem notifyroutines
+Volatile Systems Volatility Framework 1.4_rc1
+Type                                 Callback   Owner
+PsSetCreateProcessNotifyRoutine      0xf88bd194 vmci.sys
+PsSetCreateProcessNotifyRoutine      0xb17a27ed '\\Driver\\pe386'
+KeBugCheckCallbackListHead           0xf83e65ef NDIS.sys (Ndis miniport)
+KeBugCheckCallbackListHead           0x806d77cc hal.dll (ACPI 1.0 - APIC platform UP)
+KeRegisterBugCheckReasonCallback     0xf8b7aab8 mssmbios.sys (SMBiosData)
+KeRegisterBugCheckReasonCallback     0xf8b7aa70 mssmbios.sys (SMBiosRegistry)
+KeRegisterBugCheckReasonCallback     0xf8b7aa28 mssmbios.sys (SMBiosDataACPI)
+KeRegisterBugCheckReasonCallback     0xf76201be USBPORT.SYS (USBPORT)
+KeRegisterBugCheckReasonCallback     0xf762011e USBPORT.SYS (USBPORT)
+KeRegisterBugCheckReasonCallback     0xf7637522 VIDEOPRT.SYS (Videoprt)
+[snip]
+}}}
+
+Here is an example of detecting the malicious registry change callback installed by the Ascesso rootkit. There is one !CmRegisterCallback pointing to 0x8216628f which does not have an owner. You also see two !GenericKernelCallback with the same address. This is because notifyroutines finds callbacks in multiple ways. It combines list traversal and pool tag scanning. This way, if the list traversal fails, we can still find information with pool tag scanning. However, the Windows kernel uses the same types of pool tags for various callbacks, so we label those as generic. 
+
+{{{
+$ python volatility.py -f ascesso.vmem notifyroutines
+Volatile Systems Volatility Framework 1.4_rc1
+Type                                 Callback   Owner
+IoRegisterShutdownNotification       0xf853c2be ftdisk.sys (\Driver\Ftdisk)
+IoRegisterShutdownNotification       0x805f5d66 ntoskrnl.exe (\Driver\WMIxWDM)
+IoRegisterShutdownNotification       0xf83d98f1 Mup.sys (\FileSystem\Mup)
+IoRegisterShutdownNotification       0xf86aa73a MountMgr.sys (\Driver\MountMgr)
+IoRegisterShutdownNotification       0x805cdef4 ntoskrnl.exe (\FileSystem\RAW)
+CmRegisterCallback                   0x8216628f UNKNOWN (--)
+GenericKernelCallback                0xf888d194 vmci.sys
+GenericKernelCallback                0x8216628f UNKNOWN
+GenericKernelCallback                0x8216628f UNKNOWN
+}}}
+
 == driverirp ==
+
+To print a driver's IRP (Major Function) table, use the driverirp command. 
+
 == csrpslist ==
 == ssdt_ex ==
 == ssdt_by_threads ==
