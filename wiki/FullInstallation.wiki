@@ -262,4 +262,4 @@ Then type:
 python volatility.py -h
 }}}
 
-You should see a long list of output that includes all of the plugins that are available.
+You should see a long list of output that includes all of the plugins that are available.  For more information on how to use Volatility check out BasicUsage and CommandReference.
