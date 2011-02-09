@@ -140,6 +140,43 @@ You can test that this works by typing "gcc" plus "Enter" at the command line.  
 
 ==== Installing Pycrypto ====
 
+If you do not have a C compiler like MinGW installed, you can install a precompiled version of Pycrypto from [http://www.voidspace.org.uk/python/modules.shtml#pycrypto www.voidspace.org.uk].  If you installed MinGW as above you can install Pycrypto as follows.
+
+To install from source, first go to the [http://gitweb.pycrypto.org/?p=crypto/pycrypto-2.0.x.git;a=summary PyCrypto] repository page.  You can download a snapshot as a gzip file:
+
+<img src="https://lh6.googleusercontent.com/_55uSCYxbQ8M/TVLe8rfhktI/AAAAAAAAAys/8MZdUoSYRDo/1.jpg">
+
+If you have 7zip installed, right click on the downloaded file and choose open 7zip->Open Archive:
+
+<img src="https://lh5.googleusercontent.com/_55uSCYxbQ8M/TVLe85BHYoI/AAAAAAAAAyw/WfuAdwlC3QE/2.jpg">
+
+Double click the tar file inside and click the "Extract" button.
+
+<img src="https://lh4.googleusercontent.com/_55uSCYxbQ8M/TVLe9F_d4qI/AAAAAAAAAy0/vIoSu9teZRY/3.jpg">
+
+Choose a location to extract the folder to:
+
+<img src="https://lh6.googleusercontent.com/_55uSCYxbQ8M/TVLe9f5CgzI/AAAAAAAAAy4/mGCt9jcOfM8/4.png">
+
+Once the folder is extracted, open the command prompt and change directory into that folder.  In this case, the folder was extracted onto the Desktop, so the command issued is:
+
+{{{
+cd Desktop\pycrypto-2.0.x
+}}}
+
+Once inside you can issue a "dir" command to make sure you have all the files, including "setup.py"
+
+<img src="https://lh3.googleusercontent.com/_55uSCYxbQ8M/TVLe9rg6WxI/AAAAAAAAAy8/P6_zwZQTjlo/5.png">
+
+Type the following commands to install (wait until the first one finishes before typing the second one):
+
+{{{
+python setup.py build -c mingw32
+python setup.py install
+}}}
+
+As long as you don't see any errors Pycrypto should be installed correctly.
+
 
 
 ==== Installing Distorm3 ====
