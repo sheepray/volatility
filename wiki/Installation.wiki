@@ -9,16 +9,46 @@ This wiki covers installation of Volatility 1.4 for both Windows and Linux syste
 In order to use Volatility, you will need to install a few prerequisite programs and packages.
 
 Prerequisites
-  * Python 2.6 or greater, but not Python 3.0 [http://python.org/download/ Python 2.6] will be used in this guide
+  * Python 2.6 or greater, but not Python 3.0 [http://python.org/download/releases/ Python 2.6] will be used in this guide
   * [http://code.google.com/p/distorm/downloads/list Distorm]
   * [http://code.google.com/p/yara-project/downloads/list Yara]
   * [http://gitweb.pycrypto.org/?p=crypto/pycrypto-2.0.x.git;a=summary PyCrypto]
   * [http://docs.python.org/library/sqlite3.html SQLite3] (Should be in default Python install)
   * Subversion Client.  We recommend [http://tortoisesvn.tigris.org]
-  * [http://www.7-zip.org/ 7zip] or an application that can unzip gzip files
+  * [http://www.7-zip.org/ 7zip] or an application that can unzip zip and gzip files
   
 
 = Windows Installation = 
 
+== Python Installation ==
 
+In order to use Volatility, you must first install Python. You should get version 2.6 for Windows. When you download the file, double-click to install and you will see the following security message. Just click Run.
 
+<img src="https://lh5.googleusercontent.com/_55uSCYxbQ8M/TVKqlik0--I/AAAAAAAAAwU/vc5-9jiOrZo/1.png">
+
+Choose the appropriate install options. Most likely you will want to install for all users on the
+machine:
+
+<img width=400 height=270 src="https://lh6.googleusercontent.com/_55uSCYxbQ8M/TVKqmUkmqII/AAAAAAAAAwY/Q8f9ObHdn0w/2.png">
+
+The installer will ask you where you would like to install the Python files, the default under C:\Python26 should be fine:
+
+<img width=400 height=270 src="https://lh5.googleusercontent.com/_55uSCYxbQ8M/TVKqm-EPLII/AAAAAAAAAwc/W0FdiOoD7is/3.png">
+
+The installer will then give you the option for more advanced install options. Unless you know what you are doing, it will be best to leave all options enabled:
+
+<img width=400 height=270 src="https://lh5.googleusercontent.com/_55uSCYxbQ8M/TVKqmycrsKI/AAAAAAAAAwg/TyOmq97-MDo/4.png">
+
+On Vista/Windows7 you may have to confirm that you want to install:
+
+<img width=370 height=250 src="https://lh6.googleusercontent.com/_55uSCYxbQ8M/TVKqnfoGkXI/AAAAAAAAAwk/LWq38VL5vMc/5.png">
+
+Hit “Next” and Python will now install. Hit “Finish” when installation completes:
+
+<img width=400 height=270 src="https://lh3.googleusercontent.com/_55uSCYxbQ8M/TVKqyxWVhqI/AAAAAAAAAwo/TkK_w8a6TO8/6.png">
+
+<img width=400 height=270 src="https://lh3.googleusercontent.com/_55uSCYxbQ8M/TVKqzej_mUI/AAAAAAAAAws/A7rVWnYkPXU/7.png">
+
+== Setting Environment Variables ==
+
+After Python is installed, you should make sure that the Python extensions are registered. If you have a regular start menu, click on start and then right click on “My Computer” and choose properties. If you have the classic start menu, just click on “My Computer” and choose properties. You should see the following (some personal details removed):
