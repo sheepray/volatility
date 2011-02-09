@@ -12,98 +12,98 @@ Before using these plugins, make sure to read the BasicUsage instructions. To se
 == Image Identification ==
 
 ||Command||Description||OS Support||
-||datetime||Get date/time information for image||All||
-||imageinfo||Prints the suggested profile (OS version and patch level).<br>Tells you if the system is PAE vs no PAE.<br>Locates the DTB, KDBG, KPCR, and KUSER_SHARED_DATA.<br>Prints the date/time info.||All||
-||kdbgscan||Search for and dump potential KDBG values||All||
-||kpcrscan||Search for and dump potential KDBG values||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#datetime datetime]||Get date/time information for image||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#imageinfo imageinfo]||Prints the suggested profile (OS version and patch level).<br>Tells you if the system is PAE vs no PAE.<br>Locates the DTB, KDBG, KPCR, and KUSER_SHARED_DATA.<br>Prints the date/time info.||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#kdbgscan kdbgscan]||Search for and dump potential KDBG values||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#kpcrscan kpcrscan]||Search for and dump potential KDBG values||All||
 
 == Processes and DLLs ==
 
 ||Command||Description||OS Support||
-||pslist||Print active processes by walking the !PsActiveProcessHead linked list.<br>For inactive/terminated or hidden/unlinked processes, see psscan2.||All||
-||pstree||Print process list as a tree so you can visualize the parent/child relationships||All||
-||psscan2||Find _EPROCESS objects using pool tag scanning||All||
-||dlllist||Print loaded DLLs by walking the !InLoadOrderModuleList in the PEB.<br>Print DLLs in unlinked/hidden processes by specifying an _EPROCESS offset.<br>To cross reference this list with 3 other sources of information, see !LdrModules.||All||
-||dlldump||Extract DLLs to executable files.<br>Dump a PE from process memory (even if it's not in the DLL list) by specifying a base address.||All||
-||files||Print list of open files for each process||All||
-||regobjkeys||Print list of open regkeys for each process||All||
-||getsids||Print the SIDs owning each process||All||
-||verinfo||Print the version information compiled into a process or DLL's PE file||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#pslist pslist]||Print active processes by walking the !PsActiveProcessHead linked list.<br>For inactive/terminated or hidden/unlinked processes, see psscan2.||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#pstree pstree]||Print process list as a tree so you can visualize the parent/child relationships||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#psscan2 psscan2]||Find _EPROCESS objects using pool tag scanning||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#dlllist dlllist]||Print loaded DLLs by walking the !InLoadOrderModuleList in the PEB.<br>Print DLLs in unlinked/hidden processes by specifying an _EPROCESS offset.<br>To cross reference this list with 3 other sources of information, see !LdrModules.||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#dlldump dlldump]||Extract DLLs to executable files.<br>Dump a PE from process memory (even if it's not in the DLL list) by specifying a base address.||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#files files]||Print list of open files for each process||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#regobjkeys regobjkeys]||Print list of open regkeys for each process||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#getsids getsids]||Print the SIDs owning each process||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#verinfo verinfo]||Print the version information compiled into a process or DLL's PE file||All||
 
 == Processes Memory ==
 
 ||Command||Description||OS Support||
-||memmap||Print the virtual addresses, physical addresses, and size of each page accessible to a process||All||
-||memdump||Dump the addressable memory for a process (outputs 1 file per process)||All||
-||procmemdump||Extract a process's executable, preserving slack space||All||
-||procexedump||Extract a process's executable, do not preserve slack space||All||
-||vadwalk||Walk the VAD tree and print basic information||All||
-||vadtree||Walk the VAD tree and display in tree format||All||
-||vadinfo||Walk the VAD tree and print extended information||All||
-||vaddump||Dumps out the VAD sections (outputs multiple files per process)||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#memmap memmap]||Print the virtual addresses, physical addresses, and size of each page accessible to a process||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#memdump memdump]||Dump the addressable memory for a process (outputs 1 file per process)||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#procmemdump procmemdump]||Extract a process's executable, preserving slack space||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#procexedump procexedump]||Extract a process's executable, do not preserve slack space||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#vadwalk vadwalk]||Walk the VAD tree and print basic information||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#vadtree vadtree]||Walk the VAD tree and display in tree format||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#vadinfo vadinfo]||Walk the VAD tree and print extended information||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#vaddump vaddump]||Dumps out the VAD sections (outputs multiple files per process)||All||
 
 == Kernel Memory and Objects ==
 
 ||Command||Description||OS Support||
-||modules||Print loaded kernel drivers by walking the !PsLoadedModuleList linked list||All||
-||modscan2||Scan physical memory for LDR_DATA_TABLE_ENTRY objects.<br>Can locate unloaded and unlinked kernel drivers.||All||
-||moddump||Extract a kernel driver to disk (by base address or regular expression)||All||
-||ssdt||Print the Native and GDI System Service Descriptor Tables||All||
-||driverscan||Scan physical memory for DRIVER_OBJECT objects||All||
-||filescan||Scan physical memory for FILE_OBJECT objects||All||
-||mutantscan||Scan physical memory for KMUTANT objects||All||
-||thrdscan2||Scan physical memory for ETHREAD objects||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#modules modules]||Print loaded kernel drivers by walking the !PsLoadedModuleList linked list||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#modscan2 modscan2]||Scan physical memory for LDR_DATA_TABLE_ENTRY objects.<br>Can locate unloaded and unlinked kernel drivers.||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#moddump moddump]||Extract a kernel driver to disk (by base address or regular expression)||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#ssdt ssdt]||Print the Native and GDI System Service Descriptor Tables||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#driverscan driverscan]||Scan physical memory for DRIVER_OBJECT objects||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#filescan filescan]||Scan physical memory for FILE_OBJECT objects||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#mutantscan mutantscan]||Scan physical memory for KMUTANT objects||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#thrdscan2 thrdscan2]||Scan physical memory for ETHREAD objects||All||
 
 == Networking ==
 
 ||Command||Description||OS Support||
-||connections||Display open network connections by walking the linked list in tcpip.sys||Windows XP||
-||connscan2||Scan physical memory for connection objects||Windows XP||
-||sockets||Display open client and server (listening) sockets by walking the linked list in tcpip.sys||Windows XP||
-||sockscan2||Scan physical memory for socket objects||Windows XP||
-||netscan||Scan physical memory for connection and socket objects.<br>Distinguishes between IPv4 and IPv6.<br>Shows owning process, creation time, and state (for TCP connections).||Windows Vista and 7||
+||[http://code.google.com/p/volatility/wiki/CommandReference#connections connections]||Display open network connections by walking the linked list in tcpip.sys||Windows XP||
+||[http://code.google.com/p/volatility/wiki/CommandReference#connscan2 connscan2]||Scan physical memory for connection objects||Windows XP||
+||[http://code.google.com/p/volatility/wiki/CommandReference#sockets sockets]||Display open client and server (listening) sockets by walking the linked list in tcpip.sys||Windows XP||
+||[http://code.google.com/p/volatility/wiki/CommandReference#sockscan sockscan]||Scan physical memory for socket objects||Windows XP||
+||[http://code.google.com/p/volatility/wiki/CommandReference#netscan netscan]||Scan physical memory for connection and socket objects.<br>Distinguishes between IPv4 and IPv6.<br>Shows owning process, creation time, and state (for TCP connections).||Windows Vista and 7||
 
 == Registry ==
 
 ||Command||Description||OS Support||
-||hivescan||Scan Physical memory for _CMHIVE objects (registry hives)||All||
-||hivelist||Walk the linked list of registry hives and print their virtual addresses and corresponding paths on disk||All||
-||printkey||Print the contents of a registry key, its values, timestamps, and data||All||
-||hivedump||Recursively prints all keys and timestamps in a given hive||All||
-||hashdump||Dumps passwords hashes (LM/NTLM) from memory||All||
-||lsadump||Dump (decrypted) LSA secrets from the registry||Windows XP||
+||[http://code.google.com/p/volatility/wiki/CommandReference#hivescan hivescan]||Scan Physical memory for _CMHIVE objects (registry hives)||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#hivelist hivelist]||Walk the linked list of registry hives and print their virtual addresses and corresponding paths on disk||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#printkey printkey]||Print the contents of a registry key, its values, timestamps, and data||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#hivedump hivedump]||Recursively prints all keys and timestamps in a given hive||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#hashdump hashdump]||Dumps passwords hashes (LM/NTLM) from memory||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#lsadump lsadump]||Dump (decrypted) LSA secrets from the registry||Windows XP||
 
 == Crash Dumps, Hibernation, and Conversion ==
 
 ||Command||Description||OS Support||
-||crashdump||Dumps the crashdump file to a raw file||||
-||crashinfo||Dump crash-dump information||||
-||hibdump||Dumps the hibernation file to a raw file||||
-||hibinfo||Dump hibernation file information||||
-||imagecopy||Copies a physical address space out as a raw DD image||||
+||[http://code.google.com/p/volatility/wiki/CommandReference#crashdump crashdump]||Dumps the crashdump file to a raw file||||
+||[http://code.google.com/p/volatility/wiki/CommandReference#crashinfo crashinfo]||Dump crash-dump information||||
+||[http://code.google.com/p/volatility/wiki/CommandReference#hibdump hibdump]||Dumps the hibernation file to a raw file||||
+||[http://code.google.com/p/volatility/wiki/CommandReference#hibinfo hibinfo]||Dump hibernation file information||||
+||[http://code.google.com/p/volatility/wiki/CommandReference#imagecopy imagecopy]||Copies a physical address space out as a raw DD image||||
 
 == Malware/Rootkits ==
 
 ||Command||Description||OS Support||
-||malfind||Extract injected DLLs, injected code, unpacker stubs, API hook trampolines.<br>Scan for any ANSI string, Unicode string, regular expression, or byte sequence in process or kernel driver memory.||All||
-||svcscan||Scan the Service Control Manager for information on Windows services.<br>Shows binary path, process ID or driver object, current state, etc).||All||
-||ldrmodules||Detect unlinked DLLs by cross-referencing memory mapped files with the 3 PEB DLL lists||All||
-||impscan||Scan for calls to imported functions.<br>Does not rely on the Import Address Table (for example it works when the PE header has been erased).<br>Automatically generates a labeled IDA Pro Database.<br>Works on EXEs, DLLs, arbitrary executable ranges of process memory, and kernel drivers.||All||
-||apihooks||Detect IAT, EAT, and Inline hooks in process or kernel memory.<br>For inline hooks, it checks direct calls, direct jumps, indirect calls, indirect jumps, and push/ret instructions.<br>Detects calls to unknown code pages in kernel drivers.<br>Detects redirected system calls in ntdll.dll.<br>Allows whitelisting by process name, hooked module, hooking module, or function name.||All||
-||idt||Dumps the Interrupt Descriptor Table.<br>Checks for inline API hooks of all IDT entries.||All||
-||orphanthreads||Checks for kernel threads that don't map back to known drivers||All||
-||notifyroutines||Prints kernel callbacks of the following types:<br>!PsSetCreateProcessNotifyRoutine (process creation).<br>!PsSetCreateThreadNotifyRoutine (thread creation).<br>!PsSetImageLoadNotifyRoutine (DLL/image load).<br>!IoRegisterFsRegistrationChange (file system registration).<br>!KeRegisterBugCheck and !KeRegisterBugCheckReasonCallback.<br>!CmRegisterCallback (registry callbacks on XP).<br>!CmRegisterCallbackEx (registry callbacks on Vista and 7).<br>!IoRegisterShutdownNotification (shutdown callbacks).<br>!DbgSetDebugPrintCallback (debug print callbacks on Vista and 7).<br>!DbgkLkmdRegisterCallback (debug callbacks on 7).||All||
-||driverirp||Print the 28 IRP handlers for each driver object.<br>Checks for inline API hooks of each function.<br>Detects hooks of DriverStartIO.||All||
-||csrpslist||Detect hidden processes using alternate process listings in csrss.exe.<br>Checks the handle table and internal linked list of processes.||All, but no internal list on Vista and 7||
-||ssdt_ex||Automated SSDT hook explorer for use with IDA Pro.<br>Detects which SSDT functions are hooked.<br>Extracts the hooking driver and creates an IDA Database.<br>Labels the rootkit function in the IDA Database.||All||
-||ssdt_by_threads||Prints which threads in which processes are calling through an SSDT with any hooks present||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#malfind malfind]||Extract injected DLLs, injected code, unpacker stubs, API hook trampolines.<br>Scan for any ANSI string, Unicode string, regular expression, or byte sequence in process or kernel driver memory.||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#svcscan svcscan]||Scan the Service Control Manager for information on Windows services.<br>Shows binary path, process ID or driver object, current state, etc).||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#ldrmodules ldrmodules]||Detect unlinked DLLs by cross-referencing memory mapped files with the 3 PEB DLL lists||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#impscan impscan]||Scan for calls to imported functions.<br>Does not rely on the Import Address Table (for example it works when the PE header has been erased).<br>Automatically generates a labeled IDA Pro Database.<br>Works on EXEs, DLLs, arbitrary executable ranges of process memory, and kernel drivers.||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#apihooks apihooks]||Detect IAT, EAT, and Inline hooks in process or kernel memory.<br>For inline hooks, it checks direct calls, direct jumps, indirect calls, indirect jumps, and push/ret instructions.<br>Detects calls to unknown code pages in kernel drivers.<br>Detects redirected system calls in ntdll.dll.<br>Allows whitelisting by process name, hooked module, hooking module, or function name.||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#idt idt]||Dumps the Interrupt Descriptor Table.<br>Checks for inline API hooks of all IDT entries.||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#orphanthreads orphanthreads]||Checks for kernel threads that don't map back to known drivers||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#notifyroutines notifyroutines]||Prints kernel callbacks of the following types:<br>!PsSetCreateProcessNotifyRoutine (process creation).<br>!PsSetCreateThreadNotifyRoutine (thread creation).<br>!PsSetImageLoadNotifyRoutine (DLL/image load).<br>!IoRegisterFsRegistrationChange (file system registration).<br>!KeRegisterBugCheck and !KeRegisterBugCheckReasonCallback.<br>!CmRegisterCallback (registry callbacks on XP).<br>!CmRegisterCallbackEx (registry callbacks on Vista and 7).<br>!IoRegisterShutdownNotification (shutdown callbacks).<br>!DbgSetDebugPrintCallback (debug print callbacks on Vista and 7).<br>!DbgkLkmdRegisterCallback (debug callbacks on 7).||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#driverirp driverirp]||Print the 28 IRP handlers for each driver object.<br>Checks for inline API hooks of each function.<br>Detects hooks of DriverStartIO.||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#csrpslist csrpslist]||Detect hidden processes using alternate process listings in csrss.exe.<br>Checks the handle table and internal linked list of processes.||All, but no internal list on Vista and 7||
+||[http://code.google.com/p/volatility/wiki/CommandReference#ssdt_ex ssdt_ex]||Automated SSDT hook explorer for use with IDA Pro.<br>Detects which SSDT functions are hooked.<br>Extracts the hooking driver and creates an IDA Database.<br>Labels the rootkit function in the IDA Database.||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#ssdt_by_threads ssdt_by_threads]||Prints which threads in which processes are calling through an SSDT with any hooks present||All||
 
 == Miscellaneous ==
 
 ||Command||Description||OS Support||
-||strings||Match physical offsets to virtual addresses||All||
-||volshell||Shell to interactively explore a memory image||All||
-||bioskbd||Reads the keyboard buffer from Real Mode memory||||
-||inspectcache||Inspect the contents of a cache||||
-||patcher||Patches memory based on page scans||||
-||testsuite||Run unit test suit using the Cache||||
+||[http://code.google.com/p/volatility/wiki/CommandReference#strings strings]||Match physical offsets to virtual addresses||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#volshell volshell]||Shell to interactively explore a memory image||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#bioskbd bioskbd]||Reads the keyboard buffer from Real Mode memory||||
+||[http://code.google.com/p/volatility/wiki/CommandReference#inspectcache inspectcache]||Inspect the contents of a cache||||
+||[http://code.google.com/p/volatility/wiki/CommandReference#patcher patcher]||Patches memory based on page scans||||
+||[http://code.google.com/p/volatility/wiki/CommandReference#testsuite testsuite]||Run unit test suit using the Cache||||
