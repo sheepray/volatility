@@ -93,4 +93,6 @@ Here we can see that we are using html output and saving the output to a file ca
 
 For a list of plugins and their features look at FeaturesByPlugin 
 
+For a usage examples of each plugin look at CommandReference
+
 For more details on commandlines look at CommandLineProcessing
