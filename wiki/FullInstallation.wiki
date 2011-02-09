@@ -205,3 +205,26 @@ The installer should pick up your Python installation.  If you have more than ve
 <img src="https://lh4.googleusercontent.com/_55uSCYxbQ8M/TVLjRDXVnrI/AAAAAAAAAzI/cbTUKkhzpU0/2.png">
 
 Accept all defaults, hitting Next until complete.  As long as there are no errors shown installation should be successful.  You an always verify by running Python and typing "import yara"
+
+=== Installing TortoiseSVN ===
+
+In order to get the source code for Volatility 1.4 from the repository, you will need a Subversion (SVN) client.  You can download the client from [http://tortoisesvn.net/downloads.html].  Make sure to choose the correct installer:
+
+<img src="https://lh5.googleusercontent.com/_55uSCYxbQ8M/TVLoO5rfotI/AAAAAAAAAzs/fS0zwywCsjA/1.jpg">
+
+Double click the installer and keep hitting next.  Accept all defaults and accept the user agreement.  Hit "Finish" when the installation completes.
+
+<img src="https://lh3.googleusercontent.com/_55uSCYxbQ8M/TVLm-hJqKlI/AAAAAAAAAzc/ttg-EBS_rfE/3.png">
+
+You will be asked to restart your computer after TortoiseSVN is installed.
+
+<img src="https://lh3.googleusercontent.com/_55uSCYxbQ8M/TVLpI0rVfWI/AAAAAAAAA0I/4ofIcaewvbU/11.png">
+
+After restarting, you can verify that TortoiseSVN is installed correctly by right-clicking on the Desktop.  If it is installed, you will see it in the menu:
+
+<img src="https://lh6.googleusercontent.com/_55uSCYxbQ8M/TVLqIEwzuoI/AAAAAAAAA0M/zFjmO8OO5s8/12.jpg">
+
+
+
+
+=== Installing Volatility 1.4 from SVN ===
