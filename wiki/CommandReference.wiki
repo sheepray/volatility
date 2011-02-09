@@ -369,7 +369,9 @@ $ ls -alh memory/1880.dmp
 
 == procmemdump ==
 
-To dump a process's executable (including the slack space), use the procmemdump command. Optionally, pass the --unsafe or -u flags to bypass certain sanity checks used when parsing the PE header. For example, some malware will intentionally forge size fields in the PE header so that memory dumping tools fail. 
+To dump a process's executable (including the slack space), use the procmemdump command. Optionally, pass the --unsafe or -u flags to bypass certain sanity checks used when parsing the PE header. Some malware will intentionally forge size fields in the PE header so that memory dumping tools fail. 
+
+For more information, see Andreas Schuster's 4-part series on [http://computer.forensikblog.de/en/2006/04/reconstructing_a_binary.html#more Reconstructing a Binary]. Also see [http://code.google.com/p/volatility/wiki/CommandReference#impscan impscan] for help rebuilding a binary's import address table.
 
 {{{
 $ python volatility.py --profile=Win7SP0x86 -f win7.dmp -p 1880 procmemdump -D memory/
@@ -618,6 +620,12 @@ SSDT[1] at 977a5000 with 825 entries
 }}}
 
 To filter all functions which point to ntoskrnl.exe and win32k.sys, you can use egrep on command-line. This will only show hooked SSDT functions. 
+
+{{{
+$ python volatility.py --profile=Win7SP0x86 -f win7.dmp ssdt | egrep -v '(ntoskrnl|win32k)'
+}}}
+
+Note that the NT module on your system may be ntkrnlpa.exe or ntkrnlmp.exe - so check that before using egrep of you'll be filtering the wrong module name. 
 
 == driverscan ==
 
@@ -1794,6 +1802,9 @@ To overlay the EPROCESS types onto the offset for explorer.exe, do this:
 For more information, see BDG's [http://moyix.blogspot.com/2008/08/indroducing-volshell.html Introducing Volshell]. 
 
 == bioskbd ==
+
+To read keystrokes from the BIOS area of memory, use the bioskbd command. Depending on the tool used to acquire memory, not all memory samples will contain the necessary BIOS area. For more information, see Andreas Schuster's [http://computer.forensikblog.de/en/2009/04/read_password_from_keyboard_buffer.html#more Reading Passwords From the Password Buffer].
+
 == inspectcache ==
 == patcher ==
 == testsuite ==
