@@ -1290,6 +1290,34 @@ a11244 WININET.dll InternetOpenUrlA 771c5a62
 
 If you don't specify a base address with -a or --address, then you'll end up scanning the process's main module (i.e. services.exe) for imported functions. You can also specify the base address of a kernel driver to scan the driver for imported kernel-mode functions. 
 
+Laqma loads a kernel driver named lanmandrv.sys. If you extract it with moddump, the IAT will be corrupt. So use impscan to rebuild it:
+
+{{{
+$ python volatility.py -f laqma.vmem modules | grep lanman
+Volatile Systems Volatility Framework 1.4_rc1
+\??\C:\WINDOWS\System32\lanmandrv.sys              0x00f8c52000 0x002000 lanmandrv.sys
+}}}
+
+Now that you know the base address:
+
+{{{
+$ python volatility.py -f laqma.vmem impscan -a 0x00f8c52000 -D out/
+Volatile Systems Volatility Framework 1.4_rc1
+f8c53080 ntoskrnl.exe IofCompleteRequest 804ee07a
+f8c530a0 ntoskrnl.exe ZwOpenKey 804fdd8c
+f8c530a4 ntoskrnl.exe _except_handler3 80535230
+f8c53084 ntoskrnl.exe IoDeleteDevice 804f0776
+f8c53088 ntoskrnl.exe IoDeleteSymbolicLink 8056833a
+f8c5309c ntoskrnl.exe wcscmp 80536fe3
+f8c533ac ntoskrnl.exe NtQueryDirectoryFile 8056e1c2
+f8c5308c ntoskrnl.exe IoCreateSymbolicLink 80567fc6
+f8c53090 ntoskrnl.exe MmGetSystemRoutineAddress 805a23dc
+f8c53094 ntoskrnl.exe IoCreateDevice 80569c5e
+f8c53098 ntoskrnl.exe ExAllocatePoolWithTag 80544280
+f8c533b4 ntoskrnl.exe NtQuerySystemInformation 806065e4
+f8c533bc ntoskrnl.exe NtOpenProcess 805bfe1e
+}}}
+
 == apihooks ==
 
 To find API hooks in user mode or kernel mode, use the apihooks plugin. This finds IAT, EAT, Inline style hooks, and several special types of hooks. For Inline hooks, it detects CALLs and JMPs to direct and indirect locations, and it detects PUSH/RET instruction sequences. The special types of hooks that it detects include syscall hooking in ntdll.dll and calls to unknown code pages in kernel memory.
@@ -1407,6 +1435,8 @@ PID    TID    Create Time               Exit Time                 Offset     Sta
      4   1720 2010-08-15 19:26:13                                 0x05e354a0 0xf2edc54e
      4   1648 2010-08-15 19:26:13                                 0x065a32b0 0xf2edd150
 }}}
+
+Where do you go from here? We suggest breaking into a [http://code.google.com/p/volatility/wiki/CommandReference#volshell volshell] and disassembling the instructions at the thread's start address. Or you could use [http://code.google.com/p/volatility/wiki/CommandReference#impscan impscan] to extract data around the thread's start address and determine which kernel APIs are called.
 
 == notifyroutines ==
 
