@@ -3,18 +3,6 @@
 = Installation of Volatility 1.4 =
 
 This wiki covers installation of Volatility 1.4 for both Windows and Linux systems
-
-== Installation Prerequisites ==
-
-In order to use Volatility, you will need to install a few prerequisite programs and packages.
-
-Prerequisites
-  * Python 2.6 or greater, but not Python 3.0 [http://python.org/download/releases/ Python 2.6] will be used in this guide
-  * [http://code.google.com/p/distorm/downloads/list Distorm] (Malware Plugins)
-  * [http://code.google.com/p/yara-project/downloads/list Yara] (Malware Plugins)
-  * [http://gitweb.pycrypto.org/?p=crypto/pycrypto-2.0.x.git;a=summary PyCrypto] (Core)
-  * Subversion Client.  We recommend [http://tortoisesvn.tigris.org]
-  * [http://www.7-zip.org/ 7zip] or an application that can unzip zip and gzip files
   
 
 = Windows Installation = 
