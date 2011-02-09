@@ -4,6 +4,8 @@
 
 This guide is for people who want a full development installation.
 
+<wiki:toc max_depth="4" />
+
 == Installation Prerequisites ==
 
 In order to use Volatility, you will need to install a few prerequisite programs and packages.
@@ -16,11 +18,11 @@ Prerequisites
   * Subversion Client.  We recommend [http://tortoisesvn.tigris.org] for Windows
   * [http://www.7-zip.org/ 7zip] or an application that can unzip zip and gzip files
 
-= Windows Installation =
+== Windows Installation ==
 
 This covers how to install Volatility 1.4 on Windows.
 
-== Python Installation ==
+=== Python Installation ===
 
 In order to use Volatility, you must first install Python. You should get version 2.6 for Windows. When you download the file, double-click to install and you will see the following security message. Just click Run.
 
@@ -49,7 +51,7 @@ Hit “Next” and Python will now install. Hit “Finish” when installation c
 
 <img width=400 height=270 src="https://lh3.googleusercontent.com/_55uSCYxbQ8M/TVKqzej_mUI/AAAAAAAAAws/A7rVWnYkPXU/7.png">
 
-== Setting Environment Variables ==
+==== Setting Environment Variables ====
 
 After Python is installed, you should make sure that the Python extensions are registered. If you have a regular start menu, click on start and then right click on “Computer” and choose properties.  If you have the classic start menu, just right click on “My Computer” and choose properties. 
 
