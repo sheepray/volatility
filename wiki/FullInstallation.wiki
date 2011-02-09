@@ -10,7 +10,7 @@ In order to use Volatility, you will need to install a few prerequisite programs
 
 Prerequisites
   * Python 2.6 or greater, but not Python 3.0 [http://python.org/download/releases/ Python 2.6] will be used in this guide
-  * [http://code.google.com/p/distorm/downloads/list Distorm] (Malware Plugins)
+  * [http://code.google.com/p/distorm/downloads/list Distorm] (Malware Plugins, Volshell)
   * [http://code.google.com/p/yara-project/downloads/list Yara] (Malware Plugins)
   * [http://gitweb.pycrypto.org/?p=crypto/pycrypto-2.0.x.git;a=summary PyCrypto] (Core)
   * Subversion Client.  We recommend [http://tortoisesvn.tigris.org] for Windows
