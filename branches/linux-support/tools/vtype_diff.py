@@ -113,7 +113,7 @@ class VtypeHolder(object):
         if self.basis:
             fn, an = self.basis
             fn = os.path.splitext(os.path.basename(fn))[0]
-            output += "\n\nimport copy\n"
+            output += "\n# We must use deepcopy to avoid overlays affecting multiple profiles\nimport copy\n"
             output += "import {0}\n".format(fn)
             output += "{0} = copy.deepcopy({1}.{2})\n".format(self.arrayname, fn, an)
             if self.dellist:
@@ -128,7 +128,8 @@ class VtypeHolder(object):
         locs, globs = {}, {}
         execfile(filename, globs, locs)
         for i in locs.keys():
-            self.arrayname = i
+            if i.endswith('_types'):
+                self.arrayname = i
         self.vtypes = locs[self.arrayname]
 
     def canonicalize(self):
