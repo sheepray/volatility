@@ -1,8 +1,6 @@
 #summary Example usage cases and output for Volatility commands
 #labels Featured
 
-This page contains 
-
 <wiki:toc max_depth="3" />
 
 = Image Identification =
@@ -1128,7 +1126,7 @@ Search for a simple string in any process:
 $ python volatility.py -f zeus.vmem malfind -D hidden_dumps --yara-rules="simpleStringToFind"
 }}}
 
-Search for a byte pattern in kernel memory. This does not check the entire range of kernel memory, it only checks the memory that belongs to loaded kernel drivers. For example, TDL3 applies a hard-patch to atapi.sys on disk. In particular, it adds some shell code to the .rsrc section of the file, and then modifies the !AddressOfEntryPoint so that it points at the shell code. This is TDL3's main persistence method. One of the unique instructions in the shell code is cmp dword ptr [eax], ‘3LDT’ so I made a YARA signature from that. 
+Search for a byte pattern in kernel memory. This does not check the entire range of kernel memory, it only checks the memory that belongs to loaded kernel drivers. For example, TDL3 applies a hard-patch to atapi.sys on disk. In particular, it adds some shell code to the .rsrc section of the file, and then modifies the !AddressOfEntryPoint so that it points at the shell code. This is TDL3's main persistence method. One of the unique instructions in the shell code is `cmp dword ptr [eax], ‘3LDT’` so I made a YARA signature from that. 
 
 {{{
 $ python volatility.py -f tdl3.dmp malfind --yara-rules=rules.yar -D hidden_dumps --kernel
@@ -1691,7 +1689,7 @@ Pid      Tid      Name               SSDT
 == strings ==
 == volshell ==
 
-If you want to interactively explore a memory image, use the volshell command. This gives you a WinDbg-like interface into the memory dump. For example, you can:
+If you want to interactively explore a memory image, use the volshell command. This gives you an interface similar to !WinDbg into the memory dump. For example, you can:
 
   * List processes
   * Switch into a process's context 
@@ -1723,7 +1721,7 @@ For help on a specific command, type 'hh(<command>)'
 >>> 
 }}}
 
-Let's say you want to see what's at 0x779f0000 in the memory of explorer.exe. First display the processes so you can get the PID or offset of Explorer's EPROCESS, like this:
+Let's say you want to see what's at 0x779f0000 in the memory of explorer.exe. First display the processes so you can get the PID or offset of Explorer's EPROCESS. (Note: if you want to view data in kernel memory, you do not need to switch contexts first.)
 
 {{{
 >>> ps()
