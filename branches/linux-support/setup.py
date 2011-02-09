@@ -61,6 +61,8 @@ opts['packages'] = ["volatility",
                     "volatility.plugins",
                     "volatility.plugins.addrspaces",
                     "volatility.plugins.overlays",
+		    "volatility.plugins.overlays.linux",
+		    "volatility.plugins.overlays.windows",
                     "volatility.plugins.registry"]
 opts['data_files'] = find_py_files(['contrib'])
 
