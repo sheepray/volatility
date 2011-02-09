@@ -192,3 +192,16 @@ Copy all contents into your Python 2.6 library location, in this case C:\Python2
 You can check the installation by running python and importing distorm3.  If you don't see any errors, distorm3 was installed correctly.
 
 <img src="https://lh5.googleusercontent.com/_55uSCYxbQ8M/TVLIgeQNEyI/AAAAAAAAAxw/cND7_6bLvpE/3.png">
+
+
+==== Installing Yara-Python 1.4a ====
+
+Download the appropriate [http://code.google.com/p/yara-project/downloads/list yara-python-1.4a.win32-py2.X.exe] Windows installer.  In this guide we will use yara-python-1.4a.win32-py2.6.exe.  Double click the installer and click Next.
+
+<img src="https://lh4.googleusercontent.com/_55uSCYxbQ8M/TVLjQzWui_I/AAAAAAAAAzE/PyKLXZyKoi0/1.png">
+
+The installer should pick up your Python installation.  If you have more than version of Python installed, choose the installation you will be using for Volatility.
+
+<img src="https://lh4.googleusercontent.com/_55uSCYxbQ8M/TVLjRDXVnrI/AAAAAAAAAzI/cbTUKkhzpU0/2.png">
+
+Accept all defaults, hitting Next until complete.  As long as there are no errors shown installation should be successful.  You an always verify by running Python and typing "import yara"
