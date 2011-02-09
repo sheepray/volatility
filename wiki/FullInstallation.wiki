@@ -1,4 +1,4 @@
-#Covers full installation for Volatility 1.4 Dev 
+#summary Covers full installation for Volatility 1.4 Dev
 
 = Full Dev Installation for Volatility 1.4 =
 
