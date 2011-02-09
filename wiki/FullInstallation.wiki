@@ -92,7 +92,7 @@ Type "python" into the command prompt.  You should then see the Python header an
 
 ==== Installing MinGW ====
 
-Occasionally you will need a C/C++ compiler in order to install Python libraries.  If you install Distorm3 or Pycrypto from source, you will need a compiler.  Download the compiler from the Sourceforge site linked above.  Make sure you get the "ming-get-inst" installer as shown below:
+Occasionally you will need a C/C++ compiler in order to install Python libraries.  If you install Distorm3 or Pycrypto from source, you will need a compiler.  Download the compiler from the [http://sourceforge.net/projects/mingw/files/Automated%20MinGW%20Installer/mingw-get-inst/mingw-get-inst-20101030/ Sourceforge] site.  Make sure you get the "ming-get-inst" installer as shown below:
 
 <img src="https://lh5.googleusercontent.com/_55uSCYxbQ8M/TVLT6Y753BI/AAAAAAAAAx4/mR34Go3_kms/1.jpg">
 
