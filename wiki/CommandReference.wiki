@@ -1056,10 +1056,22 @@ Search for a simple string in any process:
 $ python volatility.py -f zeus.vmem malfind -D hidden_dumps --yara-rules="simpleStringToFind"
 }}}
 
-Search for a byte pattern in kernel memory. Note: this does not check the entire range of kernel memory, it only checks the memory that belongs to loaded kernel drivers. 
+Search for a byte pattern in kernel memory. This does not check the entire range of kernel memory, it only checks the memory that belongs to loaded kernel drivers. For example, TDL3 applies a hard-patch to atapi.sys on disk. In particular, it adds some shell code to the .rsrc section of the file, and then modifies the !AddressOfEntryPoint so that it points at the shell code. This is TDL3's main persistence method. One of the unique instructions in the shell code is cmp dword ptr [eax], ‘3LDT’ so I made a YARA signature from that. 
 
 {{{
-$ python volatility.py -f zeus.vmem malfind -D hidden_dumps --yara-rules="simpleStringToFind" --kernel
+$ python volatility.py -f tdl3.dmp malfind --yara-rules=rules.yar -D hidden_dumps --kernel
+Volatile Systems Volatility Framework 1.4_rc1
+Name                 Pid    Start      End        Tag    Hits Protect
+vmscsi.sys           -      0xF9DB8000 0xF9DBB000 -         1 -      (Unknown)
+Hit: 8b00813854444c33755a
+0xf9dba4c3   8b 00 81 38 54 44 4c 33 75 5a 8b 45 f4 05 fd 29    ...8TDL3uZ.E...)
+0xf9dba4d3   b7 f0 50 b8 08 03 00 00 8b 80 00 00 df ff ff b0    ..P.............
+0xf9dba4e3   00 01 00 00 b8 08 03 00 00 8b 80 00 00 df ff 8b    ................
+0xf9dba4f3   40 04 8b 4d ec 03 41 20 ff d0 ff 75 e0 b8 08 03    @..M..A ...u....
+0xf9dba503   00 00 8b 80 00 00 df ff ff b0 00 01 00 00 b8 08    ................
+0xf9dba513   03 00 00 8b 80 00 00 df ff 8b 00 05 84 03 00 00    ................
+0xf9dba523   ff d0 eb 10 8b 45 e0 8b 40 0c 89 45 e0 e9 66 fe    .....E..@..E..f.
+0xf9dba533   ff ff 33 c0 c9 c2 08 00 5e f8 a8 f2 fe 63 ec d0    ..3.....^....c..
 }}}
 
 Search for a given byte pattern in a particular process:
@@ -1289,7 +1301,7 @@ Volatility is the only memory forensics platform with the ability to print an as
   * !PsSetCreateThreadNotifyRoutine (thread creation).
   * !PsSetImageLoadNotifyRoutine (DLL/image load).
   * !IoRegisterFsRegistrationChange (file system registration).
-  * !KeRegisterBugCheck and KeRegisterBugCheckReasonCallback.
+  * !KeRegisterBugCheck and !KeRegisterBugCheckReasonCallback.
   * !CmRegisterCallback (registry callbacks on XP).
   * !CmRegisterCallbackEx (registry callbacks on Vista and 7).
   * !IoRegisterShutdownNotification (shutdown callbacks).
@@ -1351,31 +1363,49 @@ GenericKernelCallback                0x8216628f UNKNOWN
 
 To print a driver's IRP (Major Function) table, use the driverirp command. This command inherits from driverscan so that its able to locate DRIVER_OBJECTs. Then it cycles through the function table, printing the purpose of each function, the function's address, and the owning module of the address. 
 
-Many drivers forward their IRP functions to other drivers for legitimate purposes, so detecting hooked IRP functions based on containing modules is not a good method. Instead, we print everything and let you be the judge. The command also checks for Inline hooks of IRP functions. 
+Many drivers forward their IRP functions to other drivers for legitimate purposes, so detecting hooked IRP functions based on containing modules is not a good method. Instead, we print everything and let you be the judge. The command also checks for Inline hooks of IRP functions and optionally prints a disassembly of the instructions at the IRP address (pass -v or --verbose to enable this). 
 
-This command prints the IRPs for all drivers, unless you specify a regular expression filter. 
+This command outputs information for all drivers, unless you specify a regular expression filter. 
 
 {{{
-$ python volatility.py -f rustock.vmem driverirp -r tcpip
+$ python volatility.py -f tdl3.vmem driverirp -r vmscsi 
 Volatile Systems Volatility Framework 1.4_rc1
 DriverStart  Name             IRP                                  IrpAddr      IrpOwner         HookAddr     HookOwner
-0xb2574000   'Tcpip'          IRP_MJ_CREATE                        0xb257a4f9   tcpip.sys        -            -
-0xb2574000   'Tcpip'          IRP_MJ_CREATE_NAMED_PIPE             0xb257a4f9   tcpip.sys        -            -
-0xb2574000   'Tcpip'          IRP_MJ_CLOSE                         0xb257a4f9   tcpip.sys        -            -
-0xb2574000   'Tcpip'          IRP_MJ_READ                          0xb257a4f9   tcpip.sys        -            -
-0xb2574000   'Tcpip'          IRP_MJ_WRITE                         0xb257a4f9   tcpip.sys        -            -
-0xb2574000   'Tcpip'          IRP_MJ_QUERY_INFORMATION             0xb257a4f9   tcpip.sys        -            -
-0xb2574000   'Tcpip'          IRP_MJ_SET_INFORMATION               0xb257a4f9   tcpip.sys        -            -
-0xb2574000   'Tcpip'          IRP_MJ_QUERY_EA                      0xb257a4f9   tcpip.sys        -            -
-0xb2574000   'Tcpip'          IRP_MJ_SET_EA                        0xb257a4f9   tcpip.sys        -            -
-0xb2574000   'Tcpip'          IRP_MJ_FLUSH_BUFFERS                 0xb257a4f9   tcpip.sys        -            -
-0xb2574000   'Tcpip'          IRP_MJ_QUERY_VOLUME_INFORMATION      0xb257a4f9   tcpip.sys        -            -
-0xb2574000   'Tcpip'          IRP_MJ_SET_VOLUME_INFORMATION        0xb257a4f9   tcpip.sys        -            -
-0xb2574000   'Tcpip'          IRP_MJ_DIRECTORY_CONTROL             0xb257a4f9   tcpip.sys        -            -
-0xb2574000   'Tcpip'          IRP_MJ_FILE_SYSTEM_CONTROL           0xb257a4f9   tcpip.sys        -            -
-0xb2574000   'Tcpip'          IRP_MJ_DEVICE_CONTROL                0xb257a4f9   tcpip.sys        -            -
+0xf9db8000   'vmscsi'         IRP_MJ_CREATE                        0xf9db9cbd   vmscsi.sys       -            -
+0xf9db8000   'vmscsi'         IRP_MJ_CREATE_NAMED_PIPE             0xf9db9cbd   vmscsi.sys       -            -
+0xf9db8000   'vmscsi'         IRP_MJ_CLOSE                         0xf9db9cbd   vmscsi.sys       -            -
+0xf9db8000   'vmscsi'         IRP_MJ_READ                          0xf9db9cbd   vmscsi.sys       -            -
+0xf9db8000   'vmscsi'         IRP_MJ_WRITE                         0xf9db9cbd   vmscsi.sys       -            -
+0xf9db8000   'vmscsi'         IRP_MJ_QUERY_INFORMATION             0xf9db9cbd   vmscsi.sys       -            -
+0xf9db8000   'vmscsi'         IRP_MJ_SET_INFORMATION               0xf9db9cbd   vmscsi.sys       -            -
+0xf9db8000   'vmscsi'         IRP_MJ_QUERY_EA                      0xf9db9cbd   vmscsi.sys       -            -
+0xf9db8000   'vmscsi'         IRP_MJ_SET_EA                        0xf9db9cbd   vmscsi.sys       -            -
 [snip]
 }}}
+
+In the output, it is not apparent that the vmscsi.sys driver has been infected by the TDL3 rootkit. Although all IRPs point back into vmscsi.sys, they point at a stub staged in that region by TDL3 for the exact purpose of bypassing rootkit detection tools. To get extended information, use --verbose: 
+
+{{{
+$ python volatility.py -f tdl3.vmem driverirp -r vmscsi --verbose
+Volatile Systems Volatility Framework 1.4_rc1
+DriverStart  Name             IRP                                  IrpAddr      IrpOwner         HookAddr     HookOwner
+0xf9db8000   'vmscsi'         IRP_MJ_CREATE                        0xf9db9cbd   vmscsi.sys       -            -
+f9db9cbd: a10803dfff                       MOV EAX, [0xffdf0308]
+f9db9cc2: ffa0fc000000                     JMP DWORD [EAX+0xfc]
+f9db9cc8: 0000                             ADD [EAX], AL
+f9db9cca: 0000                             ADD [EAX], AL
+f9db9ccc: 0000                             ADD [EAX], AL
+
+0xf9db8000   'vmscsi'         IRP_MJ_CREATE_NAMED_PIPE             0xf9db9cbd   vmscsi.sys       -            -
+f9db9cbd: a10803dfff                       MOV EAX, [0xffdf0308]
+f9db9cc2: ffa0fc000000                     JMP DWORD [EAX+0xfc]
+f9db9cc8: 0000                             ADD [EAX], AL
+f9db9cca: 0000                             ADD [EAX], AL
+f9db9ccc: 0000                             ADD [EAX], AL
+[snip]
+}}}
+
+Now you can see that TDL3 redirects all IRPs to its own stub in the vmscsi.sys driver. That code jumps to whichever address is pointed to by 0xffdf0308 - a location in the KUSER_SHARED_DATA region. 
 
 == csrpslist ==
 
@@ -1415,6 +1445,49 @@ System                    4        1        0        0
 }}}
 
 == ssdt_ex ==
+
+If you want to explore SSDT hooks installed by rootkits, use the ssdt_ex command. This will automatically detect which SSDT functions are hooked, extract the hooking kernel driver to disk, and generate an IDC file (IDA script) containing labels for the rootkit functions. Then, if you have idag.exe (Windows) or idal (Linux/OS X) in your $PATH, then it will create an IDB file from the extracted kernel driver and run the IDC script. The result is a pre-labeled IDB for you to explore and reverse engineer, after typing just one command in Volatility.
+
+Here is an example:
+
+{{{
+$ python volatility.py -f laqma.vmem ssdt_ex -D outdir/
+Volatile Systems Volatility Framework 1.4_rc1
+  Entry 0x0049: 0xf8c52884 (NtEnumerateValueKey) owned by lanmandrv.sys
+  Entry 0x007a: 0xf8c5253e (NtOpenProcess) owned by lanmandrv.sys
+  Entry 0x0091: 0xf8c52654 (NtQueryDirectoryFile) owned by lanmandrv.sys
+  Entry 0x00ad: 0xf8c52544 (NtQuerySystemInformation) owned by lanmandrv.sys
+Dumping IDC file to /Users/M/Desktop/Volatility-1.4_rc1/outdir/driver.f8c52000.sys.idc
+
+[snip]
+}}}
+
+Now if you look in outdir, you'll find:
+
+  * The extracted kernel driver (driver.f8c52000.sys)
+  * The IDC script (driver.f8c52000.sys.idc)
+  * The IDA database (driver.f8c52000.idb)
+
+Inside the IDC script, you'll see something like this:
+
+{{{
+#include <idc.idc>
+static main(void) {
+   MakeFunction(0xF8C52A4C, BADADDR);
+   MakeFunction(0xF8C52E7C, BADADDR);
+   MakeName(0xF8C52544, "HookNtQuerySystemInformation");
+   MakeFunction(0xF8C52544, BADADDR);
+   MakeName(0xF8C52654, "HookNtQueryDirectoryFile");
+   MakeFunction(0xF8C52654, BADADDR);
+   MakeName(0xF8C52884, "HookNtEnumerateValueKey");
+   MakeFunction(0xF8C52884, BADADDR);
+   MakeName(0xF8C5253E, "HookNtOpenProcess");
+   MakeFunction(0xF8C5253E, BADADDR);
+Exit(0);
+}
+}}}
+
+When you open the IDB, just navigate to any functions with a "Hook" prefix and you'll be staring at the rootkit's payload. 
 
 == ssdt_by_threads ==
 
@@ -1472,6 +1545,144 @@ Pid      Tid      Name               SSDT
 
 == strings ==
 == volshell ==
+
+If you want to interactively explore a memory image, use the volshell command. This gives you a WinDbg-like interface into the memory dump. For example, you can:
+
+  * List processes
+  * Switch into a process's context 
+  * Display types of structures/objects
+  * Overlay a type over a given address 
+  * Walk linked lists 
+  * Disassemble code at a given address
+
+To break into a volshell:
+
+{{{
+$ python volatility.py --profile=Win7SP0x86 -f win7.dmp volshell
+Volatile Systems Volatility Framework 1.4_rc1
+Current context: process System, pid=4, ppid=0 DTB=0x185000
+Welcome to volshell! Current memory image is:
+file:///Users/M/Desktop/win7.dmp
+To get help, type 'hh()'
+>>> hh()
+ps()                                     : Print a process listing.
+cc(offset=None, pid=None, name=None)     : Change current shell context.
+dd(address, length=128, space=None)      : Print dwords at address.
+db(address, length=128, width=16, space=None) : Print bytes as canonical hexdump.
+hh(cmd=None)                             : Get help on a command.
+dt(objct, address=None)                  : Describe an object or show type info.
+list_entry(head, objname, offset=-1, fieldname=None, forward=True) : Traverse a _LIST_ENTRY.
+dis(address, length=128, space=None)     : Disassemble code at a given address.
+
+For help on a specific command, type 'hh(<command>)'
+>>> 
+}}}
+
+Let's say you want to see what's at 0x779f0000 in the memory of explorer.exe. First display the processes so you can get the PID or offset of Explorer's EPROCESS, like this:
+
+{{{
+>>> ps()
+Name             PID    PPID   Offset  
+System           4      0      0x83dad960
+smss.exe         252    4      0x84e47840
+csrss.exe        348    340    0x8d5ffd40
+wininit.exe      384    340    0x84e6e3d8
+csrss.exe        396    376    0x8d580530
+winlogon.exe     424    376    0x8d598530
+services.exe     492    384    0x8d4cc030
+lsass.exe        500    384    0x8d6064a0
+lsm.exe          508    384    0x8d6075d8
+svchost.exe      616    492    0x8d653030
+svchost.exe      680    492    0x8d673b88
+svchost.exe      728    492    0x8d64fb38
+taskhost.exe     1156   492    0x8d7ee030
+dwm.exe          956    848    0x8d52bd40
+explorer.exe     1880   1720   0x8d66c1a8
+wuauclt.exe      1896   876    0x83ec3238
+VMwareTray.exe   2144   1880   0x83f028d8
+VMwareUser.exe   2156   1880   0x8d7893b0
+[snip]
+}}}
+
+Now switch into Explorer's context and print the data with either db (display as canonical hexdump) or dd (display as double-words):
+
+{{{
+>>> dd(0x779f0000)
+779f0000  00905a4d 00000003 00000004 0000ffff
+779f0010  000000b8 00000000 00000040 00000000
+779f0020  00000000 00000000 00000000 00000000
+779f0030  00000000 00000000 00000000 000000e0
+779f0040  0eba1f0e cd09b400 4c01b821 685421cd
+779f0050  70207369 72676f72 63206d61 6f6e6e61
+779f0060  65622074 6e757220 206e6920 20534f44
+779f0070  65646f6d 0a0d0d2e 00000024 00000000
+>>> db(0x779f0000)
+779f0000   4d 5a 90 00 03 00 00 00 04 00 00 00 ff ff 00 00    MZ..............
+779f0010   b8 00 00 00 00 00 00 00 40 00 00 00 00 00 00 00    ........@.......
+779f0020   00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00    ................
+779f0030   00 00 00 00 00 00 00 00 00 00 00 00 e0 00 00 00    ................
+779f0040   0e 1f ba 0e 00 b4 09 cd 21 b8 01 4c cd 21 54 68    ........!..L.!Th
+779f0050   69 73 20 70 72 6f 67 72 61 6d 20 63 61 6e 6e 6f    is program canno
+779f0060   74 20 62 65 20 72 75 6e 20 69 6e 20 44 4f 53 20    t be run in DOS 
+779f0070   6d 6f 64 65 2e 0d 0d 0a 24 00 00 00 00 00 00 00    mode....$.......
+}}}
+
+So there is a PE at 0x779f0000 in explorer.exe. If you want to disassemble instructions at RVA 0x2506 in the PE, do this:
+
+{{{
+>>> dis(0x779f0000 + 0x2506)
+0x779f2506 8d0c48                           LEA ECX, [EAX+ECX*2]
+0x779f2509 8b4508                           MOV EAX, [EBP+0x8]
+0x779f250c 8b4c4802                         MOV ECX, [EAX+ECX*2+0x2]
+0x779f2510 8d0448                           LEA EAX, [EAX+ECX*2]
+0x779f2513 e9c07f0300                       JMP 0x77a2a4d8
+0x779f2518 85f6                             TEST ESI, ESI
+0x779f251a 0f85c12c0700                     JNZ 0x77a651e1
+0x779f2520 8b4310                           MOV EAX, [EBX+0x10]
+0x779f2523 8b407c                           MOV EAX, [EAX+0x7c]
+0x779f2526 8b4b18                           MOV ECX, [EBX+0x18]
+0x779f2529 0fb7444102                       MOVZX EAX, [ECX+EAX*2+0x2]
+0x779f252e 894520                           MOV [EBP+0x20], EAX
+[snip]
+}}}
+
+If you want to remind yourself of the members in an EPROCESS object for the given OS, do this:
+
+{{{
+>>> dt("_EPROCESS")
+'_EPROCESS' (704 bytes)
+0x0   : Pcb                            ['_KPROCESS']
+0x98  : ProcessLock                    ['_EX_PUSH_LOCK']
+0xa0  : CreateTime                     ['_LARGE_INTEGER']
+0xa8  : ExitTime                       ['_LARGE_INTEGER']
+0xb0  : RundownProtect                 ['_EX_RUNDOWN_REF']
+0xb4  : UniqueProcessId                ['pointer', ['void']]
+0xb8  : ActiveProcessLinks             ['_LIST_ENTRY']
+0xc0  : ProcessQuotaUsage              ['array', 2, ['unsigned long']]
+0xc8  : ProcessQuotaPeak               ['array', 2, ['unsigned long']]
+0xd0  : CommitCharge                   ['unsigned long']
+0xd4  : QuotaBlock                     ['pointer', ['_EPROCESS_QUOTA_BLOCK']]
+[snip]
+}}}
+
+To overlay the EPROCESS types onto the offset for explorer.exe, do this:
+
+{{{
+>>> dt("_EPROCESS", 0x8d66c1a8)
+[_EPROCESS _EPROCESS] @ 0x8D66C1A8
+0x0   : Pcb                            2372321704
+0x98  : ProcessLock                    2372321856
+0xa0  : CreateTime                     2010-07-06 22:38:07 
+0xa8  : ExitTime                       1970-01-01 00:00:00 
+0xb0  : RundownProtect                 2372321880
+0xb4  : UniqueProcessId                1880
+0xb8  : ActiveProcessLinks             2372321888
+0xc0  : ProcessQuotaUsage              -
+0xc8  : ProcessQuotaPeak               -
+0xd0  : CommitCharge                   4489
+0xd4  : QuotaBlock                     2372351104
+[snip]
+}}}
 
 For more information, see BDG's [http://moyix.blogspot.com/2008/08/indroducing-volshell.html Introducing Volshell]. 
 
