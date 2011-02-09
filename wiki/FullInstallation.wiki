@@ -1,8 +1,9 @@
 #summary Covers full installation for Volatility 1.4 Dev
+#labels Featured
 
 = Full Dev Installation for Volatility 1.4 =
 
-This guide is for people who want a full development installation.
+This guide is for people who want a full development installation of Volatility 1.4
 
 <wiki:toc max_depth="4" />
 
@@ -228,3 +229,37 @@ After restarting, you can verify that TortoiseSVN is installed correctly by righ
 
 
 === Installing Volatility 1.4 from SVN ===
+
+Once you have a Subversion client installed, you can download the latest source code for Volatility 1.4 from the code repository.  This guide will use TortoiseSVN.  First create a folder where you want to keep the Volatility source code.  For this guide will create a folder "C:\Volatility 1.4".  Go inside this folder and right-click, bringing up the menu options for TortoiseSVN.  Choose "SVN Checkout":
+
+<img src="https://lh6.googleusercontent.com/_55uSCYxbQ8M/TVLqIEwzuoI/AAAAAAAAA0M/zFjmO8OO5s8/12.jpg">
+
+
+Type the following url for the repository:
+{{{
+http://volatility.googlecode.com/svn/branches/Volatility-1.4_rc1
+}}}
+
+<img src="https://lh5.googleusercontent.com/_55uSCYxbQ8M/TVMIuwteV3I/AAAAAAAAA0Y/cG43UU5Zep0/13.jpg">
+
+All other defaults should be fine, click OK.  When the repository is finished downloading click OK to close out.
+
+<img src="https://lh3.googleusercontent.com/_55uSCYxbQ8M/TVMIvBR76bI/AAAAAAAAA0c/_la0-VkUXIQ/14.png">
+
+You should then see all the Volatility source code in the folder.
+
+<img src="https://lh4.googleusercontent.com/_55uSCYxbQ8M/TVMIvRHz-4I/AAAAAAAAA0g/Zo69O0MGm_c/15.png">
+
+To use Volatility, open a command line and navigate to the Volatility source directory.  In this case:
+
+{{{
+cd "c:\Volatility 1.4"
+}}}
+
+Then type:
+
+{{{
+python volatility.py -h
+}}}
+
+You should see a long list of output that includes all of the plugins that are available.
