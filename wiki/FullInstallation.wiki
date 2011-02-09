@@ -56,8 +56,30 @@ After Python is installed, you should make sure that the Python extensions are r
 <img src="https://lh5.googleusercontent.com/_55uSCYxbQ8M/TVK41X4ZnRI/AAAAAAAAAw0/99TMpPkk-hg/0.jpg">
 
 
-If you have Windows 7 you will see the following screen.  Choose "Advanced System Settings"
+If you have Windows 7 you will see the following screen.  Choose "Advanced System Settings".  You should see the following (some personal details removed):
 
 <img height=400 width=400 src="https://lh5.googleusercontent.com/_55uSCYxbQ8M/TVK67_F3wOI/AAAAAAAAAxQ/9wDMHsDcT6k/s640/1.jpg">
 
-You should see the following (some personal details removed):
+Make sure you are on the "Advanced" tab and choose "Environmental Variables":
+
+<img src="https://lh3.googleusercontent.com/_55uSCYxbQ8M/TVK41oIOyiI/AAAAAAAAAw8/NRRSBCkAF-E/2.jpg">
+
+On the next screen find the "Path" variable and click "Edit":
+
+<img src="https://lh4.googleusercontent.com/_55uSCYxbQ8M/TVK418SCMeI/AAAAAAAAAxA/4km0Lnk3PTc/3.png">
+
+Click on the text and scroll all the way to the end.  Append the path of our Python installation to the end of the existing Path variable. Where it says “Variable Value” go to the end of the line and add the following:
+{{{
+;C:\Python26
+}}}
+The semicolon separates our new Path location from the current values. If the location of your Python installation is different from the above, type the appropriate folder location instead.
+
+<img src="https://lh5.googleusercontent.com/_55uSCYxbQ8M/TVK42A7uUhI/AAAAAAAAAxE/yA8twb6hkMI/5.jpg">
+
+Now we are ready to test that we have set up everything correctly. Open a command prompt by clicking on the "Start Menu" and clicking on "Run".  For Windows 7, click "Start" and type "cmd" in the search text box and hit "Enter":
+
+<img src="https://lh3.googleusercontent.com/_55uSCYxbQ8M/TVLE-Z03hHI/AAAAAAAAAxc/YnkqyU25rUo/8.jpg">
+
+Type "python" into the command prompt.  You should then see the Python header and command prompt >>>  Type "quit()" to exit.  If this works, Python is installed correctly.
+
+<img src="https://lh6.googleusercontent.com/_55uSCYxbQ8M/TVLE-jONBVI/AAAAAAAAAxg/N1k72j0BFbE/10.png">
