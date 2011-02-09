@@ -37,7 +37,7 @@ class DllList(commands.command, cache.Testable):
         commands.command.__init__(self, config, *args)
         cache.Testable.__init__(self)
         config.add_option('OFFSET', short_option = 'o', default = None,
-                          help = 'EPROCESS Offset (in hex) in kernel address space',
+                          help = 'EPROCESS offset (in hex) in the physical address space',
                           action = 'store', type = 'int')
 
         config.add_option('PID', short_option = 'p', default = None,
