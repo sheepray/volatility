@@ -67,7 +67,7 @@ Potential KPCR structure virtual addresses:
 
 == pslist ==
 
-To list the active processes of a system, use the pslist command. This walks the doubly-linked list known as !PsActiveProcessHead. It does not detect hidden or unlinked processes. 
+To list the active processes of a system, use the pslist command. This walks the doubly-linked list pointed to by !PsActiveProcessHead. It does not detect hidden or unlinked processes. 
 
 {{{
 $ python volatility.py --profile=Win7SP0x86 -f win7.dmp pslist
@@ -141,7 +141,7 @@ If a process has previously terminated, the Time exited field will show the exit
 
 == dlllist ==
 
-To display a process's loaded DLLs, use the dlllist command. It walks the doubly-linked list of LDR_DATA_TABLE_ENTRY structures which is pointed to by the PEB's !InLoadOrderModuleList. 
+To display a process's loaded DLLs, use the dlllist command. It walks the doubly-linked list of LDR_DATA_TABLE_ENTRY structures which is pointed to by the PEB's !InLoadOrderModuleList. DLLs are automatically added to this list when a process calls !LoadLibrary (or some derivative such as !LdrLoadDll) and they aren't removed until !FreeLibrary is called and the reference count reaches zero.
 
 {{{
 $ python volatility.py --profile=Win7SP0x86 -f win7.dmp dlllist
@@ -182,7 +182,7 @@ To display the DLLs for a process that is hidden or unlinked by a rootkit, first
 $ python volatility.py --profile=Win7SP0x86 -f win7.dmp dlllist --offset=0x04a291a8
 }}}
 
-For more ways to list DLLs in a process, see the ldrmodules command.
+For more ways to list DLLs in a process, see the [http://code.google.com/p/volatility/wiki/CommandReference#ldrmodules ldrmodules] command.
 
 == dlldump ==
 
@@ -217,7 +217,7 @@ $ python volatility.py --profile=Win7SP0x86 -f win7.dmp dlldump --pid=492 -D out
 
 == files ==
 
-To display the open file handles in a process, use the files command. 
+To display the open file handles in a process, use the files command. A process can obtain a file handle by calling functions such as !CreateFile, and the handle will stay valid until !CloseHandle is called.
 
 {{{
 $ python volatility.py --profile=Win7SP0x86 -f win7.dmp files -p 4
@@ -239,7 +239,7 @@ File   '\\Windows\\System32\\config\\DEFAULT'
 
 == regobjkeys ==
 
-To display the open registry handles in a process, use the regobjkeys command.
+To display the open registry handles in a process, use the regobjkeys command. A process can obtain a handle to a registry key by calling a function such as !RegOpenKeyEx or !RegCreateKey, and it stays valid until !RegCloseKey is called. 
 
 {{{
 $ python volatility.py --profile=Win7SP0x86 -f win7.dmp regobjkeys -p 4
@@ -261,7 +261,7 @@ Key    MACHINE\SYSTEM\CONTROLSET001\CONTROL\LSA
 
 == getsids ==
 
-To view the SIDs (Security Identifiers) associated with a process, use the getsids command. Among other things, this can help you identify processes which have maliciously elevated privileges. 
+To view the SIDs (Security Identifiers) associated with a process, use the getsids command. Among other things, this can help you identify processes which have maliciously escalated privileges. 
 
 For more information, see BDG's [http://moyix.blogspot.com/2008/08/linking-processes-to-users.html Linking Processes To Users].
 
@@ -439,7 +439,7 @@ Now you can open graph.dot in any Graphviz-compatible viewer.
 The vadinfo command displays extended information about a process's VAD nodes. In particular, it shows:
 
   * The address of the MMVAD structure in kernel memory
-  * The starting and ending virtual addresses
+  * The starting and ending virtual addresses in process memory
   * The VAD Tag 
   * The memory protection constant (permissions)
   * The name of the memory mapped file (if one exists)
@@ -474,7 +474,7 @@ File offset: 00000000
 
 == vaddump ==
 
-To extract the data contained within each VAD segment, use the vaddump command. This is similar to memdump, except the data ends up in separate files, named according to the address in process memory where the data was found. 
+To extract the data contained within each VAD segment, use the vaddump command. This is similar to [http://code.google.com/p/volatility/wiki/CommandReference#memdump memdump], except the data ends up in separate files, named according to the address in process memory where the data was found. 
 
 {{{
 $ python volatility.py --profile=Win7SP0x86 -f win7.dmp vaddump -D vads
@@ -585,7 +585,7 @@ Dumping peauth.sys, Base: 8857c000 output: driver.8857c000.sys
 To list the functions in the Native and GUI SSDTs, use the ssdt command. This displays the index, function name, and owning driver for each entry in the SSDT. Please note the following very important facts:
 
   * Windows has 4 SSDTs by default (you can add more with !KeAddSystemServiceTable), but only 2 of them are used - one for Native functions in the NT module, and one for GUI functions in the win32k.sys module. 
-  * There are multiple ways to locate the SSDTs in memory. Most tools do it by finding the exported !KeServiceDescriptorTable symbol in the NT module, but this is not the way Volatility works. Volatility scans for ETHREAD objects (see the thrdscan2 command) and gathers all unique ETHREAD.Tcb.!ServiceTable pointers. This method is more robust and complete, because it can detect when rootkits make copies of the existing SSDTs and assign them to particular threads. Also see the ssdt_by_threads command. 
+  * There are multiple ways to locate the SSDTs in memory. Most tools do it by finding the exported !KeServiceDescriptorTable symbol in the NT module, but this is not the way Volatility works. Volatility scans for ETHREAD objects (see the [http://code.google.com/p/volatility/wiki/CommandReference#thrdscan2 thrdscan2] command) and gathers all unique ETHREAD.Tcb.!ServiceTable pointers. This method is more robust and complete, because it can detect when rootkits make copies of the existing SSDTs and assign them to particular threads. Also see the [http://code.google.com/p/volatility/wiki/CommandReference#ssdt_by_threads ssdt_by_threads] command. 
   * The order and total number of functions in the SSDT differs across operating system versions. Thus, Volatility stores the information in a per-profile (OS) manner. 
   * For more information, see BDG's [http://moyix.blogspot.com/2008/08/auditing-system-call-table.html Auditing the System Call Table].
 
@@ -621,7 +621,7 @@ To filter all functions which point to ntoskrnl.exe and win32k.sys, you can use 
 
 == driverscan ==
 
-To scan for DRIVER_OBJECTs in physical memory, use the driverscan command. This is another way to locate kernel modules, although not all kernel modules have an associated DRIVER_OBJECT. The DRIVER_OBJECT is what contains the 28 IRP (Major Function) tables, thus the driverirp command is based on the methodology used by driverscan. 
+To scan for DRIVER_OBJECTs in physical memory, use the driverscan command. This is another way to locate kernel modules, although not all kernel modules have an associated DRIVER_OBJECT. The DRIVER_OBJECT is what contains the 28 IRP (Major Function) tables, thus the [http://code.google.com/p/volatility/wiki/CommandReference#driverirp driverirp] command is based on the methodology used by driverscan. 
 
 For more information, see Andreas Schuster's [http://computer.forensikblog.de/en/2009/04/scanning_for_drivers.html Scanning for Drivers].
 
@@ -685,6 +685,8 @@ To scan physical memory for KMUTANT objects, use the mutantscan command. By defa
 
 For more information, see Andreas Schuster's [http://computer.forensikblog.de/en/2009/04/searching_for_mutants.html Searching for Mutants].
 
+Since mutexes can have seemingly random names, and there are so many of them, its difficult to spot malicious mutexes. For this reason, we built a proof-of-concept mutanscandb command which gathers mutex names from online sandboxes and populates an sqlite3 database with them. Then the Volatility command reads in the mutexes and highlights entries in your memory dump which also exist in the sqlite3 database. 
+
 {{{
 $ python volatility.py --profile=Win7SP0x86 -f win7.dmp mutantscan -s
 Volatile Systems Volatility Framework 1.4_rc1
@@ -705,7 +707,7 @@ Phys.Addr. Obj Type   #Ptr #Hnd Signal Thread     CID        Name
 
 == thrdscan2 ==
 
-To scan for ETHREAD objects in physical memory, use the thrdscan2 command. Since an ETHREAD contains fields that identify its parent process, you can use this technique to find hidden processes. One such use case is documented in the orphanthreads command. 
+To scan for ETHREAD objects in physical memory, use the thrdscan2 command. Since an ETHREAD contains fields that identify its parent process, you can use this technique to find hidden processes. One such use case is documented in the [http://code.google.com/p/volatility/wiki/CommandReference#orphanthreads orphanthreads] command. 
 
 {{{
 $ python volatility.py --profile=Win7SP0x86 -f win7.dmp thrdscan2
@@ -975,11 +977,66 @@ $ python volatility.py --profile=Win7SP0x86 -f win7.dmp hivedump -o 0x8e23e008
 
 == hashdump ==
 
-To extract and decrypt cached domain credentials stored in the registry, use the hashdump command. For more information, see BDG's [http://moyix.blogspot.com/2008/02/cached-domain-credentials.html Cached Domain Credentials].
+To extract and decrypt cached domain credentials stored in the registry, use the hashdump command. For more information, see BDG's [http://moyix.blogspot.com/2008/02/cached-domain-credentials.html Cached Domain Credentials] and [http://www.slideshare.net/mooyix/sans-forensics-2009-memory-forensics-and-registry-analysis SANS Forensics 2009 - Memory Forensics and Registry Analysis].
+
+To use hashdump, pass the virtual address of the SYSTEM hive as -y and the virtual address of the SAM hive as -s, like this:
+
+{{{
+$ volatility hashdump -f image.dd -y 0xe1035b60 -s 0xe165cb60 Administrator:500:08f3a52bdd35f179c81667e9d738c5d9:ed88cccbc08d1c18bcded317112555f4::: Guest:501:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0::: HelpAssistant:1000:ddd4c9c883a8ecb2078f88d729ba2e67:e78d693bc40f92a534197dc1d3a6d34f::: SUPPORT_388945a0:1002:aad3b435b51404eeaad3b435b51404ee:8bfd47482583168a0ae5ab020e1186a9::: phoenix:1003:07b8418e83fad948aad3b435b51404ee:53905140b80b6d8cbe1ab5953f7c1c51::: ASPNET:1004:2b5f618079400df84f9346ce3e830467:aef73a8bb65a0f01d9470fadc55a411c::: S----:1006:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0::: 
+}}}
+
+Hashes can now be cracked using John the Ripper, rainbow tables, etc. 
 
 == lsadump ==
 
+To dump LSA secrets from the registry, use the lsadump command. This exposes information such as the default password (for systems with autologin enabled), the RDP public key, and credentials used by DPAPI.
+
 For more information, see BDG's [http://moyix.blogspot.com/2008/02/decrypting-lsa-secrets.html Decrypting LSA Secrets].
+
+To use lsadump, pass the virtual address of the SYSTEM hive as the -y parameter and the virtual address of the SECURITY hive as the -s parameter. 
+
+{{{
+$ python volatility.py -f laqma.vmem lsadump -y 0xe1035b60 -s 0xe16a6b60
+Volatile Systems Volatility Framework 1.4_rc1
+L$RTMTIMEBOMB_1320153D-8DA3-4e8e-B27B-0D888223A588
+
+0000   00 92 8D 60 01 FF C8 01                            ...`....
+
+_SC_Dnscache
+
+L$HYDRAENCKEY_28ada6da-d622-11d1-9cb9-00c04fb16e75
+
+0000   52 53 41 32 48 00 00 00 00 02 00 00 3F 00 00 00    RSA2H.......?...
+0010   01 00 01 00 37 CE 0C C0 EF EC 13 C8 A4 C5 BC B8    ....7...........
+0020   AA F5 1A 7C 50 95 A4 E9 3B BA 41 C8 53 D7 CE C6    ...|P...;.A.S...
+0030   CB A0 6A 46 7C 70 F3 21 17 1C FB 79 5C C1 83 68    ..jF|p.!...y...h
+0040   91 E5 62 5E 2C AC 21 1E 79 07 A9 21 BB F0 74 E8    ..b^,.!.y..!..t.
+0050   85 66 F4 C4 00 00 00 00 00 00 00 00 F9 D7 AD 5C    .f..............
+0060   B4 7C FB F6 88 89 9D 2E 91 F2 60 07 10 42 CA 5A    .|........`..B.Z
+0070   FC F0 D1 00 0F 86 29 B5 2E 1E 8C E0 00 00 00 00    ......).........
+0080   AF 43 30 5F 0D 0E 55 04 57 F9 0D 70 4A C8 36 01    .C0_..U.W..pJ.6.
+0090   C2 63 45 59 27 62 B5 77 59 84 B7 65 8E DB 8A E0    .cEY'b.wY..e....
+00A0   00 00 00 00 89 19 5E D8 CB 0E 03 39 E2 52 04 37    ......^....9.R.7
+00B0   20 DC 03 C8 47 B5 2A B3 9C 01 65 15 FF 0F FF 8F     ...G.*...e.....
+00C0   17 9F C1 47 00 00 00 00 1B AC BF 62 4E 81 D6 2A    ...G.......bN..*
+00D0   32 98 36 3A 11 88 2D 99 3A EA 59 DE 4D 45 2B 9E    2.6:..-.:.Y.ME+.
+00E0   74 15 14 E1 F2 B5 B2 80 00 00 00 00 75 BD A0 36    t...........u..6
+00F0   20 AD 29 0E 88 E0 FD 5B AD 67 CA 88 FC 85 B9 82     .)....[.g......
+0100   94 15 33 1A F1 65 45 D1 CA F9 D8 4C 00 00 00 00    ..3..eE....L....
+0110   71 F0 0B 11 F2 F1 AA C5 0C 22 44 06 E1 38 6C ED    q........"D..8l.
+0120   6E 38 51 18 E8 44 5F AD C2 CE 0A 0A 1E 8C 68 4F    n8Q..D_.......hO
+0130   4D 91 69 07 DE AA 1A EC E6 36 2A 9C 9C B6 49 1F    M.i......6*...I.
+0140   B3 DD 89 18 52 7C F8 96 4F AF 05 29 DF 17 D8 48    ....R|..O..)...H
+0150   00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00    ................
+0160   00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00    ................
+0170   00 00 00 00 00 00 00 00 00 00 00 00                ............
+
+DPAPI_SYSTEM
+
+0000   01 00 00 00 24 04 D6 B0 DA D1 3C 40 BB EE EC 89    ....$.....<@....
+0010   B4 BB 90 5B 9A BF 60 7D 3E 96 72 CD 9A F6 F8 BE    ...[..`}>.r.....
+0020   D3 91 5C FA A5 8B E6 B4 81 0D B6 D4                ............
+}}}
 
 = Crash Dumps, Hibernation, and Conversion =
 
@@ -1173,7 +1230,50 @@ In order to fully reverse engineer code that you find in memory dumps, its neces
 
 If you have IDA Pro installed, make sure idag.exe (Windows) or idal (Linux/OS X) is in your $PATH variable. If so, then impscan will automatically create a labeled IDB from the code you want to analyze. You can then open up the extracted code in IDA and begin reversing...
 
-Take Coreflood for example. After the Coreflood DLL gets injected into Internet Explorer, the DLL calls VirtualFree(ImageBase, 0x1000, MEM_RELEASE). This wipes out the DLL's PE header so PE dumping tools don't work. It also prevents tools like ImpREC on live systems from rebuilding the import table. However, since impscan doesn't rely on the PE header, it works nicely.
+Take Conficker for example. This malware deleted its PE header once it loaded in the target process. You can use malfind to detect the presence of Conficker based on the typical malfind criteria (page permissions, VAD tags, etc). Notice how the PE's base address doesn't contain the usual 'MZ' header:
+
+{{{
+$ python volatility.py -f conficker.bin -p 3108 malfind -D out/
+Volatile Systems Volatility Framework 1.4_rc1
+Name                 Pid    Start      End        Tag    Hits Protect
+notepad.exe            3108 0x00A10000 0x00A2BFFF VadS      0     24 (MM_EXECUTE_UNKNOWN)
+Dumped to: out/services.exe.20c8558.00a10000-00a2bfff.dmp
+0x00a10000   00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00    ................
+0x00a10010   00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00    ................
+0x00a10020   00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00    ................
+0x00a10030   00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00    ................
+0x00a10040   00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00    ................
+0x00a10050   00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00    ................
+0x00a10060   00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00    ................
+0x00a10070   00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00    ................
+}}}
+
+Let's assume you want to extract the unpacked copy of Conficker and see its imported APIs. Use impscan by specifying the base address provided to you by malfind:
+
+{{{
+$ python volatility.py -f conficker.bin -p 3108 impscan -a 0x00A10000 -D out
+Volatile Systems Volatility Framework 1.4_rc1
+a11204 RPCRT4.dll NdrClientCall2 77ef44d0
+a11208 RPCRT4.dll RpcStringBindingComposeA 77e9a8e4
+a110ac kernel32.dll Process32First 7c864f55
+a1120c RPCRT4.dll RpcBindingFromStringBindingA 77e9a898
+a11210 RPCRT4.dll RpcBindingFree 77e7b3d8
+a11058 kernel32.dll FreeLibrary 7c80ac7e
+a11220 VERSION.dll VerQueryValueA 77c018aa
+a110b0 kernel32.dll Process32Next 7c8650c8
+a11224 VERSION.dll GetFileVersionInfoA 77c01a40
+a11228 VERSION.dll GetFileVersionInfoSizeA 77c019ef
+a11230 WININET.dll InternetOpenA 771c5796
+a11034 kernel32.dll WriteFile 7c810e27
+a11238 WININET.dll InternetReadFile 771c82f2
+a1123c WININET.dll InternetCloseHandle 771c4d94
+a11240 WININET.dll InternetGetConnectedState 771d5c8e
+a11260 WS2_32.dll sendto 71ab2f51
+a11244 WININET.dll InternetOpenUrlA 771c5a62
+[snip]
+}}}
+
+If you don't specify a base address with -a or --address, then you'll end up scanning the process's main module (i.e. services.exe) for imported functions. You can also specify the base address of a kernel driver to scan the driver for imported kernel-mode functions. 
 
 == apihooks ==
 
