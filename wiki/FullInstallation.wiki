@@ -17,6 +17,7 @@ Prerequisites
   * [http://gitweb.pycrypto.org/?p=crypto/pycrypto-2.0.x.git;a=summary PyCrypto] (Core)
   * Subversion Client.  We recommend [http://tortoisesvn.tigris.org] for Windows
   * [http://www.7-zip.org/ 7zip] or an application that can unzip zip and gzip files
+  * [http://sourceforge.net/projects/mingw/files/Automated%20MinGW%20Installer/mingw-get-inst/mingw-get-inst-20101030/ MinGW] or other C Compiler (for compiling Pycrypto library)
 
 == Windows Installation ==
 
@@ -85,3 +86,72 @@ Now we are ready to test that we have set up everything correctly. Open a comman
 Type "python" into the command prompt.  You should then see the Python header and command prompt >>>  Type "quit()" to exit.  If this works, Python is installed correctly.
 
 <img src="https://lh6.googleusercontent.com/_55uSCYxbQ8M/TVLE-jONBVI/AAAAAAAAAxg/N1k72j0BFbE/10.png">
+
+=== Installing Dependencies ===
+
+
+==== Installing MinGW ====
+
+Occasionally you will need a C/C++ compiler in order to install Python libraries.  If you install Distorm3 or Pycrypto from source, you will need a compiler.  Download the compiler from the Sourceforge site linked above.  Make sure you get the "ming-get-inst" installer as shown below:
+
+<img src="https://lh5.googleusercontent.com/_55uSCYxbQ8M/TVLT6Y753BI/AAAAAAAAAx4/mR34Go3_kms/1.jpg">
+
+Double click the installer.  You should see the following picture.  Hit Next to continue.
+
+<img src="https://lh6.googleusercontent.com/_55uSCYxbQ8M/TVLT6R76xgI/AAAAAAAAAx8/9o1jGaZplqE/2.png">
+
+If you are running as Administrator you will see the following screen.  Just hit Next.
+
+<img src="https://lh3.googleusercontent.com/_55uSCYxbQ8M/TVLT6n_CESI/AAAAAAAAAyA/mHVU9Ak3X94/3.png">
+
+You will have a choice to install the latest MinGW build or prepackaged binaries.
+
+<img src="https://lh3.googleusercontent.com/_55uSCYxbQ8M/TVLT64VhyhI/AAAAAAAAAyE/ialoUjmYAWY/4.png">
+
+Accept the agreement.
+
+<img src="https://lh5.googleusercontent.com/_55uSCYxbQ8M/TVLT65ovpTI/AAAAAAAAAyI/H0i0f-chxPA/5.png">
+
+Choose a location to install MinGW.  
+
+<img src="https://lh6.googleusercontent.com/_55uSCYxbQ8M/TVLUEt0hGsI/AAAAAAAAAyM/E1RtoCiEOw0/6.png">
+
+Keep accepting defaults until you get to the "Select Components" screen.  Here you will need to make sure you have at least the C++ compiler checked as well as "MSYS Basic System" so you will have the "make" utility.
+
+<img src="https://lh6.googleusercontent.com/_55uSCYxbQ8M/TVLUE9HcoeI/AAAAAAAAAyU/btBayTL2qUI/8.jpg">
+
+Hit Next.  A black command prompt may appear as things are installing; just ignore it.  If all goes well you will see the "Finish" screen.  Just hit "Finish".
+
+<img src="https://lh4.googleusercontent.com/_55uSCYxbQ8M/TVLUFazQSkI/AAAAAAAAAyc/BDKXXAUDXZk/10.png">
+
+Add the "bin" directory of MinGW to your path like you did for Python.  If you accepted the default installation directory the text to add would be:
+
+{{{
+;C:\MinGW\bin
+}}}
+
+<img src="https://lh6.googleusercontent.com/_55uSCYxbQ8M/TVLULRCmb8I/AAAAAAAAAyg/rEbyB_zYfw4/11.jpg">
+
+You can test that this works by typing "gcc" plus "Enter" at the command line.  You should see "gcc: no input files" if your path variable is set up correctly:
+
+<img src="https://lh4.googleusercontent.com/_55uSCYxbQ8M/TVLULvAPNuI/AAAAAAAAAyk/GbgI4oZ_HWk/12.png">
+
+
+
+==== Installing Pycrypto ====
+
+
+
+==== Installing Distorm3 ====
+
+Distorm3 is used by several Malware plugins as well as the Core Volshell plugin.  It's easiest to install the precompiled library for Python 2.6, which is the method shown here.  Go to the Distorm Google Code page and download the distorm3-1.0.win32.zip which contains the library for Python 2.6.  Unzip the file and navigate into the Python26\Lib\site-packages directory:
+
+<img src="https://lh5.googleusercontent.com/_55uSCYxbQ8M/TVLIfzynL2I/AAAAAAAAAxo/7U4hXJvnmaY/1.png">
+
+Copy all contents into your Python 2.6 library location, in this case C:\Python26\Lib\site-packages
+
+<img src="https://lh6.googleusercontent.com/_55uSCYxbQ8M/TVLIgKMDlAI/AAAAAAAAAxs/uh7Zo-ZIEzc/2.png"> 
+
+You can check the installation by running python and importing distorm3.  If you don't see any errors, distorm3 was installed correctly.
+
+<img src="https://lh5.googleusercontent.com/_55uSCYxbQ8M/TVLIgeQNEyI/AAAAAAAAAxw/cND7_6bLvpE/3.png">
