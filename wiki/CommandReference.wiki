@@ -1285,16 +1285,16 @@ PID    TID    Create Time               Exit Time                 Offset     Sta
 
 Volatility is the only memory forensics platform with the ability to print an assortment of important notification routines and kernel callbacks. Rootkits, anti-virus suites, dynamic analysis tools (such as Sysinternals' Process Monitor and Tcpview), and many components of the Windows kernel use of these callbacks to monitor and/or react to events. We detect the following:
 
-  * PsSetCreateProcessNotifyRoutine (process creation).
-  * PsSetCreateThreadNotifyRoutine (thread creation).
-  * PsSetImageLoadNotifyRoutine (DLL/image load).
-  * IoRegisterFsRegistrationChange (file system registration).
-  * KeRegisterBugCheck and KeRegisterBugCheckReasonCallback.
-  * CmRegisterCallback (registry callbacks on XP).
-  * CmRegisterCallbackEx (registry callbacks on Vista and 7).
-  * IoRegisterShutdownNotification (shutdown callbacks).
-  * DbgSetDebugPrintCallback (debug print callbacks on Vista and 7).
-  * DbgkLkmdRegisterCallback (debug callbacks on 7).
+  * !PsSetCreateProcessNotifyRoutine (process creation).
+  * !PsSetCreateThreadNotifyRoutine (thread creation).
+  * !PsSetImageLoadNotifyRoutine (DLL/image load).
+  * !IoRegisterFsRegistrationChange (file system registration).
+  * !KeRegisterBugCheck and KeRegisterBugCheckReasonCallback.
+  * !CmRegisterCallback (registry callbacks on XP).
+  * !CmRegisterCallbackEx (registry callbacks on Vista and 7).
+  * !IoRegisterShutdownNotification (shutdown callbacks).
+  * !DbgSetDebugPrintCallback (debug print callbacks on Vista and 7).
+  * !DbgkLkmdRegisterCallback (debug callbacks on 7).
 
 Here's an example of detecting the thread creation callback installed by the !BlackEnergy 2 malware. You can spot the malicious callback because the owner is 00004A2A - and !BlackEnergy 2 uses a module name composed of eight hex characters. 
 
@@ -1349,11 +1349,124 @@ GenericKernelCallback                0x8216628f UNKNOWN
 
 == driverirp ==
 
-To print a driver's IRP (Major Function) table, use the driverirp command. 
+To print a driver's IRP (Major Function) table, use the driverirp command. This command inherits from driverscan so that its able to locate DRIVER_OBJECTs. Then it cycles through the function table, printing the purpose of each function, the function's address, and the owning module of the address. 
+
+Many drivers forward their IRP functions to other drivers for legitimate purposes, so detecting hooked IRP functions based on containing modules is not a good method. Instead, we print everything and let you be the judge. The command also checks for Inline hooks of IRP functions. 
+
+This command prints the IRPs for all drivers, unless you specify a regular expression filter. 
+
+{{{
+$ python volatility.py -f rustock.vmem driverirp -r tcpip
+Volatile Systems Volatility Framework 1.4_rc1
+DriverStart  Name             IRP                                  IrpAddr      IrpOwner         HookAddr     HookOwner
+0xb2574000   'Tcpip'          IRP_MJ_CREATE                        0xb257a4f9   tcpip.sys        -            -
+0xb2574000   'Tcpip'          IRP_MJ_CREATE_NAMED_PIPE             0xb257a4f9   tcpip.sys        -            -
+0xb2574000   'Tcpip'          IRP_MJ_CLOSE                         0xb257a4f9   tcpip.sys        -            -
+0xb2574000   'Tcpip'          IRP_MJ_READ                          0xb257a4f9   tcpip.sys        -            -
+0xb2574000   'Tcpip'          IRP_MJ_WRITE                         0xb257a4f9   tcpip.sys        -            -
+0xb2574000   'Tcpip'          IRP_MJ_QUERY_INFORMATION             0xb257a4f9   tcpip.sys        -            -
+0xb2574000   'Tcpip'          IRP_MJ_SET_INFORMATION               0xb257a4f9   tcpip.sys        -            -
+0xb2574000   'Tcpip'          IRP_MJ_QUERY_EA                      0xb257a4f9   tcpip.sys        -            -
+0xb2574000   'Tcpip'          IRP_MJ_SET_EA                        0xb257a4f9   tcpip.sys        -            -
+0xb2574000   'Tcpip'          IRP_MJ_FLUSH_BUFFERS                 0xb257a4f9   tcpip.sys        -            -
+0xb2574000   'Tcpip'          IRP_MJ_QUERY_VOLUME_INFORMATION      0xb257a4f9   tcpip.sys        -            -
+0xb2574000   'Tcpip'          IRP_MJ_SET_VOLUME_INFORMATION        0xb257a4f9   tcpip.sys        -            -
+0xb2574000   'Tcpip'          IRP_MJ_DIRECTORY_CONTROL             0xb257a4f9   tcpip.sys        -            -
+0xb2574000   'Tcpip'          IRP_MJ_FILE_SYSTEM_CONTROL           0xb257a4f9   tcpip.sys        -            -
+0xb2574000   'Tcpip'          IRP_MJ_DEVICE_CONTROL                0xb257a4f9   tcpip.sys        -            -
+[snip]
+}}}
 
 == csrpslist ==
+
+The CSRSS process contains some useful alternate process listings. In particular, it has a handle open to nearly every active process, and it also maintains an internal linked list of processes - separate from the one the kernel maintains. Thus, you can analyze data structures in the memory of csrss.exe and cross-reference them with what pslist finds. In fact, csrpslist does this all for you. On Windows Vista and Windows 7 the internal list of processes is not available. 
+
+Here is an example of detecting the Prolaco malware with csrpslist. It generates all unique processes based on the !PsActiveProcessHead (pslist), the csrss.exe handle table, and the csrss.exe internal list. Then it loops through and prints which processes exist in which list. Any items which don't exist in the pslist (such as Pid 1336 below) have been hidden by a rootkit. 
+
+{{{
+$ python volatility.py -f prolaco.vmem csrpslist
+Volatile Systems Volatility Framework 1.4_rc1
+Name                 Pid    Pslist   Hndls    RootList
+vmtoolsd.exe           1668        1        1        0
+svchost.exe             856        1        1        0
+spoolsv.exe            1432        1        1        0
+svchost.exe            1028        1        1        0
+smss.exe                544        1        0        0
+TPAutoConnSvc.e        1968        1        1        0
+services.exe            676        1        1        0
+svchost.exe             936        1        1        0
+lsass.exe               688        1        1        0
+svchost.exe            1148        1        1        0
+VMwareTray.exe          432        1        1        0
+1_doc_RCData_61        1336        0        1        0
+explorer.exe           1724        1        1        0
+svchost.exe            1088        1        1        0
+VMwareUser.exe          452        1        1        0
+vmacthlp.exe            844        1        1        0
+wscntfy.exe             888        1        1        0
+wuauclt.exe             468        1        1        0
+alg.exe                 216        1        1        0
+csrss.exe               608        1        0        0
+TPAutoConnect.e        1084        1        1        0
+ImmunityDebugge        1136        1        1        0
+winlogon.exe            632        1        1        0
+VMUpgradeHelper        1788        1        1        0
+System                    4        1        0        0
+}}}
+
 == ssdt_ex ==
+
 == ssdt_by_threads ==
+
+As mentioned in the documentation for the ssdt command, the SSDT is assigned on a per-thread basis. That means that one thread on a system may be calling through an SSDT with hooks installed by a rootkit, while other threads may be using a clean SSDT. To find out exactly which threads on a system are using a "tainted" view, use the ssdt_by_threads command. 
+
+Here is an example of detecting the infected threads using a !BlackEnergy 2 sample. First you see the hooked SSDT functions and then a list of threads (found via thrdscan2). If a thread is using one of the hooked SSDTs, the command prints an exclamation mark by the thread info. As you can see, not all threads on the system are infected - only the ones which start *after* the rootkit driver loads get infected. 
+
+{{{
+$ python volatility.py -f be2.vmem ssdt_by_threads
+Volatile Systems Volatility Framework 1.4_rc1
+Pid      Tid      Name               SSDT      
+  Entry 0x0041: 0xff0d2487 (NtDeleteValueKey) owned by 00004A2A
+  Entry 0x0047: 0xff0d216b (NtEnumerateKey) owned by 00004A2A
+  Entry 0x0049: 0xff0d2267 (NtEnumerateValueKey) owned by 00004A2A
+  Entry 0x0077: 0xff0d20c3 (NtOpenKey) owned by 00004A2A
+  Entry 0x007a: 0xff0d1e93 (NtOpenProcess) owned by 00004A2A
+  Entry 0x0080: 0xff0d1f0b (NtOpenThread) owned by 00004A2A
+  Entry 0x0089: 0xff0d2617 (NtProtectVirtualMemory) owned by 00004A2A
+  Entry 0x00ad: 0xff0d1da0 (NtQuerySystemInformation) owned by 00004A2A
+  Entry 0x00ba: 0xff0d256b (NtReadVirtualMemory) owned by 00004A2A
+  Entry 0x00d5: 0xff0d2070 (NtSetContextThread) owned by 00004A2A
+  Entry 0x00f7: 0xff0d2397 (NtSetValueKey) owned by 00004A2A
+  Entry 0x00fe: 0xff0d201d (NtSuspendThread) owned by 00004A2A
+  Entry 0x0102: 0xff0d1fca (NtTerminateThread) owned by 00004A2A
+  Entry 0x0115: 0xff0d25c1 (NtWriteVirtualMemory) owned by 00004A2A
+ 
+       4        8 System             0x80501030 
+       4       12 System             0x80501030 
+       4       16 System             0x80501030 
+       4       20 System             0x80501030 
+
+[snip
+
+       4      312 System             0x80501030 
+       4      252 System             0xFF3AAB90 [!]
+       4      168 System             0xFF3AAB90 [!]
+       4      248 System             0xFF3AAB90 [!]
+     544      548 smss.exe           0x80501030 
+     544      556 smss.exe           0x80501030 
+     544      560 smss.exe           0x80501030 
+     608      696 csrss.exe          0x80501030 
+     608     1824 csrss.exe          0x80501030 
+     608      812 csrss.exe          0x80501030 
+     608      496 csrss.exe          0x80F162D0 [!]
+     632      636 winlogon.exe       0x80501030 
+     632      656 winlogon.exe       0x80501030 
+     632      660 winlogon.exe       0x80501030 
+     632      664 winlogon.exe       0x80501030 
+     632      672 winlogon.exe       0x80501030 
+     632      684 winlogon.exe       0x80501030 
+[snip]
+}}}
 
 = Miscellaneous =
 
