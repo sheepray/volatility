@@ -28,7 +28,7 @@ Determining profile based on KDBG search...
                     Image Type : 
 }}}
 
-Among other things, the imageinfo output tells you the suggested profile that you should pass as the parameter to --profile=PROFILE. It also tells you the address of the KPCR, which you can use like --kpcr=ADDRESS. By supplying the profile and KPCR to other Volatility commands, you'll get the most accurate and fastest results possible.
+Among other things, the imageinfo output tells you the suggested profile that you should pass as the parameter to --profile=PROFILE. It also tells you the address of the KPCR and KDBG (short for _KDDEBUGGER_DATA64).  Plugins automatically scan for these values when they need them, however you can specify them directly for any plugin by providing --kpcr=ADDRESS or --kdbg=ADDRESS. By supplying the profile and KDBG (or failing that KPCR) to other Volatility commands, you'll get the most accurate and fastest results possible.
 
 == datetime ==
 
@@ -70,7 +70,7 @@ Potential KPCR structure virtual addresses:
 To list the active processes of a system, use the pslist command. This walks the doubly-linked list known as !PsActiveProcessHead. It does not detect hidden or unlinked processes. 
 
 {{{
-$ python volatility.py --profile=Win7SP0x86 -f win7.dmp --kpcr=0x8296dc00 pslist
+$ python volatility.py --profile=Win7SP0x86 -f win7.dmp pslist
 Volatile Systems Volatility Framework 1.4_rc1
 Name                 Pid    PPid   Thds   Hnds   Time  
 System                    4      0     90    516 2010-07-06 22:28:46       
@@ -93,7 +93,7 @@ The columns display the process ID, the parent process ID, number of threads, nu
 To view the process listing in tree form, use the pstree command. This enumerates processes using the same technique as pslist, so it will also not show hidden or unlinked processes. Child process are indicated using indention and periods.
 
 {{{
-$ python volatility.py --profile=Win7SP0x86 -f win7.dmp --kpcr=0x8296dc00 pstree
+$ python volatility.py --profile=Win7SP0x86 -f win7.dmp pstree
 Volatile Systems Volatility Framework 1.4_rc1
 Name                                        Pid    PPid   Thds   Hnds   Time  
  0x84E6E3D8:wininit.exe                        384    340      3     73 2010-07-06 22:28:53       
@@ -144,7 +144,7 @@ If a process has previously terminated, the Time exited field will show the exit
 To display a process's loaded DLLs, use the dlllist command. It walks the doubly-linked list of LDR_DATA_TABLE_ENTRY structures which is pointed to by the PEB's !InLoadOrderModuleList. 
 
 {{{
-$ python volatility.py --profile=Win7SP0x86 -f win7.dmp --kpcr=0x8296dc00 dlllist
+$ python volatility.py --profile=Win7SP0x86 -f win7.dmp dlllist
 
 [snip]
 
@@ -173,13 +173,13 @@ Base         Size         Path
 To display the DLLs for a specific process instead of all processes, use the -p or --pid filter like this:
 
 {{{
-$ python volatility.py --profile=Win7SP0x86 -f win7.dmp --kpcr=0x8296dc00 dlllist --pid=492
+$ python volatility.py --profile=Win7SP0x86 -f win7.dmp dlllist --pid=492
 }}}
 
 To display the DLLs for a process that is hidden or unlinked by a rootkit, first use the psscan2 to get the physical offset of the EPROCESS object and then:
 
 {{{
-$ python volatility.py --profile=Win7SP0x86 -f win7.dmp --kpcr=0x8296dc00 dlllist --offset=0x04a291a8
+$ python volatility.py --profile=Win7SP0x86 -f win7.dmp dlllist --offset=0x04a291a8
 }}}
 
 For more ways to list DLLs in a process, see the ldrmodules command.
@@ -195,7 +195,7 @@ To extract a DLL from a process's memory space and dump it to disk for analysis,
 To specify an output directory, use --dump-dir=DIR or -d DIR. You can also supply a regular expression to dump a DLL with a particular pattern in its name. 
 
 {{{
-$ python volatility.py --profile=Win7SP0x86 -f win7.dmp --kpcr=0x8296dc00 dlldump -r kernel32 -D out
+$ python volatility.py --profile=Win7SP0x86 -f win7.dmp dlldump -r kernel32 -D out
 Cannot dump TrustedInstall@kernel32.dll at 779f0000
 Cannot dump WmiPrvSE.exe@kernel32.dll at 779f0000
 Dumping kernel32.dll, Process: SearchFilterHo, Base: 779f0000 output: module.6bc.da1d760.779f0000.dll
@@ -212,7 +212,7 @@ If the extraction fails, as it did for a few processes above, it probably means 
 To dump a PE file that doesn't exist in the DLLs list (for example, due to code injection or malicious unlinking), just specify the base address of the PE in process memory:
 
 {{{
-$ python volatility.py --profile=Win7SP0x86 -f win7.dmp --kpcr=0x8296dc00 dlldump --pid=492 -D out --base=0x00680000
+$ python volatility.py --profile=Win7SP0x86 -f win7.dmp dlldump --pid=492 -D out --base=0x00680000
 }}}
 
 == files ==
@@ -220,7 +220,7 @@ $ python volatility.py --profile=Win7SP0x86 -f win7.dmp --kpcr=0x8296dc00 dlldum
 To display the open file handles in a process, use the files command. 
 
 {{{
-$ python volatility.py --profile=Win7SP0x86 -f win7.dmp --kpcr=0x8296dc00 files -p 4
+$ python volatility.py --profile=Win7SP0x86 -f win7.dmp files -p 4
 Volatile Systems Volatility Framework 1.4_rc1
 Pid:      4
 File   '\\Windows\\System32\\wdi\\LogFiles\\WdiContextLog.etl.001'
@@ -242,7 +242,7 @@ File   '\\Windows\\System32\\config\\DEFAULT'
 To display the open registry handles in a process, use the regobjkeys command.
 
 {{{
-$ python volatility.py --profile=Win7SP0x86 -f win7.dmp --kpcr=0x8296dc00 regobjkeys -p 4
+$ python volatility.py --profile=Win7SP0x86 -f win7.dmp regobjkeys -p 4
 Volatile Systems Volatility Framework 1.4_rc1
 Pid:      4
 Key    MACHINE\SYSTEM\CONTROLSET001\CONTROL\HIVELIST                        
@@ -266,7 +266,7 @@ To view the SIDs (Security Identifiers) associated with a process, use the getsi
 For more information, see BDG's [http://moyix.blogspot.com/2008/08/linking-processes-to-users.html Linking Processes To Users].
 
 {{{
-$ python volatility.py --profile=Win7SP0x86 -f win7.dmp --kpcr=0x8296dc00 getsids 
+$ python volatility.py --profile=Win7SP0x86 -f win7.dmp getsids 
 Volatile Systems Volatility Framework 1.4_rc1
 System (4): S-1-5-18 (Local System)
 System (4): S-1-5-32-544 (Administrators)
@@ -288,7 +288,7 @@ To display the version information embedded in PE files, use the verinfo command
 This command supports filtering by process ID, regular expression, and EPROCESS offset. 
 
 {{{
-$ python volatility.py --profile=Win7SP0x86 -f win7.dmp --kpcr=0x8296dc00 verinfo
+$ python volatility.py --profile=Win7SP0x86 -f win7.dmp verinfo
 [snip]
 
 C:\Windows\system32\CRYPTBASE.dll
@@ -338,7 +338,7 @@ You can also reference the verinfo plugin for an example of how to parse PE head
 For a brief inspection of the addressable memory pages in a process, use the memmap command. 
 
 {{{
-$ python volatility.py --profile=Win7SP0x86 -f win7.dmp --kpcr=0x8296dc00 -p 1880 memmap 
+$ python volatility.py --profile=Win7SP0x86 -f win7.dmp -p 1880 memmap 
 explorer.exe pid:   1880
 Virtual      Physical     Size        
 0x0000010000 0x00075cb000 0x000000001000
@@ -358,7 +358,7 @@ Virtual      Physical     Size
 To extract all data from the various memory segments in a process and dump them to a single file, use the memdump command. 
 
 {{{
-$ python volatility.py --profile=Win7SP0x86 -f win7.dmp --kpcr=0x8296dc00 -p 1880 memdump -D memory/
+$ python volatility.py --profile=Win7SP0x86 -f win7.dmp -p 1880 memdump -D memory/
 Volatile Systems Volatility Framework 1.4_rc1
 ************************************************************************
 Writing explorer.exe [  1880] to 1880.dmp
@@ -372,7 +372,7 @@ $ ls -alh memory/1880.dmp
 To dump a process's executable (including the slack space), use the procmemdump command. Optionally, pass the --unsafe or -u flags to bypass certain sanity checks used when parsing the PE header. For example, some malware will intentionally forge size fields in the PE header so that memory dumping tools fail. 
 
 {{{
-$ python volatility.py --profile=Win7SP0x86 -f win7.dmp --kpcr=0x8296dc00 -p 1880 procmemdump -D memory/
+$ python volatility.py --profile=Win7SP0x86 -f win7.dmp -p 1880 procmemdump -D memory/
 Volatile Systems Volatility Framework 1.4_rc1
 ************************************************************************
 Dumping explorer.exe, pid:   1880 output: executable.1880.exe
@@ -390,7 +390,7 @@ To dump a process's executable (*not* including the slack space), use the procex
 To briefly inspect a process's VAD nodes, use the vadwalk command. For more information on the VAD, see BDG's [http://www.dfrws.org/2007/proceedings/p62-dolan-gavitt.pdf The VAD Tree: A Process-Eye View of Physical Memory].
 
 {{{
-$ python volatility.py --profile=Win7SP0x86 -f win7.dmp --kpcr=0x8296dc00 -p 1880 vadwalk
+$ python volatility.py --profile=Win7SP0x86 -f win7.dmp -p 1880 vadwalk
 Volatile Systems Volatility Framework 1.4_rc1
 ************************************************************************
 Pid:   1880
@@ -412,7 +412,7 @@ Address  Parent   Left     Right    Start    End      Tag  Flags
 To display the VAD nodes in a visual tree form, use the vadtree command. 
 
 {{{
-$ python volatility.py --profile=Win7SP0x86 -f win7.dmp --kpcr=0x8296dc00 -p 1880 vadtree
+$ python volatility.py --profile=Win7SP0x86 -f win7.dmp -p 1880 vadtree
 Volatile Systems Volatility Framework 1.4_rc1
 ************************************************************************
 Pid:   1880
@@ -429,7 +429,7 @@ Pid:   1880
 If you want to view the balanced binary tree in Graphviz format, use the dot output rendering:
 
 {{{
-$ python volatility.py --profile=Win7SP0x86 -f win7.dmp --kpcr=0x8296dc00 -p 1880 vadtree --output=dot --output-file=graph.dot
+$ python volatility.py --profile=Win7SP0x86 -f win7.dmp -p 1880 vadtree --output=dot --output-file=graph.dot
 }}}
 
 Now you can open graph.dot in any Graphviz-compatible viewer. 
@@ -445,7 +445,7 @@ The vadinfo command displays extended information about a process's VAD nodes. I
   * The name of the memory mapped file (if one exists)
 
 {{{
-$ python volatility.py --profile=Win7SP0x86 -f win7.dmp --kpcr=0x8296dc00 -p 1880 vadinfo
+$ python volatility.py --profile=Win7SP0x86 -f win7.dmp -p 1880 vadinfo
 
 VAD node @8d570798 Start 05330000 End 0536ffff Tag VadS
 Flags: PrivateMemory
@@ -477,7 +477,7 @@ File offset: 00000000
 To extract the data contained within each VAD segment, use the vaddump command. This is similar to memdump, except the data ends up in separate files, named according to the address in process memory where the data was found. 
 
 {{{
-$ python volatility.py --profile=Win7SP0x86 -f win7.dmp --kpcr=0x8296dc00 vaddump -D vads
+$ python volatility.py --profile=Win7SP0x86 -f win7.dmp vaddump -D vads
 Volatile Systems Volatility Framework 1.4_rc1
 Pid:      4
 ************************************************************************
