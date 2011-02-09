@@ -37,11 +37,11 @@ machine:
 
 The installer will ask you where you would like to install the Python files, the default under C:\Python26 should be fine:
 
-<img width=400 height=270 src="https://lh5.googleusercontent.com/_55uSCYxbQ8M/TVKqm-EPLII/AAAAAAAAAwc/W0FdiOoD7is/3.png">
+<img width=400 height=280 src="https://lh5.googleusercontent.com/_55uSCYxbQ8M/TVKqm-EPLII/AAAAAAAAAwc/W0FdiOoD7is/3.png">
 
 The installer will then give you the option for more advanced install options. Unless you know what you are doing, it will be best to leave all options enabled:
 
-<img width=400 height=270 src="https://lh5.googleusercontent.com/_55uSCYxbQ8M/TVKqmycrsKI/AAAAAAAAAwg/TyOmq97-MDo/4.png">
+<img width=400 height=280 src="https://lh5.googleusercontent.com/_55uSCYxbQ8M/TVKqmycrsKI/AAAAAAAAAwg/TyOmq97-MDo/4.png">
 
 On Vista/Windows7 you may have to confirm that you want to install:
 
@@ -49,9 +49,9 @@ On Vista/Windows7 you may have to confirm that you want to install:
 
 Hit “Next” and Python will now install. Hit “Finish” when installation completes:
 
-<img width=400 height=270 src="https://lh3.googleusercontent.com/_55uSCYxbQ8M/TVKqyxWVhqI/AAAAAAAAAwo/TkK_w8a6TO8/6.png">
+<img width=400 height=280 src="https://lh3.googleusercontent.com/_55uSCYxbQ8M/TVKqyxWVhqI/AAAAAAAAAwo/TkK_w8a6TO8/6.png">
 
-<img width=400 height=270 src="https://lh3.googleusercontent.com/_55uSCYxbQ8M/TVKqzej_mUI/AAAAAAAAAws/A7rVWnYkPXU/7.png">
+<img width=400 height=280 src="https://lh3.googleusercontent.com/_55uSCYxbQ8M/TVKqzej_mUI/AAAAAAAAAws/A7rVWnYkPXU/7.png">
 
 ==== Setting Environment Variables ====
 
@@ -143,7 +143,7 @@ You can test that this works by typing "gcc" plus "Enter" at the command line.  
 
 If you do not have a C compiler like MinGW installed, you can install a precompiled version of Pycrypto from [http://www.voidspace.org.uk/python/modules.shtml#pycrypto www.voidspace.org.uk].  If you installed MinGW as above you can install Pycrypto as follows.
 
-To install from source, first go to the [http://gitweb.pycrypto.org/?p=crypto/pycrypto-2.0.x.git;a=summary PyCrypto] repository page.  You can download a snapshot as a gzip file:
+To install from source, first go to the [http://gitweb.pycrypto.org/?p=crypto/pycrypto-2.0.x.git;a=summary Pycrypto] repository page.  You can download a snapshot as a gzip file:
 
 <img src="https://lh6.googleusercontent.com/_55uSCYxbQ8M/TVLe8rfhktI/AAAAAAAAAys/8MZdUoSYRDo/1.jpg">
 
