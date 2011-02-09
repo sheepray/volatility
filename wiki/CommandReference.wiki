@@ -28,7 +28,7 @@ Determining profile based on KDBG search...
                     Image Type : 
 }}}
 
-Among other things, the imageinfo output tells you the suggested profile that you should pass as the parameter to --profile=PROFILE. It also tells you the address of the KPCR and KDBG (short for _KDDEBUGGER_DATA64).  Plugins automatically scan for these values when they need them, however you can specify them directly for any plugin by providing --kpcr=ADDRESS or --kdbg=ADDRESS. By supplying the profile and KDBG (or failing that KPCR) to other Volatility commands, you'll get the most accurate and fastest results possible.
+Among other things, the imageinfo output tells you the suggested profile that you should pass as the parameter to --profile=PROFILE. It also tells you the address of the KPCR and KDBG (short for `_KDDEBUGGER_DATA64`).  Plugins automatically scan for these values when they need them, however you can specify them directly for any plugin by providing --kpcr=ADDRESS or --kdbg=ADDRESS. By supplying the profile and KDBG (or failing that KPCR) to other Volatility commands, you'll get the most accurate and fastest results possible.
 
 == datetime ==
 
