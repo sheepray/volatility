@@ -230,7 +230,7 @@ After restarting, you can verify that TortoiseSVN is installed correctly by righ
 
 === Installing Volatility 1.4 from SVN ===
 
-Once you have a Subversion client installed, you can download the latest source code for Volatility 1.4 from the code repository.  This guide will use TortoiseSVN.  First create a folder where you want to keep the Volatility source code.  For this guide will create a folder "C:\Volatility 1.4".  Go inside this folder and right-click, bringing up the menu options for TortoiseSVN.  Choose "SVN Checkout":
+Once you have a Subversion client installed, you can download the latest source code for Volatility 1.4 from the code repository.  This guide will use TortoiseSVN.  First create a folder where you want to keep the Volatility source code.  For this guide we will create a folder "C:\Volatility 1.4".  Go inside this folder and right-click, bringing up the menu options for TortoiseSVN.  Choose "SVN Checkout":
 
 <img src="https://lh6.googleusercontent.com/_55uSCYxbQ8M/TVLqIEwzuoI/AAAAAAAAA0M/zFjmO8OO5s8/12.jpg">
 
