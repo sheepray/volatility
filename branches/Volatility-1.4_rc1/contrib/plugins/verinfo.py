@@ -317,12 +317,12 @@ class VerInfo(procdump.ProcExeDump):
             addr_space.profile.object_classes[cls.__name__] = cls
         addr_space.profile.add_types(ver_types)
 
-        if self._config.PATTERN is not None:
+        if self._config.REGEX is not None:
             try:
                 if self._config.IGNORE_CASE:
-                    module_pattern = re.compile(self._config.PATTERN, flags = sre_constants.SRE_FLAG_IGNORECASE)
+                    module_pattern = re.compile(self._config.REGEX, flags = sre_constants.SRE_FLAG_IGNORECASE)
                 else:
-                    module_pattern = re.compile(self._config.PATTERN)
+                    module_pattern = re.compile(self._config.REGEX)
             except sre_constants.error, e:
                 debug.error('Regular expression parsing error: {0}'.format(e))
 
@@ -336,7 +336,7 @@ class VerInfo(procdump.ProcExeDump):
 
         for task in tasks:
             for m in self.list_modules(task):
-                if self._config.PATTERN is not None:
+                if self._config.REGEX is not None:
                     if not (module_pattern.search(str(m.FullDllName))
                             or module_pattern.search(str(m.BaseDllName))):
                         continue
