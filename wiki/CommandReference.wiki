@@ -213,7 +213,7 @@ To dump a PE file that doesn't exist in the DLLs list (for example, due to code 
 $ python volatility.py --profile=Win7SP0x86 -f win7.dmp dlldump --pid=492 -D out --base=0x00680000
 }}}
 
-You can also specify with process output if the process is hidden:
+You can also specify an EPROCESS offset if the DLL you want is in a hidden process:
 
 {{{
 $ python volatility.py --profile=Win7SP0x86 -f win7.dmp dlldump -o 0x3e3f64e8 -D out --base=0x00680000
@@ -1421,6 +1421,84 @@ $ python volatility.py idt -f rustock.vmem
 2D       KiDebugService             0x8053d790   ntoskrnl.exe .text
 2E       KiSystemService            0x806b973c   ntoskrnl.exe .rsrc => jmp 0xf6ec0e19
 [snip]
+}}}
+
+== gdt == 
+
+To print the system's GDT (Global Descriptor Table), use the gdt command. This is useful for detecting rootkits like Alipop that install a call gate so that user mode programs can call directly into kernel mode (using a CALL FAR instruction).
+
+In the output below, you can see that selector 0x3e8 has been infected and used for the purposes of a 32-bit call gate. The hook address is 0x8003f000, which as you can see in the disassembly, contains the instructions to further transfer control to 0xffdf0adb.
+
+{{{
+$ python volatility.py -f alipop.vmem gdt 
+Volatile Systems Volatility Framework 1.4_rc1
+Sel    Base         Limit        Type           DPL    Gr     Pr    
+0x0    0xffdf0a     0xdbbb       TSS16 Busy     2      By     P     
+0x8    0x0          0xffffffff   Code RE Ac     0      Pg     P     
+0x10   0x0          0xffffffff   Data RW Ac     0      Pg     P     
+0x18   0x0          0xffffffff   Code RE Ac     3      Pg     P     
+0x20   0x0          0xffffffff   Data RW Ac     3      Pg     P     
+0x28   0x80042000   0x20ab       TSS32 Busy     0      By     P     
+0x30   0xffdff000   0x1fff       Data RW Ac     0      Pg     P     
+0x38   0x0          0xfff        Data RW Ac     3      By     P
+[...]
+0x3c8  0x8003       0xf3d0       <Reserved>     0      By     Np    
+0x3d0  0x8003       0xf3d8       <Reserved>     0      By     Np    
+0x3d8  0x8003       0xf3e0       <Reserved>     0      By     Np    
+0x3e0  0x8003f000   -            CallGate32     3      -      P     
+
+8003f000: bbdb0adfff                       MOV EBX, 0xffdf0adb
+8003f005: c3                               RET
+
+0x3e8  0x0          0xffffffff   Code RE Ac     0      Pg     P     
+0x3f0  0x8003       0xf3f8       <Reserved>     0      By     Np    
+0x3f8  0x0          0x0          <Reserved>     0      By     Np
+}}}
+
+If you want to further investigate the infection, you can break into a [http://code.google.com/p/volatility/wiki/CommandReference#volshell volshell] as shown below:
+
+{{{
+$ python volatility.py -f alipop.vmem volshell
+Volatile Systems Volatility Framework 1.4_rc1
+Current context: process System, pid=4, ppid=0 DTB=0x320000
+Welcome to volshell! Current memory image is:
+file:///Users/M/Desktop/alipop.vmem
+To get help, type 'hh()'
+
+>>> dis(0xffdf0adb, length=32)
+0xffdf0adb c8000000                         ENTER 0x0, 0x0
+0xffdf0adf 31c0                             XOR EAX, EAX
+0xffdf0ae1 60                               PUSHA
+0xffdf0ae2 8b5508                           MOV EDX, [EBP+0x8]
+0xffdf0ae5 bb00704d80                       MOV EBX, 0x804d7000
+0xffdf0aea 8b4b3c                           MOV ECX, [EBX+0x3c]
+0xffdf0aed 8b6c0b78                         MOV EBP, [EBX+ECX+0x78]
+
+>>> db(0xffdf0adb + 75, length = 512)
+ffdf0b26   d9 03 1c 81 89 5c 24 1c 61 c9 c2 04 00 7e 00 80    ......$.a....~..
+ffdf0b36   00 3b 0b df ff 5c 00 52 00 65 00 67 00 69 00 73    .;.....R.e.g.i.s
+ffdf0b46   00 74 00 72 00 79 00 5c 00 4d 00 61 00 63 00 68    .t.r.y...M.a.c.h
+ffdf0b56   00 69 00 6e 00 65 00 5c 00 53 00 4f 00 46 00 54    .i.n.e...S.O.F.T
+ffdf0b66   00 57 00 41 00 52 00 45 00 5c 00 4d 00 69 00 63    .W.A.R.E...M.i.c
+ffdf0b76   00 72 00 6f 00 73 00 6f 00 66 00 74 00 5c 00 57    .r.o.s.o.f.t...W
+ffdf0b86   00 69 00 6e 00 64 00 6f 00 77 00 73 00 5c 00 43    .i.n.d.o.w.s...C
+ffdf0b96   00 75 00 72 00 72 00 65 00 6e 00 74 00 56 00 65    .u.r.r.e.n.t.V.e
+ffdf0ba6   00 72 00 73 00 69 00 6f 00 6e 00 5c 00 52 00 75    .r.s.i.o.n...R.u
+ffdf0bb6   00 6e 00 00 00 06 00 08 00 c3 0b df ff 71 00 51    .n...........q.Q
+ffdf0bc6   00 00 00 43 00 3a 00 5c 00 57 00 49 00 4e 00 44    ...C.:...W.I.N.D
+ffdf0bd6   00 4f 00 57 00 53 00 5c 00 61 00 6c 00 69 00 2e    .O.W.S...a.l.i..
+ffdf0be6   00 65 00 78 00 65 00 00 00 26 00 28 00 f7 0b df    .e.x.e...&.(....
+ffdf0bf6   ff 5c 00 53 00 79 00 73 00 74 00 65 00 6d 00 52    ...S.y.s.t.e.m.R
+ffdf0c06   00 6f 00 6f 00 74 00 5c 00 61 00 6c 00 69 00 2e    .o.o.t...a.l.i..
+ffdf0c16   00 65 00 78 00 65 00 00 00 00 00 e8 03 00 ec 00    .e.x.e..........
+ffdf0c26   00 ff ff 00 00 00 9a cf 00 4d 5a 90 00 03 00 00    .........MZ.....
+ffdf0c36   00 04 00 00 00 ff ff 00 00 b8 00 00 00 00 00 00    ................
+ffdf0c46   00 40 00 00 00 00 00 00 00 00 00 00 00 00 00 00    .@..............
+ffdf0c56   00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00    ................
+ffdf0c66   00 00 00 00 00 e0 00 00 00 0e 1f ba 0e 00 b4 09    ................
+ffdf0c76   cd 21 b8 01 4c cd 21 54 68 69 73 20 70 72 6f 67    .!..L.!This prog
+ffdf0c86   72 61 6d 20 63 61 6e 6e 6f 74 20 62 65 20 72 75    ram cannot be ru
+ffdf0c96   6e 20 69 6e 20 44 4f 53 20 6d 6f 64 65 2e 0d 0d    n in DOS mode...
 }}}
 
 == orphanthreads ==
