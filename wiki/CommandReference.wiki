@@ -196,7 +196,7 @@ To specify an output directory, use --dump-dir=DIR or -d DIR. You can also suppl
 $ python volatility.py --profile=Win7SP0x86 -f win7.dmp dlldump -r kernel32 -D out
 Cannot dump TrustedInstall@kernel32.dll at 779f0000
 Cannot dump WmiPrvSE.exe@kernel32.dll at 779f0000
-Dumping kernel32.dll, Process: SearchFilterHo, Base: 779f0000 output: module.6bc.da1d760.779f0000.dll
+Dumping kernel32.dll, Process: SearchFilterHo, Base: 779f0000 output: module.623.da1d760.779f0000.dll
 Dumping kernel32.dll, Process: taskhost.exe, Base: 779f0000 output: module.484.546d030.779f0000.dll
 Cannot dump dwm.exe@kernel32.dll at 779f0000
 Dumping kernel32.dll, Process: explorer.exe, Base: 779f0000 output: module.758.4a291a8.779f0000.dll
@@ -211,6 +211,12 @@ To dump a PE file that doesn't exist in the DLLs list (for example, due to code 
 
 {{{
 $ python volatility.py --profile=Win7SP0x86 -f win7.dmp dlldump --pid=492 -D out --base=0x00680000
+}}}
+
+You can also specify with process output if the process is hidden:
+
+{{{
+$ python volatility.py --profile=Win7SP0x86 -f win7.dmp dlldump -o 0x3e3f64e8 -D out --base=0x00680000
 }}}
 
 == files ==
