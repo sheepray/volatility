@@ -16,7 +16,7 @@ Prerequisites
   * [http://code.google.com/p/distorm/downloads/list Distorm] (Malware Plugins, Volshell)
   * [http://code.google.com/p/yara-project/downloads/list Yara] (Malware Plugins)
   * [http://gitweb.pycrypto.org/?p=crypto/pycrypto-2.0.x.git;a=summary PyCrypto] (Core)
-  * Subversion Client.  We recommend [http://tortoisesvn.tigris.org] for Windows
+  * Subversion Client.  We recommend [http://tortoisesvn.tigris.org TortoiseSVN] for Windows
   * [http://www.7-zip.org/ 7zip] or an application that can unzip zip and gzip files
   * [http://sourceforge.net/projects/mingw/files/Automated%20MinGW%20Installer/mingw-get-inst/mingw-get-inst-20101030/ MinGW] or other C Compiler (for compiling Pycrypto library)
 
