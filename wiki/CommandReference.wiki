@@ -1427,7 +1427,7 @@ $ python volatility.py idt -f rustock.vmem
 
 To print the system's GDT (Global Descriptor Table), use the gdt command. This is useful for detecting rootkits like Alipop that install a call gate so that user mode programs can call directly into kernel mode (using a CALL FAR instruction).
 
-In the output below, you can see that selector 0x3e8 has been infected and used for the purposes of a 32-bit call gate. The hook address is 0x8003f000, which as you can see in the disassembly, contains the instructions to further transfer control to 0xffdf0adb.
+In the output below, you can see that selector 0x3e0 has been infected and used for the purposes of a 32-bit call gate. The hook address is 0x8003f000, which as you can see in the disassembly, contains the instructions to further transfer control to 0xffdf0adb.
 
 {{{
 $ python volatility.py -f alipop.vmem gdt 
