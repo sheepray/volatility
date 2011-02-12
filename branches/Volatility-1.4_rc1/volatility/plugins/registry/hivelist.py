@@ -33,8 +33,8 @@ import volatility.utils as utils
 class HiveList(hs.HiveScan):
     """Print list of registry hives.
 
-    You must supply this module the initial offset of the hive. You
-    can obtain this by running the hivescan module first.
+    You can supply the offset of a specific hive. Otherwise
+    this module will use the results from hivescan automatically.
     """
     # Declare meta information associated with this plugin
 
@@ -82,7 +82,7 @@ class HiveList(hs.HiveScan):
             ## - so we instantiate it using the flat address space. We
             ## then read the Flink of the list to locate the address of
             ## the first hive in virtual address space. hmm I wish we
-            ## could go from physical to virtual memroy easier.
+            ## could go from physical to virtual memory easier.
             for offset in hives:
                 hive = obj.Object("_CMHIVE", int(offset), flat)
                 volmag = obj.Object('VOLATILITY_MAGIC', offset = 0, vm = flat)
