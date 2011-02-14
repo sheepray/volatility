@@ -68,7 +68,7 @@ opts['data_files'] = find_py_files(['contrib'])
 if py2exe_available:
     py2exe_distdir = 'dist/py2exe'
     opts['console'] = [{ 'script': 'vol.py',
-#                          'icon_resources': [(1, 'resources/py.ico')]
+                         'icon_resources': [(1, 'resources/volatility.ico')]
                       }]
     # Optimize must be 1 for plugins that use docstring for the help value,
     # otherwise the help gets optimized out
