@@ -10,7 +10,7 @@
 If you don't know what type of system your image came from, use the imageinfo command. 
 
 {{{
-$ python volatility.py -f win7.dmp imageinfo
+$ python vol.py -f win7.dmp imageinfo
 Volatile Systems Volatility Framework 1.4_rc1
 Determining profile based on KDBG search...
              Suggested Profile : Win7SP0x86
@@ -33,7 +33,7 @@ Among other things, the imageinfo output tells you the suggested profile that yo
 Use datetime to get the date and time information from when the memory image was acquired. 
 
 {{{
-$ python volatility.py --profile=Win7SP0x86 -f win7.dmp datetime
+$ python vol.py --profile=Win7SP0x86 -f win7.dmp datetime
 Volatile Systems Volatility Framework 1.4_rc1
 Image date and time       : 2010-07-06 22:40:28 
 Image local date and time : 2010-07-06 22:40:28
@@ -44,7 +44,7 @@ Image local date and time : 2010-07-06 22:40:28
 Use this command to scan for potential KDBG structures. 
 
 {{{
-$ python volatility.py --profile=Win7SP0x86 -f win7.dmp kdbgscan
+$ python vol.py --profile=Win7SP0x86 -f win7.dmp kdbgscan
 Volatile Systems Volatility Framework 1.4_rc1
 Potential KDBG structure virtual addresses:
  _KDBG: 0x0296cbe8  (Win7SP0x86)
@@ -55,7 +55,7 @@ Potential KDBG structure virtual addresses:
 Use this command to scan for potential KPCR structures. 
 
 {{{
-$ python volatility.py --profile=Win7SP0x86 -f win7.dmp kpcrscan
+$ python vol.py --profile=Win7SP0x86 -f win7.dmp kpcrscan
 Volatile Systems Volatility Framework 1.4_rc1
 Potential KPCR structure virtual addresses:
  _KPCR: 8296dc00
@@ -68,7 +68,7 @@ Potential KPCR structure virtual addresses:
 To list the active processes of a system, use the pslist command. This walks the doubly-linked list pointed to by !PsActiveProcessHead. It does not detect hidden or unlinked processes. 
 
 {{{
-$ python volatility.py --profile=Win7SP0x86 -f win7.dmp pslist
+$ python vol.py --profile=Win7SP0x86 -f win7.dmp pslist
 Volatile Systems Volatility Framework 1.4_rc1
 Name                 Pid    PPid   Thds   Hnds   Time  
 System                    4      0     90    516 2010-07-06 22:28:46       
@@ -91,7 +91,7 @@ The columns display the process ID, the parent process ID, number of threads, nu
 To view the process listing in tree form, use the pstree command. This enumerates processes using the same technique as pslist, so it will also not show hidden or unlinked processes. Child process are indicated using indention and periods.
 
 {{{
-$ python volatility.py --profile=Win7SP0x86 -f win7.dmp pstree
+$ python vol.py --profile=Win7SP0x86 -f win7.dmp pstree
 Volatile Systems Volatility Framework 1.4_rc1
 Name                                        Pid    PPid   Thds   Hnds   Time  
  0x84E6E3D8:wininit.exe                        384    340      3     73 2010-07-06 22:28:53       
@@ -118,7 +118,7 @@ Name                                        Pid    PPid   Thds   Hnds   Time
 To enumerate processes using pool tag scanning, use the psscan2 command. This can find processes that previously terminated (inactive) and processes that have been hidden or unlinked by a rootkit. 
 
 {{{
-$ python volatility.py --profile=Win7SP0x86 -f win7.dmp psscan2
+$ python vol.py --profile=Win7SP0x86 -f win7.dmp psscan2
 Volatile Systems Volatility Framework 1.4_rc1
 PID    PPID   Time created             Time exited              Offset     PDB        Remarks
 ------ ------ ------------------------ ------------------------ ---------- ---------- ----------------
@@ -142,7 +142,7 @@ If a process has previously terminated, the Time exited field will show the exit
 To display a process's loaded DLLs, use the dlllist command. It walks the doubly-linked list of LDR_DATA_TABLE_ENTRY structures which is pointed to by the PEB's !InLoadOrderModuleList. DLLs are automatically added to this list when a process calls !LoadLibrary (or some derivative such as !LdrLoadDll) and they aren't removed until !FreeLibrary is called and the reference count reaches zero.
 
 {{{
-$ python volatility.py --profile=Win7SP0x86 -f win7.dmp dlllist
+$ python vol.py --profile=Win7SP0x86 -f win7.dmp dlllist
 
 [snip]
 
@@ -171,13 +171,13 @@ Base         Size         Path
 To display the DLLs for a specific process instead of all processes, use the -p or --pid filter like this:
 
 {{{
-$ python volatility.py --profile=Win7SP0x86 -f win7.dmp dlllist --pid=492
+$ python vol.py --profile=Win7SP0x86 -f win7.dmp dlllist --pid=492
 }}}
 
 To display the DLLs for a process that is hidden or unlinked by a rootkit, first use the psscan2 to get the physical offset of the EPROCESS object and then:
 
 {{{
-$ python volatility.py --profile=Win7SP0x86 -f win7.dmp dlllist --offset=0x04a291a8
+$ python vol.py --profile=Win7SP0x86 -f win7.dmp dlllist --offset=0x04a291a8
 }}}
 
 For more ways to list DLLs in a process, see the [http://code.google.com/p/volatility/wiki/CommandReference#ldrmodules ldrmodules] command.
@@ -193,7 +193,7 @@ To extract a DLL from a process's memory space and dump it to disk for analysis,
 To specify an output directory, use --dump-dir=DIR or -d DIR. You can also supply a regular expression to dump a DLL with a particular pattern in its name. 
 
 {{{
-$ python volatility.py --profile=Win7SP0x86 -f win7.dmp dlldump -r kernel32 -D out
+$ python vol.py --profile=Win7SP0x86 -f win7.dmp dlldump -r kernel32 -D out
 Cannot dump TrustedInstall@kernel32.dll at 779f0000
 Cannot dump WmiPrvSE.exe@kernel32.dll at 779f0000
 Dumping kernel32.dll, Process: SearchFilterHo, Base: 779f0000 output: module.623.da1d760.779f0000.dll
@@ -210,13 +210,13 @@ If the extraction fails, as it did for a few processes above, it probably means 
 To dump a PE file that doesn't exist in the DLLs list (for example, due to code injection or malicious unlinking), just specify the base address of the PE in process memory:
 
 {{{
-$ python volatility.py --profile=Win7SP0x86 -f win7.dmp dlldump --pid=492 -D out --base=0x00680000
+$ python vol.py --profile=Win7SP0x86 -f win7.dmp dlldump --pid=492 -D out --base=0x00680000
 }}}
 
 You can also specify an EPROCESS offset if the DLL you want is in a hidden process:
 
 {{{
-$ python volatility.py --profile=Win7SP0x86 -f win7.dmp dlldump -o 0x3e3f64e8 -D out --base=0x00680000
+$ python vol.py --profile=Win7SP0x86 -f win7.dmp dlldump -o 0x3e3f64e8 -D out --base=0x00680000
 }}}
 
 == files ==
@@ -224,7 +224,7 @@ $ python volatility.py --profile=Win7SP0x86 -f win7.dmp dlldump -o 0x3e3f64e8 -D
 To display the open file handles in a process, use the files command. A process can obtain a file handle by calling functions such as !CreateFile, and the handle will stay valid until !CloseHandle is called.
 
 {{{
-$ python volatility.py --profile=Win7SP0x86 -f win7.dmp files -p 4
+$ python vol.py --profile=Win7SP0x86 -f win7.dmp files -p 4
 Volatile Systems Volatility Framework 1.4_rc1
 Pid:      4
 File   '\\Windows\\System32\\wdi\\LogFiles\\WdiContextLog.etl.001'
@@ -246,7 +246,7 @@ File   '\\Windows\\System32\\config\\DEFAULT'
 To display the open registry handles in a process, use the regobjkeys command. A process can obtain a handle to a registry key by calling a function such as !RegOpenKeyEx or !RegCreateKey, and it stays valid until !RegCloseKey is called. 
 
 {{{
-$ python volatility.py --profile=Win7SP0x86 -f win7.dmp regobjkeys -p 4
+$ python vol.py --profile=Win7SP0x86 -f win7.dmp regobjkeys -p 4
 Volatile Systems Volatility Framework 1.4_rc1
 Pid:      4
 Key    MACHINE\SYSTEM\CONTROLSET001\CONTROL\HIVELIST                        
@@ -270,7 +270,7 @@ To view the SIDs (Security Identifiers) associated with a process, use the getsi
 For more information, see BDG's [http://moyix.blogspot.com/2008/08/linking-processes-to-users.html Linking Processes To Users].
 
 {{{
-$ python volatility.py --profile=Win7SP0x86 -f win7.dmp getsids 
+$ python vol.py --profile=Win7SP0x86 -f win7.dmp getsids 
 Volatile Systems Volatility Framework 1.4_rc1
 System (4): S-1-5-18 (Local System)
 System (4): S-1-5-32-544 (Administrators)
@@ -292,7 +292,7 @@ To display the version information embedded in PE files, use the verinfo command
 This command supports filtering by process ID, regular expression, and EPROCESS offset. 
 
 {{{
-$ python volatility.py --profile=Win7SP0x86 -f win7.dmp verinfo
+$ python vol.py --profile=Win7SP0x86 -f win7.dmp verinfo
 [snip]
 
 C:\Windows\system32\CRYPTBASE.dll
@@ -342,7 +342,7 @@ You can also reference the verinfo plugin for an example of how to parse PE head
 For a brief inspection of the addressable memory pages in a process, use the memmap command. 
 
 {{{
-$ python volatility.py --profile=Win7SP0x86 -f win7.dmp -p 1880 memmap 
+$ python vol.py --profile=Win7SP0x86 -f win7.dmp -p 1880 memmap 
 explorer.exe pid:   1880
 Virtual      Physical     Size        
 0x0000010000 0x00075cb000 0x000000001000
@@ -362,7 +362,7 @@ Virtual      Physical     Size
 To extract all data from the various memory segments in a process and dump them to a single file, use the memdump command. 
 
 {{{
-$ python volatility.py --profile=Win7SP0x86 -f win7.dmp -p 1880 memdump -D memory/
+$ python vol.py --profile=Win7SP0x86 -f win7.dmp -p 1880 memdump -D memory/
 Volatile Systems Volatility Framework 1.4_rc1
 ************************************************************************
 Writing explorer.exe [  1880] to 1880.dmp
@@ -378,7 +378,7 @@ To dump a process's executable (including the slack space), use the procmemdump 
 For more information, see Andreas Schuster's 4-part series on [http://computer.forensikblog.de/en/2006/04/reconstructing_a_binary.html#more Reconstructing a Binary]. Also see [http://code.google.com/p/volatility/wiki/CommandReference#impscan impscan] for help rebuilding a binary's import address table.
 
 {{{
-$ python volatility.py --profile=Win7SP0x86 -f win7.dmp -p 1880 procmemdump -D memory/
+$ python vol.py --profile=Win7SP0x86 -f win7.dmp -p 1880 procmemdump -D memory/
 Volatile Systems Volatility Framework 1.4_rc1
 ************************************************************************
 Dumping explorer.exe, pid:   1880 output: executable.1880.exe
@@ -396,7 +396,7 @@ To dump a process's executable (*not* including the slack space), use the procex
 To briefly inspect a process's VAD nodes, use the vadwalk command. For more information on the VAD, see BDG's [http://www.dfrws.org/2007/proceedings/p62-dolan-gavitt.pdf The VAD Tree: A Process-Eye View of Physical Memory].
 
 {{{
-$ python volatility.py --profile=Win7SP0x86 -f win7.dmp -p 1880 vadwalk
+$ python vol.py --profile=Win7SP0x86 -f win7.dmp -p 1880 vadwalk
 Volatile Systems Volatility Framework 1.4_rc1
 ************************************************************************
 Pid:   1880
@@ -418,7 +418,7 @@ Address  Parent   Left     Right    Start    End      Tag  Flags
 To display the VAD nodes in a visual tree form, use the vadtree command. 
 
 {{{
-$ python volatility.py --profile=Win7SP0x86 -f win7.dmp -p 1880 vadtree
+$ python vol.py --profile=Win7SP0x86 -f win7.dmp -p 1880 vadtree
 Volatile Systems Volatility Framework 1.4_rc1
 ************************************************************************
 Pid:   1880
@@ -435,7 +435,7 @@ Pid:   1880
 If you want to view the balanced binary tree in Graphviz format, use the dot output rendering:
 
 {{{
-$ python volatility.py --profile=Win7SP0x86 -f win7.dmp -p 1880 vadtree --output=dot --output-file=graph.dot
+$ python vol.py --profile=Win7SP0x86 -f win7.dmp -p 1880 vadtree --output=dot --output-file=graph.dot
 }}}
 
 Now you can open graph.dot in any Graphviz-compatible viewer. 
@@ -451,7 +451,7 @@ The vadinfo command displays extended information about a process's VAD nodes. I
   * The name of the memory mapped file (if one exists)
 
 {{{
-$ python volatility.py --profile=Win7SP0x86 -f win7.dmp -p 1880 vadinfo
+$ python vol.py --profile=Win7SP0x86 -f win7.dmp -p 1880 vadinfo
 
 VAD node @8d570798 Start 05330000 End 0536ffff Tag VadS
 Flags: PrivateMemory
@@ -483,7 +483,7 @@ File offset: 00000000
 To extract the data contained within each VAD segment, use the vaddump command. This is similar to [http://code.google.com/p/volatility/wiki/CommandReference#memdump memdump], except the data ends up in separate files, named according to the address in process memory where the data was found. 
 
 {{{
-$ python volatility.py --profile=Win7SP0x86 -f win7.dmp vaddump -D vads
+$ python vol.py --profile=Win7SP0x86 -f win7.dmp vaddump -D vads
 Volatile Systems Volatility Framework 1.4_rc1
 Pid:      4
 ************************************************************************
@@ -525,7 +525,7 @@ The reason the !PhysicalOffset field exists is so you can distinguish between tw
 To view the list of kernel drivers loaded on the system, use the modules command. This walks the doubly-linked list of LDR_DATA_TABLE_ENTRY structures pointed to by !PsLoadedModuleList. It cannot find hidden/unlinked kernel drivers.
 
 {{{
-$ python volatility.py --profile=Win7SP0x86 -f win7.dmp modules
+$ python vol.py --profile=Win7SP0x86 -f win7.dmp modules
 Volatile Systems Volatility Framework 1.4_rc1
 File                                               Base         Size     Name
 \SystemRoot\system32\ntoskrnl.exe                  0x008284c000 0x400000 ntoskrnl.exe
@@ -548,7 +548,7 @@ File                                               Base         Size     Name
 To scan physical memory for kernel modules, use the modscan2 command. This can pick up previously unloaded drivers and drivers that have been hidden/unlinked by rootkits. 
 
 {{{
-$ python volatility.py --profile=Win7SP0x86 -f win7.dmp modscan2
+$ python vol.py --profile=Win7SP0x86 -f win7.dmp modscan2
 Volatile Systems Volatility Framework 1.4_rc1
 File                                               Base         Size     Name
 '\\SystemRoot\\System32\\Drivers\\spldr.sys'       0x00865c9000 0x008000 'spldr.sys'
@@ -573,7 +573,7 @@ To extract a kernel driver to a file, use the moddump command. It supports filte
 For more information, see BDG's [http://moyix.blogspot.com/2008/10/plugin-post-moddump.html Plugin Post: Moddump].
 
 {{{
-$ python volatility.py --profile=Win7SP0x86 -f win7.dmp moddump -D mods/
+$ python vol.py --profile=Win7SP0x86 -f win7.dmp moddump -D mods/
 Volatile Systems Volatility Framework 1.4_rc1
 Dumping ntoskrnl.exe, Base: 8284c000 output: driver.8284c000.sys
 Dumping hal.dll, Base: 82815000 output: driver.82815000.sys
@@ -596,7 +596,7 @@ To list the functions in the Native and GUI SSDTs, use the ssdt command. This di
   * For more information, see BDG's [http://moyix.blogspot.com/2008/08/auditing-system-call-table.html Auditing the System Call Table].
 
 {{{
-$ python volatility.py --profile=Win7SP0x86 -f win7.dmp ssdt 
+$ python vol.py --profile=Win7SP0x86 -f win7.dmp ssdt 
 Volatile Systems Volatility Framework 1.4_rc1
 Gathering all referenced SSDTs from KTHREADs...
 Finding appropriate address space for tables...
@@ -626,7 +626,7 @@ SSDT[1] at 977a5000 with 825 entries
 To filter all functions which point to ntoskrnl.exe and win32k.sys, you can use egrep on command-line. This will only show hooked SSDT functions. 
 
 {{{
-$ python volatility.py --profile=Win7SP0x86 -f win7.dmp ssdt | egrep -v '(ntoskrnl|win32k)'
+$ python vol.py --profile=Win7SP0x86 -f win7.dmp ssdt | egrep -v '(ntoskrnl|win32k)'
 }}}
 
 Note that the NT module on your system may be ntkrnlpa.exe or ntkrnlmp.exe - so check that before using egrep of you'll be filtering the wrong module name. 
@@ -638,7 +638,7 @@ To scan for DRIVER_OBJECTs in physical memory, use the driverscan command. This 
 For more information, see Andreas Schuster's [http://computer.forensikblog.de/en/2009/04/scanning_for_drivers.html Scanning for Drivers].
 
 {{{
-$ python volatility.py --profile=Win7SP0x86 -f win7.dmp driverscan 
+$ python vol.py --profile=Win7SP0x86 -f win7.dmp driverscan 
 Volatile Systems Volatility Framework 1.4_rc1
 Phys.Addr. Obj Type   #Ptr #Hnd Start        Size Service key          Name
 0x007f1300 0x0000001a   67    0 0x85e2a000 294912 'ACPI'               'ACPI'       '\\Driver\\ACPI'
@@ -662,7 +662,7 @@ To scan physical memory for FILE_OBJECTs, use the filescan command. This will fi
 For more information, see Andreas Schuster's [http://computer.forensikblog.de/en/2009/04/scanning_for_file_objects.html Scanning for File Objects] and [http://computer.forensikblog.de/en/2009/04/linking_file_objects_to_processes.html Linking File Objects To Processes]. 
 
 {{{
-$ python volatility.py --profile=Win7SP0x86 -f win7.dmp filescan
+$ python vol.py --profile=Win7SP0x86 -f win7.dmp filescan
 Volatile Systems Volatility Framework 1.4_rc1
 Phys.Addr. Obj Type   #Ptr #Hnd Access Name
 0x007b1020 0x0000001c   17    0 RW-rwd '\\$Directory'
@@ -700,7 +700,7 @@ For more information, see Andreas Schuster's [http://computer.forensikblog.de/en
 Since mutexes can have seemingly random names, and there are so many of them, its difficult to spot malicious mutexes. For this reason, we built a proof-of-concept mutanscandb command which gathers mutex names from online sandboxes and populates an sqlite3 database with them. Then the Volatility command reads in the mutexes and highlights entries in your memory dump which also exist in the sqlite3 database. 
 
 {{{
-$ python volatility.py --profile=Win7SP0x86 -f win7.dmp mutantscan -s
+$ python vol.py --profile=Win7SP0x86 -f win7.dmp mutantscan -s
 Volatile Systems Volatility Framework 1.4_rc1
 Phys.Addr. Obj Type   #Ptr #Hnd Signal Thread     CID        Name
 0x07f955a0 0x0000000e    2    1      1 0x00000000            'TapiSrv_Perf_Library_Lock_PID_5d0'
@@ -722,7 +722,7 @@ Phys.Addr. Obj Type   #Ptr #Hnd Signal Thread     CID        Name
 To scan for ETHREAD objects in physical memory, use the thrdscan2 command. Since an ETHREAD contains fields that identify its parent process, you can use this technique to find hidden processes. One such use case is documented in the [http://code.google.com/p/volatility/wiki/CommandReference#orphanthreads orphanthreads] command. 
 
 {{{
-$ python volatility.py --profile=Win7SP0x86 -f win7.dmp thrdscan2
+$ python vol.py --profile=Win7SP0x86 -f win7.dmp thrdscan2
 Volatile Systems Volatility Framework 1.4_rc1
 PID    TID    Create Time               Exit Time                 Offset    
 ------ ------ ------------------------- ------------------------- ----------
@@ -750,7 +750,7 @@ PID    TID    Create Time               Exit Time                 Offset
 To view the active connections, use the connections command. This walks the singly-linked list of connection structures pointed to by a non-exported symbol in the tcpip.sys module. This command is for Windows XP only. 
 
 {{{
-$ python volatility.py --profile=WinXPSP3x86 -f silentbanker.vmem connections
+$ python vol.py --profile=WinXPSP3x86 -f silentbanker.vmem connections
 Volatile Systems Volatility Framework 1.4_rc1
 Local Address             Remote Address            Pid   
 192.168.128.128:1299      207.46.216.54:80            1876
@@ -770,7 +770,7 @@ Local Address             Remote Address            Pid
 To find connection structures using pool tag scanning, use the connscan2 command. This can find artifacts from previous connections that have since been terminated. In the output below, you'll notice some fields have been partially overwritten, but some of the information is still accurate. Thus, while it may find false positives sometimes, you also get the benefit of detecting as much information as possible. This command is for Windows XP only. 
 
 {{{
-$ python volatility.py --profile=WinXPSP3x86 -f silentbanker.vmem connscan2
+$ python vol.py --profile=WinXPSP3x86 -f silentbanker.vmem connscan2
 Volatile Systems Volatility Framework 1.4_rc1
 Local Address             Remote Address            Pid   
 ------------------------- ------------------------- ------ 
@@ -796,7 +796,7 @@ Local Address             Remote Address            Pid
 To detect listening sockets for any protocol (TCP, UDP, RAW, etc), use the sockets command. This walks a singly-linked list of socket structures which is pointed to by a non-exported symbol in the tcpip.sys module. This command is for Windows XP only. 
 
 {{{
-$ python volatility.py --profile=WinXPSP3x86 -f silentbanker.vmem sockets
+$ python vol.py --profile=WinXPSP3x86 -f silentbanker.vmem sockets
 Volatile Systems Volatility Framework 1.4_rc1
 Pid    Port   Proto  Create Time               
   1876   1274      6 2009-02-18 06:55:23       
@@ -815,7 +815,7 @@ Pid    Port   Proto  Create Time
 To find socket structures using pool tag scanning, use the sockscan command. As with connscan2, this can pick up residual data and artifacts from previous sockets, and it only applies to Windows XP. 
 
 {{{
-$ python volatility.py --profile=WinXPSP3x86 -f silentbanker.vmem sockscan
+$ python vol.py --profile=WinXPSP3x86 -f silentbanker.vmem sockscan
 Volatile Systems Volatility Framework 1.4_rc1
 PID    Port   Proto  Create Time                Offset 
 ------ ------ ------ -------------------------- ----------
@@ -836,7 +836,7 @@ PID    Port   Proto  Create Time                Offset
 To scan for network artifacts in Windows Vista and Windows 7 memory dumps, use the netscan command. This finds TCP endpoints, TCP listeners, UDP endpoints, and UDP listeners. It distinguishes between IPv4 and IPv6, prints the local and remote IP (if applicable), the local and remote port (if applicable), the time when the socket was bound or when the connection was established, and the current state (for TCP connections only). 
 
 {{{
-$ python volatility.py --profile=Win7SP0x86 -f win7.dmp netscan 
+$ python vol.py --profile=Win7SP0x86 -f win7.dmp netscan 
 Volatile Systems Volatility Framework 1.4_rc1
 Offset     Proto    Local Address                  Foreign Address      State            Pid      Owner          Created
 0xca3008   TCPv4    192.168.181.133:139            0.0.0.0:0            LISTENING        4        System         1970-01-01 00:00:00 
@@ -881,7 +881,7 @@ Volatility is the only memory forensics framework with the ability to carve regi
 To find the physical addresses of CMHIVEs (registry hives) in memory, use the hivescan command. You would take the output of this command and feed it to the hivelist. For more information, see BDG's [http://moyix.blogspot.com/2008/02/enumerating-registry-hives.html Enumerating Registry Hives].
 
 {{{
-$ python volatility.py --profile=Win7SP0x86 -f win7.dmp hivescan
+$ python vol.py --profile=Win7SP0x86 -f win7.dmp hivescan
 Volatile Systems Volatility Framework 1.4_rc1
 Offset          (hex)          
 1493000         0x0016c808
@@ -900,7 +900,7 @@ Offset          (hex)
 To locate the virtual addresses of registry hives in memory, and the full paths to the corresponding hive on disk, use the hivelist command. Feed it any of the values output by hivescan. 
 
 {{{
-$ python volatility.py --profile=Win7SP0x86 -f win7.dmp hivelist -o 0x0016c808
+$ python vol.py --profile=Win7SP0x86 -f win7.dmp hivelist -o 0x0016c808
 Volatile Systems Volatility Framework 1.4_rc1
 Virtual     Physical    Name
 0x99f0d008  0x0da7d008  \??\C:\Windows\ServiceProfiles\LocalService\NTUSER.DAT
@@ -926,7 +926,7 @@ Virtual     Physical    Name
 To display the subkeys, values, data, and data types contained within a specified registry key, use the printkey command. It accepts a virtual address to the hive in which you want to search for a key. For example, to see the contents of HKEY_LOCAL_MACHINE, do the following:
 
 {{{
-$ python volatility.py --profile=Win7SP0x86 -f win7.dmp printkey -o 0x8c089398 
+$ python vol.py --profile=Win7SP0x86 -f win7.dmp printkey -o 0x8c089398 
 Volatile Systems Volatility Framework 1.4_rc1
 Key name: CMI-CreateHive{3D971F19-49AB-4000-8D39-A6D9C673D809}
 (Stable)
@@ -948,7 +948,7 @@ Subkeys:
 Now say you want to traverse into the HKEY_LOCAL_MACHINE\Microsoft\Security Center\Svc key. You can do that:
 
 {{{
-$ python volatility.py --profile=Win7SP0x86 -f win7.dmp printkey -o 0x8c089398 -K 'Microsoft\Security Center\Svc'
+$ python vol.py --profile=Win7SP0x86 -f win7.dmp printkey -o 0x8c089398 -K 'Microsoft\Security Center\Svc'
 Volatile Systems Volatility Framework 1.4_rc1
 Key name: Svc
 (Stable)
@@ -968,7 +968,7 @@ REG_DWORD FirewallOverride : 0 (Stable)
 To recursively list all subkeys in a hive, use the hivedump command and pass it the virtual address to the desired hive. 
 
 {{{
-$ python volatility.py --profile=Win7SP0x86 -f win7.dmp hivedump -o 0x8e23e008
+$ python vol.py --profile=Win7SP0x86 -f win7.dmp hivedump -o 0x8e23e008
 2010-03-09 19:50:19  \CMI-CreateHive{899121E8-11D8-44B6-ACEB-301713D5ED8C}\SAM\Domains\Builtin\Aliases\Names
 2010-03-09 19:50:19  \CMI-CreateHive{899121E8-11D8-44B6-ACEB-301713D5ED8C}\SAM\Domains\Builtin\Aliases\Names\Administrators
 2010-03-09 19:50:19  \CMI-CreateHive{899121E8-11D8-44B6-ACEB-301713D5ED8C}\SAM\Domains\Builtin\Aliases\Names\Backup Operators
@@ -1015,7 +1015,7 @@ For more information, see BDG's [http://moyix.blogspot.com/2008/02/decrypting-ls
 To use lsadump, pass the virtual address of the SYSTEM hive as the -y parameter and the virtual address of the SECURITY hive as the -s parameter. 
 
 {{{
-$ python volatility.py -f laqma.vmem lsadump -y 0xe1035b60 -s 0xe16a6b60
+$ python vol.py -f laqma.vmem lsadump -y 0xe1035b60 -s 0xe16a6b60
 Volatile Systems Volatility Framework 1.4_rc1
 L$RTMTIMEBOMB_1320153D-8DA3-4e8e-B27B-0D888223A588
 
@@ -1080,7 +1080,7 @@ Here is an example of using it to detect the presence of Zeus. The first memory 
 The second memory segment (starting at 0x015D0000) was detected because it contained an executable that isn't listed in the PEB's module lists. A copy of the PE file was saved to hidden_dumps/explorer.exe.4a065d0.015d0000-015f5fff.dmp. This is an unpacked copy of the Zeus binary that was injected into explorer.exe. 
 
 {{{
-$ python volatility.py -f zeus.vmem malfind -p 1724 -D hidden_dumps/
+$ python vol.py -f zeus.vmem malfind -p 1724 -D hidden_dumps/
 Volatile Systems Volatility Framework 1.4_rc1
 Name                 Pid    Start      End        Tag    Hits Protect
 explorer.exe           1724 0x01600000 0x01600FFF VadS      0      6 (MM_EXECUTE_READWRITE)
@@ -1123,19 +1123,19 @@ Now let's say you wanted to search for a pattern in process memory. You can crea
 Search for signatures defined in the file rules.yar, in any process
 
 {{{
-$ python volatility.py -f zeus.vmem malfind -D hidden_dumps --yara-rules=rules.yar
+$ python vol.py -f zeus.vmem malfind -D hidden_dumps --yara-rules=rules.yar
 }}}
 
 Search for a simple string in any process: 
 
 {{{
-$ python volatility.py -f zeus.vmem malfind -D hidden_dumps --yara-rules="simpleStringToFind"
+$ python vol.py -f zeus.vmem malfind -D hidden_dumps --yara-rules="simpleStringToFind"
 }}}
 
 Search for a byte pattern in kernel memory. This does not check the entire range of kernel memory, it only checks the memory that belongs to loaded kernel drivers. For example, TDL3 applies a hard-patch to atapi.sys on disk. In particular, it adds some shell code to the .rsrc section of the file, and then modifies the !AddressOfEntryPoint so that it points at the shell code. This is TDL3's main persistence method. One of the unique instructions in the shell code is `cmp dword ptr [eax], ‘3LDT’` so I made a YARA signature from that. 
 
 {{{
-$ python volatility.py -f tdl3.dmp malfind --yara-rules=rules.yar -D hidden_dumps --kernel
+$ python vol.py -f tdl3.dmp malfind --yara-rules=rules.yar -D hidden_dumps --kernel
 Volatile Systems Volatility Framework 1.4_rc1
 Name                 Pid    Start      End        Tag    Hits Protect
 vmscsi.sys           -      0xF9DB8000 0xF9DBB000 -         1 -      (Unknown)
@@ -1153,13 +1153,13 @@ Hit: 8b00813854444c33755a
 Search for a given byte pattern in a particular process:
 
 {{{
-$ python volatility.py -f zeus.vmem malfind -D hidden_dumps --yara-rules="{eb 90 ff e4 88 32 0d}" --pid=624
+$ python vol.py -f zeus.vmem malfind -D hidden_dumps --yara-rules="{eb 90 ff e4 88 32 0d}" --pid=624
 }}}
 
 Search for a regular expression in a particular process:
 
 {{{
-$ python volatility.py -f zeus.vmem malfind -D hidden_dumps --yara-rules="/my(regular|expression{0,2})/" --pid=624
+$ python vol.py -f zeus.vmem malfind -D hidden_dumps --yara-rules="/my(regular|expression{0,2})/" --pid=624
 }}}
 
 == svcscan ==
@@ -1169,7 +1169,7 @@ Volatility is the only memory forensics framework with the ability to list Windo
 The lanmandrv entry displayed below is the name of the service that Laqma installs to load its malicious kernel driver.
 
 {{{
-$ python volatility.py svcscan -f laqma.vmem
+$ python vol.py svcscan -f laqma.vmem
 Volatile Systems Volatility Framework 1.4_rc1
 Record       Order    Pid      Name             DisplayName                              Type                           State                Path
 
@@ -1195,7 +1195,7 @@ There are many ways to hide a DLL. One of the ways involves unlinking the DLL fr
 For each memory mapped PE file, the ldrmodules command prints a 0 or a 1 if the PE exists in the PEB lists. 
 
 {{{
-$ python volatility.py -f laqma.vmem ldrmodules 
+$ python vol.py -f laqma.vmem ldrmodules 
 Volatile Systems Volatility Framework 1.4_rc1
 Pid      Process              Base     InLoad   InInit   InMem    Path
    608 csrss.exe            0x010E0000      0      0      0 \WINDOWS\Fonts\vgasys.fon
@@ -1218,7 +1218,7 @@ Pid      Process              Base     InLoad   InInit   InMem    Path
 Since the PEB and the DLL lists that it contains all exist in user mode, its also possible for malware to hide (or obscure) a DLL by simply overwriting the path. Tools that only look for unlinked entries may miss the fact that malware overwrite C:\bad.dll to show C:\windows\system32\kernel32.dll. So you can also pass -v or --verbose to ldrmodules to see the full path of all entries:
 
 {{{
-$ python volatility.py -f laqma.vmem ldrmodules -v
+$ python vol.py -f laqma.vmem ldrmodules -v
 Volatile Systems Volatility Framework 1.4_rc1
 Pid      Process              Base     InLoad   InInit   InMem    Path
 
@@ -1252,7 +1252,7 @@ If you have IDA Pro installed, make sure idag.exe (Windows) or idal (Linux/OS X)
 Take Conficker for example. This malware deleted its PE header once it loaded in the target process. You can use malfind to detect the presence of Conficker based on the typical malfind criteria (page permissions, VAD tags, etc). Notice how the PE's base address doesn't contain the usual 'MZ' header:
 
 {{{
-$ python volatility.py -f conficker.bin -p 3108 malfind -D out/
+$ python vol.py -f conficker.bin -p 3108 malfind -D out/
 Volatile Systems Volatility Framework 1.4_rc1
 Name                 Pid    Start      End        Tag    Hits Protect
 notepad.exe            3108 0x00A10000 0x00A2BFFF VadS      0     24 (MM_EXECUTE_UNKNOWN)
@@ -1270,7 +1270,7 @@ Dumped to: out/services.exe.20c8558.00a10000-00a2bfff.dmp
 Let's assume you want to extract the unpacked copy of Conficker and see its imported APIs. Use impscan by specifying the base address provided to you by malfind:
 
 {{{
-$ python volatility.py -f conficker.bin -p 3108 impscan -a 0x00A10000 -D out
+$ python vol.py -f conficker.bin -p 3108 impscan -a 0x00A10000 -D out
 Volatile Systems Volatility Framework 1.4_rc1
 a11204 RPCRT4.dll NdrClientCall2 77ef44d0
 a11208 RPCRT4.dll RpcStringBindingComposeA 77e9a8e4
@@ -1297,7 +1297,7 @@ If you don't specify a base address with -a or --address, then you'll end up sca
 Laqma loads a kernel driver named lanmandrv.sys. If you extract it with moddump, the IAT will be corrupt. So use impscan to rebuild it:
 
 {{{
-$ python volatility.py -f laqma.vmem modules | grep lanman
+$ python vol.py -f laqma.vmem modules | grep lanman
 Volatile Systems Volatility Framework 1.4_rc1
 \??\C:\WINDOWS\System32\lanmandrv.sys              0x00f8c52000 0x002000 lanmandrv.sys
 }}}
@@ -1305,7 +1305,7 @@ Volatile Systems Volatility Framework 1.4_rc1
 Now that you know the base address:
 
 {{{
-$ python volatility.py -f laqma.vmem impscan -a 0x00f8c52000 -D out/
+$ python vol.py -f laqma.vmem impscan -a 0x00f8c52000 -D out/
 Volatile Systems Volatility Framework 1.4_rc1
 f8c53080 ntoskrnl.exe IofCompleteRequest 804ee07a
 f8c530a0 ntoskrnl.exe ZwOpenKey 804fdd8c
@@ -1329,7 +1329,7 @@ To find API hooks in user mode or kernel mode, use the apihooks plugin. This fin
 Here is an example of detecting IAT hooks installed by Coreflood. The far right field contains UNKNOWN because there is no module associated with the memory in which the rootkit code exists. 
 
 {{{
-$ python volatility.py -f coreflood.vmem -p 2044 apihooks 
+$ python vol.py -f coreflood.vmem -p 2044 apihooks 
 Volatile Systems Volatility Framework 1.4_rc1
 Name                             Type     Target                                   Value
 IEXPLORE.EXE[2044]@winspool.drv  iat      KERNEL32.dll!GetProcAddress              0x0 0x7ff82360 (UNKNOWN)
@@ -1343,7 +1343,7 @@ IEXPLORE.EXE[2044]@winspool.drv  iat      ADVAPI32.dll!RegSetValueExW           
 Here is an example of detecting the Inline hooks installed by Silentbanker:
 
 {{{
-$ python volatility.py -f silentbanker.vmem -p 1884 apihooks
+$ python vol.py -f silentbanker.vmem -p 1884 apihooks
 Volatile Systems Volatility Framework 1.4_rc1
 Name                             Type     Target                                   Value
 IEXPLORE.EXE[1884]               inline   ws2_32.dll!connect                       0x71ab406a JMP 0xe90000 (UNKNOWN)
@@ -1357,7 +1357,7 @@ IEXPLORE.EXE[1884]               inline   user32.dll!GetClipboardData           
 Here is an example of detecting the PUSH/RET Inline hooks installed by Laqma:
 
 {{{
-$ python volatility.py -f laqma.vmem -p 1624 apihooks
+$ python vol.py -f laqma.vmem -p 1624 apihooks
 Volatile Systems Volatility Framework 1.4_rc1
 Name                             Type     Target                                   Value
 explorer.exe[1624]               inline   user32.dll!MessageBoxA                   0x7e45058a PUSH 0xac10aa; RET (Dll.dll)
@@ -1373,7 +1373,7 @@ explorer.exe[1624]               inline   wininet.dll!HttpSendRequestA          
 Here is an example of using apihooks to detect the syscall patches in ntdll.dll (using a Carberp sample):
 
 {{{
-$ python volatility.py -f carberp.vmem apihooks
+$ python vol.py -f carberp.vmem apihooks
 Volatile Systems Volatility Framework 1.4_rc1
 Name                             Type     Target                                   Value
 explorer.exe[1004]               inline   ntdll.dll!NtCreateThread                 0x7c90d190 JMP 0x15a3fa7 (UNKNOWN)
@@ -1390,7 +1390,7 @@ explorer.exe[1004]               inline   ws2_32.dll!closesocket                
 Here is an example of using apihooks to detect the Inline hook of a kernel mode function:
 
 {{{
-$ python volatility.py apihooks -K -f rustock.vmem 
+$ python vol.py apihooks -K -f rustock.vmem 
 
 Name     Type     Function                        Value
 -        inlinek  ntoskrnl.exe!IofCallDriver      0x804ee130 jmp [0x8054c280] =>> 0xb17a189d (\Driver\pe386)
@@ -1399,7 +1399,7 @@ Name     Type     Function                        Value
 Here is an example of using apihooks to detect the calls to an unknown code page from a kernel driver. In this case, malware has patched tcpip.sys with some malicious redirections. 
 
 {{{
-$ python volatility.py -f rustock-2.vmem apihooks -K
+$ python vol.py -f rustock-2.vmem apihooks -K
 Volatile Systems Volatility Framework 1.4_rc1
 Name                             Type     Target                                   Value
 -                                ucpcall  tcpip.sys                                0xf7be2514 CALL [0x81ecd0c0]
@@ -1413,7 +1413,7 @@ Name                             Type     Target                                
 To print the system's IDT (Interrupt Descriptor Table), use the idt command. This displays the purpose of the interrupts, along with the current address and owning module. It also checks the IDT entries for Inline style API hooks. This is important because some rootkits hook the IDT entry for !KiSystemService, but point it at a routine inside the NT module (where !KiSystemService should point). However, at that address, there is an Inline hook!
 
 {{{
-$ python volatility.py idt -f rustock.vmem 
+$ python vol.py idt -f rustock.vmem 
 
 2A       KiGetTickCount             0x8053cbae   ntoskrnl.exe .text
 2B       KiCallbackReturn           0x8053ccb0   ntoskrnl.exe .text
@@ -1430,7 +1430,7 @@ To print the system's GDT (Global Descriptor Table), use the gdt command. This i
 In the output below, you can see that selector 0x3e0 has been infected and used for the purposes of a 32-bit call gate. The hook address is 0x8003f000, which as you can see in the disassembly, contains the instructions to further transfer control to 0xffdf0adb.
 
 {{{
-$ python volatility.py -f alipop.vmem gdt 
+$ python vol.py -f alipop.vmem gdt 
 Volatile Systems Volatility Framework 1.4_rc1
 Sel    Base         Limit        Type           DPL    Gr     Pr    
 0x0    0xffdf0a     0xdbbb       TSS16 Busy     2      By     P     
@@ -1458,7 +1458,7 @@ Sel    Base         Limit        Type           DPL    Gr     Pr
 If you want to further investigate the infection, you can break into a [http://code.google.com/p/volatility/wiki/CommandReference#volshell volshell] as shown below:
 
 {{{
-$ python volatility.py -f alipop.vmem volshell
+$ python vol.py -f alipop.vmem volshell
 Volatile Systems Volatility Framework 1.4_rc1
 Current context: process System, pid=4, ppid=0 DTB=0x320000
 Welcome to volshell! Current memory image is:
@@ -1508,7 +1508,7 @@ To detect kernel threads which don't map back to known kernel drivers, use the o
 Here is an example of locating orphan threads on a machine infected with Tigger. As you can see, there are 4 threads identified, all owned by the PID 4 (System) process. The System process is the default owner of threads created by !PsCreateThread in kernel mode. One of the 4 has exited, but the others remain running. The starting addresses are in the range 0xf2XXXXXX however there is no driver in that space - meaning its likely the location of Tigger's hidden component. 
 
 {{{
-$ python volatility.py -f tigger.vmem orphanthreads
+$ python vol.py -f tigger.vmem orphanthreads
 Volatile Systems Volatility Framework 1.4_rc1
 PID    TID    Create Time               Exit Time                 Offset     StartAddress
 ------ ------ ------------------------- ------------------------- ---------- ------------
@@ -1538,7 +1538,7 @@ Volatility is the only memory forensics platform with the ability to print an as
 Here's an example of detecting the thread creation callback installed by the !BlackEnergy 2 malware. You can spot the malicious callback because the owner is 00004A2A - and !BlackEnergy 2 uses a module name composed of eight hex characters. 
 
 {{{
-$ python volatility.py -f be2.vmem notifyroutines
+$ python vol.py -f be2.vmem notifyroutines
 Volatile Systems Volatility Framework 1.4_rc1
 Type                                 Callback   Owner
 PsSetCreateThreadNotifyRoutine       0xff0d2ea7 00004A2A
@@ -1553,7 +1553,7 @@ KeRegisterBugCheckReasonCallback     0xfc967a78 mssmbios.sys (SMBiosRegistry)
 Here is an example of detecting the malicious process creation callback installed by the Rustock rootkit (points to memory owned by \Driver\pe386).
 
 {{{
-$ python volatility.py -f rustock.vmem notifyroutines
+$ python vol.py -f rustock.vmem notifyroutines
 Volatile Systems Volatility Framework 1.4_rc1
 Type                                 Callback   Owner
 PsSetCreateProcessNotifyRoutine      0xf88bd194 vmci.sys
@@ -1572,7 +1572,7 @@ KeRegisterBugCheckReasonCallback     0xf7637522 VIDEOPRT.SYS (Videoprt)
 Here is an example of detecting the malicious registry change callback installed by the Ascesso rootkit. There is one !CmRegisterCallback pointing to 0x8216628f which does not have an owner. You also see two !GenericKernelCallback with the same address. This is because notifyroutines finds callbacks in multiple ways. It combines list traversal and pool tag scanning. This way, if the list traversal fails, we can still find information with pool tag scanning. However, the Windows kernel uses the same types of pool tags for various callbacks, so we label those as generic. 
 
 {{{
-$ python volatility.py -f ascesso.vmem notifyroutines
+$ python vol.py -f ascesso.vmem notifyroutines
 Volatile Systems Volatility Framework 1.4_rc1
 Type                                 Callback   Owner
 IoRegisterShutdownNotification       0xf853c2be ftdisk.sys (\Driver\Ftdisk)
@@ -1595,7 +1595,7 @@ Many drivers forward their IRP functions to other drivers for legitimate purpose
 This command outputs information for all drivers, unless you specify a regular expression filter. 
 
 {{{
-$ python volatility.py -f tdl3.vmem driverirp -r vmscsi 
+$ python vol.py -f tdl3.vmem driverirp -r vmscsi 
 Volatile Systems Volatility Framework 1.4_rc1
 DriverStart  Name             IRP                                  IrpAddr      IrpOwner         HookAddr     HookOwner
 0xf9db8000   'vmscsi'         IRP_MJ_CREATE                        0xf9db9cbd   vmscsi.sys       -            -
@@ -1613,7 +1613,7 @@ DriverStart  Name             IRP                                  IrpAddr      
 In the output, it is not apparent that the vmscsi.sys driver has been infected by the TDL3 rootkit. Although all IRPs point back into vmscsi.sys, they point at a stub staged in that region by TDL3 for the exact purpose of bypassing rootkit detection tools. To get extended information, use --verbose: 
 
 {{{
-$ python volatility.py -f tdl3.vmem driverirp -r vmscsi --verbose
+$ python vol.py -f tdl3.vmem driverirp -r vmscsi --verbose
 Volatile Systems Volatility Framework 1.4_rc1
 DriverStart  Name             IRP                                  IrpAddr      IrpOwner         HookAddr     HookOwner
 0xf9db8000   'vmscsi'         IRP_MJ_CREATE                        0xf9db9cbd   vmscsi.sys       -            -
@@ -1641,7 +1641,7 @@ The CSRSS process contains some useful alternate process listings. In particular
 Here is an example of detecting the Prolaco malware with csrpslist. It generates all unique processes based on the !PsActiveProcessHead (pslist), the csrss.exe handle table, and the csrss.exe internal list. Then it loops through and prints which processes exist in which list. Any items which don't exist in the pslist (such as Pid 1336 below) have been hidden by a rootkit. 
 
 {{{
-$ python volatility.py -f prolaco.vmem csrpslist
+$ python vol.py -f prolaco.vmem csrpslist
 Volatile Systems Volatility Framework 1.4_rc1
 Name                 Pid    Pslist   Hndls    RootList
 vmtoolsd.exe           1668        1        1        0
@@ -1678,7 +1678,7 @@ If you want to explore SSDT hooks installed by rootkits, use the ssdt_ex command
 Here is an example:
 
 {{{
-$ python volatility.py -f laqma.vmem ssdt_ex -D outdir/
+$ python vol.py -f laqma.vmem ssdt_ex -D outdir/
 Volatile Systems Volatility Framework 1.4_rc1
   Entry 0x0049: 0xf8c52884 (NtEnumerateValueKey) owned by lanmandrv.sys
   Entry 0x007a: 0xf8c5253e (NtOpenProcess) owned by lanmandrv.sys
@@ -1723,7 +1723,7 @@ As mentioned in the documentation for the ssdt command, the SSDT is assigned on 
 Here is an example of detecting the infected threads using a !BlackEnergy 2 sample. First you see the hooked SSDT functions and then a list of threads (found via thrdscan2). If a thread is using one of the hooked SSDTs, the command prints an exclamation mark by the thread info. As you can see, not all threads on the system are infected - only the ones which start *after* the rootkit driver loads get infected. 
 
 {{{
-$ python volatility.py -f be2.vmem ssdt_by_threads
+$ python vol.py -f be2.vmem ssdt_by_threads
 Volatile Systems Volatility Framework 1.4_rc1
 Pid      Tid      Name               SSDT      
   Entry 0x0041: 0xff0d2487 (NtDeleteValueKey) owned by 00004A2A
@@ -1785,7 +1785,7 @@ If you want to interactively explore a memory image, use the volshell command. T
 To break into a volshell:
 
 {{{
-$ python volatility.py --profile=Win7SP0x86 -f win7.dmp volshell
+$ python vol.py --profile=Win7SP0x86 -f win7.dmp volshell
 Volatile Systems Volatility Framework 1.4_rc1
 Current context: process System, pid=4, ppid=0 DTB=0x185000
 Welcome to volshell! Current memory image is:
