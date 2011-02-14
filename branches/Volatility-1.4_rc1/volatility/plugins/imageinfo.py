@@ -23,13 +23,11 @@ import volatility.timefmt as timefmt
 import volatility.utils as utils
 import volatility.obj as obj
 import volatility.registry as registry
-import volatility.plugins.datetime as datetime
 import volatility.plugins.kdbgscan as kdbg
 
-class ImageInfo(datetime.DateTime, kdbg.KDBGScan):
+class ImageInfo(kdbg.KDBGScan):
     """ Identify information for the image """
     def __init__(self, config, args = None):
-        datetime.DateTime.__init__(self, config, args)
         kdbg.KDBGScan.__init__(self, config, args)
 
     def render_text(self, outfd, data):
@@ -98,6 +96,20 @@ class ImageInfo(datetime.DateTime, kdbg.KDBGScan):
             yield ('Image Type', self.find_csdversion(addr_space))
         except tasks.TasksNotFound:
             pass
+
+    def get_image_time(self, addr_space):
+        # Get the Image Datetime
+        result = {}
+        volmagic = obj.Object("VOLATILITY_MAGIC", 0x0, addr_space)
+        KUSER_SHARED_DATA = volmagic.KUSER_SHARED_DATA.v()
+        k = obj.Object("_KUSER_SHARED_DATA",
+                              offset = KUSER_SHARED_DATA,
+                              vm = addr_space)
+
+        result['ImageDatetime'] = k.SystemTime
+        result['ImageTz'] = timefmt.OffsetTzInfo(-k.TimeZoneBias.as_windows_timestamp() / 10000000)
+
+        return result
 
     def find_csdversion(self, addr_space):
         """Find the CDS version from an address space"""
