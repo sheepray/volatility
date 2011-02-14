@@ -12,7 +12,7 @@ Volatility is a modular system with plugins doing much of the work. Sometimes it
 First we need to have an overview of command line processing in volatility. When you type:
 
 {{{
-$ volatility.py -h
+$ vol.py -h
 Volatile Systems Volatility Framework 1.4a
 Usage: Volatility - A memory forensics analysis platform.
 
@@ -65,8 +65,8 @@ This is useful since the way one processes images is normally by setting many pa
 
 {{{
 $ export VOLATILITY_FILENAME=/tmp/myimage.img
-$ volatility pslist
-$ volatiltiy files
+$ ./vol.py pslist
+$ ./vol.py files
 
 etc
 }}}
