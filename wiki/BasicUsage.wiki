@@ -6,7 +6,7 @@
 Volatility 1.4 has the ability to analyze Vista SP0/SP1/SP2 and Windows 7 SP0 images in addition to Windows XP SP2 and SP3.  In order to analyze an image that is not Windows XP SP2, you should provide the correct profile when running Volatility commands.  You can obtain the profile from Volatility by typing:
 
 {{{
-$ python volatility.py --info
+$ python vol.py --info
 }}}
 
 In addition to scanners, plugins and other items that Volatility "knows" about, you should see a section for profiles:
@@ -26,13 +26,13 @@ WinXPSP3x86 - A Profile for windows XP SP3
 Therefore for all images except WinXPSP2x86 should have the profile defined at the commandline. A typical usage for Volatility can be seen below:
 
 {{{
-$ python volatility.py [plugin] -f [image] --profile=[PROFILE]
+$ python vol.py [plugin] -f [image] --profile=[PROFILE]
 }}}
 
 Unlike Volatility 1.3, in 1.4 you can interchange the order of the arguments including the plugin name itself.  For example we could get the same results with the following command:
 
 {{{
-$ python volatility.py -f [image] --profile=[PROFILE] [plugin]
+$ python vol.py -f [image] --profile=[PROFILE] [plugin]
 }}}
 
 Options with dashes must maintain their order however (e.g. -f [image]).  The above commands will run the given plugin on the given image using the given profile.  
@@ -40,19 +40,19 @@ Options with dashes must maintain their order however (e.g. -f [image]).  The ab
 To get a list of available plugins and commandline options you can type:
 
 {{{
-$ python volatility.py -h
+$ python vol.py -h
 }}}
 
 You can type the following to get a usage for a particular plugin:
 
 {{{
-$ python volatility.py [plugin] -h
+$ python vol.py [plugin] -h
 }}}
 
 If the profile is not given in the command line, the WinXPSP2x86 profile will be used.  A real example for getting the process listing from a Windows 7 image is shown below:
 
 {{{
-$ python volatility.py -f win7.dd --profile=Win7SP0x86 pslist
+$ python vol.py -f win7.dd --profile=Win7SP0x86 pslist
 }}}
 
 If you are manually typing in commands, it may be easier to put the plugin at the end of the line so you can use the up-arrow and more easily replace the plugin name for each command. 
@@ -65,7 +65,7 @@ Default output is to standard out.  Plugins may have other options that you can 
 You can figure out what other options are supported for a plugin by typing:
 
 {{{
-$ python volatility.py [plugin] -h
+$ python vol.py [plugin] -h
 }}}
 
 
@@ -84,7 +84,7 @@ Output can be saved to a file by using the --output-file option and the type of 
 A real example using mutantscandb from malware.py:
 
 {{{
-$ python volatility.py mutantscandb -f win7.dd --output=html --output-file=mutants.html --profile=Win7SP0x86 -D artifacts.db
+$ python vol.py mutantscandb -f win7.dd --output=html --output-file=mutants.html --profile=Win7SP0x86 -D artifacts.db
 }}}
 
 Here we can see that we are using html output and saving the output to a file called mutants.html
