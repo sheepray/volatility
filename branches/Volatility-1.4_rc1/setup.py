@@ -55,7 +55,7 @@ opts['author'] = "AAron Walters"
 opts['author_email'] = "awalters@volatilesystems.com"
 opts['url'] = "http://www.volatilesystems.com"
 opts['license'] = "GPL"
-opts['scripts'] = ["volatility.py"]
+opts['scripts'] = ["vol.py"]
 opts['packages'] = ["volatility",
                     "volatility.win32",
                     "volatility.plugins",
@@ -67,7 +67,7 @@ opts['data_files'] = find_py_files(['contrib'])
 
 if py2exe_available:
     py2exe_distdir = 'dist/py2exe'
-    opts['console'] = [{ 'script': 'volatility.py',
+    opts['console'] = [{ 'script': 'vol.py',
 #                          'icon_resources': [(1, 'resources/py.ico')]
                       }]
     # Optimize must be 1 for plugins that use docstring for the help value,
