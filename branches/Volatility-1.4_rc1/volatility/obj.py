@@ -696,9 +696,11 @@ class CType(BaseObject):
         return self.obj_offset
 
     def m(self, attr):
-        try:
+        if attr in self.members:
             offset, cls = self.members[attr]
-        except KeyError:
+        elif attr.find('__') > 0 and attr[attr.find('__'):] in self.members:
+            offset, cls = self.members[attr[attr.find('__'):]]
+        else:
             ## hmm - tough choice - should we raise or should we not
             #return NoneObject("Struct {0} has no member {1}".format(self.obj_name, attr))
             raise AttributeError("Struct {0} has no member {1}".format(self.obj_name, attr))
