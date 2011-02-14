@@ -47,12 +47,6 @@ class HiveList(hs.HiveScan):
     meta_info['os'] = 'WIN_32_XP_SP2'
     meta_info['version'] = '1.0'
 
-    def __init__(self, config, *args):
-        hs.HiveScan.__init__(self, config, *args)
-        config.add_option("HIVE-OFFSET", short_option = 'o',
-                          default = None, type = 'int',
-                          help = "Offset to registry hive")
-
     def render_text(self, outfd, result):
         outfd.write("{0:10}  {1:10}  {2}\n".format("Virtual", "Physical", "Name"))
 
@@ -73,9 +67,6 @@ class HiveList(hs.HiveScan):
         addr_space = utils.load_as(self._config)
 
         hives = hs.HiveScan.calculate(self)
-
-        if self._config.HIVE_OFFSET:
-            hives = [self._config.HIVE_OFFSET]
 
         def generate_results():
             ## The first hive is normally given in physical address space
