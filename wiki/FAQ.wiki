@@ -5,7 +5,7 @@
 
 = What is the latest version of Volatility? =
 
-...
+1.4
 
 = What types of memory dumps does Volatility support? =
 
@@ -58,14 +58,14 @@ Here is what you need for the core functionality:
 
 Some plugins require third party libraries which you can get here:
 
- * [http://code.google.com/p/distorm/ Distorm3]
- * [http://code.google.com/p/yara-project/ Yara]
- * [http://gitweb.pycrypto.org/?p=crypto/pycrypto-2.0.x.git;a=summary PyCrypto]
- * [http://docs.python.org/library/sqlite3.html Sqlite3]
+ * [http://code.google.com/p/distorm/ Distorm3] (Malware Plugins, Volshell) 
+ * [http://code.google.com/p/yara-project/ Yara] (Malware Plugins)
+ * [http://gitweb.pycrypto.org/?p=crypto/pycrypto-2.0.x.git;a=summary PyCrypto] (Core)
+ * [http://docs.python.org/library/sqlite3.html Sqlite3] 
 
 If you are still using the 1.3 branch of Volatility, then you may need:
 
- * [http://libdasm.googlecode.com pydasm]
+ * [http://libdasm.googlecode.com pydasm] 
  * [http://pefile.googlecode.com pefile]
 
 = How do I run Volatility? =
