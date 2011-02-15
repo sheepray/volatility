@@ -9,12 +9,12 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="128"
-   height="128"
+   width="256"
+   height="256"
    id="svg2"
    version="1.1"
    inkscape:version="0.48.0 r9654"
-   sodipodi:docname="logo.svg">
+   sodipodi:docname="volatility.svg">
   <defs
      id="defs4" />
   <sodipodi:namedview
@@ -25,8 +25,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1"
-     inkscape:cx="38.21429"
-     inkscape:cy="270"
+     inkscape:cx="-130.78571"
+     inkscape:cy="267.49997"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -51,9 +51,10 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(0,-924.36218)">
+     transform="translate(0,-796.36218)">
     <g
-       id="g3005">
+       id="g3005"
+       transform="matrix(2.0200806,0,0,2.0200806,1.3694757,-1070.944)">
       <path
          transform="matrix(0.49849233,0,0,0.49849233,-109.15022,766.03947)"
          d="m 460,455.36218 c 0,62.96046 -51.03954,114 -114,114 -62.96046,0 -114,-51.03954 -114,-114 0,-62.96046 51.03954,-114 114,-114 62.96046,0 114,51.03954 114,114 z"
@@ -96,15 +97,15 @@
     </g>
     <text
        xml:space="preserve"
-       style="font-size:6.671875px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:125%;letter-spacing:0px;word-spacing:0px;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;color:#000000;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1px;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Arial Black;-inkscape-font-specification:'Arial Black, Bold'"
-       x="36.640625"
-       y="1022.1044"
+       style="font-size:13.47772503px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:125%;letter-spacing:0px;word-spacing:0px;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;color:#000000;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1px;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Arial Black;-inkscape-font-specification:'Arial Black, Bold'"
+       x="75.38649"
+       y="993.78918"
        id="text3779"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan3781"
-         x="36.640625"
-         y="1022.1044"
-         style="font-size:68.625px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;fill:#ff0000;fill-opacity:1;font-family:Century Schoolbook L;-inkscape-font-specification:Century Schoolbook L Bold">V</tspan></text>
+         x="75.38649"
+         y="993.78918"
+         style="font-size:138.6280365px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;fill:#ff0000;fill-opacity:1;font-family:Century Schoolbook L;-inkscape-font-specification:Century Schoolbook L Bold">V</tspan></text>
   </g>
 </svg>
