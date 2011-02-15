@@ -1060,7 +1060,58 @@ DPAPI_SYSTEM
 = Crash Dumps, Hibernation, and Conversion =
 
 == crashdump ==
+
+The crashdump command allows one to convert a crashdump image to a raw memory image.  The profile should be specified for a crashdump from a machine other than Windows XP SP2.  Also the output file is specified with the -D flag.  The progress is updated as the file is converted:
+
+{{{
+$ python vol.py crashdump -f win7.dmp --profile=Win7SP0x86 -D win7.raw
+Volatile Systems Volatility Framework 1.4_rc1
+Converting crashdump file...
+0000a6ec / 0003ff8e converted (016%)
+}}}
+
+The progress shows 100% when the conversion is complete:
+
+{{{
+$ python vol.py crashdump -f win7.dmp --profile=Win7SP0x86 -D win7.raw
+Volatile Systems Volatility Framework 1.4_rc1
+Converting crashdump file...
+0003ff8e / 0003ff8e converted (100%)
+}}}
+
 == crashinfo ==
+
+Information from the crashdump header can be printed using the crashinfo command.  You will see information like that of the Microsoft [http://support.microsoft.com/kb/119490 dumpcheck] utility.
+
+{{{
+$ python vol.py crashinfo -f win7.dmp --profile=Win7SP0x86
+Volatile Systems Volatility Framework 1.4_rc1
+DUMP_HEADER32:
+ Majorversion:         0x0000000f (15)
+ Minorversion:         0x00001db0 (7600)
+ KdSecondaryVersion    0x00000041
+ DirectoryTableBase    0x00185000
+ PfnDataBase           0x83a00000
+ PsLoadedModuleList    0x82984810
+ PsActiveProcessHead   0x8297ce98
+ MachineImageType      0x0000014c
+ NumberProcessors      0x00000001
+ BugCheckCode          0x5454414d
+ PaeEnabled            0x00000001
+ KdDebuggerDataBlock   0x82964be8
+ ProductType           0x45474150
+ SuiteMask             0x45474150
+ WriterStatus          0x45474150
+
+Physical Memory Description:
+Number of runs: 3
+FileOffset    Start Address    Length
+00001000      00001000         0009e000
+0009f000      00100000         3fdf0000
+3fe8f000      3ff00000         00100000
+3ff8e000      3ffff000
+}}}
+
 == hibdump ==
 == hibinfo ==
 == imagecopy ==
