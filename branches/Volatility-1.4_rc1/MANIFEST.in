@@ -1,8 +1,12 @@
 include *.txt
+include *.win
 include MANIFEST.in
 include setup.py
-include memory_objects/*.py
-include memory_plugins/*.py
+include resources/*
+include pyinstaller/*.py
 include volatility/*.py
-include volatility.py
-include *.win
+include contrib/plugins/*.py
+include tools/*.py
+include vol.py
+include Makefile
+include volatility.spec
