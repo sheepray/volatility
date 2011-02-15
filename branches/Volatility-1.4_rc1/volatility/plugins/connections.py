@@ -26,8 +26,8 @@ import volatility.utils as utils
 
 class Connections(commands.command):
     """
-    Print list of open connections
-    ------------------------------
+    Print list of open connections [Windows XP Only]
+    ---------------------------------------------
 
     This module follows the handle table of each task and prints
     current connections.
