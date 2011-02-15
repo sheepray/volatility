@@ -76,8 +76,8 @@ Before using these plugins, make sure to read the BasicUsage instructions. To se
 == Crash Dumps, Hibernation, and Conversion ==
 
 ||Command||Description||OS Support||
-||[http://code.google.com/p/volatility/wiki/CommandReference#crashdump crashdump]||Dumps the crashdump file to a raw file||||
-||[http://code.google.com/p/volatility/wiki/CommandReference#crashinfo crashinfo]||Dump crash-dump information||||
+||[http://code.google.com/p/volatility/wiki/CommandReference#crashdump crashdump]||Dumps the crashdump file to a raw file||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#crashinfo crashinfo]||Dump crash-dump information||All||
 ||[http://code.google.com/p/volatility/wiki/CommandReference#hibdump hibdump]||Dumps the hibernation file to a raw file||||
 ||[http://code.google.com/p/volatility/wiki/CommandReference#hibinfo hibinfo]||Dump hibernation file information||||
 ||[http://code.google.com/p/volatility/wiki/CommandReference#imagecopy imagecopy]||Copies a physical address space out as a raw DD image||||
