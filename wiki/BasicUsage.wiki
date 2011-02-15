@@ -17,6 +17,8 @@ PROFILES
 VistaSP0x86 - A Profile for Windows Vista SP0 x86
 VistaSP1x86 - A Profile for Windows Vista SP1 x86
 VistaSP2x86 - A Profile for Windows Vista SP2 x86
+Win2K8SP1x86 - A Profile for Windows 2008 SP1 x86
+Win2K8SP2x86 - A Profile for Windows 2008 SP2 x86
 Win7SP0x86  - A Profile for Windows 7 SP0 x86
 WinXPSP2x86 - A Profile for Windows XP SP2
 WinXPSP3x86 - A Profile for windows XP SP3
