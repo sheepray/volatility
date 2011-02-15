@@ -250,5 +250,5 @@ class Netscan(commands.command):
             rendpoint = "{0}:{1}".format(raddr, rport)
             process = p.ImageFileName if p.UniqueProcessId < 0xFFFF else ""
             outfd.write("{0:<#10x} {1:<8} {2:<30} {3:<20} {4:<16} {5:<8} {6:<14} {7}\n".format(
-                offset, proto, lendpoint, rendpoint, state, p.UniqueProcessId, process, ctime))
+                offset, proto, lendpoint, rendpoint, state, p.UniqueProcessId, process, ctime if ctime.v() else ""))
 
