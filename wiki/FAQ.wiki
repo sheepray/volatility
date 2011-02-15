@@ -68,6 +68,10 @@ If you are still using the 1.3 branch of Volatility, then you may need:
  * [http://libdasm.googlecode.com pydasm]
  * [http://pefile.googlecode.com pefile]
 
+= How do I run Volatility? =
+
+See [BasicUsage] for information on how to use Volatility.
+
 = Who wrote/is writing Volatility? =
 
 See the AUTHORS.txt and CREDITS.txt files provided with the Volatility source code. 
