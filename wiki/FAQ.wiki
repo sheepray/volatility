@@ -70,7 +70,7 @@ If you are still using the 1.3 branch of Volatility, then you may need:
 
 = How do I run Volatility? =
 
-See [BasicUsage] for information on how to use Volatility.
+See [BasicUsage] and [CommandReference] for information on how to use Volatility.
 
 = Who wrote/is writing Volatility? =
 
