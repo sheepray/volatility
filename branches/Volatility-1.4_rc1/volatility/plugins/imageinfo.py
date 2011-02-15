@@ -37,16 +37,18 @@ class ImageInfo(kdbg.KDBGScan):
 
     def calculate(self):
         """Calculates various information about the image"""
-        print "Determining profile based on KDBG search..."
+        print "Determining profile based on KDBG search...\n"
         profilelist = [ p.__name__ for p in registry.PROFILES.classes ]
 
-        suggestion = "No suggestion"
-        for suggestion, _offset in kdbg.KDBGScan.calculate(self):
-            break
+        bestguess = None
+        suglist = [ s for s, _ in kdbg.KDBGScan.calculate(self)]
+        if suglist:
+            bestguess = suglist[0]
+        suggestion = ", ".join(suglist)
 
         # Set our suggested profile first, then run through the list
-        if suggestion in profilelist:
-            profilelist = [suggestion] + profilelist
+        if bestguess in profilelist:
+            profilelist = [bestguess] + profilelist
         chosen = 'no profile'
         for profile in profilelist:
             self._config.update('PROFILE', profile)
@@ -55,10 +57,10 @@ class ImageInfo(kdbg.KDBGScan):
                 chosen = profile
                 break
 
-        if suggestion != chosen:
+        if bestguess != chosen:
             suggestion += ' (Instantiated with ' + chosen + ')'
 
-        yield ('Suggested Profile', suggestion)
+        yield ('Suggested Profile(s)', suggestion)
 
         tmpas = addr_space
         count = 0
