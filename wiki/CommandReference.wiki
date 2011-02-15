@@ -878,7 +878,7 @@ Volatility is the only memory forensics framework with the ability to carve regi
 
 == hivescan ==
 
-To find the physical addresses of CMHIVEs (registry hives) in memory, use the hivescan command. You would take the output of this command and feed it to the hivelist. For more information, see BDG's [http://moyix.blogspot.com/2008/02/enumerating-registry-hives.html Enumerating Registry Hives].
+To find the physical addresses of CMHIVEs (registry hives) in memory, use the hivescan command. For more information, see BDG's [http://moyix.blogspot.com/2008/02/enumerating-registry-hives.html Enumerating Registry Hives].
 
 {{{
 $ python vol.py --profile=Win7SP0x86 -f win7.dmp hivescan
@@ -897,10 +897,10 @@ Offset          (hex)
 
 == hivelist ==
 
-To locate the virtual addresses of registry hives in memory, and the full paths to the corresponding hive on disk, use the hivelist command. Feed it any of the values output by hivescan. 
+To locate the virtual addresses of registry hives in memory, and the full paths to the corresponding hive on disk, use the hivelist command. 
 
 {{{
-$ python vol.py --profile=Win7SP0x86 -f win7.dmp hivelist -o 0x0016c808
+$ python vol.py --profile=Win7SP0x86 -f win7.dmp hivelist 
 Volatile Systems Volatility Framework 1.4_rc1
 Virtual     Physical    Name
 0x99f0d008  0x0da7d008  \??\C:\Windows\ServiceProfiles\LocalService\NTUSER.DAT
