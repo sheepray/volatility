@@ -1118,7 +1118,7 @@ FileOffset    Start Address    Length
 
 = Malware and Rootkits =
 
-Although all Volatility commands can help you hunt malware in one way or another, there are a few designed specifically for hunting rootkits and malicious code. The most comprehensive documentation for these commands can be found in the [http://www.amazon.com/dp/0470613033 Malware Analyst's Cookbook and DVD: Tools and Techniques For Fighting Malicious Code].
+Although all Volatility commands can help you hunt malware in one way or another, there are a few designed specifically for hunting rootkits and malicious code. The most comprehensive documentation for these commands can be found in the [http://www.amazon.com/dp/0470613033 Malware Analyst's Cookbook and DVD: Tools and Techniques For Fighting Malicious Code].  The following malware plugins are available in the [http://malwarecookbook.googlecode.com/svn/trunk/malware.py malware.py] of the [http://code.google.com/p/malwarecookbook/source/browse/#svn%2Ftrunk Malware Cookbook SVN].
 
 When possible, we use [http://code.google.com/p/volatility/wiki/FAQ#Are_there_any_public_memory_samples_available_that_I_can_use_for publicly available images] for the examples, so you can verify on your end.
 
