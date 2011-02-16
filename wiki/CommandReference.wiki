@@ -1835,13 +1835,13 @@ Sysinternals Strings can be used on Linux/Mac using wine.  Some example usages a
 *Windows*
 
 {{{
-C:\> strings.exe –q –o [image] > image_strings.txt
+C:\> strings.exe –q –o win7.dd > win7_strings.txt
 }}}
 
 *Linux/Mac*
 
 {{{
-$ wine strings.exe –q –o [image] > image_strings.txt
+$ wine strings.exe –q –o win7.dd > win7_strings.txt
 }}}
 
 It can take a while for the strings program to finish. The –q and –o switches are imperative, since they make sure the header is not output (-q) and that there is an offset for each line (-o).
@@ -1866,7 +1866,7 @@ The result should be a text file that contains the offset and strings from the i
 NOTE: The strings plugin output is very verbose and it is best to redirect to a file.
 
 {{{
-$ python volatility.py strings –f win7.dd –s win7_strings.txt --output-file=win7_vol_strings.txt
+$ python vol.py --profile=Win7SP0x86 strings –f win7.dd –s win7_strings.txt --output-file=win7_vol_strings.txt
 }}}
 
 The strings plugin takes a while to complete. When it completes, you should have an output file that contains information about processes and the strings in their address space. In the example output you can see PIDs/kernel references:
