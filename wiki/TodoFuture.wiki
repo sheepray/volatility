@@ -19,8 +19,8 @@
   * Improve Hive AS integration
   * Allow module loading from http/other locations
   * Implement/improve linux support
-    * Requires linux overlay/types
-    * Requires linux plugins
+    * ~~Requires linux overlay/types~~
+    * ~~Requires linux plugins~~
     * Might require shuffling windows specific global features (--kpcr, etc)
   * Support arches other than x86
   * Conversion to Python 3+
