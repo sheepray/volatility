@@ -11,6 +11,7 @@ This page documents the things we want to accomplish in the 1.4 branch, so we ca
 
   # Clear out issue 1.
   # Investigate Vista/Windows 7 hibernation work
+  # Add caching to other functions and test
   # Write a raw2dump plugin (possibly dependent on write support)
 
 == Completed Tasks ==
