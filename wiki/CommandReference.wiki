@@ -1830,7 +1830,7 @@ string can be found. Expected input for this tool is the output of
 provides similarly formatted offset:string mappings. Note that the 
 input offsets are physical offsets from the start of the file/image. 
 
-Sysinternals Strings can be used on Linux/Mac using wine.  Some example usages are as follows:
+Sysinternals Strings can be used on Linux/Mac using wine.  Output should be redirected to a file to be fed to the Volatility strings plugin.  Some example usages are as follows:
 
 *Windows*
 
@@ -1844,7 +1844,7 @@ C:\> strings.exe –q –o win7.dd > win7_strings.txt
 $ wine strings.exe –q –o win7.dd > win7_strings.txt
 }}}
 
-It can take a while for the strings program to finish. The –q and –o switches are imperative, since they make sure the header is not output (-q) and that there is an offset for each line (-o).
+It can take a while for the Sysinternals strings program to finish. The –q and –o switches are imperative, since they make sure the header is not output (-q) and that there is an offset for each line (-o).
 The result should be a text file that contains the offset and strings from the image for example:
 
 {{{
@@ -1863,7 +1863,7 @@ The result should be a text file that contains the offset and strings from the i
 }}}
 
 
-NOTE: The strings plugin output is very verbose and it is best to redirect or save to a file.  The following command saves the output using the `--output-file` option and filename "win7_vol_strings.txt"
+NOTE: The Volatility strings output is very verbose and it is best to redirect or save to a file.  The following command saves the output using the `--output-file` option and filename "win7_vol_strings.txt"
 
 {{{
 $ python vol.py --profile=Win7SP0x86 strings –f win7.dd –s win7_strings.txt --output-file=win7_vol_strings.txt
