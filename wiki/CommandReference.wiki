@@ -1822,6 +1822,113 @@ Pid      Tid      Name               SSDT
 = Miscellaneous =
 
 == strings ==
+
+For a given image and a file with lines of the form `<offset>:<string>`,
+output the corresponding process and virtual addresses where that
+string can be found. Expected input for this tool is the output of
+[http://technet.microsoft.com/en-us/sysinternals/bb897439 Microsoft Sysinternals' Strings utility], or another utility that
+provides similarly formatted offset:string mappings. Note that the 
+input offsets are physical offsets from the start of the file/image. 
+
+Sysinternals Strings can be used on Linux/Mac using wine.  Some example usages are as follows:
+
+*Windows*
+
+{{{
+C:\> strings.exe –q –o [image] > image_strings.txt
+}}}
+
+*Linux/Mac*
+
+{{{
+$ wine strings.exe –q –o [image] > image_strings.txt
+}}}
+
+It can take a while for the strings program to finish. The –q and –o switches are imperative, since they make sure the header is not output (-q) and that there is an offset for each line (-o).
+The result should be a text file that contains the offset and strings from the image for example:
+
+{{{
+16392:@@@
+17409:
+17441:!!!
+17473:""" 
+17505:###
+17537:$$$
+17569:%%%
+17601:&&&
+17633:'''
+17665:(((
+17697:)))
+17729:***
+}}}
+
+
+NOTE: The strings plugin output is very verbose and it is best to redirect to a file.
+
+{{{
+$ python volatility.py strings –f win7.dd –s win7_strings.txt --output-file=win7_vol_strings.txt
+}}}
+
+The strings plugin takes a while to complete. When it completes, you should have an output file that contains information about processes and the strings in their address space. In the example output you can see PIDs/kernel references:
+
+{{{
+$ less win7_vol_strings.txt
+
+000003c1 [kernel:4184445889] '<'@
+00000636 [kernel:4184446518] 8,t
+000006c1 [kernel:4184446657] w#r
+000006d8 [kernel:4184446680] sQOtN2
+000006fc [kernel:4184446716] t+a`j
+00000719 [kernel:4184446745] aas
+0000072c [kernel:4184446764] Invalid partition ta
+00000748 [kernel:4184446792] r loading operating system
+00000763 [kernel:4184446819] Missing operating system
+000007b5 [kernel:4184446901] ,Dc
+0000400b [kernel:2147500043 kernel:4184461323] 3TYk
+00004056 [kernel:2147500118 kernel:4184461398] #:s
+000040b0 [kernel:2147500208 kernel:4184461488] CO0
+000040e9 [kernel:2147500265 kernel:4184461545] BrvWo
+000040f0 [kernel:2147500272 kernel:4184461552] %Sz
+000040fc [kernel:2147500284 kernel:4184461564] A0?0=
+00004106 [kernel:2147500294 kernel:4184461574] 7http://crl.microsoft.com/pki/crl/products/WinIntPCA.crl0U
+
+[snip]
+
+00369f14 [1648:1975394068] Ph$!
+00369f2e [1648:1975394094] 9}$
+00376044 [1372:20422724] Ju0w
+0037616d [1372:20423021] msxml6.dll
+003761e8 [1372:20423144] U'H
+003762e3 [1372:20423395] }e_
+0037632e [1372:20423470] xnA
+
+[snip]
+
+03678031 [360:2089816113 596:2089816113 620:2089816113 672:2089816113 684:2089816113 844:2089816113 932:2089816113 1064:2089816113 1164:2089816113 1264:2089816113 1516:2089816113 1648
+:2089816113 1896:2089816113 1904:2089816113 1756:2089816113 512:2089816113 1372:2089816113 560:2089816113] A$9B
+}}}
+
+Once you have the strings output, you can see which process(es) have the suspicious string in memory and can then narrow your focus. You can grep for the string or pattern depending on the context you were given. For example, if you are looking for a particular command:
+
+{{{
+$ grep [command or pattern] win7_vol_strings.txt > strings_of_interest.txt
+}}}
+
+For all IPs:
+{{{
+$ cat win7_vol_strings.txt | \
+perl -e 'while(<>){if(/(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)/){print $_;}}' > IPs.txt
+}}}
+
+For all URLs:
+{{{
+$ cat win7_vol_strings.txt | \
+perl -e 'while(<>){ if(/(http|https|ftp|mail)\:[\/\w.]+/){print $_;}}' > URLs.txt
+}}}
+
+Depending on the context, your searches will vary. 
+
+
 == volshell ==
 
 If you want to interactively explore a memory image, use the volshell command. This gives you an interface similar to !WinDbg into the memory dump. For example, you can:
