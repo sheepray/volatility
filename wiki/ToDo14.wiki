@@ -7,9 +7,17 @@ This page documents the things we want to accomplish in the 1.4 branch, so we ca
 
 = To Do for 1.4 =
 
+== Pending Tasks ==
+
+  # Clear out issue 1.
+  # Investigate Vista/Windows 7 hibernation work
+  # Write a raw2dump plugin (possibly dependent on write support)
+
+== Completed Tasks ==
+
   # ~~Auto-generate XPSP2 vtypes to unify variable naming~~
   # ~~Implement caching in any cachable areas of the framework~~
-    * Still requires ~~BlockingCacheNodes and~~ some testing
+    * ~~Still requires BlockingCacheNodes and some testing~~
   # ~~Test suites/unit tests~~
   # ~~Add in profile (OS) dependent default variables (DTB/KPCR, etc)~~
     * ~~Done by:~~
@@ -19,22 +27,14 @@ This page documents the things we want to accomplish in the 1.4 branch, so we ca
       # ~~KPCR finder plugin~~
   # ~~Stabilize the interfaces for ASes/Scanners/Plugins/etc~~
     * ~~These seem to be relatively stable, but this should also be a long term goal~~
-  # Clear out any release blocking bugs.
-  # Documentation, documentation, documentation!
+  # ~~Documentation, documentation, documentation!~~
+  # ~~Profile (OS) dependent default variables:~~
+    * ~~KDDEBUGGER_DATA64 finder plugin~~
 
-== Ditched for this release ==
-
-  # Sort out Linux code
-    * Convert existing linux code to new object framework
-    * Convert existing linux scan to new scan engine
-    * Write linux plugins
-  # Profile (OS) dependent default variables:
-    * KDDEBUGGER_DATA64 finder plugin
+  * ~~Convert over some malware plugins~~
 
 == Miscellaneous Todo ==
 
-  * Write a raw2dump plugin (possibly dependent on write support)
-  * ~~Convert over some malware plugins~~
   * Convert psscan3, objtypescan, symlinkobjscan (tasks carried over from the deprecated [http://code.google.com/p/volatility/wiki/Plugins Plugins page])
 
 == Longterm Tasks ==
