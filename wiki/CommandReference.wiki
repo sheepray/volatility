@@ -1830,7 +1830,7 @@ string can be found. Expected input for this tool is the output of
 provides similarly formatted offset:string mappings. Note that the 
 input offsets are physical offsets from the start of the file/image. 
 
-Sysinternals Strings can be used on Linux/Mac using wine.  Output should be redirected to a file to be fed to the Volatility strings plugin.  Some example usages are as follows:
+Sysinternals Strings can be used on Linux/Mac using [http://www.winehq.org/ Wine].  Output should be redirected to a file to be fed to the Volatility strings plugin.  Some example usages are as follows:
 
 *Windows*
 
