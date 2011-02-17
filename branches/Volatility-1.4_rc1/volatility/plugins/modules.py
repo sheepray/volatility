@@ -21,6 +21,7 @@
 #pylint: disable-msg=C0111
 
 import volatility.commands as commands
+import volatility.cache as cache
 import volatility.win32 as win32
 import volatility.utils as utils
 
@@ -35,6 +36,7 @@ class Modules(commands.command):
                 header = True
             outfd.write("{0:50} 0x{1:010x} 0x{2:06x} {3}\n".format(module.FullDllName, module.DllBase, module.SizeOfImage, module.BaseDllName))
 
+    @cache.CacheDecorator("tests/lsmod")
     def calculate(self):
         addr_space = utils.load_as(self._config)
 

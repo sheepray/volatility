@@ -20,6 +20,7 @@
 
 import volatility.obj as obj
 import volatility.scan as scan
+import volatility.cache as cache
 import volatility.commands as commands
 import volatility.addrspace as addrspace
 import volatility.registry as registry
@@ -78,6 +79,7 @@ class KDBGScan(commands.command):
         config.add_option('KDBG', short_option = 'g', default = None, type = 'int',
                           help = "Specify a specific KDBG address")
 
+    @cache.CacheDecorator(lambda self: "tests/kdbgscan/kdbg={0}".format(self._config.KDBG))
     def calculate(self):
         """Determines the address space"""
         profilelist = [ p.__name__ for p in registry.PROFILES.classes ]

@@ -72,6 +72,7 @@ class FileScan(commands.command):
             return ''
         return repr(string[:255].decode("utf16", "ignore").encode("utf8", "xmlcharrefreplace"))
 
+    # Can't be cached until self.kernel_address_space is moved entirely within calculate
     def calculate(self):
         ## Just grab the AS and scan it using our scanner
         address_space = utils.load_as(self._config, astype = 'physical')
@@ -202,7 +203,7 @@ class DriverScan(FileScan):
                     volmagic.InfoMaskMap.v()['_OBJECT_HEADER_NAME_INFO']
                 info_mask_to_offset_index = \
                     object_obj.InfoMask & \
-                    (OBJECT_HEADER_NAME_INFO | (OBJECT_HEADER_NAME_INFO-1))
+                    (OBJECT_HEADER_NAME_INFO | (OBJECT_HEADER_NAME_INFO - 1))
                 if info_mask_to_offset_index in info_mask_to_offset:
                     name_info_offset = \
                       info_mask_to_offset[info_mask_to_offset_index]
@@ -297,7 +298,7 @@ class MutantScan(FileScan):
             ## Skip unallocated objects
             ##if object_obj.Type == 0xbad0b0b0:
             ##   continue
-           
+
             ## Account for changes to the object header for Windows 7
             volmagic = obj.Object("VOLATILITY_MAGIC", 0x0, address_space)
             try:
@@ -309,7 +310,7 @@ class MutantScan(FileScan):
                     volmagic.InfoMaskMap.v()['_OBJECT_HEADER_NAME_INFO']
                 info_mask_to_offset_index = \
                     object_obj.InfoMask & \
-                    (OBJECT_HEADER_NAME_INFO | (OBJECT_HEADER_NAME_INFO-1))
+                    (OBJECT_HEADER_NAME_INFO | (OBJECT_HEADER_NAME_INFO - 1))
                 if info_mask_to_offset_index in info_mask_to_offset:
                     name_info_offset = \
                       info_mask_to_offset[info_mask_to_offset_index]
@@ -317,7 +318,7 @@ class MutantScan(FileScan):
                     name_info_offset = 0
             except AttributeError:
                 # Default to old Object header
-                name_info_offset = object_obj.NameInfoOffset 
+                name_info_offset = object_obj.NameInfoOffset
                 pass
 
             object_name_string = ""
@@ -331,7 +332,7 @@ class MutantScan(FileScan):
                     name_info_offset \
                     )
                 object_name_string = self.parse_string(object_name_info_obj.Name)
-                
+
             if self._config.SILENT:
                 if name_info_offset == 0:
                     continue

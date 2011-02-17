@@ -23,6 +23,7 @@
 import volatility.win32.tasks as tasks
 import volatility.utils as utils
 import volatility.commands as commands
+import volatility.cache as cache
 
 #pylint: disable-msg=C0111
 
@@ -82,6 +83,7 @@ class PSTree(commands.command):
             root = self.find_root(data, keys[0])
             draw_branch(0, root)
 
+    @cache.CacheDecorator(lambda self: "tests/pstree/verbose={0}".format(self._config.VERBOSE))
     def calculate(self):
         result = {}
 

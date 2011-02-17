@@ -26,6 +26,7 @@ import volatility.plugins.procdump as procdump
 import volatility.win32.tasks as tasks
 import volatility.debug as debug
 import volatility.utils as utils
+import volatility.cache as cache
 
 class DLLDump(procdump.ProcExeDump):
     """Dump DLLs from a process address space"""
@@ -35,10 +36,10 @@ class DLLDump(procdump.ProcExeDump):
         config.remove_option("OFFSET")
         config.add_option('REGEX', short_option = 'r',
                       help = 'Dump dlls matching REGEX',
-                      action = 'store', type = 'string', dest = 'regex')
+                      action = 'store', type = 'string')
         config.add_option('IGNORE-CASE', short_option = 'i',
                       help = 'Ignore case in pattern match',
-                      action = 'store_true', default = False, dest = 'ignore_case')
+                      action = 'store_true', default = False)
         config.add_option('OFFSET', short_option = 'o', default = None,
                           help = 'Dump DLLs for Process with physical address OFFSET',
                           action = 'store', type = 'int')
@@ -46,6 +47,7 @@ class DLLDump(procdump.ProcExeDump):
                           help = 'Dump DLLS at the specified BASE offset in the process address space',
                           action = 'store', type = 'int')
 
+    @cache.CacheDecorator(lambda self: "tests/dlldump/regex={0}/ignore_case={1}/offset={2}/base={3}".format(self._config.REGEX, self._config.IGNORE_CASE, self._config.OFFSET, self._config.BASE))
     def calculate(self):
         addr_space = utils.load_as(self._config)
 
@@ -60,12 +62,12 @@ class DLLDump(procdump.ProcExeDump):
             data = self.filter_tasks(tasks.pslist(addr_space))
 
 
-        if self._config.regex:
+        if self._config.REGEX:
             try:
-                if self._config.ignore_case:
-                    mod_re = re.compile(self._config.regex, re.I)
+                if self._config.IGNORE_CASE:
+                    mod_re = re.compile(self._config.REGEX, re.I)
                 else:
-                    mod_re = re.compile(self._config.regex)
+                    mod_re = re.compile(self._config.REGEX)
             except re.error, e:
                 debug.error('Error parsing regular expression: %s' % e)
 
@@ -77,7 +79,7 @@ class DLLDump(procdump.ProcExeDump):
             mods = [(mod.DllBase.v(), mod) for mod in self.list_modules(proc)]
 
             for (base, mod) in mods:
-                if self._config.regex:
+                if self._config.REGEX:
                     if not mod_re.search(str(mod.FullDllName)) and not mod_re.search(str(mod.BaseDllName)):
                         continue
                 if self._config.BASE:

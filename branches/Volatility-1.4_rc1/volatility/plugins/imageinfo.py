@@ -22,6 +22,7 @@ import volatility.win32.tasks as tasks
 import volatility.timefmt as timefmt
 import volatility.utils as utils
 import volatility.obj as obj
+import volatility.cache as cache
 import volatility.registry as registry
 import volatility.plugins.kdbgscan as kdbg
 
@@ -35,6 +36,7 @@ class ImageInfo(kdbg.KDBGScan):
         for k, v in data:
             outfd.write("{0:>30} : {1}\n".format(k, v))
 
+    @cache.CacheDecorator("tests/imageinfo")
     def calculate(self):
         """Calculates various information about the image"""
         print "Determining profile based on KDBG search...\n"

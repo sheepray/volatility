@@ -26,6 +26,7 @@
 import struct
 import volatility.utils as utils
 import volatility.scan as scan
+import volatility.cache as cache
 import volatility.commands as commands
 import volatility.obj as obj
 
@@ -47,6 +48,7 @@ class KPCRScan(commands.command):
         config.add_option('KPCR', short_option = 'k', default = None, type = 'int',
                           help = "Specify a specific KPCR address")
 
+    @cache.CacheDecorator("tests/kpcrscan")
     def calculate(self):
         """Determines the address space"""
         addr_space = utils.load_as(self._config)

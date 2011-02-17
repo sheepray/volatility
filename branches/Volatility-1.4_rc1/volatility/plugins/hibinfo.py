@@ -23,10 +23,12 @@ import volatility.utils as utils
 import volatility.obj as obj
 import volatility.commands as commands
 import volatility.debug as debug
+import volatility.cache as cache
 
 class HibInfo(commands.command):
     """Dump hibernation file information"""
 
+    @cache.CacheDecorator("tests/hibinfo")
     def calculate(self):
         """Determines the address space"""
         addr_space = utils.load_as(self._config)

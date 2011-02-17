@@ -22,6 +22,7 @@ import volatility.utils as utils
 import volatility.commands as commands
 import volatility.scan as scan
 import volatility.obj as obj
+import volatility.cache as cache
 import socket
 
 tcp_states = [
@@ -180,6 +181,7 @@ class Netscan(commands.command):
             if InetAF.AddressFamily == AF_INET6:
                 yield "v6", inaddr6_any, inaddr6_any, Owner
 
+    @cache.CacheDecorator("tests/netscan")
     def calculate(self):
         vspace = utils.load_as(self._config)
         pspace = utils.load_as(self._config, astype = 'physical')

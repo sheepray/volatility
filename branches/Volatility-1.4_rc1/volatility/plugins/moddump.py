@@ -23,6 +23,7 @@
 import os
 import re
 import volatility.plugins.procdump as procdump
+import volatility.cache as cache
 import volatility.win32.modules as modules
 import volatility.win32.tasks as tasks
 import volatility.utils as utils
@@ -37,10 +38,10 @@ class ModDump(procdump.ProcExeDump):
         config.remove_option("OFFSET")
         config.add_option('REGEX', short_option = 'r',
                       help = 'Dump modules matching REGEX',
-                      action = 'store', type = 'string', dest = 'regex')
+                      action = 'store', type = 'string')
         config.add_option('IGNORE-CASE', short_option = 'i',
                       help = 'Ignore case in pattern match',
-                      action = 'store_true', default = False, dest = 'ignore_case')
+                      action = 'store_true', default = False)
         config.add_option('OFFSET', short_option = 'o', default = None,
                           help = 'Dump driver with base address OFFSET (in hex)',
                           action = 'store', type = 'int')
@@ -56,6 +57,7 @@ class ModDump(procdump.ProcExeDump):
                     return ps_ad
         return None
 
+    @cache.CacheDecorator(lambda self: "tests/moddump/regex={0}/ignore-case={1}/offset={2}".format(self._config.REGEX, self._config.IGNORE_CASE, self._config.OFFSET))
     def calculate(self):
         addr_space = utils.load_as(self._config)
 
@@ -64,12 +66,12 @@ class ModDump(procdump.ProcExeDump):
         if not os.path.isdir(self._config.DUMP_DIR):
             debug.error(self._config.DUMP_DIR + " is not a directory")
 
-        if self._config.regex:
+        if self._config.REGEX:
             try:
-                if self._config.ignore_case:
-                    mod_re = re.compile(self._config.regex, re.I)
+                if self._config.IGNORE_CASE:
+                    mod_re = re.compile(self._config.REGEX, re.I)
                 else:
-                    mod_re = re.compile(self._config.regex)
+                    mod_re = re.compile(self._config.REGEX)
             except re.error, e:
                 debug.error('Error parsing regular expression: %s' % e)
 
@@ -85,7 +87,7 @@ class ModDump(procdump.ProcExeDump):
                 raise StopIteration('No such module at 0x{0:X}'.format(self._config.OFFSET))
         else:
             for mod in mods.values():
-                if self._config.regex:
+                if self._config.REGEX:
                     if not mod_re.search(str(mod.FullDllName)) and not mod_re.search(str(mod.BaseDllName)):
                         continue
                 yield addr_space, procs, mod

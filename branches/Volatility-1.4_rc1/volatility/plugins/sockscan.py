@@ -33,6 +33,7 @@ import volatility.commands as commands
 import volatility.utils as utils
 import volatility.obj as obj
 import volatility.debug as debug #pylint: disable-msg=W0611
+import volatility.cache as cache
 
 class CheckSocketCreateTime(scan.ScannerCheck):
     """ Check that _ADDRESS_OBJECT.CreateTime makes sense """
@@ -72,6 +73,7 @@ class SockScan(commands.command):
         version = '1.0',
         )
 
+    @cache.CacheDecorator("tests/sockscan")
     def calculate(self):
         ## Just grab the AS and scan it using our scanner
         address_space = utils.load_as(self._config, astype = 'physical')

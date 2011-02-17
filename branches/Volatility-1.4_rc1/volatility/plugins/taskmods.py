@@ -135,8 +135,9 @@ class Files(DllList):
                     file_name = self.parse_string(h.FileName)
                     outfd.write("{0:6} {1:40}\n".format("File", file_name))
 
+    @cache.CacheDecorator(lambda self: "tests/files/pid={0}/offset={1}".format(self._config.PID, self._config.OFFSET))
     def calculate(self):
-        tasks = self.filter_tasks(DllList.calculate(self))
+        tasks = DllList.calculate(self)
 
         for task in tasks:
             if task.ObjectTable.HandleTableList:
@@ -212,9 +213,9 @@ class MemMap(DllList):
             else:
                 outfd.write("Unable to read pages for task.\n")
 
-    @cache.CacheDecorator(lambda self: "test/memmap/pid{0}".format(self._config.PID))
+    @cache.CacheDecorator(lambda self: "tests/memmap/pid={0}/offset={1}".format(self._config.PID, self._config.OFFSET))
     def calculate(self):
-        tasks = self.filter_tasks(DllList.calculate(self))
+        tasks = DllList.calculate(self)
 
         for task in tasks:
             if task.UniqueProcessId:
