@@ -92,7 +92,7 @@ class _MM_AVL_TABLE(obj.CType):
 class _EX_FAST_REF(obj.CType):
     def dereference_as(self, theType):
         """Use the _EX_FAST_REF.Object pointer to resolve an object of the specified type"""
-        return obj.Object(theType, vm = self.obj_vm, parent = self, offset = self.Object.v() & 0xFFFFFFFC)
+        return obj.Object(theType, vm = self.obj_vm, parent = self, offset = self.Object.v() & ~7)
 
 class _MMVAD_SHORT(windows._MMVAD_SHORT):
     def get_parent(self):

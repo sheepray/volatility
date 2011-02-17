@@ -271,7 +271,7 @@ class _MMVAD(obj.CType):
                   'VadS': '_MMVAD_SHORT',
                   'Vad ': '_MMVAD_LONG',
                   'VadF': '_MMVAD_SHORT',
-                  'Vadm': '_MMVAD_SHORT',
+                  'Vadm': '_MMVAD_LONG',
                   }
 
         ## All VADs are done in the process AS - so we might need to
