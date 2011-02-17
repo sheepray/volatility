@@ -1,14 +1,5 @@
 crash_vtypes = {
 ## These types are for crash dumps
-    '_PHYSICAL_MEMORY_RUN' : [ 0x8, { \
-    'BasePage' : [ 0x0, ['unsigned long']], \
-    'PageCount' : [ 0x4, ['unsigned long']], \
-} ], \
-    '_PHYSICAL_MEMORY_DESCRIPTOR' : [ 0x10, { \
-    'NumberOfRuns' : [ 0x0, ['unsigned long']], \
-    'NumberOfPages' : [ 0x4, ['unsigned long']], \
-    'Run' : [ 0x8, ['array', 1, ['_PHYSICAL_MEMORY_RUN']]], \
-} ], \
   '_DMP_HEADER' : [ 0x1000, { \
     'Signature' : [ 0x0, ['array', 4, ['unsigned char']]], \
     'ValidDump' : [ 0x4, ['array', 4, ['unsigned char']]], \
@@ -55,7 +46,4 @@ crash_vtypes = {
   'PsActiveProcessHead' : [ 0x50, ['pointer', ['unsigned long']]], \
   'MmPfnDatabase' : [ 0xC0, ['unsigned long']], \
 } ], \
-'_DBGKD_GET_VERSION64' : [  0x2a, { \
-  'DebuggerDataList' : [ 0x20, ['unsigned long']], \
-} ]
 }
