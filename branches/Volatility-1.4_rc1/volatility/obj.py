@@ -448,6 +448,15 @@ class NativeType(BaseObject, NumericProxyMixIn):
         NumericProxyMixIn.__init__(self)
         self.format_string = format_string
 
+    def __getstate__(self):
+        result = BaseObject.__getstate__(self)
+        result['format_string'] = self.format_string
+        return result
+
+    def __setstate__(self, state):
+        BaseObject.__setstate__(self, state)
+        self.format_string = state['format_string']
+
     def write(self, data):
         """Writes the data back into the address space"""
         output = struct.pack(self.format_string, data)
