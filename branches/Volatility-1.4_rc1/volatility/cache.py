@@ -266,8 +266,8 @@ class CacheNode(object):
                     result[self._find_generators(i)] = self._find_generators(item[i])
                 return result
 
-            # Since NoneObjects are iterable, treat them specially
-            if isinstance(item, obj.NoneObject):
+            # Since NoneObjects and strings are both iterable, treat them specially
+            if isinstance(item, obj.NoneObject) or isinstance(item, str):
                 return item
 
             if isinstance(item, types.GeneratorType):
