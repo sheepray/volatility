@@ -105,6 +105,17 @@ class Flags(obj.NativeType):
         self.target = obj.Object(target, offset = offset, vm = vm, parent = parent)
         obj.NativeType.__init__(self, theType, offset, vm, parent, **args)
 
+    def __getstate__(self):
+        result = obj.NativeType.__getstate__(self)
+        result['bitmap'] = self.bitmap
+        result['maskmap'] = self.maskmap
+        return result
+
+    def __setstate__(self, state):
+        obj.NativeType.__setstate__(self, state)
+        self.bitmap = state['bitmap']
+        self.maskmap = state['maskmap']
+
     def v(self):
         return self.target.v()
 
