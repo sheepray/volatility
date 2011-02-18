@@ -514,6 +514,11 @@ class BitField(NativeType):
 
         return result
 
+    def __setstate__(self, state):
+        NativeType.__setstate__(self, state)
+        self.start_bit = state['start_bit']
+        self.end_bit = state['end_bit']
+
 class Pointer(NativeType):
     def __init__(self, theType, offset, vm, parent = None, profile = None, target = None, name = None):
         NativeType.__init__(self, theType, offset = offset, vm = vm, name = name,
