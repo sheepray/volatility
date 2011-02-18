@@ -35,9 +35,9 @@ class linux_mount(linux_common.AbstractLinuxCommand):
 
     def calculate(self):
 
-        mntptr = obj.Object("unsigned long", offset = self.smap["mount_hashtable"], vm = self.addr_space)
+        mntptr = obj.Object("Pointer", offset = self.smap["mount_hashtable"], vm = self.addr_space)
 
-        mnt_list = obj.Object(theType = "Array", offset = mntptr, vm = self.addr_space, targetType = "list_head", count = 512) # TODO 64bit
+        mnt_list = obj.Object(theType = "Array", offset = mntptr.v(), vm = self.addr_space, targetType = "list_head", count = 512)
 
         # get each list_head out of the array
         for outerlist in mnt_list:

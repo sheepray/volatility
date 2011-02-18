@@ -1,3 +1,7 @@
+--BUGS--
+
+ipv6 netstat
+
 --plugins--
  
     - general analysis
@@ -5,6 +9,8 @@
     	- network buffers
 	    - UNIX sockets in netstat
     	- nat table
+        - arp table
+        - routing table
 
     - kmem_cache
     	- slub
@@ -25,21 +31,29 @@
         - aufs
 	
     - auto pick of profile
+        - system map will always be different
 
 --after--
 
-    - halffinished plugins
+    - half finished plugins
         - aliases for ifconfig
         - dump_maps ....
         - psaux - need to figure out start time
 
 --testing--
-    2.6.11 
-    2.6.18 DFRWS 2008 challenge image
+    - kernels
+        <= 2.6.11
+        2.6.18 DFRWS 2008 challenge image
+        PAE (desktop)
 
+    - configurations
+        - linux_mount with raid/lvm/whatever
+        - linux_ifconfig with aliases
+        - linux_ifconfig with ipv6
 --V2--
     - anti-rootkit
         - basic
+            - code modification - requires hashing functions / smp alternatives
     	    - idt
     	    - system call table
 

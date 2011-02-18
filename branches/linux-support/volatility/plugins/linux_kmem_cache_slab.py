@@ -85,11 +85,10 @@ class linux_kmem_cache_slab(object):
 
         ret = {}
 
-        if deref:
-            # todo 64 bit
-            cache_address = obj.Object("unsigned long", offset = cache_address, vm = self.addr_space)
+        if deref:         
+            cache_address = obj.Object("Pointer", offset = cache_address, vm = self.addr_space)
 
-        cache_obj = obj.Object("kmem_cache", offset = cache_address, vm = self.addr_space)
+        cache_obj = obj.Object("kmem_cache", offset = cache_address.v(), vm = self.addr_space)
 
         # for_each_online_node / node_sates for NUMA only?
         # TODO SMP

@@ -49,22 +49,62 @@ class linux_netstat(lof.linux_list_open_files):
 
         for task, inet_sock in data:
 
-            (daddr, saddr, dport, sport) = self.format_ip_port(inet_sock)
             proto = self.get_proto_str(inet_sock)
-            state = self.get_state_str(inet_sock) if proto == "TCP" else ""
-
+            
             if proto in ("TCP", "UDP"):
+
+                state = self.get_state_str(inet_sock) if proto == "TCP" else ""
+                family = inet_sock.sk.__sk_common.skc_family
+
+                if family == 2: # AF_INET
+                    (daddr, saddr) = self.format_ipv4(inet_sock)
+
+                elif family == 10: #AF_INET 6
+                    (daddr, saddr) = self.format_ipv6(inet_sock)
+
+                (dport, sport) = self.format_port(inet_sock)
+
                 outfd.write("{0:8s} {1}:{2:<5} {3}:{4:<5} {5:s} {6:>17s}/{7:<5d}\n".format(proto, saddr, sport, daddr, dport, state, task.comm, task.pid))
 
+    def ip62str(self, in6addr):
 
-    def format_ip_port(self, inet_sock):
+        ret     = ""
+        ipbytes = in6addr.in6_u.u6_addr8
+        ctr     = 0
+
+        for byte in ipbytes:
+                ret = ret + "%.02x" % byte
+                
+                # make it the : notation
+                if ctr % 2 and ctr != 15:
+                    ret = ret + ":"
+
+                ctr = ctr + 1
+
+        return ret          
+
+
+    def format_ipv6(self, inet_sock):
+
+        daddr = self.ip62str(inet_sock.pinet6.daddr)
+        saddr = self.ip62str(inet_sock.pinet6.saddr)
+
+        return (daddr, saddr)        
+
+    # formats an ipv4 address
+    def format_ipv4(self, inet_sock):
 
         daddr = linux_common.ip2str(inet_sock.daddr.v())
         saddr = linux_common.ip2str(inet_sock.rcv_saddr.v())
+
+        return (daddr, saddr)
+
+    def format_port(self, inet_sock):
+
         dport = socket.htons(inet_sock.dport)
         sport = socket.htons(inet_sock.sport)
 
-        return (daddr, saddr, dport, sport)
+        return (dport, sport)
 
     def get_state_str(self, inet_sock):
 
@@ -85,7 +125,10 @@ class linux_netstat(lof.linux_list_open_files):
 
     # has to get the struct socket given an inode (see SOCKET_I in sock.h)
     def SOCKET_I(self, inode):
+        # if too many of these, write a container_of
         backsize = linux_common.sizeofstruct("socket", self.profile)
         addr = inode - backsize
 
         return obj.Object('socket', offset = addr, vm = self.addr_space)
+
+
