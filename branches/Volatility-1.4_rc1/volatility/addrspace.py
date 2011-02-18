@@ -32,7 +32,7 @@
 
 #pylint: disable-msg=C0111
 
-import registry
+import volatility.registry as registry
 import volatility.debug as debug
 
 ## Make sure the profiles are cached so we only parse it once. This is
@@ -134,7 +134,6 @@ class BaseAddressSpace(object):
 
     def __setstate__(self, state):
         self.__init__(**state)
-        self._set_profile(state['profile_name'])
 
 ## This is a specialised AS for use internally - Its used to provide
 ## transparent support for a string buffer so types can be
