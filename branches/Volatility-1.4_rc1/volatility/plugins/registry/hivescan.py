@@ -30,6 +30,7 @@ import volatility.scan as scan
 import volatility.obj as obj
 import volatility.utils as utils
 import volatility.commands as commands
+import volatility.cache as cache
 
 class CheckHiveSig(scan.ScannerCheck):
     """ Check for a registry hive signature """
@@ -67,6 +68,7 @@ class HiveScan(commands.command):
         version = '1.0',
         )
 
+    @cache.CacheDecorator("tests/hivescan")
     def calculate(self):
         ## Just grab the AS and scan it using our scanner
         address_space = utils.load_as(self._config, astype = 'physical')
