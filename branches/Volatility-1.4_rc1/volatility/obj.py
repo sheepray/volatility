@@ -385,7 +385,7 @@ class BaseObject(object):
         ## What we want to do here is to instantiate a new object and then copy it into ourselves
         new_object = Object(state['theType'], state['offset'], state['vm'], name = state['name'])
         if not new_object:
-            raise pickle.UnpicklingError("Object {0} at 0x{1:08x} invalid".format(state.obj_name, state.obj_offset))
+            raise pickle.UnpicklingError("Object {0} at 0x{1:08x} invalid".format(state['name'], state['offset']))
 
         ## (Scudette) Im not sure how much of a hack this is - we
         ## basically take over all the new object's members. This is
