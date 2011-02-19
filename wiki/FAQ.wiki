@@ -7,6 +7,10 @@
 
 1.4
 
+= Why should I upgrade to 1.4? =
+
+...
+
 = What types of memory dumps does Volatility support? =
 
 Microsoft Windows:
