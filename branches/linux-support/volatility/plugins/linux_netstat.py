@@ -51,20 +51,34 @@ class linux_netstat(lof.linux_list_open_files):
 
             proto = self.get_proto_str(inet_sock)
             
-            if proto in ("TCP", "UDP"):
+            if proto in ("TCP", "UDP", "IP"):
 
                 state = self.get_state_str(inet_sock) if proto == "TCP" else ""
                 family = inet_sock.sk.__sk_common.skc_family
 
-                if family == 2: # AF_INET
-                    (daddr, saddr) = self.format_ipv4(inet_sock)
+                if family == 1: #AF_UNIX
+                    
+                    unix_sock = obj.Object("unix_sock", offset=inet_sock.sk.v(), vm=self.addr_space)
+                    
+                    if unix_sock.addr:
+    
+                        name = obj.Object("sockaddr_un", offset=unix_sock.addr.name.obj_offset, vm=self.addr_space)
+                        
+                        # only print out sockets with paths
+                        if name.sun_path != "":
+                            outfd.write("UNIX {0:s}\n".format(name.sun_path))
+                             
+                elif family in (2, 10):
 
-                elif family == 10: #AF_INET 6
-                    (daddr, saddr) = self.format_ipv6(inet_sock)
+                    if family == 2: #AF_INET
+                        (daddr, saddr) = self.format_ipv4(inet_sock)
+                        (dport, sport) = self.format_port(inet_sock)
 
-                (dport, sport) = self.format_port(inet_sock)
+                    elif family == 10: #AF_INET 6
+                        (daddr, saddr) = self.format_ipv6(inet_sock)
+                        (dport, sport) = self.format_port(inet_sock)
 
-                outfd.write("{0:8s} {1}:{2:<5} {3}:{4:<5} {5:s} {6:>17s}/{7:<5d}\n".format(proto, saddr, sport, daddr, dport, state, task.comm, task.pid))
+                    outfd.write("{0:8s} {1}:{2:<5} {3}:{4:<5} {5:s} {6:>17s}/{7:<5d}\n".format(proto, saddr, sport, daddr, dport, state, task.comm, task.pid))
 
     def ip62str(self, in6addr):
 

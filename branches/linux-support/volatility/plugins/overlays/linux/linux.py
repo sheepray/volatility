@@ -36,6 +36,7 @@ def apply_overlays(overlay):
     overlay.update({'module'      : [None, { 'name' : [ None , ['String', dict(length = 60)]]}]})
     overlay.update({'super_block' : [None, { 's_id' : [ None , ['String', dict(length = 32)]]}]})
     overlay.update({'net_device'  : [None, { 'name' : [ None , ['String', dict(length = 16)]]}]})
+    overlay.update({'sockaddr_un'  : [None, { 'sun_path' : [ None , ['String', dict(length = 108)]]}]})
 
 class AbstractLinuxProfile(obj.Profile):
 

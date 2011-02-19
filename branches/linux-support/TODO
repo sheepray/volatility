@@ -7,7 +7,6 @@ ipv6 netstat
     - general analysis
 	    - process from htable
     	- network buffers
-	    - UNIX sockets in netstat
     	- nat table
         - arp table
         - routing table
