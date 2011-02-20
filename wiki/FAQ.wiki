@@ -7,7 +7,7 @@
 
 1.4
 
-= Why should I upgrade to 1.4? =
+= What's new in 1.4? =
 
 ...
 
