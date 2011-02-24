@@ -378,12 +378,23 @@ class BaseObject(object):
         except:
             thetype = self._vol_theType
 
-        return dict(offset = self.obj_offset, name = self.obj_name, vm = self.obj_vm, theType = thetype)
+        result = dict(offset = self.obj_offset,
+                      name = self.obj_name, vm = self.obj_vm,
+                      theType = thetype)
+
+        ## Introspect the kwargs for the constructor and store in the dict
+        for arg in self.__init__.func_code.co_varnames:
+            if (arg not in result and 
+                arg not in "self parent profile args".split()):
+                result[arg] = self.__dict__[arg]
+
+        return result
 
     def __setstate__(self, state):
-        #pdb.set_trace()
+        #import pdb; pdb.set_trace()
         ## What we want to do here is to instantiate a new object and then copy it into ourselves
-        new_object = Object(state['theType'], state['offset'], state['vm'], name = state['name'])
+        #new_object = Object(state['theType'], state['offset'], state['vm'], name = state['name'])
+        new_object = Object(**state)
         if not new_object:
             raise pickle.UnpicklingError("Object {0} at 0x{1:08x} invalid".format(state['name'], state['offset']))
 
@@ -448,15 +459,6 @@ class NativeType(BaseObject, NumericProxyMixIn):
         NumericProxyMixIn.__init__(self)
         self.format_string = format_string
 
-    def __getstate__(self):
-        result = BaseObject.__getstate__(self)
-        result['format_string'] = self.format_string
-        return result
-
-    def __setstate__(self, state):
-        BaseObject.__setstate__(self, state)
-        self.format_string = state['format_string']
-
     def write(self, data):
         """Writes the data back into the address space"""
         output = struct.pack(self.format_string, data)
@@ -507,17 +509,6 @@ class BitField(NativeType):
         data = data << self.start_bit
         return NativeType.write(self, data)
 
-    def __getstate__(self):
-        result = NativeType.__getstate__(self)
-        result['start_bit'] = self.start_bit
-        result['end_bit'] = self.end_bit
-
-        return result
-
-    def __setstate__(self, state):
-        NativeType.__setstate__(self, state)
-        self.start_bit = state['start_bit']
-        self.end_bit = state['end_bit']
 
 class Pointer(NativeType):
     def __init__(self, theType, offset, vm, parent = None, profile = None, target = None, name = None):
@@ -529,6 +520,10 @@ class Pointer(NativeType):
             self.target = Curry(Object, theType)
         else:
             self.target = target
+
+    def __getstate__(self):
+        ## This one is too complicated to pickle right now
+        raise pickle.PickleError
 
     def is_valid(self):
         """ Returns if what we are pointing to is valid """
@@ -616,6 +611,10 @@ class Array(BaseObject):
             ## It is an error to have a zero sized element
             debug.debug("Array with 0 sized members???", level = 10)
             debug.b()
+
+    def __getstate__(self):
+        ## This one is too complicated to pickle right now
+        raise pickle.PickleError
 
     def size(self):
         return self.count * self.current.size()

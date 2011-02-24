@@ -55,6 +55,8 @@ class String(obj.NativeType):
         if callable(length):
             length = length(parent)
 
+        self.length = length
+
         ## length must be an integer
         obj.NativeType.__init__(self, theType, offset, vm, parent = parent, profile = profile,
                             name = name, format_string = "{0}s".format(length))
@@ -87,37 +89,24 @@ obj.Profile.object_classes['String'] = String
 class Flags(obj.NativeType):
     """ This object decodes each flag into a string """
     ## This dictionary maps each bit to a String
-    bitmap = {}
+    bitmap = None
 
     ## This dictionary maps a string mask name to a bit range
     ## consisting of a list of start, width bits
-    maskmap = {}
+    maskmap = None
 
     def __init__(self, theType = None, offset = 0, vm = None, parent = None,
                  bitmap = None, name = None, maskmap = None, target = "unsigned long",
                  **args):
-        if bitmap:
-            self.bitmap = bitmap
+        self.bitmap = bitmap or {}
+        self.maskmap = maskmap or {}
+        self.target = target
 
-        if maskmap:
-            self.maskmap = maskmap
-
-        self.target = obj.Object(target, offset = offset, vm = vm, parent = parent)
+        self.target_obj = obj.Object(target, offset = offset, vm = vm, parent = parent)
         obj.NativeType.__init__(self, theType, offset, vm, parent, **args)
 
-    def __getstate__(self):
-        result = obj.NativeType.__getstate__(self)
-        result['bitmap'] = self.bitmap
-        result['maskmap'] = self.maskmap
-        return result
-
-    def __setstate__(self, state):
-        obj.NativeType.__setstate__(self, state)
-        self.bitmap = state['bitmap']
-        self.maskmap = state['maskmap']
-
     def v(self):
-        return self.target.v()
+        return self.target_obj.v()
 
     def __str__(self):
         result = []
@@ -151,15 +140,13 @@ class Enumeration(obj.NativeType):
     def __init__(self, theType = None, offset = 0, vm = None, parent = None,
                  choices = None, name = None, target = "unsigned long",
                  **args):
-        self.choices = {}
-        if choices:
-            self.choices = choices
-
-        self.target = obj.Object(target, offset = offset, vm = vm, parent = parent)
+        self.choices = choices or {}
+        self.target = target
+        self.target_obj = obj.Object(target, offset = offset, vm = vm, parent = parent)
         obj.NativeType.__init__(self, theType, offset, vm, parent, **args)
 
     def v(self):
-        return self.target.v()
+        return self.target_obj.v()
 
     def __str__(self):
         value = self.v()
