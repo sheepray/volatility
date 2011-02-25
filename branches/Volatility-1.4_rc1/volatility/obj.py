@@ -375,7 +375,7 @@ class BaseObject(object):
         """ This controls how we pickle and unpickle the objects """
         try:
             thetype = self._vol_theType.__name__
-        except:
+        except AttributeError:
             thetype = self._vol_theType
 
         result = dict(offset = self.obj_offset,
@@ -383,10 +383,14 @@ class BaseObject(object):
                       theType = thetype)
 
         ## Introspect the kwargs for the constructor and store in the dict
-        for arg in self.__init__.func_code.co_varnames:
-            if (arg not in result and
-                arg not in "self parent profile args".split()):
-                result[arg] = self.__dict__[arg]
+        try:
+            for arg in self.__init__.func_code.co_varnames:
+                if (arg not in result and
+                    arg not in "self parent profile args".split()):
+                    result[arg] = self.__dict__[arg]
+        except KeyError:
+            debug.post_mortem()
+            raise pickle.PicklingError("Object {0} at 0x{1:08x} cannot be pickled because of missing attribute {2}".format(self.obj_name, self.obj_offset, arg))
 
         return result
 
