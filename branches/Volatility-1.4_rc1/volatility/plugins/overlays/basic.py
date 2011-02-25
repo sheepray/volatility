@@ -165,9 +165,9 @@ class VOLATILITY_MAGIC(obj.CType):
     
        Needed to ensure that the address space is not verified as valid for constants
     """
-    def __init__(self, theType, offset, vm, parent = None, members = None, name = None, size = 0):
+    def __init__(self, theType, offset, vm, parent = None, members = None, name = None, struct_size = 0):
         try:
-            obj.CType.__init__(self, theType, offset, vm, parent = parent, members = members, name = name, size = size)
+            obj.CType.__init__(self, theType, offset, vm, parent = parent, members = members, name = name, struct_size = struct_size)
         except obj.InvalidOffsetError:
             # The exception will be raised before this point,
             # so we must finish off the CType's __init__ ourselves

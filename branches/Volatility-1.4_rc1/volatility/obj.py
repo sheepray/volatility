@@ -384,7 +384,7 @@ class BaseObject(object):
 
         ## Introspect the kwargs for the constructor and store in the dict
         for arg in self.__init__.func_code.co_varnames:
-            if (arg not in result and 
+            if (arg not in result and
                 arg not in "self parent profile args".split()):
                 result[arg] = self.__dict__[arg]
 
@@ -675,7 +675,7 @@ class Array(BaseObject):
 
 class CType(BaseObject):
     """ A CType is an object which represents a c struct """
-    def __init__(self, theType, offset, vm, parent = None, members = None, name = None, size = 0):
+    def __init__(self, theType, offset, vm, parent = None, members = None, name = None, struct_size = 0):
         """ This must be instantiated with a dict of members. The keys
         are the offsets, the values are Curried Object classes that
         will be instantiated when accessed.
@@ -686,7 +686,7 @@ class CType(BaseObject):
             members = {}
 
         self.members = members
-        self.struct_size = size
+        self.struct_size = struct_size
         BaseObject.__init__(self, theType, offset, vm, parent = parent, name = name)
         self.__initialized = True
 
@@ -1031,4 +1031,4 @@ class Profile(object):
         else:
             cls = CType
 
-        return Curry(cls, cname, members = members, size = size)
+        return Curry(cls, cname, members = members, struct_size = size)
