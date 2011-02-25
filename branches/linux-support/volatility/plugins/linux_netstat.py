@@ -80,28 +80,11 @@ class linux_netstat(lof.linux_list_open_files):
 
                     outfd.write("{0:8s} {1}:{2:<5} {3}:{4:<5} {5:s} {6:>17s}/{7:<5d}\n".format(proto, saddr, sport, daddr, dport, state, task.comm, task.pid))
 
-    def ip62str(self, in6addr):
-
-        ret     = ""
-        ipbytes = in6addr.in6_u.u6_addr8
-        ctr     = 0
-
-        for byte in ipbytes:
-                ret = ret + "%.02x" % byte
-                
-                # make it the : notation
-                if ctr % 2 and ctr != 15:
-                    ret = ret + ":"
-
-                ctr = ctr + 1
-
-        return ret          
-
 
     def format_ipv6(self, inet_sock):
 
-        daddr = self.ip62str(inet_sock.pinet6.daddr)
-        saddr = self.ip62str(inet_sock.pinet6.saddr)
+        daddr = linux_common.ip62str(inet_sock.pinet6.daddr)
+        saddr = linux_common.ip62str(inet_sock.pinet6.saddr)
 
         return (daddr, saddr)        
 

@@ -4,8 +4,8 @@
 	    - process from htable
     	- network buffers
     	- nat table
-        - arp table
         - /proc/iomem (crash)
+        - add option for netstat to ignore unix sockets
 
     - kmem_cache
     	- slub
@@ -45,6 +45,13 @@
         - linux_mount with raid/lvm/whatever
         - linux_ifconfig with aliases
         - linux_ifconfig with ipv6
+
+--code cleanup--
+
+    - replace all render_text prints with outfd.write()
+    - replace offsetof with profile.obj_get_offset
+    - replace ip2str with inettos
+
 --V2--
     - anti-rootkit
         - basic

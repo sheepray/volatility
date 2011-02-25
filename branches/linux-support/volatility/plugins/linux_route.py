@@ -22,7 +22,7 @@
 """
 
 import volatility.obj as obj
-import linux_common, linux_flags
+import linux_common
 import sys
 
 class r_ent:
@@ -48,7 +48,7 @@ class linux_route(linux_common.AbstractLinuxCommand):
         
     def render_text(self, outfd, data):
 
-        outfd.write("{0:15s} {1:15s} {2:15s} {3:s}\n".format("Destination","Gateway","Mask","Interface"))
+        outfd.write("{0:15s} {1:15s} {2:15s} {3:s}\n".format("Destination", "Gateway", "Mask", "Interface"))
         for r in data:
             outfd.write("{0:15s} {1:15s} {2:15s} {3:s}\n".format(linux_common.ip2str(r.dest), linux_common.ip2str(r.gw), linux_common.ip2str(r.mask), r.devname))
 
@@ -112,9 +112,8 @@ class linux_route(linux_common.AbstractLinuxCommand):
         elif "init_net" in self.smap:
             
             init_net     = obj.Object("net", offset=self.smap["init_net"], vm=self.addr_space)
-            pnet = init_net.proc_net
  
-            fib_table_ptr = obj.Object("Pointer",offset=init_net.ipv4.fib_table_hash, vm=self.addr_space)
+            fib_table_ptr = obj.Object("Pointer", offset=init_net.ipv4.fib_table_hash, vm=self.addr_space)
                 
         else:
             # ikelos what is the proper expection to raise?
@@ -147,9 +146,9 @@ class linux_route(linux_common.AbstractLinuxCommand):
 
         else:
             
-            (fib_table,tbl_sz) = self.get_fib_table()
+            (fib_table, tbl_sz) = self.get_fib_table()
 
-            for i in xrange(0,tbl_sz):
+            for i in xrange(0, tbl_sz):
                 fb = fib_table[i]
 
                 if fb and fb.first:

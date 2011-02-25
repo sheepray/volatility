@@ -71,10 +71,6 @@ def walk_list_head(struct_name, list_member, list_head_ptr, addr_space):
 
 def walk_internal_list(struct_name, list_member, list_start, addr_space):
 
-    # mm->mmap
-
-    member_off = offsetof(struct_name, list_member, addr_space.profile)
-
     while 1:
 
         list_struct = obj.Object(struct_name, vm = addr_space, offset = list_start)
@@ -82,7 +78,7 @@ def walk_internal_list(struct_name, list_member, list_start, addr_space):
         yield list_struct
 
         list_start = list_struct.__getattribute__(list_member)
-
+        
         if not list_start:
             break
 
@@ -167,5 +163,26 @@ def ip2str(ip):
     d = (ip >> 24) & 0xff
 
     return "%d.%d.%d.%d" % (a, b, c, d)
+
+def ip62str(in6addr):
+
+    ret     = ""
+    ipbytes = in6addr.in6_u.u6_addr8
+    ctr     = 0
+
+    for byte in ipbytes:
+        ret = ret + "%.02x" % byte
+                
+        # make it the : notation
+        if ctr % 2 and ctr != 15:
+            ret = ret + ":"
+
+        ctr = ctr + 1
+
+    return ret          
+
+
+
+
 
 

@@ -23,7 +23,7 @@
 
 import volatility.obj as obj
 
-import linux_common, linux_flags
+import linux_common
 
 class linux_route_cache(linux_common.AbstractLinuxCommand):
 
@@ -42,19 +42,19 @@ class linux_route_cache(linux_common.AbstractLinuxCommand):
 
             if not rth:
                 continue
-            else:
-                if rth.u.dst.dev:
-                    name = rth.u.dst.dev.name
-                else:
-                    name = "*"
-
-                dest = rth.rt_dst
-                gw   = rth.rt_gateway
            
-                print "%s %s %s %x" % (name, linux_common.ip2str(dest), linux_common.ip2str(gw), rth.idev)
-                        
+            if rth.u.dst.dev:
+                name = rth.u.dst.dev.name
+            else:
+                name = "*"
+
+            dest = rth.rt_dst
+            gw   = rth.rt_gateway
+           
+            yield (name, dest, gw)                
 
     def render_text(self, outfd, data):
 
-        pass
+        for (name, dest, gw) in data:
+            outfd.write("{0:6s} {1:15s} {2:15s}\n".format(name, linux_common.ip2str(dest), linux_common.ip2str(gw)))
 
