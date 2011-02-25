@@ -3,7 +3,7 @@ Volatility Framework - Volatile memory extraction utility framework
 ============================================================================
 
 The Volatility Framework is a completely open collection of tools,
- implemented in Python under the GNU General Public License, for the
+implemented in Python under the GNU General Public License, for the
 extraction of digital artifacts from volatile memory (RAM) samples.
 The extraction techniques are performed completely independent of the
 system being investigated but offer visibilty into the runtime state
@@ -18,8 +18,12 @@ https://www.volatilesystems.com/default/volatility
 Volatility should run on any platform that supports 
 Python (http://www.python.org)
 
-Volatility supports investigations of Microsoft Windows XP Service 
-Pack 2 memory images. 
+Volatility supports investigations of the following memory images:
+
+* Microsoft Windows XP Service Pack 2 and 3
+* Microsoft Vista Service Pack 0, 1 and 2
+* Microsoft 2008 Server Service Pack 1 and 2 (there is no SP 0)
+* Microsoft Windows 7 Service Pack 0
 
 Volatility does not provide memory sample acquisition
 capabilities. For acquisition, there are both free and commercial
@@ -62,9 +66,9 @@ data hosted by NIST at the following url:
 
 http://www.cfreds.nist.gov/mem/memory-images.rar
 
-In particular, you may want to check out the following sample: 
+Links to other public memory images can be found at the following url:
 
-xp-laptop-2005-07-04-1430.img
+http://code.google.com/p/volatility/wiki/FAQ
 
 Mailing Lists
 =============
@@ -89,90 +93,144 @@ IRC: #volatility on freenode
 
 Requirements
 ============
-- Python 2.5 or later. http://www.python.org
+- Python 2.6 or later, but not 3.0. http://www.python.org
+
+Some plugins may have other requirements which can be found at: 
+    http://code.google.com/p/volatility/wiki/FAQ
 
 Quick Start
 ===========
 1. Unpack the latest version of Volatility from
    https://www.volatilesystems.com/default/volatility
 
-2. To see available options, run "python volatility"
+2. To see available options, run "python vol.py -h"  
 
    Example:
 
-  > python volatility
-	Volatile Systems Volatility Framework v1.3
-	Copyright (C) 2007,2008 Volatile Systems
-	Copyright (C) 2007 Komoku, Inc.
-	This is free software; see the source for copying conditions.
-	There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+> python vol.py -h
+Volatile Systems Volatility Framework 1.4_rc1
+Usage: Volatility - A memory forensics analysis platform.
 
-	usage: volatility cmd [cmd_opts]
+Options:
+  -h, --help            list all available options and their default values.
+                        Default values may be set in the configuration file
+                        (/etc/volatilityrc)
+  --conf-file=/Users/gleeda/.volatilityrc
+                        User based configuration file
+  -d, --debug           Debug volatility
+  --info                Print information about all registered objects
+  --plugins=PLUGINS     Additional plugin directories to use (colon separated)
+  --cache-directory=/Users/gleeda/.cache/volatility
+                        Directory where cache files are stored
+  --no-cache            Disable caching
+  --tz=TZ               Sets the timezone for displaying timestamps
+  -f FILENAME, --filename=FILENAME
+                        Filename to use when opening an image
+  -k KPCR, --kpcr=KPCR  Specify a specific KPCR address
+  --output=text         Output in this format (format support is module
+                        specific)
+  --output-file=OUTPUT_FILE
+                        write output in this file
+  -v, --verbose         Verbose information
+  -g KDBG, --kdbg=KDBG  Specify a specific KDBG address
+  -w, --write           Enable write support
+  --dtb=DTB             DTB Address
+  --cache-dtb           Cache virtual to physical mappings
+  --use-old-as          Use the legacy address spaces
+  --profile=WinXPSP2x86
+                        Name of the profile to load
+  -l LOCATION, --location=LOCATION
+                        A URN location from which to load an address space
 
-	Run command cmd with options cmd_opts
-	For help on a specific command, run 'volatility cmd --help'
+    Supported Plugin Commands:
 
-	Supported Internel Commands:
-		connections    	Print list of open connections
-		connscan       	Scan for connection objects
-		connscan2      	Scan for connection objects
-		datetime       	Get date/time information for image
-		dlllist        	Print list of loaded dlls for each process
-		dmp2raw        	Convert a crash dump to a raw dump
-		dmpchk         	Dump crash dump information
-		files          	Print list of open files for each process 
-		hibinfo        	Convert hibernation file to linear sample
-		ident          	Identify image properties 
-		memdmp         	Dump the addressable memory for a process
-		memmap         	Print the memory map
-		modscan        	Scan for modules
-		modscan2       	Scan for module objects
-		modules        	Print list of loaded modules
-		procdump       	Dump a process to an executable sample
-		pslist         	Print list of running processes
-		psscan         	Scan for EPROCESS objects
-		psscan2        	Scan for process objects
-		raw2dmp        	Convert a raw dump to a crash dump
-		regobjkeys     	Print list of open regkeys for each process
-		sockets        	Print list of open sockets
-		sockscan       	Scan for socket objects
-		sockscan2      	Scan for socket objects
-		strings        	Match physical offsets to virtual addresses
-		thrdscan       	Scan for ETHREAD objects
-		thrdscan2      	Scan for thread objects
-		vaddump        	Dump the Vad sections to files
-		vadinfo        	Dump the VAD info
-		vadwalk        	Walk the vad tree
-
-	Supported Plugin Commands:
-		memmap_ex_2    	Example: Print the memory map
-		pslist_ex_1    	Example: Print list running processes
-		pslist_ex_3    	Example: Print list running processes
-		usrdmp_ex_2    	Example: Dump the address space for a process
-
-	Example: volatility pslist -f /path/to/my/file
+        bioskbd         Reads the keyboard buffer from Real Mode memory
+        connections     Print list of open connections [Windows XP Only]
+        connscan2       Scan Physical memory for _TCPT_OBJECT objects (tcp connections)
+        crashdump       Dumps the crashdump file to a raw file
+        crashinfo       Dump crash-dump information
+        dlldump         Dump DLLs from a process address space
+        dlllist         Print list of loaded dlls for each process
+        driverscan      Scan for driver objects _DRIVER_OBJECT 
+        files           Print list of open files for each process
+        filescan        Scan Physical memory for _FILE_OBJECT pool allocations
+        getsids         Print the SIDs owning each process
+        hashdump        Dumps passwords hashes (LM/NTLM) from memory
+        hibdump         Dumps the hibernation file to a raw file
+        hibinfo         Dump hibernation file information
+        hivedump        Prints out a hive
+        hivelist        Print list of registry hives.
+        hivescan        Scan Physical memory for _CMHIVE objects (registry hives)
+        imagecopy       Copies a physical address space out as a raw DD image
+        imageinfo       Identify information for the image 
+        inspectcache    Inspect the contents of a cache 
+        kdbgscan        Search for and dump potential KDBG values
+        kpcrscan        Search for and dump potential KPCR values
+        lsadump         Dump (decrypted) LSA secrets from the registry
+        memdump         Dump the addressable memory for a process
+        memmap          Print the memory map
+        moddump         Dump a kernel driver to an executable file sample
+        modscan2        Scan Physical memory for _LDR_DATA_TABLE_ENTRY objects
+        modules         Print list of loaded modules
+        mutantscan      Scan for mutant objects _KMUTANT 
+        netscan         Scan a Vista, 2008 or Windows 7 image for connections and sockets
+        patcher         Patches memory based on page scans
+        printkey        Print a registry key, and its subkeys and values
+        procexedump     Dump a process to an executable file sample
+        procmemdump     Dump a process to an executable memory sample
+        pslist          print all running processes by following the EPROCESS lists 
+        psscan          Scan Physical memory for _EPROCESS objects
+        psscan2         Scan Physical memory for _EPROCESS objects
+        pstree          Print process list as a tree
+        regobjkeys      Print list of open regkeys for each process
+        sockets         Print list of open sockets
+        sockscan        Scan Physical memory for _ADDRESS_OBJECT objects (tcp sockets)
+        ssdt            Display SSDT entries
+        strings         Match physical offsets to virtual addresses (may take a while, VERY verbose)
+        testsuite       Run unit test suit using the Cache 
+        thrdscan2       Scan physical memory for _ETHREAD objects
+        vaddump         Dumps out the vad sections to a file
+        vadinfo         Dump the VAD info
+        vadtree         Walk the VAD tree and display in tree format
+        vadwalk         Walk the VAD tree
+        volshell        Shell in the memory image
 
 3. To get more information on a sample and to make sure Volatility
-   supports that sample type, run 'python volatility ident -f <imagename>'
+   supports that sample type, run 'python vol.py imageinfo -f <imagename>'
 
    Example:
    
-  > python volatility ident -f c:\images\image1.dump
-              Image Name: c:\images\image1.dump
-              Image Type: XP SP2
-                 VM Type: nopae
-                     DTB: 0x39000
-                Datetime: Mon Feb 19 20:52:08 2007
+    > python vol.py -f win7.dmp imageinfo
+    Volatile Systems Volatility Framework 1.4_rc1
+    Determining profile based on KDBG search...
+             Suggested Profile : Win7SP0x86
+                     AS Layer1 : JKIA32PagedMemory (Kernel AS)
+                     AS Layer2 : FileAddressSpace (/Users/M/Desktop/win7.dmp)
+                      PAE type : No PAE
+                           DTB : 0x185000
+                          KDBG : 0x8296cbe8
+                          KPCR : 0x8296dc00
+             KUSER_SHARED_DATA : 0xffdf0000
+           Image date and time : 2010-07-06 22:40:28 
+     Image local date and time : 2010-07-06 22:40:28 
+                    Image Type : 
 
 4. Run some other tools. -f is a required option for all tools. Some
-   also require/accept other options. Run "volatility <cmd> --help" for
-   more information on a particular command.
+   also require/accept other options. Run "python vol.py <cmd> -h" for
+   more information on a particular command.  A Command Reference wiki
+   is also available on the Google Code site:
+
+        http://code.google.com/p/volatility/wiki/CommandReference
+
+   as well as Basic Usage:
+
+        http://code.google.com/p/volatility/wiki/BasicUsage
 
 
 Licensing and Copyright
 =======================
 
-Copyright (C) 2007,2008 Volatile Systems
+Copyright (C) 2007-2011 Volatile Systems
 
 Original Source:
 Copyright (C) 2007 Komoku, Inc.
@@ -198,9 +256,32 @@ Bugs and Support
 ================
 There is no support provided with Volatility. There is NO
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR
-PURPOSE. Bugs may be reported to volatility (at) volatilesystems (dot) com. 
-However, Volatile Systems makes no guarantees of any corrective
-action or reply, written or verbal.
+PURPOSE. 
+
+If you think you've found a bug, please report it at:
+
+http://code.google.com/p/volatility/issues
+
+In order to help us solve your issues as quickly as possible,
+please include the following information when filing a bug:
+
+* The version of volatility you're using
+* The operating system used to run volatility
+* The version of python used to run volatility
+* The suspected operating system of the memory image
+* The complete command line you used to run volatility
+
+Depending on the operating system of the memory image, you may need to provide
+additional information, such as:
+
+For Windows:
+* The suspected Service Pack of the memory image
+
+For Linux:
+* The suspected kernel version of the memory image
+
+Other options for communicaton can be found at:
+    http://code.google.com/p/volatility/wiki/FAQ
 
 Missing or Truncated Information
 ================================
@@ -212,321 +293,11 @@ incomplete information due to swapping, and information corruption on
 image acquisition. 
 
 
-Command Descriptions
+Command Reference 
 ====================
-The following is a short description of some commands supported by
+The following url contains a reference of all commands supported by 
 Volatility.
 
-connections
------------
-Lists all open connections that were active at the time of the memory
-sample's acquisition. If -t and -b are not specified, Volatility
-will attempt to infer reasonable values.
+    http://code.google.com/p/volatility/wiki/CommandReference
 
-  Options:
-     -f   <Image>   Image file to load
-     -b   <base>    Hexadecimal physical offset of valid Directory Table Base
-     -t   <type>    Image type (pae, nopae, auto)
 
-connscan
---------
-Scans the flat physical address space for connection objects. 
-
-  Options:
-     -f   <Image>   Image file to load
-     -s   <start>   Hexadecimal physical offset to begin scan
-     -e   <end>     Hexadecimal physical offset to end scan
-     -l             Scan in slow mode (verifies all constraints)
-
-datetime
---------
-Print the system date and time recognized by the Windows kernel at the
-time the image was acquired. If -t and -b are not specified, Volatility
-will attempt to infer reasonable values.
-
-  Options:
-     -f   <Image>   Image file to load
-     -b   <base>    Hexadecimal physical offset of valid Directory Table Base
-     -t   <type>    Image type (pae, nopae, auto)
-
-dlllist
--------
-For each process running in the system, identify the base virtual
-address, size, and filesystem path to all DLLs loaded in that
-process. If -t and -b are not specified, Volatility
-will attempt to infer reasonable values. 
-
-NOTE: dlllist output may be very verbose. 
-
-  Options:
-     -f   <Image>   Image file to load
-     -b   <base>    Hexadecimal physical offset of valid Directory Table Base
-     -t   <type>    Image type (pae, nopae, auto)
-     -o   <offset>  Hexadecimal physical offset of EPROCESS object
-     -p   <pid>     Pid of process
-
-dmp2raw
--------
-Convert sample stored in Crash Dump format to a raw linear sample,
-similar to that produced by dd.
-
-  Options:
-     -f   <Image>   Crash dump file to load
-     -o   <outfile>  Raw output file
-
-dmpchk
--------
-Extract meta information stored in Crash Dump file.
-
-  Options:
-     -f   <Image>   Crash dump file to load
-
-files
------
-For each process running in the system, identify all open file handles
-and the absolute filesystem path to that file. If -t and -b are not
-specified, Volatility will attempt to infer reasonable values.
-
-NOTE: files output may be very verbose. 
-
-  Options:
-     -f   <Image>   Image file to load
-     -b   <base>    Hexadecimal physical offset of valid Directory Table Base
-     -t   <type>    Image type (pae, nopae, auto)
-     -o   <offset>  Hexadecimal physical offset of EPROCESS object
-     -p   <pid>     Pid of process
-
-hibinfo
--------
-Extract meta information stored in a hibernation file and convert
-sample to a raw linear sample.
-
-  Options:
-     -f   <Image>    Hibernation file to load
-     -d   <outfile>  Raw output file
-     -q              Dump only header information
-
-ident
------
-For the given image, attempt to identify the operating system type,
-virtual address translation mechanism, and a starting directory table
-base (DTB). The output of ident can be used to speedup other commands
-when using the -t and -b options with those commands. Options -t and
--b will be ignored when running ident itself.
-
-  Options:
-     -f   <Image>   Image file to load
-     -b   <base>    IGNORED
-     -t   <type>    IGNORED
-
-memdmp
------
-For each process running in the system, attempt to dump its
-addressable storage. If -t and -b are not specified, Volatility 
-will attempt to infer reasonable values.
-
-  Options:
-     -f   <Image>   Image file to load
-     -b   <base>    Hexadecimal physical offset of valid Directory Table Base
-     -t   <type>    Image type (pae, nopae, auto)
-     -o   <offset>  Hexadecimal physical offset of EPROCESS object
-     -p   <pid>     Pid of process
-
-memmap
------
-For each process running in the system, attempt to dump its memory map. 
-If -t and -b are not specified, Volatility will attempt to infer 
-reasonable values.
-
-  Options:
-     -f   <Image>   Image file to load
-     -b   <base>    Hexadecimal physical offset of valid Directory Table Base
-     -t   <type>    Image type (pae, nopae, auto)
-     -o   <offset>  Hexadecimal physical offset of EPROCESS object
-     -p   <pid>     Pid of process
-
-modscan
-------
-Scans the flat physical address space for kernel modules. If -t and -b are not specified, Volatility will attempt to infer reasonable values. 
-
-  Options:
-     -f   <Image>   Image file to load
-     -s   <start>   Hexadecimal physical offset to begin scan
-     -b   <base>    Hexadecimal physical offset of valid Directory Table Base
-     -t   <type>    Image type (pae, nopae, auto)
-     -e   <end>     Hexadecimal physical offset to end scan
-     -l             Scan in slow mode (verifies all constraints)
-
-modules
--------
-For the given image, list all kernel modules loaded at the time of
-acquisition. If -t and -b are not specified, Volatility will
-attempt to infer reasonable values. 
-
-  Options:
-     -f   <Image>   Image file to load
-     -b   <base>    Hexadecimal physical offset of valid Directory Table Base
-     -t   <type>    Image type (pae, nopae, auto)
-
-procdump
--------
-For each process in the given image, extract an executable sample. 
-If -t and -b are not specified, Volatility will attempt to infer 
-reasonable values. 
-
-  Options:
-     -f   <Image>   Image file to load
-     -b   <base>    Hexadecimal physical offset of valid Directory Table Base
-     -t   <type>    Image type (pae, nopae, auto)
-     -o   <offset>  Hexadecimal physical offset of EPROCESS object
-     -p   <pid>     Pid of process
-     -m   <mode>    Strategy to use when extracting executable sample. Use
-                    "disk" to save using disk-based section sizes or "mem"
-                    for memory based sections (default": "mem").
-
-pslist
-------
-For the given image, list all processes that were running, along with
-some corresponding metadata such as process creation time. If -t and
--b are not specified, Volatility will attempt to infer reasonable
-values.  
-
-  Options:
-     -f   <Image>   Image file to load
-     -b   <base>    Hexadecimal physical offset of valid Directory Table Base
-     -t   <type>    Image type (pae, nopae, auto)
-
-psscan
-------
-Scans the flat physical address space for EPROCESS objects. 
-
-  Options:
-     -f   <Image>   Image file to load
-     -s   <start>   Hexadecimal physical offset to begin scan
-     -e   <end>     Hexadecimal physical offset to end scan
-     -l             Scan in slow mode (verifies all constraints)
-     -d             Print output in dot format
-
-raw2dmp
--------
-Convert a raw linear sample into a format that can be analyzed using
-the Microsoft Windows Debugger (windbg).
-
-  Options:
-     -f   <Image>   Crash dump file to load
-     -o   <outfile>  Raw output file
-
-regobjkeys
------
-For each process running in the system, identify all open registry handles. 
-If -t and -b are not specified, Volatility will attempt to infer 
-reasonable values.
-
-NOTE: files output may be very verbose. 
-
-  Options:
-     -f   <Image>   Image file to load
-     -b   <base>    Hexadecimal physical offset of valid Directory Table Base
-     -t   <type>    Image type (pae, nopae, auto)
-     -o   <offset>  Hexadecimal physical offset of EPROCESS object
-     -p   <pid>     Pid of process
-
-sockets
--------
-For the given image, list all open sockets registered with the kernel
-and the corresponding process for which the socket was opened and
-associated socket creation time. If -t and -b are not specified,
-Volatility will attempt to infer reasonable values. 
-
-  Options:
-     -f   <Image>   Image file to load
-     -b   <base>    Hexadecimal physical offset of valid Directory Table Base
-     -t   <type>    Image type (pae, nopae, auto)
-
-sockscan
-------
-Scans the flat physical address space for socket objects. 
-
-  Options:
-     -f   <Image>   Image file to load
-     -s   <start>   Hexadecimal physical offset to begin scan
-     -e   <end>     Hexadecimal physical offset to end scan
-     -l             Scan in slow mode (verifies all constraints)
-
-strings
--------
-For a given image and a file with lines of the form <offset>:<string>,
-output the corresponding process and virtual addresses where that
-string can be found. Expected input for this tool is the output of
-Microsoft Sysinternals' Strings utility, or another utility that
-provides similarly formatted offset:string mappings. Note that the
-input offsets are physical offsets from the start of the file/image. 
-If -t and -b are not specified, Volatility will attempt to infer
-reasonable values. 
-
-NOTE: strings output may be very verbose.
-
-  Options:
-     -f   <Image>       Image file to load
-     -s   <Stringfile>  File with lines of the form <offset>:<string>
-     -b   <base>        Hexadecimal physical offset of valid Directory Table Base
-     -t   <type>        Image type (pae, nopae, auto)
-
-thrdscan
-------
-Scans the flat physical address space for ETHREAD objects. 
-
-  Options:
-     -f   <Image>   Image file to load
-     -s   <start>   Hexadecimal physical offset to begin scan
-     -e   <end>     Hexadecimal physical offset to end scan
-     -l             Scan in slow mode (verifies all constraints)
-
-vadwalk
--------
-
-For the given image, print the Virtual Address Descriptors (VAD)
-tree associated with a particular process. Depending on the command
-line options the information will be printed in a number of different
-formats. If -t and -b are not specified, Volatility will attempt
-to infer reasonable values.
-
-  Options:
-     -f   <Image>   Image file to load
-     -b   <base>    Hexadecimal physical offset of valid Directory Table Base
-     -t   <type>    Image type (pae, nopae, auto)
-     -o   <offset>  Hexadecimal physical offset of a valid EPROCESS object
-     -e             Print VAD tree in tree format
-     -l             Print VAD tree in table format
-     -d             Print VAD tree in Dot file format
-     -p   <pid>     Extract VAD information of process with this pid
-
-vadinfo
--------
-
-For the given image, print detailed information about each object
-found in the Virtual Address Descriptors (VAD) tree associated with a
-particular process.  If -t and -b are not specified, Volatility
-will attempt to infer reasonable values.
-
-  Options:
-     -f   <Image>   Image file to load
-     -b   <base>    Hexadecimal physical offset of valid Directory Table Base
-     -t   <type>    Image type (pae, nopae, auto)
-     -o   <offset>  Hexadecimal physical offset of a valid EPROCESS object
-     -p   <pid>     Extract VAD information of process with this pid
-
-vaddump
--------
-
-For the given image, traverse the Virtual Address Descriptors (VAD)
-tree and dump the ranges of memory to files for further analysis. If
--t and -b are not specified, Volatility will attempt to infer
-reasonable values.
-
-  Options:
-     -f   <Image>   Image file to load
-     -b   <base>    Hexadecimal physical offset of valid Directory Table Base
-     -t   <type>    Image type (pae, nopae, auto)
-     -o   <offset>  Hexadecimal physical offset of a valid EPROCESS object
-     -p   <pid>     Extract VAD information of process with this pid
