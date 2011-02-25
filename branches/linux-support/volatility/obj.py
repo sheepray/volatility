@@ -834,6 +834,11 @@ class Profile(object):
     def has_type(self, theType):
         return theType in self.object_classes or theType in self.types
 
+    def obj_has_member(self, name, member):
+        ''' Returns if a struct has a certain member '''
+        tmp = self._get_dummy_obj(name)
+        return hasattr(tmp,member)
+
     def add_types(self, abstract_types, overlay = None):
         overlay = overlay or {}
 

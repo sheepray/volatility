@@ -22,39 +22,144 @@
 """
 
 import volatility.obj as obj
-
 import linux_common, linux_flags
+import sys
 
+class r_ent:
+
+    def __init__(self, dest, gw, mask, devname):
+        self.dest = dest
+        self.gw   = gw
+        self.mask = mask
+        self.devname = devname
+            
+# TODO needs testing!!!
+# based on code from pykdump
 class linux_route(linux_common.AbstractLinuxCommand):
-
+  
     ''' lists routing table '''
 
     def calculate(self):
+        fib_tables = self.get_fib_tables()
 
-        mask          = obj.Object("unsigned int",  offset=self.smap["rt_hash_mask"],  vm=self.addr_space)
-        rt_pointer    = obj.Object("Pointer", offset=self.smap["rt_hash_table"], vm=self.addr_space)
-        rt_hash_table = obj.Object(theType = "Array", offset=rt_pointer, vm=self.addr_space, targetType = "rt_hash_bucket", count=mask)
-    
-        # rt_do_flush / rt_cache_seq_show
-        for i in xrange(0, mask):
-
-            rth = rt_hash_table[i].chain
-
-            if not rth:
-                continue
-            else:
-                if rth.u.dst.dev:
-                    name = rth.u.dst.dev.name
-                else:
-                    name = "*"
-
-                dest = rth.rt_dst
-                gw   = rth.rt_gateway
-           
-                print "%s %s %s %x" % (name, linux_common.ip2str(dest), linux_common.ip2str(gw), rth.idev)
-                        
-
+        for fib_table in fib_tables:
+            for rent in self.get_fib_entries(fib_table):
+                yield rent
+        
     def render_text(self, outfd, data):
 
-        pass
+        outfd.write("{0:15s} {1:15s} {2:15s} {3:s}\n".format("Destination","Gateway","Mask","Interface"))
+        for r in data:
+            outfd.write("{0:15s} {1:15s} {2:15s} {3:s}\n".format(linux_common.ip2str(r.dest), linux_common.ip2str(r.gw), linux_common.ip2str(r.mask), r.devname))
 
+    def get_fib_entries(self, table):
+        
+        fn_hash   = obj.Object("fn_hash", offset=table.tb_data.obj_offset, vm=self.addr_space)
+        zone_list = fn_hash.fn_zone_list
+
+        return self.walk_zone_list(zone_list)
+
+    def walk_zone_list(self, zone_list):
+        
+        ret = []
+
+        for fn_zone in linux_common.walk_internal_list("fn_zone", "fz_next", zone_list , self.addr_space):
+            
+            mask       = fn_zone.fz_mask
+            hash_head  = fn_zone.fz_hash
+            array_size = fn_zone.fz_divisor
+        
+            head_array = obj.Object(theType="Array", offset=hash_head, vm=self.addr_space, targetType='hlist_head', count=array_size) 
+            
+            for head_list in head_array:
+                
+                first = head_list.first
+                if first:
+                    (dest, gw, devname) = self.parse_fib_node(first)
+                    ret.append(r_ent(dest, gw, mask, devname))
+        return ret
+
+    def parse_fib_node(self, first):
+        
+        for fnptr in linux_common.walk_internal_list("hlist_node", "next", first, self.addr_space):
+
+            fnode = obj.Object("fib_node", offset=fnptr.v(), vm=self.addr_space)
+
+            for alias in linux_common.walk_list_head("fib_alias", "fa_list", fnode.fn_alias, self.addr_space):
+
+                dest  = fnode.fn_key
+                fi    = alias.fa_info
+            
+                if fi:
+                    if fi.fib_nh[0].nh_dev:
+                        devname = fi.fib_nh[0].nh_dev.name
+                    else:
+                        devname = '*'
+
+                    gw = fi.fib_nh[0].nh_gw
+                else:
+                    gw = 0
+                    devname = ""    
+
+                return (dest, gw, devname)                  
+  
+    def get_fib_table(self):
+
+        # get pointer to table
+        if "fib_table_hash" in self.smap:
+            fib_table_ptr = self.smap["fib_table_hash"]
+
+        elif "init_net" in self.smap:
+            
+            init_net     = obj.Object("net", offset=self.smap["init_net"], vm=self.addr_space)
+            pnet = init_net.proc_net
+ 
+            fib_table_ptr = obj.Object("Pointer",offset=init_net.ipv4.fib_table_hash, vm=self.addr_space)
+                
+        else:
+            # ikelos what is the proper expection to raise?
+            print "BAD: Cannot find fib_table_hash.."
+            sys.exit(1)
+
+        # get the size
+        if "fib_table_hash_symbol" in self.smap: # TODO "if fib_table_hash symbol is an array"
+            fib_tbl_sz = -1 # BUG make it size of the array
+
+        elif self.profile.obj_has_member("fib_table","fib_power"):
+            fib_tbl_sz = 256
+
+        else:
+            fib_tbl_sz = 2
+
+        fib_table = obj.Object(theType='Array', offset=fib_table_ptr, \
+            vm=self.addr_space, targetType='hlist_head', count=fib_tbl_sz)
+
+        return (fib_table, fib_tbl_sz)
+
+    def get_fib_tables(self):
+
+        ret = []
+        
+        if "fib_tables" in self.smap:
+            fib_tables    = obj.Object(theType = "Array", offset=self.smap["fib_tables"], \
+                   vm=self.addr_space, targetType='fib_table', count=256)
+            ret = [f for f in fib_tables if f]
+
+        else:
+            
+            (fib_table,tbl_sz) = self.get_fib_table()
+
+            for i in xrange(0,tbl_sz):
+                fb = fib_table[i]
+
+                if fb and fb.first:
+                    for tb in linux_common.walk_list_head("fib_table", "tb_hlist", fb.first, self.addr_space):
+                        ret.append(tb)
+                    
+        return ret 
+                      
+
+
+
+
+ 

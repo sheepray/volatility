@@ -50,21 +50,22 @@ def offsetof(struct_name, list_member, profile):
 def walk_list_head(struct_name, list_member, list_head_ptr, addr_space):
 
     list_ptr = list_head_ptr.next
+    offset = offsetof(struct_name, list_member, addr_space.profile)
 
     # this happens in rare instances where list_heads get pre-initlized
     # the caller needs to check for not return value
     # currently only needed by linux_mount when walking mount_hashtable
-    if list_ptr == list_head_ptr:
+    if list_ptr == list_head_ptr or not list_ptr:
         return
 
     while 1:
 
         # return the address of the beginning of the strucutre, similar to list.h in kernel
-        yield obj.Object(struct_name, offset = list_ptr - offsetof(struct_name, list_member, addr_space.profile), vm = addr_space)
+        yield obj.Object(struct_name, offset = list_ptr - offset, vm = addr_space)
 
         list_ptr = list_ptr.next
 
-        if list_ptr == list_head_ptr:
+        if list_ptr == list_head_ptr or not list_ptr:
             break
 
 

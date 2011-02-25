@@ -1,7 +1,3 @@
---BUGS--
-
-ipv6 netstat
-
 --plugins--
  
     - general analysis
@@ -9,15 +5,26 @@ ipv6 netstat
     	- network buffers
     	- nat table
         - arp table
-        - routing table
+        - /proc/iomem (crash)
 
     - kmem_cache
     	- slub
 
     - deallocated
         - processes
-        - ?memory maps?
-        - check paper for more
+        - memory maps
+        - open files
+        - network data
+
+    - blackhat stuff
+        - tmpfs
+        - aufs
+	
+    - half finished plugins
+        - aliases for ifconfig
+        - dump_maps ....
+        - psaux - need to figure out start time
+
 
 --functionality--
 
@@ -25,19 +32,8 @@ ipv6 netstat
 
     - make function for requesting symbol that could be from module
 
-    - blackhat stuff
-        - tmpfs
-        - aufs
-	
     - auto pick of profile
         - system map will always be different
-
---after--
-
-    - half finished plugins
-        - aliases for ifconfig
-        - dump_maps ....
-        - psaux - need to figure out start time
 
 --testing--
     - kernels
