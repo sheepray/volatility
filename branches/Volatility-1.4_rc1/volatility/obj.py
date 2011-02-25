@@ -390,7 +390,7 @@ class BaseObject(object):
                     result[arg] = self.__dict__[arg]
         except KeyError:
             debug.post_mortem()
-            raise pickle.PicklingError("Object {0} at 0x{1:08x} cannot be pickled because of missing attribute {2}".format(self.obj_name, self.obj_offset, arg))
+            raise pickle.PicklingError("Object {0} at 0x{1:08x} cannot be cached because of missing attribute {2}".format(self.obj_name, self.obj_offset, arg))
 
         return result
 
@@ -527,7 +527,7 @@ class Pointer(NativeType):
 
     def __getstate__(self):
         ## This one is too complicated to pickle right now
-        raise pickle.PickleError
+        raise pickle.PicklingError("Pointer objects do not support caching")
 
     def is_valid(self):
         """ Returns if what we are pointing to is valid """
@@ -618,7 +618,7 @@ class Array(BaseObject):
 
     def __getstate__(self):
         ## This one is too complicated to pickle right now
-        raise pickle.PickleError
+        raise pickle.PicklingError("Array objects do not support caching")
 
     def size(self):
         return self.count * self.current.size()
@@ -772,8 +772,9 @@ class VolatilityMagic(BaseObject):
             pass
         # If we've been given a configname override,
         # then override the value with the one from the config
-        if configname:
-            configval = getattr(self.obj_vm.get_config(), configname)
+        self.configname = configname
+        if self.configname:
+            configval = getattr(self.obj_vm.get_config(), self.configname)
             # Check the configvalue is actually set to something
             if configval:
                 value = configval
