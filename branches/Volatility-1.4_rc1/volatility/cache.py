@@ -457,17 +457,21 @@ class CacheStorage(object):
     def dump(self, url, payload):
         filename = self.filename(url)
 
-        debug.debug("Dumping filename {0}".format(filename))
         ## Check that the directory exists
         directory = os.path.dirname(filename)
         if not os.access(directory, os.R_OK | os.W_OK | os.X_OK):
             os.makedirs(directory)
 
         ## Ensure that the payload is flattened - i.e. all generators are converted to lists for pickling
-        data = pickle.dumps(payload)
-        fd = open(filename, 'w')
-        fd.write(data)
-        fd.close()
+        try:
+            data = pickle.dumps(payload)
+            debug.debug("Dumping filename {0}".format(filename))
+            fd = open(filename, 'w')
+            fd.write(data)
+            fd.close()
+        except pickle.PicklingError:
+            # Do nothing if the pickle fails
+            debug.debug("NOT Dumping filename {0} - contained a non-picklable class".format(filename))
 
 ## This is the central cache object
 CACHE = CacheTree(CacheStorage(), invalidator = Invalidator())

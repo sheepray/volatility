@@ -33,7 +33,7 @@ if __name__ == '__main__':
     sys.path.append("..")
 
 import re
-import pickle
+import cPickle as pickle # pickle implementation must match that in volatility.cache
 import struct, copy, operator
 import volatility.debug as debug
 import volatility.utils as utils
