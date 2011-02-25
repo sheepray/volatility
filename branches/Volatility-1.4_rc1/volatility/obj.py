@@ -973,6 +973,11 @@ class Profile(object):
         tmp = self._get_dummy_obj(name)
         return tmp.size()
 
+    def obj_has_member(self, name, member):
+        """Returns whether an object has a certain member"""
+        tmp = self._get_dummy_obj(name)
+        return hasattr(tmp, member)
+
     def apply_overlay(self, type_member, overlay):
         """ Update the overlay with the missing information from type.
 
