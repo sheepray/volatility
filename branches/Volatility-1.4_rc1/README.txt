@@ -256,13 +256,32 @@ Bugs and Support
 ================
 There is no support provided with Volatility. There is NO
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR
-PURPOSE. Bugs may be reported to volatility (at) volatilesystems (dot) com. 
-However, Volatile Systems makes no guarantees of any corrective
-action or reply, written or verbal.
+PURPOSE. 
+
+If you think you've found a bug, please report it at:
+
+http://code.google.com/p/volatility/issues
+
+In order to help us solve your issues as quickly as possible,
+please include the following information when filing a bug:
+
+* The version of volatility you're using
+* The operating system used to run volatility
+* The version of python used to run volatility
+* The suspected operating system of the memory image
+* The complete command line you used to run volatility
+
+Depending on the operating system of the memory image, you may need to provide
+additional information, such as:
+
+For Windows:
+* The suspected Service Pack of the memory image
+
+For Linux:
+* The suspected kernel version of the memory image
 
 Other options for communicaton can be found at:
     http://code.google.com/p/volatility/wiki/FAQ
-
 
 Missing or Truncated Information
 ================================
