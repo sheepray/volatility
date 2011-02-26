@@ -300,7 +300,11 @@ if __name__ == "__main__":
                 try:
                     sz = int(parsed['data']['DW_AT_upper_bound'])
                 except ValueError:
-                    sz = int(parsed['data']['DW_AT_upper_bound'].split('(')[0])
+                    try:
+                        sz = int(parsed['data']['DW_AT_upper_bound'].split('(')[0])
+                    except ValueError:
+                        # Give up
+                        sz = 0
                 sz += 1
             else:
                 sz = 0
