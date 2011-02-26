@@ -11,7 +11,6 @@ This page documents the things we want to accomplish in the 1.4 branch, so we ca
 
   # Clear out issue 1.
   # Investigate Vista/Windows 7 hibernation work
-  # Add caching to other functions and test
   # Write a raw2dump plugin (possibly dependent on write support)
 
 == Completed Tasks ==
@@ -31,6 +30,7 @@ This page documents the things we want to accomplish in the 1.4 branch, so we ca
   # ~~Documentation, documentation, documentation!~~
   # ~~Profile (OS) dependent default variables:~~
     * ~~KDDEBUGGER_DATA64 finder plugin~~
+  # ~~Add caching to other functions and test~~
 
   * ~~Convert over some malware plugins~~
 
