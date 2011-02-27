@@ -58,11 +58,9 @@ def get_kdbg(addr_space):
 
         DebuggerDataList = kpcrval.KdVersionBlock.dereference_as("_DBGKD_GET_VERSION64").DebuggerDataList
 
-        for kobj in [DebuggerDataList.dereference_as("_KDDEBUGGER_DATA64"),
-                     DebuggerDataList.dereference_as("_KDDEBUGGER_DATA32"),
-                     kpcrval.KdVersionBlock.dereference_as("_KDDEBUGGER_DATA32")]:
-            if verify_kdbg(kobj):
-                return kobj
+        kobj = DebuggerDataList.dereference_as("_KDDEBUGGER_DATA64")
+        if verify_kdbg(kobj):
+            return kobj
 
     return obj.NoneObject("KDDEBUGGER structure not found using either KDBG signature or KPCR pointer")
 
