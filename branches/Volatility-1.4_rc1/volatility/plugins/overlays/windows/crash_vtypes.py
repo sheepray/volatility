@@ -33,11 +33,4 @@ crash_vtypes = {
     'SystemTime' : [ 0xfc0, ['unsigned __int64']], \
     'reserved3' : [ 0xfc8, ['array', 56, ['unsigned char']]], \
 } ], \
-  '_KDDEBUGGER_DATA64' : [ 0x44, { \
-  'OwnerTag' : [ 0x10, ['unsigned long']], \
-  'Size' : [ 0x14, ['unsigned long']], \
-  'PsLoadedModuleList' : [ 0x48, ['pointer', ['unsigned long']]], \
-  'PsActiveProcessHead' : [ 0x50, ['pointer', ['unsigned long']]], \
-  'MmPfnDatabase' : [ 0xC0, ['unsigned long']], \
-} ], \
 }

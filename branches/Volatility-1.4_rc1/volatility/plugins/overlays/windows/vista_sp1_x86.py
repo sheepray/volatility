@@ -36,6 +36,7 @@ import windows
 import tcpip_vtypes
 import crash_vtypes
 import hibernate_vtypes
+import kdbg_vtypes
 import volatility.debug as debug #pylint: disable-msg=W0611
 import volatility.obj as obj
 
@@ -45,6 +46,7 @@ vistasp1x86overlays['VOLATILITY_MAGIC'][1]['KDBGHeader'][1] = ['VolatilityMagic'
 
 vista_sp1_x86_vtypes.ntkrnlmp_types.update(crash_vtypes.crash_vtypes)
 vista_sp1_x86_vtypes.ntkrnlmp_types.update(hibernate_vtypes.hibernate_vtypes)
+vista_sp1_x86_vtypes.ntkrnlmp_types.update(kdbg_vtypes.kdbg_vtypes)
 vista_sp1_x86_vtypes.ntkrnlmp_types.update(tcpip_vtypes.tcpip_vtypes)
 vista_sp1_x86_vtypes.ntkrnlmp_types.update(tcpip_vtypes.tcpip_vtypes_vista)
 

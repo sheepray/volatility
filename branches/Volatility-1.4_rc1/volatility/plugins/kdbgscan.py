@@ -64,7 +64,8 @@ class KDBGScanner(scan.DiscontigScanner):
     def scan(self, address_space, offset = 0, maxlen = None):
         for offset in scan.DiscontigScanner.scan(self, address_space, offset, maxlen):
             # Compensate for KDBG appearing within the searched for structure
-            # (0x10 should really be the offset of OwnerTag from with the structure)
+            # (0x10 should really be the offset of OwnerTag from with the structure,
+            #  however we don't know which profile to read it from, so it's hardwired)
             # NOTE: this will not work correctly for _KDDEBUGGER_DATA32 structures
             #       however they're only necessary for NT or older
             val = address_space.read(offset, max([len(needle) for needle in self.needles]))

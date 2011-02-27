@@ -35,6 +35,7 @@ import xp_sp2_x86
 import windows
 import crash_vtypes
 import hibernate_vtypes
+import kdbg_vtypes
 import tcpip_vtypes
 import copy
 import volatility.debug as debug #pylint: disable-msg=W0611
@@ -47,6 +48,7 @@ xpsp3overlays['_MMVAD_LONG'][1]['Flags'][0] = lambda x: x.u.obj_offset
 xpsp3overlays['_MMVAD_LONG'][1]['Flags2'][0] = lambda x: x.u2.obj_offset
 
 xp_sp3_x86_vtypes.ntoskrnl_types.update(crash_vtypes.crash_vtypes)
+xp_sp3_x86_vtypes.ntoskrnl_types.update(kdbg_vtypes.kdbg_vtypes)
 xp_sp3_x86_vtypes.ntoskrnl_types.update(hibernate_vtypes.hibernate_vtypes)
 xp_sp3_x86_vtypes.ntoskrnl_types.update(tcpip_vtypes.tcpip_vtypes)
 

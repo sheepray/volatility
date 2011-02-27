@@ -35,6 +35,7 @@ import windows
 import tcpip_vtypes
 import crash_vtypes
 import hibernate_vtypes
+import kdbg_vtypes
 import volatility.debug as debug #pylint: disable-msg=W0611
 
 win2k8sp2x86overlays = copy.deepcopy(vista_sp2_x86.vistasp2x86overlays)
@@ -42,6 +43,7 @@ win2k8sp2x86overlays = copy.deepcopy(vista_sp2_x86.vistasp2x86overlays)
 win2k8_sp2_x86_vtypes.ntkrnlmp_types.update(crash_vtypes.crash_vtypes)
 win2k8_sp2_x86_vtypes.ntkrnlmp_types.update(hibernate_vtypes.hibernate_vtypes)
 win2k8_sp2_x86_vtypes.ntkrnlmp_types.update(tcpip_vtypes.tcpip_vtypes)
+win2k8_sp2_x86_vtypes.ntkrnlmp_types.update(kdbg_vtypes.kdbg_vtypes)
 win2k8_sp2_x86_vtypes.ntkrnlmp_types.update(tcpip_vtypes.tcpip_vtypes_vista)
 
 class Win2K8SP2x86(windows.AbstractWindows):

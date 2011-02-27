@@ -33,6 +33,7 @@ import vista_sp0_x86
 import windows
 import crash_vtypes
 import hibernate_vtypes
+import kdbg_vtypes
 import tcpip_vtypes
 import volatility.debug as debug #pylint: disable-msg=W0611
 
@@ -113,6 +114,7 @@ win7sp0x86overlays['VOLATILITY_MAGIC'][1]['TypeIndexMap'] = [ 0x0, ['VolatilityM
 
 win7_sp0_x86_vtypes.ntkrpamp_types.update(crash_vtypes.crash_vtypes)
 win7_sp0_x86_vtypes.ntkrpamp_types.update(hibernate_vtypes.hibernate_vtypes)
+win7_sp0_x86_vtypes.ntkrpamp_types.update(kdbg_vtypes.kdbg_vtypes)
 win7_sp0_x86_vtypes.ntkrpamp_types.update(tcpip_vtypes.tcpip_vtypes)
 win7_sp0_x86_vtypes.ntkrpamp_types.update(tcpip_vtypes.tcpip_vtypes_vista)
 win7_sp0_x86_vtypes.ntkrpamp_types.update(tcpip_vtypes.tcpip_vtypes_7)

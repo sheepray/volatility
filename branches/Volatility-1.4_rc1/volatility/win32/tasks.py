@@ -42,7 +42,7 @@ def get_kdbg(addr_space):
     def verify_kdbg(kdbgobj):
         """Returns true if the kdbg_object handed in appears valid"""
         # Check the OwnerTag is in fact the string KDBG
-        return kdbgobj.OwnerTag == 0x4742444B
+        return kdbgobj.Header.OwnerTag == 0x4742444B
 
     volmagic = obj.Object('VOLATILITY_MAGIC', 0x0, addr_space)
     kdbgo = volmagic.KDBG.v()
