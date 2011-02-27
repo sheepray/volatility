@@ -38,9 +38,10 @@ class ImageCopy(commands.command):
     def calculate(self):
         blocksize = self._config.BLOCKSIZE
         addr_space = utils.load_as(self._config, astype = 'physical')
+
         for s, l in addr_space.get_available_addresses():
             for i in range(s, s + l, blocksize):
-                yield i, addr_space.read(i, blocksize)
+                yield i, addr_space.read(i, min(blocksize, s + l - i))
 
     def human_readable(self, value):
         for i in ['B', 'KB', 'MB', 'GB']:
@@ -59,9 +60,12 @@ class ImageCopy(commands.command):
 
         outfd.write("Writing data (" + self.human_readable(self._config.BLOCKSIZE) + " chunks): |")
         f = file(self._config.OUTPUT_IMAGE, "wb+")
-        for o, block in data:
-            f.seek(o)
-            f.write(block)
-            outfd.write(".")
-            outfd.flush()
+        try:
+            for o, block in data:
+                f.seek(o)
+                f.write(block)
+                outfd.write(".")
+                outfd.flush()
+        except TypeError:
+            debug.error("Error when reading from address space")
         outfd.write("|\n")
