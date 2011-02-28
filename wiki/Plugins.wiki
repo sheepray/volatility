@@ -14,7 +14,6 @@ Note: MHL's malware plugins for Volatility 1.4 can be found at [http://code.goog
 ||bioskbd||Reads the keyboard buffer from Real Mode memory||MA||Yes||
 ||connections||Print list of open connections||.||Yes||
 ||connscan2||Scan Physical memory for _TCPT_OBJECT objects (tcp connections)||.||Yes||
-||crashdump||Dumps the crashdump file to a raw file||.||Yes||
 ||crashinfo||Dump crash-dump information||.||Yes||
 || csrpslist ||Find hidden processes with csrss handles and CsrRootProcess  || MHL || .||
 ||datetime||Get date/time information for image||MA||Yes||
