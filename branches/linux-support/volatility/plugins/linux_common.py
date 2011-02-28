@@ -107,7 +107,7 @@ def IS_ROOT(dentry):
 
 # based on __d_path
 # TODO: (deleted) support
-def do_get_path(root, dentry, vfsmnt, addr_space):
+def do_get_path(rdentry, rmnt, dentry, vfsmnt, addr_space):
 
     ret_path = []
 
@@ -120,7 +120,7 @@ def do_get_path(root, dentry, vfsmnt, addr_space):
         if dname != '/':
             ret_path.append(dname)
 
-        if dentry == root.dentry and vfsmnt == root.mnt:
+        if dentry == rdentry and vfsmnt == rmnt:
             break
 
         if dentry == vfsmnt.mnt_root or IS_ROOT(dentry):
@@ -139,7 +139,10 @@ def do_get_path(root, dentry, vfsmnt, addr_space):
     ret_val = format_path(ret_path)
 
     if ret_val.startswith(("socket:", "pipe:")):
-        ret_val = ret_val[:-1] + "[{0}]".format(inode.i_ino)
+        if ret_val.find("]") == -1:
+            ret_val = ret_val[:-1] + "[{0}]".format(inode.i_ino)
+        else:
+            ret_val = ret_val.replace("/","")
 
     elif ret_val != "inotify":
         ret_val = '/' + ret_val
@@ -148,11 +151,12 @@ def do_get_path(root, dentry, vfsmnt, addr_space):
 
 def get_path(task, filp, addr_space):
 
-    root = task.fs.root
+    rdentry  = task.fs.get_root_dentry()
+    rmnt     = task.fs.get_root_mnt()
     dentry = filp.get_dentry()
     vfsmnt = filp.get_vfsmnt()
 
-    return do_get_path(root, dentry, vfsmnt, addr_space)
+    return do_get_path(rdentry, rmnt, dentry, vfsmnt, addr_space)
 
 # this is here b/c python is retarded and its inet_ntoa can't handle integers...
 def ip2str(ip):

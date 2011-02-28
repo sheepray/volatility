@@ -30,6 +30,36 @@ class linux_ifconfig(linux_common.AbstractLinuxCommand):
 
     def calculate(self):
 
+        # newer kernels
+        if "net_namespace_list" in self.smap:
+
+            for (net_dev, in_dev) in self.get_devs_namespace():
+                yield (net_dev, in_dev)
+            
+        elif "dev_base" in self.smap:
+            
+            for (net_dev, in_dev) in self.get_devs_base():
+                yield (net_dev, in_dev)
+
+        else:
+            # TODO ikelos... what exception do I raise?
+            import sys
+            print "Do not know how to perform ifconfig for this kernel"
+            sys.exit(1)
+
+    def get_devs_base(self):
+
+        net_device_ptr = obj.Object("Pointer", offset=self.smap["dev_base"], vm=self.addr_space)
+        net_device     = obj.Object("net_device", offset=net_device_ptr, vm=self.addr_space)
+
+        for net_dev in linux_common.walk_internal_list("net_device", "next", net_device.v(), self.addr_space):
+        
+            in_dev = obj.Object("in_device", offset = net_dev.ip_ptr, vm = self.addr_space)
+
+            yield net_dev, in_dev
+
+    def get_devs_namespace(self):
+
         nslist_addr = self.smap["net_namespace_list"]
         nethead = obj.Object("list_head", offset = nslist_addr, vm = self.addr_space)
 
@@ -54,7 +84,12 @@ class linux_ifconfig(linux_common.AbstractLinuxCommand):
             else:
                 ip = 0
 
-            mac_addr = ":".join(["%.02x" % x for x in net_dev.perm_addr][:6])
+            if self.profile.obj_has_member("net_device", "perm_addr"):
+                hwaddr = net_dev.perm_addr
+            else:
+                hwaddr = net_dev.dev_addr
+
+            mac_addr = ":".join(["%.02x" % x for x in hwaddr][:6]) 
 
             outfd.write("{0:8s} {1:16s} {2:32s}\n".format(net_dev.name, linux_common.ip2str(ip), mac_addr))
 

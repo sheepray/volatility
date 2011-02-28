@@ -44,25 +44,24 @@ class linux_route(linux_common.AbstractLinuxCommand):
 
         for fib_table in fib_tables:
             for rent in self.get_fib_entries(fib_table):
-                yield rent
+                yield (rent.dest, rent.gw, rent.mask, rent.devname)
         
     def render_text(self, outfd, data):
 
         outfd.write("{0:15s} {1:15s} {2:15s} {3:s}\n".format("Destination", "Gateway", "Mask", "Interface"))
-        for r in data:
-            outfd.write("{0:15s} {1:15s} {2:15s} {3:s}\n".format(linux_common.ip2str(r.dest), linux_common.ip2str(r.gw), linux_common.ip2str(r.mask), r.devname))
+        for dest, gw, mask, devname in data:
+            outfd.write("{0:15s} {1:15s} {2:15s} {3:s}\n".format(linux_common.ip2str(dest), linux_common.ip2str(gw), linux_common.ip2str(mask), devname))
 
     def get_fib_entries(self, table):
         
         fn_hash   = obj.Object("fn_hash", offset=table.tb_data.obj_offset, vm=self.addr_space)
         zone_list = fn_hash.fn_zone_list
 
-        return self.walk_zone_list(zone_list)
+        for r in self.walk_zone_list(zone_list):
+            yield r
 
     def walk_zone_list(self, zone_list):
         
-        ret = []
-
         for fn_zone in linux_common.walk_internal_list("fn_zone", "fz_next", zone_list , self.addr_space):
             
             mask       = fn_zone.fz_mask
@@ -75,9 +74,8 @@ class linux_route(linux_common.AbstractLinuxCommand):
                 
                 first = head_list.first
                 if first:
-                    (dest, gw, devname) = self.parse_fib_node(first)
-                    ret.append(r_ent(dest, gw, mask, devname))
-        return ret
+                    for dest, gw, devname in self.parse_fib_node(first):
+                        yield r_ent(dest, gw, mask, devname)
 
     def parse_fib_node(self, first):
         
@@ -101,7 +99,7 @@ class linux_route(linux_common.AbstractLinuxCommand):
                     gw = 0
                     devname = ""    
 
-                return (dest, gw, devname)                  
+                yield (dest, gw, devname)    
   
     def get_fib_table(self):
 
@@ -111,8 +109,7 @@ class linux_route(linux_common.AbstractLinuxCommand):
 
         elif "init_net" in self.smap:
             
-            init_net     = obj.Object("net", offset=self.smap["init_net"], vm=self.addr_space)
- 
+            init_net     = obj.Object("net", offset=self.smap["init_net"], vm=self.addr_space) 
             fib_table_ptr = obj.Object("Pointer", offset=init_net.ipv4.fib_table_hash, vm=self.addr_space)
                 
         else:
@@ -123,12 +120,14 @@ class linux_route(linux_common.AbstractLinuxCommand):
         # get the size
         if "fib_table_hash_symbol" in self.smap: # TODO "if fib_table_hash symbol is an array"
             fib_tbl_sz = -1 # BUG make it size of the array
+            raise AttributeError, "please file a bug with kernel version and distribution that triggered this message"
 
         elif self.profile.obj_has_member("fib_table","fib_power"):
             fib_tbl_sz = 256
 
         else:
             fib_tbl_sz = 2
+
 
         fib_table = obj.Object(theType='Array', offset=fib_table_ptr, \
             vm=self.addr_space, targetType='hlist_head', count=fib_tbl_sz)

@@ -37,7 +37,6 @@
 
 --testing--
     - kernels
-        <= 2.6.11
         2.6.18 DFRWS 2008 challenge image
         PAE (desktop)
 

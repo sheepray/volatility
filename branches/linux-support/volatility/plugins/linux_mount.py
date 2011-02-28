@@ -51,8 +51,7 @@ class linux_mount(linux_common.AbstractLinuxCommand):
         for vfsmnt in data:
             dev_name = linux_common.get_string(vfsmnt.mnt_devname, self.addr_space)
 
-            root = fake_root(vfsmnt.mnt_sb.s_root, vfsmnt.mnt_parent)
-            path = linux_common.do_get_path(root, vfsmnt.mnt_root, vfsmnt, self.addr_space)
+            path = linux_common.do_get_path(vfsmnt.mnt_sb.s_root, vfsmnt.mnt_parent, vfsmnt.mnt_root, vfsmnt, self.addr_space)
 
             fstype = linux_common.get_string(vfsmnt.mnt_sb.s_type.name, self.addr_space)
 

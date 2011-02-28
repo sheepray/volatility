@@ -33,6 +33,11 @@ class linux_netstat(lof.linux_list_open_files):
     ''' lists open files '''
 
     def calculate(self):
+    
+        if not self.profile.has_type("inet_sock"):
+            # ancient (2.6.9) centos kernels do not have inet_sock in debug info
+            raise AttributeError, "Given profile does not have inet_sock, please file a bug if the kernel version is > 2.6.11"
+
         openfiles = lof.linux_list_open_files.calculate(self)
 
         for (task, filp, _i, _addr_space) in openfiles:

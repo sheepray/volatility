@@ -51,8 +51,8 @@ class linux_file(obj.CType):
 
     def get_dentry(self):
 
-        if hasattr(self, "dentry"):
-            ret = self.dentry
+        if hasattr(self, "f_dentry"):
+            ret = self.f_dentry
         else:
             ret = self.f_path.dentry
 
@@ -79,7 +79,7 @@ class files_struct(obj.CType):
 
         return ret
 
-    def max_fds(self):
+    def get_max_fds(self):
 
         if hasattr(self, "fdt"):
             ret = self.fdt.max_fds
@@ -117,9 +117,32 @@ class task_struct(obj.CType):
 
         return ret
 
-AbstractLinuxProfile.object_classes['task_struct'] = task_struct
+class linux_fs_struct(obj.CType):
+
+    def get_root_dentry(self):
+        
+        # < 2.6.26
+        if hasattr(self, "rootmnt"):
+            ret = self.root
+        else:
+            ret = self.root.dentry
+
+        return ret
+
+    def get_root_mnt(self):
+        
+        # < 2.6.26
+        if hasattr(self, "rootmnt"):
+            ret = self.rootmnt
+        else:
+            ret = self.root.mnt
+
+        return ret
+
+AbstractLinuxProfile.object_classes['task_struct']  = task_struct
 AbstractLinuxProfile.object_classes['files_struct'] = files_struct
-AbstractLinuxProfile.object_classes['file'] = linux_file
+AbstractLinuxProfile.object_classes['file']         = linux_file
+AbstractLinuxProfile.object_classes['fs_struct']    = linux_fs_struct
 
 
 

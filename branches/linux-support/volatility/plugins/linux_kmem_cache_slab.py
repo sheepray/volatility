@@ -85,6 +85,11 @@ class linux_kmem_cache_slab(object):
 
         ret = {}
 
+        if not self.addr_space.profile.has_type("kmem_cache"):
+            raise AttributeError, "Given profile does not have a kmem_cache structure, please file a bug if the kernel is > 2.6.11"
+        elif not self.addr_space.profile.obj_has_member("kmem_cache", "nodelists"):
+            raise AttributeError, "struct kmem_cache does not have nodelists member, please file a bug if the kernel is > 2.6.11"
+
         if deref:         
             cache_address = obj.Object("Pointer", offset = cache_address, vm = self.addr_space)
 
@@ -92,6 +97,7 @@ class linux_kmem_cache_slab(object):
 
         # for_each_online_node / node_sates for NUMA only?
         # TODO SMP
+      
         l3 = cache_obj.nodelists[0]
 
         if l3:
@@ -99,7 +105,6 @@ class linux_kmem_cache_slab(object):
         else:
             print "No nodelist[0]???"
             sys.exit(1)
-
 
         return ret
 
