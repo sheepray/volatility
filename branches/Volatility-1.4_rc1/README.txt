@@ -147,7 +147,6 @@ Options:
         bioskbd         Reads the keyboard buffer from Real Mode memory
         connections     Print list of open connections [Windows XP Only]
         connscan2       Scan Physical memory for _TCPT_OBJECT objects (tcp connections)
-        crashdump       Dumps the crashdump file to a raw file
         crashinfo       Dump crash-dump information
         dlldump         Dump DLLs from a process address space
         dlllist         Print list of loaded dlls for each process

@@ -75,28 +75,3 @@ class CrashInfo(commands.command):
             outfd.write("{0:08x}      {1:08x}         {2:08x}\n".format(foffset, run[0] * 0x1000, run[1] * 0x1000))
             foffset += (run[1] * 0x1000)
         outfd.write("{0:08x}      {1:08x}\n".format(foffset - 0x1000, ((run[0] + run[1] - 1) * 0x1000)))
-
-class CrashDump(CrashInfo):
-    """Dumps the crashdump file to a raw file"""
-    def __init__(self, config, *args):
-        CrashInfo.__init__(self, config, *args)
-        config.add_option("DUMP-FILE", short_option = "D", default = None,
-                          cache_invalidator = False,
-                          help = "Specifies the output dump file")
-
-    def render_text(self, outfd, data):
-        """Renders the text output of crashdump file dumping"""
-        if not self._config.DUMP_FILE:
-            debug.error("crashdump requires an output file to dump the crashdump file")
-
-        if os.path.exists(self._config.DUMP_FILE):
-            debug.error("File " + self._config.DUMP_FILE + " already exists, please choose another file or delete it first")
-
-        outfd.write("Converting crashdump file...\n")
-
-        f = open(self._config.DUMP_FILE, 'wb')
-        total = data.get_number_of_pages()
-        for pagenum in data.convert_to_raw(f):
-            outfd.write("\r" + ("{0:08x}".format(pagenum)) + " / " + ("{0:08x}".format(total)) + " converted (" + ("{0:03}".format(pagenum * 100 / total)) + "%)")
-        f.close()
-        outfd.write("\n")
