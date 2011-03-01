@@ -20,7 +20,7 @@ Microsoft Windows:
  * 32bit Windows 7 Service Pack 0
 
 Linux:
- * Volatility doesn't currently support linux memory images, but will do in the next version (1.5).
+ * Volatility doesn't currently support linux memory images, but will  in the next version (1.5). For more information, see [http://dfsforensics.blogspot.com/2011/03/bringing-linux-support-to-volatility.html Bringing Linux Support To Volatility by Andrew Case]
 
 = What about reading crash dumps and hibernation files? = 
 
