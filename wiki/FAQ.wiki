@@ -22,9 +22,11 @@ Microsoft Windows:
 Linux:
  * Put Attc's stuff here
 
-= What about read crash dumps and hibernation files? = 
+= What about reading crash dumps and hibernation files? = 
 
-To analyze a crash dump file, hibernation file, or a firewire session with Volatility, use the [http://code.google.com/p/volatility/wiki/CommandReference#imagecopy imagecopy] plugin to convert it to a raw memory image. Then analyze the raw memory image using normal Volatility commands.
+Volatility should automatically determine whether you've asked it to analyze a crash dump file or a hiberation file, and allow you to run plugins against them just like normal.
+
+If you'd like to save these files as raw dd files, you can use the [http://code.google.com/p/volatility/wiki/CommandReference#imagecopy imagecopy] plugin to convert them to raw memory images. The raw memory images can also be analyzed using the normal Volatility commands.
 
 = Can Volatility acquire physical memory? =
 
