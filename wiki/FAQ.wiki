@@ -11,7 +11,7 @@
 
 ...
 
-= What types of memory dumps does Volatility support? =
+= What operating systems does Volatility support? =
 
 Microsoft Windows:
  * 32bit Windows XP Service Pack 2 and 3
@@ -22,16 +22,20 @@ Microsoft Windows:
 Linux:
  * Put Attc's stuff here
 
+= What about read crash dumps and hibernation files? = 
+
+To analyze a crash dump file, hibernation file, or a firewire session with Volatility, use the [http://code.google.com/p/volatility/wiki/CommandReference#imagecopy imagecopy] plugin to convert it to a raw memory image. Then analyze the raw memory image using normal Volatility commands.
+
 = Can Volatility acquire physical memory? =
 
 Short answer: No.  
-Long Answer: The imagecopy plugin can be used to copy one address space to a file (allowing aquisition from address spaces such as IEEE 1394), but in general no, to acquire memory, you must use another tool. For a list of possibilities, see: [http://www.forensicswiki.org/wiki/Tools:Memory_Imaging The Forensics Wiki]
+Long Answer: The [http://code.google.com/p/volatility/wiki/CommandReference#imagecopy imagecopy] plugin can be used to copy one address space to a file (allowing acquisition from address spaces such as IEEE 1394), but in general no, to acquire memory, you must use another tool. For a list of possibilities, see: [http://www.forensicswiki.org/wiki/Tools:Memory_Imaging The Forensics Wiki]
 
 = Are there any public memory samples available that I can use for testing? =
 
 Yes, see the list below.
 
-Images from The Malware Analyst's Cookbook 
+Images from The [http://www.malwarecookbook.com Malware Analyst's Cookbook]
 
 || *Description*    || *url* || *OS* ||
 || be2.vmem.zip || [http://malwarecookbook.googlecode.com/svn-history/r26/trunk/17/6/be2.vmem.zip be2.vmem.zip]|| XP SP2 ||
