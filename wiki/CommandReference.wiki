@@ -1106,7 +1106,7 @@ Writing data (5.00 MB chunks): |................................................
 
 = Malware and Rootkits =
 
-Although all Volatility commands can help you hunt malware in one way or another, there are a few designed specifically for hunting rootkits and malicious code. The most comprehensive documentation for these commands can be found in the [http://www.amazon.com/dp/0470613033 Malware Analyst's Cookbook and DVD: Tools and Techniques For Fighting Malicious Code].  The following malware plugins are available in the [http://malwarecookbook.googlecode.com/svn/trunk/malware.py malware.py] plugin file in the [http://code.google.com/p/malwarecookbook/source/browse/#svn%2Ftrunk Malware Cookbook SVN].  Place the malware.py file into the "volatility/plugins" directory in order to use the malware plugins with Volatility.
+Although all Volatility commands can help you hunt malware in one way or another, there are a few designed specifically for hunting rootkits and malicious code. The most comprehensive documentation for these commands can be found in the [http://www.amazon.com/dp/0470613033 Malware Analyst's Cookbook and DVD: Tools and Techniques For Fighting Malicious Code].  The following malware plugins are available in the [http://malwarecookbook.googlecode.com/svn/trunk/malware.py malware.py] plugin file in the [http://code.google.com/p/malwarecookbook/source/browse/#svn%2Ftrunk Malware Cookbook SVN].  Place the malware.py file into the "volatility/plugins" directory to install.
 
 When possible, we use [http://code.google.com/p/volatility/wiki/FAQ#Are_there_any_public_memory_samples_available_that_I_can_use_for publicly available images] for the examples, so you can verify on your end.
 
@@ -1453,12 +1453,13 @@ To print the system's IDT (Interrupt Descriptor Table), use the idt command. Thi
 
 {{{
 $ python vol.py idt -f rustock.vmem 
-
-2A       KiGetTickCount             0x8053cbae   ntoskrnl.exe .text
-2B       KiCallbackReturn           0x8053ccb0   ntoskrnl.exe .text
-2C       KiSetLowWaitHighThread     0x8053ce50   ntoskrnl.exe .text
-2D       KiDebugService             0x8053d790   ntoskrnl.exe .text
-2E       KiSystemService            0x806b973c   ntoskrnl.exe .rsrc => jmp 0xf6ec0e19
+Index    Selector Function                   Value        Details
+[snip]
+2A       8        KiGetTickCount             0x8053cbae   ntoskrnl.exe .text
+2B       8        KiCallbackReturn           0x8053ccb0   ntoskrnl.exe .text
+2C       8        KiSetLowWaitHighThread     0x8053ce50   ntoskrnl.exe .text
+2D       8        KiDebugService             0x8053d790   ntoskrnl.exe .text
+2E       8        KiSystemService            0x806b973c   ntoskrnl.exe .rsrc => JMP 0xf6ec0e45
 [snip]
 }}}
 
@@ -1546,6 +1547,8 @@ To detect kernel threads which don't map back to known kernel drivers, use the o
 
 Here is an example of locating orphan threads on a machine infected with Tigger. As you can see, there are 4 threads identified, all owned by the PID 4 (System) process. The System process is the default owner of threads created by !PsCreateThread in kernel mode. One of the 4 has exited, but the others remain running. The starting addresses are in the range 0xf2XXXXXX however there is no driver in that space - meaning its likely the location of Tigger's hidden component. 
 
+For more information on this technique, see [http://mnin.blogspot.com/2009/03/finding-tiggersyzor-infections-and.html Finding Tigger/Syzor Infections with Detached System Threads]
+
 {{{
 $ python vol.py -f tigger.vmem orphanthreads
 Volatile Systems Volatility Framework 1.4_rc1
@@ -1559,7 +1562,7 @@ PID    TID    Create Time               Exit Time                 Offset     Sta
 
 Where do you go from here? We suggest breaking into a [http://code.google.com/p/volatility/wiki/CommandReference#volshell volshell] and disassembling the instructions at the thread's start address. Or you could use [http://code.google.com/p/volatility/wiki/CommandReference#impscan impscan] to extract data around the thread's start address and determine which kernel APIs are called.
 
-== notifyroutines ==
+== callbacks ==
 
 Volatility is the only memory forensics platform with the ability to print an assortment of important notification routines and kernel callbacks. Rootkits, anti-virus suites, dynamic analysis tools (such as Sysinternals' Process Monitor and Tcpview), and many components of the Windows kernel use of these callbacks to monitor and/or react to events. We detect the following:
 
@@ -1577,7 +1580,7 @@ Volatility is the only memory forensics platform with the ability to print an as
 Here's an example of detecting the thread creation callback installed by the !BlackEnergy 2 malware. You can spot the malicious callback because the owner is 00004A2A - and !BlackEnergy 2 uses a module name composed of eight hex characters. 
 
 {{{
-$ python vol.py -f be2.vmem notifyroutines
+$ python vol.py -f be2.vmem callbacks
 Volatile Systems Volatility Framework 1.4_rc1
 Type                                 Callback   Owner
 PsSetCreateThreadNotifyRoutine       0xff0d2ea7 00004A2A
@@ -1592,7 +1595,7 @@ KeRegisterBugCheckReasonCallback     0xfc967a78 mssmbios.sys (SMBiosRegistry)
 Here is an example of detecting the malicious process creation callback installed by the Rustock rootkit (points to memory owned by \Driver\pe386).
 
 {{{
-$ python vol.py -f rustock.vmem notifyroutines
+$ python vol.py -f rustock.vmem callbacks
 Volatile Systems Volatility Framework 1.4_rc1
 Type                                 Callback   Owner
 PsSetCreateProcessNotifyRoutine      0xf88bd194 vmci.sys
@@ -1611,7 +1614,7 @@ KeRegisterBugCheckReasonCallback     0xf7637522 VIDEOPRT.SYS (Videoprt)
 Here is an example of detecting the malicious registry change callback installed by the Ascesso rootkit. There is one !CmRegisterCallback pointing to 0x8216628f which does not have an owner. You also see two !GenericKernelCallback with the same address. This is because notifyroutines finds callbacks in multiple ways. It combines list traversal and pool tag scanning. This way, if the list traversal fails, we can still find information with pool tag scanning. However, the Windows kernel uses the same types of pool tags for various callbacks, so we label those as generic. 
 
 {{{
-$ python vol.py -f ascesso.vmem notifyroutines
+$ python vol.py -f ascesso.vmem callbacks
 Volatile Systems Volatility Framework 1.4_rc1
 Type                                 Callback   Owner
 IoRegisterShutdownNotification       0xf853c2be ftdisk.sys (\Driver\Ftdisk)
