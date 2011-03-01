@@ -469,7 +469,7 @@ class CacheStorage(object):
             fd = open(filename, 'w')
             fd.write(data)
             fd.close()
-        except pickle.PickleError:
+        except (pickle.PickleError, TypeError):
             # Do nothing if the pickle fails
             debug.debug("NOT Dumping filename {0} - contained a non-picklable class".format(filename))
 
