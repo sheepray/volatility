@@ -20,7 +20,7 @@ Microsoft Windows:
  * 32bit Windows 7 Service Pack 0
 
 Linux:
- * Put Attc's stuff here
+ * Volatility doesn't currently support linux memory images, but will do in the next version (1.5).
 
 = What about reading crash dumps and hibernation files? = 
 
