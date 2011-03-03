@@ -38,8 +38,6 @@ class linux_task_list_psaux(ltps.linux_task_list_ps):
             name = self.get_task_name(task)
             start_time = self.calc_time(task.start_time.tv_sec)
 
-            print "time: %s seconds: %d" % (start_time, task.start_time.tv_sec)
-
             yield task, name, start_time
 
     def render_text(self, outfd, data):
@@ -47,8 +45,7 @@ class linux_task_list_psaux(ltps.linux_task_list_ps):
         outfd.write("{0:64s} {1:15s} {2:15s} {3:32s}\n".format("Arguments", "Pid", "Uid", "Start Time"))
 
         for task, name, start_time in data:
-
-            outfd.write("{0:64s} {1:15d} {2:15d} {3:32s}\n".format(name, task.pid, task.get_uid(), start_time))
+            outfd.write("{0:64s} {1:15d} {2:15d}\n".format(name, task.pid, task.get_uid()))
 
     def calc_time(self, start_offset):
 
@@ -60,7 +57,6 @@ class linux_task_list_psaux(ltps.linux_task_list_ps):
         tspec = boot_time - start_offset
         etime = tspec# * 1000000000
 
-        print "etime %d %x" % (etime, etime)
 
         return time.ctime(etime)
 
@@ -81,7 +77,7 @@ class linux_task_list_psaux(ltps.linux_task_list_ps):
 
         else:
             # kernel thread
-            name = "[{0:64s}]".format(task.comm)
+            name = "[" + task.comm + "]"
 
         return name
 

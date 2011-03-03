@@ -39,11 +39,12 @@ class linux_netstat(lof.linux_list_open_files):
             raise AttributeError, "Given profile does not have inet_sock, please file a bug if the kernel version is > 2.6.11"
 
         openfiles = lof.linux_list_open_files.calculate(self)
-
+    
         for (task, filp, _i, _addr_space) in openfiles:
-            # its a socket!
-            if filp.f_op == self.smap["socket_file_ops"]:
 
+            # its a socket!
+            if filp.f_op == self.smap["socket_file_ops"] or filp.get_dentry().d_op == self.smap["sockfs_dentry_operations"]:
+            
                 iaddr = filp.get_dentry().d_inode
                 skt = self.SOCKET_I(iaddr)
                 inet_sock = obj.Object("inet_sock", offset = skt.sk, vm = self.addr_space)
