@@ -142,9 +142,7 @@ class WindowsHiberFileSpace32(standard.FileAddressSpace):
                 if end > self.HighestPage:
                     self.HighestPage = end
 
-                tmp = [start * 0x1000, \
-                       LocalPageCnt * 0x1000]
-                self.AddressList.append(tmp)
+                self.AddressList.append((start * 0x1000, LocalPageCnt * 0x1000))
 
                 for j in range(0, LocalPageCnt):
                     if (XpressIndex and ((XpressIndex % 0x10) == 0)):
@@ -398,7 +396,8 @@ class WindowsHiberFileSpace32(standard.FileAddressSpace):
 
     def get_available_addresses(self):
         """ This returns the ranges  of valid addresses """
-        return self.AddressList
+        for i in self.AddressList:
+            yield i
 
     def close(self):
         self.base.close()

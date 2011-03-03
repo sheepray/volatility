@@ -33,6 +33,9 @@ from Crypto.Hash import MD5
 from Crypto.Cipher import ARC4, DES
 
 def get_lsa_key(secaddr, bootkey):
+    if not bootkey:
+        return None
+
     root = rawreg.get_root(secaddr)
     if not root:
         return None

@@ -29,12 +29,13 @@
 import volatility.plugins.registry.hivescan as hs
 import volatility.obj as obj
 import volatility.utils as utils
+import volatility.cache as cache
 
 class HiveList(hs.HiveScan):
     """Print list of registry hives.
 
-    You must supply this module the initial offset of the hive. You
-    can obtain this by running the hivescan module first.
+    You can supply the offset of a specific hive. Otherwise
+    this module will use the results from hivescan automatically.
     """
     # Declare meta information associated with this plugin
 
@@ -46,12 +47,6 @@ class HiveList(hs.HiveScan):
     meta_info['url'] = 'http://moyix.blogspot.com/'
     meta_info['os'] = 'WIN_32_XP_SP2'
     meta_info['version'] = '1.0'
-
-    def __init__(self, config, *args):
-        hs.HiveScan.__init__(self, config, *args)
-        config.add_option("HIVE-OFFSET", short_option = 'o',
-                          default = None, type = 'int',
-                          help = "Offset to registry hive")
 
     def render_text(self, outfd, result):
         outfd.write("{0:10}  {1:10}  {2}\n".format("Virtual", "Physical", "Name"))
@@ -68,33 +63,27 @@ class HiveList(hs.HiveScan):
                 outfd.write("{0:#010x}  {1:#010x}  {2}\n".format(hive.obj_offset, hive.obj_vm.vtop(hive.obj_offset), name))
                 hive_offsets.append(hive.obj_offset)
 
+    @cache.CacheDecorator("tests/hivelist")
     def calculate(self):
         flat = utils.load_as(self._config, astype = 'physical')
         addr_space = utils.load_as(self._config)
 
         hives = hs.HiveScan.calculate(self)
 
-        if self._config.HIVE_OFFSET:
-            hives = [self._config.HIVE_OFFSET]
+        ## The first hive is normally given in physical address space
+        ## - so we instantiate it using the flat address space. We
+        ## then read the Flink of the list to locate the address of
+        ## the first hive in virtual address space. hmm I wish we
+        ## could go from physical to virtual memory easier.
+        for offset in hives:
+            hive = obj.Object("_CMHIVE", int(offset), flat)
+            volmag = obj.Object('VOLATILITY_MAGIC', offset = 0, vm = flat)
+            o = volmag.HiveListOffset
+            if hive.HiveList.Flink.v():
+                start_hive_offset = hive.HiveList.Flink.v() - o.v()
 
-        def generate_results():
-            ## The first hive is normally given in physical address space
-            ## - so we instantiate it using the flat address space. We
-            ## then read the Flink of the list to locate the address of
-            ## the first hive in virtual address space. hmm I wish we
-            ## could go from physical to virtual memroy easier.
-            for offset in hives:
-                hive = obj.Object("_CMHIVE", int(offset), flat)
-                volmag = obj.Object('VOLATILITY_MAGIC', offset = 0, vm = flat)
-                o = volmag.HiveListOffset
-                if hive.HiveList.Flink.v():
-                    start_hive_offset = hive.HiveList.Flink.v() - o.v()
+                ## Now instantiate the first hive in virtual address space as normal
+                start_hive = obj.Object("_CMHIVE", start_hive_offset, addr_space)
 
-                    ## Now instantiate the first hive in virtual address space as normal
-                    start_hive = obj.Object("_CMHIVE", start_hive_offset, addr_space)
-
-                    for hive in start_hive.HiveList:
-                        yield hive
-
-        return generate_results()
-
+                for hive in start_hive.HiveList:
+                    yield hive

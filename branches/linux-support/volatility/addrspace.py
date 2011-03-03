@@ -32,7 +32,7 @@
 
 #pylint: disable-msg=C0111
 
-import registry
+import volatility.registry as registry
 import volatility.debug as debug
 
 ## Make sure the profiles are cached so we only parse it once. This is
@@ -107,11 +107,14 @@ class BaseAddressSpace(object):
         return self.__class__ == other.__class__ and \
                self.profile == other.profile and self.base == other.base
 
+    def __ne__(self, other):
+        return not self == other
+
     def read(self, addr, length):
         """ Read some date from a certain offset """
 
     def get_available_addresses(self):
-        """ Return a generator of address ranges covered by this AS """
+        """ Return a generator of address ranges as (offset, size) covered by this AS """
         raise StopIteration
 
     def is_valid_address(self, _addr):
@@ -131,7 +134,6 @@ class BaseAddressSpace(object):
 
     def __setstate__(self, state):
         self.__init__(**state)
-        self._set_profile(state['profile_name'])
 
 ## This is a specialised AS for use internally - Its used to provide
 ## transparent support for a string buffer so types can be
@@ -159,3 +161,6 @@ class BufferAddressSpace(BaseAddressSpace):
             return False
         self.data = self.data[:addr] + data + self.data[addr + len(data):]
         return True
+
+    def get_available_addresses(self):
+        yield (self.base_offset, len(self.data))

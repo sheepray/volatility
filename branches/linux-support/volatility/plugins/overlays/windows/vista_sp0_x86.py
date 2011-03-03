@@ -57,6 +57,7 @@ vistasp0x86overlays['VOLATILITY_MAGIC'][1]['HiveListPoolSize'][1] = ['Volatility
 vista_sp0_x86_vtypes.ntkrnlmp_types.update(crash_vtypes.crash_vtypes)
 vista_sp0_x86_vtypes.ntkrnlmp_types.update(hibernate_vtypes.hibernate_vtypes)
 vista_sp0_x86_vtypes.ntkrnlmp_types.update(tcpip_vtypes.tcpip_vtypes)
+vista_sp0_x86_vtypes.ntkrnlmp_types.update(tcpip_vtypes.tcpip_vtypes_vista)
 
 class VistaSP0x86(windows.AbstractWindows):
     """ A Profile for Windows Vista SP0 x86 """
@@ -91,9 +92,9 @@ class _MM_AVL_TABLE(obj.CType):
 class _EX_FAST_REF(obj.CType):
     def dereference_as(self, theType):
         """Use the _EX_FAST_REF.Object pointer to resolve an object of the specified type"""
-        return obj.Object(theType, vm = self.obj_vm, parent = self, offset = self.Object.v() & 0xFFFFFFFC)
+        return obj.Object(theType, vm = self.obj_vm, parent = self, offset = self.Object.v() & ~7)
 
-class _MMVAD_SHORT(xp_sp2_x86._MMVAD_SHORT):
+class _MMVAD_SHORT(windows._MMVAD_SHORT):
     def get_parent(self):
         return self.u1.Parent
 
@@ -110,6 +111,6 @@ class _MMVAD_LONG(_MMVAD_SHORT):
 VistaSP0x86.object_classes['_MM_AVL_TABLE'] = _MM_AVL_TABLE
 VistaSP0x86.object_classes['_EX_FAST_REF'] = _EX_FAST_REF
 
-VistaSP0x86.object_classes['_MMADDRESS_NODE'] = xp_sp2_x86._MMVAD
+VistaSP0x86.object_classes['_MMADDRESS_NODE'] = windows._MMVAD
 VistaSP0x86.object_classes['_MMVAD_SHORT'] = _MMVAD_SHORT
 VistaSP0x86.object_classes['_MMVAD_LONG'] = _MMVAD_LONG

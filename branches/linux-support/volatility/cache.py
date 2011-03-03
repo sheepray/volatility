@@ -266,8 +266,8 @@ class CacheNode(object):
                     result[self._find_generators(i)] = self._find_generators(item[i])
                 return result
 
-            # Since NoneObjects are iterable, treat them specially
-            if isinstance(item, obj.NoneObject):
+            # Since NoneObjects and strings are both iterable, treat them specially
+            if isinstance(item, obj.NoneObject) or isinstance(item, str):
                 return item
 
             if isinstance(item, types.GeneratorType):
@@ -457,17 +457,21 @@ class CacheStorage(object):
     def dump(self, url, payload):
         filename = self.filename(url)
 
-        debug.debug("Dumping filename {0}".format(filename))
         ## Check that the directory exists
         directory = os.path.dirname(filename)
         if not os.access(directory, os.R_OK | os.W_OK | os.X_OK):
             os.makedirs(directory)
 
         ## Ensure that the payload is flattened - i.e. all generators are converted to lists for pickling
-        data = pickle.dumps(payload)
-        fd = open(filename, 'w')
-        fd.write(data)
-        fd.close()
+        try:
+            data = pickle.dumps(payload)
+            debug.debug("Dumping filename {0}".format(filename))
+            fd = open(filename, 'w')
+            fd.write(data)
+            fd.close()
+        except pickle.PickleError:
+            # Do nothing if the pickle fails
+            debug.debug("NOT Dumping filename {0} - contained a non-picklable class".format(filename))
 
 ## This is the central cache object
 CACHE = CacheTree(CacheStorage(), invalidator = Invalidator())

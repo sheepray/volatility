@@ -22,11 +22,11 @@
 
 import os
 import re
-import volatility.obj as obj
 import volatility.plugins.procdump as procdump
 import volatility.win32.tasks as tasks
 import volatility.debug as debug
 import volatility.utils as utils
+import volatility.cache as cache
 
 class DLLDump(procdump.ProcExeDump):
     """Dump DLLs from a process address space"""
@@ -36,10 +36,10 @@ class DLLDump(procdump.ProcExeDump):
         config.remove_option("OFFSET")
         config.add_option('REGEX', short_option = 'r',
                       help = 'Dump dlls matching REGEX',
-                      action = 'store', type = 'string', dest = 'regex')
+                      action = 'store', type = 'string')
         config.add_option('IGNORE-CASE', short_option = 'i',
                       help = 'Ignore case in pattern match',
-                      action = 'store_true', default = False, dest = 'ignore_case')
+                      action = 'store_true', default = False)
         config.add_option('OFFSET', short_option = 'o', default = None,
                           help = 'Dump DLLs for Process with physical address OFFSET',
                           action = 'store', type = 'int')
@@ -47,6 +47,7 @@ class DLLDump(procdump.ProcExeDump):
                           help = 'Dump DLLS at the specified BASE offset in the process address space',
                           action = 'store', type = 'int')
 
+    @cache.CacheDecorator(lambda self: "tests/dlldump/regex={0}/ignore_case={1}/offset={2}/base={3}".format(self._config.REGEX, self._config.IGNORE_CASE, self._config.OFFSET, self._config.BASE))
     def calculate(self):
         addr_space = utils.load_as(self._config)
 
@@ -56,25 +57,17 @@ class DLLDump(procdump.ProcExeDump):
             debug.error(self._config.DUMP_DIR + " is not a directory")
 
         if self._config.OFFSET != None:
-            # Since this is a physical offset, we find the process
-            flat_addr_space = utils.load_as(self._config, astype = 'physical')
-            flateproc = obj.Object("_EPROCESS", self._config.OFFSET, flat_addr_space)
-            # then use the virtual address of its first thread to get into virtual land
-            # (Note: the addr_space and flat_addr_space use the same config, so should have the same profile)
-            offset = addr_space.profile.get_obj_offset("_ETHREAD", "ThreadListEntry")
-            ethread = obj.Object("_ETHREAD", offset = flateproc.ThreadListHead.Flink.v() - offset, vm = addr_space)
-            # and ask for the thread's process to get an _EPROCESS with a virtual address space
-            data = [ethread.ThreadsProcess.dereference()]
+            data = [self.virtual_process_from_physical_offset(addr_space, self._config.OFFSET)]
         else:
             data = self.filter_tasks(tasks.pslist(addr_space))
 
 
-        if self._config.regex:
+        if self._config.REGEX:
             try:
-                if self._config.ignore_case:
-                    mod_re = re.compile(self._config.regex, re.I)
+                if self._config.IGNORE_CASE:
+                    mod_re = re.compile(self._config.REGEX, re.I)
                 else:
-                    mod_re = re.compile(self._config.regex)
+                    mod_re = re.compile(self._config.REGEX)
             except re.error, e:
                 debug.error('Error parsing regular expression: %s' % e)
 
@@ -86,7 +79,7 @@ class DLLDump(procdump.ProcExeDump):
             mods = [(mod.DllBase.v(), mod) for mod in self.list_modules(proc)]
 
             for (base, mod) in mods:
-                if self._config.regex:
+                if self._config.REGEX:
                     if not mod_re.search(str(mod.FullDllName)) and not mod_re.search(str(mod.BaseDllName)):
                         continue
                 if self._config.BASE:
@@ -98,7 +91,7 @@ class DLLDump(procdump.ProcExeDump):
         for proc, ps_ad, mod in data:
             if ps_ad.is_valid_address(mod.DllBase):
                 process_offset = ps_ad.vtop(proc.obj_offset)
-                dump_file = "module.{0:x}.{1:x}.dll".format(process_offset, mod.DllBase)
+                dump_file = "module.{0}.{1:x}.{2:x}.dll".format(proc.UniqueProcessId, process_offset, mod.DllBase)
                 outfd.write("Dumping {0}, Process: {1}, Base: {2:8x} output: {3}\n".format(mod.BaseDllName, proc.ImageFileName, mod.DllBase, dump_file))
                 of = open(os.path.join(self._config.DUMP_DIR, dump_file), 'wb')
                 try:

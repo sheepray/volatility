@@ -21,11 +21,13 @@
 import os
 import volatility.utils as utils
 import volatility.commands as commands
+import volatility.cache as cache
 import volatility.debug as debug
 
 class CrashInfo(commands.command):
     """Dump crash-dump information"""
 
+    @cache.CacheDecorator("tests/crashinfo")
     def calculate(self):
         """Determines the address space"""
         addr_space = utils.load_as(self._config)
@@ -88,7 +90,7 @@ class CrashDump(CrashInfo):
             debug.error("crashdump requires an output file to dump the crashdump file")
 
         if os.path.exists(self._config.DUMP_FILE):
-            debug.error("File " + config.DUMP_FILE + " already exists, please choose another file or delete it first")
+            debug.error("File " + self._config.DUMP_FILE + " already exists, please choose another file or delete it first")
 
         outfd.write("Converting crashdump file...\n")
 

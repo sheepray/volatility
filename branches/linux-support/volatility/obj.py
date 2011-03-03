@@ -33,7 +33,7 @@ if __name__ == '__main__':
     sys.path.append("..")
 
 import re
-import pickle
+import cPickle as pickle # pickle implementation must match that in volatility.cache
 import struct, copy, operator
 import volatility.debug as debug
 import volatility.utils as utils
@@ -375,17 +375,32 @@ class BaseObject(object):
         """ This controls how we pickle and unpickle the objects """
         try:
             thetype = self._vol_theType.__name__
-        except:
+        except AttributeError:
             thetype = self._vol_theType
 
-        return dict(offset = self.obj_offset, name = self.obj_name, vm = self.obj_vm, theType = thetype)
+        result = dict(offset = self.obj_offset,
+                      name = self.obj_name, vm = self.obj_vm,
+                      theType = thetype)
+
+        ## Introspect the kwargs for the constructor and store in the dict
+        try:
+            for arg in self.__init__.func_code.co_varnames:
+                if (arg not in result and
+                    arg not in "self parent profile args".split()):
+                    result[arg] = self.__dict__[arg]
+        except KeyError:
+            debug.post_mortem()
+            raise pickle.PicklingError("Object {0} at 0x{1:08x} cannot be cached because of missing attribute {2}".format(self.obj_name, self.obj_offset, arg))
+
+        return result
 
     def __setstate__(self, state):
-        #pdb.set_trace()
+        #import pdb; pdb.set_trace()
         ## What we want to do here is to instantiate a new object and then copy it into ourselves
-        new_object = Object(state['theType'], state['offset'], state['vm'], name = state['name'])
+        #new_object = Object(state['theType'], state['offset'], state['vm'], name = state['name'])
+        new_object = Object(**state)
         if not new_object:
-            raise pickle.UnpicklingError("Object {0} at 0x{1:08x} invalid".format(state.obj_name, state.obj_offset))
+            raise pickle.UnpicklingError("Object {0} at 0x{1:08x} invalid".format(state['name'], state['offset']))
 
         ## (Scudette) Im not sure how much of a hack this is - we
         ## basically take over all the new object's members. This is
@@ -498,12 +513,6 @@ class BitField(NativeType):
         data = data << self.start_bit
         return NativeType.write(self, data)
 
-    def __getstate__(self):
-        result = NativeType.__getstate__(self)
-        result['start_bit'] = self.start_bit
-        result['end_bit'] = self.end_bit
-
-        return result
 
 class Pointer(NativeType):
     def __init__(self, theType, offset, vm, parent = None, profile = None, target = None, name = None):
@@ -515,6 +524,10 @@ class Pointer(NativeType):
             self.target = Curry(Object, theType)
         else:
             self.target = target
+
+    def __getstate__(self):
+        ## This one is too complicated to pickle right now
+        raise pickle.PicklingError("Pointer objects do not support caching")
 
     def is_valid(self):
         """ Returns if what we are pointing to is valid """
@@ -603,6 +616,10 @@ class Array(BaseObject):
             debug.debug("Array with 0 sized members???", level = 10)
             debug.b()
 
+    def __getstate__(self):
+        ## This one is too complicated to pickle right now
+        raise pickle.PicklingError("Array objects do not support caching")
+
     def size(self):
         return self.count * self.current.size()
 
@@ -662,7 +679,7 @@ class Array(BaseObject):
 
 class CType(BaseObject):
     """ A CType is an object which represents a c struct """
-    def __init__(self, theType, offset, vm, parent = None, members = None, name = None, size = 0):
+    def __init__(self, theType, offset, vm, parent = None, members = None, name = None, struct_size = 0):
         """ This must be instantiated with a dict of members. The keys
         are the offsets, the values are Curried Object classes that
         will be instantiated when accessed.
@@ -673,7 +690,7 @@ class CType(BaseObject):
             members = {}
 
         self.members = members
-        self.struct_size = size
+        self.struct_size = struct_size
         BaseObject.__init__(self, theType, offset, vm, parent = parent, name = name)
         self.__initialized = True
 
@@ -755,8 +772,9 @@ class VolatilityMagic(BaseObject):
             pass
         # If we've been given a configname override,
         # then override the value with the one from the config
-        if configname:
-            configval = getattr(self.obj_vm.get_config(), configname)
+        self.configname = configname
+        if self.configname:
+            configval = getattr(self.obj_vm.get_config(), self.configname)
             # Check the configvalue is actually set to something
             if configval:
                 value = configval
@@ -833,11 +851,6 @@ class Profile(object):
 
     def has_type(self, theType):
         return theType in self.object_classes or theType in self.types
-
-    def obj_has_member(self, name, member):
-        ''' Returns if a struct has a certain member '''
-        tmp = self._get_dummy_obj(name)
-        return hasattr(tmp,member)
 
     def add_types(self, abstract_types, overlay = None):
         overlay = overlay or {}
@@ -967,6 +980,11 @@ class Profile(object):
         tmp = self._get_dummy_obj(name)
         return tmp.size()
 
+    def obj_has_member(self, name, member):
+        """Returns whether an object has a certain member"""
+        tmp = self._get_dummy_obj(name)
+        return hasattr(tmp, member)
+
     def apply_overlay(self, type_member, overlay):
         """ Update the overlay with the missing information from type.
 
@@ -1030,4 +1048,4 @@ class Profile(object):
         else:
             cls = CType
 
-        return Curry(cls, cname, members = members, size = size)
+        return Curry(cls, cname, members = members, struct_size = size)

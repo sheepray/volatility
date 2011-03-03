@@ -221,7 +221,7 @@ class VolatilityCommandRegistry(MemoryRegistry):
             ## The name of the class is the command name
             command = cls.__name__.split('.')[-1].lower()
             try:
-                raise Exception("Command {0} has already been defined by {1}".format(command, self.commands[command]))
+                raise Exception("Command {0} has already been defined by {1}".format(cls, self.commands[command]))
             except KeyError:
                 self.commands[command] = cls
 
@@ -277,8 +277,13 @@ def print_info():
                     doc = cls.__doc__.strip().splitlines()[0]
                 except AttributeError:
                     doc = 'No docs'
-                result.append((cls.__name__, doc))
-                max_length = max(len(cls.__name__), max_length)
+                clsname = cls.__name__
+                # Convert classes to lower case for plugins so as not to
+                # confuse people who attempt to use the classes as the name for plugins
+                if isinstance(v, VolatilityCommandRegistry):
+                    clsname = cls.__name__.lower()
+                result.append((clsname, doc))
+                max_length = max(len(clsname), max_length)
 
             ## Sort the result
             result.sort(key = lambda x: x[0])

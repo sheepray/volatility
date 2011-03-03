@@ -43,12 +43,18 @@ CI_OFF_SHIFT = 0x0
 BLOCK_SIZE = 0x1000
 
 class HiveAddressSpace(addrspace.BaseAddressSpace):
-    def __init__(self, baseAddressSpace, config, hive_addr):
-        addrspace.BaseAddressSpace.__init__(self, baseAddressSpace, config)
-        self.base = baseAddressSpace
-        self.hive = obj.Object("_HHIVE", hive_addr, baseAddressSpace)
+    def __init__(self, base, config, hive_addr, **kwargs):
+        addrspace.BaseAddressSpace.__init__(self, base, config)
+        self.base = base
+        self.hive = obj.Object("_HHIVE", hive_addr, base)
         self.baseblock = self.hive.BaseBlock.v()
         self.flat = self.hive.Flat.v() > 0
+
+    def __getstate__(self):
+        result = addrspace.BaseAddressSpace.__getstate__(self)
+        result['hive_addr'] = self.hive.obj_offset
+
+        return result
 
     def vtop(self, vaddr):
         # If the hive is listed as "flat", it is all contiguous in memory

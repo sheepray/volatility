@@ -305,8 +305,8 @@ class VerInfo(procdump.ProcExeDump):
         config.remove_option("PID")
         config.add_option("OFFSET", short_option = "o", type = 'int',
                           help = "Offset of the module to print the version information for")
-        config.add_option('PATTERN', short_option = "p", default = None,
-                          help = 'dump modules matching REGEX')
+        config.add_option('REGEX', short_option = "r", default = None,
+                          help = 'Dump modules matching REGEX')
         config.add_option('IGNORE-CASE', short_option = 'i', action = 'store_true',
                       help = 'ignore case in pattern match', default = False)
 
@@ -317,12 +317,12 @@ class VerInfo(procdump.ProcExeDump):
             addr_space.profile.object_classes[cls.__name__] = cls
         addr_space.profile.add_types(ver_types)
 
-        if self._config.PATTERN is not None:
+        if self._config.REGEX is not None:
             try:
                 if self._config.IGNORE_CASE:
-                    module_pattern = re.compile(self._config.PATTERN, flags = sre_constants.SRE_FLAG_IGNORECASE)
+                    module_pattern = re.compile(self._config.REGEX, flags = sre_constants.SRE_FLAG_IGNORECASE)
                 else:
-                    module_pattern = re.compile(self._config.PATTERN)
+                    module_pattern = re.compile(self._config.REGEX)
             except sre_constants.error, e:
                 debug.error('Regular expression parsing error: {0}'.format(e))
 
@@ -336,7 +336,7 @@ class VerInfo(procdump.ProcExeDump):
 
         for task in tasks:
             for m in self.list_modules(task):
-                if self._config.PATTERN is not None:
+                if self._config.REGEX is not None:
                     if not (module_pattern.search(str(m.FullDllName))
                             or module_pattern.search(str(m.BaseDllName))):
                         continue

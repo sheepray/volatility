@@ -1,14 +1,5 @@
 crash_vtypes = {
 ## These types are for crash dumps
-    '_PHYSICAL_MEMORY_RUN' : [ 0x8, { \
-    'BasePage' : [ 0x0, ['unsigned long']], \
-    'PageCount' : [ 0x4, ['unsigned long']], \
-} ], \
-    '_PHYSICAL_MEMORY_DESCRIPTOR' : [ 0x10, { \
-    'NumberOfRuns' : [ 0x0, ['unsigned long']], \
-    'NumberOfPages' : [ 0x4, ['unsigned long']], \
-    'Run' : [ 0x8, ['array', 1, ['_PHYSICAL_MEMORY_RUN']]], \
-} ], \
   '_DMP_HEADER' : [ 0x1000, { \
     'Signature' : [ 0x0, ['array', 4, ['unsigned char']]], \
     'ValidDump' : [ 0x4, ['array', 4, ['unsigned char']]], \
@@ -43,15 +34,16 @@ crash_vtypes = {
     'reserved3' : [ 0xfc8, ['array', 56, ['unsigned char']]], \
 } ], \
   '_KDDEBUGGER_DATA32' : [ 0x44, { \
+  'OwnerTag' : [ 0x08, ['unsigned long']], \
+  'Size' : [ 0x0C, ['unsigned long']], \
   'PsLoadedModuleList' : [ 0x70, ['pointer', ['void']]], \
   'PsActiveProcessHead' : [ 0x78, ['pointer', ['void']]], \
 } ], \
   '_KDDEBUGGER_DATA64' : [ 0x44, { \
-  'PsLoadedModuleList' : [ 0x48, ['pointer', ['void']]], \
-  'PsActiveProcessHead' : [ 0x50, ['pointer', ['void']]], \
+  'OwnerTag' : [ 0x10, ['unsigned long']], \
+  'Size' : [ 0x14, ['unsigned long']], \
+  'PsLoadedModuleList' : [ 0x48, ['pointer', ['unsigned long']]], \
+  'PsActiveProcessHead' : [ 0x50, ['pointer', ['unsigned long']]], \
   'MmPfnDatabase' : [ 0xC0, ['unsigned long']], \
 } ], \
-'_DBGKD_GET_VERSION64' : [  0x2a, { \
-  'DebuggerDataList' : [ 0x20, ['unsigned long']], \
-} ]
 }

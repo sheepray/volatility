@@ -100,9 +100,6 @@ class EWFAddressSpace(standard.FileAddressSpace):
         self.fsize = self.fhandle.tell()
         self.fhandle.seek(0)
 
-    def is_valid_address(self, addr):
-        return True
-
     def write(self, _addr, _buf):
         if not self._config.WRITE:
             return False

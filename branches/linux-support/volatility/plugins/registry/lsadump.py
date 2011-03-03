@@ -31,6 +31,7 @@ import volatility.win32.rawreg as rawreg
 import volatility.win32.lsasecrets as lsasecrets
 import volatility.win32.hashdump as hashdumpmod
 import volatility.debug as debug
+import volatility.cache as cache
 import volatility.utils as utils
 import volatility.commands as commands
 
@@ -67,6 +68,7 @@ class LSADump(commands.command):
         config.add_option('SEC-OFFSET', short_option = 's', type = 'int',
                           help = 'SECURITY hive offset (virtual)')
 
+    @cache.CacheDecorator(lambda self: "tests/lsadump/sys_offset={0}/sec_offset={1}".format(self._config.SYS_OFFSET, self._config.SEC_OFFSET))
     def calculate(self):
         addr_space = utils.load_as(self._config)
 
@@ -98,6 +100,7 @@ class HashDump(commands.command):
         config.add_option('SAM-OFFSET', short_option = 's', type = 'int',
                           help = 'SAM hive offset (virtual)')
 
+    @cache.CacheDecorator(lambda self: "tests/hashdump/sys_offset={0}/sam_offset={1}".format(self._config.SYS_OFFSET, self._config.SAM_OFFSET))
     def calculate(self):
         addr_space = utils.load_as(self._config)
 
@@ -117,6 +120,7 @@ class HiveDump(commands.command):
         config.add_option('HIVE-OFFSET', short_option = 'o', type = 'int',
                           help = 'Hive offset (virtual)')
 
+    @cache.CacheDecorator(lambda self: "tests/hivedump/hive_offset={0}".format(self._config.HIVE_OFFSET))
     def calculate(self):
         addr_space = utils.load_as(self._config)
 

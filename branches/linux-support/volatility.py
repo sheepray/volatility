@@ -106,6 +106,9 @@ def main():
         config.parse_options()
         debug.error("Invalid module [{0}].".format(module))
 
+    if not config.LOCATION:
+        debug.error("Please specify a location (-l) or filename (-f)")
+
     try:
         if module in MemoryRegistry.PLUGIN_COMMANDS.commands:
             command = MemoryRegistry.PLUGIN_COMMANDS[module](config)

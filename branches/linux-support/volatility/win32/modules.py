@@ -24,26 +24,14 @@
 """
 
 #pylint: disable-msg=C0111
-import volatility.obj as obj
+import volatility.win32.tasks as tasks
 
 def lsmod(addr_space):
     """ A Generator for modules (uses _KPCR symbols) """
     ## Locate the kpcr struct - either hard coded or specified by the command line
 
-    volmagic = obj.Object('VOLATILITY_MAGIC', 0x0, addr_space)
-    kpcra = volmagic.KPCR.v()
+    PsLoadedModuleList = tasks.get_kdbg(addr_space).PsLoadedModuleList
 
-    kpcrval = obj.Object("_KPCR", offset = kpcra, vm = addr_space)
-
-    ## Try to dereference the KdVersionBlock as a 64 bit struct
-    DebuggerDataList = kpcrval.KdVersionBlock.dereference_as("_DBGKD_GET_VERSION64").DebuggerDataList
-
-    PsLoadedModuleList = DebuggerDataList.dereference_as("_KDDEBUGGER_DATA64"
-                                                          ).PsLoadedModuleList \
-                     or DebuggerDataList.dereference_as("_KDDEBUGGER_DATA32"
-                                                        ).PsLoadedModuleList \
-                     or kpcrval.KdVersionBlock.dereference_as("_KDDEBUGGER_DATA32"
-                                                           ).PsLoadedModuleList
     if PsLoadedModuleList.is_valid():
         ## Try to iterate over the process list in PsActiveProcessHead
         ## (its really a pointer to a _LIST_ENTRY)

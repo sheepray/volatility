@@ -189,10 +189,8 @@ class WindowsCrashDumpSpace32(standard.FileAddressSpace):
 
     def get_available_addresses(self):
         """ This returns the ranges  of valid addresses """
-        address_list = []
         for run in self.runs:
-            address_list.append([run[0] * 0x1000, run[1] * 0x1000])
-        return address_list
+            yield (run[0] * 0x1000, run[1] * 0x1000)
 
     def get_runs(self):
         """This returns the crashdump runs"""

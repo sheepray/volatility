@@ -1,9 +1,5 @@
 # Volatility
-# Copyright (C) 2007,2008 Volatile Systems
-#
-# Original source:
-# Volatools Basic
-# Copyright (C) 2007 Komoku, Inc.
+# Copyright (C) 2007-2011 Volatile Systems
 #
 # Additional Authors:
 # Michael Cohen <scudette@users.sourceforge.net>
@@ -41,7 +37,7 @@ class DllList(commands.command, cache.Testable):
         commands.command.__init__(self, config, *args)
         cache.Testable.__init__(self)
         config.add_option('OFFSET', short_option = 'o', default = None,
-                          help = 'EPROCESS Offset (in hex) in kernel address space',
+                          help = 'EPROCESS offset (in hex) in the physical address space',
                           action = 'store', type = 'int')
 
         config.add_option('PID', short_option = 'p', default = None,
@@ -88,21 +84,30 @@ class DllList(commands.command, cache.Testable):
 
         return tasks
 
+    def virtual_process_from_physical_offset(self, addr_space, offset):
+        """ Returns a virtual process from a physical offset in memory """
+        # Since this is a physical offset, we find the process
+        flat_addr_space = utils.load_as(addr_space.get_config(), astype = 'physical')
+        flateproc = obj.Object("_EPROCESS", offset, flat_addr_space)
+        # then use the virtual address of its first thread to get into virtual land
+        # (Note: the addr_space and flat_addr_space use the same config, so should have the same profile)
+        tleoffset = addr_space.profile.get_obj_offset("_ETHREAD", "ThreadListEntry")
+        ethread = obj.Object("_ETHREAD", offset = flateproc.ThreadListHead.Flink.v() - tleoffset, vm = addr_space)
+        # and ask for the thread's process to get an _EPROCESS with a virtual address space
+        # For Vista/windows 7
+        if hasattr(ethread.Tcb, 'Process'):
+            return ethread.Tcb.Process.dereference_as('_EPROCESS')
+        elif hasattr(ethread, 'ThreadsProcess'):
+            return ethread.ThreadsProcess.dereference()
+        return obj.NoneObject("Unable to bounce back from virtual _ETHREAD to virtual _EPROCESS")
+
     @cache.CacheDecorator(lambda self: "tests/pslist/pid={0}/offset={1}".format(self._config.PID, self._config.OFFSET))
     def calculate(self):
         """Produces a list of processes, or just a single process based on an OFFSET"""
         addr_space = utils.load_as(self._config)
 
         if self._config.OFFSET != None:
-            # Since this is a physical offset, we find the process
-            flat_addr_space = utils.load_as(self._config, astype = 'physical')
-            flateproc = obj.Object("_EPROCESS", self._config.OFFSET, flat_addr_space)
-            # then use the virtual address of its first thread to get into virtual land
-            # (Note: the addr_space and flat_addr_space use the same config, so should have the same profile)
-            offset = addr_space.profile.get_obj_offset("_ETHREAD", "ThreadListEntry")
-            ethread = obj.Object("_ETHREAD", offset = flateproc.ThreadListHead.Flink.v() - offset, vm = addr_space)
-            # and ask for the thread's process to get an _EPROCESS with a virtual address space
-            tasks = [ethread.ThreadsProcess.dereference()]
+            tasks = [self.virtual_process_from_physical_offset(addr_space, self._config.OFFSET)]
         else:
             tasks = self.filter_tasks(win32.tasks.pslist(addr_space))
 
@@ -127,10 +132,12 @@ class Files(DllList):
 
             for h in handles:
                 if h.FileName:
-                    outfd.write("{0:6} {1:40}\n".format("File", h.FileName))
+                    file_name = self.parse_string(h.FileName)
+                    outfd.write("{0:6} {1:40}\n".format("File", file_name))
 
+    @cache.CacheDecorator(lambda self: "tests/files/pid={0}/offset={1}".format(self._config.PID, self._config.OFFSET))
     def calculate(self):
-        tasks = self.filter_tasks(DllList.calculate(self))
+        tasks = DllList.calculate(self)
 
         for task in tasks:
             if task.ObjectTable.HandleTableList:
@@ -139,8 +146,30 @@ class Files(DllList):
 
     def handle_list(self, task):
         for h in task.handles():
-            if str(h.Type.Name) == self.handle_type:
-                yield obj.Object(self.handle_obj, h.Body.obj_offset, task.obj_vm, parent = task)
+            ## Account for changes to the object header for Windows 7
+            volmagic = obj.Object("VOLATILITY_MAGIC", 0x0, task.obj_vm)
+            try:
+                # New object header
+                if h.TypeIndex == volmagic.TypeIndexMap.v()[self.handle_type]:
+                    yield obj.Object(self.handle_obj, h.Body.obj_offset, task.obj_vm, parent = task)
+            except AttributeError:
+                # Old object header
+                if (h.Type.Name):
+                    if str(h.Type.Name) == self.handle_type:
+                        yield obj.Object(self.handle_obj, h.Body.obj_offset, task.obj_vm, parent = task)
+                pass
+
+    def parse_string(self, unicode_obj):
+        """Unicode string parser"""
+        ## We need to do this because the unicode_obj buffer is in
+        ## kernel_address_space
+        string_length = unicode_obj.Length
+        string_offset = unicode_obj.Buffer
+
+        string = unicode_obj.obj_vm.read(string_offset, string_length)
+        if not string:
+            return ''
+        return repr(string[:255].decode("utf16", "ignore").encode("utf8", "xmlcharrefreplace"))
 
 class PSList(DllList):
     """ print all running processes by following the EPROCESS lists """
@@ -184,9 +213,9 @@ class MemMap(DllList):
             else:
                 outfd.write("Unable to read pages for task.\n")
 
-    @cache.CacheDecorator(lambda self: "test/memmap/pid{0}".format(self._config.PID))
+    @cache.CacheDecorator(lambda self: "tests/memmap/pid={0}/offset={1}".format(self._config.PID, self._config.OFFSET))
     def calculate(self):
-        tasks = self.filter_tasks(DllList.calculate(self))
+        tasks = DllList.calculate(self)
 
         for task in tasks:
             if task.UniqueProcessId:

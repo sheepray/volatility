@@ -262,7 +262,7 @@ class PoolScanProcessFast2(scan.PoolScanner):
                ]
 
 class PSScan2(ModScan2):
-    """Scan physical memory for _ETHREAD objects"""
+    """Scan Physical memory for _EPROCESS objects"""
     def calculate(self):
         ## Here we scan the physical address space
         address_space = utils.load_as(self._config, astype = 'physical')

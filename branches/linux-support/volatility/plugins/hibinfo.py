@@ -23,10 +23,12 @@ import volatility.utils as utils
 import volatility.obj as obj
 import volatility.commands as commands
 import volatility.debug as debug
+import volatility.cache as cache
 
 class HibInfo(commands.command):
     """Dump hibernation file information"""
 
+    @cache.CacheDecorator("tests/hibinfo")
     def calculate(self):
         """Determines the address space"""
         addr_space = utils.load_as(self._config)
@@ -92,7 +94,7 @@ class HibDump(HibInfo):
             debug.error("Hibdump requires an output file to dump the hibernation file")
 
         if os.path.exists(self._config.DUMP_FILE):
-            debug.error("File " + config.DUMP_FILE + " already exists, please choose another file or delete it first")
+            debug.error("File " + self._config.DUMP_FILE + " already exists, please choose another file or delete it first")
 
         outfd.write("Converting hibernation file...\n")
 

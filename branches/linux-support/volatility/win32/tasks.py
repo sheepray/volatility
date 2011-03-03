@@ -36,21 +36,40 @@ class TasksNotFound(utils.VolatilityException):
     """Thrown when a tasklist cannot be determined"""
     pass
 
+def get_kdbg(addr_space):
+    """A function designed to return the KDDEBUGGER structure from an address space"""
+
+    def verify_kdbg(kdbgobj):
+        """Returns true if the kdbg_object handed in appears valid"""
+        # Check the OwnerTag is in fact the string KDBG
+        return kdbgobj.OwnerTag == 0x4742444B
+
+    volmagic = obj.Object('VOLATILITY_MAGIC', 0x0, addr_space)
+    kdbgo = volmagic.KDBG.v()
+
+    kdbg = obj.Object("_KDDEBUGGER_DATA64", offset = kdbgo, vm = addr_space)
+
+    if verify_kdbg(kdbg):
+        return kdbg
+    else:
+        # Fall back to finding it via the KPCR
+        kpcra = volmagic.KDBG.v()
+        kpcrval = obj.Object("_KPCR", offset = kpcra, vm = addr_space)
+
+        DebuggerDataList = kpcrval.KdVersionBlock.dereference_as("_DBGKD_GET_VERSION64").DebuggerDataList
+
+        for kobj in [DebuggerDataList.dereference_as("_KDDEBUGGER_DATA64"),
+                     DebuggerDataList.dereference_as("_KDDEBUGGER_DATA32"),
+                     kpcrval.KdVersionBlock.dereference_as("_KDDEBUGGER_DATA32")]:
+            if verify_kdbg(kobj):
+                return kobj
+
+    return obj.NoneObject("KDDEBUGGER structure not found using either KDBG signature or KPCR pointer")
+
 def pslist(addr_space):
     """ A Generator for _EPROCESS objects (uses _KPCR symbols) """
 
-    volmagic = obj.Object('VOLATILITY_MAGIC', 0x0, addr_space)
-    kpcra = volmagic.KPCR.v()
-
-    kpcrval = obj.Object("_KPCR", offset = kpcra, vm = addr_space)
-
-    DebuggerDataList = kpcrval.KdVersionBlock.dereference_as("_DBGKD_GET_VERSION64").DebuggerDataList
-    PsActiveProcessHead = DebuggerDataList.dereference_as("_KDDEBUGGER_DATA64"
-                                                          ).PsActiveProcessHead \
-                     or DebuggerDataList.dereference_as("_KDDEBUGGER_DATA32"
-                                                        ).PsActiveProcessHead \
-                     or kpcrval.KdVersionBlock.dereference_as("_KDDEBUGGER_DATA32"
-                                                           ).PsActiveProcessHead
+    PsActiveProcessHead = get_kdbg(addr_space).PsActiveProcessHead
 
     if PsActiveProcessHead:
         # Try to iterate over the process list in PsActiveProcessHead
@@ -59,14 +78,3 @@ def pslist(addr_space):
             yield l
     else:
         raise TasksNotFound("Could not list tasks, please verify the --profile option and whether this image is valid")
-
-def create_addr_space(kaddr_space, directory_table_base):
-
-    try:
-        process_address_space = kaddr_space.__class__(kaddr_space.base, directory_table_base)
-    except:
-        return None
-
-    return process_address_space
-
-

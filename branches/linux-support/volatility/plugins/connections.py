@@ -22,12 +22,13 @@
 
 import volatility.commands as commands
 import volatility.win32.network as network
+import volatility.cache as cache
 import volatility.utils as utils
 
 class Connections(commands.command):
     """
-    Print list of open connections
-    ------------------------------
+    Print list of open connections [Windows XP Only]
+    ---------------------------------------------
 
     This module follows the handle table of each task and prints
     current connections.
@@ -46,6 +47,7 @@ class Connections(commands.command):
             outfd.write("{0:25} {1:25} {2:6}\n".format(local, remote, conn.Pid))
 
 
+    @cache.CacheDecorator("tests/connections")
     def calculate(self):
         addr_space = utils.load_as(self._config)
 

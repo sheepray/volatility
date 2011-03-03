@@ -29,9 +29,7 @@
 """
 
 
-import volatility.win32 as win32
 import volatility.obj as obj
-import volatility.utils as utils
 import volatility.plugins.taskmods as taskmods
 import re
 
@@ -53,6 +51,9 @@ well_known_sid_re = [
   (re.compile(r'S-1-5-[0-9-]+-520'), 'Group Policy Creator Owners'),
   (re.compile(r'S-1-5-[0-9-]+-533'), 'RAS and IAS Servers'),
   (re.compile(r'S-1-5-5-[0-9]+-[0-9]+'), 'Logon Session'),
+  (re.compile(r'S-1-5-21-[0-9-]+-518'), 'Schema Admins'),
+  (re.compile(r'S-1-5-21-[0-9-]+-519'), 'Enterprise Admins'),
+  (re.compile(r'S-1-5-21-[0-9-]+-553'), 'RAS Servers'),
 ]
 
 well_known_sids = {
@@ -60,13 +61,15 @@ well_known_sids = {
   'S-1-0-0': 'Nobody',
   'S-1-1': 'World Authority',
   'S-1-1-0': 'Everyone',
-  'S-1-2-0': 'Users with the ability to log in locally',
   'S-1-2': 'Local Authority',
+  'S-1-2-0': 'Local (Users with the ability to log in locally)',
+  'S-1-2-1': 'Console Logon (Users who are logged onto the physical console)',
   'S-1-3': 'Creator Authority',
   'S-1-3-0': 'Creator Owner',
   'S-1-3-1': 'Creator Group',
   'S-1-3-2': 'Creator Owner Server',
   'S-1-3-3': 'Creator Group Server',
+  'S-1-3-4': 'Owner Rights',
   'S-1-4': 'Non-unique Authority',
   'S-1-5': 'NT Authority',
   'S-1-5-1': 'Dialup',
@@ -81,6 +84,9 @@ well_known_sids = {
   'S-1-5-11': 'Authenticated Users',
   'S-1-5-12': 'Restricted Code',
   'S-1-5-13': 'Terminal Server Users',
+  'S-1-5-14': 'Remote Interactive Logon',
+  'S-1-5-15': 'This Organization',
+  'S-1-5-17': 'This Organization (Used by the default IIS user)',
   'S-1-5-18': 'Local System',
   'S-1-5-19': 'NT Authority',
   'S-1-5-20': 'NT Authority',
@@ -97,40 +103,29 @@ well_known_sids = {
   'S-1-5-32-555': 'BUILTIN\Remote Desktop Users',
   'S-1-5-32-556': 'BUILTIN\Network Configuration Operators',
   'S-1-5-32-557': 'BUILTIN\Incoming Forest Trust Builders',
-  'S-1-5-32-557': 'BUILTIN\Incoming Forest Trust Builders',
   'S-1-5-32-558': 'BUILTIN\Performance Monitor Users',
   'S-1-5-32-559': 'BUILTIN\Performance Log Users',
   'S-1-5-32-560': 'BUILTIN\Windows Authorization Access Group',
   'S-1-5-32-561': 'BUILTIN\Terminal Server License Servers',
   'S-1-5-32-562': 'BUILTIN\Distributed COM Users',
-}
-
-token_types = {
-  '_EPROCESS': [ None, {
-    'Token' : [ 0xc8, ['_EX_FAST_REF']],
-} ],
-  '_TOKEN' : [ 0xa8, {
-    'UserAndGroupCount' : [ 0x4c, ['unsigned long']],
-    'UserAndGroups' : [ 0x68, ['pointer', ['array', lambda x: x.UserAndGroupCount,
-                                 ['_SID_AND_ATTRIBUTES']]]],
-} ],
-  '_SID_AND_ATTRIBUTES' : [ 0x8, {
-    'Sid' : [ 0x0, ['pointer', ['_SID']]],
-    'Attributes' : [ 0x4, ['unsigned long']],
-} ],
-  '_SID' : [ 0xc, {
-    'Revision' : [ 0x0, ['unsigned char']],
-    'SubAuthorityCount' : [ 0x1, ['unsigned char']],
-    'IdentifierAuthority' : [ 0x2, ['_SID_IDENTIFIER_AUTHORITY']],
-    'SubAuthority' : [ 0x8, ['array', lambda x: x.SubAuthorityCount, ['unsigned long']]],
-} ],
-  '_SID_IDENTIFIER_AUTHORITY' : [ 0x6, {
-    'Value' : [ 0x0, ['array', 6, ['unsigned char']]],
-} ],
-  '_EX_FAST_REF' : [ 0x4, {
-    'Object' : [ 0x0, ['pointer', ['void']]],
-    'Value' : [ 0x0, ['unsigned long']],
-} ],
+  'S-1-5-32-568': 'BUILTIN\IIS IUSRS',
+  'S-1-5-32-569': 'Cryptographic Operators',
+  'S-1-5-32-573': 'BUILTIN\Event Log Readers',
+  'S-1-5-32-574': 'BUILTIN\Certificate Service DCOM Access',
+  'S-1-5-33': 'Write Restricted',
+  'S-1-5-64-10': 'NTLM Authentication',
+  'S-1-5-64-14': 'SChannel Authentication',
+  'S-1-5-64-21': 'Digest Authentication',
+  'S-1-5-80': 'NT Service',
+  'S-1-5-1000': 'Other Organization',
+  'S-1-16-0': 'Untrusted Mandatory Level',
+  'S-1-16-4096': 'Low Mandatory Level',
+  'S-1-16-8192': 'Medium Mandatory Level',
+  'S-1-16-8448': 'Medium Plus Mandatory Level',
+  'S-1-16-12288': 'High Mandatory Level',
+  'S-1-16-16384': 'System Mandatory Level',
+  'S-1-16-20480': 'Protected Process Mandatory Level',
+  'S-1-16-28672': 'Secure Process Mandatory Level',
 }
 
 class GetSIDs(taskmods.DllList):
@@ -147,18 +142,6 @@ class GetSIDs(taskmods.DllList):
     meta_info['os'] = 'WIN_32_XP_SP2'
     meta_info['version'] = '1.0'
 
-    def calculate(self):
-        """Produces a list of processes, or just a single process based on an OFFSET"""
-        addr_space = utils.load_as(self._config)
-        addr_space.profile.add_types(token_types)
-
-        if self._config.OFFSET != None:
-            tasks = [obj.Object("_EPROCESS", self._config.OFFSET, addr_space)]
-        else:
-            tasks = self.filter_tasks(win32.tasks.pslist(addr_space))
-
-        return tasks
-
     def render_text(self, outfd, data):
         """Renders the sids as text"""
         for task in data:
@@ -168,7 +151,7 @@ class GetSIDs(taskmods.DllList):
             tok = obj.Object('_TOKEN', task.Token.Value & ~0x7, task.obj_vm)
 
             for sa in tok.UserAndGroups.dereference():
-                sid = sa.Sid.dereference()
+                sid = sa.Sid.dereference_as('_SID')
                 for i in sid.IdentifierAuthority.Value:
                     id_auth = i
                 sid_string = "S-" + "-".join(str(i) for i in (sid.Revision, id_auth) + tuple(sid.SubAuthority))
