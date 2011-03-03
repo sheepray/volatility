@@ -42,7 +42,7 @@ class linux_task_list_psaux(ltps.linux_task_list_ps):
 
     def render_text(self, outfd, data):
 
-        outfd.write("{0:64s} {1:15s} {2:15s} {3:32s}\n".format("Arguments", "Pid", "Uid", "Start Time"))
+        outfd.write("{0:64s} {1:15s} {2:15s}\n".format("Arguments", "Pid", "Uid"))
 
         for task, name, start_time in data:
             outfd.write("{0:64s} {1:15d} {2:15d}\n".format(name, task.pid, task.get_uid()))
