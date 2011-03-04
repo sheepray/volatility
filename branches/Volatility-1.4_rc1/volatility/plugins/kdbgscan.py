@@ -87,12 +87,14 @@ class KDBGScan(commands.command):
 
         proflens = {}
         maxlen = 0
+        origprofile = self._config.PROFILE
         for p in profilelist:
             self._config.update('PROFILE', p)
             buf = addrspace.BufferAddressSpace(self._config)
             volmag = obj.Object('VOLATILITY_MAGIC', offset = 0, vm = buf)
             proflens[p] = str(volmag.KDBGHeader)
             maxlen = max(maxlen, len(proflens[p]))
+        self._config.update('PROFILE', origprofile)
 
         proflens.update({'WinXPSP0x64':'\x00\xf8\xff\xffKDBG\x90\x02',
                          'Win7SP0x64':'\x00\xf8\xff\xffKDBG\x40\x03',
@@ -104,7 +106,7 @@ class KDBGScan(commands.command):
 
         scanner = KDBGScanner(needles = proflens.values())
 
-        flat = utils.load_as(self._config)
+        flat = utils.load_as(self._config, astype = 'physical')
 
         for offset in scanner.scan(flat):
             val = flat.read(offset, maxlen + 0x10)
@@ -121,6 +123,6 @@ class KDBGScan(commands.command):
     def render_text(self, outfd, data):
         """Renders the KPCR values as text"""
 
-        outfd.write("Potential KDBG structure virtual addresses:\n")
+        outfd.write("Potential KDBG structure physical addresses:\n")
         for n, o in data:
             outfd.write(" _KDBG: {0:#010x}  ({1})\n".format(o, n))
