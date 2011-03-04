@@ -78,7 +78,7 @@ class KDBGScan(commands.command):
     @staticmethod
     def register_options(config):
         config.add_option('KDBG', short_option = 'g', default = None, type = 'int',
-                          help = "Specify a specific KDBG address")
+                          help = "Specify a specific KDBG virtual address")
 
     @cache.CacheDecorator(lambda self: "tests/kdbgscan/kdbg={0}".format(self._config.KDBG))
     def calculate(self):
@@ -106,13 +106,16 @@ class KDBGScan(commands.command):
 
         scanner = KDBGScanner(needles = proflens.values())
 
-        flat = utils.load_as(self._config, astype = 'physical')
+        aspace = utils.load_as(self._config)
 
-        for offset in scanner.scan(flat):
-            val = flat.read(offset, maxlen + 0x10)
+        for offset in scanner.scan(aspace):
+            val = aspace.read(offset, maxlen + 0x10)
             for l in proflens:
                 if val.find(proflens[l]) >= 0:
-                    yield l, offset
+                    if hasattr(aspace, 'vtop'):
+                        yield l, aspace.vtop(offset), offset
+                    else:
+                        yield l, offset, None
 
         #XP = '\x90\x02'
         #vista = '\x28\x03'
@@ -123,6 +126,8 @@ class KDBGScan(commands.command):
     def render_text(self, outfd, data):
         """Renders the KPCR values as text"""
 
-        outfd.write("Potential KDBG structure physical addresses:\n")
-        for n, o in data:
-            outfd.write(" _KDBG: {0:#010x}  ({1})\n".format(o, n))
+        outfd.write("Potential KDBG structure addresses (P = Physical, V = Virtual):\n")
+        for n, o, v in data:
+            if v is not None:
+                outfd.write(" _KDBG: V {1:#010x}  ({2})\n".format(o, v, n))
+            outfd.write(" _KDBG: P {0:#010x}  ({2})\n".format(o, v, n))
