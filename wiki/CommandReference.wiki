@@ -46,8 +46,11 @@ Use this command to scan for potential KDBG structures.
 {{{
 $ python vol.py --profile=Win7SP0x86 -f win7.dmp kdbgscan
 Volatile Systems Volatility Framework 1.4_rc1
-Potential KDBG structure virtual addresses:
- _KDBG: 0x0296cbe8  (Win7SP0x86)
+Potential KDBG structure addresses (P = Physical, V = Virtual):
+ _KDBG: V 0x80544ce0  (WinXPSP3x86)
+ _KDBG: P 0x00544ce0  (WinXPSP3x86)
+ _KDBG: V 0x80544ce0  (WinXPSP2x86)
+ _KDBG: P 0x00544ce0  (WinXPSP2x86)
 }}}
 
 == kprcscan ==
@@ -58,7 +61,7 @@ Use this command to scan for potential KPCR structures.
 $ python vol.py --profile=Win7SP0x86 -f win7.dmp kpcrscan
 Volatile Systems Volatility Framework 1.4_rc1
 Potential KPCR structure virtual addresses:
- _KPCR: 8296dc00
+ _KPCR: 0x8296dc00
 }}}
 
 = Processes and DLLs =
