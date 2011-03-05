@@ -32,11 +32,12 @@ def compute_kernel_version(a, b, c):
 
 def apply_overlays(overlay):
 
-    overlay.update({'task_struct' : [None, { 'comm' : [ None , ['String', dict(length = 16)]]}]})
-    overlay.update({'module'      : [None, { 'name' : [ None , ['String', dict(length = 60)]]}]})
-    overlay.update({'super_block' : [None, { 's_id' : [ None , ['String', dict(length = 32)]]}]})
-    overlay.update({'net_device'  : [None, { 'name' : [ None , ['String', dict(length = 16)]]}]})
-    overlay.update({'sockaddr_un'  : [None, { 'sun_path' : [ None , ['String', dict(length = 108)]]}]})
+    overlay.update({'task_struct' : [None, { 'comm'          : [ None , ['String', dict(length = 16)]]}]})
+    overlay.update({'module'      : [None, { 'name'          : [ None , ['String', dict(length = 60)]]}]})
+    overlay.update({'super_block' : [None, { 's_id'          : [ None , ['String', dict(length = 32)]]}]})
+    overlay.update({'net_device'  : [None, { 'name'          : [ None , ['String', dict(length = 16)]]}]})
+    overlay.update({'sockaddr_un' : [None, { 'sun_path'      : [ None , ['String', dict(length =108)]]}]})
+    overlay.update({'cpuinfo_x86' : [None, { 'x86_model_id'  : [ None , ['String', dict(length = 64)]], 'x86_vendor_id' : [ None , ['String', dict(length = 16)]]}]})
 
 class AbstractLinuxProfile(obj.Profile):
 

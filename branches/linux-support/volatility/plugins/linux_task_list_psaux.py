@@ -45,7 +45,7 @@ class linux_task_list_psaux(ltps.linux_task_list_ps):
         outfd.write("{0:64s} {1:15s} {2:15s}\n".format("Arguments", "Pid", "Uid"))
 
         for task, name, start_time in data:
-            outfd.write("{0:64s} {1:15d} {2:15d}\n".format(name, task.pid, task.get_uid()))
+            outfd.write("{0:64s} {1:15s} {2:15s}\n".format(name, str(task.pid), str(task.get_uid())))
 
     def calc_time(self, start_offset):
 

@@ -57,7 +57,7 @@ class linux_task_list_ps(linux_common.AbstractLinuxCommand):
         outfd.write("{0:20s} {1:15s} {2:15s}\n".format("Name", "Pid", "Uid"))
 
         for task in data:
-            outfd.write("{0:20s} {1:15d} {2:15d}\n".format(task.comm, task.pid, task.get_uid()))
+            outfd.write("{0:20s} {1:15s} {2:15s}\n".format(task.comm, str(task.pid), str(task.get_uid())))
 
 
 
