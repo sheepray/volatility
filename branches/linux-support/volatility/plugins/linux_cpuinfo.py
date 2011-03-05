@@ -31,8 +31,8 @@ class linux_cpuinfo(linux_common.AbstractLinuxCommand):
 
     def calculate(self):
     
-        cpus = self.online_cpus()
-    
+        cpus = linux_common.online_cpus(self.smap, self.addr_space)
+
         if len(cpus) > 1 and "per_cpu__cpu_info" in self.smap:
             func = self.get_info_smp
         
@@ -42,35 +42,10 @@ class linux_cpuinfo(linux_common.AbstractLinuxCommand):
         else:
             raise AttributeError, "Unable to get CPU info for memory capture"
 
-        for i, cpu in func(cpus):
+        for i, cpu in func():
             yield i, cpu
-       
-
-    def bit_is_set(self, bmap, pos):
-
-        mask = 1 << pos
-        return bmap & mask
-
-    def online_cpus(self):
-
-        # later kernels..
-        if "cpu_online_bits" in self.smap:
-            bmap = obj.Object("unsigned long", offset=self.smap["cpu_online_bits"], vm=self.addr_space)
-
-        elif "cpu_present_map" in self.smap:
-            bmap = obj.Object("unsigned long",  offset=self.smap["cpu_present_map"], vm=self.addr_space)
-
-        else:
-            raise AttributeError, "Unable to determine number of online CPus for memory capture"
-
-        cpus = []
-        for i in xrange(0, 8):
-            if self.bit_is_set(bmap, i):
-                cpus.append(i)
-            
-        return cpus    
-                         
-    def get_info_single(self, cpus):
+                              
+    def get_info_single(self):
        
         cpu = obj.Object("cpuinfo_x86", offset=self.smap["boot_cpu_data"], vm=self.addr_space)
 
@@ -78,21 +53,9 @@ class linux_cpuinfo(linux_common.AbstractLinuxCommand):
 
     # pulls the per_cpu cpu info
     # will break apart the per_cpu code if a future plugin needs it
-    def get_info_smp(self, cpus):
+    def get_info_smp(self):
      
-        # get the highest numbered cpu
-        max_cpu = cpus[-1]
- 
-        per_offsets = obj.Object(theType='Array', targetType='unsigned long', count=max_cpu, offset=self.smap["__per_cpu_offset"], vm=self.addr_space)
-
-        i = 0
-        for i in cpus:
-            
-            offset = per_offsets[i]
-
-            addr = self.smap["per_cpu__cpu_info"] + offset.v()
-            cpu = obj.Object("cpuinfo_x86", offset=addr, vm=self.addr_space)
-
+        for i, cpu in linux_common.walk_per_cpu_var(self, "cpu_info", "cpuinfo_x86"):  
             yield i, cpu
 
     def render_text(self, outfd, data):
