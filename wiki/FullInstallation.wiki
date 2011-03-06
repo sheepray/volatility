@@ -262,4 +262,98 @@ Then type:
 python vol.py -h
 }}}
 
+
+== Linux Installation ==
+
+Luckily installation is a bit easier for Linux.  You will need to install Subversion and libpcre in addition to the dependencies listed above.  These should be available in your distribution's repository.  For example on Ubuntu:
+
+{{{
+$ apt-get install subversion -y
+$ apt-get install pcregrep libpcre++-dev python-dev -y 
+}}}
+
+For Fedora/Redhat you can use yum to install the appropriate packages.
+
+=== PyCrypto ===
+
+You have to install PyCrypto, since it is a requirement for core code. You can download the latest source from [http://gitweb.pycrypto.org/?p=crypto/pycrypto-2.0.x.git;a=summary the pycrypto website] or you can get find it in your Linux distribution repository.  The following commands will install this library from source on Ubuntu (you must be root to install):
+
+{{{
+$ wget http://gitweb.pycrypto.org/\?p=crypto/pycrypto-2.0.x.git\;a=snapshot\;h=9e9641d0a9b88f09683b5f26d3b99c4a2e148da5\;sf=tgz -O pycrypto.tgz
+
+# tar -xzvf pycrypto.tgz
+# cd pycrypto-2.0.x/
+# python setup.py build
+# python setup.py build install
+}}}
+
+=== Distorm3 ===
+
+For some of the malware plugins and the volshell plugin, you will need Distorm3.  The following commands will install Distorm3 from source (you must be root to install):
+
+{{{
+# wget http://distorm.googlecode.com/files/distorm3.zip
+# unzip distorm3.zip
+# cd distorm3
+# python setup.py build
+# python setup.py build install
+}}}
+
+=== Yara ===
+
+For some of the malware plugins you will need to install Yara.  The following commands will install Yara and Yara-python from source (you must be root to install):
+
+For Yara: 
+
+{{{
+# wget http://yara-project.googlecode.com/files/yara-1.4.tar.gz
+# tar -xvzf yara-1.4.tar.gz
+# cd yara-1.4
+# ./configure
+# make
+# make install
+}}}
+
+For Yara-python
+
+{{{
+# wget http://yara-project.googlecode.com/files/yara-python-1.4a.tar.gz
+# tar -xvzf yara-python-1.4a.tar.gz
+# cd yara-python-1.4a
+# python setup.py build
+# python setup.py build install
+}}}
+
+If you are on Ubuntu you will need to also run the following commands:
+
+{{{
+# echo "/usr/local/lib" >> /etc/ld.so.conf
+# ldconfig
+}}}
+
+
+=== SVN Checkout ===
+
+All you need to do to get download the Volatility 1.4 source code is run the following command:
+
+{{{
+$ svn checkout http://volatility.googlecode.com/svn/branches/Volatility-1.4_rc1  
+}}}
+
+All code will be located in Volatility-1.4_rc1
+
+To update your repository later you can run the following command from inside the Volatility-1.4_rc1 directory:
+
+{{{
+$ svn update
+}}}
+
+=== Installing the Malware Plugins ===
+
+Change into your Volatility-1.4_rc1/volatility/plugins directory and run the following command:
+
+{{{
+$ wget http://malwarecookbook.googlecode.com/svn/trunk/malware.py
+}}}
+
 You should see a long list of output that includes all of the plugins that are available.  For more information on how to use Volatility check out BasicUsage and CommandReference.
