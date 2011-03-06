@@ -271,6 +271,8 @@ You should see a long list of output that includes all of the plugins that are a
 
 == Linux Installation ==
 
+This covers how to install Volatility 1.4 on Linux
+
 === Installing SVN and Basic Dependencies ===
 
 Luckily installation is a bit easier for Linux.  You will need to install Subversion and libpcre in addition to the dependencies listed above.  These should be available in your distribution's repository.  For example on Ubuntu (as root):
