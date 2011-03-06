@@ -267,16 +267,18 @@ python vol.py -h
 
 === Installing SVN and Basic Dependencies ===
 
-Luckily installation is a bit easier for Linux.  You will need to install Subversion and libpcre in addition to the dependencies listed above.  These should be available in your distribution's repository.  For example on Ubuntu:
+Luckily installation is a bit easier for Linux.  You will need to install Subversion and libpcre in addition to the dependencies listed above.  These should be available in your distribution's repository.  For example on Ubuntu (as root):
 
 {{{
-$ apt-get install subversion -y
-$ apt-get install pcregrep libpcre++-dev python-dev -y 
+# apt-get install subversion -y
+# apt-get install pcregrep libpcre++-dev python-dev -y 
 }}}
 
 For Fedora/Redhat you can use yum to install the appropriate packages.
 
-=== PyCrypto ===
+This covers how to install Volatility 1.4 on Linux.
+
+=== Pycrypto ===
 
 You have to install PyCrypto, since it is a requirement for core code. You can download the latest source from [http://gitweb.pycrypto.org/?p=crypto/pycrypto-2.0.x.git;a=summary the pycrypto website] or you can get find it in your Linux distribution repository.  The following commands will install this library from source on Ubuntu (you must be root to install):
 
