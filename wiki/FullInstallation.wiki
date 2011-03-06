@@ -284,7 +284,6 @@ Luckily installation is a bit easier for Linux.  You will need to install Subver
 
 For Fedora/Redhat you can use yum to install the appropriate packages.
 
-This covers how to install Volatility 1.4 on Linux.
 
 === Linux: Installing Pycrypto ===
 
