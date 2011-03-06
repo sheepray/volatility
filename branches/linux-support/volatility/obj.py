@@ -940,23 +940,17 @@ class Profile(object):
         ##if typeList[0] in typeDict:
         if 1:
             try:
-                args = typeList[1]
+                tlargs = typeList[1]
             except IndexError:
-                args = {}
+                tlargs = {}
 
             obj_name = typeList[0]
-
-            # FIXME: Probably shouldn't be passing on all exceptions
-            try:
-                xret = Curry(Object, obj_name, name = name, **args)
-                return xret
-            except:
-                pass
-
+            if type(tlargs) == dict:
+                return Curry(Object, obj_name, name = name, **tlargs)
 
         ## If we get here we have no idea what this list is
         #raise RuntimeError("Error in parsing list {0}".format(typeList))
-        #debug.warning("Unable to find a type for {0}, assuming int".format(typeList[0]))
+        debug.warning("Unable to find a type for {0}, assuming int".format(typeList[0]))
         return Curry(self.types['int'], name = name)
 
     def _get_dummy_obj(self, name):
