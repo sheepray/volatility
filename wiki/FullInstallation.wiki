@@ -284,7 +284,7 @@ For Fedora/Redhat you can use yum to install the appropriate packages.
 
 This covers how to install Volatility 1.4 on Linux.
 
-=== Installing Pycrypto ===
+=== Linux: Installing Pycrypto ===
 
 You have to install PyCrypto, since it is a requirement for core code. You can download the latest source from [http://gitweb.pycrypto.org/?p=crypto/pycrypto-2.0.x.git;a=summary the pycrypto website] or you can get find it in your Linux distribution repository.  The following commands will install this library from source on Ubuntu (you must be root to install):
 
@@ -297,7 +297,7 @@ $ wget http://gitweb.pycrypto.org/\?p=crypto/pycrypto-2.0.x.git\;a=snapshot\;h=9
 # python setup.py build install
 }}}
 
-=== Installing Distorm3 ===
+=== Linux: Installing Distorm3 ===
 
 For some of the malware plugins and the volshell plugin, you will need Distorm3.  The following commands will install Distorm3 from source (you must be root to install):
 
@@ -309,7 +309,7 @@ For some of the malware plugins and the volshell plugin, you will need Distorm3.
 # python setup.py build install
 }}}
 
-=== Installing Yara 1.4 and Yara-Python 1.4a ===
+=== Linux: Installing Yara 1.4 and Yara-Python 1.4a ===
 
 For some of the malware plugins you will need to install Yara.  The following commands will install Yara and Yara-python from source (you must be root to install):
 
@@ -342,7 +342,7 @@ If you are on Ubuntu you will need to also run the following commands:
 }}}
 
 
-=== Installing Volatility 1.4 from SVN ===
+=== Linux: Installing Volatility 1.4 from SVN ===
 
 All you need to do to get download the Volatility 1.4 source code is run the following command:
 
@@ -358,7 +358,7 @@ To update your repository later you can run the following command from inside th
 $ svn update
 }}}
 
-=== Installing the Malware Plugins ===
+=== Linux: Installing the Malware Plugins ===
 
 Change into your Volatility-1.4_rc1/volatility/plugins directory and run the following command:
 
