@@ -287,7 +287,7 @@ For Fedora/Redhat you can use yum to install the appropriate packages.
 
 === Linux: Installing Pycrypto ===
 
-You have to install PyCrypto, since it is a requirement for core code. You can download the latest source from [http://gitweb.pycrypto.org/?p=crypto/pycrypto-2.0.x.git;a=summary the pycrypto website] or you can get find it in your Linux distribution repository.  The following commands will install this library from source on Ubuntu (you must be root to install):
+You have to install PyCrypto, since it is a requirement for core code. You can download the latest source from [http://gitweb.pycrypto.org/?p=crypto/pycrypto-2.0.x.git;a=summary the pycrypto website] or you can find it in your Linux distribution repository.  The following commands will install this library from source on Ubuntu (you must be root to install):
 
 {{{
 $ wget http://gitweb.pycrypto.org/\?p=crypto/pycrypto-2.0.x.git\;a=snapshot\;h=9e9641d0a9b88f09683b5f26d3b99c4a2e148da5\;sf=tgz -O pycrypto.tgz
