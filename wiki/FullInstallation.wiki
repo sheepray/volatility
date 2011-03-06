@@ -263,6 +263,12 @@ python vol.py -h
 }}}
 
 
+
+You should see a long list of output that includes all of the plugins that are available.  For more information on how to use Volatility check out BasicUsage and CommandReference.
+
+
+
+
 == Linux Installation ==
 
 === Installing SVN and Basic Dependencies ===
@@ -359,5 +365,13 @@ Change into your Volatility-1.4_rc1/volatility/plugins directory and run the fol
 {{{
 $ wget http://malwarecookbook.googlecode.com/svn/trunk/malware.py
 }}}
+
+
+Go into your Volatility-1.4_rc1 directory and type 
+
+{{{
+$ python vol.py -h
+}}}
+
 
 You should see a long list of output that includes all of the plugins that are available.  For more information on how to use Volatility check out BasicUsage and CommandReference.
