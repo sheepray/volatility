@@ -265,6 +265,8 @@ python vol.py -h
 
 == Linux Installation ==
 
+=== Installing SVN and Basic Dependencies ===
+
 Luckily installation is a bit easier for Linux.  You will need to install Subversion and libpcre in addition to the dependencies listed above.  These should be available in your distribution's repository.  For example on Ubuntu:
 
 {{{
