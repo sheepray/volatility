@@ -106,8 +106,6 @@ def main():
         config.parse_options()
         debug.error("Invalid module [{0}].".format(module))
 
-    if not config.LOCATION:
-        debug.error("Please specify a location (-l) or filename (-f)")
 
     try:
         if module in MemoryRegistry.PLUGIN_COMMANDS.commands:
@@ -116,6 +114,9 @@ def main():
             ## Register the help cb from the command itself
             config.set_help_hook(obj.Curry(command_help, command))
             config.parse_options()
+
+            if not config.LOCATION:
+                debug.error("Please specify a location (-l) or filename (-f)")
 
             command.execute()
     except utils.VolatilityException, e:
