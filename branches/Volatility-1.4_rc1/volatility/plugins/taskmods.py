@@ -145,7 +145,7 @@ class Files(DllList):
                 yield pid, self.handle_list(task)
 
     def handle_list(self, task):
-        for h in task.handles():
+        for h in task.ObjectTable.handles():
             ## Account for changes to the object header for Windows 7
             volmagic = obj.Object("VOLATILITY_MAGIC", 0x0, task.obj_vm)
             try:

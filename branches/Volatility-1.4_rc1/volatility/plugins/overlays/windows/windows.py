@@ -198,6 +198,20 @@ class _EPROCESS(obj.CType):
 
         return process_as
 
+AbstractWindows.object_classes['_EPROCESS'] = _EPROCESS
+
+class _HANDLE_TABLE(obj.CType):
+    """ A class for _HANDLE_TABLE. 
+    
+    This used to be a member of _EPROCESS but it was isolated per issue 
+    91 so that it could be subclassed and used to service other handle 
+    tables, such as the _KDDEBUGGER_DATA64.PspCidTable.
+    """
+    
+    def get_item(self, offset):
+        return obj.Object("_OBJECT_HEADER", offset, self.obj_vm,
+                                            parent = self)
+    
     def _make_handle_array(self, offset, level):
         """ Returns an array of _HANDLE_TABLE_ENTRY rooted at offset,
         and iterates over them.
@@ -226,8 +240,9 @@ class _EPROCESS(obj.CType):
                     ## OK We got to the bottom table, we just resolve
                     ## objects here:
                     offset = int(entry.Object.v()) & ~0x00000007
-                    item = obj.Object("_OBJECT_HEADER", offset, self.obj_vm,
-                                            parent = self)
+                                        
+                    item = self.get_item(offset)
+                    
                     try:
                         # New object header
                         if item.TypeIndex != 0x0:
@@ -248,18 +263,17 @@ class _EPROCESS(obj.CType):
         yielding all handles. We take care of recursing into the
         nested tables automatically.
         """
-        h = self.ObjectTable
-        if h.is_valid():
-            TableCode = h.TableCode.v() & LEVEL_MASK
-            table_levels = h.TableCode.v() & ~LEVEL_MASK
-            offset = TableCode
+        
+        LEVEL_MASK = 0xfffffff8
+        
+        TableCode = self.TableCode.v() & LEVEL_MASK
+        table_levels = self.TableCode.v() & ~LEVEL_MASK
+        offset = TableCode
 
-            for h in self._make_handle_array(offset, table_levels):
-                yield h
+        for h in self._make_handle_array(offset, table_levels):
+            yield h
 
-LEVEL_MASK = 0xfffffff8
-
-AbstractWindows.object_classes['_EPROCESS'] = _EPROCESS
+AbstractWindows.object_classes['_HANDLE_TABLE'] = _HANDLE_TABLE
 
 ## This is an object which provides access to the VAD tree.
 class _MMVAD(obj.CType):
