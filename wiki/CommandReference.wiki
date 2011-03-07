@@ -1679,41 +1679,49 @@ f9db9ccc: 0000                             ADD [EAX], AL
 
 Now you can see that TDL3 redirects all IRPs to its own stub in the vmscsi.sys driver. That code jumps to whichever address is pointed to by 0xffdf0308 - a location in the KUSER_SHARED_DATA region. 
 
-== csrpslist ==
+== psxview ==
 
-The CSRSS process contains some useful alternate process listings. In particular, it has a handle open to nearly every active process, and it also maintains an internal linked list of processes - separate from the one the kernel maintains. Thus, you can analyze data structures in the memory of csrss.exe and cross-reference them with what pslist finds. In fact, csrpslist does this all for you. On Windows Vista and Windows 7 the internal list of processes is not available. 
+This plugin helps you detect hidden processes by comparing what  !PsActiveProcessHead contains with what is reported by various other sources of process listings. It compares the following:
 
-Here is an example of detecting the Prolaco malware with csrpslist. It generates all unique processes based on the !PsActiveProcessHead (pslist), the csrss.exe handle table, and the csrss.exe internal list. Then it loops through and prints which processes exist in which list. Any items which don't exist in the pslist (such as Pid 1336 below) have been hidden by a rootkit. 
+  * !PsActiveProcessHead linked list
+  * EPROCESS pool scanning
+  * ETHREAD pool scanning (then it references the owning EPROCESS)
+  * !PspCidTable 
+  * Csrss.exe handle table
+  * Csrss.exe internal linked list 
+
+On Windows Vista and Windows 7 the internal list of processes in csrss.exe is not available. It also may not be available in some XP images where certain pages are not memory resident. 
+
+Here is an example of detecting the Prolaco malware with psxview. A zero in any column indicates that the respective process is missing. You can tell "1_doc_RCData_61" is suspicious since it shows up in every column except pslist (!PsActiveProcessHead). 
 
 {{{
-$ python vol.py -f prolaco.vmem csrpslist
-Volatile Systems Volatility Framework 1.4_rc1
-Name                 Pid    Pslist   Hndls    RootList
-vmtoolsd.exe           1668        1        1        0
-svchost.exe             856        1        1        0
-spoolsv.exe            1432        1        1        0
-svchost.exe            1028        1        1        0
-smss.exe                544        1        0        0
-TPAutoConnSvc.e        1968        1        1        0
-services.exe            676        1        1        0
-svchost.exe             936        1        1        0
-lsass.exe               688        1        1        0
-svchost.exe            1148        1        1        0
-VMwareTray.exe          432        1        1        0
-1_doc_RCData_61        1336        0        1        0
-explorer.exe           1724        1        1        0
-svchost.exe            1088        1        1        0
-VMwareUser.exe          452        1        1        0
-vmacthlp.exe            844        1        1        0
-wscntfy.exe             888        1        1        0
-wuauclt.exe             468        1        1        0
-alg.exe                 216        1        1        0
-csrss.exe               608        1        0        0
-TPAutoConnect.e        1084        1        1        0
-ImmunityDebugge        1136        1        1        0
-winlogon.exe            632        1        1        0
-VMUpgradeHelper        1788        1        1        0
-System                    4        1        0        0
+$ python vol.py -f prolaco.vmem psxview
+Offset       Name                 Pid      pslist     psscan     thrdproc   pspcid     csr_hnds   csr_list  
+0xff1b8b28   vmtoolsd.exe         1668     1          1          1          1          1          0         
+0x80ff88d8   svchost.exe          856      1          1          1          1          1          0         
+0xff1d7da0   spoolsv.exe          1432     1          1          1          1          1          0         
+0x810b1660   System               4        1          1          1          1          0          0         
+0x80fbf910   svchost.exe          1028     1          1          1          1          1          0         
+0xff2ab020   smss.exe             544      1          1          1          1          0          0         
+0xff3667e8   VMwareTray.exe       432      1          1          1          1          1          0         
+0xff247020   services.exe         676      1          1          1          1          1          0         
+0xff217560   svchost.exe          936      1          1          1          1          1          0         
+0xff143b28   TPAutoConnSvc.e      1968     1          1          1          1          1          0         
+0x80fdc648   1_doc_RCData_61      1336     0          1          1          1          1          0         
+0xff255020   lsass.exe            688      1          1          1          1          1          0         
+0xff3865d0   explorer.exe         1724     1          1          1          1          1          0         
+0xff22d558   svchost.exe          1088     1          1          1          1          1          0         
+0xff374980   VMwareUser.exe       452      1          1          1          1          1          0         
+0xff1fdc88   VMUpgradeHelper      1788     1          1          1          1          1          0         
+0xff218230   vmacthlp.exe         844      1          1          1          1          1          0         
+0xff364310   wscntfy.exe          888      1          1          1          1          1          0         
+0x80f94588   wuauclt.exe          468      1          1          1          1          1          0         
+0xff25a7e0   alg.exe              216      1          1          1          1          1          0         
+0xff1ecda0   csrss.exe            608      1          1          1          1          0          0         
+0xff38b5f8   TPAutoConnect.e      1084     1          1          1          1          1          0         
+0xff37a4b0   ImmunityDebugge      1136     1          1          1          1          1          0         
+0xff1ec978   winlogon.exe         632      1          1          1          1          1          0         
+0xff203b80   svchost.exe          1148     1          1          1          1          1          0
 }}}
 
 == ssdt_ex ==
