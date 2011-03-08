@@ -246,9 +246,9 @@ if __name__ == "__main__":
         elif parsed['kind'] == 'DW_TAG_base_type':
             id_to_name[parsed['id']] = [base_type_name(parsed)]
         elif parsed['kind'] == 'DW_TAG_volatile_type':
-            id_to_name[parsed['id']] = parsed['data'].get('DW_AT_type','void')
+            id_to_name[parsed['id']] = parsed['data'].get('DW_AT_type', ['void'])
         elif parsed['kind'] == 'DW_TAG_const_type':
-            id_to_name[parsed['id']] = parsed['data'].get('DW_AT_type','void')
+            id_to_name[parsed['id']] = parsed['data'].get('DW_AT_type', ['void'])
         elif parsed['kind'] == 'DW_TAG_typedef':
             id_to_name[parsed['id']] = parsed['data']['DW_AT_type']
         elif parsed['kind'] == 'DW_TAG_subroutine_type':
