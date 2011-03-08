@@ -52,6 +52,7 @@ class ImageInfo(kdbg.KDBGScan):
         if bestguess in profilelist:
             profilelist = [bestguess] + profilelist
         chosen = 'no profile'
+        origprofile = self._config.PROFILE
         for profile in profilelist:
             self._config.update('PROFILE', profile)
             addr_space = utils.load_as(self._config)
@@ -100,6 +101,9 @@ class ImageInfo(kdbg.KDBGScan):
             yield ('Image Type', self.find_csdversion(addr_space))
         except tasks.TasksNotFound:
             pass
+
+        # Make sure to reset the profile to its original value to keep the invalidator from blocking the cache
+        self._config.update('PROFILE', origprofile)
 
     def get_image_time(self, addr_space):
         # Get the Image Datetime
