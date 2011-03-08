@@ -362,7 +362,7 @@ class Invalidator(object):
         different we invalidate the cache.
         """
         result = {}
-        for k, v in self.callbacks.items():
+        for k, v in CACHE.invalidator.callbacks.items():
             result[k] = v()
 
         debug.debug("Pickling State signature: {0}".format(result))
