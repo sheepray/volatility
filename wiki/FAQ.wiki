@@ -11,6 +11,10 @@
 
 ...
 
+= Are Volatility 1.3 plugins compatible with 1.4? =
+
+No.  A lot has changed since Volatility 1.3 making older plugins incompatible with the current code base.  The good news is most public plugins have been ported to 1.4 already.  You can check the [CommandReference] wiki to see if the plugin you are looking for is there.  If not you will need to convert the plugin to work with the current code base.  See [CovertingPluginsFromVol13toVol14] for details on how to do this.
+
 = What operating systems does Volatility support? =
 
 Microsoft Windows:
