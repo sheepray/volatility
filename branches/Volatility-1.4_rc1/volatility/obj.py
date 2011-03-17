@@ -523,7 +523,7 @@ class Pointer(NativeType):
         # You can define a POINTER_64 in 32-bit windows, it becomes a signed pointer for use with special pointers like -1.
         # However, in that case it's unlikely to dereference properly either
         # We can always change this later if it becomes necessary to handle such unusual circumstances 
-        format_string = vm.profile.native_types['address']
+        format_string = vm.profile.native_types['address'][1]
         NativeType.__init__(self, theType, offset = offset, vm = vm, name = name,
                             parent = parent, profile = profile, format_string = format_string)
 
