@@ -499,11 +499,13 @@ class NativeType(BaseObject, NumericProxyMixIn):
 class BitField(NativeType):
     """ A class splitting an integer into a bunch of bit. """
     def __init__(self, theType, offset, vm, parent = None,
-                 start_bit = 0, end_bit = 32, name = None, **args):
-        NativeType.__init__(self, theType, offset, vm, parent = parent, name = name)
-        self.format_string = '=I'
+                 start_bit = 0, end_bit = 32, name = None, native_type = None, **args):
+        # Defaults to profile-endian address, but can be overridden by native_type
+        format_string = vm.profile.native_types.get(native_type, vm.profile.native_types['address'])[1]
+        NativeType.__init__(self, theType, offset, vm, parent = parent, name = name, format_string = format_string)
         self.start_bit = start_bit
         self.end_bit = end_bit
+        self.native_type = native_type # Store this for proper caching
 
     def v(self):
         i = NativeType.v(self)
@@ -516,9 +518,14 @@ class BitField(NativeType):
 
 class Pointer(NativeType):
     def __init__(self, theType, offset, vm, parent = None, profile = None, target = None, name = None):
+        # Default to profile-endian address
+        # We don't allow native_type overriding for pointers since we can't dereference invalid pointers anyway
+        # You can define a POINTER_64 in 32-bit windows, it becomes a signed pointer for use with special pointers like -1.
+        # However, in that case it's unlikely to dereference properly either
+        # We can always change this later if it becomes necessary to handle such unusual circumstances 
+        format_string = vm.profile.native_types['address']
         NativeType.__init__(self, theType, offset = offset, vm = vm, name = name,
-                            parent = parent, profile = profile)
-        self.format_string = "=I"
+                            parent = parent, profile = profile, format_string = format_string)
 
         if theType:
             self.target = Curry(Object, theType)
@@ -568,10 +575,11 @@ class Pointer(NativeType):
             return result.__getattribute__(attr)
 
 class Void(NativeType):
-    def __init__(self, theType, offset, vm, parent = None,
-                 format_string = None, **args):
-        NativeType.__init__(self, theType, offset, vm, parent = None)
-        self.format_string = "=I"
+    def __init__(self, theType, offset, vm, parent = None, **args):
+        # Default to profile-endian unsigned long
+        # This should never need to be overridden, but can be by changing the 'Void' value in a profile's object_classes 
+        format_string = vm.profile.native_types['unsigned long'][1]
+        NativeType.__init__(self, theType, offset, vm, parent = None, format_string = format_string)
 
     def cdecl(self):
         return "0x{0:08X}".format(self.v())
