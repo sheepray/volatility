@@ -68,7 +68,9 @@ Potential KPCR structure virtual addresses:
 
 == pslist ==
 
-To list the active processes of a system, use the pslist command. This walks the doubly-linked list pointed to by !PsActiveProcessHead. It does not detect hidden or unlinked processes. 
+To list the processes of a system, use the pslist command. This walks the doubly-linked list pointed to by !PsActiveProcessHead. It does not detect hidden or unlinked processes. 
+
+Also, if you see processes with 0 threads and 0 handles, the process may not actually still be active. For more information, see [http://mnin.blogspot.com/2011/03/mis-leading-active-in.html The Missing Active in PsActiveProcessHead]. 
 
 {{{
 $ python vol.py --profile=Win7SP0x86 -f win7.dmp pslist
