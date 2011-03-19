@@ -58,7 +58,7 @@ class FWRaw1394(object):
 class FWForensic1394(object):
     def __init__(self, location):
         """Initializes the firewire implementation"""
-        self.location = location
+        self.location = location.strip('/')
         self._bus = forensic1394.Bus()
         self._bus.enable_sbp2()
         self._device = None
@@ -68,9 +68,9 @@ class FWForensic1394(object):
             time.sleep(2)
             devices = self._bus.devices()
             # FIXME: Base the device off the location rather than hardcoded first remote device
-            #self._device = devices[0]
-            #if not self._device.isopen():
-            #    self._device.open()
+            self._device = devices[int(self.location)]
+            if not self._device.isopen():
+                self._device.open()
             # The device requires time to settle before it can be used
             return True, "Valid"
         except IOError, e:
@@ -156,18 +156,19 @@ class FirewireAddressSpace(addrspace.BaseAddressSpace):
     def read(self, offset, length):
         """Reads a specified size in bytes from the current offset
         
-           Fills any excluded holes with zeros (so in that sense, similar to zread
+           Fills any excluded holes with zeros (so in that sense, similar to zread)
         """
         ints = self.intervals(offset, length)
         output = "\x00" * length
         try:
             for i in ints:
-                if i[1] > 0:
+                datstart, datlen = i[0], i[1]
+                if datlen > 0:
                     # node.read won't work on 0 byte
-                    readdata = self._fwimpl.read(i[0], i[1])
+                    readdata = self._fwimpl.read(datstart, datlen)
                     # I'm not sure why, but sometimes readdata comes out longer than the requested size
                     # We just truncate it to the right length
-                    output = output[:i[0]] + readdata[:i[1]] + output[i[0] + i[1]:]
+                    output = output[:datstart - offset] + readdata[:datlen] + output[(datstart - offset) + datlen:]
         except IOError, e:
             print repr(e)
             raise RuntimeError("Failed to read from firewire device")
@@ -182,8 +183,9 @@ class FirewireAddressSpace(addrspace.BaseAddressSpace):
         ints = self.intervals(offset, len(data))
         try:
             for i in ints:
-                if i[1] > 0:
-                    self._fwimpl.write(i[0], data[i[0]:i[0] + i[1]])
+                datstart, datlen = i[0], i[1]
+                if datlen > 0:
+                    self._fwimpl.write(datstart, data[(datstart - offset):(datstart - offset) + datlen])
         except IOError:
             raise RuntimeError("Failed to write to the firewire device")
         return True
