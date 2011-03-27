@@ -370,3 +370,123 @@ class MutantScan(FileScan):
                          mutant.OwnerThread, CID,
                          ObjectNameString
                          ))
+
+class CheckProcess2(scan.ScannerCheck):
+    """ Check sanity of _EPROCESS """
+    kernel = 0x80000000
+    block_size = 0x8
+
+    def check(self, found):
+        ## The offset of the object is determined by subtracting the offset
+        ## of the PoolTag member to get the start of Pool Object. This done
+        ## because PoolScanners search for the PoolTag. 
+
+        pool_base = found - \
+                  self.address_space.profile.get_obj_offset('_POOL_HEADER', 'PoolTag')
+
+        pool_obj = obj.Object("_POOL_HEADER", vm = self.address_space,
+                                 offset = pool_base)
+
+        ## We work out the _EPROCESS from the end of the
+        ## allocation (bottom up).
+        eprocess = obj.Object("_EPROCESS", vm = self.address_space,
+                  offset = pool_base + pool_obj.BlockSize * self.block_size - \
+                  self.address_space.profile.get_obj_size("_EPROCESS")
+                  )
+
+        if (eprocess.Pcb.DirectoryTableBase == 0):
+            return False
+
+        if (eprocess.Pcb.DirectoryTableBase % 0x20 != 0):
+            return False
+
+        list_head = eprocess.ThreadListHead
+
+        if (list_head.Flink < self.kernel) or (list_head.Blink < self.kernel):
+            return False
+
+        return True
+
+
+class PoolScanProcess3(scan.PoolScanner):
+    """PoolScanner for File objects"""
+    block_size = 8
+
+    ## We are not using a preamble for this plugin since we are walking back
+    preamble = []
+
+    def object_offset(self, found, address_space):
+        """ This returns the offset of the object contained within
+        this pool allocation.
+        """
+        ## The offset of the object is determined by subtracting the offset
+        ## of the PoolTag member to get the start of Pool Object and then
+        ## adding the size of the preamble data structures. This done
+        ## because PoolScanners search for the PoolTag. 
+
+        pool_base = found - \
+                self.buffer.profile.get_obj_offset('_POOL_HEADER', 'PoolTag')
+
+        pool_obj = obj.Object("_POOL_HEADER", vm = address_space,
+                                 offset = pool_base)
+
+        ## We work out the _EPROCESS from the end of the
+        ## allocation (bottom up).
+
+        object_base = pool_base + pool_obj.BlockSize * self.block_size - \
+                      self.buffer.profile.get_obj_size("_EPROCESS")
+
+        return object_base
+
+    checks = [ ('PoolTagCheck', dict(tag = '\x50\x72\x6F\xe3')),
+               ('CheckPoolSize', dict(condition = lambda x: x >= 0x280)),
+               ('CheckPoolType', dict(paged = True, non_paged = True, free = True)),
+               ('CheckPoolIndex', dict(value = 0)),
+               ('CheckProcess2', {}),
+               ]
+    
+
+class PSScan3(commands.command):
+    """ Scan Physical memory for _EPROCESS pool allocations
+    """
+    # Declare meta information associated with this plugin
+    meta_info = {}
+    meta_info['author'] = 'AAron Walters'
+    meta_info['copyright'] = 'Copyright (c) 2011 Volatile Systems'
+    meta_info['contact'] = 'awalters@volatilesystems.com'
+    meta_info['license'] = 'GNU General Public License 2.0 or later'
+    meta_info['url'] = 'https://www.volatilesystems.com/'
+    meta_info['os'] = ['Win7SP0x86','WinXPSP3x86']
+    meta_info['version'] = '0.1'
+
+    def __init__(self, config, *args):
+        commands.command.__init__(self, config, *args)
+        self.kernel_address_space = None
+        
+    # Can't be cached until self.kernel_address_space is moved entirely
+    # within calculate
+    def calculate(self):
+        ## Just grab the AS and scan it using our scanner
+        address_space = utils.load_as(self._config, astype = 'physical')
+
+        for offset in PoolScanProcess3().scan(address_space):
+            eprocess = obj.Object('_EPROCESS', vm = address_space,
+                               offset = offset)
+            yield eprocess
+
+    def render_text(self, outfd, data):
+
+
+        outfd.write("PID    PPID   Time created             Time exited              Offset     PDB        Remarks\n" + \
+                    "------ ------ ------------------------ ------------------------ ---------- ---------- ----------------\n")
+
+        for eprocess in data:
+
+            outfd.write("{0:6} {1:6} {2:24} {3:24} 0x{4:08x} 0x{5:08x} {6:16}\n".format(
+                eprocess.UniqueProcessId,
+                eprocess.InheritedFromUniqueProcessId,
+                eprocess.CreateTime or '',
+                eprocess.ExitTime or '',
+                eprocess.obj_offset,
+                eprocess.Pcb.DirectoryTableBase,
+                eprocess.ImageFileName))

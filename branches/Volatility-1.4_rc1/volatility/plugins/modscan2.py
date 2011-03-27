@@ -125,7 +125,7 @@ class PoolScanThreadFast2(scan.PoolScanner):
     """ Carve out threat objects using the pool tag """
     preamble = ['_POOL_HEADER', '_OBJECT_HEADER' ]
 
-    def object_offset(self, found):
+    def object_offset(self, found, address_space):
         """ This returns the offset of the object contained within
         this pool allocation.
         """
@@ -224,7 +224,7 @@ class PoolScanProcessFast2(scan.PoolScanner):
     """ Carve out threat objects using the pool tag """
     preamble = ['_POOL_HEADER', '_OBJECT_HEADER' ]
 
-    def object_offset(self, found):
+    def object_offset(self, found, address_space):
         """ This returns the offset of the object contained within
         this pool allocation.
         """
