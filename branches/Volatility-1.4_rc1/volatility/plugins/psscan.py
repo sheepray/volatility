@@ -169,15 +169,15 @@ class PSScan(commands.command, cache.Testable):
 
     def render_text(self, outfd, data):
         ## Just grab the AS and scan it using our scanner
-        outfd.write("PID    PPID   Time created             Time exited              Offset     PDB        Remarks\n" + \
-                    "------ ------ ------------------------ ------------------------ ---------- ---------- ----------------\n")
+        outfd.write(" Offset     Name             PID    PPID   PDB        Time created             Time exited             \n" + \
+                    "---------- ---------------- ------ ------ ---------- ------------------------ ------------------------ \n")
 
         for eprocess in data:
-            outfd.write("{0:6} {1:6} {2:24} {3:24} 0x{4:08x} 0x{5:08x} {6:16}\n".format(
+            outfd.write("{0:#010x} {1:16} {2:6} {3:6} {4:#010x} {5:24} {6:24}\n".format(
+                eprocess.obj_offset,
+                eprocess.ImageFileName,
                 eprocess.UniqueProcessId,
                 eprocess.InheritedFromUniqueProcessId,
-                eprocess.CreateTime or '',
-                eprocess.ExitTime or '',
-                eprocess.obj_offset,
                 eprocess.Pcb.DirectoryTableBase,
-                eprocess.ImageFileName))
+                eprocess.CreateTime or '',
+                eprocess.ExitTime or ''))

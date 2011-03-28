@@ -173,18 +173,33 @@ class Files(DllList):
 
 class PSList(DllList):
     """ print all running processes by following the EPROCESS lists """
+    def __init__(self, config, *args):
+        DllList.__init__(self, config, *args)
+        config.add_option("PHYSICAL-OFFSET", short_option = 'P', default = False,
+                          cache_invalidator = False, help = "Physical Offset", action = "store_true")
+
     def render_text(self, outfd, data):
-        outfd.write("{0:20} {1:6} {2:6} {3:6} {4:6} {5:6}\n".format(
-            'Name', 'Pid', 'PPid', 'Thds', 'Hnds', 'Time'))
+
+        offsettype = "(V)" if not self._config.PHYSICAL_OFFSET else "(P)"
+        outfd.write(" Offset{0}  Name                 PID    PPID   Thds   Hnds   Time \n".format(offsettype) + \
+                    "---------- -------------------- ------ ------ ------ ------ ------------------- \n")
 
         for task in data:
-            outfd.write("{0:20} {1:6} {2:6} {3:6} {4:6} {5:26}\n".format(
+            # PHYSICAL_OFFSET must STRICTLY only be used in the results.  If it's used for anything else,
+            # it needs to have cache_invalidator set to True in the options
+            if not self._config.PHYSICAL_OFFSET:
+                offset = task.obj_offset
+            else:
+                offset = task.obj_vm.vtop(task.obj_offset)
+            outfd.write("{0:#010x} {1:20} {2:6} {3:6} {4:6} {5:6} {6:26}\n".format(
+                offset,
                 task.ImageFileName,
                 task.UniqueProcessId,
                 task.InheritedFromUniqueProcessId,
                 task.ActiveThreads,
                 task.ObjectTable.HandleCount,
                 task.CreateTime))
+
 
 # Inherit from files just for the config options (__init__)
 class MemMap(DllList):

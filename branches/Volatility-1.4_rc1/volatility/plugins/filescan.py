@@ -143,7 +143,7 @@ class FileScan(commands.command):
                 # Default to old Object header
                 type_info = object_obj.Type
 
-            outfd.write("0x{0:08x} 0x{1:08x} {2:4} {3:4} {4:6} {5}\n".format(
+            outfd.write("{0:#010x} 0x{1:#010x} {2:4} {3:4} {4:6} {5}\n".format(
                          object_obj.obj_offset, type_info, object_obj.PointerCount,
                          object_obj.HandleCount, AccessStr, Name))
 
@@ -446,7 +446,7 @@ class PoolScanProcess3(scan.PoolScanner):
                ('CheckPoolIndex', dict(value = 0)),
                ('CheckProcess2', {}),
                ]
-    
+
 
 class PSScan3(commands.command):
     """ Scan Physical memory for _EPROCESS pool allocations
@@ -458,13 +458,13 @@ class PSScan3(commands.command):
     meta_info['contact'] = 'awalters@volatilesystems.com'
     meta_info['license'] = 'GNU General Public License 2.0 or later'
     meta_info['url'] = 'https://www.volatilesystems.com/'
-    meta_info['os'] = ['Win7SP0x86','WinXPSP3x86']
+    meta_info['os'] = ['Win7SP0x86', 'WinXPSP3x86']
     meta_info['version'] = '0.1'
 
     def __init__(self, config, *args):
         commands.command.__init__(self, config, *args)
         self.kernel_address_space = None
-        
+
     # Can't be cached until self.kernel_address_space is moved entirely
     # within calculate
     def calculate(self):
@@ -476,19 +476,17 @@ class PSScan3(commands.command):
                                offset = offset)
             yield eprocess
 
+
     def render_text(self, outfd, data):
-
-
-        outfd.write("PID    PPID   Time created             Time exited              Offset     PDB        Remarks\n" + \
-                    "------ ------ ------------------------ ------------------------ ---------- ---------- ----------------\n")
+        outfd.write(" Offset     Name             PID    PPID   PDB        Time created             Time exited             \n" + \
+                    "---------- ---------------- ------ ------ ---------- ------------------------ ------------------------ \n")
 
         for eprocess in data:
-
-            outfd.write("{0:6} {1:6} {2:24} {3:24} 0x{4:08x} 0x{5:08x} {6:16}\n".format(
+            outfd.write("0x{0:08x} {1:16} {2:6} {3:6} 0x{4:08x} {5:24} {6:24}\n".format(
+                eprocess.obj_offset,
+                eprocess.ImageFileName,
                 eprocess.UniqueProcessId,
                 eprocess.InheritedFromUniqueProcessId,
-                eprocess.CreateTime or '',
-                eprocess.ExitTime or '',
-                eprocess.obj_offset,
                 eprocess.Pcb.DirectoryTableBase,
-                eprocess.ImageFileName))
+                eprocess.CreateTime or '',
+                eprocess.ExitTime or ''))

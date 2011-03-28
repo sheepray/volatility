@@ -74,7 +74,7 @@ class ModScan2(filescan.FileScan):
     def render_text(self, outfd, data):
         outfd.write("{0:50} {1:12} {2:8} {3}\n".format('File', 'Base', 'Size', 'Name'))
         for ldr_entry in data:
-            outfd.write("{0:50} 0x{1:010x} 0x{2:06x} {3}\n".format(
+            outfd.write("{0:50} {1:#012x} {2:#08x} {3}\n".format(
                          self.parse_string(ldr_entry.FullDllName),
                          ldr_entry.DllBase,
                          ldr_entry.SizeOfImage,
@@ -275,17 +275,16 @@ class PSScan2(ModScan2):
             yield eprocess
 
     def render_text(self, outfd, data):
-
-        outfd.write("PID    PPID   Time created             Time exited              Offset     PDB        Remarks\n" + \
-                    "------ ------ ------------------------ ------------------------ ---------- ---------- ----------------\n")
+        outfd.write(" Offset     Name             PID    PPID   PDB        Time created             Time exited             \n" + \
+                    "---------- ---------------- ------ ------ ---------- ------------------------ ------------------------ \n")
 
         for eprocess in data:
-
-            outfd.write("{0:6} {1:6} {2:24} {3:24} 0x{4:08x} 0x{5:08x} {6:16}\n".format(
+            outfd.write("{0:#010x} {1:16} {2:6} {3:6} {4:#010x} {5:24} {6:24}\n".format(
+                eprocess.obj_offset,
+                eprocess.ImageFileName,
                 eprocess.UniqueProcessId,
                 eprocess.InheritedFromUniqueProcessId,
-                eprocess.CreateTime or '',
-                eprocess.ExitTime or '',
-                eprocess.obj_offset,
                 eprocess.Pcb.DirectoryTableBase,
-                eprocess.ImageFileName))
+                eprocess.CreateTime or '',
+                eprocess.ExitTime or ''))
+
