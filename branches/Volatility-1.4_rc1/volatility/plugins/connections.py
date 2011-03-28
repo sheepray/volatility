@@ -37,14 +37,25 @@ class Connections(commands.command):
     because Windows closes all sockets before hibernating. You might
     find it more effective to do conscan instead.
     """
+    def __init__(self, config, *args):
+        commands.command.__init__(self, config, *args)
+        config.add_option("PHYSICAL-OFFSET", short_option = 'P', default = False,
+                          cache_invalidator = False,
+                          help = "Physical Offset", action = "store_true")
 
     def render_text(self, outfd, data):
-        outfd.write("{0:25} {1:25} {2:6}\n".format('Local Address', 'Remote Address', 'Pid'))
+        offsettype = "(V)" if not self._config.PHYSICAL_OFFSET else "(P)"
+        outfd.write(" Offset{0}  Local Address             Remote Address            Pid   \n".format(offsettype) + \
+                    "---------- ------------------------- ------------------------- ------ \n")
 
         for conn in data:
+            if not self._config.PHYSICAL_OFFSET:
+                offset = conn.obj_offset
+            else:
+                offset = conn.obj_vm.vtop(conn.obj_offset)
             local = "{0}:{1}".format(conn.LocalIpAddress, conn.LocalPort)
             remote = "{0}:{1}".format(conn.RemoteIpAddress, conn.RemotePort)
-            outfd.write("{0:25} {1:25} {2:6}\n".format(local, remote, conn.Pid))
+            outfd.write("{0:#010x} {1:25} {2:25} {3:6}\n".format(offset, local, remote, conn.Pid))
 
 
     @cache.CacheDecorator("tests/connections")

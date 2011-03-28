@@ -26,11 +26,24 @@ import volatility.utils as utils
 
 class Sockets(volatility.commands.command):
     """Print list of open sockets"""
+    def __init__(self, config, *args):
+        volatility.commands.command.__init__(self, config, *args)
+        config.add_option("PHYSICAL-OFFSET", short_option = 'P', default = False,
+                          cache_invalidator = False,
+                          help = "Physical Offset", action = "store_true")
+
     def render_text(self, outfd, data):
-        outfd.write("{0:6} {1:6} {2:6} {3:26}\n".format('Pid', 'Port', 'Proto', 'Create Time'))
+        offsettype = "(V)" if not self._config.PHYSICAL_OFFSET else "(P)"
+        outfd.write(" Offset{0}  PID    Port   Proto  Create Time               \n".format(offsettype) + \
+                    "---------- ------ ------ ------ -------------------------- \n")
 
         for sock in data:
-            outfd.write("{0:6} {1:6} {2:6} {3:26}\n".format(sock.Pid, sock.LocalPort, sock.Protocol, sock.CreateTime))
+            if not self._config.PHYSICAL_OFFSET:
+                offset = sock.obj_offset
+            else:
+                offset = sock.obj_vm.vtop(sock.obj_offset)
+
+            outfd.write("{0:#010x} {1:6} {2:6} {3:6} {4:26}\n".format(offset, sock.Pid, sock.LocalPort, sock.Protocol, sock.CreateTime))
 
 
     def calculate(self):

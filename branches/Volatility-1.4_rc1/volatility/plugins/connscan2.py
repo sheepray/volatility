@@ -69,11 +69,11 @@ class ConnScan2(commands.command):
             yield tcp_obj
 
     def render_text(self, outfd, data):
-        outfd.write("Local Address             Remote Address            Pid   \n" + \
-                    "------------------------- ------------------------- ------ \n")
+        outfd.write(" Offset     Local Address             Remote Address            Pid   \n" + \
+                    "---------- ------------------------- ------------------------- ------ \n")
 
         ## We make a new scanner
         for tcp_obj in data:
             local = "{0}:{1}".format(tcp_obj.LocalIpAddress, tcp_obj.LocalPort)
             remote = "{0}:{1}".format(tcp_obj.RemoteIpAddress, tcp_obj.RemotePort)
-            outfd.write("{0:25} {1:25} {2:6}\n".format(local, remote, tcp_obj.Pid))
+            outfd.write("{0:#010x} {1:25} {2:25} {3:6}\n".format(tcp_obj.obj_offset, local, remote, tcp_obj.Pid))
