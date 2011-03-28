@@ -56,6 +56,8 @@ class FileScan(commands.command):
     meta_info['os'] = 'WIN_32_XP_SP2'
     meta_info['version'] = '0.1'
 
+    pool_align = 0x8
+
     def __init__(self, config, *args):
         commands.command.__init__(self, config, *args)
         self.kernel_address_space = None
@@ -88,9 +90,9 @@ class FileScan(commands.command):
             ## We work out the _FILE_OBJECT from the end of the
             ## allocation (bottom up).
             file_obj = obj.Object("_FILE_OBJECT", vm = address_space,
-                                 offset = offset + pool_obj.BlockSize * 8 - \
-                                 address_space.profile.get_obj_size("_FILE_OBJECT")
-                                 )
+                     offset = offset + pool_obj.BlockSize * self.pool_align - \
+                     address_space.profile.get_obj_size("_FILE_OBJECT")
+                     )
 
             ## The _OBJECT_HEADER is immediately below the _FILE_OBJECT
             object_obj = obj.Object("_OBJECT_HEADER", vm = address_space,
@@ -171,7 +173,7 @@ class DriverScan(FileScan):
             ## allocation (bottom up).
             extension_obj = obj.Object(
                 "_DRIVER_EXTENSION", vm = address_space,
-                offset = offset + pool_obj.BlockSize * 8 - 4 - \
+                offset = offset + pool_obj.BlockSize * self.pool_align - 4 - \
                 address_space.profile.get_obj_size("_DRIVER_EXTENSION"))
 
             ## The _DRIVER_OBJECT is immediately below the _DRIVER_EXTENSION
@@ -285,7 +287,7 @@ class MutantScan(FileScan):
             ## allocation (bottom up).
             mutant = obj.Object(
                 "_KMUTANT", vm = address_space,
-                offset = offset + pool_obj.BlockSize * 8 - \
+                offset = offset + pool_obj.BlockSize * self.pool_align - \
                 address_space.profile.get_obj_size("_KMUTANT"))
 
             ## The _OBJECT_HEADER is immediately below the _KMUTANT
@@ -374,7 +376,7 @@ class MutantScan(FileScan):
 class CheckProcess2(scan.ScannerCheck):
     """ Check sanity of _EPROCESS """
     kernel = 0x80000000
-    block_size = 0x8
+    pool_align = 0x8
 
     def check(self, found):
         ## The offset of the object is determined by subtracting the offset
@@ -390,7 +392,7 @@ class CheckProcess2(scan.ScannerCheck):
         ## We work out the _EPROCESS from the end of the
         ## allocation (bottom up).
         eprocess = obj.Object("_EPROCESS", vm = self.address_space,
-                  offset = pool_base + pool_obj.BlockSize * self.block_size - \
+                  offset = pool_base + pool_obj.BlockSize * self.pool_align - \
                   self.address_space.profile.get_obj_size("_EPROCESS")
                   )
 
@@ -410,7 +412,7 @@ class CheckProcess2(scan.ScannerCheck):
 
 class PoolScanProcess3(scan.PoolScanner):
     """PoolScanner for File objects"""
-    block_size = 8
+    pool_align = 8
 
     ## We are not using a preamble for this plugin since we are walking back
     preamble = []
@@ -433,7 +435,7 @@ class PoolScanProcess3(scan.PoolScanner):
         ## We work out the _EPROCESS from the end of the
         ## allocation (bottom up).
 
-        object_base = pool_base + pool_obj.BlockSize * self.block_size - \
+        object_base = pool_base + pool_obj.BlockSize * self.pool_align - \
                       self.buffer.profile.get_obj_size("_EPROCESS")
 
         return object_base
