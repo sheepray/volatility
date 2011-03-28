@@ -1567,6 +1567,12 @@ PID    TID    Create Time               Exit Time                 Offset     Sta
 
 Where do you go from here? We suggest breaking into a [http://code.google.com/p/volatility/wiki/CommandReference#volshell volshell] and disassembling the instructions at the thread's start address. Or you could use [http://code.google.com/p/volatility/wiki/CommandReference#impscan impscan] to extract data around the thread's start address and determine which kernel APIs are called.
 
+If you know there's a malicious thread running, but orphanthreads doesn't pick it up, the best explanations are:
+
+  * The malware didn't use !PsCreateSystemThread to create the thread
+  * The malware used !PsCreateSystemThread, but then overwrote the `ETHREAD.Cid.UniqueProcess` to something other than 4
+  * The malware used !PsCreateSystemThread, but then overwrote the `ETHREAD.StartAddress` and pointed it to memory owned by a loaded, legit driver
+
 == callbacks ==
 
 Volatility is the only memory forensics platform with the ability to print an assortment of important notification routines and kernel callbacks. Rootkits, anti-virus suites, dynamic analysis tools (such as Sysinternals' Process Monitor and Tcpview), and many components of the Windows kernel use of these callbacks to monitor and/or react to events. We detect the following:
