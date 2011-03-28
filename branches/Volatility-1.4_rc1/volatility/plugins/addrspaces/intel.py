@@ -79,13 +79,17 @@ class JKIA32PagedMemory(standard.AbstractWritablePagedMemory, addrspace.BaseAddr
         self.base = base
 
         self.as_assert(self.dtb != None, "No valid DTB found")
-        self.as_assert(self.is_valid_kernelAS(), "Not a valid Kernel Address Space")
 
         # The caching code must be in a separate function to allow the
         # PAE code, which inherits us, to have its own code.
         self.cache = config.CACHE_DTB
         if self.cache:
             self._cache_values()
+
+        volmag = obj.Object('VOLATILITY_MAGIC', offset = 0, vm = self)
+        checkname = 'IA32ValidAS'
+        if hasattr(volmag, checkname):
+            self.as_assert(getattr(volmag, checkname).v(), "Failed valid Address Space check")
 
         # Reserved for future use
         #self.pagefile = config.PAGEFILE
@@ -105,27 +109,6 @@ class JKIA32PagedMemory(standard.AbstractWritablePagedMemory, addrspace.BaseAddr
         result['astype'] = self.astype
 
         return result
-
-    def is_valid_kernelAS(self):
-        ## We have to have a valid PsLoadedModuleList
-        # FIXME: Check is currently a bit loose
-        # FIXME: This only works for windows
-        # Consider using a list of valid addresses instead 
-        # self.as_assert(self.is_valid_address(0x8055a420), "PsLoadedModuleList not valid Address")
-
-	# FIXME: Couldn't work out why this was here for Non-PAE as well PAE, so commented it out
-	# Check experimental branch (Bradley Schatz patches) to figure out if it was a mistake or intentional
-	#header = None
-        #try:
-        #    header = self.base.header
-        #except:
-        #    pass
-        #if header != None:
-        #    self.as_assert(header.PaeEnabled == 1)
-
-        for (offset, _length) in self.get_available_addresses():
-            if (offset > 0x80000000):
-                return True
 
     def _cache_values(self):
         '''

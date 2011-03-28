@@ -207,11 +207,11 @@ class _HANDLE_TABLE(obj.CType):
     91 so that it could be subclassed and used to service other handle 
     tables, such as the _KDDEBUGGER_DATA64.PspCidTable.
     """
-    
+
     def get_item(self, offset):
         return obj.Object("_OBJECT_HEADER", offset, self.obj_vm,
                                             parent = self)
-    
+
     def _make_handle_array(self, offset, level):
         """ Returns an array of _HANDLE_TABLE_ENTRY rooted at offset,
         and iterates over them.
@@ -240,9 +240,9 @@ class _HANDLE_TABLE(obj.CType):
                     ## OK We got to the bottom table, we just resolve
                     ## objects here:
                     offset = int(entry.Object.v()) & ~0x00000007
-                                        
+
                     item = self.get_item(offset)
-                    
+
                     try:
                         # New object header
                         if item.TypeIndex != 0x0:
@@ -263,9 +263,9 @@ class _HANDLE_TABLE(obj.CType):
         yielding all handles. We take care of recursing into the
         nested tables automatically.
         """
-        
+
         LEVEL_MASK = 0xfffffff8
-        
+
         TableCode = self.TableCode.v() & LEVEL_MASK
         table_levels = self.TableCode.v() & ~LEVEL_MASK
         offset = TableCode
@@ -394,3 +394,13 @@ class VolatilityKDBG(obj.VolatilityMagic):
 
 AbstractWindows.object_classes['VolatilityKDBG'] = VolatilityKDBG
 
+class VolatilityIA32ValidAS(obj.VolatilityMagic):
+
+    def generate_suggestions(self):
+        for (offset, _length) in self.obj_vm.get_available_addresses():
+            if (offset > 0x80000000):
+                yield True
+                raise StopIteration
+        yield False
+
+AbstractWindows.object_classes['VolatilityIA32ValidAS'] = VolatilityIA32ValidAS
