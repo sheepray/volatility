@@ -145,18 +145,28 @@ To enumerate processes using pool tag scanning, use the psscan2 command. This ca
 {{{
 $ python vol.py --profile=Win7SP0x86 -f win7.dmp psscan2
 Volatile Systems Volatility Framework 1.4_rc1
-PID    PPID   Time created             Time exited              Offset     PDB        Remarks
------- ------ ------------------------ ------------------------ ---------- ---------- ----------------
-  2568    348 2010-07-06 22:39:11                               0x002cc030 0x09d54000 conhost.exe     
-  1944    492 2010-07-06 22:31:21                               0x00ef48a8 0x08d61000 dllhost.exe     
-  1312    492 2010-07-06 22:31:06                               0x00ffcd40 0x069a9000 spoolsv.exe     
-  2484    492 2010-07-06 22:39:08                               0x01e584d8 0x07bdc000 rundll32.exe    
-   348    340 2010-07-06 22:28:53                               0x03164d40 0x0cd84000 csrss.exe       
-   492    384 2010-07-06 22:28:54                               0x040e2030 0x0dcb9000 services.exe    
-  1880   1720 2010-07-06 22:38:07                               0x04a291a8 0x0db11000 explorer.exe    
-  3064   1488 2010-07-06 22:40:27                               0x04b365b8 0x01961000 VMwareResoluti  
-  2512    492 2010-07-06 22:39:09                               0x04dc3bb0 0x0fba2000 schtasks.exe    
-  2576    492 2010-07-06 22:39:11                               0x053fe030 0x06e43000 wsqmcons.exe
+ Offset     Name             PID    PPID   PDB        Time created             Time exited             
+---------- ---------------- ------ ------ ---------- ------------------------ ------------------------ 
+0x3e025ba8 svchost.exe        1116    508 0x3ecf1220 2010-06-16 15:25:25                              
+0x3e04f070 svchost.exe        1152    508 0x3ecf1340 2010-06-16 15:27:40                              
+0x3e144c08 dwm.exe            1540    832 0x3ecf12e0 2010-06-16 15:26:58                              
+0x3e145c18 TPAutoConnSvc.     1900    508 0x3ecf1360 2010-06-16 15:25:41                              
+0x3e3393f8 lsass.exe           516    392 0x3ecf10e0 2010-06-16 15:25:18                              
+0x3e35b8f8 svchost.exe         628    508 0x3ecf1120 2010-06-16 15:25:19                              
+0x3e383770 svchost.exe         832    508 0x3ecf11a0 2010-06-16 15:25:20                              
+0x3e3949d0 svchost.exe         740    508 0x3ecf1160 2010-06-16 15:25:20                              
+0x3e3a5100 svchost.exe         872    508 0x3ecf11c0 2010-06-16 15:25:20                              
+0x3e3f64e8 svchost.exe         992    508 0x3ecf1200 2010-06-16 15:25:24                              
+0x3e45a530 wininit.exe         392    316 0x3ecf10a0 2010-06-16 15:25:15                              
+0x3e45d928 svchost.exe        1304    508 0x3ecf1260 2010-06-16 15:25:28                              
+0x3e45f530 csrss.exe           400    384 0x3ecf1040 2010-06-16 15:25:15                              
+0x3e4d89c8 vmtoolsd.exe       1436    508 0x3ecf1280 2010-06-16 15:25:30                              
+0x3e4db030 spoolsv.exe        1268    508 0x3ecf1240 2010-06-16 15:25:28                              
+0x3e50b318 services.exe        508    392 0x3ecf1080 2010-06-16 15:25:18                              
+0x3e7f3d40 csrss.exe           352    316 0x3ecf1060 2010-06-16 15:25:12                              
+0x3e7f5bc0 winlogon.exe        464    384 0x3ecf10c0 2010-06-16 15:25:18                              
+0x3eac6030 SearchProtocol     2448   1168 0x3ecf15c0 2010-06-16 23:30:52      2010-06-16 23:33:14     
+0x3eb10030 SearchFilterHo     1812   1168 0x3ecf1480 2010-06-16 23:31:02      2010-06-16 23:33:14 
 [snip]
 }}}
 
