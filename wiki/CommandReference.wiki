@@ -850,38 +850,73 @@ Volatile Systems Volatility Framework 1.4_rc1
 To detect listening sockets for any protocol (TCP, UDP, RAW, etc), use the sockets command. This walks a singly-linked list of socket structures which is pointed to by a non-exported symbol in the tcpip.sys module. This command is for Windows XP only. 
 
 {{{
-$ python vol.py --profile=WinXPSP3x86 -f silentbanker.vmem sockets
+$ python vol.py -f silentbanker.vmem --profile=WinXPSP3x86 sockets
 Volatile Systems Volatility Framework 1.4_rc1
-Pid    Port   Proto  Create Time               
-  1876   1274      6 2009-02-18 06:55:23       
-  1876   1282      6 2009-02-18 06:55:24       
-  1156   1900     17 2008-12-11 20:51:52       
-  1876   1273     17 2009-02-18 06:55:20       
-   740    500     17 2008-09-18 05:33:19       
-     4    139      6 2008-12-11 20:51:51       
-  1876   1290      6 2009-02-18 06:55:26       
-  1876   1294      6 2009-02-18 06:55:29
+ Offset(V)  PID    Port   Proto  Create Time               
+---------- ------ ------ ------ -------------------------- 
+0x80fd1008      4      0     47 2010-08-11 06:08:00       
+0xff362d18   1088   1066     17 2010-08-15 18:54:13       
+0xff258008    688    500     17 2010-08-11 06:06:35       
+0xff367008      4    445      6 2010-08-11 06:06:17       
+0x80ffc128    936    135      6 2010-08-11 06:06:24       
+0xff225b70    688      0    255 2010-08-11 06:06:35       
+0xff225b70   1028    123     17 2010-08-15 19:01:51       
+0x80fce930   1088   1025     17 2010-08-11 06:06:38       
+0xff127d28    216   1026      6 2010-08-11 06:06:39       
+0xff2608c0   1088   1053     17 2010-08-15 18:54:09       
+0x80fdc708   1884   1051     17 2010-08-15 18:54:07       
+0x80fdc708   1148   1900     17 2010-08-15 19:01:51       
+0xff1b8250    688   4500     17 2010-08-11 06:06:35       
 [snip]
 }}}
+
+Output includes the virtual offset of the _ADDRESS_OBJECT by default.  The physical offset is obtained with the -P switch:
+
+{{{
+$ python vol.py -f silentbanker.vmem --profile=WinXPSP3x86 sockets -P
+Volatile Systems Volatility Framework 1.4_rc1
+ Offset(P)  PID    Port   Proto  Create Time               
+---------- ------ ------ ------ -------------------------- 
+0x01134008      4      0     47 2010-08-11 06:08:00       
+0x04c2dd18   1088   1066     17 2010-08-15 18:54:13       
+0x05f44008    688    500     17 2010-08-11 06:06:35       
+0x04be7008      4    445      6 2010-08-11 06:06:17       
+0x0115f128    936    135      6 2010-08-11 06:06:24       
+0x06237b70    688      0    255 2010-08-11 06:06:35       
+0x06237b70   1028    123     17 2010-08-15 19:01:51       
+0x01131930   1088   1025     17 2010-08-11 06:06:38       
+0x02daad28    216   1026      6 2010-08-11 06:06:39       
+0x05e3c8c0   1088   1053     17 2010-08-15 18:54:09       
+0x0113f708   1884   1051     17 2010-08-15 18:54:07       
+0x0113f708   1148   1900     17 2010-08-15 19:01:51       
+0x069d5250    688   4500     17 2010-08-11 06:06:35  
+[snip]     
+}}}
+
 
 == sockscan ==
 
 To find socket structures using pool tag scanning, use the sockscan command. As with connscan2, this can pick up residual data and artifacts from previous sockets, and it only applies to Windows XP. 
 
 {{{
-$ python vol.py --profile=WinXPSP3x86 -f silentbanker.vmem sockscan
+$ python vol.py -f silentbanker.vmem --profile=WinXPSP3x86 sockscan
 Volatile Systems Volatility Framework 1.4_rc1
-PID    Port   Proto  Create Time                Offset 
------- ------ ------ -------------------------- ----------
-  1876   1297      6 2009-02-18 06:55:30        0x0161c1d8
-  1876   1294      6 2009-02-18 06:55:29        0x0161fbc0
-  1876   1295      6 2009-02-18 06:55:29        0x01622e98
-  1876   1299      6 2009-02-18 06:55:30        0x0162ac38
-  1876   1293      6 2009-02-18 06:55:28        0x0162b5b8
-  1876   1273     17 2009-02-18 06:55:20        0x016523a8
-  1876   1279      6 2009-02-18 06:55:24        0x01668c68
-     4    137     17 2008-12-11 20:51:51        0x01677388
-  1876   1277      6 2009-02-18 06:55:24        0x01680e98
+ Offset     PID    Port   Proto  Create Time               
+---------- ------ ------ ------ -------------------------- 
+0x00096e08   1884   1069      6 2010-08-15 18:54:13       
+0x0089bab8   1148   1900     17 2010-08-15 18:53:56       
+0x01073910   1884   1077      6 2010-08-15 18:54:14       
+0x01073e98   1884   1082      6 2010-08-15 18:54:15       
+0x0107aba8   1884   1057      6 2010-08-15 18:54:10       
+0x0107c500   1884   1073      6 2010-08-15 18:54:13       
+0x0107db70   1884   1072      6 2010-08-15 18:54:13       
+0x010f1e98   1884   1079      6 2010-08-15 18:54:15       
+0x01120c40      4    445     17 2010-08-11 06:06:17       
+0x0112ee30   1884   1071      6 2010-08-15 18:54:13       
+0x01131930   1088   1025     17 2010-08-11 06:06:38       
+0x01134008      4      0     47 2010-08-11 06:08:00       
+0x01139e98   1884   1087      6 2010-08-15 18:54:17       
+0x0113b7d0   1884   1076      6 2010-08-15 18:54:14 
 [snip]
 }}}
 
