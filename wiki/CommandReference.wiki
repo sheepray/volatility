@@ -94,7 +94,7 @@ Volatile Systems Volatility Framework 1.4_rc1
 The columns display the offset, process name, process ID, the parent process ID, number of threads, number of handles, and date/time when the process started.  The offset is a virtual address by default, but the physical offset can be obtained with the -P switch:
 
 {{{
-$ python vol.py --profile=Win7SP0x86 -f win7.dmp pslist
+$ python vol.py --profile=Win7SP0x86 -f win7.dmp pslist -P
 Volatile Systems Volatility Framework 1.4_rc1
  Offset(P)  Name                 PID    PPID   Thds   Hnds   Time 
 ---------- -------------------- ------ ------ ------ ------ ------------------- 
