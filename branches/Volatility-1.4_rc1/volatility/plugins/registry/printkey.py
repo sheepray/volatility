@@ -32,6 +32,7 @@ import volatility.win32.rawreg as rawreg
 import volatility.debug as debug
 import volatility.utils as utils
 import volatility.commands as commands
+import volatility.plugins.registry.hivelist as hivelist
 
 ## This module requires a filename to be passed by the user
 #config.add_option("HIVE-OFFSET", default = 0, type='int',
@@ -53,7 +54,7 @@ def hd(src, length = 16):
         N += length
     return result
 
-class PrintKey(commands.command):
+class PrintKey(hivelist.HiveList):
     "Print a registry key, and its subkeys and values"
     # Declare meta information associated with this plugin
 
@@ -67,53 +68,69 @@ class PrintKey(commands.command):
     meta_info['version'] = '1.0'
 
     def __init__(self, config, *args):
-        commands.command.__init__(self, config, *args)
+        hivelist.HiveList.__init__(self, config, *args)
         config.add_option('HIVE-OFFSET', short_option = 'o',
                           help = 'Hive offset (virtual)', type = 'int')
         config.add_option('KEY', short_option = 'K',
                           help = 'Registry Key', type = 'str')
 
+    def hive_name(self, hive):
+        try:
+            return hive.FileFullPath.v() or hive.FileUserName.v() or hive.HiveRootPath.v() or "[no name]"
+        except AttributeError:
+            return "[no name]"
+
     def calculate(self):
         addr_space = utils.load_as(self._config)
 
-        if not self._config.hive_offset:
-            debug.error("No hive offset provided!")
+        if not self._config.HIVE_OFFSET:
+            hive_offsets = [(self.hive_name(h), h.obj_offset) for h in hivelist.HiveList.calculate(self)]
+        else:
+            hive_offsets = [("User Specified", self._config.HIVE_OFFSET)]
 
-        hive = hivemod.HiveAddressSpace(addr_space, self._config, self._config.hive_offset)
-        root = rawreg.get_root(hive)
-        if not root:
-            debug.error("Unable to find root key. Is the hive offset correct?")
-
-        if self._config.KEY:
-            return rawreg.open_key(root, self._config.KEY.split('\\'))
-        return root
+        for name, hoff in set(hive_offsets):
+            h = hivemod.HiveAddressSpace(addr_space, self._config, hoff)
+            root = rawreg.get_root(h)
+            if not root:
+                if self._config.HIVE_OFFSET:
+                    debug.error("Unable to find root key. Is the hive offset correct?")
+            else:
+                if self._config.KEY:
+                    yield name, rawreg.open_key(root, self._config.KEY.split('\\'))
+                else:
+                    yield name, root
 
     def voltext(self, key):
         return "(V)" if vol(key) else "(S)"
 
-    def render_text(self, outfd, key):
-        if not key:
-            outfd.write("Unable to find requested key\n")
-            return
+    def render_text(self, outfd, data):
         outfd.write("Legend: (S) = Stable   (V) = Volatile\n\n")
-        outfd.write("Key name: {0} {1:3s}\n".format(key.Name, self.voltext(key)))
-        outfd.write("Last updated: {0}\n".format(key.LastWriteTime))
-        outfd.write("\n")
-        outfd.write("Subkeys:\n")
-        for s in rawreg.subkeys(key):
-            if s.Name == None:
-                outfd.write("  Unknown subkey: " + s.Name.reason + "\n")
-            else:
-                outfd.write("  {1:3s} {0}\n".format(s.Name, self.voltext(s)))
-        outfd.write("\n")
-        outfd.write("Values:\n")
-        for v in rawreg.values(key):
-            tp, dat = rawreg.value_data(v)
-            if tp == 'REG_BINARY':
-                dat = "\n" + hd(dat, length = 16)
-            if tp in ['REG_SZ', 'REG_EXPAND_SZ', 'REG_LINK']:
-                dat = dat.encode("ascii", 'backslashreplace')
-            if tp == 'REG_MULTI_SZ':
-                for i in range(len(dat)):
-                    dat[i] = dat[i].encode("ascii", 'backslashreplace')
-            outfd.write("{0:13} {1:15} : {3:3s} {2}\n".format(tp, v.Name, dat, self.voltext(v)))
+        keyfound = False
+        for reg, key in data:
+            if key:
+                keyfound = True
+                outfd.write("----------------------------\n")
+                outfd.write("Registry: {0}\n".format(reg))
+                outfd.write("Key name: {0} {1:3s}\n".format(key.Name, self.voltext(key)))
+                outfd.write("Last updated: {0}\n".format(key.LastWriteTime))
+                outfd.write("\n")
+                outfd.write("Subkeys:\n")
+                for s in rawreg.subkeys(key):
+                    if s.Name == None:
+                        outfd.write("  Unknown subkey: " + s.Name.reason + "\n")
+                    else:
+                        outfd.write("  {1:3s} {0}\n".format(s.Name, self.voltext(s)))
+                outfd.write("\n")
+                outfd.write("Values:\n")
+                for v in rawreg.values(key):
+                    tp, dat = rawreg.value_data(v)
+                    if tp == 'REG_BINARY':
+                        dat = "\n" + hd(dat, length = 16)
+                    if tp in ['REG_SZ', 'REG_EXPAND_SZ', 'REG_LINK']:
+                        dat = dat.encode("ascii", 'backslashreplace')
+                    if tp == 'REG_MULTI_SZ':
+                        for i in range(len(dat)):
+                            dat[i] = dat[i].encode("ascii", 'backslashreplace')
+                    outfd.write("{0:13} {1:15} : {3:3s} {2}\n".format(tp, v.Name, dat, self.voltext(v)))
+        if not keyfound:
+            outfd.write("The requested key could not be found in the hive(s) searched\n")
