@@ -30,15 +30,20 @@ class RegObjKeys(taskmods.Files):
 
     def render_text(self, outfd, data):
         first = True
+        offsettype = "(V)" if not self._config.PHYSICAL_OFFSET else "(P)"
         for pid, handles in data:
             if not first:
                 outfd.write("*" * 72 + "\n")
-            outfd.write("Pid: {0:6}\n".format(pid))
+            outfd.write("Offset{0}  Type   Pid: {1:6}\n".format(offsettype, pid))
             first = False
 
             for h in handles:
+                if not self._config.PHYSICAL_OFFSET:
+                    offset = h.obj_offset
+                else:
+                    offset = h.obj_vm.vtop(h.obj_offset)
                 keyname = self.full_key_name(h)
-                outfd.write("{0:6} {1:40}\n".format("Key", keyname))
+                outfd.write("{0:#010x} {1:6} {2:40}\n".format(offset, "Key", keyname))
 
     def full_key_name(self, handle):
         """Returns the full name of a registry key based on its CM_KEY_BODY handle"""

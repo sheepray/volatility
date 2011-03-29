@@ -121,19 +121,28 @@ class Files(DllList):
         DllList.__init__(self, config, *args)
         self.handle_type = 'File'
         self.handle_obj = "_FILE_OBJECT"
+        config.add_option("PHYSICAL-OFFSET", short_option = 'P', default = False,
+                          cache_invalidator = False,
+                          help = "Physical Offset", action = "store_true")
 
     def render_text(self, outfd, data):
         first = True
+        offsettype = "(V)" if not self._config.PHYSICAL_OFFSET else "(P)"
         for pid, handles in data:
             if not first:
                 outfd.write("*" * 72 + "\n")
-            outfd.write("Pid: {0:6}\n".format(pid))
+            outfd.write("Offset{0}  Type   Pid: {1:6}\n".format(offsettype, pid))
             first = False
 
             for h in handles:
                 if h.FileName:
+                    if not self._config.PHYSICAL_OFFSET:
+                        offset = h.obj_offset
+                    else:
+                        offset = h.obj_vm.vtop(h.obj_offset)
+
                     file_name = self.parse_string(h.FileName)
-                    outfd.write("{0:6} {1:40}\n".format("File", file_name))
+                    outfd.write("{0:#010x} {1:6} {2:40}\n".format(offset, "File", file_name))
 
     @cache.CacheDecorator(lambda self: "tests/files/pid={0}/offset={1}".format(self._config.PID, self._config.OFFSET))
     def calculate(self):
