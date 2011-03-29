@@ -75,21 +75,41 @@ Also, if you see processes with 0 threads and 0 handles, the process may not act
 {{{
 $ python vol.py --profile=Win7SP0x86 -f win7.dmp pslist
 Volatile Systems Volatility Framework 1.4_rc1
-Name                 Pid    PPid   Thds   Hnds   Time  
-System                    4      0     90    516 2010-07-06 22:28:46       
-smss.exe                252      4      2     29 2010-07-06 22:28:46       
-csrss.exe               348    340     10    441 2010-07-06 22:28:53       
-wininit.exe             384    340      3     73 2010-07-06 22:28:53       
-csrss.exe               396    376      8    187 2010-07-06 22:28:53       
-winlogon.exe            424    376      5    129 2010-07-06 22:28:54       
-services.exe            492    384     12    216 2010-07-06 22:28:54       
-lsass.exe               500    384      7    559 2010-07-06 22:28:54       
-lsm.exe                 508    384     10    142 2010-07-06 22:28:54       
-svchost.exe             616    492     10    348 2010-07-06 22:28:55
+ Offset(V)  Name                 PID    PPID   Thds   Hnds   Time 
+---------- -------------------- ------ ------ ------ ------ ------------------- 
+0x84133a30 System                    4      0     88    486 2010-06-16 15:24:58       
+0x852e7020 smss.exe                252      4      2     29 2010-06-16 15:24:58       
+0x859f3d40 csrss.exe               352    316      9    406 2010-06-16 15:25:12       
+0x85a5a530 wininit.exe             392    316      3     75 2010-06-16 15:25:15       
+0x85a5f530 csrss.exe               400    384     10    361 2010-06-16 15:25:15       
+0x859f5bc0 winlogon.exe            464    384      3    112 2010-06-16 15:25:18       
+0x85b0b318 services.exe            508    392      6    185 2010-06-16 15:25:18       
+0x85d393f8 lsass.exe               516    392      6    584 2010-06-16 15:25:18       
+0x841d1750 lsm.exe                 524    392     10    143 2010-06-16 15:25:18       
+0x85d5b8f8 svchost.exe             628    508      9    361 2010-06-16 15:25:19       
+0x850c67e0 svchost.exe             688    508      7    268 2010-06-16 15:25:20   
 [snip]
 }}}
 
-The columns display the process ID, the parent process ID, number of threads, number of handles, and date/time when the process started. 
+The columns display the offset, process name, process ID, the parent process ID, number of threads, number of handles, and date/time when the process started.  The offset is a virtual address by default, but the physical offset can be obtained with the -P switch:
+
+{{{
+$ python vol.py --profile=Win7SP0x86 -f win7.dmp pslist
+Volatile Systems Volatility Framework 1.4_rc1
+ Offset(P)  Name                 PID    PPID   Thds   Hnds   Time 
+---------- -------------------- ------ ------ ------ ------ ------------------- 
+0x3fff3a30 System                    4      0     88    486 2010-06-16 15:24:58       
+0x3ece7020 smss.exe                252      4      2     29 2010-06-16 15:24:58       
+0x3e7f3d40 csrss.exe               352    316      9    406 2010-06-16 15:25:12       
+0x3e45a530 wininit.exe             392    316      3     75 2010-06-16 15:25:15       
+0x3e45f530 csrss.exe               400    384     10    361 2010-06-16 15:25:15       
+0x3e7f5bc0 winlogon.exe            464    384      3    112 2010-06-16 15:25:18       
+0x3e50b318 services.exe            508    392      6    185 2010-06-16 15:25:18       
+0x3e3393f8 lsass.exe               516    392      6    584 2010-06-16 15:25:18       
+0x3ff11750 lsm.exe                 524    392     10    143 2010-06-16 15:25:18       
+0x3e35b8f8 svchost.exe             628    508      9    361 2010-06-16 15:25:19       
+0x3eec67e0 svchost.exe             688    508      7    268 2010-06-16 15:25:20       
+}}}
 
 == pstree ==
 
