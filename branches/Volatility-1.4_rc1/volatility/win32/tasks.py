@@ -69,10 +69,11 @@ def pslist(addr_space):
 
     PsActiveProcessHead = get_kdbg(addr_space).PsActiveProcessHead
 
-    if PsActiveProcessHead:
+    PsActiveList = PsActiveProcessHead.dereference_as("_LIST_ENTRY")
+    if PsActiveList:
         # Try to iterate over the process list in PsActiveProcessHead
         # (its really a pointer to a _LIST_ENTRY)
-        for l in PsActiveProcessHead.dereference_as("_LIST_ENTRY").list_of_type("_EPROCESS", "ActiveProcessLinks"):
+        for l in PsActiveList.list_of_type("_EPROCESS", "ActiveProcessLinks"):
             yield l
     else:
         raise TasksNotFound("Could not list tasks, please verify the --profile option and whether this image is valid")
