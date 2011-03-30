@@ -1080,7 +1080,7 @@ REG_DWORD     AntiSpywareOverride : (S) 0
 REG_DWORD     FirewallOverride : (S) 0
 }}}
 
-Here you can see output for more than one hive containing the key 'Software\Microsoft\Windows NT\CurrentVersion\Winlogon'
+Here you can see output for more than one hive containing the key 'Software\Microsoft\Windows NT\!CurrentVersion\Winlogon'
 
 {{{
 $ python vol.py -f ds_fuzz_hidden_proc.img --profile=WinXPSP3x86 printkey -K 'Software\Microsoft\Windows NT\CurrentVersion\Winlogon'
