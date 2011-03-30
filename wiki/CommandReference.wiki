@@ -1056,45 +1056,88 @@ Virtual     Physical    Name
 
 == printkey ==
 
-To display the subkeys, values, data, and data types contained within a specified registry key, use the printkey command. It accepts a virtual address to the hive in which you want to search for a key. For example, to see the contents of HKEY_LOCAL_MACHINE, do the following:
+To display the subkeys, values, data, and data types contained within a specified registry key, use the printkey command. By default, printkey will search all hives and print the key information (if found) for the requested key.  Therefore, if the key is located in more than one hive, the information for the key will be printed for each hive that contains it.  
+
+Say you want to traverse into the HKEY_LOCAL_MACHINE\Microsoft\Security Center\Svc key. You can do that:
 
 {{{
-$ python vol.py --profile=Win7SP0x86 -f win7.dmp printkey -o 0x8c089398 
+$ python vol.py --profile=Win7SP0x86 -f win7.dmp printkey -K 'Microsoft\Security Center\Svc'
 Volatile Systems Volatility Framework 1.4_rc1
-Key name: CMI-CreateHive{3D971F19-49AB-4000-8D39-A6D9C673D809}
-(Stable)
-Last updated: 2010-03-10 22:48:38 
+Legend: (S) = Stable   (V) = Volatile
+
+----------------------------
+Registry: \SystemRoot\System32\Config\SOFTWARE
+Key name: Svc (S)
+Last updated: 2010-07-06 22:33:20 
 
 Subkeys:
-  AccessData(Stable)
-  BreakPoint(Stable)
-  Classes(Stable)
-  Clients(Stable)
-  Foxit Software(Stable)
-  Intel(Stable)
-  Microsoft(Stable)
-  Mozilla(Stable)
-  mozilla.org(Stable)
-[snip]
+  (V) Vol
+
+Values:
+REG_QWORD     VistaSp1        : (S) 128920209537502489
+REG_DWORD     AntiVirusOverride : (S) 0
+REG_DWORD     AntiSpywareOverride : (S) 0
+REG_DWORD     FirewallOverride : (S) 0
 }}}
 
-Now say you want to traverse into the HKEY_LOCAL_MACHINE\Microsoft\Security Center\Svc key. You can do that:
+Here you can see output for more than one hive containing the key 'Software\Microsoft\Windows NT\CurrentVersion\Winlogon'
 
 {{{
-$ python vol.py --profile=Win7SP0x86 -f win7.dmp printkey -o 0x8c089398 -K 'Microsoft\Security Center\Svc'
+$ python vol.py -f ds_fuzz_hidden_proc.img --profile=WinXPSP3x86 printkey -K 'Software\Microsoft\Windows NT\CurrentVersion\Winlogon'
 Volatile Systems Volatility Framework 1.4_rc1
-Key name: Svc
-(Stable)
-Last updated: 2010-07-06 22:33:20 
+Legend: (S) = Stable (V) = Volatile
+
+----------------------------
+Registry: \Device\HarddiskVolume1\Documents and Settings\NetworkService\NTUSER.DAT
+Key name: Winlogon (S)
+Last updated: 2008-11-26 07:38:23
 
 Subkeys:
 
 Values:
-REG_QWORD VistaSp1   : 128920209537502489 (Stable)
-REG_DWORD AntiVirusOverride : 0 (Stable)
-REG_DWORD AntiSpywareOverride : 0 (Stable)
-REG_DWORD FirewallOverride : 0 (Stable)
+REG_SZ ParseAutoexec : (S) 1
+REG_SZ ExcludeProfileDirs : (S) Local Settings;Temporary Internet Files;History;Temp
+REG_DWORD BuildNumber : (S) 2600
+----------------------------
+Registry: \Device\HarddiskVolume1\WINDOWS\system32\config\default
+Key name: Winlogon (S)
+Last updated: 2008-11-26 07:39:40
+
+Subkeys:
+
+Values:
+REG_SZ ParseAutoexec : (S) 1
+REG_SZ ExcludeProfileDirs : (S) Local Settings;Temporary Internet Files;History;Temp
+REG_DWORD BuildNumber : (S) 2600
+[snip]
 }}}
+
+Printkey also accepts a virtual address to the hive in which you want to search for a key. For example, to see the contents of HKEY_LOCAL_MACHINE, do the following:
+
+{{{
+$ python vol.py --profile=Win7SP0x86 -f win7.dmp printkey -o 0x8c089398 
+Volatile Systems Volatility Framework 1.4_rc1
+Legend: (S) = Stable   (V) = Volatile
+
+----------------------------
+Registry: User Specified
+Key name: CMI-CreateHive{3D971F19-49AB-4000-8D39-A6D9C673D809} (S)
+Last updated: 2010-03-10 22:48:38 
+
+Subkeys:
+  (S) AccessData
+  (S) BreakPoint
+  (S) Classes
+  (S) Clients
+  (S) Foxit Software
+  (S) Intel
+  (S) Microsoft
+  (S) Mozilla
+  (S) mozilla.org
+[snip]
+}}}
+
+
 
 == hivedump ==
 
