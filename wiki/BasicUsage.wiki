@@ -41,7 +41,7 @@ Unlike Volatility 1.3, in 1.4 you can interchange the order of the arguments inc
 $ python vol.py -f [image] --profile=[PROFILE] [plugin]
 }}}
 
-Options with dashes must maintain their order however (e.g. -f [image]).  The above commands will run the given plugin on the given image using the given profile.  
+Options with dashes must maintain their order however (e.g. -f `[image]`).  The above commands will run the given plugin on the given image using the given profile.  
 
 To get a list of available plugins and commandline options you can type:
 
