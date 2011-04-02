@@ -803,22 +803,20 @@ To scan for ETHREAD objects in physical memory, use the thrdscan2 command. Since
 {{{
 $ python vol.py --profile=Win7SP0x86 -f win7.dmp thrdscan2
 Volatile Systems Volatility Framework 1.4_rc1
-PID    TID    Create Time               Exit Time                 Offset    
------- ------ ------------------------- ------------------------- ----------
-   876   2424                                                     0x006960c8
-   348    480                                                     0x007b1538
-  1344   1964                                                     0x00c62030
-  1140   1404                                                     0x00c62d48
-  1312   1224                                                     0x00c64ad8
-   876   1236                                                     0x00ca4cc8
-   840   1800                           2010-07-06 22:33:47       0x00cea150
-  1344   1352                                                     0x00d62bb8
-  1140   1440                                                     0x00eb4d48
-  1920    800                                                     0x00ebf030
-   384    388                                                     0x00ebf538
-   876   1320                           2010-07-06 22:38:33       0x00ebf978
-  1880   2372                                                     0x00eef548
-   876   1164                                                     0x00ef8030
+Offset     PID    TID    Create Time               Exit Time                 StartAddr
+---------- ------ ------ ------------------------- ------------------------- ----------
+0x0637f030   1344 140                                                        0x778e64d8
+0x06389d48    848 852                                                        0x778e64d8
+0x064470f8    508 780                                                        0x778e64d8
+0x064474b8    508 776                              2010-07-06 22:30:03       0x778e64d8
+0x06447c10    728 772                                                        0x99f10ac8
+0x0658fd48    424 2004                                                       0x778e64d8
+0x06a87d48   2520 2552                             2010-07-06 22:39:15       0x778e64d8
+0x06a902d8   1140 704                                                        0x778e64d8
+0x06a908d0   1488 580                                                        0x778e64d8
+0x06d3c820   1880 1220                                                       0x778e64d8
+0x06e98d48   2312 2316                                                       0x778e64d8
+0x06fa7d48   1156 1784                             2010-07-06 22:38:01       0x778e64d8
 [snip]
 }}}
 
