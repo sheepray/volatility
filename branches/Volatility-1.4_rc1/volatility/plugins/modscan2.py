@@ -176,15 +176,16 @@ class ThrdScan2(ModScan2):
             yield thread
 
     def render_text(self, outfd, data):
-        outfd.write("PID    TID    Create Time               Exit Time                 Offset    \n" + \
-                    "------ ------ ------------------------- ------------------------- ----------\n")
+        outfd.write("Offset     PID    TID    Create Time               Exit Time                 StartAddr\n" + \
+                    "---------- ------ ------ ------------------------- ------------------------- ----------\n")
 
         for thread in data:
-            outfd.write("{0:6} {1:6} {2: <25} {3: <25} 0x{4:08x}\n".format(thread.Cid.UniqueProcess,
-                                                                           thread.Cid.UniqueThread,
-                                                                           thread.CreateTime or '',
-                                                                           thread.ExitTime or '',
-                                                                           thread.obj_offset))
+            outfd.write("{0:#010x} {1:6} {2: <6} {3: <25} {4: <25} {5:#010x}\n".format(thread.obj_offset, 
+                                                                                     thread.Cid.UniqueProcess,
+                                                                                     thread.Cid.UniqueThread,
+                                                                                     thread.CreateTime or '',
+                                                                                     thread.ExitTime or '',
+                                                                                     thread.StartAddress))
 
 class CheckProcess(scan.ScannerCheck):
     """ Check sanity of _EPROCESS """
