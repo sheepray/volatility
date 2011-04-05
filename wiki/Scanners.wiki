@@ -15,18 +15,18 @@ This section describes how one would implement a memory scanner for EPROCESS as 
 
 For an EPROCESS to be considered valid, we might require the following conditions:
 
- # _EPROCESS.Pcb.Header.Type == 0x03 and eprocess.Pcb.Header.Size == 0x1b
- # _EPROCESS.Pcb.DirectoryTableBase must be aligned to 0x20
- # _EPROCESS thread list points to the kernel Address Space (Both Flink and Blink for eprocess.ThreadListHead)
- # _EPROCESS.WorkingSetLock and _EPROCESS.AddressCreationLock look valid
+ # `_EPROCESS.Pcb.Header.Type == 0x03` and `eprocess.Pcb.Header.Size == 0x1b`
+ # `_EPROCESS.Pcb.DirectoryTableBase` must be aligned to 0x20
+ # `_EPROCESS` thread list points to the kernel Address Space (Both Flink and Blink for `eprocess.ThreadListHead`)
+ # `_EPROCESS.WorkingSetLock` and `_EPROCESS.AddressCreationLock` look valid
 
-We start off at the begining of the virtual space and check each byte against these conditions. If any of these conditions dont match we continue on with the next byte. If all conditions match for a particular offset, this is a potential candidate for an _EPROCESS.
+We start off at the begining of the virtual space and check each byte against these conditions. If any of these conditions dont match we continue on with the next byte. If all conditions match for a particular offset, this is a potential candidate for an `_EPROCESS`.
 
 == Optimization ==
 
 The first thing thats obvious is that since all tests have to match, failing any test will allow us to not consider this current byte offset. Therefore we can order the tests such that simpler tests can be made first, while more complex tests happen later, providing the simple tests passed. This allows us to shortcut performing complex tests in cases where its immediately obvious that the structure can not possibly match since the simple test has failed.
 
-In our case the first test checks that _EPROCESS.Pcb.Header.Type is exactly 0x03. It should be immediately obvious that since this test will always fail when the particular offset is not 0x03, we can simply search forward for the next 0x03 at that offset - completely ignoring all bytes in between. So a further optimization is that the first test can skip a bunch of data for us which is obviously not going to match, and save us testing each byte in between.
+In our case the first test checks that `_EPROCESS.Pcb.Header.Type` is exactly 0x03. It should be immediately obvious that since this test will always fail when the particular offset is not 0x03, we can simply search forward for the next 0x03 at that offset - completely ignoring all bytes in between. So a further optimization is that the first test can skip a bunch of data for us which is obviously not going to match, and save us testing each byte in between.
 
 So these are the most crucial optimizations:
  # Allow us to order the tests such that we put the fast, simple tests earlier, and stop checking if they fail.
@@ -38,7 +38,7 @@ Volatility provides two classes for implementing Scanners, both are automaticall
 
 == Defining a Check ==
  
-Specific checks are implemented using the volatility.scan.ScannerCheck base class. For example:
+Specific checks are implemented using the `volatility.scan.ScannerCheck` base class. For example:
 
 {{{
 class DispatchHeaderCheck(scan.ScannerCheck):
