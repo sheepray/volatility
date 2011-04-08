@@ -27,6 +27,17 @@ tcpip_vtypes = {
 } ],
 }
 
+tcpip_vtypes_2k3_sp1_sp2 = {
+  '_ADDRESS_OBJECT' : [ 0x68, {
+    'Next' : [ 0x0, ['pointer', ['_ADDRESS_OBJECT']]],
+    'LocalIpAddress' : [ 0x0c, ['unsigned long']],
+    'LocalPort' : [ 0x34, ['unsigned short']],
+    'Protocol'  : [ 0x36, ['unsigned short']],
+    'Pid' : [ 0x14C, ['unsigned long']],
+    'CreateTime' : [ 0x158, ['_LARGE_INTEGER']],
+} ],
+}
+
 tcpip_vtypes_vista = {
     '_IN_ADDR' : [ None, {
         'addr4' : [ 0x0, ['array', 4, ['unsigned char']]],

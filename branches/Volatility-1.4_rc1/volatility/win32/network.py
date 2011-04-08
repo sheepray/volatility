@@ -73,7 +73,28 @@ module_versions = { \
   'SizeOff' : [0x3FA48], \
   'AddrObjTableOffset'  : [0x489E0], \
   'AddrObjTableSizeOffset' : [0x489E4], \
-}
+},
+# w2k3 sp0
+'3790' : { \
+ 'TCBTableOff' : [0x4c6c8], \
+ 'SizeOff' : [0x4312c], \
+ 'AddrObjTableOffset'  : [0x4bba0], \
+ 'AddrObjTableSizeOffset' : [0x4bba4], \
+},
+# w2k3 sp1
+'1830' : { \
+ 'TCBTableOff' : [0x4e428], \
+ 'SizeOff' : [0x44140], \
+ 'AddrObjTableOffset'  : [0x4d4e4], \
+ 'AddrObjTableSizeOffset' : [0x4d4e8], \
+},
+# w2k3 sp2
+'3959' : { \
+ 'TCBTableOff' : [0x7c548], \
+ 'SizeOff' : [0x50308], \
+ 'AddrObjTableOffset'  : [0x5ada4], \
+ 'AddrObjTableSizeOffset' : [0x5ada8], \
+},
 }
 
 

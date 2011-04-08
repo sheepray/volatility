@@ -44,7 +44,7 @@ win2k3sp2x86overlays = copy.deepcopy(win2k3_sp1_x86.win2k3sp1x86overlays)
 win2k3_sp2_x86_vtypes.ntoskrnl_types.update(crash_vtypes.crash_vtypes)
 win2k3_sp2_x86_vtypes.ntoskrnl_types.update(hibernate_vtypes.hibernate_vtypes)
 win2k3_sp2_x86_vtypes.ntoskrnl_types.update(tcpip_vtypes.tcpip_vtypes)
-win2k3_sp2_x86_vtypes.ntoskrnl_types.update(tcpip_vtypes.tcpip_vtypes_vista)
+win2k3_sp2_x86_vtypes.ntoskrnl_types.update(tcpip_vtypes.tcpip_vtypes_2k3_sp1_sp2)
 win2k3_sp2_x86_vtypes.ntoskrnl_types.update(kdbg_vtypes.kdbg_vtypes)
 
 class Win2K3SP2x86(windows.AbstractWindows):
