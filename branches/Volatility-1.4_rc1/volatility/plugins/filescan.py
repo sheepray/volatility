@@ -122,7 +122,7 @@ class FileScan(commands.command):
 
     def render_text(self, outfd, data):
         outfd.write("{0:10} {1:10} {2:4} {3:4} {4:6} {5}\n".format(
-                     'Phys.Addr.', 'Obj Type', '#Ptr', '#Hnd', 'Access', 'Name'))
+                     'Offset', 'Obj Type', '#Ptr', '#Hnd', 'Access', 'Name'))
 
         for object_obj, file_obj, Name in data:
             ## Make a nicely formatted ACL string
@@ -233,7 +233,7 @@ class DriverScan(FileScan):
     def render_text(self, outfd, data):
         """Renders the text-based output"""
         outfd.write("{0:10} {1:10} {2:4} {3:4} {4:10} {5:>6} {6:20} {7}\n".format(
-                     'Phys.Addr.', 'Obj Type', '#Ptr', '#Hnd',
+                     'Offset', 'Obj Type', '#Ptr', '#Hnd',
                      'Start', 'Size', 'Service key', 'Name'))
 
         for object_obj, driver_obj, extension_obj, ObjectNameString in data:
@@ -345,7 +345,7 @@ class MutantScan(FileScan):
     def render_text(self, outfd, data):
         """Renders the output"""
         outfd.write("{0:10} {1:10} {2:4} {3:4} {4:6} {5:10} {6:10} {7}\n".format(
-                     'Phys.Addr.', 'Obj Type', '#Ptr', '#Hnd', 'Signal',
+                     'Offset', 'Obj Type', '#Ptr', '#Hnd', 'Signal',
                      'Thread', 'CID', 'Name'))
 
         for object_obj, mutant, ObjectNameString in data:
