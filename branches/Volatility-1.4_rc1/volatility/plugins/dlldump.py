@@ -51,11 +51,6 @@ class DLLDump(procdump.ProcExeDump):
     def calculate(self):
         addr_space = utils.load_as(self._config)
 
-        if self._config.DUMP_DIR == None:
-            debug.error("Please specify a dump directory (--dump-dir)")
-        if not os.path.isdir(self._config.DUMP_DIR):
-            debug.error(self._config.DUMP_DIR + " is not a directory")
-
         if self._config.OFFSET != None:
             data = [self.virtual_process_from_physical_offset(addr_space, self._config.OFFSET)]
         else:
@@ -88,6 +83,11 @@ class DLLDump(procdump.ProcExeDump):
                 yield proc, ps_ad, mod
 
     def render_text(self, outfd, data):
+        if self._config.DUMP_DIR == None:
+            debug.error("Please specify a dump directory (--dump-dir)")
+        if not os.path.isdir(self._config.DUMP_DIR):
+            debug.error(self._config.DUMP_DIR + " is not a directory")
+
         for proc, ps_ad, mod in data:
             if ps_ad.is_valid_address(mod.DllBase):
                 process_offset = ps_ad.vtop(proc.obj_offset)
