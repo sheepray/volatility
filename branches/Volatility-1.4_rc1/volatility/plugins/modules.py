@@ -27,14 +27,30 @@ import volatility.utils as utils
 
 class Modules(commands.command):
     """Print list of loaded modules"""
+    def __init__(self, config, *args):
+        commands.command.__init__(self, config, *args)
+        config.add_option("PHYSICAL-OFFSET", short_option = 'P', default = False,
+                          cache_invalidator = False, help = "Physical Offset", action = "store_true")
+
     def render_text(self, outfd, data):
         header = False
 
         for module in data:
             if not header:
-                outfd.write("{0:50} {1:12} {2:8} {3}\n".format('File', 'Base', 'Size', 'Name'))
+                offsettype = "(V)" if not self._config.PHYSICAL_OFFSET else "(P)"
+                outfd.write("Offset{0}  {1:50} {2:12} {3:8} {4}\n".format(offsettype, 'File', 'Base', 'Size', 'Name'))
                 header = True
-            outfd.write("{0:50} 0x{1:010x} 0x{2:06x} {3}\n".format(module.FullDllName, module.DllBase, module.SizeOfImage, module.BaseDllName))
+            if not self._config.PHYSICAL_OFFSET:
+                offset = module.obj_offset
+            else:
+                offset = module.obj_vm.vtop(module.obj_offset)
+            outfd.write("{0:#010x} {1:50} {2:#012x} {3:#08x} {4}\n".format(
+                         offset,
+                         module.FullDllName,
+                         module.DllBase,
+                         module.SizeOfImage,
+                         module.BaseDllName))
+
 
     @cache.CacheDecorator("tests/lsmod")
     def calculate(self):
