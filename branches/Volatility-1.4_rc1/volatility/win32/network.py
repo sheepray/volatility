@@ -95,6 +95,13 @@ module_versions = { \
  'AddrObjTableOffset'  : [0x5ada4], \
  'AddrObjTableSizeOffset' : [0x5ada8], \
 },
+# w2k3 sp2
+'4573' : { \
+ 'TCBTableOff' : [0x7f0ac], \
+ 'SizeOff' : [0x52328], \
+ 'AddrObjTableOffset'  : [0x5cf04], \
+ 'AddrObjTableSizeOffset' : [0x5cf08], \
+},
 }
 
 
