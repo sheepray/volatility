@@ -72,9 +72,10 @@ class ModScan2(filescan.FileScan):
             yield ldr_entry
 
     def render_text(self, outfd, data):
-        outfd.write("{0:50} {1:12} {2:8} {3}\n".format('File', 'Base', 'Size', 'Name'))
+        outfd.write("{0:10} {1:50} {2:12} {3:8} {4}\n".format('Offset', 'File', 'Base', 'Size', 'Name'))
         for ldr_entry in data:
-            outfd.write("{0:50} {1:#012x} {2:#08x} {3}\n".format(
+            outfd.write("{0:#010x} {1:50} {2:#012x} {3:#08x} {4}\n".format(
+                         ldr_entry.obj_offset, 
                          self.parse_string(ldr_entry.FullDllName),
                          ldr_entry.DllBase,
                          ldr_entry.SizeOfImage,

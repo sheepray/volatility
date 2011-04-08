@@ -104,7 +104,6 @@ module_versions = { \
 },
 }
 
-
 def determine_connections(addr_space):
     """Determines all connections for each module"""
     all_modules = win32.modules.lsmod(addr_space)
