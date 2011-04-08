@@ -61,11 +61,6 @@ class ModDump(procdump.ProcExeDump):
     def calculate(self):
         addr_space = utils.load_as(self._config)
 
-        if self._config.DUMP_DIR == None:
-            debug.error("Please specify a dump directory (--dump-dir)")
-        if not os.path.isdir(self._config.DUMP_DIR):
-            debug.error(self._config.DUMP_DIR + " is not a directory")
-
         if self._config.REGEX:
             try:
                 if self._config.IGNORE_CASE:
@@ -93,6 +88,11 @@ class ModDump(procdump.ProcExeDump):
                 yield addr_space, procs, mod
 
     def render_text(self, outfd, data):
+        if self._config.DUMP_DIR == None:
+            debug.error("Please specify a dump directory (--dump-dir)")
+        if not os.path.isdir(self._config.DUMP_DIR):
+            debug.error(self._config.DUMP_DIR + " is not a directory")
+
         for addr_space, procs, mod in data:
             space = self.find_space(addr_space, procs, mod.DllBase)
             if space != None:
