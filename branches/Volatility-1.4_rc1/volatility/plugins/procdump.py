@@ -32,7 +32,7 @@ class ProcExeDump(taskmods.DllList):
         taskmods.DllList.__init__(self, config, *args)
         config.add_option('DUMP-DIR', short_option = 'D', default = None,
                           cache_invalidator = False,
-                          help = 'Directory in which to dump the VAD files')
+                          help = 'Directory in which to dump executable files')
 
         config.add_option("UNSAFE", short_option = "u", default = False, action = 'store_true',
                           help = 'Bypasses certain sanity checks when creating image')
