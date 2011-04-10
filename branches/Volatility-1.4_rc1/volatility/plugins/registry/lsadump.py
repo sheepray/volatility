@@ -111,6 +111,8 @@ class HashDump(commands.command):
 
     def render_text(self, outfd, data):
         for d in data:
+            if d == None:
+                debug.error("Unable to read hashes from registry")
             outfd.write(d + "\n")
 
 class HiveDump(commands.command):

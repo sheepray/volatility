@@ -25,6 +25,7 @@
 @contact:      bdolangavitt@wesleyan.edu
 """
 
+import volatility.obj as obj
 import volatility.win32.rawreg as rawreg
 import volatility.win32.hive as hive
 from Crypto.Hash import MD5, MD4
@@ -316,6 +317,8 @@ def dump_hashes(sysaddr, samaddr):
                 nthash = empty_nt
             yield "{0}:{1}:{2}:{3}:::".format(get_user_name(user), int(str(user.Name), 16),
                                               lmhash.encode('hex'), nthash.encode('hex'))
+    else:
+        yield obj.NoneObject("Hbootkey is not valid")
 
 def dump_memory_hashes(addr_space, config, syshive, samhive):
     sysaddr = hive.HiveAddressSpace(addr_space, config, syshive)
