@@ -105,6 +105,7 @@ class _LIST_ENTRY(obj.CType):
 AbstractWindows.object_classes['_LIST_ENTRY'] = _LIST_ENTRY
 
 class WinTimeStamp(obj.NativeType):
+    """Class for handling Windows Time Stamps"""
 
     def __init__(self, theType = None, offset = None, vm = None,
                  parent = None, name = None, is_utc = False, **args):
@@ -209,6 +210,7 @@ class _HANDLE_TABLE(obj.CType):
     """
 
     def get_item(self, offset):
+        """Returns the OBJECT_HEADER of the associated handle at a particular offset"""
         return obj.Object("_OBJECT_HEADER", offset, self.obj_vm,
                                             parent = self)
 
@@ -277,6 +279,7 @@ AbstractWindows.object_classes['_HANDLE_TABLE'] = _HANDLE_TABLE
 
 ## This is an object which provides access to the VAD tree.
 class _MMVAD(obj.CType):
+    """Class factory for _MMVAD objects"""
     ## parent is the containing _EPROCESS right now
     def __new__(cls, theType, offset, vm, parent, **args):
         ## Find the tag (4 bytes below the current offset). This can
@@ -317,6 +320,7 @@ class _MMVAD(obj.CType):
 AbstractWindows.object_classes['_MMVAD'] = _MMVAD
 
 class _MMVAD_SHORT(obj.CType):
+    """Class with convenience functions for _MMVAD_SHORT functions"""
     def traverse(self, visited = None):
         """ Traverse the VAD tree by generating all the left items,
         then the right items.
@@ -341,22 +345,26 @@ class _MMVAD_SHORT(obj.CType):
             yield c
 
     def get_parent(self):
+        """Returns the Parent of the MMVAD"""
         return self.Parent
 
     def get_control_area(self):
+        """Returns the ControlArea of the MMVAD"""
         return self.ControlArea
 
     def get_file_object(self):
+        """Returns the FilePointer of the ControlArea of the MMVAD"""
         return self.ControlArea.FilePointer
 
 class _MMVAD_LONG(_MMVAD_SHORT):
+    """Subclasses _MMVAD_LONG based on _MMVAD_SHORT"""
     pass
 
 AbstractWindows.object_classes['_MMVAD_SHORT'] = _MMVAD_SHORT
 AbstractWindows.object_classes['_MMVAD_LONG'] = _MMVAD_LONG
 
 class ThreadCreateTimeStamp(WinTimeStamp):
-
+    """Handles ThreadCreateTimeStamps which are bit shifted WinTimeStamps"""
     def __init__(self, *args, **kwargs):
         WinTimeStamp.__init__(self, *args, **kwargs)
 
@@ -366,6 +374,8 @@ class ThreadCreateTimeStamp(WinTimeStamp):
 AbstractWindows.object_classes['ThreadCreateTimeStamp'] = ThreadCreateTimeStamp
 
 class _TCPT_OBJECT(obj.CType):
+    """Provides additional functions for TCPT_OBJECTs"""
+
     def _RemoteIpAddress(self, attr):
         return socket.inet_ntoa(struct.pack("<I", self.m(attr).v()))
 
@@ -375,8 +385,10 @@ class _TCPT_OBJECT(obj.CType):
 AbstractWindows.object_classes['_TCPT_OBJECT'] = _TCPT_OBJECT
 
 class VolatilityKPCR(obj.VolatilityMagic):
+    """A scanner for KPCR data within an address space"""
 
     def generate_suggestions(self):
+        """Returns the results of KCPRScanner for an adderss space"""
         scanner = kpcr.KPCRScanner()
         for val in scanner.scan(self.obj_vm):
             yield val
@@ -384,8 +396,10 @@ class VolatilityKPCR(obj.VolatilityMagic):
 AbstractWindows.object_classes['VolatilityKPCR'] = VolatilityKPCR
 
 class VolatilityKDBG(obj.VolatilityMagic):
+    """A Scanner for KDBG data within an address space"""
 
     def generate_suggestions(self):
+        """Generates a list of possible KDBG structure locations"""
         volmag = obj.Object('VOLATILITY_MAGIC', offset = 0, vm = self.obj_vm)
 
         scanner = kdbg.KDBGScanner(needles = [volmag.KDBGHeader.v()])
@@ -395,8 +409,10 @@ class VolatilityKDBG(obj.VolatilityMagic):
 AbstractWindows.object_classes['VolatilityKDBG'] = VolatilityKDBG
 
 class VolatilityIA32ValidAS(obj.VolatilityMagic):
+    """An object to check that an address space is a valid IA32 Paged space"""
 
     def generate_suggestions(self):
+        """Generates a single resposne of True or False depending on whether the space is valid"""
         for (offset, _length) in self.obj_vm.get_available_addresses():
             if (offset > 0x80000000):
                 yield True
