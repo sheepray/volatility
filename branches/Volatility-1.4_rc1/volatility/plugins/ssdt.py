@@ -36,10 +36,19 @@ from volatility.cache import CacheDecorator
 
 #pylint: disable-msg=C0111
 
-ssdt_types = {
+sdt_types = {
   '_SERVICE_DESCRIPTOR_TABLE' : [ 0x40, {
     'Descriptors' : [0x0, ['array', 4, ['_SERVICE_DESCRIPTOR_ENTRY']]],
 } ],
+}
+
+sdt_types_2k3 = {
+  '_SERVICE_DESCRIPTOR_TABLE' : [ 0x40, {
+    'Descriptors' : [0x0, ['array', 2, ['_SERVICE_DESCRIPTOR_ENTRY']]],
+} ],
+}
+
+sde_types = {
   '_SERVICE_DESCRIPTOR_ENTRY' : [ 0x10, {
     'KiServiceTable' : [0x0, ['pointer', ['void']]],
     'CounterBaseTable' : [0x4, ['pointer', ['unsigned long']]],
@@ -81,7 +90,12 @@ class SSDT(commands.command):
     @CacheDecorator("tests/ssdt")
     def calculate(self):
         addr_space = utils.load_as(self._config)
-        addr_space.profile.add_types(ssdt_types)
+        addr_space.profile.add_types(sde_types)
+
+        if addr_space.profile.metadata.get('major', 0) == 5 and addr_space.profile.metadata.get('minor',0) == 2:
+            addr_space.profile.add_types(sdt_types_2k3)
+        else:
+            addr_space.profile.add_types(sdt_types)
 
         ## Get a sorted list of module addresses
         mods = dict((mod.DllBase.v(), mod) for mod in modules.lsmod(addr_space))
