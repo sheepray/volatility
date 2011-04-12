@@ -832,6 +832,10 @@ class Profile(object):
     system. We parse the abstract_types and join them with
     native_types to make everything work together.
     """
+    _md_os = 'undefined'
+    _md_major = 0
+    _md_minor = 0
+    _md_build = 0
     native_types = {}
     abstract_types = {}
     overlay = {}
@@ -856,6 +860,16 @@ class Profile(object):
             self.abstract_types['VOLATILITY_MAGIC'] = [0x0, {}]
 
         self.add_types(self.abstract_types, self.overlay)
+
+    @utils.classproperty
+    @classmethod
+    def metadata(cls):
+        prefix = '_md_'
+        result = {}
+        for i in dir(cls):
+            if i.startswith(prefix):
+                result[i[len(prefix):]] = getattr(cls, i)
+        return result
 
     def has_type(self, theType):
         return theType in self.object_classes or theType in self.types

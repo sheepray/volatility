@@ -54,6 +54,8 @@ xp_sp3_x86_vtypes.ntoskrnl_types.update(tcpip_vtypes.tcpip_vtypes)
 
 class WinXPSP3x86(windows.AbstractWindows):
     """ A Profile for windows XP SP3 """
+    _md_major = 5
+    _md_minor = 1
     abstract_types = xp_sp3_x86_vtypes.ntoskrnl_types
     overlay = xpsp3overlays
     syscalls = xp_sp2_x86_syscalls.syscalls

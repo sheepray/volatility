@@ -48,6 +48,8 @@ win2k8_sp1_x86_vtypes.ntkrnlmp_types.update(tcpip_vtypes.tcpip_vtypes_vista)
 
 class Win2K8SP1x86(windows.AbstractWindows):
     """ A Profile for Windows 2008 SP1 x86 """
+    _md_major = 6
+    _md_minor = 0
     abstract_types = win2k8_sp1_x86_vtypes.ntkrnlmp_types
     overlay = win2k8sp1x86overlays
     object_classes = copy.deepcopy(vista_sp1_x86.VistaSP1x86.object_classes)

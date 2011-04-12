@@ -62,6 +62,8 @@ win2k3_sp0_x86_vtypes.ntoskrnl_types.update(kdbg_vtypes.kdbg_vtypes)
 
 class Win2K3SP0x86(windows.AbstractWindows):
     """ A Profile for Windows 2003 SP0 x86 """
+    _md_major = 5
+    _md_minor = 2
     abstract_types = win2k3_sp0_x86_vtypes.ntoskrnl_types
     overlay = win2k3sp0x86overlays
     object_classes = windows.AbstractWindows.object_classes.copy()

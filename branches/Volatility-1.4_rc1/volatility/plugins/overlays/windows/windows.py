@@ -27,6 +27,7 @@ import volatility.obj as obj
 
 class AbstractWindows(obj.Profile):
     """ A Profile for Windows systems """
+    _md_os = 'windows'
     native_types = basic.x86_native_types_32bit
 
 class _UNICODE_STRING(obj.CType):

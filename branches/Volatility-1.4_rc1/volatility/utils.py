@@ -24,6 +24,10 @@ import volatility.debug as debug
 
 #pylint: disable-msg=C0111
 
+class classproperty(property):
+    def __get__(self, cls, owner):
+        return self.fget.__get__(None, owner)()
+
 def load_as(config, **kwargs):
     base_as = None
     error = AddrSpaceError()

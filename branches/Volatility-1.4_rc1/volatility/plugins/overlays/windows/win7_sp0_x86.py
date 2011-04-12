@@ -128,6 +128,8 @@ win7_sp0_x86_vtypes.ntkrpamp_types.update({\
 
 class Win7SP0x86(windows.AbstractWindows):
     """ A Profile for Windows 7 SP0 x86 """
+    _md_major = 6
+    _md_minor = 1
     abstract_types = win7_sp0_x86_vtypes.ntkrpamp_types
     overlay = win7sp0x86overlays
     object_classes = copy.deepcopy(vista_sp0_x86.VistaSP0x86.object_classes)
