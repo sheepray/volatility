@@ -7,7 +7,7 @@ Created on 31 Dec 2010
 tcpip_vtypes = {
   '_ADDRESS_OBJECT' : [ 0x68, {
     'Next' : [ 0x0, ['pointer', ['_ADDRESS_OBJECT']]],
-    'LocalIpAddress' : [ 0x0c, ['unsigned long']],
+    'LocalIpAddress' : [ 0x2c, ['unsigned long']],
     'LocalPort' : [ 0x30, ['unsigned short']],
     'Protocol'  : [ 0x32, ['unsigned short']],
     'Pid' : [ 0x148, ['unsigned long']],
@@ -30,7 +30,7 @@ tcpip_vtypes = {
 tcpip_vtypes_2k3_sp1_sp2 = {
   '_ADDRESS_OBJECT' : [ 0x68, {
     'Next' : [ 0x0, ['pointer', ['_ADDRESS_OBJECT']]],
-    'LocalIpAddress' : [ 0x0c, ['unsigned long']],
+    'LocalIpAddress' : [ 0x30, ['unsigned long']],
     'LocalPort' : [ 0x34, ['unsigned short']],
     'Protocol'  : [ 0x36, ['unsigned short']],
     'Pid' : [ 0x14C, ['unsigned long']],

@@ -384,6 +384,12 @@ class _TCPT_OBJECT(obj.CType):
 
 AbstractWindows.object_classes['_TCPT_OBJECT'] = _TCPT_OBJECT
 
+class _ADDRESS_OBJECT(obj.CType):
+    def _LocalIpAddress(self, attr):
+        return socket.inet_ntoa(struct.pack("<I", self.m(attr).v()))
+
+AbstractWindows.object_classes['_ADDRESS_OBJECT'] = _ADDRESS_OBJECT
+
 class VolatilityKPCR(obj.VolatilityMagic):
     """A scanner for KPCR data within an address space"""
 

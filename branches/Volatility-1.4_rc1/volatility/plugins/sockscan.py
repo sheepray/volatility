@@ -83,11 +83,12 @@ class SockScan(commands.command):
 
     def render_text(self, outfd, data):
 
-        outfd.write(" Offset     PID    Port   Proto  Create Time               \n" + \
-                    "---------- ------ ------ ------ -------------------------- \n")
+        outfd.write(" Offset  PID    Port   Proto  Address        Create Time               \n" + \
+                    "------- ------ ------ ------ -------------- -------------------------- \n")
 
         for sock_obj in data:
-            outfd.write("{0:#010x} {1:6} {2:6} {3:6} {4:26}\n".format(sock_obj.obj_offset, sock_obj.Pid,
+            outfd.write("{0:#010x} {1:6} {2:6} {3:6} {4:18} {5:26}\n".format(sock_obj.obj_offset, sock_obj.Pid,
                                                                       sock_obj.LocalPort,
                                                                       sock_obj.Protocol,
+                                                                      sock_obj.LocalIpAddress,
                                                                       sock_obj.CreateTime))
