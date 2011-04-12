@@ -824,7 +824,7 @@ Offset     PID    TID    Create Time               Exit Time                 Sta
 
 == connections ==
 
-To view the active connections, use the connections command. This walks the singly-linked list of connection structures pointed to by a non-exported symbol in the tcpip.sys module. This command is for Windows XP only. 
+To view the active connections, use the connections command. This walks the singly-linked list of connection structures pointed to by a non-exported symbol in the tcpip.sys module. This command is for Windows XP and Windows 2003 Server only. 
 
 {{{
 $ python vol.py -f Bob.vmem connections
@@ -866,7 +866,7 @@ Volatile Systems Volatility Framework 1.4_rc1
 
 == connscan2 ==
 
-To find connection structures using pool tag scanning, use the connscan2 command. This can find artifacts from previous connections that have since been terminated. In the output below, you'll notice some fields have been partially overwritten, but some of the information is still accurate. Thus, while it may find false positives sometimes, you also get the benefit of detecting as much information as possible. This command is for Windows XP only. 
+To find connection structures using pool tag scanning, use the connscan2 command. This can find artifacts from previous connections that have since been terminated. In the output below, you'll notice some fields have been partially overwritten, but some of the information is still accurate. Thus, while it may find false positives sometimes, you also get the benefit of detecting as much information as possible. This command is for Windows XP and Windows 2003 Server only. 
 
 {{{
 $ python vol.py -f Bob.vmem connscan2
@@ -889,7 +889,7 @@ Volatile Systems Volatility Framework 1.4_rc1
 
 == sockets ==
 
-To detect listening sockets for any protocol (TCP, UDP, RAW, etc), use the sockets command. This walks a singly-linked list of socket structures which is pointed to by a non-exported symbol in the tcpip.sys module. This command is for Windows XP only. 
+To detect listening sockets for any protocol (TCP, UDP, RAW, etc), use the sockets command. This walks a singly-linked list of socket structures which is pointed to by a non-exported symbol in the tcpip.sys module. This command is for Windows XP and Windows 2003 Server only. 
 
 {{{
 $ python vol.py -f silentbanker.vmem --profile=WinXPSP3x86 sockets
@@ -938,7 +938,7 @@ Volatile Systems Volatility Framework 1.4_rc1
 
 == sockscan ==
 
-To find socket structures using pool tag scanning, use the sockscan command. As with connscan2, this can pick up residual data and artifacts from previous sockets, and it only applies to Windows XP. 
+To find socket structures using pool tag scanning, use the sockscan command. As with connscan2, this can pick up residual data and artifacts from previous sockets, and it only applies to Windows XP and Windows 2003 Server. 
 
 {{{
 $ python vol.py -f silentbanker.vmem --profile=WinXPSP3x86 sockscan
