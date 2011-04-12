@@ -62,6 +62,7 @@ Other Images
 ||Moyix's Fuzzy Hidden Process Sample || [http://amnesia.gtisc.gatech.edu/~moyix/ds_fuzz_hidden_proc.img.bz2 http://amnesia.gtisc.gatech.edu/~moyix/ds_fuzz_hidden_proc.img.bz2]|| XP SP3 ||
 ||Honeynet Banking Troubles Image || [https://www.honeynet.org/challenges/2010_3_banking_troubles https://www.honeynet.org/challenges/2010_3_banking_troubles]|| XP SP2 ||
 ||NPS 2009-M57|| [http://domex.nps.edu/corp/scenarios/2009-m57/ram/ http://domex.nps.edu/corp/scenarios/2009-m57/ram/] ||  Various XP / Vista ||
+|| [http://dougee652.blogspot.com/2011/04/malware-memory-images.html Dougee's comparison samples] || [http://dl.dropbox.com/u/21148428/xp-clean.tgz before] and [http://dl.dropbox.com/u/21148428/xp-infected.tgz after infection] || XP ||
 
 <br>
 = What are the dependencies for running Volatility? =
