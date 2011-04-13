@@ -24,6 +24,7 @@ import volatility.plugins.kpcrscan as kpcr
 import volatility.plugins.kdbgscan as kdbg
 import volatility.timefmt as timefmt
 import volatility.obj as obj
+import volatility.addrspace as addrspace
 
 class AbstractWindows(obj.Profile):
     """ A Profile for Windows systems """
@@ -415,11 +416,36 @@ class VolatilityKDBG(obj.VolatilityMagic):
 
 AbstractWindows.object_classes['VolatilityKDBG'] = VolatilityKDBG
 
+
 class VolatilityIA32ValidAS(obj.VolatilityMagic):
-    """An object to check that an address space is a valid IA32 Paged space"""
 
     def generate_suggestions(self):
-        """Generates a single resposne of True or False depending on whether the space is valid"""
+
+        # This constraint looks for self referential values within
+        # the paging tables
+        try: 
+            if self.obj_vm.pae:
+                pde_base = 0xc0600000
+                pd = self.obj_vm.get_pdpte(0) & 0xffffffffff000
+            else:
+                pde_base = 0xc0300000
+                pd = self.obj_vm.dtb
+            if (self.obj_vm.vtop(pde_base) == pd):
+                yield True
+                raise StopIteration 
+ 
+        except addrspace.ASAssertionError, e:
+            pass
+
+        # This constraint verifies that _KUSER_ SHARED_DATA is shared
+        # between user and kernel address spaces.
+        if (self.obj_vm.vtop(0xffdf0000)) == (self.obj_vm.vtop(0x7ffe0000)):
+            if self.obj_vm.vtop(0xffdf0000) != None:
+                yield True
+                raise StopIteration
+
+        # Finally this brute forces the address space by walking
+        # the page tables.
         for (offset, _length) in self.obj_vm.get_available_addresses():
             if (offset > 0x80000000):
                 yield True
