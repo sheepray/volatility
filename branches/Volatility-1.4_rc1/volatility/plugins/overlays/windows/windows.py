@@ -416,14 +416,14 @@ class VolatilityKDBG(obj.VolatilityMagic):
 
 AbstractWindows.object_classes['VolatilityKDBG'] = VolatilityKDBG
 
-
 class VolatilityIA32ValidAS(obj.VolatilityMagic):
+    """An object to check that an address space is a valid IA32 Paged space"""
 
     def generate_suggestions(self):
-
+        """Generates a single response of True or False depending on whether the space is a valid Windows AS"""
         # This constraint looks for self referential values within
         # the paging tables
-        try: 
+        try:
             if self.obj_vm.pae:
                 pde_base = 0xc0600000
                 pd = self.obj_vm.get_pdpte(0) & 0xffffffffff000
@@ -432,9 +432,9 @@ class VolatilityIA32ValidAS(obj.VolatilityMagic):
                 pd = self.obj_vm.dtb
             if (self.obj_vm.vtop(pde_base) == pd):
                 yield True
-                raise StopIteration 
- 
-        except addrspace.ASAssertionError, e:
+                raise StopIteration
+
+        except addrspace.ASAssertionError, _e:
             pass
 
         # This constraint verifies that _KUSER_ SHARED_DATA is shared
