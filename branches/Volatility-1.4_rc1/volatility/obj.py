@@ -439,7 +439,7 @@ class NumericProxyMixIn(object):
     _specials = [
         ## Number protocols
         '__add__', '__sub__', '__mul__', '__floordiv__', '__mod__', '__divmod__',
-        '__pow__', '__lshift__', '__rshift__', '__and__', '__xor__', '__div__',
+        '__pow__', '__lshift__', '__rshift__', '__and__', '__xor__', '__or__', '__div__',
         '__truediv__', '__radd__', '__rsub__', '__rmul__', '__rdiv__', '__rtruediv__',
         '__rfloordiv__', '__rmod__', '__rdivmod__', '__rpow__', '__rlshift__',
         '__rrshift__', '__rand__', '__rxor__', '__ror__', '__neg__', '__pos__',
