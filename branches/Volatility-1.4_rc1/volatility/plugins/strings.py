@@ -19,19 +19,26 @@
 
 
 import os
-import volatility.commands as commands
+import volatility.plugins.taskmods as taskmods
+import volatility.plugins.filescan as filescan
 import volatility.obj as obj
 import volatility.utils as utils
 import volatility.win32 as win32
 import volatility.debug as debug
 
-class Strings(commands.command):
+class Strings(taskmods.DllList):
     """Match physical offsets to virtual addresses (may take a while, VERY verbose)"""
     def __init__(self, config, *args):
-        commands.command.__init__(self, config, *args)
+        taskmods.DllList.__init__(self, config, *args)
+        config.remove_option('PID')
         config.add_option('STRING-FILE', short_option = 's', default = None,
                           help = 'File output in strings format (offset:string)',
                           action = 'store', type = 'str')
+        config.add_option("SCAN", short_option = 'S', default = False,
+                          action = 'store_true', help = 'Use PSScan3 if no offset is provided')
+        config.add_option('OFFSET', short_option = 'o', default = None,
+                          help = 'EPROCESS offset (in hex) in the physical address space',
+                          action = 'store', type = 'int')
         config.add_option('PIDS', short_option = 'p', default = None,
                           help = 'Operate on these Process IDs (comma-separated)',
                           action = 'store', type = 'str')
@@ -41,11 +48,17 @@ class Strings(commands.command):
         if self._config.STRING_FILE is None or not os.path.exists(self._config.STRING_FILE):
             debug.error("Strings file not found")
 
-        data = {}
-
         addr_space = utils.load_as(self._config)
 
-        tasks = win32.tasks.pslist(addr_space)
+        if self._config.OFFSET != None:
+            tasks = [self.virtual_process_from_physical_offset(addr_space, self._config.OFFSET)]
+        elif self._config.SCAN:
+            procs = list(filescan.PSScan2(self._config).calculate())
+            tasks = []
+            for task in procs:
+                tasks.append(self.virtual_process_from_physical_offset(addr_space, task.obj_offset))
+        else:
+            tasks = win32.tasks.pslist(addr_space)
 
         try:
             if self._config.PIDS is not None:
