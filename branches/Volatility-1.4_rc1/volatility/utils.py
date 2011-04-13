@@ -55,7 +55,7 @@ def load_as(config, astype = None, **kwargs):
         if not found:
             break
 
-    if not isinstance(base_as, addrspace.AbstractVirtualAddressSpace) and (astype.lower() == 'virtual'):
+    if not isinstance(base_as, addrspace.AbstractVirtualAddressSpace) and (astype == 'virtual'):
         base_as = None
 
     if base_as is None:
