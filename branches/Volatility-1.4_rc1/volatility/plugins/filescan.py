@@ -448,7 +448,7 @@ class PoolScanProcess3(scan.PoolScanner):
                ]
 
 
-class PSScan3(commands.command):
+class PSScan2(commands.command):
     """ Scan Physical memory for _EPROCESS pool allocations
     """
     # Declare meta information associated with this plugin
