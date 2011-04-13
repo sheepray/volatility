@@ -132,14 +132,14 @@ class FileAddressSpace(addrspace.BaseAddressSpace):
 
 
 
-class AbstractPagedMemory(addrspace.BaseAddressSpace):
+class AbstractPagedMemory(addrspace.AbstractVirtualAddressSpace):
     """ Class to handle all the associated details of a paged address space
         
     Note: Pages can be of any size
     """
-    def __init__(self, base, config, **kwargs):
+    def __init__(self, base, config, *args, **kwargs):
         self.as_assert(self.__class__.__name__ != 'AbstractPagedMemory', "Abstract Class - Never for instantiation directly")
-        addrspace.BaseAddressSpace.__init__(self, base, config)
+        addrspace.AbstractVirtualAddressSpace.__init__(self, base, config, *args, **kwargs)
 
     def vtop(self, addr):
         """Abstract function that converts virtual (paged) addresses to physical addresses"""
@@ -187,9 +187,9 @@ class AbstractWritablePagedMemory(AbstractPagedMemory):
     to any standard address space that supports write() and
     vtop().
     """
-    def __init__(self, base, config, **kwargs):
+    def __init__(self, base, config, *args, **kwargs):
         self.as_assert(self.__class__.__name__ != 'AbstractWritablePagedMemory', "Abstract Class - Never for instantiation directly")
-        AbstractPagedMemory.__init__(self, base, config)
+        AbstractPagedMemory.__init__(self, base, config, *args, **kwargs)
 
     def write(self, vaddr, buf):
         if not self._config.WRITE:

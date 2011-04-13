@@ -52,13 +52,11 @@ class IA32PagedMemory(standard.AbstractWritablePagedMemory, addrspace.BaseAddres
     """
     order = 90
     pae = False
-    def __init__(self, base, config, dtb = 0, astype = None, **kwargs):
+    def __init__(self, base, config, dtb = 0, *args, **kwargs):
         self.as_assert(config.USE_OLD_AS, "Module disabled")
 
-        standard.AbstractWritablePagedMemory.__init__(self, base, config)
-        addrspace.BaseAddressSpace.__init__(self, base, config, **kwargs)
-        self.as_assert(astype != 'physical', "User requested physical AS")
-        self.astype = astype
+        standard.AbstractWritablePagedMemory.__init__(self, base, config, *args, **kwargs)
+        addrspace.BaseAddressSpace.__init__(self, base, config, *args, **kwargs)
 
         ## We must be stacked on someone else:
         self.as_assert(base, "No base Address Space")
@@ -232,9 +230,6 @@ class IA32PagedMemory(standard.AbstractWritablePagedMemory, addrspace.BaseAddres
         (longval,) = struct.unpack('=I', string)
         return longval
 
-    def __eq__(self, other):
-        return addrspace.BaseAddressSpace.__eq__(self, other) and self.astype == other.astype
-
     def get_available_pages(self):
         pgd_curr = self.pgd_vaddr
         for i in range(0, ptrs_per_pgd):
@@ -256,12 +251,12 @@ class IA32PagedMemoryPae(IA32PagedMemory):
     """
     order = 80
     pae = True
-    def __init__(self, base, config, **kwargs):
+    def __init__(self, base, config, *args, **kwargs):
         """ We accept an optional arg called dtb to force us to use a
         specific dtb. If not provided, we try to find it from our base
         AS, and failing that we search for it.
         """
-        IA32PagedMemory.__init__(self, base, config, **kwargs)
+        IA32PagedMemory.__init__(self, base, config, *args, **kwargs)
 
     def get_pdptb(self, pdpr):
         return pdpr & 0xFFFFFFE0

@@ -59,7 +59,7 @@ def check_valid_profile(option, _opt_str, value, parser):
 
 class BaseAddressSpace(object):
     """ This is the base class of all Address Spaces. """
-    def __init__(self, base, config, **kwargs):
+    def __init__(self, base, config, *_args, **_kwargs):
         """ base is the AS we will be stacking on top of, opts are
         options which we may use.
         """
@@ -134,6 +134,14 @@ class BaseAddressSpace(object):
 
     def __setstate__(self, state):
         self.__init__(**state)
+
+class AbstractVirtualAddressSpace(BaseAddressSpace):
+    def __init__(self, base, config, astype = None, *args, **kwargs):
+        BaseAddressSpace.__init__(self, base, config, astype = astype, *args, **kwargs)
+        self.as_assert(astype.lower() != 'physical', "User requested physical AS")
+
+    def vtop(self, vaddr):
+        raise NotImplementedError("This is a virtual class and should not be referenced directly")
 
 ## This is a specialised AS for use internally - Its used to provide
 ## transparent support for a string buffer so types can be

@@ -28,7 +28,7 @@ class classproperty(property):
     def __get__(self, cls, owner):
         return self.fget.__get__(None, owner)()
 
-def load_as(config, **kwargs):
+def load_as(config, astype = None, **kwargs):
     base_as = None
     error = AddrSpaceError()
     while 1:
@@ -37,7 +37,7 @@ def load_as(config, **kwargs):
         for cls in registry.AS_CLASSES.classes:
             debug.debug("Trying {0} ".format(cls))
             try:
-                base_as = cls(base_as, config, **kwargs)
+                base_as = cls(base_as, config, astype = astype, **kwargs)
                 debug.debug("Succeeded instantiating {0}".format(base_as))
                 found = True
                 break
@@ -54,6 +54,9 @@ def load_as(config, **kwargs):
         ## selecting us means we are done:
         if not found:
             break
+
+    if not isinstance(base_as, addrspace.AbstractVirtualAddressSpace) and (astype.lower() == 'virtual'):
+        base_as = None
 
     if base_as is None:
         raise error
