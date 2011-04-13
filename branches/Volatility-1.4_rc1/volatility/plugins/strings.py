@@ -35,7 +35,7 @@ class Strings(taskmods.DllList):
                           help = 'File output in strings format (offset:string)',
                           action = 'store', type = 'str')
         config.add_option("SCAN", short_option = 'S', default = False,
-                          action = 'store_true', help = 'Use PSScan3 if no offset is provided')
+                          action = 'store_true', help = 'Use PSScan2 if no offset is provided')
         config.add_option('OFFSET', short_option = 'o', default = None,
                           help = 'EPROCESS offset (in hex) in the physical address space',
                           action = 'store', type = 'int')
