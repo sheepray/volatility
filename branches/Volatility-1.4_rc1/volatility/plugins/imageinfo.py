@@ -82,9 +82,9 @@ class ImageInfo(kdbg.KDBGScan):
             tmpas = tmpas.base
 
         if not hasattr(addr_space, "pae"):
-            yield ('PAE type', "PAE")
-        else:
             yield ('PAE type', "No PAE")
+        else:
+            yield ('PAE type', "PAE" if addr_space.pae else "No PAE")
 
         if hasattr(addr_space, "dtb"):
             yield ('DTB', hex(addr_space.dtb))
