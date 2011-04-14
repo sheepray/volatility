@@ -21,6 +21,7 @@
 import volatility.win32.tasks as tasks
 import volatility.timefmt as timefmt
 import volatility.utils as utils
+import volatility.debug as debug
 import volatility.obj as obj
 import volatility.cache as cache
 import volatility.registry as registry
@@ -52,8 +53,14 @@ class ImageInfo(kdbg.KDBGScan):
         if bestguess in profilelist:
             profilelist = [bestguess] + profilelist
         chosen = 'no profile'
+
+        # Save the original profile
         origprofile = self._config.PROFILE
+        # Force user provided profile over others
+        profilelist = [origprofile] + profilelist
+
         for profile in profilelist:
+            debug.debug('Trying profile ' + profile)
             self._config.update('PROFILE', profile)
             addr_space = utils.load_as(self._config)
             if hasattr(addr_space, "dtb"):
@@ -61,6 +68,8 @@ class ImageInfo(kdbg.KDBGScan):
                 break
 
         if bestguess != chosen:
+            if not suggestion:
+                suggestion = 'No suggestion'
             suggestion += ' (Instantiated with ' + chosen + ')'
 
         yield ('Suggested Profile(s)', suggestion)
@@ -84,29 +93,32 @@ class ImageInfo(kdbg.KDBGScan):
         kpcroffset = None
         if hasattr(addr_space, "dtb"):
             kdbgoffset = volmagic.KDBG.v()
-            yield ('KDBG', hex(kdbgoffset))
+            if kdbgoffset:
+                yield ('KDBG', hex(kdbgoffset))
 
             kpcroffset = volmagic.KPCR.v()
-            yield ('KPCR', hex(kpcroffset))
             if kpcroffset:
+                yield ('KPCR', hex(kpcroffset))
                 KUSER_SHARED_DATA = volmagic.KUSER_SHARED_DATA.v()
-                yield ('KUSER_SHARED_DATA', hex(KUSER_SHARED_DATA))
+                if KUSER_SHARED_DATA:
+                    yield ('KUSER_SHARED_DATA', hex(KUSER_SHARED_DATA))
 
                 data = self.get_image_time(addr_space)
 
-                yield ('Image date and time', data['ImageDatetime'])
-                yield ('Image local date and time', timefmt.display_datetime(data['ImageDatetime'].as_datetime(), data['ImageTz']))
+                if data:
+                    yield ('Image date and time', data['ImageDatetime'])
+                    yield ('Image local date and time', timefmt.display_datetime(data['ImageDatetime'].as_datetime(), data['ImageTz']))
 
-        try:
-            yield ('Image Type', self.find_csdversion(addr_space))
-        except tasks.TasksNotFound:
-            pass
+                try:
+                    yield ('Image Type', self.find_csdversion(addr_space))
+                except tasks.TasksNotFound:
+                    pass
 
         # Make sure to reset the profile to its original value to keep the invalidator from blocking the cache
         self._config.update('PROFILE', origprofile)
 
     def get_image_time(self, addr_space):
-        # Get the Image Datetime
+        """Get the Image Datetime"""
         result = {}
         volmagic = obj.Object("VOLATILITY_MAGIC", 0x0, addr_space)
         KUSER_SHARED_DATA = volmagic.KUSER_SHARED_DATA.v()
@@ -114,6 +126,8 @@ class ImageInfo(kdbg.KDBGScan):
                               offset = KUSER_SHARED_DATA,
                               vm = addr_space)
 
+        if k == None:
+            return k
         result['ImageDatetime'] = k.SystemTime
         result['ImageTz'] = timefmt.OffsetTzInfo(-k.TimeZoneBias.as_windows_timestamp() / 10000000)
 

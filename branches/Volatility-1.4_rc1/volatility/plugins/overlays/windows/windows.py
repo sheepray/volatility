@@ -23,6 +23,7 @@ import volatility.plugins.overlays.basic as basic
 import volatility.plugins.kpcrscan as kpcr
 import volatility.plugins.kdbgscan as kdbg
 import volatility.timefmt as timefmt
+import volatility.debug as debug
 import volatility.obj as obj
 import volatility.addrspace as addrspace
 
@@ -436,6 +437,7 @@ class VolatilityIA32ValidAS(obj.VolatilityMagic):
 
         except addrspace.ASAssertionError, _e:
             pass
+        debug.debug("Failed to pass the Moyix Valid IA32 AS test", 3)
 
         # This constraint verifies that _KUSER_ SHARED_DATA is shared
         # between user and kernel address spaces.
@@ -443,6 +445,7 @@ class VolatilityIA32ValidAS(obj.VolatilityMagic):
             if self.obj_vm.vtop(0xffdf0000) != None:
                 yield True
                 raise StopIteration
+        debug.debug("Failed to pass the labarum_x Valid IA32 AS test", 3)
 
         # Finally this brute forces the address space by walking
         # the page tables.
@@ -450,6 +453,7 @@ class VolatilityIA32ValidAS(obj.VolatilityMagic):
             if (offset > 0x80000000):
                 yield True
                 raise StopIteration
+        debug.debug("Failed to pass the old simple kernel test", 3)
         yield False
 
 AbstractWindows.object_classes['VolatilityIA32ValidAS'] = VolatilityIA32ValidAS
