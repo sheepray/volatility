@@ -18,12 +18,13 @@ https://www.volatilesystems.com/default/volatility
 Volatility should run on any platform that supports 
 Python (http://www.python.org)
 
-Volatility supports investigations of the following memory images:
+Volatility supports investigations of the following x86 bit memory images:
 
 * Microsoft Windows XP Service Pack 2 and 3
+* Microsoft Windows 2003 Server Service Pack 0, 1 and 2
 * Microsoft Vista Service Pack 0, 1 and 2
 * Microsoft 2008 Server Service Pack 1 and 2 (there is no SP 0)
-* Microsoft Windows 7 Service Pack 0
+* Microsoft Windows 7 Service Pack 0 and 1
 
 Volatility does not provide memory sample acquisition
 capabilities. For acquisition, there are both free and commercial
@@ -64,11 +65,11 @@ Example Data
 If you want to give Volatility a try, you can download exemplar
 data hosted by NIST at the following url:
 
-http://www.cfreds.nist.gov/mem/memory-images.rar
+    http://www.cfreds.nist.gov/mem/memory-images.rar
 
 Links to other public memory images can be found at the following url:
 
-http://code.google.com/p/volatility/wiki/FAQ
+    http://code.google.com/p/volatility/wiki/FAQ
 
 Mailing Lists
 =============
@@ -76,7 +77,7 @@ Mailing Lists
 Mailing lists to support the users and developers of Volatility
 can be found at the following address:
 
-http://lists.volatilesystems.com/mailman/listinfo
+    http://lists.volatilesystems.com/mailman/listinfo
 
 Contact
 =======
@@ -115,12 +116,12 @@ Options:
   -h, --help            list all available options and their default values.
                         Default values may be set in the configuration file
                         (/etc/volatilityrc)
-  --conf-file=/Users/gleeda/.volatilityrc
+  --conf-file=/Users/user/.volatilityrc
                         User based configuration file
   -d, --debug           Debug volatility
   --info                Print information about all registered objects
   --plugins=PLUGINS     Additional plugin directories to use (colon separated)
-  --cache-directory=/Users/gleeda/.cache/volatility
+  --cache-directory=/Users/user/.cache/volatility
                         Directory where cache files are stored
   --no-cache            Disable caching
   --tz=TZ               Sets the timezone for displaying timestamps
@@ -132,11 +133,11 @@ Options:
   --output-file=OUTPUT_FILE
                         write output in this file
   -v, --verbose         Verbose information
-  -g KDBG, --kdbg=KDBG  Specify a specific KDBG address
-  -w, --write           Enable write support
+  -g KDBG, --kdbg=KDBG  Specify a specific KDBG virtual address
   --dtb=DTB             DTB Address
   --cache-dtb           Cache virtual to physical mappings
   --use-old-as          Use the legacy address spaces
+  -w, --write           Enable write support
   --profile=WinXPSP2x86
                         Name of the profile to load
   -l LOCATION, --location=LOCATION
@@ -179,7 +180,7 @@ Options:
         procmemdump     Dump a process to an executable memory sample
         pslist          print all running processes by following the EPROCESS lists 
         psscan          Scan Physical memory for _EPROCESS objects
-        psscan2         Scan Physical memory for _EPROCESS objects
+        psscan2         Scan Physical memory for _EPROCESS pool allocations
         pstree          Print process list as a tree
         regobjkeys      Print list of open regkeys for each process
         sockets         Print list of open sockets
@@ -259,7 +260,7 @@ PURPOSE.
 
 If you think you've found a bug, please report it at:
 
-http://code.google.com/p/volatility/issues
+    http://code.google.com/p/volatility/issues
 
 In order to help us solve your issues as quickly as possible,
 please include the following information when filing a bug:
