@@ -73,7 +73,7 @@ class JKIA32PagedMemory(standard.AbstractWritablePagedMemory, addrspace.BaseAddr
             pass
 
         self.dtb = dtb or self.load_dtb()
-        self.base = base
+        # No need to set the base, it's already been by the inherited class
 
         self.as_assert(self.dtb != None, "No valid DTB found")
 
@@ -119,7 +119,12 @@ class JKIA32PagedMemory(standard.AbstractWritablePagedMemory, addrspace.BaseAddr
             self.pde_cache = struct.unpack('<' + 'I' * 0x400, buf)
 
     def load_dtb(self):
+        """Loads the DTB as quickly as possible from the config, then the base, then searching for it"""
         try:
+            # If the user has manually specified one, then shortcircuit to that one
+            if self._config.DTB:
+                raise AttributeError
+
             ## Try to be lazy and see if someone else found dtb for
             ## us:
             return self.base.dtb
@@ -129,6 +134,7 @@ class JKIA32PagedMemory(standard.AbstractWritablePagedMemory, addrspace.BaseAddr
             dtb = volmagic.DTB.v()
             if dtb:
                 ## Make sure to save dtb for other AS's
+                ## Will this have an effect on following ASes attempts if this fails?
                 self.base.dtb = dtb
                 return dtb
 
