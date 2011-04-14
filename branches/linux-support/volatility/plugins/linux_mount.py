@@ -62,7 +62,7 @@ class linux_mount(linux_common.AbstractLinuxCommand):
 
             mnt_string = self.calc_mnt_string(vfsmnt)
 
-            outfd.write("{0:15s} {1:15s} {2:8s} {3:2s},{4:64s}\n".format(dev_name, path, fstype, rr, mnt_string))
+            outfd.write("{0:15s} {1:35s} {2:12s} {3:2s}{4:64s}\n".format(dev_name, path, fstype, rr, mnt_string))
 
     def calc_mnt_string(self, vfsmnt):
 

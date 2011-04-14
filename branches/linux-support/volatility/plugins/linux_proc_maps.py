@@ -68,7 +68,7 @@ class linux_proc_maps(ltps.linux_task_list_ps):
                 else:
                     fname = ""
 
-            outfd.write("{0:#16x}-{1:#16x} {2:3} {3:10d} {4:#2d}:{5:#2d} {6:#12d} {7}\n".format(
+            outfd.write("{0:#8x}-{1:#8x} {2:3} {3:10d} {4:#2d}:{5:#2d} {6:#12d} {7}\n".format(
                     mn(vma.vm_start), mn(vma.vm_end), self.format_perms(vma.vm_flags),
                     pgoff, self.MAJOR(dev), self.MINOR(dev), ino, fname))
 
