@@ -76,16 +76,17 @@ class ModDump(procdump.ProcExeDump):
         procs = list(tasks.pslist(addr_space))
 
         if self._config.OFFSET:
-            if mods.has_key(self._config.OFFSET):
-                yield addr_space, procs, mods[self._config.OFFSET]
-            else:
-                raise StopIteration('No such module at 0x{0:X}'.format(self._config.OFFSET))
+            try:
+                mod_name = mods[self._config.OFFSET].BaseDllName
+            except KeyError:
+                mod_name = "Unknown"
+            yield addr_space, procs, int(self._config.OFFSET), mod_name
         else:
             for mod in mods.values():
                 if self._config.REGEX:
                     if not mod_re.search(str(mod.FullDllName)) and not mod_re.search(str(mod.BaseDllName)):
                         continue
-                yield addr_space, procs, mod
+                yield addr_space, procs, mod.DllBase.v(), mod.BaseDllName
 
     def render_text(self, outfd, data):
         if self._config.DUMP_DIR == None:
@@ -93,14 +94,14 @@ class ModDump(procdump.ProcExeDump):
         if not os.path.isdir(self._config.DUMP_DIR):
             debug.error(self._config.DUMP_DIR + " is not a directory")
 
-        for addr_space, procs, mod in data:
-            space = self.find_space(addr_space, procs, mod.DllBase)
+        for addr_space, procs, mod_base, mod_name in data:
+            space = self.find_space(addr_space, procs, mod_base)
             if space != None:
-                dump_file = "driver.{0:x}.sys".format(mod.DllBase)
-                outfd.write("Dumping {0}, Base: {1:8x} output: {2}\n".format(mod.BaseDllName, mod.DllBase, dump_file))
+                dump_file = "driver.{0:x}.sys".format(mod_base)
+                outfd.write("Dumping {0}, Base: {1:8x} output: {2}\n".format(mod_name, mod_base, dump_file))
                 of = open(os.path.join(self._config.DUMP_DIR, dump_file), 'wb')
                 try:
-                    for chunk in self.get_image(outfd, space, mod.DllBase):
+                    for chunk in self.get_image(outfd, space, mod_base):
                         offset, code = chunk
                         of.seek(offset)
                         of.write(code)
@@ -110,4 +111,4 @@ class ModDump(procdump.ProcExeDump):
                     outfd.write("You can use -u to disable this check.\n")
                 of.close()
             else:
-                print 'Cannot dump {0} at {1:8x}'.format(mod.BaseDllName, mod.DllBase)
+                print 'Cannot dump {0} at {1:8x}'.format(mod_name, mod_base)
