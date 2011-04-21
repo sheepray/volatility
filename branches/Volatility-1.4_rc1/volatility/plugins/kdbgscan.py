@@ -104,7 +104,7 @@ class KDBGScan(commands.command):
 
         scanner = KDBGScanner(needles = proflens.values())
 
-        aspace = utils.load_as(self._config)
+        aspace = utils.load_as(self._config, astype = 'any')
 
         for offset in scanner.scan(aspace):
             val = aspace.read(offset, maxlen + 0x10)

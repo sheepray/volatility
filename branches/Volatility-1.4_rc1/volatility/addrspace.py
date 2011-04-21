@@ -136,9 +136,10 @@ class BaseAddressSpace(object):
         self.__init__(**state)
 
 class AbstractVirtualAddressSpace(BaseAddressSpace):
-    def __init__(self, base, config, astype = None, *args, **kwargs):
+    """Base Ancestor for all Virtual address spaces, as determined by astype"""
+    def __init__(self, base, config, astype = 'virtual', *args, **kwargs):
         BaseAddressSpace.__init__(self, base, config, astype = astype, *args, **kwargs)
-        self.as_assert(astype != 'physical', "User requested physical AS")
+        self.as_assert(astype == 'virtual' or astype == 'any', "User requested non-virtual AS")
 
     def vtop(self, vaddr):
         raise NotImplementedError("This is a virtual class and should not be referenced directly")

@@ -62,7 +62,7 @@ class ImageInfo(kdbg.KDBGScan):
         for profile in profilelist:
             debug.debug('Trying profile ' + profile)
             self._config.update('PROFILE', profile)
-            addr_space = utils.load_as(self._config)
+            addr_space = utils.load_as(self._config, astype = 'any')
             if hasattr(addr_space, "dtb"):
                 chosen = profile
                 break

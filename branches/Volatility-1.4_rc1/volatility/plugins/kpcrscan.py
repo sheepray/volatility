@@ -51,7 +51,7 @@ class KPCRScan(commands.command):
     @cache.CacheDecorator("tests/kpcrscan")
     def calculate(self):
         """Determines the address space"""
-        addr_space = utils.load_as(self._config)
+        addr_space = utils.load_as(self._config, astype = 'any')
 
         scanner = KPCRScanner()
         for o in scanner.scan(addr_space):

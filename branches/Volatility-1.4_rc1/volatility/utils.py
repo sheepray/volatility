@@ -28,7 +28,9 @@ class classproperty(property):
     def __get__(self, cls, owner):
         return self.fget.__get__(None, owner)()
 
-def load_as(config, astype = None, **kwargs):
+def load_as(config, astype = 'virtual', **kwargs):
+    """Loads an address space by stacking valid ASes on top of each other (priority order first)"""
+
     base_as = None
     error = AddrSpaceError()
     while 1:
