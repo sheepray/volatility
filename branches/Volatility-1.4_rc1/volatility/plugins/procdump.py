@@ -83,7 +83,7 @@ class ProcExeDump(taskmods.DllList):
                                 vm = addr_space)
 
         nt_header = obj.Object("_IMAGE_NT_HEADERS",
-                               offset = base_addr + dos_header.e_lfanew,
+                               offset = dos_header.e_lfanew + base_addr,
                                vm = addr_space)
 
         return nt_header
@@ -170,7 +170,7 @@ class ProcExeDump(taskmods.DllList):
                 outfd.write("Warning: section start on disk not aligned to file alignment.\n")
                 outfd.write("Warning: adjusted section start from {0} to {1}.\n".format(sect.PointerToRawData, foa))
             yield self.get_code(addr_space,
-                                base_addr + sect.VirtualAddress,
+                                sect.VirtualAddress + base_addr,
                                 sect.SizeOfRawData, foa, outfd)
 
 class ProcMemDump(ProcExeDump):
