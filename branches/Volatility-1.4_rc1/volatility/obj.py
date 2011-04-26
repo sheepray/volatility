@@ -675,6 +675,11 @@ class Array(BaseObject):
         return True
 
     def __getitem__(self, pos):
+        ## Check for slice object
+        if isinstance(pos, slice):
+            start, stop, step = pos.indices(self.count)
+            return [self[i] for i in xrange(start, stop, step)]
+
         ## Check if the offset is valid
         offset = self.original_offset + \
                  pos * self.current.size()
