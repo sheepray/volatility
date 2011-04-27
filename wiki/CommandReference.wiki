@@ -55,7 +55,7 @@ Potential KDBG structure addresses (P = Physical, V = Virtual):
 
 == kprcscan ==
 
-Use this command to scan for potential KPCR structures. 
+Use this command to scan for potential KPCR structures.  For information on how potential KPCR structures are found, read [http://blog.schatzforensic.com.au/2010/07/finding-object-roots-in-vista-kpcr/ Finding Object Roots in Vista]
 
 {{{
 $ python vol.py --profile=Win7SP0x86 -f win7.dmp kpcrscan
