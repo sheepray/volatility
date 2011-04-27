@@ -41,7 +41,7 @@ Image local date and time : 2010-07-06 22:40:28
 
 == kdbgscan ==
 
-Use this command to scan for potential KDBG structures. 
+Use this command to scan for potential KDBG structures. For more information on how KDBG structures are identified read [http://moyix.blogspot.com/2008/04/finding-kernel-global-variables-in.html Finding Kernel Global Variables in Windows] and [http://gleeda.blogspot.com/2010/12/identifying-memory-images.html Identifying Memory Images]
 
 {{{
 $ python vol.py --profile=Win7SP0x86 -f win7.dmp kdbgscan
@@ -601,47 +601,76 @@ The reason the !PhysicalOffset field exists is so you can distinguish between tw
 
 == modules ==
 
-To view the list of kernel drivers loaded on the system, use the modules command. This walks the doubly-linked list of LDR_DATA_TABLE_ENTRY structures pointed to by !PsLoadedModuleList. It cannot find hidden/unlinked kernel drivers.
+To view the list of kernel drivers loaded on the system, use the modules command. This walks the doubly-linked list of LDR_DATA_TABLE_ENTRY structures pointed to by !PsLoadedModuleList. It cannot find hidden/unlinked kernel drivers.  
 
 {{{
 $ python vol.py --profile=Win7SP0x86 -f win7.dmp modules
 Volatile Systems Volatility Framework 1.4_rc1
-File                                               Base         Size     Name
-\SystemRoot\system32\ntoskrnl.exe                  0x008284c000 0x400000 ntoskrnl.exe
-\SystemRoot\system32\halmacpi.dll                  0x0082815000 0x037000 hal.dll
-\SystemRoot\system32\kdcom.dll                     0x0080bcc000 0x008000 kdcom.dll
-\SystemRoot\system32\mcupdate_GenuineIntel.dll     0x0085c2d000 0x078000 mcupdate.dll
-\SystemRoot\system32\PSHED.dll                     0x0085ca5000 0x011000 PSHED.dll
-\SystemRoot\system32\BOOTVID.dll                   0x0085cb6000 0x008000 BOOTVID.dll
-\SystemRoot\system32\CLFS.SYS                      0x0085cbe000 0x042000 CLFS.SYS
-\SystemRoot\system32\CI.dll                        0x0085d00000 0x0ab000 CI.dll
-\SystemRoot\system32\drivers\Wdf01000.sys          0x0085dab000 0x071000 Wdf01000.sys
-\SystemRoot\system32\drivers\WDFLDR.SYS            0x0085e1c000 0x00e000 WDFLDR.SYS
-\SystemRoot\system32\DRIVERS\ACPI.sys              0x0085e2a000 0x048000 ACPI.sys
-\SystemRoot\system32\DRIVERS\WMILIB.SYS            0x0085e72000 0x009000 WMILIB.SYS
+Offset(V)  File                                               Base         Size     Name
+0x84131c98 \SystemRoot\system32\ntkrnlpa.exe                  0x008283c000 0x410000 ntoskrnl.exe
+0x84131c20 \SystemRoot\system32\halmacpi.dll                  0x0082805000 0x037000 hal.dll
+0x84131ba0 \SystemRoot\system32\kdcom.dll                     0x0080b99000 0x008000 kdcom.dll
+0x84131b20 \SystemRoot\system32\mcupdate_GenuineIntel.dll     0x0082e24000 0x078000 mcupdate.dll
+0x84131aa0 \SystemRoot\system32\PSHED.dll                     0x0082e9c000 0x011000 PSHED.dll
+0x84131a20 \SystemRoot\system32\BOOTVID.dll                   0x0082ead000 0x008000 BOOTVID.dll
+0x841319a8 \SystemRoot\system32\CLFS.SYS                      0x0082eb5000 0x042000 CLFS.SYS
+0x84131930 \SystemRoot\system32\CI.dll                        0x0082ef7000 0x0ab000 CI.dll
+0x841318b0 \SystemRoot\system32\drivers\Wdf01000.sys          0x0086a1b000 0x071000 Wdf01000.sys
+0x84131830 \SystemRoot\system32\drivers\WDFLDR.SYS            0x0086a8c000 0x00e000 WDFLDR.SYS
+0x841317b8 \SystemRoot\system32\DRIVERS\ACPI.sys              0x0086a9a000 0x048000 ACPI.sys
+0x84131738 \SystemRoot\system32\DRIVERS\WMILIB.SYS            0x0086ae2000 0x009000 WMILIB.SYS
+0x841316b8 \SystemRoot\system32\DRIVERS\msisadrv.sys          0x0086aeb000 0x008000 msisadrv.sys
+0x8412be78 \SystemRoot\system32\DRIVERS\pci.sys               0x0086af3000 0x02a000 pci.sys
 [snip] 
+}}}
+
+Included in the output is the offset of the module, which is a virtual address by default but can be specified as a physical address with the -P switch:
+
+{{{
+$ python vol.py --profile=Win7SP0x86 -f win7.dmp modules -P
+Volatile Systems Volatility Framework 1.4_rc1
+Offset(P)  File                                               Base         Size     Name
+0x3fff1c98 \SystemRoot\system32\ntkrnlpa.exe                  0x008283c000 0x410000 ntoskrnl.exe
+0x3fff1c20 \SystemRoot\system32\halmacpi.dll                  0x0082805000 0x037000 hal.dll
+0x3fff1ba0 \SystemRoot\system32\kdcom.dll                     0x0080b99000 0x008000 kdcom.dll
+0x3fff1b20 \SystemRoot\system32\mcupdate_GenuineIntel.dll     0x0082e24000 0x078000 mcupdate.dll
+0x3fff1aa0 \SystemRoot\system32\PSHED.dll                     0x0082e9c000 0x011000 PSHED.dll
+0x3fff1a20 \SystemRoot\system32\BOOTVID.dll                   0x0082ead000 0x008000 BOOTVID.dll
+0x3fff19a8 \SystemRoot\system32\CLFS.SYS                      0x0082eb5000 0x042000 CLFS.SYS
+0x3fff1930 \SystemRoot\system32\CI.dll                        0x0082ef7000 0x0ab000 CI.dll
+0x3fff18b0 \SystemRoot\system32\drivers\Wdf01000.sys          0x0086a1b000 0x071000 Wdf01000.sys
+0x3fff1830 \SystemRoot\system32\drivers\WDFLDR.SYS            0x0086a8c000 0x00e000 WDFLDR.SYS
+0x3fff17b8 \SystemRoot\system32\DRIVERS\ACPI.sys              0x0086a9a000 0x048000 ACPI.sys
+0x3fff1738 \SystemRoot\system32\DRIVERS\WMILIB.SYS            0x0086ae2000 0x009000 WMILIB.SYS
+0x3fff16b8 \SystemRoot\system32\DRIVERS\msisadrv.sys          0x0086aeb000 0x008000 msisadrv.sys
+0x3ffebe78 \SystemRoot\system32\DRIVERS\pci.sys               0x0086af3000 0x02a000 pci.sys
+[snip]
 }}}
 
 == modscan2 ==
 
-To scan physical memory for kernel modules, use the modscan2 command. This can pick up previously unloaded drivers and drivers that have been hidden/unlinked by rootkits. 
+To scan physical memory for kernel modules, use the modscan2 command. This can pick up previously unloaded drivers and drivers that have been hidden/unlinked by rootkits.  Included in the output is the offset of the module, which is a physical address:
 
 {{{
 $ python vol.py --profile=Win7SP0x86 -f win7.dmp modscan2
 Volatile Systems Volatility Framework 1.4_rc1
-File                                               Base         Size     Name
-'\\SystemRoot\\System32\\Drivers\\spldr.sys'       0x00865c9000 0x008000 'spldr.sys'
-'\\SystemRoot\\system32\\DRIVERS\\volsnap.sys'     0x008658a000 0x03f000 'volsnap.sys'
-'\\SystemRoot\\system32\\DRIVERS\\vmstorfl.sys'    0x0086581000 0x009000 'vmstorfl.sys'
-'\\SystemRoot\\System32\\drivers\\fwpkclnt.sys'    0x0086550000 0x031000 'fwpkclnt.sys'
-'\\SystemRoot\\System32\\drivers\\tcpip.sys'       0x0086407000 0x149000 'tcpip.sys'
-'\\SystemRoot\\System32\\Drivers\\ksecpkg.sys'     0x0086333000 0x025000 'ksecpkg.sys'
-'\\SystemRoot\\system32\\drivers\\NETIO.SYS'       0x00862f5000 0x03e000 'NETIO.SYS'
-'\\SystemRoot\\system32\\drivers\\ndis.sys'        0x008623e000 0x0b7000 'ndis.sys'
-'\\SystemRoot\\System32\\Drivers\\Fs_Rec.sys'      0x0086235000 0x009000 'Fs_Rec.sys'
-'\\SystemRoot\\System32\\drivers\\pcw.sys'         0x0086227000 0x00e000 'pcw.sys'
-'\\SystemRoot\\System32\\Drivers\\cng.sys'         0x00861ca000 0x05d000 'cng.sys'
-'\\SystemRoot\\System32\\Drivers\\ksecdd.sys'      0x00861b7000 0x013000 'ksecdd.sys'
+Offset     File                                               Base         Size     Name
+0x3e011200 '\\SystemRoot\\system32\\DRIVERS\\lltdio.sys'      0x008e7b6000 0x010000 'lltdio.sys'
+0x3e020a50 '\\SystemRoot\\system32\\DRIVERS\\rspndr.sys'      0x008e7c6000 0x013000 'rspndr.sys'
+0x3e03bec0 '\\SystemRoot\\system32\\DRIVERS\\asyncmac.sys'    0x0090b19000 0x009000 'asyncmac.sys'
+0x3e067370 '\\??\\c:\\Users\\user\\Desktop\\win32dd.sys'      0x0090a00000 0x00c000 'win32dd.sys'
+0x3e0dc7a0 '\\SystemRoot\\System32\\DRIVERS\\srv.sys'         0x0090a5e000 0x051000 'srv.sys'
+0x3e364908 '\\SystemRoot\\system32\\drivers\\luafv.sys'       0x008e781000 0x01b000 'luafv.sys'
+0x3e366608 '\\SystemRoot\\system32\\drivers\\WudfPf.sys'      0x008e79c000 0x01a000 'WudfPf.sys'
+0x3e36b850 '\\SystemRoot\\system32\\drivers\\HTTP.sys'        0x008dc04000 0x085000 'HTTP.sys'
+0x3e422648 '\\SystemRoot\\System32\\TSDDD.dll'                0x008fda0000 0x009000 'TSDDD.dll'
+0x3e4291e0 '\\SystemRoot\\system32\\DRIVERS\\mouhid.sys'      0x008e76b000 0x00b000 'mouhid.sys'
+0x3e429bd8 '\\SystemRoot\\system32\\DRIVERS\\HIDPARSE.SYS'    0x008e764000 0x007000 'HIDPARSE.SYS'
+0x3e46a4d0 '\\SystemRoot\\System32\\cdd.dll'                  0x008fdd0000 0x01e000 'cdd.dll'
+0x3e46aed0 '\\SystemRoot\\System32\\drivers\\mpsdrv.sys'      0x008dca2000 0x012000 'mpsdrv.sys'
+0x3e474a38 '\\SystemRoot\\system32\\DRIVERS\\bowser.sys'      0x008dc89000 0x019000 'bowser.sys'
+0x3e482870 '\\SystemRoot\\system32\\DRIVERS\\mrxsmb20.sys'    0x008dd12000 0x01b000 'mrxsmb20.sys'
+0x3e482da0 '\\SystemRoot\\system32\\DRIVERS\\mrxsmb10.sys'    0x008dcd7000 0x03b000 'mrxsmb10.sys'
 [snip]
 }}}
 
@@ -894,21 +923,20 @@ To detect listening sockets for any protocol (TCP, UDP, RAW, etc), use the socke
 {{{
 $ python vol.py -f silentbanker.vmem --profile=WinXPSP3x86 sockets
 Volatile Systems Volatility Framework 1.4_rc1
- Offset(V)  PID    Port   Proto  Create Time               
----------- ------ ------ ------ -------------------------- 
-0x80fd1008      4      0     47 2010-08-11 06:08:00       
-0xff362d18   1088   1066     17 2010-08-15 18:54:13       
-0xff258008    688    500     17 2010-08-11 06:06:35       
-0xff367008      4    445      6 2010-08-11 06:06:17       
-0x80ffc128    936    135      6 2010-08-11 06:06:24       
-0xff225b70    688      0    255 2010-08-11 06:06:35       
-0xff225b70   1028    123     17 2010-08-15 19:01:51       
-0x80fce930   1088   1025     17 2010-08-11 06:06:38       
-0xff127d28    216   1026      6 2010-08-11 06:06:39       
-0xff2608c0   1088   1053     17 2010-08-15 18:54:09       
-0x80fdc708   1884   1051     17 2010-08-15 18:54:07       
-0x80fdc708   1148   1900     17 2010-08-15 19:01:51       
-0xff1b8250    688   4500     17 2010-08-11 06:06:35       
+ Offset(V)  PID    Port   Proto  Address        Create Time               
+---------- ------ ------ ------ -------------- -------------------------- 
+0x80fd1008      4      0     47 0.0.0.0            2010-08-11 06:08:00       
+0xff362d18   1088   1066     17 0.0.0.0            2010-08-15 18:54:13       
+0xff258008    688    500     17 0.0.0.0            2010-08-11 06:06:35       
+0xff367008      4    445      6 0.0.0.0            2010-08-11 06:06:17       
+0x80ffc128    936    135      6 0.0.0.0            2010-08-11 06:06:24       
+0xff225b70    688      0    255 0.0.0.0            2010-08-11 06:06:35       
+0xff225b70   1028    123     17 127.0.0.1          2010-08-15 19:01:51       
+0x80fce930   1088   1025     17 0.0.0.0            2010-08-11 06:06:38       
+0xff127d28    216   1026      6 127.0.0.1          2010-08-11 06:06:39       
+0xff2608c0   1088   1053     17 0.0.0.0            2010-08-15 18:54:09       
+0x80fdc708   1884   1051     17 127.0.0.1          2010-08-15 18:54:07       
+0x80fdc708   1148   1900     17 127.0.0.1          2010-08-15 19:01:51         
 [snip]
 }}}
 
@@ -917,21 +945,20 @@ Output includes the virtual offset of the `_ADDRESS_OBJECT` by default.  The phy
 {{{
 $ python vol.py -f silentbanker.vmem --profile=WinXPSP3x86 sockets -P
 Volatile Systems Volatility Framework 1.4_rc1
- Offset(P)  PID    Port   Proto  Create Time               
----------- ------ ------ ------ -------------------------- 
-0x01134008      4      0     47 2010-08-11 06:08:00       
-0x04c2dd18   1088   1066     17 2010-08-15 18:54:13       
-0x05f44008    688    500     17 2010-08-11 06:06:35       
-0x04be7008      4    445      6 2010-08-11 06:06:17       
-0x0115f128    936    135      6 2010-08-11 06:06:24       
-0x06237b70    688      0    255 2010-08-11 06:06:35       
-0x06237b70   1028    123     17 2010-08-15 19:01:51       
-0x01131930   1088   1025     17 2010-08-11 06:06:38       
-0x02daad28    216   1026      6 2010-08-11 06:06:39       
-0x05e3c8c0   1088   1053     17 2010-08-15 18:54:09       
-0x0113f708   1884   1051     17 2010-08-15 18:54:07       
-0x0113f708   1148   1900     17 2010-08-15 19:01:51       
-0x069d5250    688   4500     17 2010-08-11 06:06:35  
+ Offset(P)  PID    Port   Proto  Address        Create Time               
+---------- ------ ------ ------ -------------- -------------------------- 
+0x01134008      4      0     47 0.0.0.0            2010-08-11 06:08:00       
+0x04c2dd18   1088   1066     17 0.0.0.0            2010-08-15 18:54:13       
+0x05f44008    688    500     17 0.0.0.0            2010-08-11 06:06:35       
+0x04be7008      4    445      6 0.0.0.0            2010-08-11 06:06:17       
+0x0115f128    936    135      6 0.0.0.0            2010-08-11 06:06:24       
+0x06237b70    688      0    255 0.0.0.0            2010-08-11 06:06:35       
+0x06237b70   1028    123     17 127.0.0.1          2010-08-15 19:01:51       
+0x01131930   1088   1025     17 0.0.0.0            2010-08-11 06:06:38       
+0x02daad28    216   1026      6 127.0.0.1          2010-08-11 06:06:39       
+0x05e3c8c0   1088   1053     17 0.0.0.0            2010-08-15 18:54:09       
+0x0113f708   1884   1051     17 127.0.0.1          2010-08-15 18:54:07       
+0x0113f708   1148   1900     17 127.0.0.1          2010-08-15 19:01:51        
 [snip]     
 }}}
 
@@ -943,22 +970,24 @@ To find socket structures using pool tag scanning, use the sockscan command. As 
 {{{
 $ python vol.py -f silentbanker.vmem --profile=WinXPSP3x86 sockscan
 Volatile Systems Volatility Framework 1.4_rc1
- Offset     PID    Port   Proto  Create Time               
----------- ------ ------ ------ -------------------------- 
-0x00096e08   1884   1069      6 2010-08-15 18:54:13       
-0x0089bab8   1148   1900     17 2010-08-15 18:53:56       
-0x01073910   1884   1077      6 2010-08-15 18:54:14       
-0x01073e98   1884   1082      6 2010-08-15 18:54:15       
-0x0107aba8   1884   1057      6 2010-08-15 18:54:10       
-0x0107c500   1884   1073      6 2010-08-15 18:54:13       
-0x0107db70   1884   1072      6 2010-08-15 18:54:13       
-0x010f1e98   1884   1079      6 2010-08-15 18:54:15       
-0x01120c40      4    445     17 2010-08-11 06:06:17       
-0x0112ee30   1884   1071      6 2010-08-15 18:54:13       
-0x01131930   1088   1025     17 2010-08-11 06:06:38       
-0x01134008      4      0     47 2010-08-11 06:08:00       
-0x01139e98   1884   1087      6 2010-08-15 18:54:17       
-0x0113b7d0   1884   1076      6 2010-08-15 18:54:14 
+ Offset     PID    Port   Proto  Address        Create Time               
+---------- ------ ------ ------ -------------- -------------------------- 
+0x00096e08   1884   1069      6 0.0.0.0            2010-08-15 18:54:13       
+0x0089bab8   1148   1900     17 127.0.0.1          2010-08-15 18:53:56       
+0x01073910   1884   1077      6 0.0.0.0            2010-08-15 18:54:14       
+0x01073e98   1884   1082      6 0.0.0.0            2010-08-15 18:54:15       
+0x0107aba8   1884   1057      6 0.0.0.0            2010-08-15 18:54:10       
+0x0107c500   1884   1073      6 0.0.0.0            2010-08-15 18:54:13       
+0x0107db70   1884   1072      6 0.0.0.0            2010-08-15 18:54:13       
+0x010f1e98   1884   1079      6 0.0.0.0            2010-08-15 18:54:15       
+0x01120c40      4    445     17 0.0.0.0            2010-08-11 06:06:17       
+0x0112ee30   1884   1071      6 0.0.0.0            2010-08-15 18:54:13       
+0x01131930   1088   1025     17 0.0.0.0            2010-08-11 06:06:38       
+0x01134008      4      0     47 0.0.0.0            2010-08-11 06:08:00       
+0x01139e98   1884   1087      6 0.0.0.0            2010-08-15 18:54:17       
+0x0113b7d0   1884   1076      6 0.0.0.0            2010-08-15 18:54:14       
+0x011568a8      4    137     17 172.16.176.143     2010-08-15 18:53:56       
+0x0115f128    936    135      6 0.0.0.0            2010-08-11 06:06:24 
 [snip]
 }}}
 
@@ -2014,13 +2043,13 @@ Sysinternals Strings can be used on Linux/Mac using [http://www.winehq.org/ Wine
 *Windows*
 
 {{{
-C:\> strings.exe –q –o win7.dd > win7_strings.txt
+C:\> strings.exe –q –o -accepteula win7.dd > win7_strings.txt
 }}}
 
 *Linux/Mac*
 
 {{{
-$ wine strings.exe –q –o win7.dd > win7_strings.txt
+$ wine strings.exe –q –o -accepteula win7.dd > win7_strings.txt
 }}}
 
 It can take a while for the Sysinternals strings program to finish. The –q and –o switches are imperative, since they make sure the header is not output (-q) and that there is an offset for each line (-o).
@@ -2042,10 +2071,22 @@ The result should be a text file that contains the offset and strings from the i
 }}}
 
 
-NOTE: The Volatility strings output is very verbose and it is best to redirect or save to a file.  The following command saves the output using the `--output-file` option and filename "win7_vol_strings.txt"
+*NOTE:* The Volatility strings output is very verbose and it is best to redirect or save to a file.  The following command saves the output using the `--output-file` option and filename "win7_vol_strings.txt"
 
 {{{
 $ python vol.py --profile=Win7SP0x86 strings –f win7.dd –s win7_strings.txt --output-file=win7_vol_strings.txt
+}}}
+
+By default `strings` will only provide output for processes found by walking the doubly linked list pointed to by !PsActiveProcessHead (see [http://code.google.com/p/volatility/wiki/CommandReference#pslist pslist]) in addition to kernel addresses.  `strings` can also provide output for hidden processes (see [http://code.google.com/p/volatility/wiki/CommandReference#psscan2 psscan2]) by using the (capital) -S switch:
+
+{{{
+$ python vol.py --profile=Win7SP0x86 strings –f win7.dd –s win7_strings.txt --output-file=win7_vol_strings.txt -S 
+}}}
+
+Also an EPROCESS offset can be provided:
+
+{{{
+$ python vol.py --profile=Win7SP0x86 strings –f win7.dd –s win7_strings.txt --output-file=win7_vol_strings.txt -S -o 0x04a291a8
 }}}
 
 The strings plugin takes a while to complete. When it completes, you should have an output file that contains information about processes and the strings in their address space. In the example output you can see PIDs/kernel references:
