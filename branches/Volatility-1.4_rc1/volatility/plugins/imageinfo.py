@@ -109,10 +109,12 @@ class ImageInfo(kdbg.KDBGScan):
                     yield ('Image date and time', data['ImageDatetime'])
                     yield ('Image local date and time', timefmt.display_datetime(data['ImageDatetime'].as_datetime(), data['ImageTz']))
 
-                try:
-                    yield ('Image Type', self.find_csdversion(addr_space))
-                except tasks.TasksNotFound:
-                    pass
+                for csdversion, numprocessors in self.find_task_items(addr_space):
+                    try:
+                        yield ('Number of Processors', numprocessors)
+                        yield ('Image Type', csdversion)
+                    except tasks.TasksNotFound:
+                        pass
 
         # Make sure to reset the profile to its original value to keep the invalidator from blocking the cache
         self._config.update('PROFILE', origprofile)
@@ -133,15 +135,28 @@ class ImageInfo(kdbg.KDBGScan):
 
         return result
 
-    def find_csdversion(self, addr_space):
-        """Find the CDS version from an address space"""
+    #I don't know what's better, but I don't think we need to go through all tasks twice
+    #so I combined finding csdvers and MaxNumberOfProcessors into one
+    def find_task_items(self, addr_space):
+        """Find items that require task list traversal"""
         csdvers = {}
+        procnumdict = {}
+
+        procnumresult = obj.NoneObject("Unable to find number of processors")
+        cdsresult = obj.NoneObject("Unable to find version")
+
         for task in tasks.pslist(addr_space):
-            if task.Peb.CSDVersion:
-                lookup = str(task.Peb.CSDVersion)
-                csdvers[lookup] = csdvers.get(lookup, 0) + 1
-                _, result = max([(v, k) for k, v in csdvers.items()])
+            if task.Peb.CSDVersion != None:
+                csdvers[str(task.Peb.CSDVersion)] = csdvers.get(str(task.Peb.CSDVersion), 0) + 1
 
-                return str(result)
+            if task.Peb.NumberOfProcessors != None:
+                procnumdict[int(task.Peb.NumberOfProcessors)] = procnumdict.get(int(task.Peb.NumberOfProcessors), 0) + 1
 
-        return obj.NoneObject("Unable to find version")
+        #I don't know if you can actually get the number of CPUs w/o CSDVersion, but just in case...
+        if csdvers:
+            _, _, cdsresult = max([(v, k, str(k)) for k, v in csdvers.items()])
+        if procnumdict:
+            _, procnumresult = max([(v, k) for k, v in procnumdict.items()])
+
+        yield (cdsresult, procnumresult)
+
