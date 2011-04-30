@@ -699,7 +699,7 @@ Dumping peauth.sys, Base: 8857c000 output: driver.8857c000.sys
 To list the functions in the Native and GUI SSDTs, use the ssdt command. This displays the index, function name, and owning driver for each entry in the SSDT. Please note the following very important facts:
 
   * Windows has 4 SSDTs by default (you can add more with !KeAddSystemServiceTable), but only 2 of them are used - one for Native functions in the NT module, and one for GUI functions in the win32k.sys module. 
-  * There are multiple ways to locate the SSDTs in memory. Most tools do it by finding the exported !KeServiceDescriptorTable symbol in the NT module, but this is not the way Volatility works. Volatility scans for ETHREAD objects (see the [http://code.google.com/p/volatility/wiki/CommandReference#thrdscan2 thrdscan2] command) and gathers all unique ETHREAD.Tcb.!ServiceTable pointers. This method is more robust and complete, because it can detect when rootkits make copies of the existing SSDTs and assign them to particular threads. Also see the [http://code.google.com/p/volatility/wiki/CommandReference#ssdt_by_threads ssdt_by_threads] command. 
+  * There are multiple ways to locate the SSDTs in memory. Most tools do it by finding the exported !KeServiceDescriptorTable symbol in the NT module, but this is not the way Volatility works. Volatility scans for ETHREAD objects (see the [http://code.google.com/p/volatility/wiki/CommandReference#thrdscan2 thrdscan2] command) and gathers all unique ETHREAD.Tcb.!ServiceTable pointers. This method is more robust and complete, because it can detect when rootkits make copies of the existing SSDTs and assign them to particular threads. Also see the [http://code.google.com/p/volatility/wiki/CommandReference#threads threads] command. 
   * The order and total number of functions in the SSDT differs across operating system versions. Thus, Volatility stores the information in a per-profile (OS) manner. 
   * For more information, see BDG's [http://moyix.blogspot.com/2008/08/auditing-system-call-table.html Auditing the System Call Table].
 
@@ -827,7 +827,7 @@ Phys.Addr. Obj Type   #Ptr #Hnd Signal Thread     CID        Name
 
 == thrdscan2 ==
 
-To scan for ETHREAD objects in physical memory, use the thrdscan2 command. Since an ETHREAD contains fields that identify its parent process, you can use this technique to find hidden processes. One such use case is documented in the [http://code.google.com/p/volatility/wiki/CommandReference#orphanthreads orphanthreads] command. 
+To scan for ETHREAD objects in physical memory, use the thrdscan2 command. Since an ETHREAD contains fields that identify its parent process, you can use this technique to find hidden processes. One such use case is documented in the [http://code.google.com/p/volatility/wiki/CommandReference#threads threads] command. 
 
 {{{
 $ python vol.py --profile=Win7SP0x86 -f win7.dmp thrdscan2
@@ -1744,32 +1744,65 @@ ffdf0c86   72 61 6d 20 63 61 6e 6e 6f 74 20 62 65 20 72 75    ram cannot be ru
 ffdf0c96   6e 20 69 6e 20 44 4f 53 20 6d 6f 64 65 2e 0d 0d    n in DOS mode...
 }}}
 
-== orphanthreads ==
+== threads ==
 
-To detect kernel threads which don't map back to known kernel drivers, use the orphanthreads command. This works by scanning for ETHREAD objects and checking see if the thread's start address lands within a driver in the !PsLoadedModuleList linked list. If not, the thread has been "abandoned" - likely meaning that a driver loaded, started some threads, and then unlinked itself or unloaded. 
+The command gives you extensive details on threads, including the contents of each thread's registers (if available), a disassembly of code at the thread's start address, and various other fields that may be relevant to an investigation. Since any given system has hundreds of threads, making it difficult to sort through, this command associates descriptive tags to the threads it finds - and then you can filter by tag name with the -F or --filter parameter. 
 
-Here is an example of locating orphan threads on a machine infected with Tigger. As you can see, there are 4 threads identified, all owned by the PID 4 (System) process. The System process is the default owner of threads created by !PsCreateThread in kernel mode. One of the 4 has exited, but the others remain running. The starting addresses are in the range 0xf2XXXXXX however there is no driver in that space - meaning its likely the location of Tigger's hidden component. 
-
-For more information on this technique, see [http://mnin.blogspot.com/2009/03/finding-tiggersyzor-infections-and.html Finding Tigger/Syzor Infections with Detached System Threads]
+To see a list of available tags/filters, use -L like this:
 
 {{{
-$ python vol.py -f tigger.vmem orphanthreads
+$ python vol.py -f test.vmem threads -L
 Volatile Systems Volatility Framework 1.4_rc1
-PID    TID    Create Time               Exit Time                 Offset     StartAddress
------- ------ ------------------------- ------------------------- ---------- ------------
-     4   1992 2010-08-15 19:26:13                                 0x010964a8 0xf2edba46
-     4    600 2010-08-11 06:09:35       2010-08-11 06:09:35       0x0113e4a8 0xf2fe2150
-     4   1720 2010-08-15 19:26:13                                 0x05e354a0 0xf2edc54e
-     4   1648 2010-08-15 19:26:13                                 0x065a32b0 0xf2edd150
+Tag                  Description
+--------------       --------------
+DkomExit             Detect inconsistencies wrt exit times and termination
+HwBreakpoints        Detect threads with hardware breakpoints
+ScannerOnly          Detect threads no longer in a linked list
+HideFromDebug        Detect threads hidden from debuggers
+OrphanThread         Detect orphan threads
+AttachedProcess      Detect threads attached to another process
+HookedSSDT           Detect threads using a hooked SSDT
+SystemThread         Detect system threads
 }}}
 
-Where do you go from here? We suggest breaking into a [http://code.google.com/p/volatility/wiki/CommandReference#volshell volshell] and disassembling the instructions at the thread's start address. Or you could use [http://code.google.com/p/volatility/wiki/CommandReference#impscan impscan] to extract data around the thread's start address and determine which kernel APIs are called.
+If you don't specify any filters, then the command will output information on all threads. Otherwise, you can specify a single filter or multiple filters separated by commas. Here is an example of hunting for threads that are currently executing in the context of a process other than the process which owns the thread:
 
-If you know there's a malicious thread running, but orphanthreads doesn't pick it up, the best explanations are:
+{{{
+$ python vol.py -f XPSP3.vmem threads -F AttachedProcess
+Volatile Systems Volatility Framework 1.4_rc1
+------
+ETHREAD: 0x81eda7a0 Pid: 4 Tid: 484
+Tags: SystemThread,AttachedProcess,HookedSSDT
+Created: 2011-04-18 16:03:38
+Exited: -
+Owning Process: 0x823c8830 System
+Attached Process: 0x81e3c458 services.exe
+State: Running
+BasePriority: THREAD_PRIORITY_NORMAL
+TEB: 0x00000000
+StartAddress: 0xb1805f1a windev-5e93-fd3.sys
+ServiceTable: 0x80553020
+[0] 0x80501bbc
+[0x47] NtEnumerateKey 0xb1805944 windev-5e93-fd3.sys
+[0x49] NtEnumerateValueKey 0xb1805aca windev-5e93-fd3.sys
+[0x91] NtQueryDirectoryFile 0xb18055ee windev-5e93-fd3.sys
+[1] -
+[2] -
+[3] -
+Win32Thread: 0x00000000
+CrossThreadFlags: PS_CROSS_THREAD_FLAGS_SYSTEM
+b1805f1a: 8bff                         MOV EDI, EDI
+b1805f1c: 55                           PUSH EBP
+b1805f1d: 8bec                         MOV EBP, ESP
+b1805f1f: 51                           PUSH ECX
+b1805f20: 51                           PUSH ECX
+}}}
 
-  * The malware didn't use !PsCreateSystemThread to create the thread
-  * The malware used !PsCreateSystemThread, but then overwrote the `ETHREAD.Cid.UniqueProcess` to something other than 4
-  * The malware used !PsCreateSystemThread, but then overwrote the `ETHREAD.StartAddress` and pointed it to memory owned by a loaded, legit driver
+First, you see the virtual address of the ETHREAD object along with the process ID and thread ID. Next you see all tags associated with the thread (!SystemThread, !AttachedProcess, !HookedSSDT), the creation/exit times, state, priority, start address, etc. It shows the SSDT base along with the address of each service table and any hooked functions in the tables. Finally, you see a disassembly of the thread's start address. 
+
+For a detailed description of each tag/filter and instructions on how to add your own heuristics to the threads command, see [http://mnin.blogspot.com/2011/04/investigating-windows-threads-with.html Investigating Windows Threads with Volatility].
+
+Note: with the introduction of this command, two older commands (orphan_threads and ssdt_by_threads) have been deprecated. 
 
 == callbacks ==
 
@@ -1974,58 +2007,6 @@ Exit(0);
 }}}
 
 When you open the IDB, just navigate to any functions with a "Hook" prefix and you'll be staring at the rootkit's payload. 
-
-== ssdt_by_threads ==
-
-As mentioned in the documentation for the ssdt command, the SSDT is assigned on a per-thread basis. That means that one thread on a system may be calling through an SSDT with hooks installed by a rootkit, while other threads may be using a clean SSDT. To find out exactly which threads on a system are using a "tainted" view, use the ssdt_by_threads command. 
-
-Here is an example of detecting the infected threads using a !BlackEnergy 2 sample. First you see the hooked SSDT functions and then a list of threads (found via thrdscan2). If a thread is using one of the hooked SSDTs, the command prints an exclamation mark by the thread info. As you can see, not all threads on the system are infected - only the ones which start *after* the rootkit driver loads get infected. 
-
-{{{
-$ python vol.py -f be2.vmem ssdt_by_threads
-Volatile Systems Volatility Framework 1.4_rc1
-Pid      Tid      Name               SSDT      
-  Entry 0x0041: 0xff0d2487 (NtDeleteValueKey) owned by 00004A2A
-  Entry 0x0047: 0xff0d216b (NtEnumerateKey) owned by 00004A2A
-  Entry 0x0049: 0xff0d2267 (NtEnumerateValueKey) owned by 00004A2A
-  Entry 0x0077: 0xff0d20c3 (NtOpenKey) owned by 00004A2A
-  Entry 0x007a: 0xff0d1e93 (NtOpenProcess) owned by 00004A2A
-  Entry 0x0080: 0xff0d1f0b (NtOpenThread) owned by 00004A2A
-  Entry 0x0089: 0xff0d2617 (NtProtectVirtualMemory) owned by 00004A2A
-  Entry 0x00ad: 0xff0d1da0 (NtQuerySystemInformation) owned by 00004A2A
-  Entry 0x00ba: 0xff0d256b (NtReadVirtualMemory) owned by 00004A2A
-  Entry 0x00d5: 0xff0d2070 (NtSetContextThread) owned by 00004A2A
-  Entry 0x00f7: 0xff0d2397 (NtSetValueKey) owned by 00004A2A
-  Entry 0x00fe: 0xff0d201d (NtSuspendThread) owned by 00004A2A
-  Entry 0x0102: 0xff0d1fca (NtTerminateThread) owned by 00004A2A
-  Entry 0x0115: 0xff0d25c1 (NtWriteVirtualMemory) owned by 00004A2A
- 
-       4        8 System             0x80501030 
-       4       12 System             0x80501030 
-       4       16 System             0x80501030 
-       4       20 System             0x80501030 
-
-[snip
-
-       4      312 System             0x80501030 
-       4      252 System             0xFF3AAB90 [!]
-       4      168 System             0xFF3AAB90 [!]
-       4      248 System             0xFF3AAB90 [!]
-     544      548 smss.exe           0x80501030 
-     544      556 smss.exe           0x80501030 
-     544      560 smss.exe           0x80501030 
-     608      696 csrss.exe          0x80501030 
-     608     1824 csrss.exe          0x80501030 
-     608      812 csrss.exe          0x80501030 
-     608      496 csrss.exe          0x80F162D0 [!]
-     632      636 winlogon.exe       0x80501030 
-     632      656 winlogon.exe       0x80501030 
-     632      660 winlogon.exe       0x80501030 
-     632      664 winlogon.exe       0x80501030 
-     632      672 winlogon.exe       0x80501030 
-     632      684 winlogon.exe       0x80501030 
-[snip]
-}}}
 
 = Miscellaneous =
 
