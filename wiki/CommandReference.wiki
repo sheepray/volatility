@@ -13,7 +13,7 @@ If you don't know what type of system your image came from, use the imageinfo co
 $ python vol.py -f win7.dmp imageinfo
 Volatile Systems Volatility Framework 1.4_rc1
 Determining profile based on KDBG search...
-             Suggested Profile : Win7SP0x86
+             Suggested Profile : Win7SP1x86, Win7SP0x86
                      AS Layer1 : JKIA32PagedMemory (Kernel AS)
                      AS Layer2 : FileAddressSpace (/Users/M/Desktop/win7.dmp)
                       PAE type : No PAE
@@ -23,10 +23,11 @@ Determining profile based on KDBG search...
              KUSER_SHARED_DATA : 0xffdf0000
            Image date and time : 2010-07-06 22:40:28 
      Image local date and time : 2010-07-06 22:40:28 
+          Number of Processors : 2
                     Image Type : 
 }}}
 
-Among other things, the imageinfo output tells you the suggested profile that you should pass as the parameter to --profile=PROFILE. It also tells you the address of the KPCR and KDBG (short for `_KDDEBUGGER_DATA64`).  Plugins automatically scan for these values when they need them, however you can specify them directly for any plugin by providing --kpcr=ADDRESS or --kdbg=ADDRESS. By supplying the profile and KDBG (or failing that KPCR) to other Volatility commands, you'll get the most accurate and fastest results possible.
+Among other things, the `imageinfo` output tells you the suggested profile that you should pass as the parameter to --profile=PROFILE; there may be more than one profile suggestion if profiles are closely related.  You can figure out which one is more appropriate by checking the "Image Type" field, which is blank for Service Pack 0 and filled in for other Service Packs.  The `imageinfo` output also tells you the address of the KPCR and KDBG (short for `_KDDEBUGGER_DATA64`).  Plugins automatically scan for these values when they need them, however you can specify them directly for any plugin by providing --kpcr=ADDRESS or --kdbg=ADDRESS. By supplying the profile and KDBG (or failing that KPCR) to other Volatility commands, you'll get the most accurate and fastest results possible.
 
 == datetime ==
 
