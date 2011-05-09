@@ -57,6 +57,7 @@ tcpip_vtypes_vista = {
     '_TCP_ENDPOINT': [ None, { # TcpE
         'InetAF' : [ 0xC, ['pointer', ['_INETAF']]],
         'AddrInfo' : [ 0x10, ['pointer', ['_ADDRINFO']]],
+        'ListEntry' : [ 0x14, ['_LIST_ENTRY']], 
         'State' : [ 0x28, ['unsigned int']],
         'LocalPort' : [ 0x2C, ['unsigned short']],
         'RemotePort' : [ 0x2E, ['unsigned short']],
@@ -84,6 +85,7 @@ tcpip_vtypes_7 = {
     '_TCP_ENDPOINT': [ None, { # TcpE
         'InetAF' : [ 0xC, ['pointer', ['_INETAF']]],
         'AddrInfo' : [ 0x10, ['pointer', ['_ADDRINFO']]],
+        'ListEntry' : [ 0x14, ['_LIST_ENTRY']], 
         'State' : [ 0x34, ['unsigned int']],
         'LocalPort' : [ 0x38, ['unsigned short']],
         'RemotePort' : [ 0x3A, ['unsigned short']],
