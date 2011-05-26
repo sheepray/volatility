@@ -2283,6 +2283,7 @@ To read keystrokes from the BIOS area of memory, use the bioskbd command. This c
 The patcher plugin accepts a single argument of '-x' followed by an XML file.  The XML file then specifies any required patches as in the following example:
 
 {{{
+<patchfile>
   <patchinfo method="pagescan" name="Some Descriptive Name">
     <constraints>
       <match offset="0x123">554433221100</match>
