@@ -34,7 +34,7 @@ volatility -l firewire://forensic1394/<devno> <plugin> [<plugin_opts>]
 
 It will automatically set your firewire card into SBP2 mode, and allow the reading and writing of memory, thus enabling all plugins.
 
-The devices should be numbered in order that they were connected to the system, so for instance if you were to connect a laptop, and then also a digital camera, the laptop would have a <devno> of 0, and the camera a <devno> of 1.
+The devices should be numbered in order that they were connected to the system, so for instance if you were to connect a laptop, and then also a digital camera, the laptop would have a `<devno>` of 0, and the camera a `<devno>` of 1.
 
 Please note, there are still limitations, such as reading beyond the existing memory size, which will cause the connected machine to Bluescreen or crash.
 
