@@ -2279,4 +2279,32 @@ To read keystrokes from the BIOS area of memory, use the bioskbd command. This c
 
 == inspectcache ==
 == patcher ==
+
+The patcher plugin accepts a single argument of '-x' followed by an XML file.  The XML file then specifies any required patches as in the following example:
+
+{{{
+  <patchinfo method="pagescan" name="Some Descriptive Name">
+    <constraints>
+      <match offset="0x123">554433221100</match>
+    </constraints>
+    <patches>
+      <setbytes offset="0x234">001122334455</setbytes>
+    </patches>
+  </patchinfo>
+  <patchinfo>
+    ...
+  </patchinfo>
+</patchfile>
+}}}
+
+The XML root element is always `patchfile`, and contains any number of `patchinfo` elements.  When the patchfile is run, it will scan over the memory once for each `patchinfo`, attempting to scan using the method specified in the `method` attribute.  Currently the only support method is `pagescan` and this must be explicitly declared in each `patchinfo` element.
+
+Each `pagescan` type `patchinfo` element contains a single `constraints` element and a single `patches` element.  The scan then proceeds over each page in memory, verifying that all constraints are met, and if so, the instructions specified in the `patches` element are carried out.
+
+The `constraints` element contains any number of `match` elements which take a specific offset attribute (specifying where within the page the match should occur) and then contain a hexadecimal string for the bytes that are supposed to match.
+
+The `patches` element contains any number of `setbytes` elements which take a specific offset attribute (specifying where with the page the patch should modify data) and then contains a hexidecimal string for the bytes that should be written into the page.
+
+Note: When running the patcher plugin, there will be no modification made to memory unless the *write* option (-w) has been specified on the command line.
+
 == testsuite ==
