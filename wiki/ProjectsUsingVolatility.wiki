@@ -1,19 +1,17 @@
 #summary Projects Using Volatility
 
-This page lists third-party projects that leverage the power of Volatility. These projects may not include the latest Volatility code and are not supported by the Volatility team. If you have positive or negative experiences with these projects, feel free to leave comments for others to see. 
+This page lists third-party projects that leverage the power of Volatility.
 
-* [http://zeltser.com/remnux/ REMnux: A Linux Distribution for Reverse-Engineering Malware by Lenny Zeltser]
-
-* [http://www.e-fense.com/helix3pro.php Helix3 Pro and Helix3 Enterprise by e-fense]
+These projects may not include the latest Volatility code and are not supported by the Volatility team. If you have positive or negative experiences with these projects, feel free to leave comments for others to see. Projects are listed in alphabetical order. 
 
 * [http://www.backtrack-linux.org/ BackTrack Linux - Penetration Testing Distribution]
 
-* [http://computer-forensics.sans.org/community/downloads/ SANS Investigative Forensic Toolkit (SIFT) Workstation Version 2.0 by Rob Lee]
+* [http://cci.cocolog-nifty.com/blog/2010/02/encase-enscri-1.html EnCase EnScripts for Memory Forensics by Takahiro Haruyama]
 
-* [http://code.google.com/p/pyflag/ pyflag (Python Forensic and Log Analysis GUI)] 
+* [http://www.e-fense.com/helix3pro.php Helix3 Pro and Helix3 Enterprise by e-fense]* [http://log2timeline.net/ Log2timeline, a framework for automatic creation of a super timeline by Kristinn Gudjonsson]
 
 * [http://ptk.dflabs.com/ramdump.php PTK and PTK Forensic Professional 2.0 by DFLabs]
 
-* [http://log2timeline.net/ log2timeline, a framework for automatic creation of a super timeline by Kristinn Gudjonsson]
+* [http://code.google.com/p/pyflag/ Pyflag (Python Forensic and Log Analysis GUI)]
 
-* [http://cci.cocolog-nifty.com/blog/2010/02/encase-enscri-1.html EnCase EnScripts for Memory Forensics by Takahiro Haruyama]
+* [http://zeltser.com/remnux/ REMnux: A Linux Distribution for Reverse-Engineering Malware by Lenny Zeltser]
