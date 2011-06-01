@@ -8,7 +8,9 @@ These projects may not include the latest Volatility code and are not supported 
 
 * [http://cci.cocolog-nifty.com/blog/2010/02/encase-enscri-1.html EnCase EnScripts for Memory Forensics by Takahiro Haruyama]
 
-* [http://www.e-fense.com/helix3pro.php Helix3 Pro and Helix3 Enterprise by e-fense]* [http://log2timeline.net/ Log2timeline, a framework for automatic creation of a super timeline by Kristinn Gudjonsson]
+* [http://www.e-fense.com/helix3pro.php Helix3 Pro and Helix3 Enterprise by e-fense]
+
+* [http://log2timeline.net/ Log2timeline, a framework for automatic creation of a super timeline by Kristinn Gudjonsson]
 
 * [http://ptk.dflabs.com/ramdump.php PTK and PTK Forensic Professional 2.0 by DFLabs]
 
