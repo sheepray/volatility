@@ -1597,6 +1597,34 @@ IEXPLORE.EXE[1884]               inline   user32.dll!GetClipboardData           
 [snip]
 }}}
 
+Here is an example of detecting the 8-byte SHORT JMP + LONG JMP Inline hooks installed by SpyEye, the malware used in [http://www.honeynet.org/node/668 The Honeynet Project's Forensic Challenge 8]. 
+
+{{{
+$ python vol.py -f spyeye.vmem apihooks -p 700
+Volatile Systems Volatility Framework 1.4_rc1
+Name                             Type     Target                                   Value
+explorer.exe[700]                inline   ws2_32.dll!send                          0x71ab4c27 JMP 0xbb6a9b8 (UNKNOWN)
+explorer.exe[700]                inline   crypt32.dll!PFXImportCertStore           0x77aeff8f JMP 0xbb5e80d (UNKNOWN)
+explorer.exe[700]                inline   wininet.dll!HttpSendRequestA             0x771c7519 JMP 0xbb6e13b (UNKNOWN)
+explorer.exe[700]                inline   wininet.dll!HttpSendRequestW             0x771ddb8e JMP 0xbb6e299 (UNKNOWN)
+explorer.exe[700]                inline   wininet.dll!InternetCloseHandle          0x771be85d JMP 0xbb68418 (UNKNOWN)
+explorer.exe[700]                inline   wininet.dll!InternetWriteFile            0x771d27a3 JMP 0xbb6e3f7 (UNKNOWN)
+explorer.exe[700]                inline   advapi32.dll!CryptEncrypt                0x77dee340 JMP 0xbb6a0e4 (UNKNOWN)
+explorer.exe[700]                inline   ntdll.dll!NtEnumerateValueKey            0x7c90d2d0 JMP 0xbb5769e (UNKNOWN)
+explorer.exe[700]                inline   ntdll.dll!NtQueryDirectoryFile           0x7c90d750 JMP 0xbb62dc5 (UNKNOWN)
+explorer.exe[700]                inline   ntdll.dll!NtResumeThread                 0x7c90db20 JMP 0xbb7150a (UNKNOWN)
+[snip]
+}}}
+
+If you look in memory (using the ws2_32.dll!send hook as an example), the layout uses a JMP SHORT followed by a JMP. This is slightly more dangerous and more complex to install than your basic 5-byte detour patch, but it can hide from some anti-rootkit tools that only check the first instruction in a function for hooks. 
+
+{{{
+Address   Hex dump          Command                               
+71AB4C27   /EB 01           JMP SHORT 71AB4C2A
+71AB4C29   |C3              RETN
+71AB4C2A  -\E9 895D0B9A     JMP 0BB6A9B8
+}}}
+
 Here is an example of detecting the PUSH/RET Inline hooks installed by Laqma:
 
 {{{
