@@ -1,7 +1,5 @@
 #summary Projects Using Volatility
 
-= Introduction =
-
 This page lists third-party projects that leverage the power of Volatility. These projects may not include the latest Volatility code and are not supported by the Volatility team. If you have positive or negative experiences with these projects, feel free to leave comments for others to see. 
 
 * [http://zeltser.com/remnux/ REMnux: A Linux Distribution for Reverse-Engineering Malware by Lenny Zeltser]
