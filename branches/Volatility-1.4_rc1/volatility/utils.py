@@ -85,3 +85,6 @@ class AddrSpaceError(VolatilityException):
             result += " {0}: {1}\n".format(k, v)
 
         return result
+
+class CacheRelativeURLException(VolatilityException):
+    """Exception for gracefully not saving Relative URLs in the cache"""

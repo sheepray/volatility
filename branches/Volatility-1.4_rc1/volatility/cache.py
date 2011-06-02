@@ -436,7 +436,7 @@ class CacheStorage(object):
             # Encode just the path part, since everything else is taken from relatively safe/already used data
             path = self.encode(url[len(config.LOCATION):])
         else:
-            raise RuntimeError("Storing non relative URLs is not supported now ({0})".format(url))
+            raise utils.CacheRelativeURLException("Storing non relative URLs is not supported now ({0})".format(url))
 
         # Join together the bits we need, and abspath it to ensure it's right for the OS it's on
         path = os.path.abspath(os.path.sep.join([config.CACHE_DIRECTORY,
@@ -455,7 +455,12 @@ class CacheStorage(object):
         return pickle.loads(data)
 
     def dump(self, url, payload):
-        filename = self.filename(url)
+        # TODO: Ensure a better check for ieee1394/non-cachable address spaces than a bad URL
+        try:
+            filename = self.filename(url)
+        except utils.CacheRelativeURLException:
+            debug.debug("NOT Dumping url {0} - relative URLs are not yet supported".format(url))
+            return
 
         ## Check that the directory exists
         directory = os.path.dirname(filename)
