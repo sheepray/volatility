@@ -22,6 +22,12 @@ import time
 import urlparse
 import volatility.addrspace as addrspace
 
+# TODO: Remove this once we no longer support old/broken versions of urlparse (2.6.2)
+check = urlparse.urlsplit("firewire://method/0")
+urlparse_broken = False
+if check[1] != 'method':
+  urlparse_broken = True
+
 def FirewireRW(netloc, location):
     if netloc in fw_implementations:
         return fw_implementations[netloc](location)
@@ -96,6 +102,11 @@ class FirewireAddressSpace(addrspace.BaseAddressSpace):
         try:
             (scheme, netloc, path, _, _, _) = urlparse.urlparse(config.LOCATION)
             self.as_assert(scheme == 'firewire', 'Not a firewire URN')
+            if urlparse_broken:
+                if path.startswith('//') and path[2:].find('/') > 0:
+                    firstslash = path[2:].find('/')
+                    netloc = path[2:firstslash + 2]
+                    path = path[firstslash + 3:]
             self._fwimpl = FirewireRW(netloc, path)
         except (AttributeError, ValueError):
             self.as_assert(False, "Unable to parse {0} as a URL".format(config.LOCATION))
