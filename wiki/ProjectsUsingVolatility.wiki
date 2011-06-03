@@ -17,3 +17,6 @@ These projects may not include the latest Volatility code and are not supported 
 * [http://code.google.com/p/pyflag/ Pyflag (Python Forensic and Log Analysis GUI)]
 
 * [http://zeltser.com/remnux/ REMnux: A Linux Distribution for Reverse-Engineering Malware by Lenny Zeltser]
+
+* [http://computer-forensics.sans.org/community/downloads/ SANS Investigative Forensic Toolkit (SIFT) Workstation
+Version 2.0 by Rob Lee]
