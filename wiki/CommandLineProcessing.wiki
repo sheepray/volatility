@@ -63,7 +63,7 @@ Volatility is telling us about all the options it knows about. The options have 
 This is useful since the way one processes images is normally by setting many parameters and running the many plugins on the same image using the same parameters. This allows one to set the parameters in the environment and then just run lots of modules on the same image without needing to crowd the command line with similar parameters. For example:
 
 {{{
-$ export VOLATILITY_FILENAME=/tmp/myimage.img
+$ export VOLATILITY_LOCATION=file:///tmp/myimage.img
 $ ./vol.py pslist
 $ ./vol.py files
 
