@@ -3,7 +3,7 @@
 
 = Basic Usage of Volatility 1.4 =
 
-Volatility 1.4 has the ability to analyze W2K3 SP0/SP1/SP2, Vista SP0/SP1/SP2, W2K8 SP1/SP2 and Windows 7 SP0/SP1 images in addition to Windows XP SP2 and SP3.  In order to analyze an image that is not Windows XP SP2, you should provide the correct profile when running Volatility commands.  You can obtain the profile from Volatility by typing:
+Volatility 1.4 has the ability to analyze !W2K3 SP0/SP1/SP2, Vista SP0/SP1/SP2, W2K8 SP1/SP2 and Windows 7 SP0/SP1 images in addition to Windows XP SP2 and SP3.  In order to analyze an image that is not Windows XP SP2, you should provide the correct profile when running Volatility commands.  You can obtain the profile from Volatility by typing:
 
 {{{
 $ python vol.py --info
