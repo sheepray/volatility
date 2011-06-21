@@ -38,7 +38,7 @@ if sys.version_info < (2, 6, 0):
     sys.exit(1)
 
 try:
-    import psyco #pylint: disable-msg=W0611
+    import psyco #pylint: disable-msg=W0611,F0401
 except ImportError:
     pass
 

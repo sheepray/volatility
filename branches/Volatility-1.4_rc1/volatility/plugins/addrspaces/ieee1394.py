@@ -213,13 +213,13 @@ class FirewireAddressSpace(addrspace.BaseAddressSpace):
 fw_implementations = {}
 
 try:
-    import firewire
+    import firewire #pylint: disable-msg=F0401
     fw_implementations['raw1394'] = FWRaw1394
 except ImportError:
     pass
 
 try:
-    import forensic1394
+    import forensic1394 #pylint: disable-msg=F0401
     fw_implementations['forensic1394'] = FWForensic1394
 except ImportError:
     pass
