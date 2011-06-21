@@ -134,10 +134,10 @@ class FileScan(commands.command):
                         ((file_obj.SharedDelete > 0 and "d") or '-')
 
             ## Account for changes to the object header for Windows 7
-            volmagic = obj.Object("VOLATILITY_MAGIC", 0x0, self.kernel_address_space)
+            # volmagic = obj.Object("VOLATILITY_MAGIC", 0x0, self.kernel_address_space)
             try:
                 # New object header
-                info_mask_to_offset = volmagic.InfoMaskToOffset.v()
+                # info_mask_to_offset = volmagic.InfoMaskToOffset.v()
                 type_info = object_obj.TypeIndex
             except AttributeError:
                 # Default to old Object header
