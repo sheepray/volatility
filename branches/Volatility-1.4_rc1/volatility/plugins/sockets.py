@@ -23,6 +23,7 @@
 import volatility.commands
 import volatility.win32 as win32
 import volatility.utils as utils
+import volatility.protos as protos
 
 class Sockets(volatility.commands.command):
     """Print list of open sockets"""
@@ -34,8 +35,8 @@ class Sockets(volatility.commands.command):
 
     def render_text(self, outfd, data):
         offsettype = "(V)" if not self._config.PHYSICAL_OFFSET else "(P)"
-        outfd.write(" Offset{0}  PID    Port   Proto  Address        Create Time               \n".format(offsettype) + \
-                    "---------- ------ ------ ------ -------------- -------------------------- \n")
+        outfd.write(" Offset{0}  PID    Port   Proto               Address        Create Time               \n".format(offsettype) + \
+                    "---------- ------ ------ ------------------- -------------- -------------------------- \n")
 
         for sock in data:
             if not self._config.PHYSICAL_OFFSET:
@@ -43,8 +44,8 @@ class Sockets(volatility.commands.command):
             else:
                 offset = sock.obj_vm.vtop(sock.obj_offset)
 
-            outfd.write("{0:#010x} {1:6} {2:6} {3:6} {4:18} {5:26}\n".format(offset, sock.Pid, \
-                sock.LocalPort, sock.Protocol, sock.LocalIpAddress, sock.CreateTime))
+            outfd.write("{0:#010x} {1:6} {2:6} {3:6} {4:14} {5:18} {6:26}\n".format(offset, sock.Pid, \
+                sock.LocalPort, sock.Protocol, protos.protos.get(sock.Protocol.v(), "-"), sock.LocalIpAddress, sock.CreateTime))
 
     def calculate(self):
         addr_space = utils.load_as(self._config)

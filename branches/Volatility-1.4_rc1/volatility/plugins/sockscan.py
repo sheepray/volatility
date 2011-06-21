@@ -34,6 +34,7 @@ import volatility.utils as utils
 import volatility.obj as obj
 import volatility.debug as debug #pylint: disable-msg=W0611
 import volatility.cache as cache
+import volatility.protos as protos
 
 class CheckSocketCreateTime(scan.ScannerCheck):
     """ Check that _ADDRESS_OBJECT.CreateTime makes sense """
@@ -83,12 +84,13 @@ class SockScan(commands.command):
 
     def render_text(self, outfd, data):
 
-        outfd.write(" Offset     PID    Port   Proto  Address        Create Time               \n" +  \
-                    "---------- ------ ------ ------ -------------- -------------------------- \n")
+        outfd.write(" Offset     PID    Port   Proto               Address        Create Time               \n" + \
+                    "---------- ------ ------ ------------------- -------------- -------------------------- \n")
 
         for sock_obj in data:
-            outfd.write("{0:#010x} {1:6} {2:6} {3:6} {4:18} {5:26}\n".format(sock_obj.obj_offset, sock_obj.Pid,
+            outfd.write("{0:#010x} {1:6} {2:6} {3:6} {4:14} {5:18} {6:26}\n".format(sock_obj.obj_offset, sock_obj.Pid,
                                                                       sock_obj.LocalPort,
                                                                       sock_obj.Protocol,
+                                                                      protos.protos.get(sock_obj.Protocol.v(), "-"),
                                                                       sock_obj.LocalIpAddress,
                                                                       sock_obj.CreateTime))
