@@ -100,18 +100,10 @@ class FileScan(commands.command):
                                    address_space.profile.get_obj_offset('_OBJECT_HEADER', 'Body')
                                    )
 
-            ## Account for changes to the object header for Windows 7
-            volmagic = obj.Object("VOLATILITY_MAGIC", 0x0, address_space)
-            try:
-                # New object header
-                if object_obj.TypeIndex != volmagic.TypeIndexMap.v()['File']:
-                    continue
-            except AttributeError:
-                # Default to old Object header
-                # Skip unallocated objects
-                #if object_obj.Type == 0xbad0b0b0:
-                #    continue
-                pass
+            object_obj.kas = self.kernel_address_space
+
+            if object_obj.get_object_type() != "File":
+                continue
 
             ## If the string is not reachable we skip it
             Name = self.parse_string(file_obj.FileName)
@@ -122,7 +114,7 @@ class FileScan(commands.command):
 
     def render_text(self, outfd, data):
         outfd.write("{0:10} {1:10} {2:4} {3:4} {4:6} {5}\n".format(
-                     'Offset', 'Obj Type', '#Ptr', '#Hnd', 'Access', 'Name'))
+                     'Offset(V)', 'Obj Type', '#Ptr', '#Hnd', 'Access', 'Name'))
 
         for object_obj, file_obj, Name in data:
             ## Make a nicely formatted ACL string
@@ -143,7 +135,7 @@ class FileScan(commands.command):
                 # Default to old Object header
                 type_info = object_obj.Type
 
-            outfd.write("{0:#010x} 0x{1:#010x} {2:4} {3:4} {4:6} {5}\n".format(
+            outfd.write("{0:#010x} {1:#010x} {2:4} {3:4} {4:6} {5}\n".format(
                          object_obj.obj_offset, type_info, object_obj.PointerCount,
                          object_obj.HandleCount, AccessStr, Name))
 
@@ -194,40 +186,14 @@ class DriverScan(FileScan):
             #if object_obj.Type == 0xbad0b0b0:
             #    continue
 
-            ## Account for changes to the object header for Windows 7
-            volmagic = obj.Object("VOLATILITY_MAGIC", 0x0, address_space)
-            try:
-                # New object header
-                if object_obj.TypeIndex != volmagic.TypeIndexMap.v()['Driver']:
-                    continue
-                info_mask_to_offset = volmagic.InfoMaskToOffset.v()
-                OBJECT_HEADER_NAME_INFO = \
-                    volmagic.InfoMaskMap.v()['_OBJECT_HEADER_NAME_INFO']
-                info_mask_to_offset_index = \
-                    object_obj.InfoMask & \
-                    (OBJECT_HEADER_NAME_INFO | (OBJECT_HEADER_NAME_INFO - 1))
-                if info_mask_to_offset_index in info_mask_to_offset:
-                    name_info_offset = \
-                      info_mask_to_offset[info_mask_to_offset_index]
-                else:
-                    name_info_offset = 0
-            except AttributeError:
-                # Default to old Object header
-                name_info_offset = object_obj.NameInfoOffset
-                pass
+            object_obj.kas = self.kernel_address_space
 
-            object_name_string = ""
+            if object_obj.get_object_type() != "Driver":
+                continue
 
-            if name_info_offset:
-                ## Now work out the OBJECT_HEADER_NAME_INFORMATION object
-                object_name_info_obj = \
-                    obj.Object("_OBJECT_HEADER_NAME_INFORMATION", \
-                    vm = address_space, \
-                    offset = object_obj.obj_offset - \
-                    name_info_offset \
-                    )
-                object_name_string = self.parse_string(object_name_info_obj.Name)
-            yield (object_obj, driver_obj, extension_obj, object_name_string)
+            object_name_string = object_obj.get_object_name()
+
+            yield (object_obj, driver_obj, extension_obj, repr(object_name_string))
 
 
     def render_text(self, outfd, data):
@@ -297,49 +263,22 @@ class MutantScan(FileScan):
                 address_space.profile.get_obj_offset('_OBJECT_HEADER', 'Body')
                 )
 
+            object_obj.kas = self.kernel_address_space
+
+            if object_obj.get_object_type() != "Mutant":
+                continue
+
             ## Skip unallocated objects
             ##if object_obj.Type == 0xbad0b0b0:
             ##   continue
 
-            ## Account for changes to the object header for Windows 7
-            volmagic = obj.Object("VOLATILITY_MAGIC", 0x0, address_space)
-            try:
-                # New object header
-                if object_obj.TypeIndex != volmagic.TypeIndexMap.v()['Mutant']:
-                    continue
-                info_mask_to_offset = volmagic.InfoMaskToOffset.v()
-                OBJECT_HEADER_NAME_INFO = \
-                    volmagic.InfoMaskMap.v()['_OBJECT_HEADER_NAME_INFO']
-                info_mask_to_offset_index = \
-                    object_obj.InfoMask & \
-                    (OBJECT_HEADER_NAME_INFO | (OBJECT_HEADER_NAME_INFO - 1))
-                if info_mask_to_offset_index in info_mask_to_offset:
-                    name_info_offset = \
-                      info_mask_to_offset[info_mask_to_offset_index]
-                else:
-                    name_info_offset = 0
-            except AttributeError:
-                # Default to old Object header
-                name_info_offset = object_obj.NameInfoOffset
-                pass
-
-            object_name_string = ""
-
-            if name_info_offset:
-                ## Now work out the OBJECT_HEADER_NAME_INFORMATION object
-                object_name_info_obj = \
-                    obj.Object("_OBJECT_HEADER_NAME_INFORMATION", \
-                    vm = address_space, \
-                    offset = object_obj.obj_offset - \
-                    name_info_offset \
-                    )
-                object_name_string = self.parse_string(object_name_info_obj.Name)
+            object_name_string = object_obj.get_object_name()
 
             if self._config.SILENT:
-                if name_info_offset == 0:
+                if len(object_name_string) == 0:
                     continue
 
-            yield (object_obj, mutant, object_name_string)
+            yield (object_obj, mutant, repr(object_name_string))
 
 
     def render_text(self, outfd, data):

@@ -244,9 +244,12 @@ class _HANDLE_TABLE(obj.CType):
                 else:
                     ## OK We got to the bottom table, we just resolve
                     ## objects here:
-                    offset = int(entry.Object.v()) & ~0x00000007
+                    obj_offset = int(entry.Object.v()) & ~0x00000007
 
-                    item = self.get_item(offset)
+                    item = self.get_item(obj_offset)
+
+                    if item == None:
+                        continue
 
                     try:
                         # New object header
@@ -279,6 +282,64 @@ class _HANDLE_TABLE(obj.CType):
             yield h
 
 AbstractWindows.object_classes['_HANDLE_TABLE'] = _HANDLE_TABLE
+
+class _OBJECT_HEADER(obj.CType):
+    """A Volatility object to handle Windows object headers"""
+
+    def __init__(self, *args, **kwargs):
+        # kernel AS for dereferencing pointers 
+        self.kas = None
+        obj.CType.__init__(self, *args, **kwargs)
+
+    def parse_string(self, unicode_obj):
+        """Unicode string parser - from FileScan"""
+        string_length = unicode_obj.Length
+        string_offset = unicode_obj.Buffer
+
+        string = self.kas.read(string_offset, string_length)
+        if not string:
+            return ''
+        return string[:255].decode("utf16", "ignore").encode("utf8", "xmlcharrefreplace")
+
+    def get_object_type(self):
+        """Return the object's type as a string"""
+        volmagic = obj.Object("VOLATILITY_MAGIC", 0x0, self.obj_vm)
+        try:
+            type_map = dict((v, k) for k, v in volmagic.TypeIndexMap.v().items())
+            return type_map.get(self.TypeIndex.v(), '')
+        except AttributeError:
+            type_obj = obj.Object("_OBJECT_TYPE", self.Type, self.kas)
+            return self.parse_string(type_obj.Name)
+
+    def get_object_name(self):
+        """Return the name of the object from the name info header"""
+
+        ## Account for changes to the object header for Windows 7
+        volmagic = obj.Object("VOLATILITY_MAGIC", 0x0, self.obj_vm)
+        try:
+            info_mask_to_offset = volmagic.InfoMaskToOffset.v()
+            OBJECT_HEADER_NAME_INFO = volmagic.InfoMaskMap.v()['_OBJECT_HEADER_NAME_INFO']
+            info_mask_to_offset_index = self.InfoMask & (OBJECT_HEADER_NAME_INFO | (OBJECT_HEADER_NAME_INFO - 1))
+            if info_mask_to_offset_index in info_mask_to_offset:
+                name_info_offset = info_mask_to_offset[info_mask_to_offset_index]
+            else:
+                name_info_offset = 0
+        except AttributeError:
+            # Default to old Object header
+            name_info_offset = self.NameInfoOffset
+
+        object_name_string = ""
+
+        if name_info_offset:
+            ## Now work out the OBJECT_HEADER_NAME_INFORMATION object
+            object_name_info_obj = obj.Object("_OBJECT_HEADER_NAME_INFORMATION",
+                                              vm = self.obj_vm,
+                                              offset = self.obj_offset - int(name_info_offset))
+            object_name_string = self.parse_string(object_name_info_obj.Name)
+
+        return object_name_string
+
+AbstractWindows.object_classes['_OBJECT_HEADER'] = _OBJECT_HEADER
 
 ## This is an object which provides access to the VAD tree.
 class _MMVAD(obj.CType):
