@@ -50,7 +50,8 @@ class RegObjKeys(taskmods.Files):
         output = []
         kcb = handle.KeyControlBlock
         while kcb.ParentKcb:
-            output.append(str(kcb.NameBlock.Name))
+            if kcb.NameBlock.Name != None:
+                output.append(str(kcb.NameBlock.Name))
             kcb = kcb.ParentKcb
         return "\\".join(reversed(output))
 
