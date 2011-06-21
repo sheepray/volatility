@@ -64,4 +64,7 @@ class Win7SP1x86(windows.AbstractWindows):
     overlay = win7sp1x86overlays
     object_classes = copy.deepcopy(win7_sp0_x86.Win7SP0x86.object_classes)
     syscalls = win7_sp0_x86_syscalls.syscalls
+    # FIXME: Temporary fix for issue 105
+    native_types = copy.deepcopy(windows.AbstractWindows.native_types)
+    native_types['pointer64'] = windows.AbstractWindows.native_types['unsigned long long']
 
