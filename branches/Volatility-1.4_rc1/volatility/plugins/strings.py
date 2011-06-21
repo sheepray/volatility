@@ -35,7 +35,7 @@ class Strings(taskmods.DllList):
                           help = 'File output in strings format (offset:string)',
                           action = 'store', type = 'str')
         config.add_option("SCAN", short_option = 'S', default = False,
-                          action = 'store_true', help = 'Use PSScan2 if no offset is provided')
+                          action = 'store_true', help = 'Use PSScan if no offset is provided')
         config.add_option('OFFSET', short_option = 'o', default = None,
                           help = 'EPROCESS offset (in hex) in the physical address space',
                           action = 'store', type = 'int')
@@ -53,7 +53,7 @@ class Strings(taskmods.DllList):
         if self._config.OFFSET != None:
             tasks = [self.virtual_process_from_physical_offset(addr_space, self._config.OFFSET)]
         elif self._config.SCAN:
-            procs = list(filescan.PSScan2(self._config).calculate())
+            procs = list(filescan.PSScan(self._config).calculate())
             tasks = []
             for task in procs:
                 tasks.append(self.virtual_process_from_physical_offset(addr_space, task.obj_offset))

@@ -373,7 +373,7 @@ class MutantScan(FileScan):
                          ObjectNameString
                          ))
 
-class CheckProcess2(scan.ScannerCheck):
+class CheckProcess(scan.ScannerCheck):
     """ Check sanity of _EPROCESS """
     kernel = 0x80000000
     pool_align = 0x8
@@ -410,7 +410,7 @@ class CheckProcess2(scan.ScannerCheck):
         return True
 
 
-class PoolScanProcess3(scan.PoolScanner):
+class PoolScanProcess(scan.PoolScanner):
     """PoolScanner for File objects"""
     pool_align = 8
 
@@ -444,11 +444,11 @@ class PoolScanProcess3(scan.PoolScanner):
                ('CheckPoolSize', dict(condition = lambda x: x >= 0x280)),
                ('CheckPoolType', dict(paged = True, non_paged = True, free = True)),
                ('CheckPoolIndex', dict(value = 0)),
-               ('CheckProcess2', {}),
+               ('CheckProcess', {}),
                ]
 
 
-class PSScan2(commands.command):
+class PSScan(commands.command):
     """ Scan Physical memory for _EPROCESS pool allocations
     """
     # Declare meta information associated with this plugin
@@ -471,7 +471,7 @@ class PSScan2(commands.command):
         ## Just grab the AS and scan it using our scanner
         address_space = utils.load_as(self._config, astype = 'physical')
 
-        for offset in PoolScanProcess3().scan(address_space):
+        for offset in PoolScanProcess().scan(address_space):
             eprocess = obj.Object('_EPROCESS', vm = address_space,
                                offset = offset)
             yield eprocess

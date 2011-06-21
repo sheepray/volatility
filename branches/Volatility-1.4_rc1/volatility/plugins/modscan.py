@@ -34,7 +34,7 @@ import volatility.utils as utils
 import volatility.obj as obj
 import volatility.debug as debug #pylint: disable-msg=W0611
 
-class PoolScanModuleFast2(scan.PoolScanner):
+class PoolScanModuleFast(scan.PoolScanner):
     preamble = ['_POOL_HEADER', ]
 
     checks = [ ('PoolTagCheck', dict(tag = 'MmLd')),
@@ -43,7 +43,7 @@ class PoolScanModuleFast2(scan.PoolScanner):
                ('CheckPoolIndex', dict(value = 0)),
                ]
 
-class ModScan2(filescan.FileScan):
+class ModScan(filescan.FileScan):
     """ Scan Physical memory for _LDR_DATA_TABLE_ENTRY objects
     """
 
@@ -65,7 +65,7 @@ class ModScan2(filescan.FileScan):
         ## We need the kernel_address_space later
         self.kernel_address_space = utils.load_as(self._config)
 
-        scanner = PoolScanModuleFast2()
+        scanner = PoolScanModuleFast()
         for offset in scanner.scan(address_space):
             ldr_entry = obj.Object('_LDR_DATA_TABLE_ENTRY', vm = address_space,
                                   offset = offset)
@@ -75,7 +75,7 @@ class ModScan2(filescan.FileScan):
         outfd.write("{0:10} {1:50} {2:12} {3:8} {4}\n".format('Offset', 'File', 'Base', 'Size', 'Name'))
         for ldr_entry in data:
             outfd.write("{0:#010x} {1:50} {2:#012x} {3:#08x} {4}\n".format(
-                         ldr_entry.obj_offset, 
+                         ldr_entry.obj_offset,
                          self.parse_string(ldr_entry.FullDllName),
                          ldr_entry.DllBase,
                          ldr_entry.SizeOfImage,
@@ -122,7 +122,7 @@ class CheckThreads(scan.ScannerCheck):
 
         return True
 
-class PoolScanThreadFast2(scan.PoolScanner):
+class PoolScanThreadFast(scan.PoolScanner):
     """ Carve out threat objects using the pool tag """
     preamble = ['_POOL_HEADER', '_OBJECT_HEADER' ]
 
@@ -163,13 +163,13 @@ class PoolScanThreadFast2(scan.PoolScanner):
                ('CheckThreads', {}),
                ]
 
-class ThrdScan2(ModScan2):
+class ThrdScan(ModScan):
     """Scan physical memory for _ETHREAD objects"""
     def calculate(self):
         ## Here we scan the physical address space
         address_space = utils.load_as(self._config, astype = 'physical')
 
-        scanner = PoolScanThreadFast2()
+        scanner = PoolScanThreadFast()
         for found in scanner.scan(address_space):
             thread = obj.Object('_ETHREAD', vm = address_space,
                                offset = found)
@@ -181,7 +181,7 @@ class ThrdScan2(ModScan2):
                     "---------- ------ ------ ------------------------- ------------------------- ----------\n")
 
         for thread in data:
-            outfd.write("{0:#010x} {1:6} {2: <6} {3: <25} {4: <25} {5:#010x}\n".format(thread.obj_offset, 
+            outfd.write("{0:#010x} {1:6} {2: <6} {3: <25} {4: <25} {5:#010x}\n".format(thread.obj_offset,
                                                                                      thread.Cid.UniqueProcess,
                                                                                      thread.Cid.UniqueThread,
                                                                                      thread.CreateTime or '',

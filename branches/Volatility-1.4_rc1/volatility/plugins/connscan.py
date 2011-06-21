@@ -36,14 +36,14 @@ import volatility.obj as obj
 import volatility.debug as debug #pylint: disable-msg=W0611
 
 
-class PoolScanConnFast2(scan.PoolScanner):
+class PoolScanConnFast(scan.PoolScanner):
     checks = [ ('PoolTagCheck', dict(tag = "TCPT")),
                ('CheckPoolSize', dict(condition = lambda x: x >= 0x198)),
                ('CheckPoolType', dict(non_paged = True, free = True)),
                ('CheckPoolIndex', dict(value = 0)),
                ]
 
-class ConnScan2(commands.command):
+class ConnScan(commands.command):
     """ Scan Physical memory for _TCPT_OBJECT objects (tcp connections)
     """
     meta_info = dict(
@@ -61,7 +61,7 @@ class ConnScan2(commands.command):
         ## Just grab the AS and scan it using our scanner
         address_space = utils.load_as(self._config, astype = 'physical')
 
-        scanner = PoolScanConnFast2()
+        scanner = PoolScanConnFast()
         for offset in scanner.scan(address_space):
             ## This yields the pool offsets - we want the actual object
             tcp_obj = obj.Object('_TCPT_OBJECT', vm = address_space,
