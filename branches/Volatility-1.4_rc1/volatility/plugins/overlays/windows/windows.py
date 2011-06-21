@@ -447,13 +447,6 @@ class VolatilityIA32ValidAS(obj.VolatilityMagic):
                 raise StopIteration
         debug.debug("Failed to pass the labarum_x Valid IA32 AS test", 3)
 
-        # Finally this brute forces the address space by walking
-        # the page tables.
-        for (offset, _length) in self.obj_vm.get_available_addresses():
-            if (offset > 0x80000000):
-                yield True
-                raise StopIteration
-        debug.debug("Failed to pass the old simple kernel test", 3)
         yield False
 
 AbstractWindows.object_classes['VolatilityIA32ValidAS'] = VolatilityIA32ValidAS
