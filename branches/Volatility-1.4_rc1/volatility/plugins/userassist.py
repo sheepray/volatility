@@ -33,10 +33,13 @@ import volatility.obj as obj
 import volatility.debug as debug
 import volatility.utils as utils
 import volatility.plugins.registry.hivelist as hivelist
+import datetime
 
+# for Windows 7 userassist info check out Didier Stevens' article
+# from Into the Boxes issue 0x0: 
+#  http://intotheboxes.wordpress.com/2010/01/01/into-the-boxes-issue-0x0/
 ua_win7_vtypes = {
   '_VOLUSER_ASSIST_TYPES' : [ 0x48, {
-    'ID' : [0x0, ['unsigned int']],
     'Count': [0x04, ['unsigned int']],
     'FocusCount': [0x08, ['unsigned int']],
     'FocusTime': [0x0C, ['unsigned int']],
@@ -205,14 +208,17 @@ class UserAssist(printkey.PrintKey, hivelist.HiveList):
         if len(dat_raw) < bufferas.profile.get_obj_size('_VOLUSER_ASSIST_TYPES') or uadata == None:
             return None
 
-        # Hmmm, if count > 5: count -= 5 sounds a bit weird, not duplicated here
-        output = "\n{0:15} {1}".format("ID:", uadata.ID)
+        output = ""
+        if hasattr(uadata, "ID"):
+            output = "\n{0:15} {1}".format("ID:", uadata.ID)
         if hasattr(uadata, "Count"):
             output += "\n{0:15} {1}".format("Count:", uadata.Count)
         else:
             output += "\n{0:15} {1}".format("Count:", uadata.CountStartingAtFive if uadata.CountStartingAtFive < 5 else uadata.CountStartingAtFive - 5)
         if hasattr(uadata, "FocusCount"):
-            output += "\n{0:15} {1}\n{2:15} {3}".format("Focus Count:", uadata.FocusCount, "Time Focused:", uadata.FocusTime / 1000.0)
+            seconds = (uadata.FocusTime + 500) / 1000.0
+            time = datetime.timedelta(seconds = seconds) if seconds > 0 else uadata.FocusTime
+            output += "\n{0:15} {1}\n{2:15} {3}".format("Focus Count:", uadata.FocusCount, "Time Focused:", time)
         output += "\n{0:15} {1}\n".format("Last updated:", uadata.LastUpdated)
 
         return output
