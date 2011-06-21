@@ -29,12 +29,11 @@ This module implements the slow thorough process scanning
 
 #pylint: disable-msg=C0111
 
-import volatility.scan as scan
 import volatility.commands as commands
 import volatility.cache as cache
 import volatility.utils as utils
 import volatility.obj as obj
-import volatility.debug as debug #pylint: disable-msg=W0611
+import volatility.scan as scan
 
 class DispatchHeaderCheck(scan.ScannerCheck):
     """ A very fast check for an _EPROCESS.Pcb.Header.
@@ -69,14 +68,6 @@ class DispatchHeaderCheck(scan.ScannerCheck):
             ## Substring is not found - skip to the end of this data buffer
             return len(data) - offset
 
-class CheckDTBAligned(scan.ScannerCheck):
-    """ Checks that _EPROCESS.Pcb.DirectoryTableBase is aligned to 0x20 """
-    def check(self, offset):
-        eprocess = obj.Object("_EPROCESS", vm = self.address_space,
-                             offset = offset)
-
-        return eprocess.Pcb.DirectoryTableBase % 0x20 == 0
-
 class CheckThreadList(scan.ScannerCheck):
     """ Checks that _EPROCESS thread list points to the kernel Address Space """
     def check(self, offset):
@@ -89,6 +80,14 @@ class CheckThreadList(scan.ScannerCheck):
         if list_head.Flink > kernel and \
                list_head.Blink > kernel:
             return True
+
+class CheckDTBAligned(scan.ScannerCheck):
+    """ Checks that _EPROCESS.Pcb.DirectoryTableBase is aligned to 0x20 """
+    def check(self, offset):
+        eprocess = obj.Object("_EPROCESS", vm = self.address_space,
+                             offset = offset)
+
+        return eprocess.Pcb.DirectoryTableBase % 0x20 == 0
 
 class CheckSynchronization(scan.ScannerCheck):
     """ Checks that _EPROCESS.WorkingSetLock and _EPROCESS.AddressCreationLock look valid """
@@ -104,7 +103,7 @@ class CheckSynchronization(scan.ScannerCheck):
         if event.Size == 0x4 and event.Type == 0x1:
             return True
 
-class PSScanner(scan.DiscontigScanner):
+class PSDispScanner(scan.DiscontigScanner):
     """ This scanner carves things that look like _EPROCESS structures.
 
     Since the _EPROCESS does not need to be linked to the process
@@ -117,8 +116,8 @@ class PSScanner(scan.DiscontigScanner):
                ("CheckSynchronization", {})
                ]
 
-class PSScan(commands.command, cache.Testable):
-    """ Scan Physical memory for _EPROCESS objects"""
+class PSDispScan(commands.command, cache.Testable):
+    """ Scan Physical memory for _EPROCESS objects based on their Dispatch Headers"""
 
     # Declare meta information associated with this plugin
 
@@ -136,7 +135,7 @@ class PSScan(commands.command, cache.Testable):
     def calculate(self):
         address_space = utils.load_as(self._config, astype = 'physical')
 
-        for offset in PSScanner().scan(address_space):
+        for offset in PSDispScanner().scan(address_space):
             yield obj.Object('_EPROCESS', vm = address_space, offset = offset)
 
     def render_dot(self, outfd, data):
