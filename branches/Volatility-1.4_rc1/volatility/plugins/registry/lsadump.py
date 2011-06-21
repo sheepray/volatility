@@ -137,6 +137,7 @@ class HiveDump(commands.command):
         self.print_key(outfd, '', data)
 
     def print_key(self, outfd, keypath, key):
-        outfd.write("{0:20s} {1}\n".format(key.LastWriteTime, keypath + "\\" + key.Name))
+        if key.Name != None:
+            outfd.write("{0:20s} {1}\n".format(key.LastWriteTime, keypath + "\\" + key.Name))
         for k in rawreg.subkeys(key):
             self.print_key(outfd, keypath + "\\" + key.Name, k)
