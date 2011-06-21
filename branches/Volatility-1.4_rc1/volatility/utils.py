@@ -26,7 +26,8 @@ import volatility.debug as debug
 
 class classproperty(property):
     def __get__(self, cls, owner):
-        return self.fget.__get__(None, owner)()
+        # We don't think pylint knows what it's talking about here
+        return self.fget.__get__(None, owner)() #pylint: disable-msg=E1101
 
 def load_as(config, astype = 'virtual', **kwargs):
     """Loads an address space by stacking valid ASes on top of each other (priority order first)"""
