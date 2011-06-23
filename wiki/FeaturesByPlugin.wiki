@@ -20,9 +20,9 @@ Before using these plugins, make sure to read the BasicUsage instructions. To se
 == Processes and DLLs ==
 
 ||Command||Description||OS Support||
-||[http://code.google.com/p/volatility/wiki/CommandReference#pslist pslist]||Print active processes by walking the !PsActiveProcessHead linked list.<br>For inactive/terminated or hidden/unlinked processes, see psscan2.||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#pslist pslist]||Print active processes by walking the !PsActiveProcessHead linked list.<br>For inactive/terminated or hidden/unlinked processes, see psscan.||All||
 ||[http://code.google.com/p/volatility/wiki/CommandReference#pstree pstree]||Print process list as a tree so you can visualize the parent/child relationships||All||
-||[http://code.google.com/p/volatility/wiki/CommandReference#psscan2 psscan2]||Find _EPROCESS objects using pool tag scanning||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#psscan psscan]||Find _EPROCESS objects using pool tag scanning||All||
 ||[http://code.google.com/p/volatility/wiki/CommandReference#dlllist dlllist]||Print loaded DLLs by walking the !InLoadOrderModuleList in the PEB.<br>Print DLLs in unlinked/hidden processes by specifying an _EPROCESS offset.<br>To cross reference this list with 3 other sources of information, see !LdrModules.||All||
 ||[http://code.google.com/p/volatility/wiki/CommandReference#dlldump dlldump]||Extract DLLs to executable files.<br>Dump a PE from process memory (even if it's not in the DLL list) by specifying a base address.||All||
 ||[http://code.google.com/p/volatility/wiki/CommandReference#files files]||Print list of open files for each process||All||
@@ -46,13 +46,13 @@ Before using these plugins, make sure to read the BasicUsage instructions. To se
 
 ||Command||Description||OS Support||
 ||[http://code.google.com/p/volatility/wiki/CommandReference#modules modules]||Print loaded kernel drivers by walking the !PsLoadedModuleList linked list||All||
-||[http://code.google.com/p/volatility/wiki/CommandReference#modscan2 modscan2]||Scan physical memory for LDR_DATA_TABLE_ENTRY objects.<br>Can locate unloaded and unlinked kernel drivers.||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#modscan modscan]||Scan physical memory for LDR_DATA_TABLE_ENTRY objects.<br>Can locate unloaded and unlinked kernel drivers.||All||
 ||[http://code.google.com/p/volatility/wiki/CommandReference#moddump moddump]||Extract a kernel driver to disk (by base address or regular expression)||All||
 ||[http://code.google.com/p/volatility/wiki/CommandReference#ssdt ssdt]||Print the Native and GDI System Service Descriptor Tables||All||
 ||[http://code.google.com/p/volatility/wiki/CommandReference#driverscan driverscan]||Scan physical memory for DRIVER_OBJECT objects||All||
 ||[http://code.google.com/p/volatility/wiki/CommandReference#filescan filescan]||Scan physical memory for FILE_OBJECT objects||All||
 ||[http://code.google.com/p/volatility/wiki/CommandReference#mutantscan mutantscan]||Scan physical memory for KMUTANT objects||All||
-||[http://code.google.com/p/volatility/wiki/CommandReference#thrdscan2 thrdscan2]||Scan physical memory for ETHREAD objects||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#thrdscan thrdscan]||Scan physical memory for ETHREAD objects||All||
 
 == Networking ==
 
