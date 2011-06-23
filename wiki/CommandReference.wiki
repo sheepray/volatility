@@ -140,12 +140,12 @@ Name                                        Pid    PPid   Thds   Hnds   Time
 [snip]
 }}}
 
-== psscan2 ==
+== psscan ==
 
-To enumerate processes using pool tag scanning, use the psscan2 command. This can find processes that previously terminated (inactive) and processes that have been hidden or unlinked by a rootkit. 
+To enumerate processes using pool tag scanning, use the psscan command. This can find processes that previously terminated (inactive) and processes that have been hidden or unlinked by a rootkit. 
 
 {{{
-$ python vol.py --profile=Win7SP0x86 -f win7.dmp psscan2
+$ python vol.py --profile=Win7SP0x86 -f win7.dmp psscan
 Volatile Systems Volatility Framework 1.4_rc1
  Offset     Name             PID    PPID   PDB        Time created             Time exited             
 ---------- ---------------- ------ ------ ---------- ------------------------ ------------------------ 
@@ -211,7 +211,7 @@ To display the DLLs for a specific process instead of all processes, use the -p 
 $ python vol.py --profile=Win7SP0x86 -f win7.dmp dlllist --pid=492
 }}}
 
-To display the DLLs for a process that is hidden or unlinked by a rootkit, first use the psscan2 to get the physical offset of the EPROCESS object and then:
+To display the DLLs for a process that is hidden or unlinked by a rootkit, first use the psscan to get the physical offset of the EPROCESS object and then:
 
 {{{
 $ python vol.py --profile=Win7SP0x86 -f win7.dmp dlllist --offset=0x04a291a8
@@ -648,12 +648,12 @@ Offset(P)  File                                               Base         Size 
 [snip]
 }}}
 
-== modscan2 ==
+== modscan ==
 
-To scan physical memory for kernel modules, use the modscan2 command. This can pick up previously unloaded drivers and drivers that have been hidden/unlinked by rootkits.  Included in the output is the offset of the module, which is a physical address:
+To scan physical memory for kernel modules, use the modscan command. This can pick up previously unloaded drivers and drivers that have been hidden/unlinked by rootkits.  Included in the output is the offset of the module, which is a physical address:
 
 {{{
-$ python vol.py --profile=Win7SP0x86 -f win7.dmp modscan2
+$ python vol.py --profile=Win7SP0x86 -f win7.dmp modscan
 Volatile Systems Volatility Framework 1.4_rc1
 Offset     File                                               Base         Size     Name
 0x3e011200 '\\SystemRoot\\system32\\DRIVERS\\lltdio.sys'      0x008e7b6000 0x010000 'lltdio.sys'
@@ -700,7 +700,7 @@ Dumping peauth.sys, Base: 8857c000 output: driver.8857c000.sys
 To list the functions in the Native and GUI SSDTs, use the ssdt command. This displays the index, function name, and owning driver for each entry in the SSDT. Please note the following very important facts:
 
   * Windows has 4 SSDTs by default (you can add more with !KeAddSystemServiceTable), but only 2 of them are used - one for Native functions in the NT module, and one for GUI functions in the win32k.sys module. 
-  * There are multiple ways to locate the SSDTs in memory. Most tools do it by finding the exported !KeServiceDescriptorTable symbol in the NT module, but this is not the way Volatility works. Volatility scans for ETHREAD objects (see the [http://code.google.com/p/volatility/wiki/CommandReference#thrdscan2 thrdscan2] command) and gathers all unique ETHREAD.Tcb.!ServiceTable pointers. This method is more robust and complete, because it can detect when rootkits make copies of the existing SSDTs and assign them to particular threads. Also see the [http://code.google.com/p/volatility/wiki/CommandReference#threads threads] command. 
+  * There are multiple ways to locate the SSDTs in memory. Most tools do it by finding the exported !KeServiceDescriptorTable symbol in the NT module, but this is not the way Volatility works. Volatility scans for ETHREAD objects (see the [http://code.google.com/p/volatility/wiki/CommandReference#thrdscan thrdscan] command) and gathers all unique ETHREAD.Tcb.!ServiceTable pointers. This method is more robust and complete, because it can detect when rootkits make copies of the existing SSDTs and assign them to particular threads. Also see the [http://code.google.com/p/volatility/wiki/CommandReference#threads threads] command. 
   * The order and total number of functions in the SSDT differs across operating system versions. Thus, Volatility stores the information in a per-profile (OS) manner. 
   * For more information, see BDG's [http://moyix.blogspot.com/2008/08/auditing-system-call-table.html Auditing the System Call Table].
 
@@ -826,12 +826,12 @@ Phys.Addr. Obj Type   #Ptr #Hnd Signal Thread     CID        Name
 [snip]
 }}}
 
-== thrdscan2 ==
+== thrdscan ==
 
-To scan for ETHREAD objects in physical memory, use the thrdscan2 command. Since an ETHREAD contains fields that identify its parent process, you can use this technique to find hidden processes. One such use case is documented in the [http://code.google.com/p/volatility/wiki/CommandReference#threads threads] command. 
+To scan for ETHREAD objects in physical memory, use the thrdscan command. Since an ETHREAD contains fields that identify its parent process, you can use this technique to find hidden processes. One such use case is documented in the [http://code.google.com/p/volatility/wiki/CommandReference#threads threads] command. 
 
 {{{
-$ python vol.py --profile=Win7SP0x86 -f win7.dmp thrdscan2
+$ python vol.py --profile=Win7SP0x86 -f win7.dmp thrdscan
 Volatile Systems Volatility Framework 1.4_rc1
 Offset     PID    TID    Create Time               Exit Time                 StartAddr
 ---------- ------ ------ ------------------------- ------------------------- ----------
@@ -894,12 +894,12 @@ Volatile Systems Volatility Framework 1.4_rc1
 0x0225a448 192.168.0.176:1172        66.249.91.104:80             888
 }}}
 
-== connscan2 ==
+== connscan ==
 
-To find connection structures using pool tag scanning, use the connscan2 command. This can find artifacts from previous connections that have since been terminated. In the output below, you'll notice some fields have been partially overwritten, but some of the information is still accurate. Thus, while it may find false positives sometimes, you also get the benefit of detecting as much information as possible. This command is for Windows XP and Windows 2003 Server only. 
+To find connection structures using pool tag scanning, use the connscan command. This can find artifacts from previous connections that have since been terminated. In the output below, you'll notice some fields have been partially overwritten, but some of the information is still accurate. Thus, while it may find false positives sometimes, you also get the benefit of detecting as much information as possible. This command is for Windows XP and Windows 2003 Server only. 
 
 {{{
-$ python vol.py -f Bob.vmem connscan2
+$ python vol.py -f Bob.vmem connscan
 Volatile Systems Volatility Framework 1.4_rc1
  Offset     Local Address             Remote Address            Pid   
 ---------- ------------------------- ------------------------- ------ 
@@ -966,7 +966,7 @@ Volatile Systems Volatility Framework 1.4_rc1
 
 == sockscan ==
 
-To find socket structures using pool tag scanning, use the sockscan command. As with connscan2, this can pick up residual data and artifacts from previous sockets, and it only applies to Windows XP and Windows 2003 Server. 
+To find socket structures using pool tag scanning, use the sockscan command. As with connscan, this can pick up residual data and artifacts from previous sockets, and it only applies to Windows XP and Windows 2003 Server. 
 
 {{{
 $ python vol.py -f silentbanker.vmem --profile=WinXPSP3x86 sockscan
@@ -2087,7 +2087,7 @@ The result should be a text file that contains the offset and strings from the i
 $ python vol.py --profile=Win7SP0x86 strings –f win7.dd –s win7_strings.txt --output-file=win7_vol_strings.txt
 }}}
 
-By default `strings` will only provide output for processes found by walking the doubly linked list pointed to by !PsActiveProcessHead (see [http://code.google.com/p/volatility/wiki/CommandReference#pslist pslist]) in addition to kernel addresses.  `strings` can also provide output for hidden processes (see [http://code.google.com/p/volatility/wiki/CommandReference#psscan2 psscan2]) by using the (capital) -S switch:
+By default `strings` will only provide output for processes found by walking the doubly linked list pointed to by !PsActiveProcessHead (see [http://code.google.com/p/volatility/wiki/CommandReference#pslist pslist]) in addition to kernel addresses.  `strings` can also provide output for hidden processes (see [http://code.google.com/p/volatility/wiki/CommandReference#psscan psscan]) by using the (capital) -S switch:
 
 {{{
 $ python vol.py --profile=Win7SP0x86 strings –f win7.dd –s win7_strings.txt --output-file=win7_vol_strings.txt -S 
