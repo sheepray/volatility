@@ -7,14 +7,9 @@ This page documents the things we want to accomplish in the 2.0 branch, so we ca
 
 = To Do for 2.0 =
 
-== Pending Tasks ==
-
-  # Clear out issue 1.
-  # Investigate Vista/Windows 7 hibernation work
-  # Write a raw2dump plugin (possibly dependent on write support)
-
 == Completed Tasks ==
 
+  # ~~Clear out issue 1~~
   # ~~Auto-generate XPSP2 vtypes to unify variable naming~~
   # ~~Implement caching in any cachable areas of the framework~~
     * ~~Still requires BlockingCacheNodes and some testing~~
