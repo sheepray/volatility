@@ -2,11 +2,11 @@
 
 = Introduction =
 
-This page will describe the interface used to implement new pluggable Address Spaces for use in Volatility-1.4.
+This page will describe the interface used to implement new pluggable Address Spaces for use in Volatility 2.0.
 
 = Base Class =
 
-All address spaces in Volatility 1.4 should inherit from the _BaseAddressSpace_ class found in _volatility.addrspace_ (either directly or indirectly).  This class maintains all the standard functions available to an address space which a full address space implementation should overload.
+All address spaces in Volatility 2.0 should inherit from the _BaseAddressSpace_ class found in _volatility.addrspace_ (either directly or indirectly).  This class maintains all the standard functions available to an address space which a full address space implementation should overload.
 
 = Determining Address Space ordering =
 

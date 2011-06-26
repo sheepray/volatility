@@ -1,8 +1,8 @@
-#summary Information on using the Volatility-1.4 Firewire Address Space
+#summary Information on using the Volatility 2.0 Firewire Address Space
 
 = Introduction =
 
-The firewire [Vol14AddressSpaces address space] in Volatility allows an investigator to access a running machine's physical memory and run any of the existing Volatility plugins against it.
+The firewire [Vol20AddressSpaces address space] in Volatility allows an investigator to access a running machine's physical memory and run any of the existing Volatility plugins against it.
 
 Volatility's firewire support can use one of two implementations, depending upon the firewire stack in use by the kernel.  The Two Stacks will be discussed in the implementation section.
 

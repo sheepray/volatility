@@ -1,11 +1,11 @@
-#summary TODO items for the 1.4 branch
+#summary TODO items for the 2.0 branch
 #labels Phase-Design
 
 = Introduction =
 
-This page documents the things we want to accomplish in the 1.4 branch, so we can a) keep track of them, and b) people new to the project can find things to work on.
+This page documents the things we want to accomplish in the 2.0 branch, so we can a) keep track of them, and b) people new to the project can find things to work on.
 
-= To Do for 1.4 =
+= To Do for 2.0 =
 
 == Pending Tasks ==
 
@@ -22,7 +22,7 @@ This page documents the things we want to accomplish in the 1.4 branch, so we ca
   # ~~Add in profile (OS) dependent default variables (DTB/KPCR, etc)~~
     * ~~Done by:~~
       * ~~implementing constant/algorithmic vtypes for profile-specific signatures~~
-    * ~~Goals for 1.4 are:~~
+    * ~~Goals for 2.0 are:~~
       # ~~DTB finder plugin~~
       # ~~KPCR finder plugin~~
   # ~~Stabilize the interfaces for ASes/Scanners/Plugins/etc~~

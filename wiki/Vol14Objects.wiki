@@ -1,11 +1,11 @@
-#summary Describes the object model for Volatility 1.4
+#summary Describes the object model for Volatility 2.0
 = Introduction =
 
 This page gives a short description of objects, how to create them, how to use them and some common pitfalls.
 
 = Objects in Volatility =
 
-Objects are the base element in volatility, and any time that data is needed from an [Vol14AddressSpaces Address Space] it will usually be accessed through an object.
+Objects are the base element in volatility, and any time that data is needed from an [Vol20AddressSpaces Address Space] it will usually be accessed through an object.
 
 All objects are derived from a _BaseObject_ class.  Objects are designed to behave as one would expect their python equivalents to behave (so an value that should be an int, should behave and have the same functions applicable to it, as a normal integer).  Unfortunately due to the only manner in which this can be implemented, it is not always the case, but these issues are covered in the common pitfalls section.
 
@@ -29,7 +29,7 @@ This section describes the BaseObject type, from which all objects are derived, 
   All BaseObject derived classes have the following attributes:
 
   * *obj_vm* (read-only)
-  The [Vol14AddressSpaces Address Space] for the object.  This should be used for accessing all matters relating to the address space, including accessing the profile that the object was created under.
+  The [Vol20AddressSpaces Address Space] for the object.  This should be used for accessing all matters relating to the address space, including accessing the profile that the object was created under.
   * *obj_offset* (read-only)
   The offset within the obj_vm for this object.
   * *obj_parent* (read-only)
@@ -61,20 +61,20 @@ This section describes the BaseObject type, from which all objects are derived, 
 == Array ==
   This type takes a `count` and a `targetType` string (or `target` object of the appropriate class) and returns an object that can be indexed like a python list.  Note: `v()` will not return a value for this type, access the first element instead.
 == CType ==
-  This is the most type, and generally the base class of all non-simple [Vol14vtypes vtypes].  It has the following functions:
+  This is the most type, and generally the base class of all non-simple [Vol20vtypes vtypes].  It has the following functions:
 
   Suppose a CType called `ctype` contains several members (`a`, `b`, and `c`), then these could be accessed by requesting `ctype.a`, `ctype.b` and `ctype.c`.
 
   * *v()*
   Returns the offset of the CType.
   * *size()*
-  Returns the size of the CType (it should be noted that this is taken from the size specified in the [Vol14vtypes vtype] definition, and is not always accurate).  
+  Returns the size of the CType (it should be noted that this is taken from the size specified in the [Vol20vtypes vtype] definition, and is not always accurate).  
   * *m(membername)*
   Returns a specific ctype member.  Generally not used, since it is quicker to write and easier to read `thing.membername` than `thing.m("membername")`, and both are essentially equivalent.
 
 = Defining Complex Objects =
 
-It is possible to produce objects that have specific additional methods, or can process specific data.  Volatility 1.4 already contains several predefined examples of additional objects, such as String, Flags, Enumeration, [Vol14VolatilityMagic VolatilityMagic], _UNICODE_STRING and _LIST_ENTRY.  The most commonly used complex object is the _EPROCESS object, which features additional functions.
+It is possible to produce objects that have specific additional methods, or can process specific data.  Volatility 2.0 already contains several predefined examples of additional objects, such as String, Flags, Enumeration, [Vol20VolatilityMagic VolatilityMagic], _UNICODE_STRING and _LIST_ENTRY.  The most commonly used complex object is the _EPROCESS object, which features additional functions.
 
 To create a complex object, simply create a new class deriving from `BaseObject` (directly or indirectly).  If you intend to overlay an existing structure (such as a vtype's definition of a CType), then be sure to inherit from CType.
 

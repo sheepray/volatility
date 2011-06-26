@@ -5,9 +5,9 @@
 
 A list of known Volatility plugins.
 
-= Existing 1.4 plugins =
+= Existing 2.0 plugins =
 
-Note: MHL's malware plugins for Volatility 1.4 can be found at [http://code.google.com/p/malwarecookbook/source/browse/trunk/ The Malware Cookbook Code Repository (malware.py)]
+Note: MHL's malware plugins for Volatility 2.0 can be found at [http://code.google.com/p/malwarecookbook/source/browse/trunk/ The Malware Cookbook Code Repository (malware.py)]
 
 ||Plugin||Description||Primary Maintainer||Core Vote||
 ||  apihooks || Find API hooks  || MHL || .||
@@ -70,7 +70,7 @@ Note: MHL's malware plugins for Volatility 1.4 can be found at [http://code.goog
 
 
 
-= Plugins Left to Port to 1.4 =
+= Plugins Left to Port to 2.0 =
 
 
 

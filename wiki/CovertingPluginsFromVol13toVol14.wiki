@@ -1,8 +1,8 @@
-#summary Explains how to go about converting volatility 1.3 plugins to volatility 1.4.
+#summary Explains how to go about converting volatility 1.3 plugins to volatility 2.0.
 
 = Introduction =
 
-There are many plugins already written for volatility 1.3, and this guide will help with converting existing volatility 1.3 plugins over to the new 1.4 framework.
+There are many plugins already written for volatility 1.3, and this guide will help with converting existing volatility 1.3 plugins over to the new 2.0 framework.
 
 <wiki:toc max_depth="2" />
 
@@ -40,7 +40,7 @@ Note that in previous versions most modules imported most other modules, so that
 
 Previously, in volatility 1.3, functions such as `load_and_identify_image` would be used to return a virtual address space object with which to work, and `FileAddressSpace` would be used to scan through a flat address space.  Each plugin was responsible for loading the appropriate address space and error checking the results.
 
-In volatility 1.4, there is a single loading function which attempts to stack as many address spaces as possible on top of each other.  Meaning that rather than:
+In volatility 2.0, there is a single loading function which attempts to stack as many address spaces as possible on top of each other.  Meaning that rather than:
 
 {{{
    def execute(self):
@@ -68,7 +68,7 @@ would be:
 
 == Accessing Process Address Spaces ==
 
-Previously accessing features of various objects would take an additional function call and did not allow direct access to the object's members.  In volatility 1.4, the new object model allows most parameters to be accessed directly, and adds supporting functions for common tasks on these objects.
+Previously accessing features of various objects would take an additional function call and did not allow direct access to the object's members.  In volatility 2.0, the new object model allows most parameters to be accessed directly, and adds supporting functions for common tasks on these objects.
 
 In this example from volatility 1.3, most of the code is taken up calling auxiliary functions to get the list of tasks, find a particular process id, then access the directory table base of the process and finally create a new process address space based on the directory table base just discovered.
 
@@ -83,7 +83,7 @@ In this example from volatility 1.3, most of the code is taken up calling auxili
     process_address_space = create_addr_space(addr_space, directory_table_base)
 }}}
 
-In volatility 1.4, the number of auxiliary functions required is much reduced.  Also, when objects are returned (such as `all_tasks`) they can now be interrogated directly, and treated as a standard python object.  Here all tasks is filtered by directly requesting each task's `UniqueProcessId` field.  Finally the task itself features a helper method `get_process_address_space` that automatically determines its own directory table base, and returns an address space based on that.
+In volatility 2.0, the number of auxiliary functions required is much reduced.  Also, when objects are returned (such as `all_tasks`) they can now be interrogated directly, and treated as a standard python object.  Here all tasks is filtered by directly requesting each task's `UniqueProcessId` field.  Finally the task itself features a helper method `get_process_address_space` that automatically determines its own directory table base, and returns an address space based on that.
 
 {{{
     addr_space = utils.load_as(self._config)
@@ -145,7 +145,7 @@ Would now be written as:
        return task.ExitTime
 }}}
 
-As we can see in volatility 1.4, this is greatly simplified for several reasons:
+As we can see in volatility 2.0, this is greatly simplified for several reasons:
 
   # The address space contains a profile, which knows about all the various types
   # An object's structure members can be accessed directly...
@@ -159,9 +159,9 @@ In fact, in general this function would be unnecessary, because a plugin would h
 
 In volatility 1.3, all plugins were written as a class featuring an `execute` function, which would be run and would be responsible for all processing and output, after which volatility would exit.
 
-In volatility 1.4, there is still an `execute` function which can be overridden if required, but by default this function first calls `calculate` which should return a single result (currently this can be a list, a generator or any other data structure as required).  The results of this are then passed with an output file descriptor to a `render_text` function (other render functions can be written, but since all volatility 1.3 plugins tended to produce text, this is the only output format we will cover here).
+In volatility 2.0, there is still an `execute` function which can be overridden if required, but by default this function first calls `calculate` which should return a single result (currently this can be a list, a generator or any other data structure as required).  The results of this are then passed with an output file descriptor to a `render_text` function (other render functions can be written, but since all volatility 1.3 plugins tended to produce text, this is the only output format we will cover here).
 
-It should also be noted that where print was used, this not easily allow results to be saved out to files, or easily distinguish between user feedback and actual results.  In volatility 1.4, all output is written to the `outfd` file descriptor, which is file-like object that may be standard out, or may be a file, or some other pipe that accepts results.
+It should also be noted that where print was used, this not easily allow results to be saved out to files, or easily distinguish between user feedback and actual results.  In volatility 2.0, all output is written to the `outfd` file descriptor, which is file-like object that may be standard out, or may be a file, or some other pipe that accepts results.
 
 Finally, the [StyleGuide coding style guide] recommends the use of the format function over the deprecated % symbol for string formatting.
 
@@ -185,7 +185,7 @@ would now read:
 
 == Help Messages ==
 
-To provide a description of the plugin in volatility 1.3, a `help` function existed, which would return a short string used to describe the plugin.  In volatility 1.4 the help function has become a class function (one that returns the same value for every instance of the plugin), and so will no longer allow overriding as supported by 1.3.  However, it's no longer necessary because the default help function in volatility uses the plugin's own docstring to return the appropriate value.
+To provide a description of the plugin in volatility 1.3, a `help` function existed, which would return a short string used to describe the plugin.  In volatility 2.0 the help function has become a class function (one that returns the same value for every instance of the plugin), and so will no longer allow overriding as supported by 1.3.  However, it's no longer necessary because the default help function in volatility uses the plugin's own docstring to return the appropriate value.
 
 {{{
   class MyPlugin(forensics.commands.command):
@@ -202,4 +202,4 @@ would now be written as:
 
 = General comments =
 
-Many of the library functions present in volatility 1.3 have changed, usually to make use of the new object framework.  However, almost all of the functionality present in volatility 1.3 is present in 1.4, and no longer requires helper functions to access.  The [http://code.google.com/p/volatility/source/browse source code] should be well commented, but if it's not then please [http://code.google.com/p/volatility/issues/list file a bug] and we'll improve it!
+Many of the library functions present in volatility 1.3 have changed, usually to make use of the new object framework.  However, almost all of the functionality present in volatility 1.3 is present in 2.0, and no longer requires helper functions to access.  The [http://code.google.com/p/volatility/source/browse source code] should be well commented, but if it's not then please [http://code.google.com/p/volatility/issues/list file a bug] and we'll improve it!

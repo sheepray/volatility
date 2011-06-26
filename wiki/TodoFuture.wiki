@@ -29,4 +29,4 @@
 
 = Features for current Beta =
 
-Since the current beta is 1.4, please see ToDo14.
+Since the current beta is 2.0, please see ToDo20.

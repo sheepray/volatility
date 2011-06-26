@@ -6,7 +6,7 @@
 List of dependencies for some Volatility [Plugins]
 
 
-= Volatility 1.4 =
+= Volatility 2.0 =
 
 || *Dependency* || *Needed by* || *url* ||
 || Distorm3 || Various plugins in MHL's malware.py || http://code.google.com/p/distorm ||

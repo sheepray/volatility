@@ -1,7 +1,7 @@
 #summary How to process command line options in your plugins
 #labels Phase-Implementation
 
-This page describes features available since Volatility. 1.4 beta
+This page describes features available since Volatility 1.4 beta
 
 = Introduction =
 
@@ -13,7 +13,7 @@ First we need to have an overview of command line processing in volatility. When
 
 {{{
 $ vol.py -h
-Volatile Systems Volatility Framework 1.4a
+Volatile Systems Volatility Framework 2.0
 Usage: Volatility - A memory forensics analysis platform.
 
 Options:

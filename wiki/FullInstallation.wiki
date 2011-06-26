@@ -1,9 +1,9 @@
-#summary Covers full installation for Volatility 1.4 Dev
+#summary Covers full installation for Volatility 2.0 Dev
 #labels Featured
 
-= Full Dev Installation for Volatility 1.4 =
+= Full Dev Installation for Volatility 2.0 =
 
-This guide is for people who want a full development installation of Volatility 1.4
+This guide is for people who want a full development installation of Volatility 2.0
 
 <wiki:toc max_depth="4" />
 
@@ -22,7 +22,7 @@ Prerequisites
 
 == Windows Installation ==
 
-This covers how to install Volatility 1.4 on Windows.
+This covers how to install Volatility 2.0 on Windows.
 
 === Python Installation ===
 
@@ -209,7 +209,7 @@ Accept all defaults, hitting Next until complete.  As long as there are no error
 
 === Installing TortoiseSVN ===
 
-In order to get the source code for Volatility 1.4 from the repository, you will need a Subversion (SVN) client.  You can download the client from [http://tortoisesvn.net/downloads.html].  Make sure to choose the correct installer:
+In order to get the source code for Volatility 2.0 from the repository, you will need a Subversion (SVN) client.  You can download the client from [http://tortoisesvn.net/downloads.html].  Make sure to choose the correct installer:
 
 <img src="https://lh5.googleusercontent.com/_55uSCYxbQ8M/TVLoO5rfotI/AAAAAAAAAzs/fS0zwywCsjA/1.jpg">
 
@@ -228,9 +228,9 @@ After restarting, you can verify that TortoiseSVN is installed correctly by righ
 
 
 
-=== Installing Volatility 1.4 from SVN ===
+=== Installing Volatility 2.0 from SVN ===
 
-Once you have a Subversion client installed, you can download the latest source code for Volatility 1.4 from the code repository.  This guide will use TortoiseSVN.  First create a folder where you want to keep the Volatility source code.  For this guide we will create a folder "C:\Volatility 1.4".  Go inside this folder and right-click, bringing up the menu options for TortoiseSVN.  Choose "SVN Checkout":
+Once you have a Subversion client installed, you can download the latest source code for Volatility 2.0 from the code repository.  This guide will use TortoiseSVN.  First create a folder where you want to keep the Volatility source code.  For this guide we will create a folder "C:\Volatility 2.0".  Go inside this folder and right-click, bringing up the menu options for TortoiseSVN.  Choose "SVN Checkout":
 
 <img src="https://lh6.googleusercontent.com/_55uSCYxbQ8M/TVLqIEwzuoI/AAAAAAAAA0M/zFjmO8OO5s8/12.jpg">
 
@@ -253,7 +253,7 @@ You should then see all the Volatility source code in the folder.
 To use Volatility, open a command line and navigate to the Volatility source directory.  In this case:
 
 {{{
-cd "c:\Volatility 1.4"
+cd "c:\Volatility 2.0"
 }}}
 
 Then type:
@@ -271,7 +271,7 @@ You should see a long list of output that includes all of the plugins that are a
 
 == Linux Installation ==
 
-This covers how to install Volatility 1.4 on Linux
+This covers how to install Volatility 2.0 on Linux
 
 === Installing SVN and Basic Dependencies ===
 
@@ -342,9 +342,9 @@ If you are on Ubuntu you will need to also run the following commands:
 }}}
 
 
-=== Linux: Installing Volatility 1.4 from SVN ===
+=== Linux: Installing Volatility 2.0 from SVN ===
 
-All you need to do to get download the Volatility 1.4 source code is run the following command:
+All you need to do to get download the Volatility 2.0 source code is run the following command:
 
 {{{
 $ svn checkout http://volatility.googlecode.com/svn/branches/Volatility-1.4_rc1  

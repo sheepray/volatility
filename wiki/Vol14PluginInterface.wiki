@@ -1,4 +1,4 @@
-#summary Volatility 1.4 Plugin Interface
+#summary Volatility 2.0 Plugin Interface
 
 = Introduction =
 
@@ -51,7 +51,7 @@ A [CommandLineProcessing complete description of option handling for plugins] is
 
 == Calculating ==
 
-The most basic function required for most plugins is to load and access an address space.  This is now carried out by a stacked address space plugin mechanism.  The loading of an address space is carried out by the `utils.load_as` function.  More details on the stacking mechanism can be found on the [Vol14AddressSpaces Address Spaces] page (see "determining address space ordering").
+The most basic function required for most plugins is to load and access an address space.  This is now carried out by a stacked address space plugin mechanism.  The loading of an address space is carried out by the `utils.load_as` function.  More details on the stacking mechanism can be found on the [Vol20AddressSpaces Address Spaces] page (see "determining address space ordering").
 
 If a physical layer is required (rather than a paged/process address space), then the `astype` parameter can be provided with a value of "physical", and only physical layers will be returned.
 
