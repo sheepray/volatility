@@ -27,6 +27,6 @@
   * Integrate pdbparse into the framework?
   * Create "scan3" versions of the scanners, so accurate structure locators like psscan3, but for sockscan and driverscan, etc.
 
-= Features for current Beta =
+= Features for current Milestone =
 
-Since the current beta is 2.0, please see ToDo20.
+Since the current milestone is 2.0, please see Todo20.
