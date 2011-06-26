@@ -16,6 +16,8 @@
 
 == Practical ==
 
+  * Investigate Vista/Windows 7 hibernation work
+  * Write a raw2dump plugin (possibly dependent on write support)
   * Improve Hive AS integration
   * Allow module loading from http/other locations
   * Implement/improve linux support
