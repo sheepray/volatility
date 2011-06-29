@@ -1261,6 +1261,68 @@ DPAPI_SYSTEM
 0020   D3 91 5C FA A5 8B E6 B4 81 0D B6 D4                ............
 }}}
 
+== userassist ==
+
+To get the UserAssist keys from a sample you can use the userassist plugin.  For more information see Gleeda's [http://gleeda.blogspot.com/2011/04/volatility-14-userassist-plugin.html Volatility UserAssist plugin] post.
+
+{{{
+$ ./vol.py -f win7.vmem --profile=Win7SP0x86 userassist 
+Volatile Systems Volatility Framework 1.4_rc1
+----------------------------
+Registry: \??\C:\Users\admin\ntuser.dat
+Key name: Count
+Last updated: 2010-07-06 22:40:25 
+
+Subkeys:
+
+Values:
+REG_BINARY    Microsoft.Windows.GettingStarted : 
+Count:          14
+Focus Count:    21
+Time Focused:   0:07:00.500000
+Last updated:   2010-03-09 19:49:20 
+
+0000   00 00 00 00 0E 00 00 00 15 00 00 00 A0 68 06 00    .............h..
+0010   00 00 80 BF 00 00 80 BF 00 00 80 BF 00 00 80 BF    ................
+0020   00 00 80 BF 00 00 80 BF 00 00 80 BF 00 00 80 BF    ................
+0030   00 00 80 BF 00 00 80 BF FF FF FF FF EC FE 7B 9C    ..............{.
+0040   C1 BF CA 01 00 00 00 00                            ........
+
+REG_BINARY    UEME_CTLSESSION : 
+Count:          187
+Focus Count:    1205
+Time Focused:   6:25:06.216000
+Last updated:   1970-01-01 00:00:00 
+
+[snip]
+
+REG_BINARY    %windir%\system32\calc.exe : 
+Count:          12
+Focus Count:    17
+Time Focused:   0:05:40.500000
+Last updated:   2010-03-09 19:49:20 
+
+0000   00 00 00 00 0C 00 00 00 11 00 00 00 20 30 05 00    ............ 0..
+0010   00 00 80 BF 00 00 80 BF 00 00 80 BF 00 00 80 BF    ................
+0020   00 00 80 BF 00 00 80 BF 00 00 80 BF 00 00 80 BF    ................
+0030   00 00 80 BF 00 00 80 BF FF FF FF FF EC FE 7B 9C    ..............{.
+0040   C1 BF CA 01 00 00 00 00                            ........
+                          ........
+
+REG_BINARY    Z:\vmware-share\apps\odbg110\OLLYDBG.EXE : 
+Count:          11
+Focus Count:    266
+Time Focused:   1:19:58.045000
+Last updated:   2010-03-18 01:56:31 
+
+0000   00 00 00 00 0B 00 00 00 0A 01 00 00 69 34 49 00    ............i4I.
+0010   00 00 80 BF 00 00 80 BF 00 00 80 BF 00 00 80 BF    ................
+0020   00 00 80 BF 00 00 80 BF 00 00 80 BF 00 00 80 BF    ................
+0030   00 00 80 BF 00 00 80 BF FF FF FF FF 70 3B CB 3A    ............p;.:
+0040   3E C6 CA 01 00 00 00 00                            >.......
+[snip]
+}}}
+
 = Crash Dumps, Hibernation, and Conversion =
 
 == crashinfo ==
