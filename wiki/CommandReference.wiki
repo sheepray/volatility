@@ -1267,7 +1267,7 @@ To get the UserAssist keys from a sample you can use the userassist plugin.  For
 
 {{{
 $ ./vol.py -f win7.vmem --profile=Win7SP0x86 userassist 
-Volatile Systems Volatility Framework 1.4_rc1
+Volatile Systems Volatility Framework 2.0
 ----------------------------
 Registry: \??\C:\Users\admin\ntuser.dat
 Key name: Count
