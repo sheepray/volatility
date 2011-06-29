@@ -237,7 +237,7 @@ Once you have a Subversion client installed, you can download the latest source 
 
 Type the following url for the repository:
 {{{
-http://volatility.googlecode.com/svn/branches/Volatility-1.4_rc1
+http://volatility.googlecode.com/svn/trunk
 }}}
 
 <img src="https://lh5.googleusercontent.com/_55uSCYxbQ8M/TVMIuwteV3I/AAAAAAAAA0Y/cG43UU5Zep0/13.jpg">
@@ -347,12 +347,12 @@ If you are on Ubuntu you will need to also run the following commands:
 All you need to do to get download the Volatility 2.0 source code is run the following command:
 
 {{{
-$ svn checkout http://volatility.googlecode.com/svn/branches/Volatility-1.4_rc1  
+$ svn checkout http://volatility.googlecode.com/svn/trunk Volatility
 }}}
 
-All code will be located in Volatility-1.4_rc1
+All code will be located in Volatility
 
-To update your repository later you can run the following command from inside the Volatility-1.4_rc1 directory:
+To update your repository later you can run the following command from inside the trunk directory:
 
 {{{
 $ svn update
@@ -360,14 +360,14 @@ $ svn update
 
 === Linux: Installing the Malware Plugins ===
 
-Change into your Volatility-1.4_rc1/volatility/plugins directory and run the following command:
+Change into your Volatility/volatility/plugins directory and run the following command:
 
 {{{
 $ wget http://malwarecookbook.googlecode.com/svn/trunk/malware.py
 }}}
 
 
-Go into your Volatility-1.4_rc1 directory and type 
+Go into your Volatility directory and type 
 
 {{{
 $ python vol.py -h
