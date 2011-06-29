@@ -373,7 +373,7 @@ Go into your Volatility directory and type
 $ python vol.py -h
 }}}
 
-To help automate this, you can run the new [https://github.com/gleeda/misc-scripts/raw/master/get_plugins_1.4.bsh get_plugins script] (only tested on Ubuntu and Mac OSX with Macports installed).
+To help automate this, you can run the new [https://github.com/gleeda/misc-scripts/raw/master/get_plugins_2.0.bsh get_plugins script] (only tested on Ubuntu and Mac OSX with Macports installed).
 
 
 You should see a long list of output that includes all of the plugins that are available.  For more information on how to use Volatility check out BasicUsage and CommandReference.
