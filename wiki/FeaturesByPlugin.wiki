@@ -25,8 +25,7 @@ Before using these plugins, make sure to read the BasicUsage instructions. To se
 ||[http://code.google.com/p/volatility/wiki/CommandReference#psscan psscan]||Find _EPROCESS objects using pool tag scanning||All||
 ||[http://code.google.com/p/volatility/wiki/CommandReference#dlllist dlllist]||Print loaded DLLs by walking the !InLoadOrderModuleList in the PEB.<br>Print DLLs in unlinked/hidden processes by specifying an _EPROCESS offset.<br>To cross reference this list with 3 other sources of information, see !LdrModules.||All||
 ||[http://code.google.com/p/volatility/wiki/CommandReference#dlldump dlldump]||Extract DLLs to executable files.<br>Dump a PE from process memory (even if it's not in the DLL list) by specifying a base address.||All||
-||[http://code.google.com/p/volatility/wiki/CommandReference#files files]||Print list of open files for each process||All||
-||[http://code.google.com/p/volatility/wiki/CommandReference#regobjkeys regobjkeys]||Print list of open regkeys for each process||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#handles handles]||Print list of open handles for each process||All||
 ||[http://code.google.com/p/volatility/wiki/CommandReference#getsids getsids]||Print the SIDs owning each process||All||
 ||[http://code.google.com/p/volatility/wiki/CommandReference#verinfo verinfo]||Print the version information compiled into a process or DLL's PE file||All||
 
@@ -58,7 +57,7 @@ Before using these plugins, make sure to read the BasicUsage instructions. To se
 
 ||Command||Description||OS Support||
 ||[http://code.google.com/p/volatility/wiki/CommandReference#connections connections]||Display open network connections by walking the linked list in tcpip.sys||Windows XP||
-||[http://code.google.com/p/volatility/wiki/CommandReference#connscan2 connscan2]||Scan physical memory for connection objects||Windows XP||
+||[http://code.google.com/p/volatility/wiki/CommandReference#connscan2 connscan]||Scan physical memory for connection objects||Windows XP||
 ||[http://code.google.com/p/volatility/wiki/CommandReference#sockets sockets]||Display open client and server (listening) sockets by walking the linked list in tcpip.sys||Windows XP||
 ||[http://code.google.com/p/volatility/wiki/CommandReference#sockscan sockscan]||Scan physical memory for socket objects||Windows XP||
 ||[http://code.google.com/p/volatility/wiki/CommandReference#netscan netscan]||Scan physical memory for connection and socket objects.<br>Distinguishes between IPv4 and IPv6.<br>Shows owning process, creation time, and state (for TCP connections).||Windows Vista and 7||
