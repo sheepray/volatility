@@ -256,92 +256,11 @@ You can also specify an EPROCESS offset if the DLL you want is in a hidden proce
 $ python vol.py --profile=Win7SP0x86 -f win7.dmp dlldump -o 0x3e3f64e8 -D out --base=0x00680000
 }}}
 
-== files ==
+== handles ==
 
-To display the open file handles in a process, use the files command. A process can obtain a file handle by calling functions such as !CreateFile, and the handle will stay valid until !CloseHandle is called.
+To display the open handles in a process, use the handles command. A process can obtain a file handle by calling functions such as !CreateFile, and the handle will stay valid until !CloseHandle is called. The same concept applies for registry keys, mutexes, named pipes, events, window stations, desktops, threads, and all other types of objects. 
 
-{{{
-$ python vol.py --profile=Win7SP0x86 -f win7.dmp files -p 4
-Volatile Systems Volatility Framework 2.0
-Offset(V)  Type   Pid:      4
-0x8530bb10 File   '\\Windows\\System32\\LogFiles\\WMI\\RtBackup\\EtwRTDiagLog.etl'
-0x85355440 File   '\\Windows\\System32\\wdi\\LogFiles\\WdiContextLog.etl.001'
-0x852eb850 File   '\\Boot\\BCD'                           
-0x8530bbb8 File   '\\Windows\\System32\\config\\RegBack\\SYSTEM'
-0x852ebf80 File   '\\Boot\\BCD.LOG'                       
-0x852b5ee0 File   '\\Windows\\System32\\config\\SOFTWARE' 
-0x852e9ce8 File   '\\Windows\\System32\\config\\SOFTWARE.LOG1'
-0x852b6d88 File   '\\Windows\\System32\\config\\SOFTWARE.LOG2'
-0x8531f200 File   '\\Windows\\System32\\LogFiles\\WMI\\RtBackup\\EtwRTUBPM.etl'
-0x8530f738 File   '\\Windows\\System32\\config\\SYSTEM'   
-0x852b6e30 File   '\\Windows\\System32\\config\\SYSTEM.LOG1'
-0x8530bf80 File   '\\Windows\\System32\\config\\SYSTEM.LOG2' 
-[snip]
-}}}
-
-The offset is a virtual address by default, but the physical offset can be obtained with the -P switch:
-
-{{{
-$ python vol.py --profile=Win7SP0x86 -f win7.dmp files -p 4 -P
-Volatile Systems Volatility Framework 2.0
-Offset(P)  Type   Pid:      4
-0x3ed0bb10 File   '\\Windows\\System32\\LogFiles\\WMI\\RtBackup\\EtwRTDiagLog.etl'
-0x3ed55440 File   '\\Windows\\System32\\wdi\\LogFiles\\WdiContextLog.etl.001'
-0x3eceb850 File   '\\Boot\\BCD'                           
-0x3ed0bbb8 File   '\\Windows\\System32\\config\\RegBack\\SYSTEM'
-0x3ecebf80 File   '\\Boot\\BCD.LOG'                       
-0x3ecb5ee0 File   '\\Windows\\System32\\config\\SOFTWARE' 
-0x3ece9ce8 File   '\\Windows\\System32\\config\\SOFTWARE.LOG1'
-0x3ecb6d88 File   '\\Windows\\System32\\config\\SOFTWARE.LOG2'
-0x3ed1f200 File   '\\Windows\\System32\\LogFiles\\WMI\\RtBackup\\EtwRTUBPM.etl'
-0x3ed0f738 File   '\\Windows\\System32\\config\\SYSTEM'   
-0x3ecb6e30 File   '\\Windows\\System32\\config\\SYSTEM.LOG1'
-0x3ed0bf80 File   '\\Windows\\System32\\config\\SYSTEM.LOG2'
-[snip]
-}}}
-== regobjkeys ==
-
-To display the open registry handles in a process, use the regobjkeys command. A process can obtain a handle to a registry key by calling a function such as !RegOpenKeyEx or !RegCreateKey, and it stays valid until !RegCloseKey is called. 
-
-{{{
-$ python vol.py --profile=Win7SP0x86 -f win7.dmp regobjkeys -p 4
-Volatile Systems Volatility Framework 2.0
-Offset(V)  Type   Pid:      4
-0x87a1a778 Key    MACHINE\SYSTEM\CONTROLSET001\CONTROL\HIVELIST
-0x87a5e760 Key    MACHINE\SYSTEM\CONTROLSET001\CONTROL\PRODUCTOPTIONS
-0x87a414a8 Key    MACHINE\SYSTEM\CONTROLSET001\CONTROL\SESSION MANAGER\MEMORY MANAGEMENT\PREFETCHPARAMETERS
-0x87a5afd0 Key    MACHINE\SYSTEM\SETUP                    
-0x87a3a288 Key    MACHINE\HARDWARE\DESCRIPTION\SYSTEM\MULTIFUNCTIONADAPTER
-0x87a4a4e8 Key    MACHINE\SYSTEM\CONTROLSET001            
-0x87a5db88 Key    MACHINE\SYSTEM\CONTROLSET001\ENUM       
-0x87a5db38 Key    MACHINE\SYSTEM\CONTROLSET001\CONTROL\CLASS
-0x87a4c960 Key    MACHINE\SYSTEM\CONTROLSET001\SERVICES   
-0x8e387dc0 Key    MACHINE\HARDWARE\DESCRIPTION\SYSTEM\BIOS
-0x87b067c0 Key    MACHINE\SYSTEM\CONTROLSET001\CONTROL\WMI\SECURITY
-0x8e3728d8 Key    MACHINE\SYSTEM\CONTROLSET001\CONTROL\CLASS\{4D36E972-E325-11CE-BFC1-08002BE10318}\0001
-[snip]
-}}}
-
-The offset is a virtual address by default, but the physical offset can be obtained with the -P switch:
-
-{{{
-$ python vol.py --profile=Win7SP0x86 -f win7.dmp regobjkeys -p 4 -P
-Volatile Systems Volatility Framework 2.0
-Offset(P)  Type   Pid:      4
-0x27ef3778 Key    MACHINE\SYSTEM\CONTROLSET001\CONTROL\HIVELIST
-0x27efd760 Key    MACHINE\SYSTEM\CONTROLSET001\CONTROL\PRODUCTOPTIONS
-0x27f9c4a8 Key    MACHINE\SYSTEM\CONTROLSET001\CONTROL\SESSION MANAGER\MEMORY MANAGEMENT\PREFETCHPARAMETERS
-0x27ef9fd0 Key    MACHINE\SYSTEM\SETUP                    
-0x27f53288 Key    MACHINE\HARDWARE\DESCRIPTION\SYSTEM\MULTIFUNCTIONADAPTER
-0x27fe54e8 Key    MACHINE\SYSTEM\CONTROLSET001            
-0x27ebcb88 Key    MACHINE\SYSTEM\CONTROLSET001\ENUM       
-0x27ebcb38 Key    MACHINE\SYSTEM\CONTROLSET001\CONTROL\CLASS
-0x27fad960 Key    MACHINE\SYSTEM\CONTROLSET001\SERVICES   
-0x2079fdc0 Key    MACHINE\HARDWARE\DESCRIPTION\SYSTEM\BIOS
-0x27eeb7c0 Key    MACHINE\SYSTEM\CONTROLSET001\CONTROL\WMI\SECURITY
-0x208608d8 Key    MACHINE\SYSTEM\CONTROLSET001\CONTROL\CLASS\{4D36E972-E325-11CE-BFC1-08002BE10318}\0001
-[snip]
-}}}
+NOTE: incomplete. Add handles output here. MHL
 
 == getsids ==
 
