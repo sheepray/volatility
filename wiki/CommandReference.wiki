@@ -258,9 +258,41 @@ $ python vol.py --profile=Win7SP0x86 -f win7.dmp dlldump -o 0x3e3f64e8 -D out --
 
 == handles ==
 
-To display the open handles in a process, use the handles command. A process can obtain a file handle by calling functions such as !CreateFile, and the handle will stay valid until !CloseHandle is called. The same concept applies for registry keys, mutexes, named pipes, events, window stations, desktops, threads, and all other types of objects. 
+To display the open handles in a process, use the handles command. A process can obtain a file handle by calling functions such as !CreateFile, and the handle will stay valid until !CloseHandle is called. The same concept applies for registry keys, mutexes, named pipes, events, window stations, desktops, threads, and all other types of objects. This command replaces the older "files" and "regobjkeys" commands. 
 
-NOTE: incomplete. Add handles output here. MHL
+{{{
+$ python vol.py --profile=Win7SP0x86 -f win7.dmp handles
+Volatile Systems Volatility Framework 1.4_rc1
+Offset(V)    Pid    Type             Details
+0x823c8818   4      Process          System(4)
+0x823c7008   4      Thread           TID 12 PID 4
+0xe13f8fa0   4      Key              MACHINE\SYSTEM\CONTROLSET001\CONTROL\SESSION MANAGER\MEMORY MANAGEMENT\PREFETCHPARAMETERS
+0xe100f418   4      Key              MACHINE\SYSTEM\WPA\MEDIACENTER
+0xe1406418   4      Key              MACHINE\SYSTEM\WPA\KEY-4F3B2RFXKC9C637882MBM
+0xe1404b20   4      Key              MACHINE\SYSTEM\WPA\PNP
+0xe1000480   4      Key              MACHINE\SYSTEM\WPA\SIGNINGHASH-V44KQMCFXKQCTQ
+0xe1013b80   4      Key              MACHINE\SYSTEM\CONTROLSET001\CONTROL\PRODUCTOPTIONS
+0xe142cc28   4      Key              MACHINE\SYSTEM\CONTROLSET001\SERVICES\EVENTLOG
+0x823c1778   4      Event            'TRKWKS_EVENT'
+0x81ebb938   4      File             '\\Documents and Settings\\NetworkService\\NTUSER.DAT'
+0xe14dc268   4      Key              MACHINE\HARDWARE\DEVICEMAP\SCSI
+[snip]
+}}}
+
+Similar to other commands, you can display handles for a particular process by specifying a process ID (--pid) or the physical offset of an eprocess structure (--physical-offset). You can also filter by object type using -t or --object-type. For example to only display handles to process objects for pid 600, do the following:
+
+{{{
+$ python vol.py --profile=Win7SP0x86 -f win7.dmp handles -p 600 -t Process
+Volatile Systems Volatility Framework 1.4_rc1
+Offset(V)    Pid    Type             Details
+0x81da5638   600    Process          winlogon.exe(624)
+0x82073008   600    Process          services.exe(668)
+0x81e6b648   600    Process          VMwareUser.exe(1356)
+0x81e70008   600    Process          lsass.exe(680)
+0x823315c0   600    Process          vmacthlp.exe(844)
+0x81db8d88   600    Process          svchost.exe(856)
+[snip]
+}}}
 
 == getsids ==
 
