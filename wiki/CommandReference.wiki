@@ -1966,6 +1966,7 @@ Windows uses a layered driver architecture, or driver chain so that multiple dri
 
 In the example below, Stuxnet has infected \FileSystem\Ntfs by attaching a malicious unnamed device. Although the device itself is unnamed, the device object identifies its driver (\Driver\MRxNet). 
 
+{{{
 $ python vol.py -f stuxnet.vmem devicetree
 Volatile Systems Volatility Framework 1.4_rc1
 [snip]
@@ -1979,6 +1980,9 @@ DRV 0x0253d180 '\\FileSystem\\Ntfs'
 ---------| ATT 0x81e859c8 (unnamed) - '\\FileSystem\\FltMgr' FILE_DEVICE_DISK_FILE_SYSTEM
 ------------| ATT 0x81f0ab90 (unnamed) - '\\Driver\\MRxNet' FILE_DEVICE_DISK_FILE_SYSTEM
 [snip]
+}}}
+
+The devicetree plugin uses "DRV" to indicate drivers, "DEV" to indicate devices, and "ATT" to indicate attached devices (just like OSR's !DeviceTree utility). 
 
 == psxview ==
 
