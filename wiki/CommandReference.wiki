@@ -1960,6 +1960,26 @@ f9db9ccc: 0000                             ADD [EAX], AL
 
 Now you can see that TDL3 redirects all IRPs to its own stub in the vmscsi.sys driver. That code jumps to whichever address is pointed to by 0xffdf0308 - a location in the KUSER_SHARED_DATA region. 
 
+== devicetree ==
+
+Windows uses a layered driver architecture, or driver chain so that multiple drivers can inspect or respond to an IRP. Rootkits often insert drivers (or devices) into this chain for filtering purposes (to hide files, hide network connections, steal keystrokes or mouse movements). The devicetree plugin shows the relationship of a driver object to its devices (by walking `_DRIVER_OBJECT.DeviceObject.NextDevice`) and any attached devices (`_DRIVER_OBJECT.DeviceObject.AttachedDevice`).
+
+In the example below, Stuxnet has infected \FileSystem\Ntfs by attaching a malicious unnamed device. Although the device itself is unnamed, the device object identifies its driver (\Driver\MRxNet). 
+
+$ python vol.py -f stuxnet.vmem devicetree
+Volatile Systems Volatility Framework 1.4_rc1
+[snip]
+DRV 0x0253d180 '\\FileSystem\\Ntfs'
+---| DEV 0x82166020 (unnamed) FILE_DEVICE_DISK_FILE_SYSTEM
+------| ATT 0x8228c6b0 (unnamed) - '\\FileSystem\\sr' FILE_DEVICE_DISK_FILE_SYSTEM
+---------| ATT 0x81f47020 (unnamed) - '\\FileSystem\\FltMgr' FILE_DEVICE_DISK_FILE_SYSTEM
+------------| ATT 0x81fb9680 (unnamed) - '\\Driver\\MRxNet' FILE_DEVICE_DISK_FILE_SYSTEM
+---| DEV 0x8224f790 Ntfs FILE_DEVICE_DISK_FILE_SYSTEM
+------| ATT 0x81eecdd0 (unnamed) - '\\FileSystem\\sr' FILE_DEVICE_DISK_FILE_SYSTEM
+---------| ATT 0x81e859c8 (unnamed) - '\\FileSystem\\FltMgr' FILE_DEVICE_DISK_FILE_SYSTEM
+------------| ATT 0x81f0ab90 (unnamed) - '\\Driver\\MRxNet' FILE_DEVICE_DISK_FILE_SYSTEM
+[snip]
+
 == psxview ==
 
 This plugin helps you detect hidden processes by comparing what  !PsActiveProcessHead contains with what is reported by various other sources of process listings. It compares the following:
