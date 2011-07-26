@@ -1309,8 +1309,29 @@ FileOffset    Start Address    Length
 3ff8e000      3ffff000
 }}}
 
-== hibdump ==
 == hibinfo ==
+
+The hibinfo command reveals additional information stored in the hibernation file, including the state of the Control Registers, such as CR0, etc.  It also identifies the time at which the hibernation file was created, the state of the hibernation file, and the version of windows being hibernated.  Example output for the function is shown below:
+
+{{{
+
+$ python vol.py -f hiberfil.sys hibinfo
+Volatile Systems Volatility Framework 2.0
+IMAGE_HIBER_HEADER:
+ Signature: hibr
+ SystemTime: 2009-10-03 15:33:26 
+
+Control registers flags
+ CR0: 80010031
+ CR0[PAGING]: 1
+ CR3: 1a300060
+ CR4: 000006f9
+ CR4[PSE]: 1
+ CR4[PAE]: 1
+
+Windows Version is 5.1 (2600)
+}}}
+
 == imagecopy ==
 
 The imagecopy command allows one to convert any existing type of address space (such as a crashdump, hibernation file, or live firewire session) to a raw memory image.  The profile should be specified for any address space from a machine other than Windows XP SP2.  Also the output file is specified with the -O flag.  The progress is updated as the file is converted:
