@@ -1,0 +1,22 @@
+#summary TODO items for the 2.1 branch
+#labels Phase-Design
+
+= Introduction =
+
+This page documents the things we want to accomplish in the 2.1 branch, so we can a) keep track of them, and b) people new to the project can find things to work on.
+
+= To Do for 2.1 =
+
+  * Integrate x64 address spaces
+  * Merge the linux support into the main branch
+  * Port more volatility-1.3 plugins
+    * cmd_history
+  * Add in some additional plugins
+    * raw2dmp
+  * Framework cleanups
+    * Better integrate registry hive address spaces
+    * Fix issues for the 2.1.x milestone.
+
+== Longterm Tasks ==
+
+Please see TodoFuture for long term tasks.
