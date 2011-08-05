@@ -57,7 +57,7 @@ The most recent version can be downloaded from [http://malwarecookbook.googlecod
 
 = How can I run external plugins with the standalone executable? =
 
-With the standalone executable you have to specify the location of external plugins directory or zipfile using the "--plugins" switch.  In general you can specify the path of the item "--plugins=[path to directory/zipfile]".  An example using a directory called "plugins" can be seen below:
+With the standalone executable you have to specify the location of external plugins directory or zipfile using the "--plugins" switch.  In general you can specify the path of the item "--plugins=<path to directory/zipfile>".  An example using a directory called "plugins" can be seen below:
 
 {{{
 C:\vol>volatility.exe --plugins=..\plugins malfind -f c:\memory_images\win7.dd --profile=Win7SP0x86 -D output
