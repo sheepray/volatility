@@ -95,7 +95,7 @@ Dumped to: output\svchost.exe.3e3949d0.005b0000-005f0fff.dmp
 [snip]
 }}}
 
-*Note:* Due to the way pyinstaller loads things, the external plugins directory or zipfile must be specified before other arguments.  
+*Note:* Due to the way plugins are loaded, the external plugins directory or zipfile must be specified before any plugin-specific arguments (including the name of the plugin).  
 
 = Are there any public memory samples available that I can use for testing? =
 
