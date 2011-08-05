@@ -17,7 +17,7 @@ Highlights of this release include:
     * New Caching Subsystem
     * New Pluggable address spaces with automated election
     * New Address Spaces (i.e. EWF, Firewire)
-    * Updated Object Model and Profile Subsystems (VolatilityMagic)
+    * Updated Object Model and Profile Subsystems ([Vol20VolatilityMagic VolatilityMagic])
     * Support for Windows Server 2003, Windows Vista, Windows Server 2008, Windows 7
     * Updated Scanning Framework
     * Volshell integration
