@@ -12,6 +12,7 @@ This page documents the things we want to accomplish in the 2.1 branch, so we ca
   * Create/add a unified plugin output format
   * Port more volatility-1.3 plugins
     * cmd_history
+    * symlinkscan
   * Add in some additional plugins
     * raw2dmp
   * Framework cleanups
