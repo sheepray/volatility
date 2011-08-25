@@ -43,7 +43,7 @@ Linux:
  * [http://dfsforensics.blogspot.com/2011/03/bringing-linux-support-to-volatility.html Bringing Linux Support To Volatility] 
  * [http://dfsforensics.blogspot.com/2011/03/analyzing-new-honeynet-memory-analysis.html Analyzing the New Honeynet Memory Challenge with Volatility] by Andrew Case.
  * The winning submissions to [https://www.honeynet.org/challenges/2011_7_compromised_server Honeynet's Forensic Challenge #7], which leveraged Volatility.
- * [https://media.blackhat.com/bh-us-11/Case/BH_US_11_Case_Linux_Slides.pdf] Linux Memory Analysis Workshop at Blackhat USA 2011 by Andrew Case. 
+ * [https://media.blackhat.com/bh-us-11/Case/BH_US_11_Case_Linux_Slides.pdf Linux Memory Analysis Workshop at Blackhat USA 2011 by Andrew Case] 
 
 = What about reading crash dumps and hibernation files? = 
 
