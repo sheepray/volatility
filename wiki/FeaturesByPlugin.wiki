@@ -70,7 +70,7 @@ Before using these plugins, make sure to read the BasicUsage instructions. To se
 ||[http://code.google.com/p/volatility/wiki/CommandReference#hivedump hivedump]||Recursively prints all keys and timestamps in a given hive||All||
 ||[http://code.google.com/p/volatility/wiki/CommandReference#hashdump hashdump]||Dumps passwords hashes (LM/NTLM) from memory||All||
 ||[http://code.google.com/p/volatility/wiki/CommandReference#lsadump lsadump]||Dump (decrypted) LSA secrets from the registry||Windows XP||
-||[http://code.google.com/p/volatility/wiki/CommandReference#userassist]||Parses and output UserAssist keys from the registry||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#userassist userassist]||Parses and output !UserAssist keys from the registry||All||
 
 == Crash Dumps, Hibernation, and Conversion ==
 
