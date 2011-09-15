@@ -766,6 +766,33 @@ Phys.Addr. Obj Type   #Ptr #Hnd Signal Thread     CID        Name
 [snip]
 }}}
 
+== symlinkscan ==
+
+This plugin scans for symbolic link objects and outputs their information.
+
+{{{
+$ python vol.py -f win7.dd --profile=Win7SP0x86 symlinkscan
+Volatile Systems Volatility Framework 2.1_alpha
+Offset(P)  #Ptr #Hnd CreateTime               From                 To
+0x00be60d8    1    0 2010-06-16 15:24:28      Global               '\\GLOBAL??'
+0x00beabd0    1    0 2010-06-16 15:24:28      DosDevices           '\\??'
+0x04675030    1    0 2010-06-16 15:27:40      {E2F8A220-AF88-446C-9A55-453E58DD3A33} '\\Device\\NDMP13'
+0x05e02fe8    1    0 2010-06-16 19:46:13      PROCEXP113           '\\Device\\PROCEXP113'
+0x09700bb0    1    0 2010-06-16 15:25:11      Root#MS_PPTPMINIPORT#0000#{cac88484-7515-4c03-82e6-71a87abac361} '\\Device\\0000003d'
+0x09700dd8    1    0 2010-06-16 15:25:11      Root#MS_NDISWANIPV6#0000#{cac88484-7515-4c03-82e6-71a87abac361} '\\Device\\0000003b'
+0x0a040d28    1    0 2010-06-16 15:25:11      Root#UMBUS#0000#{65a9a6cf-64cd-480b-843e-32c86e1ba19f} '\\Device\\00000043'
+0x0e725450    1    0 2010-06-16 15:26:58      Global               '\\Global??'
+0x0eae33f0    1    0 2010-06-16 15:26:57      Global               '\\Global??'
+0x15780150    1    0 2010-06-16 15:25:11      Root#SYSTEM#0000#{4747b320-62ce-11cf-a5d6-28db04c10000} '\\Device\\00000042'
+0x157806b8    1    0 2010-06-16 15:25:11      Root#SYSTEM#0000#{53172480-4791-11d0-a5d6-28db04c10000} '\\Device\\00000042'
+0x15780a90    1    0 2010-06-16 15:25:11      Root#SYSTEM#0000#{cf1dda2c-9743-11d0-a3ee-00a0c9223196} '\\Device\\00000042'
+0x15780e50    1    0 2010-06-16 15:25:11      Root#MS_SSTPMINIPORT#0000#{cac88484-7515-4c03-82e6-71a87abac361} '\\Device\\0000003e'
+0x15ec5820    1    0 2010-06-16 15:25:29      $VDMLPT1             '\\Device\\ParallelVdm0'
+0x160c4a38    1    0 2010-06-16 15:25:29      vmmemctl             '\\Device\\vmmemctl'
+0x1655c890    1    0 2010-06-16 15:25:29      MpsDevice            '\\Device\\MPS'
+[snip]
+}}}
+
 == thrdscan ==
 
 To scan for ETHREAD objects in physical memory, use the thrdscan command. Since an ETHREAD contains fields that identify its parent process, you can use this technique to find hidden processes. One such use case is documented in the [http://code.google.com/p/volatility/wiki/CommandReference#threads threads] command. 
