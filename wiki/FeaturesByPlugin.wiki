@@ -50,6 +50,7 @@ Before using these plugins, make sure to read the BasicUsage instructions. To se
 ||[http://code.google.com/p/volatility/wiki/CommandReference#driverscan driverscan]||Scan physical memory for DRIVER_OBJECT objects||All||
 ||[http://code.google.com/p/volatility/wiki/CommandReference#filescan filescan]||Scan physical memory for FILE_OBJECT objects||All||
 ||[http://code.google.com/p/volatility/wiki/CommandReference#mutantscan mutantscan]||Scan physical memory for KMUTANT objects||All||
+|| ||Scans for symbolic link objects||All|| 
 ||[http://code.google.com/p/volatility/wiki/CommandReference#thrdscan thrdscan]||Scan physical memory for ETHREAD objects||All||
 
 == Networking ==
