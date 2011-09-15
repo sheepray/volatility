@@ -12,7 +12,6 @@ Before using these plugins, make sure to read the BasicUsage instructions. To se
 == Image Identification ==
 
 ||Command||Description||OS Support||
-||[http://code.google.com/p/volatility/wiki/CommandReference#datetime datetime]||Get date/time information for image||All||
 ||[http://code.google.com/p/volatility/wiki/CommandReference#imageinfo imageinfo]||Prints the suggested profile (OS version and patch level).<br>Tells you if the system is PAE vs no PAE.<br>Locates the DTB, KDBG, KPCR, and KUSER_SHARED_DATA.<br>Prints the date/time info.||All||
 ||[http://code.google.com/p/volatility/wiki/CommandReference#kdbgscan kdbgscan]||Search for and dump potential KDBG values||All||
 ||[http://code.google.com/p/volatility/wiki/CommandReference#kpcrscan kpcrscan]||Search for and dump potential KDBG values||All||
