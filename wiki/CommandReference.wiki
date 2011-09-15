@@ -29,17 +29,6 @@ Determining profile based on KDBG search...
 
 Among other things, the `imageinfo` output tells you the suggested profile that you should pass as the parameter to --profile=PROFILE; there may be more than one profile suggestion if profiles are closely related.  You can figure out which one is more appropriate by checking the "Image Type" field, which is blank for Service Pack 0 and filled in for other Service Packs.  The `imageinfo` output also tells you the address of the KPCR and KDBG (short for `_KDDEBUGGER_DATA64`).  Plugins automatically scan for these values when they need them, however you can specify them directly for any plugin by providing --kpcr=ADDRESS or --kdbg=ADDRESS. By supplying the profile and KDBG (or failing that KPCR) to other Volatility commands, you'll get the most accurate and fastest results possible.
 
-== datetime ==
-
-Use datetime to get the date and time information from when the memory image was acquired. 
-
-{{{
-$ python vol.py --profile=Win7SP0x86 -f win7.dmp datetime
-Volatile Systems Volatility Framework 2.0
-Image date and time       : 2010-07-06 22:40:28 
-Image local date and time : 2010-07-06 22:40:28
-}}}
-
 == kdbgscan ==
 
 Use this command to scan for potential KDBG structures. For more information on how KDBG structures are identified read [http://moyix.blogspot.com/2008/04/finding-kernel-global-variables-in.html Finding Kernel Global Variables in Windows] and [http://gleeda.blogspot.com/2010/12/identifying-memory-images.html Identifying Memory Images]
