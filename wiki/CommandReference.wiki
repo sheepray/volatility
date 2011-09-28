@@ -283,6 +283,8 @@ Offset(V)    Pid    Type             Details
 [snip]
 }}}
 
+Note: the address displayed on the left is the _OBJECT_HEADER, not the corresponding _FILE_OBJECT (if its a file) etc. 
+
 == getsids ==
 
 To view the SIDs (Security Identifiers) associated with a process, use the getsids command. Among other things, this can help you identify processes which have maliciously escalated privileges. 
