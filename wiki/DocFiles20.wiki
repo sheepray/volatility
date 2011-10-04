@@ -13,7 +13,6 @@ This page contains links to documents that are part of the Volatility Documentat
 = Case Studies/Forensic Challenges =
   * [http://mnin.blogspot.com/2011/09/abstract-memory-analysis-zeus.html Abstract Memory Analysis: Zeus Encryption Keys] (external link)
   * [http://blog.spiderlabs.com/2011/05/analyzing-malware-hollow-processes.html Analyzing Malware Hollow Processes] (external link)
-  * [http://contagiodump.blogspot.com/2011/04/apr-8-cve-2011-0611-flash-player-zero.html Apr. 8 CVE-2011-0611 Flash Player Zero day - SWF in DOC/ XLS - Disentangling Industrial Policy..] (external link)
   * [http://quequero.org/Carberp_Reverse_Engineering#Carberp_Analysis_via_Volatility Carberp Analysis via Volatility] (external link)
   * [http://www.h-online.com/security/features/CSI-Internet-A-trip-into-RAM-1339479.html CSI:Internet Episode 3: A trip into RAM] (external link)
   * [http://quequero.org/Shylock_via_volatility Shylock via volatility] (external link)
