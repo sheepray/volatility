@@ -176,5 +176,5 @@ See the answer to the contribution question.
 See the following resources:
 
  * There are a few installation guides and how-to's provided by the community which you can find on the [http://code.google.com/p/volatility/downloads/list Downloads Page]
- * The [http://code.google.com/p/volatility/wiki/DocFiles Volatility Documentation Project Wiki] contains links to external web sites.
+ * The [http://code.google.com/p/volatility/wiki/DocFiles20 Volatility Documentation Project Wiki] contains links to external web sites.
  * [http://www.malwarecookbook.com Malware Analyst's Cookbook] devotes 4 chapters to using Volatility for malware analysis.
