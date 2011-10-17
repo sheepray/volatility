@@ -23,6 +23,7 @@ This page contains links to documents that are part of the Volatility Documentat
   * [http://holisticinfosec.blogspot.com/2011/09/toolsmith-memory-analysis-with-dumpit.html toolsmith: Memory Analysis with DumpIt and Volatility] (external link)
   * [http://sempersecurus.blogspot.com/2011/04/using-volatility-to-study-cve-2011-6011.html Using "volatility" to study the CVE-2011-0611 Adobe Flash 0-day] (external link)
   * [http://www.evild3ad.com/?p=956 Volatility Memory Forensics | Basic Usage for Malware Analysis] (external link)
+  * [http://www.evild3ad.com/?p=1136 Volatility Memory Forensics | Federal Trojan aka R2D2] (external link)
   * [http://www.evild3ad.com/?p=1088 Volatility Memory Forensics | Graphviz] (external link)
   * [http://mnin.blogspot.com/2011/10/zeroaccess-volatility-and-kernel-timers.html ZeroAccess, Volatility, and Kernel Timers] (external link)
   * [http://malwarereversing.wordpress.com/2011/09/23/zeus-analysis-in-volatility-2-0/ Zeus Analysis in Volatility 2.0] (external link)
