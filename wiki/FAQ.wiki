@@ -128,6 +128,8 @@ Other Images
 ||Honeynet Banking Troubles Image || [https://www.honeynet.org/challenges/2010_3_banking_troubles https://www.honeynet.org/challenges/2010_3_banking_troubles]|| XP SP2 ||
 ||NPS 2009-M57|| [http://domex.nps.edu/corp/scenarios/2009-m57/ram/ http://domex.nps.edu/corp/scenarios/2009-m57/ram/] ||  Various XP / Vista ||
 || [http://dougee652.blogspot.com/2011/04/malware-memory-images.html Dougee's comparison samples] || [http://dl.dropbox.com/u/21148428/xp-clean.tgz before] and [http://dl.dropbox.com/u/21148428/xp-infected.tgz after infection] || XP ||
+|| Shylock Sample || [http://various-things.googlecode.com/files/vmem2.zip Shylock vmem] || XP ||
+|| R2D2 Sample || [http://www.evild3ad.com/?p=1136 0zapftis.rar] (pw: infected || . ||
 
 <br>
 = What are the dependencies for running Volatility? =
