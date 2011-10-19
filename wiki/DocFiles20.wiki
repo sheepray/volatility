@@ -16,6 +16,7 @@ This page contains links to documents that are part of the Volatility Documentat
   * [http://blog.spiderlabs.com/2011/05/analyzing-malware-hollow-processes.html Analyzing Malware Hollow Processes] (external link)
   * [http://quequero.org/Carberp_Reverse_Engineering#Carberp_Analysis_via_Volatility Carberp Analysis via Volatility] (external link)
   * [http://www.h-online.com/security/features/CSI-Internet-A-trip-into-RAM-1339479.html CSI:Internet Episode 3: A trip into RAM] (external link)
+  * [http://www.deependresearch.org/2011/10/dirt-jumper-ddos-bot-new-versions-new.html Dirt Jumper DDoS Bot - New versions, New targets] (external link)
   * [http://p4r4n0id.com/?p=821 MORTO – From a Memory-Dump Point of View] (external link)
   * [http://quequero.org/Shylock_via_volatility Shylock via volatility] (external link)
   * [http://malwarereversing.wordpress.com/2011/09/30/shylock-in-depth-malware-analysis/ Shylock In-Depth Malware Analysis] (external link)
