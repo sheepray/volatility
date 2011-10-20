@@ -3,7 +3,7 @@
 
 = Full Dev Installation for Volatility 2.0 =
 
-This guide is for people who want a full development installation of Volatility 2.0
+This guide is for people who want a full development installation of Volatility 2.0.  For those who just want to quickly get started, there are standalone executables and installers available in the "[https://code.google.com/p/volatility/downloads/list downloads section]".
 
 <wiki:toc max_depth="4" />
 
