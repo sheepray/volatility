@@ -169,7 +169,7 @@ If you have documentation, code or ideas to contribute, use one of the following
  * Through IRC: #volatility on freenode 
  * Through the [http://lists.volatilesystems.com/mailman/listinfo Volatility Mailing List]
 
-= I'm getting an error: "[..] (ImportError: No module named Crypto.Hash)" =
+= I'm getting an error: "`[..]` (ImportError: No module named Crypto.Hash)" =
 
 This error occurs when [http://code.google.com/p/volatility/wiki/FullInstallation#Installation_Prerequisites PyCrypto is not installed].  This is a library that is used by some of the registry plugins like [http://code.google.com/p/volatility/wiki/CommandReference#lsadump lsadump].  You will see this error message when using any of the plugins, however.  If you are not using lsadump, hashdump or any other registry plugin that uses !PyCrypto, then you can safely ignore the error message.  Otherwise, install !PyCrypto and the message will disappear.  See [FullInstallation] for more details on how to install supporting libraries.
 
