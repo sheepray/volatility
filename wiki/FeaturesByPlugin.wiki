@@ -56,11 +56,11 @@ Before using these plugins, make sure to read the BasicUsage instructions. To se
 == Networking ==
 
 ||Command||Description||OS Support||
-||[http://code.google.com/p/volatility/wiki/CommandReference#connections connections]||Display open network connections by walking the linked list in tcpip.sys||Windows XP||
-||[http://code.google.com/p/volatility/wiki/CommandReference#connscan2 connscan]||Scan physical memory for connection objects||Windows XP||
-||[http://code.google.com/p/volatility/wiki/CommandReference#sockets sockets]||Display open client and server (listening) sockets by walking the linked list in tcpip.sys||Windows XP||
-||[http://code.google.com/p/volatility/wiki/CommandReference#sockscan sockscan]||Scan physical memory for socket objects||Windows XP||
-||[http://code.google.com/p/volatility/wiki/CommandReference#netscan netscan]||Scan physical memory for connection and socket objects.<br>Distinguishes between IPv4 and IPv6.<br>Shows owning process, creation time, and state (for TCP connections).||Windows Vista and 7||
+||[http://code.google.com/p/volatility/wiki/CommandReference#connections connections]||Display open network connections by walking the linked list in tcpip.sys||Windows XP, 2003||
+||[http://code.google.com/p/volatility/wiki/CommandReference#connscan2 connscan]||Scan physical memory for connection objects||Windows XP, 2003||
+||[http://code.google.com/p/volatility/wiki/CommandReference#sockets sockets]||Display open client and server (listening) sockets by walking the linked list in tcpip.sys||Windows XP, 2003||
+||[http://code.google.com/p/volatility/wiki/CommandReference#sockscan sockscan]||Scan physical memory for socket objects||Windows XP, 2003||
+||[http://code.google.com/p/volatility/wiki/CommandReference#netscan netscan]||Scan physical memory for connection and socket objects.<br>Distinguishes between IPv4 and IPv6.<br>Shows owning process, creation time, and state (for TCP connections).||Windows Vista, 2008 and 7||
 
 == Registry ==
 
