@@ -2175,7 +2175,11 @@ Also an EPROCESS offset can be provided:
 $ python vol.py --profile=Win7SP0x86 strings –f win7.dd –s win7_strings.txt --output-file=win7_vol_strings.txt -o 0x04a291a8
 }}}
 
-The strings plugin takes a while to complete. When it completes, you should have an output file that contains information about processes and the strings in their address space. In the example output you can see PIDs/kernel references:
+The strings plugin takes a while to complete. When it completes, you should have an output file with each line in the following format:
+
+physical_address [kernel_or_pid:virtual_address] string
+
+In the example output you can see PIDs/kernel references:
 
 {{{
 $ less win7_vol_strings.txt
