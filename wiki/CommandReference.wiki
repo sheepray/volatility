@@ -2177,7 +2177,9 @@ $ python vol.py --profile=Win7SP0x86 strings –f win7.dd –s win7_strings.txt 
 
 The strings plugin takes a while to complete. When it completes, you should have an output file with each line in the following format:
 
+{{{
 physical_address [kernel_or_pid:virtual_address] string
+}}}
 
 In the example output you can see PIDs/kernel references:
 
