@@ -5,7 +5,7 @@
 
 = What is the latest version of Volatility? =
 
-2.0
+The latest stable version is 2.0. You can grab the source code, Python installer, or Windows standalone executable from the [http://code.google.com/p/volatility/downloads/list Downloads page]. The latest development version is 2.1 alpha which you can get by checking out the main branch using SVN (see instructions in the [http://code.google.com/p/volatility/source/checkout Source page]).
 
 = What's new in 2.0? =   
 
