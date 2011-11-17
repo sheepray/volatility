@@ -1055,10 +1055,10 @@ Virtual     Physical    Name
 
 To display the subkeys, values, data, and data types contained within a specified registry key, use the printkey command. By default, printkey will search all hives and print the key information (if found) for the requested key.  Therefore, if the key is located in more than one hive, the information for the key will be printed for each hive that contains it.  
 
-Say you want to traverse into the HKEY_LOCAL_MACHINE\Microsoft\Security Center\Svc key. You can do that:
+Say you want to traverse into the HKEY_LOCAL_MACHINE\Microsoft\Security Center\Svc key. You can do that in the following manner. Note: if you're running Volatility on Windows, enclose the key in double quotes (see issue 166).
 
 {{{
-$ python vol.py --profile=Win7SP0x86 -f win7.dmp printkey -K 'Microsoft\Security Center\Svc'
+$ python vol.py --profile=Win7SP0x86 -f win7.dmp printkey -K "Microsoft\Security Center\Svc"
 Volatile Systems Volatility Framework 2.0
 Legend: (S) = Stable   (V) = Volatile
 
@@ -1077,10 +1077,10 @@ REG_DWORD     AntiSpywareOverride : (S) 0
 REG_DWORD     FirewallOverride : (S) 0
 }}}
 
-Here you can see output for more than one hive containing the key 'Software\Microsoft\Windows NT\!CurrentVersion\Winlogon'
+Here you can see output for more than one hive containing the key "Software\Microsoft\Windows NT\!CurrentVersion\Winlogon"
 
 {{{
-$ python vol.py -f ds_fuzz_hidden_proc.img --profile=WinXPSP3x86 printkey -K 'Software\Microsoft\Windows NT\CurrentVersion\Winlogon'
+$ python vol.py -f ds_fuzz_hidden_proc.img --profile=WinXPSP3x86 printkey -K "Software\Microsoft\Windows NT\CurrentVersion\Winlogon"
 Volatile Systems Volatility Framework 2.0
 Legend: (S) = Stable (V) = Volatile
 
@@ -1133,8 +1133,6 @@ Subkeys:
   (S) mozilla.org
 [snip]
 }}}
-
-
 
 == hivedump ==
 
