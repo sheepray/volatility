@@ -215,6 +215,7 @@ To extract a DLL from a process's memory space and dump it to disk for analysis,
   * Dump all DLLs from all processes
   * Dump all DLLs from a specific process (with --pid=PID)
   * Dump all DLLs from a hidden/unlinked process (with --offset=OFFSET)
+  * Dump a PE from anywhere in process memory (with --base=BASEADDR), this option is useful for extracting hidden DLLs
 
 To specify an output directory, use --dump-dir=DIR or -d DIR. You can also supply a regular expression to dump a DLL with a particular pattern in its name. 
 
