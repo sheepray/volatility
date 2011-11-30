@@ -284,6 +284,8 @@ Offset(V)    Pid    Type             Details
 [snip]
 }}}
 
+In some cases, the Details column will be blank (for example, if the objects don't have names). By default, you'll see both named and un-named objects. However, if you want to hide the less meaningful results and only show named objects, use the --silent parameter to this plugin.
+
 == getsids ==
 
 To view the SIDs (Security Identifiers) associated with a process, use the getsids command. Among other things, this can help you identify processes which have maliciously escalated privileges. 
