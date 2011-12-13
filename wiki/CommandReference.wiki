@@ -1620,7 +1620,13 @@ f8c533bc ntoskrnl.exe NtOpenProcess 805bfe1e
 
 To find API hooks in user mode or kernel mode, use the apihooks plugin. This finds IAT, EAT, Inline style hooks, and several special types of hooks. For Inline hooks, it detects CALLs and JMPs to direct and indirect locations, and it detects PUSH/RET instruction sequences. The special types of hooks that it detects include syscall hooking in ntdll.dll and calls to unknown code pages in kernel memory.
 
-Here is an example of detecting IAT hooks installed by Coreflood. The far right field contains UNKNOWN because there is no module associated with the memory in which the rootkit code exists. 
+Here is an example of detecting IAT hooks installed by Coreflood. The far right field contains UNKNOWN because there is no module associated with the memory in which the rootkit code exists. If you want to extract the code containing the hooks, you have a few options:
+
+1. See if [http://code.google.com/p/volatility/wiki/CommandReference#malfind malfind] can automatically find and extract it. 
+
+2. Use [http://code.google.com/p/volatility/wiki/CommandReference#volshell volshell's] dd/db commands to scan backwards and look for an MZ header. Then pass that address to [http://code.google.com/p/volatility/wiki/CommandReference#dlldump dlldump] as the --base value. 
+
+2. Use [http://code.google.com/p/volatility/wiki/CommandReference#vaddump vaddump] to extract all code segments to individual files (named according to start and end address), then find the file that contains the 0x7ff82 ranges.
 
 {{{
 $ python vol.py -f coreflood.vmem -p 2044 apihooks 
