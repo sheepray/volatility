@@ -2257,6 +2257,8 @@ If you want to interactively explore a memory image, use the volshell command. T
   * Walk linked lists 
   * Disassemble code at a given address
 
+Note: volshell can take advantage of [http://ipython.org/ IPython] if you have it installed. This will add tab-completion and saved command history. 
+
 To break into a volshell:
 
 {{{
@@ -2272,7 +2274,7 @@ cc(offset=None, pid=None, name=None)     : Change current shell context.
 dd(address, length=128, space=None)      : Print dwords at address.
 db(address, length=128, width=16, space=None) : Print bytes as canonical hexdump.
 hh(cmd=None)                             : Get help on a command.
-dt(objct, address=None)                  : Describe an object or show type info.
+dt(objct, address=None, address_space=None)  : Describe an object or show type info.
 list_entry(head, objname, offset=-1, fieldname=None, forward=True) : Traverse a _LIST_ENTRY.
 dis(address, length=128, space=None)     : Disassemble code at a given address.
 
@@ -2384,6 +2386,54 @@ To overlay the EPROCESS types onto the offset for explorer.exe, do this:
 0xd0  : CommitCharge                   4489
 0xd4  : QuotaBlock                     2372351104
 [snip]
+}}}
+
+The db, dd, dt, and dis commands all accept an optional "space" parameter which allows you to specify an address space. You will see different data depending on which address space you're using. Volshell has some defaults and rules that are important to note:
+
+  * If you don't supply an address space and *have not* switched into a process context with cc, then you'll be using the default kernel space (System process). 
+
+  * If you don't supply an address space and *have* switched into a process context with cc, then you'll be using the space of the active/current process.
+ 
+  * If you explicitly supply an address space, the one you supplied will be used. 
+
+Imagine you're using one of the scan commands (psscan, connscan, etc.) and you think it has picked up a false positive. The scan commands output a physical offset (offset into the memory dump file). You want to explore the data around the potential false positive to determine for yourself if any structure members appear sane or not. One way you could do that is by opening the memory dump in a hex viewer and going to the physical offset to view the raw bytes. However, a better way is to use volshell and overlay the structure question to the alleged physical offset. This allows you to see the fields interpreted as their intended type (DWORD, string, short, etc.)
+
+Here's an example. First instantiate a physical address space:
+
+{{{
+>>> physical_space = utils.load_as(self._config, astype = 'physical')
+}}}
+
+Assuming the alleged false positive for an EPROCESS is at 0x433308, you would then do:
+
+{{{
+>>> dt("_EPROCESS", 0x433308, physical_space)
+[_EPROCESS _EPROCESS] @ 0x00433308
+0x0   : Pcb                            4403976
+0x6c  : ProcessLock                    4404084
+0x70  : CreateTime                     1970-01-01 00:00:00 
+0x78  : ExitTime                       1970-01-01 00:00:00
+...
+}}}
+
+Another neat trick is to use volshell in a non-interactive manner. For example, say you want to translate an address in kernel memory to its corresponding physical offset. 
+
+{{{
+$ echo "hex(self.addrspace.vtop(0x823c8830))" | python vol.py -f stuxnet.vmem volshell
+Volatile Systems Volatility Framework 2.1_alpha
+Current context: process System, pid=4, ppid=0 DTB=0x319000
+Welcome to volshell! Current memory image is:
+file:///mem/stuxnet.vmem
+To get help, type 'hh()'
+>>> '0x25c8830'
+}}}
+
+Thus the kernel address 0x823c8830 translates to physical offset 0x25c8830 in the memory dump file. 
+
+You can execute multiple commands sequentially like this:
+
+{{{
+$ echo "cc(pid=4); dd(0x10000)" | [...]
 }}}
 
 For more information, see BDG's [http://moyix.blogspot.com/2008/08/indroducing-volshell.html Introducing Volshell]. 
