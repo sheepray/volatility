@@ -2120,9 +2120,63 @@ When you open the IDB, just navigate to any functions with a "Hook" prefix and y
 
 == timers == 
 
-This command prints installed kernel timers (KTIMER) and any associated DPCs (Deferred Procedure Calls). Rootkits such as ZeroAccess, Rustock, and Stuxnet register timers with a DPC. Although the malware tries to be stealthy and hide in kernel space in a number of different ways, by finding the KTIMERs and looking at the address of the DPC, you can quickly find the malicious code ranges.                                    
+This command prints installed kernel timers (KTIMER) and any associated DPCs (Deferred Procedure Calls). Rootkits such as Zero Access, Rustock, and Stuxnet register timers with a DPC. Although the malware tries to be stealthy and hide in kernel space in a number of different ways, by finding the KTIMERs and looking at the address of the DPC, you can quickly find the malicious code ranges.                       
 
+Here's an example. Notice how one of the timers has an UNKNOWN module (the DPC points to an unknown region of kernel memory). This is ultimately where the rootkit is hiding. 
 
+{{{
+$ python vol.py timers -f rustock-c.vmem 
+Offset       DueTime               Period(ms) Signaled   Routine      Module
+0xf730a790   0x00000000:0x6db0f0b4 0          -          0xf72fb385   srv.sys
+0x80558a40   0x00000000:0x68f10168 1000       Yes        0x80523026   ntoskrnl.exe
+0x80559160   0x00000000:0x695c4b3a 0          -          0x80526bac   ntoskrnl.exe
+0x820822e4   0x00000000:0xa2a56bb0 150000     Yes        0x81c1642f   UNKNOWN
+0xf842f150   0x00000000:0xb5cb4e80 0          -          0xf841473e   Ntfs.sys
+...
+}}}
+
+Please note: the timers are enumerated in different ways depending on the target operating system. Windows stores the timers in global variables for XP, 2003, 2008, and Vista. Since Windows 7, the timers are are in processor-specific regions off of KPCR (Kernel Processor Control Region). Thus, to enumerate all timers for multi-core Windows 7 systems, you should use the [http://code.google.com/p/volatility/wiki/CommandReference#kpcrscan kpcrscan] command first and then pass each value to the timers plugin with the --kpcr=KPCRADDRESS parameter. 
+
+{{{
+$ python vol.py -f mem.dmp --profile=Win7SP0x86 kpcrscan
+Volatile Systems Volatility Framework 2.1_alpha
+Potential KPCR structure virtual addresses:
+ _KPCR: 0x807c3000
+ _KPCR: 0x8296fc00
+ _KPCR: 0x8cd00000
+ _KPCR: 0x8cd36000
+
+$ python vol.py -h
+Volatile Systems Volatility Framework 2.1_alpha
+Usage: Volatility - A memory forensics analysis platform.
+
+Options:
+[...]
+-k KPCR, --kpcr=KPCR  Specify a specific KPCR address
+[...]
+
+$ python vol.py -f mem.dmp timers --profile=Win7SP0x86 --kpcr=0x807c3000
+Volatile Systems Volatility Framework 2.1_alpha
+Offset       DueTime              Period(ms) Signaled   Routine      Module
+0x869ed930   0x0000217a:0x47a09f1a 0          -          0x99a78005 srv.sys
+0x85f451d8   0x0000217a:0x5f8703b2 10         -          0x8b0a78b9 tcpip.sys
+0x807c65a8   0x0000217a:0x47e7b336 15000      Yes        0x8287b4d3 ntoskrnl.exe
+
+$ python vol.py -f mem.dmp timers --profile=Win7SP0x86 --kpcr=0x8296fc00
+Volatile Systems Volatility Framework 2.1_alpha
+Offset       DueTime              Period(ms) Signaled   Routine      Module
+0x91593180   0x0000217a:0x4f4a5c00 0          -          0x9158e240 luafv.sys
+0x829810a0   0x0000217a:0x4f4a5c00 5000       Yes        0x8290b2d0 ntoskrnl.exe
+0x86135d70   0x0000217a:0x5b361e00 30000      Yes        0x8f6e0298 afd.sys
+0x96243900   0x0000217a:0x4f5de140 0          -          0x9621b3b2 HTTP.sys
+0x829ac4f0   0x0000217a:0x62940216 60000      Yes        0x82878d8f ntoskrnl.exe
+0x862d9150   0x0000217a:0x5448bae0 0          -          0x8aedda4f ndis.sys
+0x99a878c0   0x0000217a:0x51eb2594 0          -          0x99a780b6 srv.sys
+0x8605dd20   0x0000217a:0x4dc62f22 0          -          0x82fbbba4 storport.sys
+[...]
+}}}
+
+As you can see, depending on the KPCR used, you'll get a different list of timers. That's because each processor handles its own set of timers. For more information on timer objects, see [http://mnin.blogspot.com/2011/10/aint-nuthin-but-ktimer-thing-baby.html Ain't Nuthin But a K(Timer) Thing, Baby].
 
 = Miscellaneous =
 
