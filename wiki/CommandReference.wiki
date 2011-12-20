@@ -45,7 +45,9 @@ Potential KDBG structure addresses (P = Physical, V = Virtual):
 
 == kprcscan ==
 
-Use this command to scan for potential KPCR structures.  For information on how potential KPCR structures are found, read [http://blog.schatzforensic.com.au/2010/07/finding-object-roots-in-vista-kpcr/ Finding Object Roots in Vista]
+Use this command to scan for potential KPCR structures. On a multi-core system, each processor has its own KPCR. Therefore, you'll should see *at least* as many KPCR addresses as there are processors on the machine from which the memory dump was acquired. 
+
+For information on how potential KPCR structures are found, read [http://blog.schatzforensic.com.au/2010/07/finding-object-roots-in-vista-kpcr/ Finding Object Roots in Vista]. 
 
 {{{
 $ python vol.py --profile=Win7SP0x86 -f win7.dmp kpcrscan
@@ -53,6 +55,20 @@ Volatile Systems Volatility Framework 2.0
 Potential KPCR structure virtual addresses:
  _KPCR: 0x8296dc00
 }}}
+
+An example of a multi-core system:
+
+{{{
+$ python vol.py --profile=Win7SP0x86 -f mem.dmp kpcrscan
+Volatile Systems Volatility Framework 2.1_alpha
+Potential KPCR structure virtual addresses:
+ _KPCR: 0x807c3000
+ _KPCR: 0x8296fc00
+ _KPCR: 0x8cd00000
+ _KPCR: 0x8cd36000
+}}}
+
+Some plugins such as [http://code.google.com/p/volatility/wiki/CommandReference#idt idt] and [http://code.google.com/p/volatility/wiki/CommandReference#timers timers] reference fields in a processor's KPCR. Thus to be thorough, for example if you want to print the Interrupt Descriptor Table for all processors, you should run kpcrscan first and then pass each address to the plugin along with the --kpcr parameter. 
 
 = Processes and DLLs =
 
