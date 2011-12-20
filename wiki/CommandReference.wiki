@@ -2118,6 +2118,12 @@ Exit(0);
 
 When you open the IDB, just navigate to any functions with a "Hook" prefix and you'll be staring at the rootkit's payload. 
 
+== timers == 
+
+This command prints installed kernel timers (KTIMER) and any associated DPCs (Deferred Procedure Calls). Rootkits such as ZeroAccess, Rustock, and Stuxnet register timers with a DPC. Although the malware tries to be stealthy and hide in kernel space in a number of different ways, by finding the KTIMERs and looking at the address of the DPC, you can quickly find the malicious code ranges.                                    
+
+
+
 = Miscellaneous =
 
 == strings ==
