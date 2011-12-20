@@ -97,6 +97,7 @@ Before using these plugins, make sure to read the BasicUsage instructions. To se
 ||[http://code.google.com/p/volatility/wiki/CommandReference#devicetree devicetree]||Walk a driver's device tree||All||
 ||[http://code.google.com/p/volatility/wiki/CommandReference#psxview psxview]||Detect hidden processes by cross-referencing with various sources of process listings:<br>!PsActiveProcessHead linked list<br>EPROCESS pool scanning<br>ETHREAD pool scanning<br>!PspCidTable<br>Csrss.exe handle table<br>Csrss.exe internal linked list||All, but no internal list on Vista and 7||
 ||[http://code.google.com/p/volatility/wiki/CommandReference#ssdt_ex ssdt_ex]||Automated SSDT hook explorer for use with IDA Pro.<br>Detects which SSDT functions are hooked.<br>Extracts the hooking driver and creates an IDA Database.<br>Labels the rootkit function in the IDA Database.||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#timers timers]||Explore kernel timers (KTIMER) and DPCs (Deferred Procedure Calls)||All||
 
 == Miscellaneous ==
 
