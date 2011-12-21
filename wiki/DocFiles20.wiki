@@ -12,6 +12,7 @@ This page contains links to documents that are part of the Volatility Documentat
 
 
 = Case Studies/Forensic Challenges =
+  * [http://www.reconstructer.org/papers/Hunting%20malware%20with%20Volatility%20v2.0.pdf Hunting Malware with Volatility 2.0 by Frank Boldewin] (external link)
   * [http://mnin.blogspot.com/2011/09/abstract-memory-analysis-zeus.html Abstract Memory Analysis: Zeus Encryption Keys] (external link)
   * [http://blog.spiderlabs.com/2011/05/analyzing-malware-hollow-processes.html Analyzing Malware Hollow Processes] (external link)
   * [http://quequero.org/Carberp_Reverse_Engineering#Carberp_Analysis_via_Volatility Carberp Analysis via Volatility] (external link)
