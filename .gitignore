@@ -1,0 +1,9 @@
+*.cmd
+*.pyc
+*.symvers
+*.dwarf
+*.ko
+*.mod.*
+*.o
+modules.order
+.tmp_versions
