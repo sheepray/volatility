@@ -1,0 +1,54 @@
+#summary An overview of the linux memory forensics features.
+
+= Introduction =
+
+The current subversion branch "lin64-support" provides support for linux memory forensics (currently supported architectures are 32 bit and 64 bit intel based systems). 
+
+== Checking out the code ==
+Since this code is experimental you will need to check out the subversion repository:
+
+{{{
+svn checkout https://volatility.googlecode.com/svn/branches/lin64-support lin64-support
+}}}
+
+== Acquisition ==
+
+There is a linux physical memory driver provided in the tools/linux/ directory. This needs to be compiled for the correct kernel. Typically this means installing the kernel headers for the correct version and typing "make" at the prompt:
+
+{{{
+# apt-get install linux-headers-3.0.0-14-generic
+# export KVER=3.0.0-14-generic
+# make
+}}} 
+
+This will make pmem.ko - a physical memory driver which will create a /dev/pmem device, mapping the physical memory. It is possible to just insert the pmem module into the running kernel and just run volatility directly on the running system:
+
+{{{
+# insmod ./pmem.ko
+# ./vol.py --profile Linux64 --profile-file=myprofile.zip -f /dev/pmem pslist
+}}}
+
+== Creating the profile for the running system ==
+For a specific linux system you will need a profile - this essentially documents the specific struct offsets required for this system. Profiles are typically generated from debug symbols (on linux this format is called DWARF).
+
+You will need the dwarfdump utility installed (apt-get install dwarfdump), and the make file will generate a module.dwarf file in the tools directory. This contains all the debug information for the target kernel.
+
+You will also need the System map file (usually found in /boot/) for the target kernel. To make it easier to keep these together, volatility allows them to be put into a zip file - which we call the profile file:
+
+{{{
+# zip myprofile.zip /boot/System.map-3.0.0-12-server module.dwarf
+}}}
+
+== Running volatility ==
+To actually run volatility, we need to specify the profile (this can be either Linux32 or Linux64), and additionally we need to provide the profile file obtained from above. To see all the plugins that report themselves as available for linux, we can use -h to list them:
+{{{
+# ./vol.py --profile Linux64 --profile-file=myprofile.zip -f /dev/pmem  -h
+}}}
+
+Notice that we can always just put these command line vars into the environment so we dont have to type so much:
+{{{
+# export VOLATILITY_PROFILE=Linux64
+# export VOLATILITY_PROFILE_FILE=myprofile.zip
+# export VOLATILITY_FILENAME=/dev/pmem
+# ./vol.py pslist
+}}}
