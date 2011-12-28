@@ -32,6 +32,7 @@ This page contains links to documents that are part of the Volatility Documentat
   
 
 = Development and Plugins =
+  * [http://blog.schatzforensic.com.au/2010/05/adding-new-structure-definitions-to-volatility/ Adding new structure definitions to Volatility] (external link)
   * [ConvertingPluginsFromVol13toVol20 Converting Volatility 1.3 Plugins to 2.0] 
   * [PluginWritersGuide Plugin Writers Guide]
   * [http://lorgor.blogspot.com/2011/04/volatility-14-new-great-and-with-shiny.html reglist] (external link)
