@@ -94,7 +94,7 @@ class _LIST_ENTRY(obj.CType):
             item = obj.Object(type, offset = lst.obj_offset - offset,
                                     vm = self.obj_vm,
                                     parent = self.obj_parent,
-                                    nativevm = self.obj_nativevm,
+                                    native_vm = self.obj_native_vm,
                                     name = type)
 
 
@@ -329,7 +329,7 @@ class _OBJECT_HEADER(obj.CType):
         for name, info_offset in self.optional_headers:
             header_offset = self.m(info_offset).v()
             if header_offset:
-                o = obj.Object(name, offset-header_offset, vm=self.obj_vm, nativevm=self.obj_nativevm)
+                o = obj.Object(name, offset-header_offset, vm=self.obj_vm, native_vm=self.obj_native_vm)
             else:
                 o = obj.NoneObject("Header not set")
 
@@ -338,7 +338,7 @@ class _OBJECT_HEADER(obj.CType):
     def get_object_type(self):
         """Return the object's type as a string"""
         # TODO: This should be put in the overlay: 'Type': [ None, ['_OBJECT_TYPE']],
-        type_obj = obj.Object("_OBJECT_TYPE", self.Type, self.obj_nativevm)
+        type_obj = obj.Object("_OBJECT_TYPE", self.Type, self.obj_native_vm)
 
         return type_obj.Name.v()
 
@@ -456,7 +456,7 @@ class _EX_FAST_REF(obj.CType):
 
     def dereference_as(self, theType):
         """Use the _EX_FAST_REF.Object pointer to resolve an object of the specified type"""
-        return obj.Object(theType, vm = self.obj_nativevm, parent = self, offset = self.Object.v() & ~7)
+        return obj.Object(theType, vm = self.obj_native_vm, parent = self, offset = self.Object.v() & ~7)
 
 AbstractWindows.object_classes['_EX_FAST_REF'] = _EX_FAST_REF
 
@@ -557,7 +557,7 @@ class _IMAGE_DOS_HEADER(obj.CType):
         nt_header = obj.Object("_IMAGE_NT_HEADERS",
                           offset = self.e_lfanew + self.obj_offset,
                           vm = self.obj_vm,
-                          nativevm = self.obj_nativevm)
+                          native_vm = self.obj_native_vm)
 
         if nt_header.Signature != 0x4550:
             raise ValueError('NT header signature {0:04X} is not a valid'.format(nt_header.Signature))
@@ -577,7 +577,7 @@ class _IMAGE_NT_HEADERS(obj.CType):
         for i in range(self.FileHeader.NumberOfSections):
             s_addr = start_addr + (i * sect_size)
             sect = obj.Object("_IMAGE_SECTION_HEADER", offset = s_addr, vm = self.obj_vm,
-                              parent = self, nativevm = self.obj_nativevm)
+                              parent = self, native_vm = self.obj_native_vm)
             if not unsafe:
                 sect.sanity_check_section()
             yield sect

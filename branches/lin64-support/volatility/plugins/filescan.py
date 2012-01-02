@@ -89,14 +89,14 @@ class FileScan(common.AbstractWindowsCommand):
             pool_align = obj.VolMagic(address_space).PoolAlignment.v()
 
             file_obj = obj.Object(
-                "_FILE_OBJECT", vm = address_space, nativevm = self.kernel_address_space,
+                "_FILE_OBJECT", vm = address_space, native_vm = self.kernel_address_space,
                 offset = (offset + pool_obj.BlockSize * pool_align -
                           self.get_rounded_size("_FILE_OBJECT", pool_align))
                      )
 
             ## The _OBJECT_HEADER is immediately below the _FILE_OBJECT
             object_obj = obj.Object(
-                "_OBJECT_HEADER", vm = address_space, nativevm = self.kernel_address_space,
+                "_OBJECT_HEADER", vm = address_space, native_vm = self.kernel_address_space,
                 offset = (file_obj.obj_offset -
                           address_space.profile.get_obj_offset('_OBJECT_HEADER', 'Body'))
                 )
@@ -147,7 +147,7 @@ class DriverScan(FileScan):
         self.kernel_address_space = utils.load_as(self._config)
 
         for offset in PoolScanDriver().scan(address_space):
-            pool_obj = obj.Object("_POOL_HEADER", vm = address_space, nativevm = self.kernel_address_space,
+            pool_obj = obj.Object("_POOL_HEADER", vm = address_space, native_vm = self.kernel_address_space,
                                  offset = offset)
 
             ## We work out the _DRIVER_OBJECT from the end of the
@@ -155,20 +155,20 @@ class DriverScan(FileScan):
             pool_align = obj.VolMagic(address_space).PoolAlignment.v()
 
             extension_obj = obj.Object(
-                "_DRIVER_EXTENSION", vm = address_space, nativevm = self.kernel_address_space,
+                "_DRIVER_EXTENSION", vm = address_space, native_vm = self.kernel_address_space,
                 offset = (offset + pool_obj.BlockSize * pool_align -
                           self.get_rounded_size("_DRIVER_EXTENSION", pool_align)))
 
             ## The _DRIVER_OBJECT is immediately below the _DRIVER_EXTENSION
             driver_obj = obj.Object(
-                "_DRIVER_OBJECT", vm = address_space, nativevm = self.kernel_address_space,
+                "_DRIVER_OBJECT", vm = address_space, native_vm = self.kernel_address_space,
                 offset = extension_obj.obj_offset - \
                     self.get_rounded_size("_DRIVER_OBJECT", pool_align)
                 )
 
             ## The _OBJECT_HEADER is immediately below the _DRIVER_OBJECT
             object_obj = obj.Object(
-                "_OBJECT_HEADER", vm = address_space, nativevm = self.kernel_address_space,
+                "_OBJECT_HEADER", vm = address_space, native_vm = self.kernel_address_space,
                 offset = driver_obj.obj_offset - \
                 address_space.profile.get_obj_offset('_OBJECT_HEADER', 'Body')
                 )
@@ -225,13 +225,13 @@ class SymLinkScan(FileScan):
             pool_align = obj.VolMagic(address_space).PoolAlignment.v()
 
             link_obj = obj.Object("_OBJECT_SYMBOLIC_LINK", vm = address_space,
-                                  nativevm = self.kernel_address_space,
+                                  native_vm = self.kernel_address_space,
                                   offset = (offset + pool_obj.BlockSize * pool_align -
                                             self.get_rounded_size("_OBJECT_SYMBOLIC_LINK", pool_align)))
 
             ## The _OBJECT_HEADER is immediately below the _OBJECT_SYMBOLIC_LINK
             object_obj = obj.Object(
-                "_OBJECT_HEADER", vm = address_space, nativevm = self.kernel_address_space,
+                "_OBJECT_HEADER", vm = address_space, native_vm = self.kernel_address_space,
                 offset = (link_obj.obj_offset -
                           address_space.profile.get_obj_offset('_OBJECT_HEADER', 'Body'))
                 )
@@ -278,7 +278,7 @@ class MutantScan(FileScan):
         self.kernel_address_space = utils.load_as(self._config)
 
         for offset in PoolScanMutant().scan(address_space):
-            pool_obj = obj.Object("_POOL_HEADER", vm = address_space, nativevm = self.kernel_address_space,
+            pool_obj = obj.Object("_POOL_HEADER", vm = address_space, native_vm = self.kernel_address_space,
                                   offset = offset)
 
             ## We work out the _DRIVER_OBJECT from the end of the
@@ -286,13 +286,13 @@ class MutantScan(FileScan):
             pool_align = obj.VolMagic(address_space).PoolAlignment.v()
 
             mutant = obj.Object(
-                "_KMUTANT", vm = address_space, nativevm = self.kernel_address_space,
+                "_KMUTANT", vm = address_space, native_vm = self.kernel_address_space,
                 offset = (offset + pool_obj.BlockSize * pool_align -
                           self.get_rounded_size("_KMUTANT", pool_align)))
 
             ## The _OBJECT_HEADER is immediately below the _KMUTANT
             object_obj = obj.Object(
-                "_OBJECT_HEADER", vm = address_space,  nativevm = self.kernel_address_space,
+                "_OBJECT_HEADER", vm = address_space,  native_vm = self.kernel_address_space,
                 offset = (mutant.obj_offset -
                             address_space.profile.get_obj_offset('_OBJECT_HEADER', 'Body'))
                 )
@@ -321,7 +321,7 @@ class MutantScan(FileScan):
         for object_obj, mutant, object_name in data:
             if mutant.OwnerThread > 0x80000000:
                 thread = obj.Object("_ETHREAD", vm = self.kernel_address_space,
-                                    nativevm = self.kernel_address_space,
+                                    native_vm = self.kernel_address_space,
                                     offset = mutant.OwnerThread)
                 CID = "{0}:{1}".format(thread.Cid.UniqueProcess, thread.Cid.UniqueThread)
             else:
@@ -431,7 +431,7 @@ class PSScan(common.AbstractWindowsCommand):
 
         for offset in PoolScanProcess().scan(address_space):
             eprocess = obj.Object('_EPROCESS', vm = address_space, 
-                                  nativevm = self.kernel_address_space,
+                                  native_vm = self.kernel_address_space,
                                   offset = offset)
             yield eprocess
 
