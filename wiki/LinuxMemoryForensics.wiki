@@ -25,7 +25,7 @@ This will make pmem.ko - a physical memory driver which will create a /dev/pmem 
 
 {{{
 # insmod ./pmem.ko
-# ./vol.py --profile Linux64 --profile-file=myprofile.zip -f /dev/pmem pslist
+# ./vol.py --profile Linux64 --profile_file=myprofile.zip -f /dev/pmem pslist
 }}}
 
 == Creating the profile for the running system ==
