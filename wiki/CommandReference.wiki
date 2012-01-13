@@ -1385,7 +1385,7 @@ When possible, we use [http://code.google.com/p/volatility/wiki/FAQ#Are_there_an
 
 The malfind command has several purposes. You can use it to find hidden or injected code/DLLs in user mode memory, based on characteristics such as VAD tag and page permissions. You can also use it to locate any sequence of bytes, regular expressions, ANSI strings, or Unicode strings in user mode or kernel memory. 
 
-Note: malfind does not detect DLLs injected into a process using CreateRemoteThread->LoadLibrary. DLLs injected with this technique are not hidden and thus you can view them with [http://code.google.com/p/volatility/w/edit/CommandReference#dlllist dlllist]. The purpose of malfind is to locate DLLs taht standard methods/tools do not see. For more information see Issue #178. 
+Note: malfind does not detect DLLs injected into a process using !CreateRemoteThread->!LoadLibrary. DLLs injected with this technique are not hidden and thus you can view them with [http://code.google.com/p/volatility/w/edit/CommandReference#dlllist dlllist]. The purpose of malfind is to locate DLLs that standard methods/tools do not see. For more information see Issue #178. 
 
 Here is an example of using it to detect the presence of Zeus. The first memory segment (starting at 0x01600000) was detected because its executable and has a VadS tag...which means there is memory mapped file already occupying the space. Based on a disassembly of the data found at this address, it seems to contain some API hook trampoline stubs. 
 
