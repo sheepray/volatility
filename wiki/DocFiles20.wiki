@@ -21,6 +21,7 @@ This page contains links to documents that are part of the Volatility Documentat
   * [http://www.h-online.com/security/features/CSI-Internet-A-trip-into-RAM-1339479.html CSI:Internet Episode 3: A trip into RAM] (external link)
   * [http://www.deependresearch.org/2011/10/dirt-jumper-ddos-bot-new-versions-new.html Dirt Jumper DDoS Bot - New versions, New targets] (external link)
   * [http://p4r4n0id.com/?p=821 MORTO – From a Memory-Dump Point of View] (external link)
+  * [http://jamaaldev.blogspot.com/2012/01/running-volatility-memory-forensics-on.html Running Volatility Memory Forensics Framework on your android phone!] (external)
   * [http://quequero.org/Shylock_via_volatility Shylock via volatility] (external link)
   * [http://malwarereversing.wordpress.com/2011/09/30/shylock-in-depth-malware-analysis/ Shylock In-Depth Malware Analysis] (external link)
   * [http://mnin.blogspot.com/2011/06/examining-stuxnets-footprint-in-memory.html Stuxnet's Footprint in Memory with Volatility 2.0] (external link)
