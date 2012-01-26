@@ -56,6 +56,10 @@ If you'd like to save these files as raw dd files, you can use the [http://code.
 Short answer: No.  
 Long Answer: The [http://code.google.com/p/volatility/wiki/CommandReference#imagecopy imagecopy] plugin can be used to copy one address space to a file (allowing acquisition from address spaces such as IEEE 1394), but in general no, to acquire memory, you must use another tool. For a list of possibilities, see: [http://www.forensicswiki.org/wiki/Tools:Memory_Imaging The Forensics Wiki]
 
+= What's the largest memory dump Volatility can read? =
+
+There is technically no limit. We've heard reports of Volatility handling 30-40 GB images on both Windows and Linux host operating systems. If you routinely analyze large memory dumps and would like to supply some performance benchmarks for the FAQ, please let us know. 
+
 = Where do I find the "malware" plugins? = 
 
 The most recent version can be downloaded from [http://malwarecookbook.googlecode.com/svn/trunk/malware.py here].
