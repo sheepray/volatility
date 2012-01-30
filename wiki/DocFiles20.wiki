@@ -20,6 +20,7 @@ This page contains links to documents that are part of the Volatility Documentat
   * [https://www.honeynet.org/challenges/2011_7_compromised_server Challenge 7 of the Forensic Challenge 2011 - Forensic Analysis of a Compromised Server] (external link)
   * [http://www.h-online.com/security/features/CSI-Internet-A-trip-into-RAM-1339479.html CSI:Internet Episode 3: A trip into RAM] (external link)
   * [http://www.deependresearch.org/2011/10/dirt-jumper-ddos-bot-new-versions-new.html Dirt Jumper DDoS Bot - New versions, New targets] (external link)
+  * [http://www.sysforensics.org/2012/01/malware-analysis-with-sift-and.html Malware Analysis with SIFT and Volatility - (64 bit)] (external link)
   * [http://p4r4n0id.com/?p=821 MORTO – From a Memory-Dump Point of View] (external link)
   * [http://jamaaldev.blogspot.com/2012/01/running-volatility-memory-forensics-on.html Running Volatility Memory Forensics Framework on your android phone!] (external link)
   * [http://quequero.org/Shylock_via_volatility Shylock via volatility] (external link)
