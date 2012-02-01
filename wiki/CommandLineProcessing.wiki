@@ -1,7 +1,7 @@
 #summary How to process command line options in your plugins
 #labels Phase-Implementation
 
-This page describes features available since Volatility 1.4 beta
+This page describes features available since Volatility 2.0 beta
 
 = Introduction =
 
