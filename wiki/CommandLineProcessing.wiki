@@ -63,11 +63,20 @@ Volatility is telling us about all the options it knows about. The options have 
 This is useful since the way one processes images is normally by setting many parameters and running the many plugins on the same image using the same parameters. This allows one to set the parameters in the environment and then just run lots of modules on the same image without needing to crowd the command line with similar parameters. For example:
 
 {{{
+$ export VOLATILITY_PROFILE=Win7SP0x86
 $ export VOLATILITY_LOCATION=file:///tmp/myimage.img
 $ ./vol.py pslist
 $ ./vol.py files
 
 etc
+}}}
+
+Example contents of ~/.volatilityrc can be seen below:
+
+{{{
+[DEFAULT]
+PROFILE=Win7SP0x86
+LOCATION=file:///tmp/myimage.img
 }}}
 
 Note also that to avoid confusion, the (-h) option also lists the current value of each parameter so you can easily check what value is being used (from the environment or the config files).
