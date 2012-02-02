@@ -1194,6 +1194,40 @@ S----:1006:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::
 
 Hashes can now be cracked using John the Ripper, rainbow tables, etc. 
 
+It is possible that a registry key is not available in memory.  When this happens, you may see the following error:
+
+"ERROR   : volatility.plugins.registry.lsadump: Unable to read hashes from registry"
+
+You can try to see if the correct keys are available: "CurrentControlSet\Control\lsa" from SYSTEM and "SAM\Domains\Account" from SAM.  First you need to get the "CurrentControlSet", for this we can use volshell (replace [SYSTEM REGISTRY ADDRESS] below with the offset you get from hivelist), for example:
+
+{{{
+$ ./vol.py -f XPSP3.vmem --profile=WinXPSP3x86 volshell
+Volatile Systems Volatility Framework 2.1_alpha
+Current context: process System, pid=4, ppid=0 DTB=0x319000
+Welcome to volshell! Current memory image is: 
+file:///XPSP3.vmem
+To get help, type 'hh()'
+>>> import volatility.win32.hashdump as h
+>>> import volatility.win32.hive as hive
+>>> addr_space = utils.load_as(self._config)
+>>> sysaddr = hive.HiveAddressSpace(addr_space, self._config, [SYSTEM REGISTRY ADDRESS])
+>>> print h.find_control_set(sysaddr)
+1
+>>> ^D
+}}}
+
+Then you can use the printkey plugin to make sure the keys and their data are there.  Since the "CurrentControlSet" is 1 in our previous example, we use "ControlSet001" in the first command:
+
+{{{
+$ ./vol.py -f XPSP3.vmem --profile=WinXPSP3x86 printkey -K "ControlSet001\Control\lsa" --no-cache
+
+$ ./vol.py -f XPSP3.vmem --profile=WinXPSP3x86 printkey -K "SAM\Domains\Account" --no-cache
+}}}
+
+If the key is missing you should see an error message:
+
+"The requested key could not be found in the hive(s) searched"
+
 == lsadump ==
 
 To dump LSA secrets from the registry, use the lsadump command. This exposes information such as the default password (for systems with autologin enabled), the RDP public key, and credentials used by DPAPI.
