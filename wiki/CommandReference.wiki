@@ -1198,7 +1198,7 @@ It is possible that a registry key is not available in memory.  When this happen
 
 "ERROR   : volatility.plugins.registry.lsadump: Unable to read hashes from registry"
 
-You can try to see if the correct keys are available: "CurrentControlSet\Control\lsa" from SYSTEM and "SAM\Domains\Account" from SAM.  First you need to get the "!CurrentControlSet", for this we can use volshell (replace `[SYSTEM REGISTRY ADDRESS]` below with the offset you get from hivelist), for example:
+You can try to see if the correct keys are available: "!CurrentControlSet\Control\lsa" from SYSTEM and "SAM\Domains\Account" from SAM.  First you need to get the "!CurrentControlSet", for this we can use volshell (replace `[SYSTEM REGISTRY ADDRESS]` below with the offset you get from hivelist), for example:
 
 {{{
 $ ./vol.py -f XPSP3.vmem --profile=WinXPSP3x86 volshell
