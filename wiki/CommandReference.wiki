@@ -372,7 +372,39 @@ C:\Windows\System32\ntlanman.dll
 [snip]
 }}}
 
-You can also reference the verinfo plugin for an example of how to parse PE headers in memory images, if you happen to be looking for other information such as digital signatures, resources, import and export tables, etc. 
+== enumfunc == 
+
+This plugin enumerates imported and exported functions from processes, dlls, and kernel drivers. Specifically, it handles functions imported by name or ordinal, functions exported by name or ordinal, and forwarded exports. The output will be very verbose in most cases (functions exported by ntdll, msvcrt, and kernel32 can reach 1000+ alone). So you can either reduce the verbosity by filtering criteria with the command-line options (shown below) or you can use look at the code in enumfunc.py and use it as an example of how to use the IAT and EAT parsing API functions in your own plugin. 
+
+Also note this plugin is in the contrib directory, so you can pass that to --plugins like this:
+
+{{{
+$ python vol.py --plugins=contrib/plugins --profile=Win7SP0x86 -f win7.dmp enumfunc -h
+....
+  -s, --scan            Scan for objects
+  -P, --process-only    Process only
+  -K, --kernel-only     Kernel only
+  -I, --import-only     Imports only
+  -E, --export-only     Exports only
+}}}
+
+To only show imported functions in process memory, use -P -I. To only show exported functions in kernel memory, use -K -E. To use pool scanners for finding processes and kernel drivers instead of walking linked lists, use the -s option. 
+
+Here is an example of the output:
+
+{{{
+$ python vol.py --plugins=contrib/plugins --profile=Win7SP0x86 -f win7.dmp enumfunc -P -E
+Process              Type       Module               Ordinal    Address              Name
+winlogon.exe         Export     ntdll.dll            18         0x00000000778b657b A_SHAFinal
+winlogon.exe         Export     ntdll.dll            19         0x00000000778b6392 A_SHAInit
+winlogon.exe         Export     ntdll.dll            20         0x00000000778b63e8 A_SHAUpdate
+winlogon.exe         Export     ntdll.dll            21         0x00000000779185fe AlpcAdjustCompletionListConcurrencyCount
+winlogon.exe         Export     ntdll.dll            22         0x0000000077918b8e AlpcFreeCompletionListMessage
+winlogon.exe         Export     ntdll.dll            23         0x000000007794858d AlpcGetCompletionListLastMessageInformation
+winlogon.exe         Export     ntdll.dll            24         0x0000000077948559 AlpcGetCompletionListMessageAttributes
+winlogon.exe         Export     ntdll.dll            25         0x00000000778fb0ff AlpcGetHeaderSize
+[snip]
+}}}
 
 = Process Memory =
 
