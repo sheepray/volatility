@@ -1182,7 +1182,7 @@ To extract and decrypt cached domain credentials stored in the registry, use the
 To use hashdump, pass the virtual address of the SYSTEM hive as -y and the virtual address of the SAM hive as -s, like this:
 
 {{{
-$ volatility hashdump -f image.dd -y 0xe1035b60 -s 0xe165cb60 
+$ python vol.py hashdump -f image.dd -y 0xe1035b60 -s 0xe165cb60 
 Administrator:500:08f3a52bdd35f179c81667e9d738c5d9:ed88cccbc08d1c18bcded317112555f4::: 
 Guest:501:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0::: 
 HelpAssistant:1000:ddd4c9c883a8ecb2078f88d729ba2e67:e78d693bc40f92a534197dc1d3a6d34f::: 
