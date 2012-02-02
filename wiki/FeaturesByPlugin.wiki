@@ -27,6 +27,7 @@ Before using these plugins, make sure to read the BasicUsage instructions. To se
 ||[http://code.google.com/p/volatility/wiki/CommandReference#handles handles]||Print list of open handles for each process||All||
 ||[http://code.google.com/p/volatility/wiki/CommandReference#getsids getsids]||Print the SIDs owning each process||All||
 ||[http://code.google.com/p/volatility/wiki/CommandReference#verinfo verinfo]||Print the version information compiled into a process or DLL's PE file||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#enumfunc enumfunc]||Enumerate imported and exported functions from PE files (applies to processes, DLLs, and kernel drivers)||All||
 
 == Processes Memory ==
 
