@@ -121,6 +121,7 @@ Images from The [http://www.malwarecookbook.com Malware Analyst's Cookbook]
 ||  silentbanker.vmem.zip || [http://malwarecookbook.googlecode.com/svn-history/r26/trunk/16/6/silentbanker.vmem.zip silentbanker.vmem.zip]|| XP SP2 ||
 || tigger.vmem.zip|| [http://malwarecookbook.googlecode.com/svn-history/r26/trunk/17/8/tigger.vmem.zip tigger.vmem.zip]|| XP SP2 ||
 || zeus.vmem.zip|| [http://malwarecookbook.googlecode.com/svn-history/r26/trunk/17/1/zeus.vmem.zip zeus.vmem.zip]|| XP SP2 ||
+|| spyeye.vmem.zip||[http://code.google.com/p/malwarecookbook/source/browse/trunk/spyeye.vmem.zip spyeye.vmem.zip]|| XP SP2 ||
 
 Other Images 
 
