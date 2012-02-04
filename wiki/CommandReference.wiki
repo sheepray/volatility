@@ -2266,14 +2266,14 @@ As you can see, depending on the KPCR used, you'll get a different list of timer
 
 == strings ==
 
-For a given image and a file with lines of the form `<offset>:<string>`,
+For a given image and a file with lines of the form `<decimal_offset>:<string>`,
 output the corresponding process and virtual addresses where that
 string can be found. Expected input for this tool is the output of
 [http://technet.microsoft.com/en-us/sysinternals/bb897439 Microsoft Sysinternals' Strings utility], or another utility that
 provides similarly formatted offset:string mappings. Note that the 
 input offsets are physical offsets from the start of the file/image. 
 
-Sysinternals Strings can be used on Linux/Mac using [http://www.winehq.org/ Wine].  Output should be redirected to a file to be fed to the Volatility strings plugin.  Some example usages are as follows:
+Sysinternals Strings can be used on Linux/Mac using [http://www.winehq.org/ Wine].  Output should be redirected to a file to be fed to the Volatility strings plugin. If you're using GNU strings command, use the -td flags to produce offsets in decimal (the plugin does not accept hex offsets). Some example usages are as follows:
 
 *Windows*
 
