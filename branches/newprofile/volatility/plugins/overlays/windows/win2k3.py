@@ -45,7 +45,7 @@ class Win2K3Vtypes(obj.Hook):
         profile.merge_overlay(tcpip_vtypes.tcpip_vtypes_vista)
         profile.merge_overlay(ssdt_vtypes.ssdt_vtypes_2k3)
 
-class Win2K3SP1VTypes(Win2K3SP1Overlay):
+class Win2K3SP1VTypes(obj.Hook):
     before = ['Win2K3Overlay']
 
     def check(self, profile):
@@ -92,7 +92,7 @@ class _MMVAD_SHORT(windows._MMVAD_SHORT):
 class _MMVAD_LONG(_MMVAD_SHORT):
     pass
 
-class MM_AVL_TABLEMod(obj.Profile):
+class Win2K3MMVad(obj.Profile):
     before = ['WindowsOverlays', 'Win2K3SP1VTypes']
 
     def check(self, profile):
@@ -113,12 +113,12 @@ class Win2K3KDBG(windows.AbstractKDBGHook):
                   'minor': lambda x: x >= 2}
     kdbgsize = 0x318
 
-class Win2K3SP0x86DTB(obj.Hook):
+class Win2K3x86DTB(obj.Hook):
     before = ['WindowsOverlays', 'Win2K3SP1VTypes']
     conditions = {'os': lambda x : x == 'windows',
                   'memory_model': lambda x: x == '32bit',
                   'major': lambda x: x == 5,
-                  'minor': lambda x: x >= 2}
+                  'minor': lambda x: x == 2}
 
     def modification(self, profile):
         overlay = {'VOLATILITY_MAGIC': [ None, {
@@ -126,12 +126,21 @@ class Win2K3SP0x86DTB(obj.Hook):
                                         ]}
         profile.merge_overlay(overlay)
 
+class Win2K3x64DTB(obj.Hook):
+    before = ['WindowsOverlays', 'Windows64Overlay', 'Win2K3SP1VTypes']
+    conditions = {'os': lambda x : x == 'windows',
+                  'memory_model': lambda x: x == '64bit',
+                  'major': lambda x: x == 5,
+                  'minor': lambda x: x == 2}
+
+    def modification(self, profile):
+        overlay = {'VOLATILITY_MAGIC': [ None, {
+                        'DTBSignature': [ None, ['VolatilityMagic', dict(value = "\x03\x00\x2e\x00")]]}
+                                        ]}
+        profile.merge_overlay(overlay)
+
 class EThreadCreateTime(obj.Hook):
     before = ['WindowsOverlays', 'Win2K3SP1VTypes']
-    conditions = {'os': lambda x : x == 'windows',
-                  'memory_model': lambda x: x == '32bit',
-                  'major': lambda x: x == 5,
-                  'minor': lambda x: x >= 2}
 
     def check(self, profile):
         m = profile.metadata
@@ -141,22 +150,8 @@ class EThreadCreateTime(obj.Hook):
 
     def modification(self, profile):
         overlay = {'_ETHREAD': [ None, {
-                        'CreateTime' : [ None, ['WinTimeStamp', {}]]
-                                        }
+                        'CreateTime' : [ None, ['WinTimeStamp', {}]]}
                                 ]}
-        profile.merge_overlay(overlay)
-
-class Win2K3SP1x64Overlays(obj.Hook):
-    before = ['Windows64', 'WindowsOverlays']
-    conditions = {'os': lambda x: x == 'windows',
-                  'memory_model': lambda x: x == '64bit',
-                  'major': lambda x: x == 5,
-                  'minor': lambda x: x == 2}
-
-    def modification(self, profile):
-        overlay = {'VOLATILITY_MAGIC': [ None, {
-                        'DTBSignature' : [ None, ['VolatilityMagic', dict(value = "\x03\x00\x2e\x00")]]
-                                                }]}
         profile.merge_overlay(overlay)
 
 class Win2K3SP0x86(obj.Profile):

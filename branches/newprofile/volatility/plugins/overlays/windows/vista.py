@@ -45,7 +45,7 @@ class _MMVAD_SHORT(windows._MMVAD_SHORT):
 class _MMVAD_LONG(_MMVAD_SHORT):
     pass
 
-class VistaSP0Hook(obj.Hook):
+class VistaDTB(obj.Hook):
     conditions = {'os': lambda x: x == 'windows',
                   'major': lambda x: x >= 6,
                   'memory_model': lambda x: x == '32bit',
@@ -54,11 +54,11 @@ class VistaSP0Hook(obj.Hook):
     def modification(self, profile):
         overlay = {'VOLATILITY_MAGIC': [ None, {
                     'DTBSignature' : [ None, ['VolatilityMagic', dict(value = "\x03\x00\x30\x00")]],
-                    'KDBGHeader'   : [ None, ['VolatilityMagic', dict(value = '\x00\xf8\xff\xffKDBG\x28\x03')]]
                                           }]}
         profile.merge_overlay(overlay)
 
 class VistaMMVADHook(obj.Hook):
+    before = ['WindowsOverlay', 'Win2K3MMVad']
     conditions = {'os': lambda x: x == 'windows',
                   'major': lambda x: x >= 6,
                   }
@@ -67,20 +67,21 @@ class VistaMMVADHook(obj.Hook):
         profile.object_classes['_MMVAD_SHORT'] = _MMVAD_SHORT
         profile.object_classes['_MMVAD_LONG'] = _MMVAD_LONG
 
-class VistaSP1Hook(obj.Hook):
+class VistaKDBG(windows.AbstractKDBGHook):
+    before = ['WindowsOverlays']
+    conditions = {'os': lambda x : x == 'windows',
+                  'major': lambda x: x == 6}
+    kdbgsize = 0x328
+
+class VistaSP1KDBG(windows.AbstractKDBGHook):
     conditions = {'os': lambda x: x == 'windows',
                   'major': lambda x: x == 6,
                   'minor': lambda x: x == 0,
                   'build': lambda x: x >= 6001,
                   'memory_model': lambda x: x == '64bit',
                   }
-    before = ['VistaSP0Hook']
-
-    def modification(self, profile):
-        overlay = {'VOLATILITY_MAGIC': [ None, {
-                    'KDBGHeader': [ None, ['VolatilityMagic', dict(value = '\x00\xf8\xff\xffKDBG\x30\x03')]],
-                                           }]}
-        profile.merge_overlay(overlay)
+    before = ['WindowsOverlay', 'VistaKDBG']
+    kdbgsize = 0x330
 
 class VistaSP0x86(obj.Profile):
     """ A Profile for Windows Vista SP0 x86 """

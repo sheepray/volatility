@@ -761,7 +761,7 @@ import kdbg_vtypes
 import tcpip_vtypes
 import ssdt_vtypes
 
-class WindowsOverlays(obj.Hook):
+class WindowsOverlay(obj.Hook):
     conditions = {'os': lambda x: x == 'windows'}
     before = ['BasicObjectClasses', 'WindowsVTypes']
 

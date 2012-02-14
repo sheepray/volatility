@@ -30,7 +30,13 @@ import windows
 import volatility.obj as obj
 import volatility.debug as debug #pylint: disable-msg=W0611
 
-class Win7Overlay(obj.Hook):
+class Win7KDBG(windows.AbstractKDBGHook):
+    conditions = {'os': lambda x: x == 'windows',
+                  'major': lambda x: x >= 6}
+    before = ['WindowsOverlay', 'VistaKDBG']
+    kdbgsize = 0x340
+
+class Win7x86DTB(obj.Hook):
     conditions = {'os': lambda x: x == 'windows',
                   'major': lambda x: x >= 6,
                   'memory_model': lambda x: x == '32bit',
@@ -39,11 +45,10 @@ class Win7Overlay(obj.Hook):
     def modification(self, profile):
         overlay = {'VOLATILITY_MAGIC': [ None, {
                     'DTBSignature' : [ None, ['VolatilityMagic', dict(value = "\x03\x00\x26\x00")]],
-                    'KDBGHeader'   : [ None, ['VolatilityMagic', dict(value = '\x00\x00\x00\x00\x00\x00\x00\x00KDBG\x40\x03')]]
                                           }]}
         profile.merge_overlay(overlay)
 
-class Win7x64Overlay(obj.Hook):
+class Win7x64DTB(obj.Hook):
     conditions = {'os': lambda x: x == 'windows',
                   'major': lambda x: x >= 6,
                   'memory_model': lambda x: x == '64bit',
@@ -52,7 +57,6 @@ class Win7x64Overlay(obj.Hook):
     def modification(self, profile):
         overlay = {'VOLATILITY_MAGIC': [ None, {
                     'DTBSignature' : [ None, ['VolatilityMagic', dict(value = "\x03\x00\x58\x00")]],
-                    'KDBGHeader'   : [ None, ['VolatilityMagic', dict(value = '\x00\xf8\xff\xffKDBG\x40\x03')]]
                                           }]}
         profile.merge_overlay(overlay)
 
@@ -140,10 +144,6 @@ class Win7ObjectClasses(obj.Hook):
 
     def modification(self, profile):
         profile.object_classes.update({'_OBJECT_HEADER': _OBJECT_HEADER})
-        profile.merge_overlay({'VOLATILITY_MAGIC': [ 0x0, {
-                                'ObjectPreamble': [ 0x0, ['VolatilityMagic', dict(value = '_OBJECT_HEADER_CREATOR_INFO')]]
-                                }]
-                             })
 
 class Win7SP0x86(obj.Profile):
     """ A Profile for Windows 7 SP0 x86 """
