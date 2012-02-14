@@ -930,6 +930,7 @@ class Profile(object):
             hook = hooks.get(hookname, None)
             # We check for invalid/mistyped hook names, AbstractHooks should be caught by this too
             if not hook:
+                # Note, this does not allow for optional dependencies
                 raise RuntimeError("No concrete Hook found for " + hookname)
             if hook.check(self):
                 debug.debug("Applying modification from " + hook.__class__.__name__)
