@@ -87,6 +87,20 @@ class Win2K3KDBG(windows.AbstractKDBGHook):
                   'minor': lambda x: x >= 2}
     kdbgsize = 0x318
 
+class Win2K3SP0x86DTB(obj.Hook):
+    before = ['WindowsOverlay', 'Win2K3x86DTB']
+    conditions = {'os': lambda x: x == 'windows',
+                  'memory_model': lambda x: x == '32bit',
+                  'major': lambda x: x == 5,
+                  'minor': lambda x: x == 2,
+                  'build': lambda x: x == 3789}
+
+    def modification(self, profile):
+        overlay = {'VOLATILITY_MAGIC': [ None, {
+                        'DTBSignature': [ None, ['VolatilityMagic', dict(value = "\x03\x00\x1e\x00")]]}
+                                        ]}
+        profile.merge_overlay(overlay)
+
 class Win2K3x86DTB(obj.Hook):
     before = ['WindowsOverlay']
     conditions = {'os': lambda x : x == 'windows',
@@ -134,6 +148,10 @@ class Win2K3SP0x86(obj.Profile):
     _md_os = 'windows'
     _md_major = 5
     _md_minor = 2
+    # FIXME: 2K3's build numbers didn't differentiate between SP0 and SP1/2
+    # despite there being a large change. As such we fake a special build number
+    # for 2K3 SP0 to help us differentiate it
+    _md_build = 3789
     _md_memory_model = '32bit'
     _md_vtype_module = 'volatility.plugins.overlays.windows.win2k3_sp0_x86_vtypes'
 
