@@ -859,6 +859,9 @@ class Profile(object):
         self.object_classes = {}
         self.native_types = {}
 
+        # Place for hooks to extend profiles with additional (profile-specific) information
+        self.additional = {}
+
         # Set up the "input" data
         self.vtypes = {}
 
@@ -896,7 +899,7 @@ class Profile(object):
         if not vtype_module:
             debug.warning("No vtypes specified for this profile")
         else:
-            module = sys.modules[vtype_module]
+            module = sys.modules.get(vtype_module, None)
 
             # Try to locate the _types dictionary
             for i in dir(module):
