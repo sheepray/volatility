@@ -41,13 +41,15 @@ class Win7Pointer64(obj.Hook):
 class Win7KDBG(windows.AbstractKDBGHook):
     before = ['WindowsOverlay', 'VistaKDBG']
     conditions = {'os': lambda x: x == 'windows',
-                  'major': lambda x: x >= 6}
+                  'major': lambda x: x == 6,
+                  'minor': lambda x: x == 1}
     kdbgsize = 0x340
 
 class Win7x86DTB(obj.Hook):
     before = ['WindowsOverlay']
     conditions = {'os': lambda x: x == 'windows',
-                  'major': lambda x: x >= 6,
+                  'major': lambda x: x == 6,
+                  'minor': lambda x: x == 1,
                   'memory_model': lambda x: x == '32bit',
                   }
 
@@ -60,7 +62,8 @@ class Win7x86DTB(obj.Hook):
 class Win7x64DTB(obj.Hook):
     before = ['WindowsOverlay', 'Windows64Overlay']
     conditions = {'os': lambda x: x == 'windows',
-                  'major': lambda x: x >= 6,
+                  'major': lambda x: x == 6,
+                  'minor': lambda x: x == 1,
                   'memory_model': lambda x: x == '64bit',
                   }
 
