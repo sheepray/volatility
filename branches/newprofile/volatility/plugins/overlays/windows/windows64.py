@@ -26,7 +26,8 @@ class Windows64Overlay(obj.Hook):
 
     def modification(self, profile):
         profile.merge_overlay({'VOLATILITY_MAGIC': [ 0x0, {
-                                    'PoolAlignment': [ 0x0, ['VolatilityMagic', dict(value = 16)] ]
+                                    'PoolAlignment': [ 0x0, ['VolatilityMagic', dict(value = 16)] ],
+                                    'KUSER_SHARED_DATA': [ 0x0, ['VolatilityMagic', dict(value = 0xFFFFF78000000000)]]
                                                            }
                                                     ]})
         # This is the location of the MMVAD type which controls how to parse the
