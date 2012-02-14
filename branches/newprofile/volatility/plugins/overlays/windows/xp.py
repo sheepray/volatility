@@ -33,7 +33,8 @@ import volatility.obj as obj
 
 class XPOverlay(obj.Hook):
     conditions = {'os': lambda x : x == 'windows',
-                  'major': lambda x: x >= 5}
+                  'major': lambda x: x == 5,
+                  'minor': lambda x: x == 1}
     before = ['WindowsOverlays']
 
     def modification(self, profile):

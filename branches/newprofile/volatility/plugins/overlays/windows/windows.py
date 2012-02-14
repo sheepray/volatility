@@ -810,6 +810,17 @@ class WindowsObjectClasses(obj.Hook):
             '_MMSECTION_FLAGS': _MMSECTION_FLAGS,
             })
 
+class AbstractKDBGHook(obj.Hook):
+    kdbgsize = 0x290
+
+    def modification(self, profile):
+        signature = '\x00\x00\x00\x00\x00\x00\x00\x00' if profile.metadata.get('memory_model', '32bit') == '32bit' else '\x00\xf8\xff\xff'
+        signature += 'KDBG' + struct.pack('<H', self.kdbgsize)
+        profile.merge_overlay({'VOLATILITY_MAGIC': [ None, {
+                                'KDBGHeader': [ None, ['VolatilityMagic', dict(value = signature)]]
+                                                            }
+                                                    ]})
+
 ### DEPRECATED FEATURES ###
 #
 # These are due from removal after version 2.2,

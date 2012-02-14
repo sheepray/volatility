@@ -33,19 +33,6 @@ import ssdt_vtypes
 import volatility.debug as debug #pylint: disable-msg=W0611
 import volatility.obj as obj
 
-class Win2K3Overlay(obj.Hook):
-    before = ['WindowsOverlays']
-    conditions = {'os': lambda x : x == 'windows',
-                  'memory_model': lambda x: x == '32bit',
-                  'major': lambda x: x == 5,
-                  'minor': lambda x: x >= 2}
-
-    def modification(self, profile):
-        overlay = {'VOLATILITY_MAGIC': [ None, {
-                        'KDBGHeader'   : [ None, ['VolatilityMagic', dict(value = '\x00\x00\x00\x00\x00\x00\x00\x00KDBG\x18\x03')]],
-                                                }]}
-        profile.merge_overlay(overlay)
-
 class Win2K3Vtypes(obj.Hook):
     before = ['WindowsOverlays']
 
@@ -57,6 +44,18 @@ class Win2K3Vtypes(obj.Hook):
     def modification(self, profile):
         profile.merge_overlay(tcpip_vtypes.tcpip_vtypes_vista)
         profile.merge_overlay(ssdt_vtypes.ssdt_vtypes_2k3)
+
+class Win2K3SP1VTypes(Win2K3SP1Overlay):
+    before = ['Win2K3Overlay']
+
+    def check(self, profile):
+        m = profile.metadata
+        return (m.get('os', None) == 'windows' and
+                (m.get('major') > 5 or (m.get('major') == 5 and m.get('minor') >= 2))
+                and profile.__class__.__name__ != 'Win2K3SP0x86')
+
+    def modification(self, profile):
+        profile.merge_overlay(tcpip_vtypes.tcpip_vtypes_2k3_sp1_sp2)
 
 class _MM_AVL_TABLE(obj.CType):
     def traverse(self):
@@ -93,8 +92,8 @@ class _MMVAD_SHORT(windows._MMVAD_SHORT):
 class _MMVAD_LONG(_MMVAD_SHORT):
     pass
 
-class Win2K3ObjectClasses(Win2K3Overlay):
-    before = ['Win2K3Overlay', 'Win2K3SP1VTypes']
+class MM_AVL_TABLEMod(obj.Profile):
+    before = ['WindowsOverlays', 'Win2K3SP1VTypes']
 
     def check(self, profile):
         m = profile.metadata
@@ -107,22 +106,44 @@ class Win2K3ObjectClasses(Win2K3Overlay):
                                        '_MMVAD_SHORT': _MMVAD_SHORT,
                                        '_MMVAD_LONG': _MMVAD_LONG})
 
-class Win2K3SP1Overlay(obj.Hook):
-    before = ['Win2K3Overlay', 'Win2K3SP1VTypes']
+class Win2K3KDBG(windows.AbstractKDBGHook):
+    before = ['WindowsOverlays']
+    conditions = {'os': lambda x : x == 'windows',
+                  'major': lambda x: x == 5,
+                  'minor': lambda x: x >= 2}
+    kdbgsize = 0x318
 
+class Win2K3SP0x86DTB(obj.Hook):
+    before = ['WindowsOverlays', 'Win2K3SP1VTypes']
     conditions = {'os': lambda x : x == 'windows',
                   'memory_model': lambda x: x == '32bit',
                   'major': lambda x: x == 5,
                   'minor': lambda x: x >= 2}
 
     def modification(self, profile):
+        overlay = {'VOLATILITY_MAGIC': [ None, {
+                        'DTBSignature': [ None, ['VolatilityMagic', dict(value = "\x03\x00\x1e\x00")]]}
+                                        ]}
+        profile.merge_overlay(overlay)
+
+class EThreadCreateTime(obj.Hook):
+    before = ['WindowsOverlays', 'Win2K3SP1VTypes']
+    conditions = {'os': lambda x : x == 'windows',
+                  'memory_model': lambda x: x == '32bit',
+                  'major': lambda x: x == 5,
+                  'minor': lambda x: x >= 2}
+
+    def check(self, profile):
+        m = profile.metadata
+        return (m.get('os', None) == 'windows' and
+                ((m.get('major', 0) == 5 and m.get('minor', 0) >= 2) or
+                 m.get('major', 0) >= 6))
+
+    def modification(self, profile):
         overlay = {'_ETHREAD': [ None, {
                         'CreateTime' : [ None, ['WinTimeStamp', {}]]
                                         }
-                                ],
-                   'VOLATILITY_MAGIC': [ None, {
-                        'DTBSignature': [ None, ['VolatilityMagic', dict(value = "\x03\x00\x1e\x00")]]
-                                                }]}
+                                ]}
         profile.merge_overlay(overlay)
 
 class Win2K3SP1x64Overlays(obj.Hook):
@@ -134,22 +155,9 @@ class Win2K3SP1x64Overlays(obj.Hook):
 
     def modification(self, profile):
         overlay = {'VOLATILITY_MAGIC': [ None, {
-                        'KDBGHeader'   : [ None, ['VolatilityMagic', dict(value = '\x00\xf8\xff\xffKDBG\x18\x03')]],
                         'DTBSignature' : [ None, ['VolatilityMagic', dict(value = "\x03\x00\x2e\x00")]]
                                                 }]}
         profile.merge_overlay(overlay)
-
-class Win2K3SP1VTypes(Win2K3SP1Overlay):
-    before = ['Win2K3Overlay']
-
-    def check(self, profile):
-        m = profile.metadata
-        return (m.get('os', None) == 'windows' and
-                (m.get('major') > 5 or (m.get('major') == 5 and m.get('minor') >= 2))
-                and profile.__class__.__name__ != 'Win2K3SP0x86')
-
-    def modification(self, profile):
-        profile.merge_overlay(tcpip_vtypes.tcpip_vtypes_2k3_sp1_sp2)
 
 class Win2K3SP0x86(obj.Profile):
     """ A Profile for Windows 2003 SP0 x86 """

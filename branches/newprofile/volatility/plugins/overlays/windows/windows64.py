@@ -21,10 +21,8 @@ import volatility.obj as obj
 
 class Windows64Overlay(obj.Hook):
     before = ['WindowsOverlay', 'WindowsObjectClasses']
-
-    def check(self, profile):
-        return (profile.metadata.get('memory_model', '32bit') == '64bit' and
-                profile.metadata.get('os', None) == 'windows')
+    conditions = {'memory_model': lambda x: x == '64bit',
+                  'os': lambda x: x == 'windows'}
 
     def modification(self, profile):
         profile.merge_overlay({'VOLATILITY_MAGIC': [ 0x0, {
