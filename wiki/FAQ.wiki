@@ -254,6 +254,52 @@ Volatile Systems Volatility Framework 2.1_alpha
 ....
 }}}
 
+== No address space mapping, No valid DTB found == 
+
+If you see the message "No suitable address space mapping found" and/or "No valid DTB found" most likely you've selected an invalid profile for the memory image you're analyzing. For example:
+
+{{{
+$ python vol.py -f win2k3sp0.vmem psscan
+Volatile Systems Volatility Framework 2.1_alpha
+ Offset(P)  Name             PID    PPID   PDB        Time created             Time exited             
+---------- ---------------- ------ ------ ---------- ------------------------ ------------------------ 
+No suitable address space mapping found
+Tried to open image as:
+ WindowsHiberFileSpace32: No base Address Space
+ EWFAddressSpace: No libEWF implementation found
+ WindowsCrashDumpSpace32: No base Address Space
+ AMD64PagedMemory: No base Address Space
+ JKIA32PagedMemory: No base Address Space
+ JKIA32PagedMemoryPae: No base Address Space
+ IA32PagedMemoryPae: Module disabled
+ IA32PagedMemory: Module disabled
+ WindowsHiberFileSpace32: No xpress signature found
+ EWFAddressSpace: No libEWF implementation found
+ WindowsCrashDumpSpace32: Header signature invalid
+ AMD64PagedMemory: Incompatible profile WinXPSP2x86 selected
+ JKIA32PagedMemory: No valid DTB found
+ JKIA32PagedMemoryPae: No valid DTB found
+ IA32PagedMemoryPae: Module disabled
+ IA32PagedMemory: Module disabled
+ FileAddressSpace: Must be first Address Space
+}}}
+
+You should check with the [CommandReference#imageinfo imageinfo] plugin for profile suggestions (also see the previous FAQ entry). In this case, simply supplying the correct profile will fix the issue:
+
+{{{
+$ python vol.py -f win2k3sp0.vmem --profile=Win2K3SP0x86 psscan
+Volatile Systems Volatility Framework 2.1_alpha
+ Offset(P)  Name             PID    PPID   PDB        Time created             Time exited             
+---------- ---------------- ------ ------ ---------- ------------------------ ------------------------ 
+0x01fc6550 vmtoolsd.exe       2816    508 0x0e717000 2010-09-26 20:15:24      2010-09-26 20:15:46     
+0x01fca2f0 VMwareTray.exe     2788    152 0x098bc000 2010-09-26 20:15:24      2010-09-26 20:15:44     
+0x01ff0d00 wpabaln.exe        3352    464 0x0d716000 2010-09-26 20:15:32      2010-09-26 20:15:44     
+0x01ffed88 rundll32.exe       2704   2696 0x16c38000 2010-09-26 20:15:20      2010-09-26 20:15:44     
+0x01fff348 spoolsv.exe        2096    508 0x1168f000 2010-09-26 20:14:55      2010-09-26 20:15:46     
+0x02023ca0 msiexec.exe        1748   1920 0x079d4000 2010-09-26 20:14:51      2010-09-26 20:15:39
+....
+}}}
+
 == Scanning commands report false positives == 
 
 Commands like [CommandReference#psscan psscan], [CommandReference#modscan modscan], [CommandReference#connscan connscan], etc. use pool tag scanning to find objects (either active or residual) in physical memory. Thus Volatility scans over your entire memory dump looking for 4 byte pool tag signatures and then applies a serious of sanity checks (specific per object type). If you believe one of the scanners has found a false positive, you can investigate the reason using [CommandReference#volshell volshell] (look for the section that describes how to use the dt() command with a physical address space). You also may want to view the source code for the plugin you're running and examine the sanity checks Volatility uses. In particular, look for classes that subclass scan.ScannerCheck and view the list of checks in classes that subclass scan.PoolScanner. For more information on the scanning framework, see [Scanners Scanners].
