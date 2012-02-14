@@ -43,12 +43,7 @@ Microsoft Windows:
  * 32bit Windows 7 Service Pack 0, 1
 
 Linux:
- * Volatility doesn't currently support linux memory images, but will  in the next version (after 2.0). For more information, see:
-
- * [http://dfsforensics.blogspot.com/2011/03/bringing-linux-support-to-volatility.html Bringing Linux Support To Volatility] 
- * [http://dfsforensics.blogspot.com/2011/03/analyzing-new-honeynet-memory-analysis.html Analyzing the New Honeynet Memory Challenge with Volatility] by Andrew Case.
- * The winning submissions to [https://www.honeynet.org/challenges/2011_7_compromised_server Honeynet's Forensic Challenge #7], which leveraged Volatility.
- * [http://www.digitalforensicssolutions.com/papers/blackhat-workshop-full-presentation.pdf Linux Memory Analysis Workshop at Blackhat USA 2011 by Andrew Case] 
+ * Support for Linux memory dumps is growing rapidly. We have two branches ([http://code.google.com/p/volatility/source/browse/#svn%2Fbranches%2Flin64-support lin64-support] and [http://code.google.com/p/volatility/source/browse/#svn%2Fbranches%2Flinux-support linux-support]) whose functionality will be merged into the main trunk in one of the next major releases of Volatility. For information on analyzing Linux memory dumps, see [DocFiles20#Linux_Support Linux Support] and [LinuxMemoryForensics Linux Memory Forensics]
 
 == What about reading crash dumps and hibernation files? == 
 
