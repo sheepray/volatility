@@ -886,21 +886,6 @@ class Profile(object):
         # Recompile
         self.compile()
 
-    @utils.classproperty
-    @classmethod
-    def metadata(cls):
-        """ Returns a read-only dictionary copy of the metadata associated with a profile """
-        prefix = '_md_'
-        result = {}
-        for i in dir(cls):
-            if i.startswith(prefix):
-                result[i[len(prefix):]] = getattr(cls, i)
-        return result
-
-    def has_type(self, theType):
-        """ Returns a simple check of whether the type is in the profile """
-        return theType in self.types
-
     def load_vtypes(self):
         """ Identifies the module from which to load the vtypes 
         
@@ -976,65 +961,16 @@ class Profile(object):
             if name not in self.types:
                 self.types[name] = Curry(self.object_classes[name], name)
 
-    def _list_to_type(self, name, typeList, typeDict = None):
-        """ Parses a specification list and returns a VType object.
-
-            This function is a bit complex because we support lots of
-            different list types for backwards compatibility.
-        """
-        ## This supports plugin memory objects:
-        try:
-            kwargs = typeList[1]
-
-            if type(kwargs) == dict:
-                ## We have a list of the form [ ClassName, dict(.. args ..) ]
-                return Curry(Object, theType = typeList[0], name = name, **kwargs)
-        except (TypeError, IndexError), _e:
-            pass
-
-        ## This is of the form [ 'void' ]
-        if typeList[0] == 'void':
-            return Curry(Void, None, name = name)
-
-        ## This is of the form [ 'pointer' , [ 'foobar' ]]
-        if typeList[0] == 'pointer':
-            try:
-                target = typeList[1]
-            except IndexError:
-                raise RuntimeError("Syntax Error in pointer type defintion for name {0}".format(name))
-
-            return Curry(Pointer, None,
-                         name = name,
-                         target = self._list_to_type(name, target, typeDict))
-
-        ## This is an array: [ 'array', count, ['foobar'] ]
-        if typeList[0] == 'array':
-            return Curry(Array, None,
-                         name = name, count = typeList[1],
-                         target = self._list_to_type(name, typeList[2], typeDict))
-
-        ## This is a list which refers to a type which is already defined
-        if typeList[0] in self.types:
-            return Curry(self.types[typeList[0]], name = name)
-
-        ## Does it refer to a type which will be defined in future? in
-        ## this case we just curry the Object function to provide
-        ## it on demand. This allows us to define structures
-        ## recursively.
-        ##if typeList[0] in typeDict:
-        try:
-            tlargs = typeList[1]
-        except IndexError:
-            tlargs = {}
-
-        obj_name = typeList[0]
-        if type(tlargs) == dict:
-            return Curry(Object, obj_name, name = name, **tlargs)
-
-        ## If we get here we have no idea what this list is
-        #raise RuntimeError("Error in parsing list {0}".format(typeList))
-        debug.warning("Unable to find a type for {0}, assuming int".format(typeList[0]))
-        return Curry(self.types['int'], name = name)
+    @utils.classproperty
+    @classmethod
+    def metadata(cls):
+        """ Returns a read-only dictionary copy of the metadata associated with a profile """
+        prefix = '_md_'
+        result = {}
+        for i in dir(cls):
+            if i.startswith(prefix):
+                result[i[len(prefix):]] = getattr(cls, i)
+        return result
 
     def _get_subclasses(self, cls):
         """Returns a list of all subclasses"""
@@ -1063,6 +999,10 @@ class Profile(object):
 
         tmp = self.types[name](offset = 0, name = name, vm = dummy(), parent = None)
         return tmp
+
+    def has_type(self, theType):
+        """ Returns a simple check of whether the type is in the profile """
+        return theType in self.types
 
     def get_obj_offset(self, name, member):
         """ Returns a members offset within the struct """
@@ -1170,6 +1110,66 @@ class Profile(object):
         for s in result:
             for i in s:
                 yield i
+
+    def _list_to_type(self, name, typeList, typeDict = None):
+        """ Parses a specification list and returns a VType object.
+
+            This function is a bit complex because we support lots of
+            different list types for backwards compatibility.
+        """
+        ## This supports plugin memory objects:
+        try:
+            kwargs = typeList[1]
+
+            if type(kwargs) == dict:
+                ## We have a list of the form [ ClassName, dict(.. args ..) ]
+                return Curry(Object, theType = typeList[0], name = name, **kwargs)
+        except (TypeError, IndexError), _e:
+            pass
+
+        ## This is of the form [ 'void' ]
+        if typeList[0] == 'void':
+            return Curry(Void, None, name = name)
+
+        ## This is of the form [ 'pointer' , [ 'foobar' ]]
+        if typeList[0] == 'pointer':
+            try:
+                target = typeList[1]
+            except IndexError:
+                raise RuntimeError("Syntax Error in pointer type defintion for name {0}".format(name))
+
+            return Curry(Pointer, None,
+                         name = name,
+                         target = self._list_to_type(name, target, typeDict))
+
+        ## This is an array: [ 'array', count, ['foobar'] ]
+        if typeList[0] == 'array':
+            return Curry(Array, None,
+                         name = name, count = typeList[1],
+                         target = self._list_to_type(name, typeList[2], typeDict))
+
+        ## This is a list which refers to a type which is already defined
+        if typeList[0] in self.types:
+            return Curry(self.types[typeList[0]], name = name)
+
+        ## Does it refer to a type which will be defined in future? in
+        ## this case we just curry the Object function to provide
+        ## it on demand. This allows us to define structures
+        ## recursively.
+        ##if typeList[0] in typeDict:
+        try:
+            tlargs = typeList[1]
+        except IndexError:
+            tlargs = {}
+
+        obj_name = typeList[0]
+        if type(tlargs) == dict:
+            return Curry(Object, obj_name, name = name, **tlargs)
+
+        ## If we get here we have no idea what this list is
+        #raise RuntimeError("Error in parsing list {0}".format(typeList))
+        debug.warning("Unable to find a type for {0}, assuming int".format(typeList[0]))
+        return Curry(self.types['int'], name = name)
 
     def _convert_members(self, cname):
         """ Convert the structure named by cname from the c description
