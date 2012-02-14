@@ -30,6 +30,14 @@ import windows
 import volatility.obj as obj
 import volatility.debug as debug #pylint: disable-msg=W0611
 
+class Win7Pointer64(obj.Hook):
+    before = ['WindowsOverlay', 'WindowsVTypes']
+    conditions = {'os': lambda x: x == 'windows',
+                  'major': lambda x: x >= 6}
+
+    def modification(self, profile):
+        profile.native_types.update({'pointer64': [8, '<q']})
+
 class Win7KDBG(windows.AbstractKDBGHook):
     before = ['WindowsOverlay', 'VistaKDBG']
     conditions = {'os': lambda x: x == 'windows',
