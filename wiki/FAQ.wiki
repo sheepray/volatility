@@ -240,6 +240,10 @@ Volatile Systems Volatility Framework 2.1_alpha
 ....
 }}}
 
+== Scanning commands report false positives == 
+
+Commands like [CommandReference#psscan psscan], [CommandReference#modscan modscan], [CommandReference#connscan connscan], etc. use pool tag scanning to find objects (either active or residual) in physical memory. Thus Volatility scans over your entire memory dump looking for 4 byte pool tag signatures and then applies a serious of sanity checks (specific per object type). If you believe one of the scanners has found a false positive, you can investigate the reason using [CommandReference#volshell volshell] (look for the section that describes how to use the dt() command with a physical address space). You also may want to view the source code for the plugin you're running and examine the sanity checks Volatility uses. In particular, look for classes that subclass scan.ScannerCheck and view the list of checks in classes that subclass scan.PoolScanner. For more information on the scanning framework, see [Scanners Scanners].
+
 == How can I report a bug or feature request? ==
 
 See the contact section below. 
