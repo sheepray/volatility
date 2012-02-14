@@ -132,7 +132,7 @@ tcpip_vtypes_7_64 = {
     }],
 }
 
-class Win2K3SP12Tcpip(obj.Hook):
+class Win2K3SP12Tcpip(obj.ProfileModification):
     before = ['WindowsVTypes']
     conditions = {'os': lambda x: x == 'windows',
                   'memory_model': lambda x: x == '32bit',
@@ -142,7 +142,7 @@ class Win2K3SP12Tcpip(obj.Hook):
     def modification(self, profile):
         profile.vtypes.update(tcpip_vtypes_2k3_sp1_sp2)
 
-class Vista2K8Tcpip(obj.Hook):
+class Vista2K8Tcpip(obj.ProfileModification):
     conditions = {'os': lambda x: x == 'windows',
                   'memory_model': lambda x: x == '32bit',
                   'major': lambda x : x == 6,
@@ -150,7 +150,7 @@ class Vista2K8Tcpip(obj.Hook):
     def modification(self, profile):
         profile.vtypes.update(tcpip_vtypes_vista)
 
-class Win7Tcpip(obj.Hook):
+class Win7Tcpip(obj.ProfileModification):
     before = ['Vista2K8Tcpip']
     conditions = {'os': lambda x: x == 'windows',
                   'memory_model': lambda x: x == '32bit',
@@ -159,7 +159,7 @@ class Win7Tcpip(obj.Hook):
     def modification(self, profile):
         profile.vtypes.update(tcpip_vtypes_7)
 
-class Win7x64Tcpip(obj.Hook):
+class Win7x64Tcpip(obj.ProfileModification):
     conditions = {'os': lambda x: x == 'windows',
                   'memory_model': lambda x: x == '64bit',
                   'major': lambda x : x == 6,

@@ -30,7 +30,7 @@ import windows
 import volatility.obj as obj
 import volatility.debug as debug #pylint: disable-msg=W0611
 
-class Win7Pointer64(obj.Hook):
+class Win7Pointer64(obj.ProfileModification):
     before = ['WindowsOverlay', 'WindowsVTypes']
     conditions = {'os': lambda x: x == 'windows',
                   'major': lambda x: x >= 6}
@@ -38,14 +38,14 @@ class Win7Pointer64(obj.Hook):
     def modification(self, profile):
         profile.native_types.update({'pointer64': [8, '<q']})
 
-class Win7KDBG(windows.AbstractKDBGHook):
+class Win7KDBG(windows.AbstractKDBGMod):
     before = ['WindowsOverlay', 'VistaKDBG']
     conditions = {'os': lambda x: x == 'windows',
                   'major': lambda x: x == 6,
                   'minor': lambda x: x == 1}
     kdbgsize = 0x340
 
-class Win7x86DTB(obj.Hook):
+class Win7x86DTB(obj.ProfileModification):
     before = ['WindowsOverlay']
     conditions = {'os': lambda x: x == 'windows',
                   'major': lambda x: x == 6,
@@ -59,7 +59,7 @@ class Win7x86DTB(obj.Hook):
                                           }]}
         profile.merge_overlay(overlay)
 
-class Win7x64DTB(obj.Hook):
+class Win7x64DTB(obj.ProfileModification):
     before = ['WindowsOverlay', 'Windows64Overlay']
     conditions = {'os': lambda x: x == 'windows',
                   'major': lambda x: x == 6,
@@ -149,7 +149,7 @@ class _OBJECT_HEADER(windows._OBJECT_HEADER):
         """Return the object's type as a string"""
         return self.type_map.get(self.TypeIndex.v(), '')
 
-class Win7ObjectClasses(obj.Hook):
+class Win7ObjectClasses(obj.ProfileModification):
     before = ['WindowsOverlay', 'WindowsObjectClasses']
     conditions = {'os': lambda x: x == 'windows',
                   'major': lambda x: x == 6,

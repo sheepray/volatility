@@ -42,7 +42,7 @@ def syscalls_property(x):
     debug.debug("Deprecation warning: Please use profile.additional['syscalls'] over profile.syscalls")
     return x.additional.get('syscalls', [[], []])
 
-class WinSyscallsAttribute(obj.Hook):
+class WinSyscallsAttribute(obj.ProfileModification):
     conditions = {'os': lambda x: x == 'windows'}
 
     def modification(self, profile):
@@ -51,7 +51,7 @@ class WinSyscallsAttribute(obj.Hook):
 
 ####
 
-class AbstractSyscalls(obj.Hook):
+class AbstractSyscalls(obj.ProfileModification):
     syscall_module = 'No default'
     def modification(self, profile):
         module = sys.modules.get(self.syscall_module, None)

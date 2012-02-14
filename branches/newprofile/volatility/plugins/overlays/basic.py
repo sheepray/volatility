@@ -173,7 +173,7 @@ class VolatilityDTB(obj.VolatilityMagic):
             offset += len(data)
 
 
-class BasicObjectClasses(obj.Hook):
+class BasicObjectClasses(obj.ProfileModification):
 
     def modification(self, profile):
         profile.object_classes.update({

@@ -66,7 +66,7 @@ class _MMVAD_SHORT(windows._MMVAD_SHORT):
 class _MMVAD_LONG(_MMVAD_SHORT):
     pass
 
-class Win2K3MMVad(obj.Hook):
+class Win2K3MMVad(obj.ProfileModification):
     before = ['WindowsOverlay', 'WindowsObjectClasses']
 
     def check(self, profile):
@@ -80,14 +80,14 @@ class Win2K3MMVad(obj.Hook):
                                        '_MMVAD_SHORT': _MMVAD_SHORT,
                                        '_MMVAD_LONG': _MMVAD_LONG})
 
-class Win2K3KDBG(windows.AbstractKDBGHook):
+class Win2K3KDBG(windows.AbstractKDBGMod):
     before = ['WindowsOverlay']
     conditions = {'os': lambda x : x == 'windows',
                   'major': lambda x: x == 5,
                   'minor': lambda x: x >= 2}
     kdbgsize = 0x318
 
-class Win2K3SP0x86DTB(obj.Hook):
+class Win2K3SP0x86DTB(obj.ProfileModification):
     # Make sure we apply after the normal Win2K3 DTB
     before = ['WindowsOverlay', 'Win2K3x86DTB']
     conditions = {'os': lambda x: x == 'windows',
@@ -102,7 +102,7 @@ class Win2K3SP0x86DTB(obj.Hook):
                                         ]}
         profile.merge_overlay(overlay)
 
-class Win2K3x86DTB(obj.Hook):
+class Win2K3x86DTB(obj.ProfileModification):
     before = ['WindowsOverlay']
     conditions = {'os': lambda x : x == 'windows',
                   'memory_model': lambda x: x == '32bit',
@@ -115,7 +115,7 @@ class Win2K3x86DTB(obj.Hook):
                                         ]}
         profile.merge_overlay(overlay)
 
-class Win2K3x64DTB(obj.Hook):
+class Win2K3x64DTB(obj.ProfileModification):
     before = ['WindowsOverlay', 'Windows64Overlay']
     conditions = {'os': lambda x : x == 'windows',
                   'memory_model': lambda x: x == '64bit',
@@ -128,7 +128,7 @@ class Win2K3x64DTB(obj.Hook):
                                         ]}
         profile.merge_overlay(overlay)
 
-class EThreadCreateTime(obj.Hook):
+class EThreadCreateTime(obj.ProfileModification):
     before = ['WindowsOverlay']
 
     def check(self, profile):

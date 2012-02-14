@@ -19,7 +19,7 @@
 
 import volatility.obj as obj
 
-class Windows64Overlay(obj.Hook):
+class Windows64Overlay(obj.ProfileModification):
     before = ['WindowsOverlay', 'WindowsObjectClasses']
     conditions = {'memory_model': lambda x: x == '64bit',
                   'os': lambda x: x == 'windows'}

@@ -859,7 +859,7 @@ class Profile(object):
         self.object_classes = {}
         self.native_types = {}
 
-        # Place for hooks to extend profiles with additional (profile-specific) information
+        # Place for modifications to extend profiles with additional (profile-specific) information
         self.additional = {}
 
         # Set up the "input" data
@@ -882,7 +882,7 @@ class Profile(object):
         # Setup the initial vtypes and native_types
         self.load_vtypes()
         # Run through any modifications (new vtypes, overlays, object_classes)
-        self.load_hooks()
+        self.load_modifications()
         # Recompile
         self.compile()
 
@@ -906,35 +906,35 @@ class Profile(object):
                 if i.endswith('_types'):
                     self.vtypes.update(getattr(module, i))
 
-    def load_hooks(self):
-        """ Find all subclasses of the hook type and applies them
+    def load_modifications(self):
+        """ Find all subclasses of the modification type and applies them
 
-            Each hook object can specify the metadata with which it can work
+            Each modification object can specify the metadata with which it can work
             Allowing the overlay to decide which profile it should act on
         """
 
-        # Collect together all the applicable hooks
-        hooks = {}
-        for i in self._get_subclasses(Hook):
-            hookname = i.__name__
+        # Collect together all the applicable modifications
+        mods = {}
+        for i in self._get_subclasses(ProfileModification):
+            modname = i.__name__
             instance = i()
-            # Leave abstract hooks out of the dependency tree
-            # Also don't consider the base Hook object
-            if not hookname.startswith("Abstract") and i != Hook:
-                if hookname in hooks:
-                    raise RuntimeError("Duplicate hookname {0} found".format(hookname))
-                hooks[instance.__class__.__name__] = instance
+            # Leave abstract modifications out of the dependency tree
+            # Also don't consider the base ProfileModification object
+            if not modname.startswith("Abstract") and i != ProfileModification:
+                if modname in mods:
+                    raise RuntimeError("Duplicate profile modification name {0} found".format(modname))
+                mods[instance.__class__.__name__] = instance
 
-        # Run through the hooks in dependency order 
-        for hookname in self._resolve_hook_dependencies(hooks.values()):
-            hook = hooks.get(hookname, None)
-            # We check for invalid/mistyped hook names, AbstractHooks should be caught by this too
-            if not hook:
+        # Run through the modifications in dependency order 
+        for modname in self._resolve_mod_dependencies(mods.values()):
+            mod = mods.get(modname, None)
+            # We check for invalid/mistyped modification names, AbstractModifications should be caught by this too
+            if not mod:
                 # Note, this does not allow for optional dependencies
-                raise RuntimeError("No concrete Hook found for " + hookname)
-            if hook.check(self):
-                debug.debug("Applying modification from " + hook.__class__.__name__)
-                hook.modification(self)
+                raise RuntimeError("No concrete ProfileModification found for " + modname)
+            if mod.check(self):
+                debug.debug("Applying modification from " + mod.__class__.__name__)
+                mod.modification(self)
         self.compile()
 
     def compile(self):
@@ -1060,18 +1060,18 @@ class Profile(object):
 
         return overlay
 
-    def _resolve_hook_dependencies(self, hooks):
-        """ Resolves the hook dependencies, providing an ordered list 
-            of all hooks whose only dependencies are in earlier lists
+    def _resolve_mod_dependencies(self, mods):
+        """ Resolves the modification dependencies, providing an ordered list 
+            of all modifications whose only dependencies are in earlier lists
         """
         # Convert the before/after to a directed graph
         result = []
         data = {}
-        for hook in hooks:
-            before, after = hook.dependencies(self)
-            data[hook.__class__.__name__] = data.get(hook.__class__.__name__, set([])).union(set(before))
+        for mod in mods:
+            before, after = mod.dependencies(self)
+            data[mod.__class__.__name__] = data.get(mod.__class__.__name__, set([])).union(set(before))
             for a in after:
-                data[a] = data.get(a, set([])).union(set(hook.__class__.__name__))
+                data[a] = data.get(a, set([])).union(set(mod.__class__.__name__))
 
         # Ignore self dependencies
         for k, v in data.items():
@@ -1205,21 +1205,21 @@ class Profile(object):
 
         return Curry(cls, cname, members = members, struct_size = size)
 
-class Hook(object):
-    """ Class for hooking in additional functionality """
+class ProfileModification(object):
+    """ Class for modifying profiles for additional functionality """
     before = []
     after = []
     conditions = {}
 
     def check(self, profile):
-        """ Returns True or False as to whether the Hook should be applied """
+        """ Returns True or False as to whether the Modification should be applied """
         result = True
         for k, v in self.conditions.items():
             result = result and v(profile.metadata.get(k, None))
         return result
 
     def dependencies(self, profile):
-        """ Returns a list of hooks that should go before this, 
-            and hooks that need to be after this 
+        """ Returns a list of modifications that should go before this, 
+            and modifications that need to be after this 
         """
         return self.before, self.after

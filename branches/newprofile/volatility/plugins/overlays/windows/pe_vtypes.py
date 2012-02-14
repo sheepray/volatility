@@ -380,20 +380,20 @@ class _LDR_DATA_TABLE_ENTRY(obj.CType):
             for o, f, n in expdir._exported_functions():
                 yield o, f, n
 
-class WinPEVTypes(obj.Hook):
+class WinPEVTypes(obj.ProfileModification):
     before = ['WindowsOverlay']
     conditions = {'os': lambda x : x == 'windows'}
     def modification(self, profile):
         profile.vtypes.update(pe_vtypes)
 
-class WinPEx64VTypes(obj.Hook):
+class WinPEx64VTypes(obj.ProfileModification):
     before = ['WinPEVTypes']
     conditions = {'os': lambda x : x == 'windows',
                   'memory_model': lambda x: x == '64bit'}
     def modification(self, profile):
         profile.vtypes.update(pe_vtypes_64)
 
-class WinPEObjectClasses(obj.Hook):
+class WinPEObjectClasses(obj.ProfileModification):
     before = ['WindowsOverlay']
     conditions = {'os': lambda x : x == 'windows'}
     def modification(self, profile):

@@ -761,14 +761,14 @@ import kdbg_vtypes
 import tcpip_vtypes
 import ssdt_vtypes
 
-class WindowsOverlay(obj.Hook):
+class WindowsOverlay(obj.ProfileModification):
     conditions = {'os': lambda x: x == 'windows'}
     before = ['BasicObjectClasses', 'WindowsVTypes']
 
     def modification(self, profile):
         profile.merge_overlay(windows_overlay)
 
-class WindowsVTypes(obj.Hook):
+class WindowsVTypes(obj.ProfileModification):
     conditions = {'os': lambda x: x == 'windows'}
     before = ['BasicObjectClasses']
 
@@ -779,7 +779,7 @@ class WindowsVTypes(obj.Hook):
         profile.vtypes.update(tcpip_vtypes.tcpip_vtypes)
         profile.vtypes.update(ssdt_vtypes.ssdt_vtypes)
 
-class WindowsObjectClasses(obj.Hook):
+class WindowsObjectClasses(obj.ProfileModification):
     constratints = {'os': lambda x: x == 'windows'}
     before = ['BasicObjectClasses', 'WindowsVTypes', 'WindowsOverlay']
 
@@ -810,7 +810,7 @@ class WindowsObjectClasses(obj.Hook):
             '_MMSECTION_FLAGS': _MMSECTION_FLAGS,
             })
 
-class AbstractKDBGHook(obj.Hook):
+class AbstractKDBGMod(obj.ProfileModification):
     kdbgsize = 0x290
 
     def modification(self, profile):

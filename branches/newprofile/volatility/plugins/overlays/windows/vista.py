@@ -45,7 +45,7 @@ class _MMVAD_SHORT(windows._MMVAD_SHORT):
 class _MMVAD_LONG(_MMVAD_SHORT):
     pass
 
-class Vistax86DTB(obj.Hook):
+class Vistax86DTB(obj.ProfileModification):
     before = ['WindowsOverlay']
     conditions = {'os': lambda x: x == 'windows',
                   'major': lambda x: x == 6,
@@ -59,7 +59,7 @@ class Vistax86DTB(obj.Hook):
                                           }]}
         profile.merge_overlay(overlay)
 
-class Vistax64DTB(obj.Hook):
+class Vistax64DTB(obj.ProfileModification):
     before = ['WindowsOverlay', 'Windows64Overlay']
     conditions = {'os': lambda x: x == 'windows',
                   'major': lambda x: x == 6,
@@ -74,7 +74,7 @@ class Vistax64DTB(obj.Hook):
         profile.merge_overlay(overlay)
 
 
-class VistaMMVAD(obj.Hook):
+class VistaMMVAD(obj.ProfileModification):
     before = ['WindowsOverlay', 'Win2K3MMVad']
     conditions = {'os': lambda x: x == 'windows',
                   'major': lambda x: x >= 6,
@@ -84,14 +84,14 @@ class VistaMMVAD(obj.Hook):
         profile.object_classes.update({'_MMVAD_SHORT': _MMVAD_SHORT,
                                        '_MMVAD_LONG' : _MMVAD_LONG})
 
-class VistaKDBG(windows.AbstractKDBGHook):
+class VistaKDBG(windows.AbstractKDBGMod):
     before = ['WindowsOverlay']
     conditions = {'os': lambda x : x == 'windows',
                   'major': lambda x: x == 6,
                   'minor': lambda x: x == 0}
     kdbgsize = 0x328
 
-class VistaSP1KDBG(windows.AbstractKDBGHook):
+class VistaSP1KDBG(windows.AbstractKDBGMod):
     before = ['WindowsOverlay', 'VistaKDBG']
     conditions = {'os': lambda x: x == 'windows',
                   'major': lambda x: x == 6,
