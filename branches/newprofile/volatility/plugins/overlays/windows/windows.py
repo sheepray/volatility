@@ -326,6 +326,18 @@ class _EPROCESS(obj.CType):
     def get_load_modules(self):
         return self._get_modules(self.Peb.Ldr.InLoadOrderModuleList, "InLoadOrderLinks")
 
+class _ETHREAD(obj.CType):
+    """ A class for threads """
+
+    def owning_process(self):
+        """Return the EPROCESS that owns this thread"""
+        return self.ThreadsProcess.dereference()
+
+    def attached_process(self):
+        """Return the EPROCESS that this thread is currently
+        attached to."""
+        return self.Tcb.ApcState.Process.dereference_as("_EPROCESS")
+
 class _HANDLE_TABLE(obj.CType):
     """ A class for _HANDLE_TABLE. 
     
@@ -791,6 +803,7 @@ class WindowsObjectClasses(obj.ProfileModification):
             '_LIST_ENTRY': _LIST_ENTRY,
             'WinTimeStamp': WinTimeStamp,
             '_EPROCESS': _EPROCESS,
+            '_ETHREAD': _ETHREAD,
             '_HANDLE_TABLE': _HANDLE_TABLE,
             '_OBJECT_HEADER': _OBJECT_HEADER,
             '_FILE_OBJECT': _FILE_OBJECT,
@@ -828,7 +841,4 @@ class AbstractKDBGMod(obj.ProfileModification):
 # These are due from removal after version 2.2,
 # please do not rely upon them
 
-class AbstractWindows(obj.Profile):
-    """ A Profile for Windows systems """
-    _md_os = 'windows'
-
+AbstractWindows = AbstractWindowsX86

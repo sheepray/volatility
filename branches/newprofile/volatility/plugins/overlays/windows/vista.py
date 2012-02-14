@@ -45,6 +45,13 @@ class _MMVAD_SHORT(windows._MMVAD_SHORT):
 class _MMVAD_LONG(_MMVAD_SHORT):
     pass
 
+class _ETHREAD(windows._ETHREAD):
+    """A class for Windows 7 ETHREAD objects"""
+
+    def owning_process(self):
+        """Return the EPROCESS that owns this thread"""
+        return self.Tcb.Process.dereference_as("_EPROCESS")
+
 class VistaWin7KPCR(obj.ProfileModification):
     before = ['WindowsOverlay']
     conditions = {'os' : lambda x: x == 'windows',
@@ -94,7 +101,8 @@ class VistaMMVAD(obj.ProfileModification):
 
     def modification(self, profile):
         profile.object_classes.update({'_MMVAD_SHORT': _MMVAD_SHORT,
-                                       '_MMVAD_LONG' : _MMVAD_LONG})
+                                       '_MMVAD_LONG' : _MMVAD_LONG,
+                                       '_ETHREAD'    : _ETHREAD})
 
 class VistaKDBG(windows.AbstractKDBGMod):
     before = ['WindowsOverlay']
