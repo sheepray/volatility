@@ -63,3 +63,11 @@ class WinXPSP2x86(windows.AbstractWindowsX86):
     overlay = overlay
     abstract_types = vtypes
     syscalls = xp_sp2_x86_syscalls.syscalls
+
+class WinXPSP2x86Test(windows.AbstractWindowsX86):
+    """ A Profile for Windows XP SP1 x86 """
+    _md_major = 5
+    _md_minor = 1
+    _md_vtype_module = 'volatility.plugins.overlays.windows.xp_sp2_x86_vtypes'
+
+

@@ -34,7 +34,7 @@ if __name__ == '__main__':
 
 import re
 import cPickle as pickle # pickle implementation must match that in volatility.cache
-import struct, copy, operator
+import struct, operator
 import volatility.debug as debug
 import volatility.utils as utils
 
@@ -848,43 +848,38 @@ def VolMagic(vm):
     """Convenience function to save people typing out an actual obj.Object call"""
     return Object("VOLATILITY_MAGIC", 0x0, vm = vm)
 
+
+#### This must live here, otherwise there are circular dependency issues
+
 ## Profiles are the interface for creating/interpreting
 ## objects
 
 class Profile(object):
-    """ A profile is a collection of types relating to a certain
-    system. We parse the abstract_types and join them with
-    native_types to make everything work together.
-    """
-    _md_os = 'undefined'
-    _md_major = 0
-    _md_minor = 0
-    _md_build = 0
-    _md_memory_model = '32bit'
-    native_types = {}
-    abstract_types = {}
-    overlay = {}
-    # We initially populate this with objects in this module that will be used everywhere
-    object_classes = {'BitField': BitField,
-                      'Pointer':Pointer,
-                      'Void':Void,
-                      'Array':Array,
-                      'CType':CType,
-                      'VolatilityMagic':VolatilityMagic}
+
+    vtypes = 'xp_sp2_x86_vtypes'
+    syscalls = 'xp_sp2_x86_syscalls'
+    object_classes = {}
 
     def __init__(self, strict = False):
-        self.types = {}
-        self.typeDict = {}
-        self.overlayDict = {}
         self.strict = strict
 
-        # Ensure VOLATILITY_MAGIC is always present in every profile
-        # That way, we can still autogenerate types, and put VOLATILITY_MAGIC in overlays
-        # Otherwise the overlay won't have anything to, well, over lay.
-        if 'VOLATILITY_MAGIC' not in self.abstract_types:
-            self.abstract_types['VOLATILITY_MAGIC'] = [0x0, {}]
+        # The "output" variables
+        self.types = {}
+        self.object_classes = {}
+        self.native_types = {}
 
-        self.add_types(self.abstract_types, self.overlay)
+        # Set up the "input" data
+        self.vtypes = {}
+
+        # Carry out the inital setup
+        self.reset()
+
+    def reset(self):
+        """ Resets the profile's vtypes to those automatically loaded """
+        self.load_vtypes()
+        self.load_overlays()
+        self.object_classes = self.load_object_classes()
+        self.compile()
 
     @utils.classproperty
     @classmethod
@@ -896,105 +891,36 @@ class Profile(object):
                 result[i[len(prefix):]] = getattr(cls, i)
         return result
 
-    def has_type(self, theType):
-        return theType in self.object_classes or theType in self.types
-
-    def add_types(self, abstract_types, overlay = None):
-        overlay = overlay or {}
-
-        ## we merge the abstract_types with self.typeDict and then recompile
-        ## the whole thing again. This is essential because
-        ## definitions may have changed as a result of this call, and
-        ## we store curried objects (which might keep their previous
-        ## definitions).
-        for k, v in abstract_types.items():
-            original = self.typeDict.get(k, [0, {}])
-            original[1].update(v[1])
-            if v[0]:
-                original[0] = v[0]
-            self.typeDict[k] = original
-
-        for k, v in overlay.items():
-            original = self.overlayDict.get(k, [None, {}])
-            original[1].update(v[1])
-            if v[0]:
-                original[0] = v[0]
-
-            self.overlayDict[k] = original
-
-        # Load the native types
-        self.types = {}
-        for nt, value in self.native_types.items():
-            if type(value) == list:
-                self.types[nt] = Curry(NativeType, nt, format_string = value[1])
-
-        for name in self.typeDict.keys():
-            ## We need to protect our virgin overlay dict here - since
-            ## the following functions modify it, we need to make a
-            ## deep copy:
-            self.types[name] = self.convert_members(
-                name, self.typeDict, copy.deepcopy(self.overlayDict))
-
-    def list_to_type(self, name, typeList, typeDict = None):
-        """ Parses a specification list and returns a VType object.
-
-        This function is a bit complex because we support lots of
-        different list types for backwards compatibility.
+    def load_vtypes(self):
+        """ Identifies the module from which to load the vtypes 
+        
+        Eventually this could do the importing directly, and avoid having
+        the profiles loaded in memory all at once.
         """
-        ## This supports plugin memory objects:
-        try:
-            kwargs = typeList[1]
+        vtype_module = self.metadata.get('vtype_module', None)
+        if not vtype_module:
+            debug.warning("No vtypes specified for this profile")
+        else:
+            module = sys.modules[vtype_module]
 
-            if type(kwargs) == dict:
-                ## We have a list of the form [ ClassName, dict(.. args ..) ]
-                return Curry(Object, theType = typeList[0], name = name, **kwargs)
-        except (TypeError, IndexError), _e:
-            pass
+            # Try to locate the _types dictionary
+            for i in dir(module):
+                if i.endswith('_types'):
+                    self.vtypes = getattr(module, i)
 
-        ## This is of the form [ 'void' ]
-        if typeList[0] == 'void':
-            return Curry(Void, Void, name = name)
+    def load_overlays(self):
+        """ Find all subclasses of the overlay type and applies them
+        
+        Each overlay object can specify the metadata with which it can work
+        Allowing the overlay to decide which profile it should act on"""
+        pass
 
-        ## This is of the form [ 'pointer' , [ 'foobar' ]]
-        if typeList[0] == 'pointer':
-            try:
-                target = typeList[1]
-            except IndexError:
-                raise RuntimeError("Syntax Error in pointer type defintion for name {0}".format(name))
+    def load_object_classes(self):
+        """ Runs through all ObjectClassMaker subclasses and attempts to add the object_classes """
+        pass
 
-            return Curry(Pointer, None,
-                         name = name,
-                         target = self.list_to_type(name, target, typeDict))
-
-        ## This is an array: [ 'array', count, ['foobar'] ]
-        if typeList[0] == 'array':
-            return Curry(Array, None,
-                         name = name, count = typeList[1],
-                         target = self.list_to_type(name, typeList[2], typeDict))
-
-        ## This is a list which refers to a type which is already defined
-        if typeList[0] in self.types:
-            return Curry(self.types[typeList[0]], name = name)
-
-        ## Does it refer to a type which will be defined in future? in
-        ## this case we just curry the Object function to provide
-        ## it on demand. This allows us to define structures
-        ## recursively.
-        ##if typeList[0] in typeDict:
-        if 1:
-            try:
-                tlargs = typeList[1]
-            except IndexError:
-                tlargs = {}
-
-            obj_name = typeList[0]
-            if type(tlargs) == dict:
-                return Curry(Object, obj_name, name = name, **tlargs)
-
-        ## If we get here we have no idea what this list is
-        #raise RuntimeError("Error in parsing list {0}".format(typeList))
-        debug.warning("Unable to find a type for {0}, assuming int".format(typeList[0]))
-        return Curry(self.types['int'], name = name)
+    def has_type(self, theType):
+        return theType in self.types
 
     def _get_dummy_obj(self, name):
         class dummy(object):
@@ -1029,34 +955,117 @@ class Profile(object):
         tmp = self._get_dummy_obj(name)
         return hasattr(tmp, member)
 
-    def apply_overlay(self, type_member, overlay):
+    def merge_overlay(self, overlay):
+        """Applies an overlay to the profile's vtypes"""
+        for k, v in overlay.items():
+            if k not in self.vtypes:
+                debug.warning("Overlay structure {0} not present in vtypes".format(k))
+            else:
+                self.vtypes[k] = self._apply_overlay(self.vtypes[k], v)
+
+    def _apply_overlay(self, type_member, overlay):
         """ Update the overlay with the missing information from type.
 
         Basically if overlay has None in any slot it gets applied from vtype.
         """
-        if not overlay:
-            return type_member
-
         if type(type_member) == dict:
             for k, v in type_member.items():
                 if k not in overlay:
                     overlay[k] = v
                 else:
-                    overlay[k] = self.apply_overlay(v, overlay[k])
+                    overlay[k] = self._apply_overlay(v, overlay[k])
 
         elif type(overlay) == list:
+            # If we're changing the underlying type, skip looking any further
             if len(overlay) != len(type_member):
                 return overlay
 
+            # Otherwise go through every item
             for i in range(len(overlay)):
                 if overlay[i] == None:
                     overlay[i] = type_member[i]
                 else:
-                    overlay[i] = self.apply_overlay(type_member[i], overlay[i])
+                    overlay[i] = self._apply_overlay(type_member[i], overlay[i])
 
         return overlay
 
-    def convert_members(self, cname, typeDict, overlay):
+    def compile(self):
+        """ Compiles the vtypes, overlays, object_classes, etc into a types dictionary """
+        # Load the native types
+        types = {}
+        for nt, value in self.native_types.items():
+            if type(value) == list:
+                types[nt] = Curry(NativeType, nt, format_string = value[1])
+
+        for name in self.vtypes.keys():
+            ## We need to protect our virgin overlay dict here - since
+            ## the following functions modify it, we need to make a
+            ## deep copy:
+            types[name] = self._convert_members(name)
+        self.types = types
+
+    def _list_to_type(self, name, typeList, typeDict = None):
+        """ Parses a specification list and returns a VType object.
+
+        This function is a bit complex because we support lots of
+        different list types for backwards compatibility.
+        """
+        ## This supports plugin memory objects:
+        try:
+            kwargs = typeList[1]
+
+            if type(kwargs) == dict:
+                ## We have a list of the form [ ClassName, dict(.. args ..) ]
+                return Curry(Object, theType = typeList[0], name = name, **kwargs)
+        except (TypeError, IndexError), _e:
+            pass
+
+        ## This is of the form [ 'void' ]
+        if typeList[0] == 'void':
+            return Curry(Void, None, name = name)
+
+        ## This is of the form [ 'pointer' , [ 'foobar' ]]
+        if typeList[0] == 'pointer':
+            try:
+                target = typeList[1]
+            except IndexError:
+                raise RuntimeError("Syntax Error in pointer type defintion for name {0}".format(name))
+
+            return Curry(Pointer, None,
+                         name = name,
+                         target = self._list_to_type(name, target, typeDict))
+
+        ## This is an array: [ 'array', count, ['foobar'] ]
+        if typeList[0] == 'array':
+            return Curry(Array, None,
+                         name = name, count = typeList[1],
+                         target = self._list_to_type(name, typeList[2], typeDict))
+
+        ## This is a list which refers to a type which is already defined
+        if typeList[0] in self.types:
+            return Curry(self.types[typeList[0]], name = name)
+
+        ## Does it refer to a type which will be defined in future? in
+        ## this case we just curry the Object function to provide
+        ## it on demand. This allows us to define structures
+        ## recursively.
+        ##if typeList[0] in typeDict:
+        if 1:
+            try:
+                tlargs = typeList[1]
+            except IndexError:
+                tlargs = {}
+
+            obj_name = typeList[0]
+            if type(tlargs) == dict:
+                return Curry(Object, obj_name, name = name, **tlargs)
+
+        ## If we get here we have no idea what this list is
+        #raise RuntimeError("Error in parsing list {0}".format(typeList))
+        debug.warning("Unable to find a type for {0}, assuming int".format(typeList[0]))
+        return Curry(self.types['int'], name = name)
+
+    def _convert_members(self, cname):
         """ Convert the member named by cname from the c description
         provided by typeDict into a list of members that can be used
         for later parsing.
@@ -1077,7 +1086,7 @@ class Profile(object):
 
         We return a list of CTypeMember objects. 
         """
-        ctype = self.apply_overlay(typeDict[cname], overlay.get(cname))
+        ctype = self.vtypes.get(cname)
         members = {}
         size = ctype[0]
         for k, v in ctype[1].items():
@@ -1086,7 +1095,7 @@ class Profile(object):
             elif v[0] == None:
                 debug.warning("{0} has no offset in object {1}. Check that vtypes has a concrete definition for it.".format(k, cname))
             else:
-                members[k] = (v[0], self.list_to_type(k, v[1], typeDict))
+                members[k] = (v[0], self._list_to_type(k, v[1], self.vtypes))
 
         ## Allow the plugins to over ride the class constructor here
         if self.object_classes and cname in self.object_classes:
