@@ -5,7 +5,7 @@
 
 = General = 
 
-== What is the latest stable version of Volatility? ==
+== What is the latest stable version of Volatility ==
 
 The latest stable version is 2.0. You can grab the source code, Python installer, or Windows standalone executable from the [http://code.google.com/p/volatility/downloads/list Downloads page]. 
 
@@ -13,7 +13,7 @@ The latest stable version is 2.0. You can grab the source code, Python installer
 
 The latest development version is 2.1 alpha which you can get by checking out the main branch using SVN (see instructions in the [http://code.google.com/p/volatility/source/checkout Source page]). There are also several branches available for specific needs (descriptions forthcoming). 
 
-== What's new in 2.0? ==   
+== What's new in 2.0 ==   
 
 Highlights of this release include:
 
@@ -29,11 +29,11 @@ Highlights of this release include:
     * Volshell integration
     * Over 40 new plugins!
 
-== Are Volatility 1.3 plugins compatible with 2.0? ==
+== Are Volatility 1.3 plugins compatible with 2.0 ==
 
 No.  A lot has changed since Volatility 1.3 making older plugins incompatible with the current code base.  The good news is most public plugins have been ported to 2.0 already.  You can check the [CommandReference] wiki to see if the plugin you are looking for is there.  If not you will need to convert the plugin to work with the current code base.  See [ConvertingPluginsFromVol13toVol20] for details on how to do this.
 
-== What operating systems does Volatility support? ==
+== What operating systems does Volatility support ==
 
 Microsoft Windows:
  * 32bit Windows XP Service Pack 2 and 3
@@ -45,22 +45,22 @@ Microsoft Windows:
 Linux:
  * Support for Linux memory dumps is growing rapidly. We have two branches ([http://code.google.com/p/volatility/source/browse/#svn%2Fbranches%2Flin64-support lin64-support] and [http://code.google.com/p/volatility/source/browse/#svn%2Fbranches%2Flinux-support linux-support]) whose functionality will be merged into the main trunk in one of the next major releases of Volatility. For information on analyzing Linux memory dumps, see [DocFiles20#Linux_Support Linux Support] and [LinuxMemoryForensics Linux Memory Forensics]
 
-== What about reading crash dumps and hibernation files? == 
+== What about reading crash dumps and hibernation files == 
 
 Volatility should automatically determine whether you've asked it to analyze a crash dump file or a hiberation file, and allow you to run plugins against them just like normal.
 
 If you'd like to save these files as raw dd files, you can use the [http://code.google.com/p/volatility/wiki/CommandReference#imagecopy imagecopy] plugin to convert them to raw memory images. The raw memory images can also be analyzed using the normal Volatility commands.
 
-== Can Volatility acquire physical memory? ==
+== Can Volatility acquire physical memory ==
 
 Short answer: No.  
 Long Answer: The [http://code.google.com/p/volatility/wiki/CommandReference#imagecopy imagecopy] plugin can be used to copy one address space to a file (allowing acquisition from address spaces such as IEEE 1394), but in general no, to acquire memory, you must use another tool. For a list of possibilities, see: [http://www.forensicswiki.org/wiki/Tools:Memory_Imaging The Forensics Wiki]
 
-== What's the largest memory dump Volatility can read? ==
+== What's the largest memory dump Volatility can read ==
 
 There is technically no limit. We've heard reports of Volatility handling 30-40 GB images on both Windows and Linux host operating systems. If you routinely analyze large memory dumps and would like to supply some performance benchmarks for the FAQ, please let us know. 
 
-== Are there any public memory samples available that I can use for testing? ==
+== Are there any public memory samples available that I can use for testing ==
 
 Yes, see the list below.
 
@@ -94,7 +94,7 @@ Other Images
 
 = Installation = 
 
-== What are the dependencies for running Volatility? ==
+== What are the dependencies for running Volatility ==
 
 Note: once the installers are released, update this section since some installers come pre-packaged with python and the dependencies. 
 
@@ -115,17 +115,17 @@ If you are still using the 1.3 branch of Volatility, then you may need:
  * [http://libdasm.googlecode.com pydasm] 
  * [http://pefile.googlecode.com pefile]
 
-== Where do I find the "malware" plugins? == 
+== Where do I find the "malware" plugins == 
 
 The most recent version can be downloaded from [http://malwarecookbook.googlecode.com/svn/trunk/malware.py here].
 
 = Usage = 
 
-== How do I run Volatility? ==
+== How do I run Volatility ==
 
 See [BasicUsage] and [CommandReference] for information on how to use Volatility.
 
-== How can I run external plugins with the standalone executable? ==
+== How can I run external plugins with the standalone executable ==
 
 With the standalone executable you have to specify the location of external plugins directory or zipfile using the "--plugins" switch.  In general you can specify the path of the item "--plugins=<path to directory/zipfile>".  An example using a directory called "plugins" can be seen below:
 
@@ -167,7 +167,7 @@ Dumped to: output\svchost.exe.3e3949d0.005b0000-005f0fff.dmp
 
 *Note:* Due to the way plugins are loaded, the external plugins directory or zipfile must be specified before any plugin-specific arguments (including the name of the plugin).  
 
-== Where can I find additional documentation on Volatility? ==
+== Where can I find additional documentation on Volatility ==
 
 See the following resources:
 
@@ -244,17 +244,17 @@ Volatile Systems Volatility Framework 2.1_alpha
 
 Commands like [CommandReference#psscan psscan], [CommandReference#modscan modscan], [CommandReference#connscan connscan], etc. use pool tag scanning to find objects (either active or residual) in physical memory. Thus Volatility scans over your entire memory dump looking for 4 byte pool tag signatures and then applies a serious of sanity checks (specific per object type). If you believe one of the scanners has found a false positive, you can investigate the reason using [CommandReference#volshell volshell] (look for the section that describes how to use the dt() command with a physical address space). You also may want to view the source code for the plugin you're running and examine the sanity checks Volatility uses. In particular, look for classes that subclass scan.ScannerCheck and view the list of checks in classes that subclass scan.PoolScanner. For more information on the scanning framework, see [Scanners Scanners].
 
-== How can I report a bug or feature request? ==
+== How can I report a bug or feature request ==
 
 See the contact section below. 
 
 = Contact = 
 
-== Who wrote/is writing Volatility? ==
+== Who wrote/is writing Volatility ==
 
 See the AUTHORS.txt and CREDITS.txt files provided with the Volatility source code. 
 
-== How can I contribute to Volatility? ==
+== How can I contribute to Volatility ==
 
 If you have documentation, code or ideas to contribute, use one of the following methods:
 
