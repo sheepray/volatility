@@ -88,6 +88,7 @@ class Win2K3KDBG(windows.AbstractKDBGHook):
     kdbgsize = 0x318
 
 class Win2K3SP0x86DTB(obj.Hook):
+    # Make sure we apply after the normal Win2K3 DTB
     before = ['WindowsOverlay', 'Win2K3x86DTB']
     conditions = {'os': lambda x: x == 'windows',
                   'memory_model': lambda x: x == '32bit',
@@ -97,7 +98,7 @@ class Win2K3SP0x86DTB(obj.Hook):
 
     def modification(self, profile):
         overlay = {'VOLATILITY_MAGIC': [ None, {
-                        'DTBSignature': [ None, ['VolatilityMagic', dict(value = "\x03\x00\x1e\x00")]]}
+                        'DTBSignature': [ None, ['VolatilityMagic', dict(value = "\x03\x00\x1b\x00")]]}
                                         ]}
         profile.merge_overlay(overlay)
 
