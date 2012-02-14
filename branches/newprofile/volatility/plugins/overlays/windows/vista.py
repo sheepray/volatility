@@ -45,10 +45,24 @@ class _MMVAD_SHORT(windows._MMVAD_SHORT):
 class _MMVAD_LONG(_MMVAD_SHORT):
     pass
 
-class VistaDTB(obj.Hook):
+class Vistax86DTB(obj.Hook):
     conditions = {'os': lambda x: x == 'windows',
-                  'major': lambda x: x >= 6,
+                  'major': lambda x: x == 6,
+                  'minor': lambda x: x == 0,
                   'memory_model': lambda x: x == '32bit',
+                  }
+
+    def modification(self, profile):
+        overlay = {'VOLATILITY_MAGIC': [ None, {
+                    'DTBSignature' : [ None, ['VolatilityMagic', dict(value = "\x03\x00\x20\x00")]],
+                                          }]}
+        profile.merge_overlay(overlay)
+
+class Vistax64DTB(obj.Hook):
+    conditions = {'os': lambda x: x == 'windows',
+                  'major': lambda x: x == 6,
+                  'minor': lambda x: x == 0,
+                  'memory_model': lambda x: x == '64bit',
                   }
 
     def modification(self, profile):
@@ -56,6 +70,7 @@ class VistaDTB(obj.Hook):
                     'DTBSignature' : [ None, ['VolatilityMagic', dict(value = "\x03\x00\x30\x00")]],
                                           }]}
         profile.merge_overlay(overlay)
+
 
 class VistaMMVADHook(obj.Hook):
     before = ['WindowsOverlay', 'Win2K3MMVad']
@@ -70,7 +85,8 @@ class VistaMMVADHook(obj.Hook):
 class VistaKDBG(windows.AbstractKDBGHook):
     before = ['WindowsOverlays']
     conditions = {'os': lambda x : x == 'windows',
-                  'major': lambda x: x == 6}
+                  'major': lambda x: x == 6,
+                  'minor': lambda x: x == 0}
     kdbgsize = 0x328
 
 class VistaSP1KDBG(windows.AbstractKDBGHook):
