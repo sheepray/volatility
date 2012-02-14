@@ -1044,6 +1044,11 @@ class Profile(object):
         if not overlay:
             return type_member
 
+        # Copy the overlay completely so we don't make any changes
+        # TODO: optimize this so we build our own duplicate and don't
+        # keep sub-copying the objects
+        overlay = copy.deepcopy(overlay)
+
         if type(type_member) == dict:
             for k, v in type_member.items():
                 if k not in overlay:
