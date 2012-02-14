@@ -17,7 +17,18 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA 
 #
 
+import copy
 import volatility.obj as obj
+
+class Pointer64Decorator(object):
+    def __init__(self, f):
+        self.f = f
+
+    def __call__(self, name, typeList, typeDict = None):
+        if len(typeList) and typeList[0] == 'pointer64':
+            typeList = copy.deepcopy(typeList)
+            typeList[0] = 'pointer'
+        return self.f(name, typeList, typeDict)
 
 class Windows64Overlay(obj.ProfileModification):
     before = ['WindowsOverlay', 'WindowsObjectClasses']
@@ -39,6 +50,11 @@ class Windows64Overlay(obj.ProfileModification):
                                     'Tag' : [-12, None],
                                                        }]
                                })
-        profile.object_classes.update({'pointer64': obj.Pointer})
         profile.vtypes["_IMAGE_NT_HEADERS"] = profile.vtypes["_IMAGE_NT_HEADERS64"]
 
+        # Note: the following method of profile modification is strongly discouraged
+        #
+        # Nasty hack because pointer64 has a special structure,
+        # and therefore can't just be instantiated in object_classes
+        # using profile.object_classes.update({'pointer64': obj.Pointer})
+        profile._list_to_type = Pointer64Decorator(profile._list_to_type)

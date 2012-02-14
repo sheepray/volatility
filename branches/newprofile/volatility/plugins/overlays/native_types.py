@@ -23,5 +23,3 @@ x86_native_types = {
 
 x64_native_types = copy.deepcopy(x86_native_types)
 x64_native_types['address'] = [8, '<Q']
-x64_native_types['pointer64'] = [8, '<Q']
-
