@@ -889,8 +889,8 @@ class Profile(object):
     def load_vtypes(self):
         """ Identifies the module from which to load the vtypes 
         
-        Eventually this could do the importing directly, and avoid having
-        the profiles loaded in memory all at once.
+            Eventually this could do the importing directly, and avoid having
+            the profiles loaded in memory all at once.
         """
         ntvar = self.metadata.get('memory_model', '32bit')
         self.native_types = copy.deepcopy(self.native_mapping.get(ntvar))
@@ -909,8 +909,9 @@ class Profile(object):
     def load_hooks(self):
         """ Find all subclasses of the hook type and applies them
 
-        Each hook object can specify the metadata with which it can work
-        Allowing the overlay to decide which profile it should act on"""
+            Each hook object can specify the metadata with which it can work
+            Allowing the overlay to decide which profile it should act on
+        """
 
         # Collect together all the applicable hooks
         hooks = {}
@@ -927,19 +928,21 @@ class Profile(object):
         # Run through the hooks in dependency order 
         for hookname in self._resolve_hook_dependencies(hooks.values()):
             hook = hooks.get(hookname, None)
-            # We check for invalid/mistyped hooks, AbstractHooks should be caught by this too
+            # We check for invalid/mistyped hook names, AbstractHooks should be caught by this too
             if not hook:
                 raise RuntimeError("No concrete Hook found for " + hookname)
             if hook.check(self):
-                print "Applying modification from " + hook.__class__.__name__
+                debug.debug("Applying modification from " + hook.__class__.__name__)
                 hook.modification(self)
         self.compile()
 
     def compile(self):
-        """ Compiles the vtypes, overlays, object_classes, etc into a types dictionary """
-        # We populate as we go, so that _list_to_type can refer 
-        # to existing classes rather than Curry everything
-        # If the compile fails, the profile will be left in a bad/unusable state
+        """ Compiles the vtypes, overlays, object_classes, etc into a types dictionary 
+        
+            We populate as we go, so that _list_to_type can refer to existing classes 
+            rather than Curry everything.  If the compile fails, the profile will be 
+            left in a bad/unusable state
+        """
 
         # Load the native types
         self.types = {}
@@ -960,6 +963,7 @@ class Profile(object):
     @utils.classproperty
     @classmethod
     def metadata(cls):
+        """ Returns a read-only dictionary copy of the metadata associated with a profile """
         prefix = '_md_'
         result = {}
         for i in dir(cls):
@@ -975,6 +979,11 @@ class Profile(object):
         yield cls
 
     def _get_dummy_obj(self, name):
+        """ Returns a dummy object/profile for use in determining size 
+            and offset of substructures.  This is done since profile are
+            effectively a compiled language, so reading the value from
+            self.vtypes may not be accurate. 
+        """
         class dummy(object):
             profile = self
             name = 'dummy'
@@ -991,6 +1000,7 @@ class Profile(object):
         return tmp
 
     def has_type(self, theType):
+        """ Returns a simple check of whether the type is in the profile """
         return theType in self.types
 
     def get_obj_offset(self, name, member):
@@ -1019,6 +1029,7 @@ class Profile(object):
                 self.vtypes[k] = self._apply_overlay(self.vtypes[k], v)
 
     def apply_overlay(self, *args, **kwargs):
+        """ Calls the old apply_overlay function with a deprecation warning """
         debug.warning("Deprecation warning: A plugin is making use of profile.apply_overlay")
         return self._apply_overlay(*args, **kwargs)
 
@@ -1049,6 +1060,9 @@ class Profile(object):
         return overlay
 
     def _resolve_hook_dependencies(self, hooks):
+        """ Resolves the hook dependencies, providing an ordered list 
+            of all hooks whose only dependencies are in earlier lists
+        """
         # Convert the before/after to a directed graph
         result = []
         data = {}
@@ -1058,26 +1072,35 @@ class Profile(object):
             for a in after:
                 data[a] = data.get(a, set([])).union(set(hook.__class__.__name__))
 
+        # Ignore self dependencies
         for k, v in data.items():
-            v.discard(k) # Ignore self dependencies
+            v.discard(k)
+
+        # Fill out any items not in the original data list, as having no dependencies
         extra_items_in_deps = reduce(set.union, data.values()) - set(data.keys())
         for item in extra_items_in_deps:
             data.update({item:set()})
+
         while True:
-            ordered = set([item for item, dep in data.items() if not dep])
-            if not ordered:
+            # Pull out all the items with no dependencies
+            nodeps = set([item for item, dep in data.items() if not dep])
+            # If there's none left then we're done
+            if not nodeps:
                 break
-            result.append(sorted(ordered))
+            result.append(sorted(nodeps))
+            # Any items we just returned, remove from all dependencies
             for item, dep in data.items():
-                if item not in ordered:
-                    data[item] = (dep - ordered)
+                if item not in nodeps:
+                    data[item] = (dep - nodeps)
                 else:
                     data.pop(item)
 
+        # Check there's no dependencies left, if there are we've got a cycle
         if data:
             debug.warning("A cyclic dependency exists amongst {0}".format(data))
             raise StopIteration
 
+        # Finally, after having checked for no cycles, flatten and return the results
         for s in result:
             for i in s:
                 yield i
@@ -1128,15 +1151,14 @@ class Profile(object):
         ## it on demand. This allows us to define structures
         ## recursively.
         ##if typeList[0] in typeDict:
-        if 1:
-            try:
-                tlargs = typeList[1]
-            except IndexError:
-                tlargs = {}
+        try:
+            tlargs = typeList[1]
+        except IndexError:
+            tlargs = {}
 
-            obj_name = typeList[0]
-            if type(tlargs) == dict:
-                return Curry(Object, obj_name, name = name, **tlargs)
+        obj_name = typeList[0]
+        if type(tlargs) == dict:
+            return Curry(Object, obj_name, name = name, **tlargs)
 
         ## If we get here we have no idea what this list is
         #raise RuntimeError("Error in parsing list {0}".format(typeList))
