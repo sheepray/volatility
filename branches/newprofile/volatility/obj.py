@@ -1039,6 +1039,11 @@ class Profile(object):
 
             Basically if overlay has None in any slot it gets applied from vtype.
         """
+        # If we've been called without an overlay, 
+        # the end result should be a complete copy of the type_member
+        if not overlay:
+            return type_member
+
         if type(type_member) == dict:
             for k, v in type_member.items():
                 if k not in overlay:

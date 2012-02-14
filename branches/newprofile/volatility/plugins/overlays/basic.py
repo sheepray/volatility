@@ -22,7 +22,6 @@
 """ This file defines some basic types which might be useful for many
 OS's
 """
-import copy
 import volatility.obj as obj
 import volatility.debug as debug #pylint: disable-msg=W0611
 import volatility.constants as constants
