@@ -942,7 +942,6 @@ class Profile(object):
                 debug.debug("Applying modification from " + mod.__class__.__name__)
                 self._mods.append(mod.__class__.__name__)
                 mod.modification(self)
-        self.compile()
 
     def compile(self):
         """ Compiles the vtypes, overlays, object_classes, etc into a types dictionary 
