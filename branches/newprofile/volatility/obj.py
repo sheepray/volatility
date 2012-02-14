@@ -915,10 +915,13 @@ class Profile(object):
         # Collect together all the applicable hooks
         hooks = {}
         for i in self._get_subclasses(Hook):
+            hookname = i.__name__
             instance = i()
             # Leave abstract hooks out of the dependency tree
             # Also don't consider the base Hook object
-            if not instance.__class__.__name__.startswith("Abstract") and i != Hook:
+            if not hookname.startswith("Abstract") and i != Hook:
+                if hookname in hooks:
+                    raise RuntimeError("Duplicate hookname {0} found".format(hookname))
                 hooks[instance.__class__.__name__] = instance
 
         # Run through the hooks in dependency order 
