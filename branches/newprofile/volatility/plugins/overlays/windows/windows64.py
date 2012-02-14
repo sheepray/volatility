@@ -19,19 +19,18 @@
 
 import volatility.obj as obj
 
-class Windows64Hook(obj.Hook):
+class Windows64Overlay(obj.Hook):
+    before = ['WindowsOverlay', 'WindowsObjectClasses']
 
     def check(self, profile):
         return (profile.metadata.get('memory_model', '32bit') == '64bit' and
                 profile.metadata.get('os', None) == 'windows')
 
-    def modify_vtypes(self, profile):
+    def modification(self, profile):
         profile.merge_overlay({'VOLATILITY_MAGIC': [ 0x0, {
                                     'PoolAlignment': [ 0x0, ['VolatilityMagic', dict(value = 16)] ]
                                                            }
                                                     ]})
-
-    def modify_overlay(self, profile):
         # This is the location of the MMVAD type which controls how to parse the
         # node. It is located before the structure.
         profile.merge_overlay({'_MMVAD_SHORT': [None, {
@@ -41,6 +40,6 @@ class Windows64Hook(obj.Hook):
                                     'Tag' : [-12, None],
                                                        }]
                                })
-
-    def modify_object_classes(self, profile):
         profile.object_classes.update({'Pointer64': obj.Pointer})
+        profile.vtypes["_IMAGE_NT_HEADERS"] = profile.vtypes["_IMAGE_NT_HEADERS64"]
+

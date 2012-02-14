@@ -45,17 +45,6 @@ class _MMVAD_SHORT(windows._MMVAD_SHORT):
 class _MMVAD_LONG(_MMVAD_SHORT):
     pass
 
-class Vista64Hook(obj.Hook):
-
-    def check(self, profile):
-        return (profile.metadata.get('major', 0) >= 6 and
-                profile.metadata.get('os', None) == 'windows' and
-                profile.metadata.get('memory_model', '32bit') == '64bit')
-
-    def modification(self, profile):
-        # Alias _IMAGE_NT_HEADERS for 64-bit systems
-        profile.vtypes["_IMAGE_NT_HEADERS"] = profile.vtypes["_IMAGE_NT_HEADERS64"]
-
 class VistaSP0Hook(obj.Hook):
     conditions = {'os': lambda x: x == 'windows',
                   'major': lambda x: x >= 6,
@@ -152,3 +141,9 @@ class Win2K8SP1x64(VistaSP1x64):
 
 class Win2K8SP2x64(VistaSP2x64):
     """ A Profile for Windows 2008 SP2 x64 """
+
+class Win2K8SP1x86(VistaSP1x86):
+    """ A Profile for Windows 2008 SP1 x86 """
+
+class Win2K8SP2x86(VistaSP2x86):
+    """ A Profile for Windows 2008 SP2 x86 """
