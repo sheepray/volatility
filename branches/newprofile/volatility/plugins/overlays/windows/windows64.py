@@ -17,29 +17,30 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA 
 #
 
-import copy
-import volatility.plugins.overlays.basic as basic
-import volatility.plugins.overlays.windows.windows as windows
+import volatility.obj as obj
 
-windows_overlay = copy.deepcopy(windows.windows_overlay)
+class Windows64Hook(obj.Hook):
 
-windows_overlay['VOLATILITY_MAGIC'][1]['PoolAlignment'][1] = ['VolatilityMagic', dict(value = 16)]
+    def check(self, profile):
+        return (profile.metadata.get('memory_model', '32bit') == '64bit' and
+                profile.metadata.get('os', None) == 'windows')
 
-# This is the location of the MMVAD type which controls how to parse the
-# node. It is located before the structure.
-windows_overlay['_MMVAD_SHORT'][1]['Tag'][0] = -12
-windows_overlay['_MMVAD_LONG'][1]['Tag'][0] = -12
+    def modify_vtypes(self, profile):
+        profile.merge_overlay({'VOLATILITY_MAGIC': [ 0x0, {
+                                    'PoolAlignment': [ 0x0, ['VolatilityMagic', dict(value = 16)] ]
+                                                           }
+                                                    ]})
 
-class AbstractWindowsX64(windows.AbstractWindowsX86):
-    """ A Profile for Windows systems """
-    _md_os = 'windows'
-    _md_memory_model = '64bit'
-    overlay = windows_overlay
-    native_types = basic.x64_native_types
-    object_classes = copy.deepcopy(windows.AbstractWindowsX86.object_classes)
+    def modify_overlay(self, profile):
+        # This is the location of the MMVAD type which controls how to parse the
+        # node. It is located before the structure.
+        profile.merge_overlay({'_MMVAD_SHORT': [None, {
+                                    'Tag' : [-12, None],
+                                  }],
+                               '_MMVAD_LONG' : [None, {
+                                    'Tag' : [-12, None],
+                                                       }]
+                               })
 
-    def list_to_type(self, name, typeList, typeDict = None):
-        """Handle pointer64 types as if they were pointer types on 64-bit systems"""
-        if typeList[0] == 'pointer64':
-            typeList[0] = 'pointer'
-        return super(AbstractWindowsX64, self).list_to_type(name, typeList, typeDict)
+    def modify_object_classes(self, profile):
+        profile.object_classes.update({'Pointer64': obj.Pointer})

@@ -27,43 +27,30 @@ This file provides support for Windows 2003 SP0.
 
 #pylint: disable-msg=C0111
 
-import copy
-import win2k3_sp0_x86_vtypes
-import win2k3_sp0_x86_syscalls
 import windows
 import tcpip_vtypes
-import crash_vtypes
-import hibernate_vtypes
-import kdbg_vtypes
 import ssdt_vtypes
 import volatility.debug as debug #pylint: disable-msg=W0611
 import volatility.obj as obj
 
-overlay = copy.deepcopy(windows.AbstractWindowsX86.overlay)
+class Win2K3Overlay(obj.Hook):
+    before = ['WindowsOverlays']
 
-object_classes = copy.deepcopy(windows.AbstractWindowsX86.object_classes)
+    def check(self, profile):
+        m = profile.metadata
+        return (m.get('os', None) == 'windows' and
+                (m.get('major') > 5 or (m.get('major') == 5 and m.get('minor') >= 2)))
 
-vtypes = copy.deepcopy(win2k3_sp0_x86_vtypes.nt_types)
+    def modification(self, profile):
+        overlay = {'VOLATILITY_MAGIC': [ None, {
+                        'KDBGHeader'   : [ None, ['VolatilityMagic', dict(value = '\x00\x00\x00\x00\x00\x00\x00\x00KDBG\x18\x03')]],
+                                                }]}
+        profile.merge_overlay(overlay)
 
-overlay['VOLATILITY_MAGIC'][1]['DTBSignature'][1] = ['VolatilityMagic', dict(value = "\x03\x00\x1b\x00")]
-overlay['VOLATILITY_MAGIC'][1]['KDBGHeader'][1] = ['VolatilityMagic', dict(value = '\x00\x00\x00\x00\x00\x00\x00\x00KDBG\x18\x03')]
-
-vtypes.update(crash_vtypes.crash_vtypes)
-vtypes.update(hibernate_vtypes.hibernate_vtypes)
-vtypes.update(tcpip_vtypes.tcpip_vtypes)
-vtypes.update(tcpip_vtypes.tcpip_vtypes_vista)
-vtypes.update(kdbg_vtypes.kdbg_vtypes)
-vtypes.update(ssdt_vtypes.ssdt_vtypes)
-vtypes.update(ssdt_vtypes.ssdt_vtypes_2k3)
-
-class Win2K3SP0x86(windows.AbstractWindowsX86):
-    """ A Profile for Windows 2003 SP0 x86 """
-    _md_major = 5
-    _md_minor = 2
-    abstract_types = vtypes
-    overlay = overlay
-    object_classes = object_classes
-    syscalls = win2k3_sp0_x86_syscalls.syscalls
+class Win2K3Vtypes(Win2K3Overlay):
+    def modification(self, profile):
+        profile.merge_overlay(tcpip_vtypes.tcpip_vtypes_vista)
+        profile.merge_overlay(ssdt_vtypes.ssdt_vtypes_2k3)
 
 class _MM_AVL_TABLE(obj.CType):
     def traverse(self):
@@ -100,7 +87,59 @@ class _MMVAD_SHORT(windows._MMVAD_SHORT):
 class _MMVAD_LONG(_MMVAD_SHORT):
     pass
 
-object_classes['_MM_AVL_TABLE'] = _MM_AVL_TABLE
-object_classes['_MMADDRESS_NODE'] = windows._MMVAD
-object_classes['_MMVAD_SHORT'] = _MMVAD_SHORT
-object_classes['_MMVAD_LONG'] = _MMVAD_LONG
+class Win2K3ObjectClasses(Win2K3Overlay):
+    def modification(self, profile):
+        profile.object_classes.update({'_MM_AVL_TABLE': _MM_AVL_TABLE,
+                                       '_MMADDRESS_NODE': windows._MMVAD,
+                                       '_MMVAD_SHORT': _MMVAD_SHORT,
+                                       '_MMVAD_LONG': _MMVAD_LONG})
+
+class Win2K3SP1Overlay(obj.Hook):
+    before = ['Win2K3Overlay', 'Win2K3SP1VTypes']
+
+    def check(self, profile):
+        m = profile.metadata
+        return (m.get('os', None) == 'windows' and
+                (m.get('major') > 5 or (m.get('major') == 5 and m.get('minor') >= 2))
+                and profile.__class__.__name__ != 'Win2K3SP0x86')
+
+    def modification(self, profile):
+        overlay = {'_ETHREAD': [ None, {
+                        'CreateTime' : [ None, ['WinTimeStamp', {}]]
+                                        }
+                                ],
+                   'VOLATILITY_MAGIC': [ None, {
+                        'DTBSignature': [ None, ['VolatilityMagic', dict(value = "\x03\x00\x1e\x00")]]
+                                                }]}
+        profile.merge_overlay(overlay)
+
+class Win2K3SP1VTypes(Win2K3SP1Overlay):
+    before = ['Win2K3Overlay']
+
+    def modification(self, profile):
+        profile.merge_overlay(tcpip_vtypes.tcpip_vtypes_2k3_sp1_sp2)
+
+class Win2K3SP0x86(obj.Profile):
+    """ A Profile for Windows 2003 SP0 x86 """
+    _md_os = 'windows'
+    _md_major = 5
+    _md_minor = 2
+    _md_memory_model = '32bit'
+    _md_vtype_module = 'volatility.plugins.overlays.windows.win2k3_sp0_x86_vtypes'
+
+class Win2K3SP1x86(obj.Profile):
+    """ A Profile for Windows 2003 SP1 x86 """
+    _md_os = 'windows'
+    _md_major = 5
+    _md_minor = 2
+    _md_memory_model = '32bit'
+    _md_vtype_module = 'volatility.plugins.overlays.windows.win2k3_sp1_x86_vtypes'
+
+class Win2K3SP2x86(obj.Profile):
+    """ A Profile for Windows 2003 SP2 x86 """
+    _md_os = 'windows'
+    _md_major = 5
+    _md_minor = 2
+    _md_memory_model = '32bit'
+    _md_vtype_module = 'volatility.plugins.overlays.windows.win2k3_sp2_x86_vtypes'
+
