@@ -35,10 +35,10 @@ import volatility.obj as obj
 
 class Win2K3Overlay(obj.Hook):
     before = ['WindowsOverlays']
-    constraints = {'os': lambda x : x == 'windows',
-                   'memory_model': lambda x: x == '32bit',
-                   'major': lambda x: x == 5,
-                   'minor': lambda x: x >= 2}
+    conditions = {'os': lambda x : x == 'windows',
+                  'memory_model': lambda x: x == '32bit',
+                  'major': lambda x: x == 5,
+                  'minor': lambda x: x >= 2}
 
     def modification(self, profile):
         overlay = {'VOLATILITY_MAGIC': [ None, {
@@ -110,6 +110,11 @@ class Win2K3ObjectClasses(Win2K3Overlay):
 class Win2K3SP1Overlay(obj.Hook):
     before = ['Win2K3Overlay', 'Win2K3SP1VTypes']
 
+    conditions = {'os': lambda x : x == 'windows',
+                  'memory_model': lambda x: x == '32bit',
+                  'major': lambda x: x == 5,
+                  'minor': lambda x: x >= 2}
+
     def modification(self, profile):
         overlay = {'_ETHREAD': [ None, {
                         'CreateTime' : [ None, ['WinTimeStamp', {}]]
@@ -121,11 +126,11 @@ class Win2K3SP1Overlay(obj.Hook):
         profile.merge_overlay(overlay)
 
 class Win2K3SP1x64Overlays(obj.Hook):
-    before = ['Windows64']
-    constraints = {'os': lambda x: x == 'windows',
-                   'memory_model': lambda x: x == '64bit',
-                   'major': lambda x: x == 5,
-                   'minor': lambda x: x == 2}
+    before = ['Windows64', 'WindowsOverlays']
+    conditions = {'os': lambda x: x == 'windows',
+                  'memory_model': lambda x: x == '64bit',
+                  'major': lambda x: x == 5,
+                  'minor': lambda x: x == 2}
 
     def modification(self, profile):
         overlay = {'VOLATILITY_MAGIC': [ None, {

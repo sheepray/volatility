@@ -762,14 +762,14 @@ import tcpip_vtypes
 import ssdt_vtypes
 
 class WindowsOverlays(obj.Hook):
-    constraints = {'os': lambda x: x == 'windows'}
+    conditions = {'os': lambda x: x == 'windows'}
     before = ['BasicObjectClasses', 'WindowsVTypes']
 
     def modification(self, profile):
         profile.merge_overlay(windows_overlay)
 
 class WindowsVTypes(obj.Hook):
-    constraints = {'os': lambda x: x == 'windows'}
+    conditions = {'os': lambda x: x == 'windows'}
     before = ['BasicObjectClasses']
 
     def modification(self, profile):

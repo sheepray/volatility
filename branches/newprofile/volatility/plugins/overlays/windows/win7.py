@@ -133,12 +133,13 @@ class _OBJECT_HEADER(windows._OBJECT_HEADER):
         return self.type_map.get(self.TypeIndex.v(), '')
 
 class Win7ObjectClasses(obj.Hook):
-    constraints = {'os': lambda x: x == 'windows',
-                   'major': lambda x: x == 6,
-                   'minor': lambda x: x >= 1}
+    before = ['WindowsObjectClasses']
+    conditions = {'os': lambda x: x == 'windows',
+                  'major': lambda x: x == 6,
+                  'minor': lambda x: x >= 1}
 
     def modification(self, profile):
-        profile.object_updates({'_OBJECT_HEADER': _OBJECT_HEADER})
+        profile.object_classes.update({'_OBJECT_HEADER': _OBJECT_HEADER})
         profile.merge_overlay({'VOLATILITY_MAGIC': [ 0x0, {
                                 'ObjectPreamble': [ 0x0, ['VolatilityMagic', dict(value = '_OBJECT_HEADER_CREATOR_INFO')]]
                                 }]

@@ -32,8 +32,8 @@ import volatility.debug as debug #pylint: disable-msg=W0611
 import volatility.obj as obj
 
 class XPOverlay(obj.Hook):
-    constraints = {'os': lambda x : x == 'windows',
-                   'major': lambda x: x >= 5}
+    conditions = {'os': lambda x : x == 'windows',
+                  'major': lambda x: x >= 5}
     before = ['WindowsOverlays']
 
     def modification(self, profile):
