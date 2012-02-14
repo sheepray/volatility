@@ -4,6 +4,8 @@ Created on 31 Dec 2010
 @author: mike
 '''
 
+import volatility.obj as obj
+
 # Structures used by connections, connscan, sockets, sockscan.
 # Used by x86 XP and Win2K3 profiles. 
 tcpip_vtypes = {
@@ -129,3 +131,38 @@ tcpip_vtypes_7_64 = {
     'Port' : [ 0x80, ['unsigned short']], 
     }],
 }
+
+class Win2K3SP12Tcpip(obj.Hook):
+    before = ['WindowsVTypes']
+    conditions = {'os': lambda x: x == 'windows',
+                  'memory_model': lambda x: x == '32bit',
+                  'major': lambda x : x == 5,
+                  'minor': lambda x : x == 2,
+                  'build': lambda x : x != 3789}
+    def modification(self, profile):
+        profile.vtypes.update(tcpip_vtypes_2k3_sp1_sp2)
+
+class Vista2K8Tcpip(obj.Hook):
+    conditions = {'os': lambda x: x == 'windows',
+                  'memory_model': lambda x: x == '32bit',
+                  'major': lambda x : x == 6,
+                  'minor': lambda x : x >= 0}
+    def modification(self, profile):
+        profile.vtypes.update(tcpip_vtypes_vista)
+
+class Win7Tcpip(obj.Hook):
+    before = ['Vista2K8Tcpip']
+    conditions = {'os': lambda x: x == 'windows',
+                  'memory_model': lambda x: x == '32bit',
+                  'major': lambda x : x == 6,
+                  'minor': lambda x : x == 1}
+    def modification(self, profile):
+        profile.vtypes.update(tcpip_vtypes_7)
+
+class Win7x64Tcpip(obj.Hook):
+    conditions = {'os': lambda x: x == 'windows',
+                  'memory_model': lambda x: x == '64bit',
+                  'major': lambda x : x == 6,
+                  'minor': lambda x : x == 1}
+    def modification(self, profile):
+        profile.vtypes.update(tcpip_vtypes_7_64)
