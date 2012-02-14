@@ -32,10 +32,10 @@ import volatility.debug as debug #pylint: disable-msg=W0611
 import volatility.obj as obj
 
 class XPOverlay(obj.Hook):
+    before = ['WindowsOverlay']
     conditions = {'os': lambda x : x == 'windows',
                   'major': lambda x: x == 5,
                   'minor': lambda x: x == 1}
-    before = ['WindowsOverlay']
 
     def modification(self, profile):
         overlay = {'VOLATILITY_MAGIC': [ None, {

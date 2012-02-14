@@ -28,34 +28,8 @@ This file provides support for Windows 2003 SP0.
 #pylint: disable-msg=C0111
 
 import windows
-import tcpip_vtypes
-import ssdt_vtypes
 import volatility.debug as debug #pylint: disable-msg=W0611
 import volatility.obj as obj
-
-class Win2K3Vtypes(obj.Hook):
-    before = ['WindowsOverlays']
-
-    def check(self, profile):
-        m = profile.metadata
-        return (m.get('os', None) == 'windows' and
-                (m.get('major') > 5 or (m.get('major') == 5 and m.get('minor') >= 2)))
-
-    def modification(self, profile):
-        profile.merge_overlay(tcpip_vtypes.tcpip_vtypes_vista)
-        profile.merge_overlay(ssdt_vtypes.ssdt_vtypes_2k3)
-
-class Win2K3SP1VTypes(obj.Hook):
-    before = ['Win2K3Overlay']
-
-    def check(self, profile):
-        m = profile.metadata
-        return (m.get('os', None) == 'windows' and
-                (m.get('major') > 5 or (m.get('major') == 5 and m.get('minor') >= 2))
-                and profile.__class__.__name__ != 'Win2K3SP0x86')
-
-    def modification(self, profile):
-        profile.merge_overlay(tcpip_vtypes.tcpip_vtypes_2k3_sp1_sp2)
 
 class _MM_AVL_TABLE(obj.CType):
     def traverse(self):
@@ -93,7 +67,7 @@ class _MMVAD_LONG(_MMVAD_SHORT):
     pass
 
 class Win2K3MMVad(obj.Profile):
-    before = ['WindowsOverlays', 'Win2K3SP1VTypes']
+    before = ['WindowsOverlays']
 
     def check(self, profile):
         m = profile.metadata
@@ -114,7 +88,7 @@ class Win2K3KDBG(windows.AbstractKDBGHook):
     kdbgsize = 0x318
 
 class Win2K3x86DTB(obj.Hook):
-    before = ['WindowsOverlays', 'Win2K3SP1VTypes']
+    before = ['WindowsOverlays']
     conditions = {'os': lambda x : x == 'windows',
                   'memory_model': lambda x: x == '32bit',
                   'major': lambda x: x == 5,
@@ -127,7 +101,7 @@ class Win2K3x86DTB(obj.Hook):
         profile.merge_overlay(overlay)
 
 class Win2K3x64DTB(obj.Hook):
-    before = ['WindowsOverlays', 'Windows64Overlay', 'Win2K3SP1VTypes']
+    before = ['WindowsOverlays', 'Windows64Overlay']
     conditions = {'os': lambda x : x == 'windows',
                   'memory_model': lambda x: x == '64bit',
                   'major': lambda x: x == 5,
@@ -140,13 +114,14 @@ class Win2K3x64DTB(obj.Hook):
         profile.merge_overlay(overlay)
 
 class EThreadCreateTime(obj.Hook):
-    before = ['WindowsOverlays', 'Win2K3SP1VTypes']
+    before = ['WindowsOverlays']
 
     def check(self, profile):
         m = profile.metadata
         return (m.get('os', None) == 'windows' and
                 ((m.get('major', 0) == 5 and m.get('minor', 0) >= 2) or
-                 m.get('major', 0) >= 6))
+                 m.get('major', 0) >= 6) and
+                 profile.__class__.__name__ != 'Win2K3SP0x86')
 
     def modification(self, profile):
         overlay = {'_ETHREAD': [ None, {

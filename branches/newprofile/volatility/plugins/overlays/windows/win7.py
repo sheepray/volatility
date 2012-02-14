@@ -31,12 +31,13 @@ import volatility.obj as obj
 import volatility.debug as debug #pylint: disable-msg=W0611
 
 class Win7KDBG(windows.AbstractKDBGHook):
+    before = ['WindowsOverlay', 'VistaKDBG']
     conditions = {'os': lambda x: x == 'windows',
                   'major': lambda x: x >= 6}
-    before = ['WindowsOverlay', 'VistaKDBG']
     kdbgsize = 0x340
 
 class Win7x86DTB(obj.Hook):
+    before = ['WindowsOverlay']
     conditions = {'os': lambda x: x == 'windows',
                   'major': lambda x: x >= 6,
                   'memory_model': lambda x: x == '32bit',
@@ -49,6 +50,7 @@ class Win7x86DTB(obj.Hook):
         profile.merge_overlay(overlay)
 
 class Win7x64DTB(obj.Hook):
+    before = ['WindowsOverlay', 'Windows64Overlay']
     conditions = {'os': lambda x: x == 'windows',
                   'major': lambda x: x >= 6,
                   'memory_model': lambda x: x == '64bit',
@@ -137,7 +139,7 @@ class _OBJECT_HEADER(windows._OBJECT_HEADER):
         return self.type_map.get(self.TypeIndex.v(), '')
 
 class Win7ObjectClasses(obj.Hook):
-    before = ['WindowsObjectClasses']
+    before = ['WindowsOverlay', 'WindowsObjectClasses']
     conditions = {'os': lambda x: x == 'windows',
                   'major': lambda x: x == 6,
                   'minor': lambda x: x >= 1}
