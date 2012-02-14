@@ -853,6 +853,7 @@ class Profile(object):
 
     def __init__(self, strict = False):
         self.strict = strict
+        self._mods = []
 
         # The "output" variables
         self.types = {}
@@ -867,6 +868,10 @@ class Profile(object):
 
         # Carry out the inital setup
         self.reset()
+
+    @property
+    def applied_modifications(self):
+        return self._mods
 
     def reset(self):
         """ Resets the profile's vtypes to those automatically loaded """
@@ -926,6 +931,7 @@ class Profile(object):
                 mods[instance.__class__.__name__] = instance
 
         # Run through the modifications in dependency order 
+        self._mods = []
         for modname in self._resolve_mod_dependencies(mods.values()):
             mod = mods.get(modname, None)
             # We check for invalid/mistyped modification names, AbstractModifications should be caught by this too
@@ -934,6 +940,7 @@ class Profile(object):
                 raise RuntimeError("No concrete ProfileModification found for " + modname)
             if mod.check(self):
                 debug.debug("Applying modification from " + mod.__class__.__name__)
+                self._mods.append(mod.__class__.__name__)
                 mod.modification(self)
         self.compile()
 
