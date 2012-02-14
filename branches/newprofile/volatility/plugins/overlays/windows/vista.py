@@ -45,6 +45,18 @@ class _MMVAD_SHORT(windows._MMVAD_SHORT):
 class _MMVAD_LONG(_MMVAD_SHORT):
     pass
 
+class VistaWin7KPCR(obj.ProfileModification):
+    before = ['WindowsOverlay']
+    conditions = {'os' : lambda x: x == 'windows',
+                  'major': lambda x: x == 6,
+                  'memory_model': lambda x: x == '32bit'}
+
+    def modification(self, profile):
+        overlay = {'VOLATILITY_MAGIC': [ None, {
+                    'KPCR' : [ None, ['VolatilityKPCR', dict(configname = "KPCR")]],
+                                          }]}
+        profile.merge_overlay(overlay)
+
 class Vistax86DTB(obj.ProfileModification):
     before = ['WindowsOverlay']
     conditions = {'os': lambda x: x == 'windows',
