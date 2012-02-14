@@ -1038,37 +1038,42 @@ class Profile(object):
         """ Update the overlay with the missing information from type.
 
             Basically if overlay has None in any slot it gets applied from vtype.
+
+            We make extensive use of copy.deepcopy to ensure we don't modify the 
+            original variables.  Some of the calls may not be necessary (specifically
+            the return of type_member and overlay) but this saves us the concern that
+            things will get changed later and have a difficult-to-track down knock-on
+            effect.
         """
         # If we've been called without an overlay, 
         # the end result should be a complete copy of the type_member
         if not overlay:
-            return type_member
+            return copy.deepcopy(type_member)
 
-        # Copy the overlay completely so we don't make any changes
-        # TODO: optimize this so we build our own duplicate and don't
-        # keep sub-copying the objects
-        overlay = copy.deepcopy(overlay)
-
-        if type(type_member) == dict:
-            for k, v in type_member.items():
-                if k not in overlay:
-                    overlay[k] = v
+        if isinstance(type_member, dict):
+            result = copy.deepcopy(type_member)
+            for k, v in overlay.items():
+                if k not in type_member:
+                    result[k] = v
                 else:
-                    overlay[k] = self._apply_overlay(v, overlay[k])
+                    result[k] = self._apply_overlay(type_member[k], v)
 
-        elif type(overlay) == list:
+        elif isinstance(overlay, list):
             # If we're changing the underlying type, skip looking any further
             if len(overlay) != len(type_member):
-                return overlay
+                return copy.deepcopy(overlay)
 
+            result = []
             # Otherwise go through every item
             for i in range(len(overlay)):
                 if overlay[i] == None:
-                    overlay[i] = type_member[i]
+                    result.append(type_member[i])
                 else:
-                    overlay[i] = self._apply_overlay(type_member[i], overlay[i])
+                    result.append(self._apply_overlay(type_member[i], overlay[i]))
+        else:
+            return copy.deepcopy(overlay)
 
-        return overlay
+        return result
 
     def _resolve_mod_dependencies(self, mods):
         """ Resolves the modification dependencies, providing an ordered list 
