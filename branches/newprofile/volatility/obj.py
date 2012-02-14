@@ -1036,7 +1036,7 @@ class Profile(object):
     def _apply_overlay(self, type_member, overlay):
         """ Update the overlay with the missing information from type.
 
-        Basically if overlay has None in any slot it gets applied from vtype.
+            Basically if overlay has None in any slot it gets applied from vtype.
         """
         if type(type_member) == dict:
             for k, v in type_member.items():
@@ -1108,8 +1108,8 @@ class Profile(object):
     def _list_to_type(self, name, typeList, typeDict = None):
         """ Parses a specification list and returns a VType object.
 
-        This function is a bit complex because we support lots of
-        different list types for backwards compatibility.
+            This function is a bit complex because we support lots of
+            different list types for backwards compatibility.
         """
         ## This supports plugin memory objects:
         try:
@@ -1167,24 +1167,24 @@ class Profile(object):
 
     def _convert_members(self, cname):
         """ Convert the structure named by cname from the c description
-        present in vtypes into a list of members that can be used
-        for later parsing.
+            present in vtypes into a list of members that can be used
+            for later parsing.
 
-        cname is the name of the struct.
-        
-        We expect the vtypes value to be a list of the following format
+            cname is the name of the struct.
 
-        [ Size of struct, members_dict ]
+            We expect the vtypes value to be a list of the following format
 
-        members_dict is a dict of all members (fields) in this
-        struct. The key is the member name, and the value is a list of
-        this form:
+            [ Size of struct, members_dict ]
 
-        [ offset_from_start_of_struct, specification_list ]
+            members_dict is a dict of all members (fields) in this
+            struct. The key is the member name, and the value is a list of
+            this form:
 
-        The specification list has the form specified by self._list_to_type() above.
+            [ offset_from_start_of_struct, specification_list ]
 
-        We return an object that is a CType or has been overridden by object_classes. 
+            The specification list has the form specified by self._list_to_type() above.
+
+            We return an object that is a CType or has been overridden by object_classes. 
         """
         size, raw_members = self.vtypes.get(cname)
         members = {}
@@ -1218,5 +1218,7 @@ class Hook(object):
         return result
 
     def dependencies(self, profile):
-        """ Returns a list of hooks that should go before this, and hooks that need to be after this """
+        """ Returns a list of hooks that should go before this, 
+            and hooks that need to be after this 
+        """
         return self.before, self.after
