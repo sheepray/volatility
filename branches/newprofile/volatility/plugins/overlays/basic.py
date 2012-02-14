@@ -26,6 +26,7 @@ import copy
 import volatility.obj as obj
 import volatility.debug as debug #pylint: disable-msg=W0611
 import volatility.constants as constants
+import volatility.plugins.overlays.native_types as native_types
 
 ## The following is a conversion of basic C99 types to python struct
 ## format strings. NOTE: since volatility is analysing images which
@@ -89,8 +90,6 @@ class String(obj.NativeType):
         """Set up mappings for reverse concat"""
         return other + str(self)
 
-obj.Profile.object_classes['String'] = String
-
 class Flags(obj.NativeType):
     """ This object decodes each flag into a string """
     ## This dictionary maps each bit to a String
@@ -137,7 +136,6 @@ class Flags(obj.NativeType):
 
         return self.v() & mask
 
-obj.Profile.object_classes['Flags'] = Flags
 
 class Enumeration(obj.NativeType):
     """Enumeration class for handling multiple possible meanings for a single value"""
@@ -161,8 +159,6 @@ class Enumeration(obj.NativeType):
     def __format__(self, formatspec):
         return format(self.__str__(), formatspec)
 
-obj.Profile.object_classes['Enumeration'] = Enumeration
-
 
 class VOLATILITY_MAGIC(obj.CType):
     """Class representing a VOLATILITY_MAGIC namespace
@@ -177,7 +173,6 @@ class VOLATILITY_MAGIC(obj.CType):
             # so we must finish off the CType's __init__ ourselves
             self.__initialized = True
 
-obj.Profile.object_classes['VOLATILITY_MAGIC'] = VOLATILITY_MAGIC
 
 class VolatilityDTB(obj.VolatilityMagic):
 
@@ -202,8 +197,17 @@ class VolatilityDTB(obj.VolatilityMagic):
 
             offset += len(data)
 
-obj.Profile.object_classes['VolatilityDTB'] = VolatilityDTB
 
+class BasicObjectClasses(obj.Hook):
+
+    def modification(self, profile):
+        profile.object_classes.update({
+            'String': String,
+            'Flags': Flags,
+            'Enumeration': Enumeration,
+            'VOLATILITY_MAGIC': VOLATILITY_MAGIC,
+            'VolatilityDTB': VolatilityDTB,
+            })
 
 
 ### DEPRECATED FEATURES ###
@@ -211,5 +215,5 @@ obj.Profile.object_classes['VolatilityDTB'] = VolatilityDTB
 # These are due from removal after version 2.2,
 # please do not rely upon them
 
-x86_native_types_32bit = x86_native_types
-x86_native_types_64bit = x64_native_types
+x86_native_types_32bit = native_types.x86_native_types
+x86_native_types_64bit = native_types.x64_native_types

@@ -34,9 +34,10 @@ if __name__ == '__main__':
 
 import re
 import cPickle as pickle # pickle implementation must match that in volatility.cache
-import struct, operator
+import struct, copy, operator
 import volatility.debug as debug
 import volatility.utils as utils
+import volatility.plugins.overlays.native_types as native_types
 
 ## Curry is now a standard python feature
 import functools
@@ -243,18 +244,9 @@ def Object(theType, offset, vm, name = None, **kwargs):
     offset = int(offset)
 
     try:
-        if theType in vm.profile.types:
+        if vm.profile.has_type(theType):
             result = vm.profile.types[theType](offset = offset, vm = vm, name = name, **kwargs)
             return result
-
-        if theType in vm.profile.object_classes:
-            result = vm.profile.object_classes[theType](theType = theType,
-                                                        offset = offset,
-                                                        vm = vm,
-                                                        name = name,
-                                                        **kwargs)
-            return result
-
     except InvalidOffsetError:
         ## If we cant instantiate the object here, we just error out:
         return NoneObject("Invalid Address 0x{0:08X}, instantiating {1}".format(offset, name),
@@ -856,9 +848,8 @@ def VolMagic(vm):
 
 class Profile(object):
 
-    vtypes = 'xp_sp2_x86_vtypes'
-    syscalls = 'xp_sp2_x86_syscalls'
-    object_classes = {}
+    native_mapping = {'32bit': native_types.x86_native_types,
+                      '64bit': native_types.x64_native_types}
 
     def __init__(self, strict = False):
         self.strict = strict
@@ -876,10 +867,85 @@ class Profile(object):
 
     def reset(self):
         """ Resets the profile's vtypes to those automatically loaded """
+        # Prepopulate object_classes with base classes
+        self.object_classes = {'BitField': BitField,
+                               'Pointer': Pointer,
+                               'Void': Void,
+                               'Array': Array,
+                               'CType': CType,
+                               'VolatilityMagic': VolatilityMagic}
+        # Ensure VOLATILITY_MAGIC is always present in vtypes
+        self.vtypes = {'VOLATILITY_MAGIC' : [0x0, {}]}
+        # Setup the initial vtypes and native_types
         self.load_vtypes()
-        self.load_overlays()
-        self.object_classes = self.load_object_classes()
+        # Run through any modifications (new vtypes, overlays, object_classes)
+        self.load_hooks()
+        # Recompile
         self.compile()
+
+    def load_vtypes(self):
+        """ Identifies the module from which to load the vtypes 
+        
+        Eventually this could do the importing directly, and avoid having
+        the profiles loaded in memory all at once.
+        """
+        ntvar = self.metadata.get('memory_model', '32bit')
+        self.native_types = copy.deepcopy(self.native_mapping.get(ntvar))
+
+        vtype_module = self.metadata.get('vtype_module', None)
+        if not vtype_module:
+            debug.warning("No vtypes specified for this profile")
+        else:
+            module = sys.modules[vtype_module]
+
+            # Try to locate the _types dictionary
+            for i in dir(module):
+                if i.endswith('_types'):
+                    self.vtypes.update(getattr(module, i))
+
+    def load_hooks(self):
+        """ Find all subclasses of the hook type and applies them
+
+        Each hook object can specify the metadata with which it can work
+        Allowing the overlay to decide which profile it should act on"""
+
+        # Collect together all the applicabale hooks
+        hooks = {}
+        for i in self._get_subclasses(Hook):
+            if not i.__class__.__name__.startswith('Abstract') and i != Hook:
+                instance = i()
+                if instance.check(self):
+                    hooks[instance.__class__.__name__] = instance
+
+        # Run through the hooks in dependency order 
+        for hookname in self._resolve_hook_dependencies(hooks.values()):
+            hook = hooks.get(hookname, None)
+            # The results may contain hooks we don't care about
+            # so filter down to hooks in our original list
+            if hook:
+                print "Applying modification from " + hook.__class__.__name__
+                hook.modification(self)
+        self.compile()
+
+    def compile(self):
+        """ Compiles the vtypes, overlays, object_classes, etc into a types dictionary """
+        # Load the native types
+        types = {}
+        for nt, value in self.native_types.items():
+            if type(value) == list:
+                types[nt] = Curry(NativeType, nt, format_string = value[1])
+
+        for name in self.vtypes.keys():
+            ## We need to protect our virgin overlay dict here - since
+            ## the following functions modify it, we need to make a
+            ## deep copy:
+            types[name] = self._convert_members(name)
+
+        for name in self.object_classes.keys():
+            if name not in types:
+                types[name] = Curry(self.object_classes[name], name)
+
+        self.types = types
 
     @utils.classproperty
     @classmethod
@@ -891,36 +957,12 @@ class Profile(object):
                 result[i[len(prefix):]] = getattr(cls, i)
         return result
 
-    def load_vtypes(self):
-        """ Identifies the module from which to load the vtypes 
-        
-        Eventually this could do the importing directly, and avoid having
-        the profiles loaded in memory all at once.
-        """
-        vtype_module = self.metadata.get('vtype_module', None)
-        if not vtype_module:
-            debug.warning("No vtypes specified for this profile")
-        else:
-            module = sys.modules[vtype_module]
-
-            # Try to locate the _types dictionary
-            for i in dir(module):
-                if i.endswith('_types'):
-                    self.vtypes = getattr(module, i)
-
-    def load_overlays(self):
-        """ Find all subclasses of the overlay type and applies them
-        
-        Each overlay object can specify the metadata with which it can work
-        Allowing the overlay to decide which profile it should act on"""
-        pass
-
-    def load_object_classes(self):
-        """ Runs through all ObjectClassMaker subclasses and attempts to add the object_classes """
-        pass
-
-    def has_type(self, theType):
-        return theType in self.types
+    def _get_subclasses(self, cls):
+        """Returns a list of all subclasses"""
+        for i in cls.__subclasses__():
+            for c in self._get_subclasses(i):
+                yield c
+        yield cls
 
     def _get_dummy_obj(self, name):
         class dummy(object):
@@ -937,6 +979,9 @@ class Profile(object):
 
         tmp = self.types[name](offset = 0, name = name, vm = dummy(), parent = None)
         return tmp
+
+    def has_type(self, theType):
+        return theType in self.types
 
     def get_obj_offset(self, name, member):
         """ Returns a members offset within the struct """
@@ -962,6 +1007,10 @@ class Profile(object):
                 debug.warning("Overlay structure {0} not present in vtypes".format(k))
             else:
                 self.vtypes[k] = self._apply_overlay(self.vtypes[k], v)
+
+    def apply_overlay(self, *args, **kwargs):
+        debug.warning("Deprecation warning: A plugin is making use of profile.apply_overlay")
+        return self._apply_overlay(*args, **kwargs)
 
     def _apply_overlay(self, type_member, overlay):
         """ Update the overlay with the missing information from type.
@@ -989,20 +1038,39 @@ class Profile(object):
 
         return overlay
 
-    def compile(self):
-        """ Compiles the vtypes, overlays, object_classes, etc into a types dictionary """
-        # Load the native types
-        types = {}
-        for nt, value in self.native_types.items():
-            if type(value) == list:
-                types[nt] = Curry(NativeType, nt, format_string = value[1])
+    def _resolve_hook_dependencies(self, hooks):
+        # Convert the before/after to a directed graph
+        result = []
+        data = {}
+        for hook in hooks:
+            before, after = hook.dependencies(self)
+            data[hook.__class__.__name__] = data.get(hook.__class__.__name__, set([])).union(set(before))
+            for a in after:
+                data[a] = data.get(a, set([])).union(set(hook.__class__.__name__))
 
-        for name in self.vtypes.keys():
-            ## We need to protect our virgin overlay dict here - since
-            ## the following functions modify it, we need to make a
-            ## deep copy:
-            types[name] = self._convert_members(name)
-        self.types = types
+        for k, v in data.items():
+            v.discard(k) # Ignore self dependencies
+        extra_items_in_deps = reduce(set.union, data.values()) - set(data.keys())
+        for item in extra_items_in_deps:
+            data.update({item:set()})
+        while True:
+            ordered = set([item for item, dep in data.items() if not dep])
+            if not ordered:
+                break
+            result.append(sorted(ordered))
+            for item, dep in data.items():
+                if item not in ordered:
+                    data[item] = (dep - ordered)
+                else:
+                    data.pop(item)
+
+        if data:
+            debug.warning("A cyclic dependency exists amongst {0}".format(data))
+            raise StopIteration
+
+        for s in result:
+            for i in s:
+                yield i
 
     def _list_to_type(self, name, typeList, typeDict = None):
         """ Parses a specification list and returns a VType object.
@@ -1066,13 +1134,13 @@ class Profile(object):
         return Curry(self.types['int'], name = name)
 
     def _convert_members(self, cname):
-        """ Convert the member named by cname from the c description
-        provided by typeDict into a list of members that can be used
+        """ Convert the structure named by cname from the c description
+        present in vtypes into a list of members that can be used
         for later parsing.
 
         cname is the name of the struct.
         
-        We expect typeDict[cname] to be a list of the following format
+        We expect the vtypes value to be a list of the following format
 
         [ Size of struct, members_dict ]
 
@@ -1082,14 +1150,13 @@ class Profile(object):
 
         [ offset_from_start_of_struct, specification_list ]
 
-        The specification list has the form specified by self.list_to_type() above.
+        The specification list has the form specified by self._list_to_type() above.
 
-        We return a list of CTypeMember objects. 
+        We return an object that is a CType or has been overridden by object_classes. 
         """
-        ctype = self.vtypes.get(cname)
+        size, raw_members = self.vtypes.get(cname)
         members = {}
-        size = ctype[0]
-        for k, v in ctype[1].items():
+        for k, v in raw_members.items():
             if callable(v):
                 members[k] = v
             elif v[0] == None:
@@ -1104,3 +1171,20 @@ class Profile(object):
             cls = CType
 
         return Curry(cls, cname, members = members, struct_size = size)
+
+class Hook(object):
+    """ Class for hooking in additional functionality """
+    before = []
+    after = []
+    conditions = {}
+
+    def check(self, profile):
+        """ Returns True or False as to whether the Hook should be applied """
+        result = True
+        for k, v in self.conditions.items():
+            result = result and v(profile.metadata.get(k, None))
+        return result
+
+    def dependencies(self, profile):
+        """ Returns a list of hooks that should go before this, and hooks that need to be after this """
+        return self.before, self.after
