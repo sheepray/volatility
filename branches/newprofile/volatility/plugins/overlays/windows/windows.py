@@ -171,6 +171,8 @@ class _UNICODE_STRING(obj.CType):
         return format(self.v(), formatspec)
 
     def __str__(self):
+        if not self.v():
+            return ''
         return self.v()
 
 class _LIST_ENTRY(obj.CType):
