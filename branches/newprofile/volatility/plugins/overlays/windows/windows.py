@@ -781,7 +781,7 @@ class WindowsVTypes(obj.Hook):
 
 class WindowsObjectClasses(obj.Hook):
     constratints = {'os': lambda x: x == 'windows'}
-    before = ['BasicObjectClasses', 'WindowsVTypes', 'WindowsOverlays']
+    before = ['BasicObjectClasses', 'WindowsVTypes', 'WindowsOverlay']
 
     def modification(self, profile):
         profile.object_classes.update({

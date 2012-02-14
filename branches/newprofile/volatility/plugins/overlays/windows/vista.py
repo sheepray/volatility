@@ -74,18 +74,18 @@ class Vistax64DTB(obj.Hook):
         profile.merge_overlay(overlay)
 
 
-class VistaMMVADHook(obj.Hook):
+class VistaMMVAD(obj.Hook):
     before = ['WindowsOverlay', 'Win2K3MMVad']
     conditions = {'os': lambda x: x == 'windows',
                   'major': lambda x: x >= 6,
                   }
 
     def modification(self, profile):
-        profile.object_classes['_MMVAD_SHORT'] = _MMVAD_SHORT
-        profile.object_classes['_MMVAD_LONG'] = _MMVAD_LONG
+        profile.object_classes.update({'_MMVAD_SHORT': _MMVAD_SHORT,
+                                       '_MMVAD_LONG' : _MMVAD_LONG})
 
 class VistaKDBG(windows.AbstractKDBGHook):
-    before = ['WindowsOverlays']
+    before = ['WindowsOverlay']
     conditions = {'os': lambda x : x == 'windows',
                   'major': lambda x: x == 6,
                   'minor': lambda x: x == 0}
