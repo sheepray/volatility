@@ -39,6 +39,6 @@ class Windows64Overlay(obj.ProfileModification):
                                     'Tag' : [-12, None],
                                                        }]
                                })
-        profile.object_classes.update({'Pointer64': obj.Pointer})
+        profile.object_classes.update({'pointer64': obj.Pointer})
         profile.vtypes["_IMAGE_NT_HEADERS"] = profile.vtypes["_IMAGE_NT_HEADERS64"]
 
