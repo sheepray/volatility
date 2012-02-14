@@ -1,15 +1,14 @@
 #summary Links to VDP Documentation
 #labels Featured
 
+<wiki:toc/>
+
 = Introduction =
 
 This page contains links to documents that are part of the Volatility Documentation Project (VDP) 2.0.  These documents are contributed by various members of the Volatility community.  New contributions are always welcome.
 
-
 = Installation =
   * [FullInstallation Full Development Installation]
-
-
 
 = Case Studies/Forensic Challenges =
   * [http://www.reconstructer.org/papers/Hunting%20malware%20with%20Volatility%20v2.0.pdf Hunting Malware with Volatility 2.0 by Frank Boldewin] (external link)
@@ -33,16 +32,20 @@ This page contains links to documents that are part of the Volatility Documentat
   * [http://www.evild3ad.com/?p=1088 Volatility Memory Forensics | Graphviz] (external link)
   * [http://mnin.blogspot.com/2011/10/zeroaccess-volatility-and-kernel-timers.html ZeroAccess, Volatility, and Kernel Timers] (external link)
   * [http://malwarereversing.wordpress.com/2011/09/23/zeus-analysis-in-volatility-2-0/ Zeus Analysis in Volatility 2.0] (external link)
-  
 
 = Development and Plugins =
   * [http://blog.schatzforensic.com.au/2010/05/adding-new-structure-definitions-to-volatility/ Adding new structure definitions to Volatility] (external link)
-  * [http://dfsforensics.blogspot.com/2011/03/bringing-linux-support-to-volatility.html Bringing Linux Support to Volatility] (external link)
   * [ConvertingPluginsFromVol13toVol20 Converting Volatility 1.3 Plugins to 2.0] 
   * [PluginWritersGuide Plugin Writers Guide]
   * [http://lorgor.blogspot.com/2011/04/volatility-14-new-great-and-with-shiny.html reglist] (external link)
   * [http://gleeda.blogspot.com/2011/09/volatility-20-timeliner-registryapi.html Volatility 2.0: Timeliner, RegistryAPI, evtlogs and more] (external link)
   * [http://malwarereversing.wordpress.com/2011/09/17/volatility-2-0-plugin-vscan/ Volatility 2.0 Plugin Vscan] (external link)
+
+= Linux Support =
+ * [http://dfsforensics.blogspot.com/2011/03/bringing-linux-support-to-volatility.html Bringing Linux Support To Volatility] (external link)
+ * [http://dfsforensics.blogspot.com/2011/03/analyzing-new-honeynet-memory-analysis.html Analyzing the New Honeynet Memory Challenge with Volatility] by Andrew Case. (external link)
+ * The winning submissions to [https://www.honeynet.org/challenges/2011_7_compromised_server Honeynet's Forensic Challenge #7], which leveraged Volatility. (external link)
+ * [http://www.digitalforensicssolutions.com/papers/blackhat-workshop-full-presentation.pdf Linux Memory Analysis Workshop at Blackhat USA 2011 by Andrew Case] (external link)
 
 = Older (1.3) Documentation = 
   * [DocFiles VDP 1.3]
