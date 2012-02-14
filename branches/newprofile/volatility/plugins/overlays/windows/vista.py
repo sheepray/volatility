@@ -97,7 +97,6 @@ class VistaSP1KDBG(windows.AbstractKDBGHook):
                   'major': lambda x: x == 6,
                   'minor': lambda x: x == 0,
                   'build': lambda x: x >= 6001,
-                  'memory_model': lambda x: x == '64bit',
                   }
     kdbgsize = 0x330
 
