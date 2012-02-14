@@ -909,43 +909,47 @@ class Profile(object):
         Each hook object can specify the metadata with which it can work
         Allowing the overlay to decide which profile it should act on"""
 
-        # Collect together all the applicabale hooks
+        # Collect together all the applicable hooks
         hooks = {}
         for i in self._get_subclasses(Hook):
-            if not i.__class__.__name__.startswith('Abstract') and i != Hook:
-                instance = i()
-                if instance.check(self):
-                    hooks[instance.__class__.__name__] = instance
+            instance = i()
+            # Leave abstract hooks out of the dependency tree
+            # Also don't consider the base Hook object
+            if not instance.__class__.__name__.startswith("Abstract") and i != Hook:
+                hooks[instance.__class__.__name__] = instance
 
         # Run through the hooks in dependency order 
         for hookname in self._resolve_hook_dependencies(hooks.values()):
             hook = hooks.get(hookname, None)
-            # The results may contain hooks we don't care about
-            # so filter down to hooks in our original list
-            if hook:
+            # We check for invalid/mistyped hooks, AbstractHooks should be caught by this too
+            if not hook:
+                raise RuntimeError("No concrete Hook found for " + hookname)
+            if hook.check(self):
                 print "Applying modification from " + hook.__class__.__name__
                 hook.modification(self)
         self.compile()
 
     def compile(self):
         """ Compiles the vtypes, overlays, object_classes, etc into a types dictionary """
+        # We populate as we go, so that _list_to_type can refer 
+        # to existing classes rather than Curry everything
+        # If the compile fails, the profile will be left in a bad/unusable state
+
         # Load the native types
-        types = {}
+        self.types = {}
         for nt, value in self.native_types.items():
             if type(value) == list:
-                types[nt] = Curry(NativeType, nt, format_string = value[1])
+                self.types[nt] = Curry(NativeType, nt, format_string = value[1])
 
+        # Go through the vtypes, creating the stubs for object creation at
+        # a later point by the Object factory
         for name in self.vtypes.keys():
-            ## We need to protect our virgin overlay dict here - since
-            ## the following functions modify it, we need to make a
-            ## deep copy:
-            types[name] = self._convert_members(name)
+            self.types[name] = self._convert_members(name)
 
+        # Add in any object_classes that had no defined members, for completeness
         for name in self.object_classes.keys():
-            if name not in types:
-                types[name] = Curry(self.object_classes[name], name)
-
-        self.types = types
+            if name not in self.types:
+                self.types[name] = Curry(self.object_classes[name], name)
 
     @utils.classproperty
     @classmethod
