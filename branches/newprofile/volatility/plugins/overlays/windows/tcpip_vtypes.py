@@ -96,16 +96,16 @@ tcpip_vtypes_7 = {
 # Structures for netscan on x64 Windows 7. These may also apply 
 # to x64 Vista and 2008 but that has not yet been determined. Naming
 # will be updated accordingly once we figure out the rest. 
-tcpip_vtypes_7_64 = { 
+tcpip_vtypes_7_64 = {
     '_TCP_LISTENER': [ None, { # TcpL
-    'Owner' : [ 0x28, ['pointer', ['_EPROCESS']]], 
-    'CreateTime' : [ 0x20, ['WinTimeStamp', {}]], 
-    'LocalAddr' : [ 0x58, ['pointer', ['_LOCAL_ADDRESS']]], 
-    'InetAF' : [ 0x60, ['pointer', ['_INETAF']]], 
-    'Port' : [ 0x6a, ['unsigned short']], 
+    'Owner' : [ 0x28, ['pointer', ['_EPROCESS']]],
+    'CreateTime' : [ 0x20, ['WinTimeStamp', {}]],
+    'LocalAddr' : [ 0x58, ['pointer', ['_LOCAL_ADDRESS']]],
+    'InetAF' : [ 0x60, ['pointer', ['_INETAF']]],
+    'Port' : [ 0x6a, ['unsigned short']],
     }],
     '_INETAF' : [ None, {
-    'AddressFamily' : [ 0x14, ['unsigned short']], 
+    'AddressFamily' : [ 0x14, ['unsigned short']],
     }],
     '_LOCAL_ADDRESS' : [ None, {
     'pData' : [ 0x10, ['pointer', ['pointer', ['_IN_ADDR']]]],
@@ -115,20 +115,20 @@ tcpip_vtypes_7_64 = {
     'Remote' : [ 0x10, ['pointer', ['_IN_ADDR']]],
     }],
     '_TCP_ENDPOINT': [ None, { # TcpE
-    'InetAF' : [ 0x18, ['pointer', ['_INETAF']]], 
-    'AddrInfo' : [ 0x20, ['pointer', ['_ADDRINFO']]], 
-    'State' : [ 0x68, ['unsigned int']], 
-    'LocalPort' : [ 0x6c, ['unsigned short']], 
-    'RemotePort' : [ 0x6e, ['unsigned short']], 
-    'Owner' : [ 0x20, ['pointer', ['_EPROCESS']]], 
-    'CreateTime' : [ 0x1c, ['WinTimeStamp', {}]], 
+    'InetAF' : [ 0x18, ['pointer', ['_INETAF']]],
+    'AddrInfo' : [ 0x20, ['pointer', ['_ADDRINFO']]],
+    'State' : [ 0x68, ['unsigned int']],
+    'LocalPort' : [ 0x6c, ['unsigned short']],
+    'RemotePort' : [ 0x6e, ['unsigned short']],
+    'Owner' : [ 0x20, ['pointer', ['_EPROCESS']]],
+    'CreateTime' : [ 0x1c, ['WinTimeStamp', {}]],
     }],
     '_UDP_ENDPOINT': [ None, { # UdpA
-    'Owner' : [ 0x28, ['pointer', ['_EPROCESS']]], 
-    'CreateTime' : [ 0x58, ['WinTimeStamp', {}]], 
-    'LocalAddr' : [ 0x60, ['pointer', ['_LOCAL_ADDRESS']]], 
+    'Owner' : [ 0x28, ['pointer', ['_EPROCESS']]],
+    'CreateTime' : [ 0x58, ['WinTimeStamp', {}]],
+    'LocalAddr' : [ 0x60, ['pointer', ['_LOCAL_ADDRESS']]],
     'InetAF' : [ 0x20, ['pointer', ['_INETAF']]],
-    'Port' : [ 0x80, ['unsigned short']], 
+    'Port' : [ 0x80, ['unsigned short']],
     }],
 }
 
