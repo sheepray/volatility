@@ -841,4 +841,6 @@ class AbstractKDBGMod(obj.ProfileModification):
 # These are due from removal after version 2.2,
 # please do not rely upon them
 
-AbstractWindows = AbstractWindowsX86
+class AbstractWindows(obj.Profile):
+    """ A Profile for Windows systems """
+    _md_os = 'windows'
