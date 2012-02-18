@@ -873,8 +873,8 @@ class Profile(object):
     def applied_modifications(self):
         return self._mods
 
-    def reset(self):
-        """ Resets the profile's vtypes to those automatically loaded """
+    def clear(self):
+        """ Clears out the input vtypes and object_classes, and only the base object types """
         # Prepopulate object_classes with base classes
         self.object_classes = {'BitField': BitField,
                                'Pointer': Pointer,
@@ -884,9 +884,16 @@ class Profile(object):
                                'VolatilityMagic': VolatilityMagic}
         # Ensure VOLATILITY_MAGIC is always present in vtypes
         self.vtypes = {'VOLATILITY_MAGIC' : [0x0, {}]}
+        # Clear out the ordering that modifications were applied (since now, none were)
+        self._mods = []
+
+    def reset(self):
+        """ Resets the profile's vtypes to those automatically loaded """
+        # Clear everything out
+        self.clear()
         # Setup the initial vtypes and native_types
         self.load_vtypes()
-        # Run through any modifications (new vtypes, overlays, object_classes)
+        # Run through any modifications (new vtypes/overlays, object_classes)
         self.load_modifications()
         # Recompile
         self.compile()
