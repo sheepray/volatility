@@ -31,4 +31,4 @@
 
 = Features for current Milestone =
 
-Since the current milestone is 2.0, please see Todo20.
+Since the current milestone is 2.1, please see [Todo21].
