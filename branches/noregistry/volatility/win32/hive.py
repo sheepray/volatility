@@ -144,6 +144,9 @@ class HiveAddressSpace(addrspace.BaseAddressSpace):
                 stuff_read = stuff_read + self.base.read(paddr, left_over)
         return stuff_read
 
+    def zread(self, addr, length):
+        return self.read(addr, length, True)
+
     def read_long_phys(self, addr):
         string = self.base.read(addr, 4)
         (longval,) = struct.unpack('=I', string)
@@ -274,6 +277,9 @@ class HiveFileAddressSpace(addrspace.BaseAddressSpace):
             else:
                 stuff_read = stuff_read + self.base.read(paddr, left_over)
         return stuff_read
+
+    def zread(self, addr, length):
+        return self.read(addr, length, True)
 
     def read_long_phys(self, addr):
         string = self.base.read(addr, 4)
