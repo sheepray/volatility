@@ -46,6 +46,11 @@ Curry = functools.partial
 
 import traceback
 
+class classproperty(property):
+    def __get__(self, cls, owner):
+        # We don't think pylint knows what it's talking about here
+        return self.fget.__get__(None, owner)() #pylint: disable-msg=E1101
+
 def get_bt_string(_e = None):
     return ''.join(traceback.format_stack()[:-3])
 

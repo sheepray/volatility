@@ -50,12 +50,11 @@ if False:
 import textwrap
 import volatility.conf as conf
 config = conf.ConfObject()
+import volatility.constants as constants
+import volatility.registry as registry
 import volatility.exceptions as exceptions
 import volatility.obj as obj
-import volatility.utils as utils
-import volatility.constants as constants
 import volatility.debug as debug
-import volatility.registry as registry
 
 import volatility.addrspace as addrspace
 import volatility.commands as commands
