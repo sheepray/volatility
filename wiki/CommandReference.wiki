@@ -2305,9 +2305,9 @@ The result should be a text file that contains the offset and strings from the i
 17729:***
 }}}
 
-*EnCase Keyword Export*
+*!EnCase Keyword Export*
 
-You can also use EnCase to export keywords and offsets in this format with some tweaking.  One thing to note is that EnCase exports text in UTF-16 with a BOM of (U+FEFF) which can cause issues with the `strings` plugin.  An example look at the exported keyword:
+You can also use !EnCase to export keywords and offsets in this format with some tweaking.  One thing to note is that !EnCase exports text in UTF-16 with a BOM of (U+FEFF) which can cause issues with the `strings` plugin.  An example look at the exported keyword:
 
 {{{
 File Offset Hit Text
