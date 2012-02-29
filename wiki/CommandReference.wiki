@@ -2334,7 +2334,7 @@ Now tweaking the file by removing the header and tabs we have:
 [snip]
 }}}
 
-We can see that it is UTF-16 as well as a BOM of (U+FEFF) by using a hex editor.
+We can see that it is UTF-16 and has a BOM of (U+FEFF) by using a hex editor.
 
 {{{
 $ file export.txt 
