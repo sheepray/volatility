@@ -2305,6 +2305,75 @@ The result should be a text file that contains the offset and strings from the i
 17729:***
 }}}
 
+*EnCase Keyword Export*
+
+You can also use EnCase to export keywords and offsets in this format with some tweaking.  One thing to note is that EnCase exports text in UTF-16 with a BOM of (U+FEFF) which can cause issues with the `strings` plugin.  An example look at the exported keyword:
+
+{{{
+File Offset Hit Text
+114923  DHCP
+114967  DHCP
+115892  DHCP
+115922  DHCP
+115952  DHCP
+116319  DHCP
+
+[snip]
+}}}
+
+Now tweaking the file by removing the header and tabs we have:
+
+{{{
+114923:DHCP
+114967:DHCP
+115892:DHCP
+115922:DHCP
+115952:DHCP
+116319:DHCP
+
+[snip]
+}}}
+
+We can see that it is UTF-16 as well as a BOM of (U+FEFF) by using a hex editor.
+
+{{{
+$ file export.txt 
+export.txt: Little-endian UTF-16 Unicode text, with CRLF, CR line terminators
+
+$ xxd export.txt |less
+
+0000000: fffe 3100 3100 3400 3900 3200 3300 3a00  ..1.1.4.9.2.3.:.
+
+[snip]
+}}}
+
+We have to convert this to ASCII or UTF-8:
+
+{{{
+$ iconv -f UTF-16 -t UTF-8 export.txt > export1.txt
+}}}
+
+*NOTE:* You must make sure there are NO blank lines in your final "strings" file.
+
+Now we can see a difference in how these two files are handled:
+
+{{{
+$ ./vol.py -f Bob.vmem --profile=WinXPSP2x86 strings -s export.txt 
+Volatile Systems Volatility Framework 2.1_alpha
+ERROR   : volatility.plugins.strings: String file format invalid.
+
+$ ./vol.py -f Bob.vmem --profile=WinXPSP2x86 strings -s export1.txt 
+Volatile Systems Volatility Framework 2.1_alpha
+0001c0eb [kernel:2147598571] DHCP
+0001c117 [kernel:2147598615] DHCP
+0001c4b4 [kernel:2147599540] DHCP
+0001c4d2 [kernel:2147599570] DHCP
+0001c4f0 [kernel:2147599600] DHCP
+0001c65f [kernel:2147599967] DHCP
+0001c686 [kernel:2147600006] DHCP
+
+[snip]
+}}}
 
 *NOTE:* The Volatility strings output is very verbose and it is best to redirect or save to a file.  The following command saves the output using the `--output-file` option and filename "win7_vol_strings.txt"
 
