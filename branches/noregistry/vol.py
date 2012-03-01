@@ -99,7 +99,7 @@ def print_info():
 
         result = []
         max_length = 0
-        for clsname, cls in plugins.items():
+        for clsname, cls in sorted(plugins.items()):
             try:
                 doc = cls.__doc__.strip().splitlines()[0]
             except AttributeError:
