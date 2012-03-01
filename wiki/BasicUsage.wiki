@@ -3,7 +3,7 @@
 
 = Basic Usage of Volatility 2.0 =
 
-Volatility 2.0 has the ability to analyze !W2K3 SP0/SP1/SP2, Vista SP0/SP1/SP2, !W2K8 SP1/SP2 and Windows 7 SP0/SP1 images in addition to Windows XP SP2 and SP3.  In order to analyze an image that is not Windows XP SP2, you should provide the correct profile when running Volatility commands.  You can obtain the profile from Volatility by typing:
+Volatility 2.0 has the ability to analyze !Windows 2003 SP0/SP1/SP2, Vista SP0/SP1/SP2, !Windows 2008 SP1/SP2 and Windows 7 SP0/SP1 images in addition to Windows XP SP2 and SP3.  In order to analyze an image that is not Windows XP SP2, you should provide the correct profile when running Volatility commands.  You can obtain the profile from Volatility by typing:
 
 {{{
 $ python vol.py --info
@@ -17,11 +17,11 @@ PROFILES
 VistaSP0x86  - A Profile for Windows Vista SP0 x86
 VistaSP1x86  - A Profile for Windows Vista SP1 x86
 VistaSP2x86  - A Profile for Windows Vista SP2 x86
-Win2K3SP0x86 - A Profile for Windows 2003 SP0 x86
-Win2K3SP1x86 - A Profile for Windows 2003 SP1 x86
-Win2K3SP2x86 - A Profile for Windows 2003 SP2 x86
-Win2K8SP1x86 - A Profile for Windows 2008 SP1 x86
-Win2K8SP2x86 - A Profile for Windows 2008 SP2 x86
+Win2003SP0x86 - A Profile for Windows 2003 SP0 x86
+Win2003SP1x86 - A Profile for Windows 2003 SP1 x86
+Win2003SP2x86 - A Profile for Windows 2003 SP2 x86
+Win2008SP1x86 - A Profile for Windows 2008 SP1 x86
+Win2008SP2x86 - A Profile for Windows 2008 SP2 x86
 Win7SP0x86   - A Profile for Windows 7 SP0 x86
 Win7SP1x86   - A Profile for Windows 7 SP1 x86
 WinXPSP2x86  - A Profile for Windows XP SP2
