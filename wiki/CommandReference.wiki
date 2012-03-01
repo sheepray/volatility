@@ -2347,7 +2347,7 @@ $ xxd export.txt |less
 [snip]
 }}}
 
-We have to convert this to ASCII or UTF-8.  In Windows you can open the text file and use the "Save As" dialog to save the file as ANSI (in the "Encoding" drop-down menu).  In Linux you can use `iconv`:
+We have to convert this to ANSI or UTF-8.  In Windows you can open the text file and use the "Save As" dialog to save the file as ANSI (in the "Encoding" drop-down menu).  In Linux you can use `iconv`:
 
 {{{
 $ iconv -f UTF-16 -t UTF-8 export.txt > export1.txt
