@@ -210,7 +210,7 @@ This error occurs when [http://code.google.com/p/volatility/wiki/FullInstallatio
 If you run into the message "Could not list tasks, please verify the --profile option and whether this image is valid" there are a few things you should know. First, the --profile parameter should be set to the name of a Volatility profile that matches the OS and architecture of the memory dump. If you don't know which OS your memory dump came from, try using the [CommandReference#imageinfo imageinfo] plugin for suggestions. If you use those suggestions and still see the error message, the most likely cause is multiple KDBG signatures. Volatility finds and uses the first KDBG signature it finds, which in the case of multiple KDBG signatures - the first one may not be the correct one. In this case, you should use the [CommandReference#kdbgscan kdgbscan] plugin and select an alternate KDBG address. When you run commands, also supply the --kdbg parameter. Here's an example walk-through: 
 
 {{{
-$ python vol.py -f mem.dmp --profile=Win2K3SP2x64 pslist 
+$ python vol.py -f mem.dmp --profile=Win2003SP2x64 pslist 
 Volatile Systems Volatility Framework 2.1_alpha
  Offset(V)  Name                 PID    PPID   Thds   Hnds   Time 
 ---------- -------------------- ------ ------ ------ ------ -------------------
@@ -224,7 +224,7 @@ $ python vol.py -f mem.dmp imageinfo
 Volatile Systems Volatility Framework 2.1_alpha
 Determining profile based on KDBG search...
 
-          Suggested Profile(s) : Win2K3SP2x64, WinXPSP1x64
+          Suggested Profile(s) : Win2003SP2x64, WinXPSP1x64
                      AS Layer1 : AMD64PagedMemory (Kernel AS)
                      AS Layer2 : FileAddressSpace (/Users/Michael/mem.dmp)
                       PAE type : PAE
@@ -237,22 +237,22 @@ Determining profile based on KDBG search...
 Could not list tasks, please verify the --profile option and whether this image is valid
 }}}
 
-Volatility suggested two profiles, the first and thus most likely profile is Win2K3SP2x64 (which is the one we originally used). The KDBG signature was found at 0xf80001172cb0. Now let's double check if there are multiple KDBG signatures.
+Volatility suggested two profiles, the first and thus most likely profile is Win2003SP2x64 (which is the one we originally used). The KDBG signature was found at 0xf80001172cb0. Now let's double check if there are multiple KDBG signatures.
 
 {{{
 $ python vol.py -f mem.dmp kdbgscan 
 Volatile Systems Volatility Framework 2.1_alpha
 Potential KDBG structure addresses (P = Physical, V = Virtual):
- _KDBG: V 0xf80001172cb0  (Win2K3SP2x64)
- _KDBG: P 0x01172cb0  (Win2K3SP2x64)
- _KDBG: V 0xf80001175cf0  (Win2K3SP2x64)
- _KDBG: P 0x01175cf0  (Win2K3SP2x64)
+ _KDBG: V 0xf80001172cb0  (Win2003SP2x64)
+ _KDBG: P 0x01172cb0  (Win2003SP2x64)
+ _KDBG: V 0xf80001175cf0  (Win2003SP2x64)
+ _KDBG: P 0x01175cf0  (Win2003SP2x64)
 }}}
 
 Near the end you can see there's an alternate KDBG signature found at 0xf80001175cf0. Supply this one to --kdbg with using pslist and see if that solves the problem:
 
 {{{
-$ python vol.py -f mem.dmp --profile=Win2K3SP2x64 --kdbg=0xf80001175cf0
+$ python vol.py -f mem.dmp --profile=Win2003SP2x64 --kdbg=0xf80001175cf0
 Volatile Systems Volatility Framework 2.1_alpha
  Offset(V)  Name                 PID    PPID   Thds   Hnds   Time 
 ---------- -------------------- ------ ------ ------ ------ ------------------- 
@@ -297,7 +297,7 @@ Tried to open image as:
 You should check with the [CommandReference#imageinfo imageinfo] plugin for profile suggestions (also see the previous FAQ entry). In this case, simply supplying the correct profile will fix the issue:
 
 {{{
-$ python vol.py -f win2k3sp0.vmem --profile=Win2K3SP0x86 psscan
+$ python vol.py -f win2k3sp0.vmem --profile=Win2003SP0x86 psscan
 Volatile Systems Volatility Framework 2.1_alpha
  Offset(P)  Name             PID    PPID   PDB        Time created             Time exited             
 ---------- ---------------- ------ ------ ---------- ------------------------ ------------------------ 
