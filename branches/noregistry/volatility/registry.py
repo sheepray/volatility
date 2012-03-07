@@ -54,10 +54,6 @@ config.add_option("INFO", default = None, action = "store_true",
                   cache_invalidator = False,
                   help = "Print information about all registered objects")
 
-config.add_option("PLUGINS", default = "",
-                  cache_invalidator = False,
-                  help = "Additional plugin directories to use (colon separated)")
-
 class PluginImporter(object):
     """This class searches through a comma-separated list of plugins and
        imports all classes found, based on their path and a fixed prefix.
