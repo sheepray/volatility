@@ -44,35 +44,22 @@ classes in the same plugin and have them all automatically loaded.
 """
 
 import os, zipfile
-import volatility.constants as constants
 import volatility.debug as debug
-import volatility.conf as conf
-
-config = conf.ConfObject()
-
-config.add_option("INFO", default = None, action = "store_true",
-                  cache_invalidator = False,
-                  help = "Print information about all registered objects")
+import volatility.plugins as plugins
 
 class PluginImporter(object):
     """This class searches through a comma-separated list of plugins and
        imports all classes found, based on their path and a fixed prefix.
     """
-    def __init__(self, plugins = None):
+    def __init__(self):
         """Gathers all the plugins from config.PLUGINS
            Determines their namespaces and maintains a dictionary of modules to filepaths
            Then imports all modules found
         """
         self.modnames = {}
 
-        # Handle the core plugins
-        if not plugins:
-            plugins = constants.PLUGINPATH
-        else:
-            plugins += ";" + constants.PLUGINPATH
-
         # Handle additional plugins
-        for path in plugins.split(';'):
+        for path in plugins.__path__:
             path = os.path.abspath(path)
 
             for relfile in self.walkzip(path):

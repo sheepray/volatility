@@ -60,6 +60,10 @@ import volatility.addrspace as addrspace
 import volatility.commands as commands
 import volatility.scan as scan
 
+config.add_option("INFO", default = None, action = "store_true",
+                  cache_invalidator = False,
+                  help = "Print information about all registered objects")
+
 def list_plugins():
     result = "\n\tSupported Plugin Commands:\n\n"
     cmds = registry.get_plugin_classes(commands.Command, lower = True)
@@ -119,7 +123,7 @@ def main():
     # Setup the debugging format
     debug.setup()
     # Load up modules in case they set config options
-    registry.PluginImporter(config.PLUGINS)
+    registry.PluginImporter()
 
     ## Register all register_options for the various classes
     for m in registry.get_plugin_classes(addrspace.BaseAddressSpace, True).values():
