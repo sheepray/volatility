@@ -2,13 +2,13 @@
 
 = Introduction =
 
-The current subversion branch "lin64-support" provides support for linux memory forensics (currently supported architectures are 32 bit and 64 bit intel based systems). 
+Note, the previous branches lin64-support and linux-support are deprecated. The current subversion branch "scudette" provides support for linux memory forensics (currently supported architectures are 32 bit and 64 bit intel based systems). 
 
 == Checking out the code ==
 Since this code is experimental you will need to check out the subversion repository:
 
 {{{
-svn checkout https://volatility.googlecode.com/svn/branches/lin64-support lin64-support
+svn checkout https://volatility.googlecode.com/svn/branches/scudette lin64-support
 }}}
 
 == Acquisition ==
@@ -25,7 +25,14 @@ This will make pmem.ko - a physical memory driver which will create a /dev/pmem 
 
 {{{
 # insmod ./pmem.ko
-# ./vol.py --profile Linux64 --profile_file=myprofile.zip -f /dev/pmem pslist
+# python vol.py 
+Welcome to volshell! 
+To get help, type 'help()'
+
+In [1]: session.filename = "/dev/pmem"
+In [2]: session.profile_file = "myprofile.zip"
+In [3]: session.profile = "Linux64"
+In [4]: vol pslist
 }}}
 
 == Creating the profile for the running system ==
@@ -42,13 +49,21 @@ You will also need the System map file (usually found in /boot/) for the target 
 == Running volatility ==
 To actually run volatility, we need to specify the profile (this can be either Linux32 or Linux64), and additionally we need to provide the profile file obtained from above. To see all the plugins that report themselves as available for linux, we can use -h to list them:
 {{{
-# ./vol.py --profile Linux64 --profile-file=myprofile.zip -f /dev/pmem  -h
+$ python vol.py 
+Welcome to volshell! 
+To get help, type 'help()'
+
+In [1]: session.filename = "linux_image.dd"
+In [2]: session.profile_file = "linux_image.dd.zip"
+In [3]: session.profile = "Linux64"
+In [4]: vol pslist
 }}}
 
-Notice that we can always just put these command line vars into the environment so we dont have to type so much:
+Notice that we can always just put these commands into a python script, so we dont have to type so much:
 {{{
-# export VOLATILITY_PROFILE=Linux64
-# export VOLATILITY_PROFILE_FILE=myprofile.zip
-# export VOLATILITY_FILENAME=/dev/pmem
-# ./vol.py pslist
+$ python vol.py 
+Welcome to volshell! 
+To get help, type 'help()'
+
+In [1]: run -i my_script.py
 }}}
