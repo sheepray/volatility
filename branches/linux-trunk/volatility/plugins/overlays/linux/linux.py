@@ -25,6 +25,7 @@
 """
 
 import os
+import copy
 import zipfile
 
 import volatility.plugins
@@ -52,6 +53,9 @@ linux_overlay = {
     'cpuinfo_x86' : [None, {
         'x86_model_id'  : [ None , ['String', dict(length = 64)]],
         'x86_vendor_id' : [ None, ['String', dict(length = 16)]],
+        }],
+    'VOLATILITY_MAGIC': [None, {
+        'DTB'           : [ 0x0, ['VolatilityDTB', dict(configname = "DTB")]],
         }],
     }
 
@@ -103,8 +107,24 @@ def LinuxProfileFactory(profpkg):
             self.sysmap = {}
             obj.Profile.__init__(self, *args, **kwargs)
 
+        def clear(self):
+            """Clear out the system map, and everything else"""
+            self.sysmap = {}
+            obj.Profile.clear(self)
+
+        def reset(self):
+            """Reset the vtypes, sysmap and apply modifications, then compile"""
+            self.clear()
+            self.load_vtypes()
+            self.load_sysmap()
+            self.load_modifications()
+            self.compile()
+
         def load_vtypes(self):
             """Loads up the vtypes data"""
+            ntvar = self.metadata.get('memory_model', '32bit')
+            self.native_types = copy.deepcopy(self.native_mapping.get(ntvar))
+
             self.vtypes.update(vtypesvar)
 
         def load_sysmap(self):
@@ -276,19 +296,19 @@ class VolatilityDTB(obj.VolatilityMagic):
 
     def generate_suggestions(self):
         """Tries to locate the DTB."""
-        volmag = obj.Object('VOLATILITY_MAGIC', offset = 0, vm = self.obj_vm)
+        profile = self.obj_vm.profile
 
         # This is the difference between the virtual and physical addresses (aka
         # PAGE_OFFSET). On linux there is a direct mapping between physical and
         # virtual addressing in kernel mode:
 
         #define __va(x) ((void *)((unsigned long) (x) + PAGE_OFFSET))
-        PAGE_OFFSET = volmag.SystemMap["_text"] - volmag.SystemMap["phys_startup_32"]
+        PAGE_OFFSET = profile.sysmap["_text"] - profile.sysmap["phys_startup_32"]
 
-        yield volmag.SystemMap["swapper_pg_dir"] - PAGE_OFFSET
+        yield profile.sysmap["swapper_pg_dir"] - PAGE_OFFSET
 
 class LinuxObjectClasses(obj.ProfileModification):
-    conditions = {'os': lambda x: x == 'windows'}
+    conditions = {'os': lambda x: x == 'linux'}
     before = ['BasicObjectClasses']
 
     def modification(self, profile):
@@ -300,3 +320,10 @@ class LinuxObjectClasses(obj.ProfileModification):
             'task_struct': task_struct,
             'VolatilityDTB': VolatilityDTB,
             })
+
+class LinuxOverlay(obj.ProfileModification):
+    conditions = {'os': lambda x: x == 'linux'}
+    before = ['BasicObjectClasses'] # , 'LinuxVTypes']
+
+    def modification(self, profile):
+        profile.merge_overlay(linux_overlay)

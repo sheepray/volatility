@@ -31,7 +31,7 @@ class VolatilityDTB(obj.VolatilityMagic):
 
     def generate_suggestions(self):
         """Tries to locate the DTB."""
-        volmag = obj.Object('VOLATILITY_MAGIC', offset = 0, vm = self.obj_vm)
+        profile = self.obj_vm.profile
 
         # This is the difference between the virtual and physical addresses (aka
         # PAGE_OFFSET). On linux there is a direct mapping between physical and
@@ -41,9 +41,9 @@ class VolatilityDTB(obj.VolatilityMagic):
 
         # We can also use the startup_64 but that seems to be defined twice (as
         # a Text symbol and a read only symbol).
-        PAGE_OFFSET = volmag.SystemMap["_text"] - volmag.SystemMap["phys_startup_64"]
+        PAGE_OFFSET = profile.sysmap["_text"] - profile.sysmap["phys_startup_64"]
 
-        yield volmag.SystemMap["init_level4_pgt"] - PAGE_OFFSET
+        yield profile.sysmap["init_level4_pgt"] - PAGE_OFFSET
 
 
 class Linux64ObjectClasses(obj.ProfileModification):
