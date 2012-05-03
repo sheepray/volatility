@@ -25,8 +25,7 @@ import volatility.obj as obj
 import linux_common
 
 class linux_dmesg(linux_common.AbstractLinuxCommand):
-
-    ''' gathers dmesg buffer '''
+    """Gather dmesg buffer"""
 
     def calculate(self):
 

@@ -25,7 +25,7 @@ import volatility.obj as obj
 import linux_common
 
 class linux_lsmod(linux_common.AbstractLinuxCommand):
-    '''Gather loaded kernel modules'''
+    """Gather loaded kernel modules"""
 
     def calculate(self):
         modules_addr = self.smap["modules"]

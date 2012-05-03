@@ -25,7 +25,7 @@ import volatility.obj as obj
 import linux_common
 
 class linux_pslist(linux_common.AbstractLinuxCommand):
-    """Gathers active tasks by walking the task_struct->task list"""
+    """Gather active tasks by walking the task_struct->task list"""
 
     @staticmethod
     def register_options(config):
