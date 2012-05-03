@@ -44,7 +44,7 @@ class linux_pslist(linux_common.AbstractLinuxCommand):
             pidlist = [int(p) for p in self._config.PID.split(',')]
 
         # walk the ->tasks list, note that this will *not* display "swapper"
-        for task in linux_common.walk_list_head("task_struct", "tasks", init_task.tasks, self.addr_space):
+        for task in init_task.tasks:
 
             if not pidlist or task.pid in pidlist:
                 yield task
