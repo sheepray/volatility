@@ -19,7 +19,7 @@
 #
 
 import volatility.utils as utils
-import volatility.commands as commands
+import volatility.plugins.common as common
 import volatility.scan as scan
 import volatility.obj as obj
 import volatility.cache as cache
@@ -154,8 +154,13 @@ class PoolScanTcpEndpoint(scan.PoolScanner):
                ('CheckPoolIndex', dict(value = 0)),
                ]
 
-class Netscan(commands.Command):
+class Netscan(common.AbstractWindowsCommand):
     """Scan a Vista, 2008 or Windows 7 image for connections and sockets"""
+
+    @staticmethod
+    def is_valid_profile(profile):
+        return (profile.metadata.get('os', 'unknown').lower() == 'windows' and
+                profile.metadata.get('major', 0) == 6)
 
     def enumerate_listeners(self, theObject):
         """
