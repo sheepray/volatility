@@ -21,8 +21,9 @@
 @organization: Digital Forensics Solutions
 """
 
-import volatility.obj as obj
+import socket
 import linux_common
+import volatility.obj as obj
 
 class a_ent(object):
 
@@ -50,7 +51,7 @@ class linux_arp(linux_common.AbstractLinuxCommand):
 
         buckets = obj.Object(theType = 'Array', offset = ntable.hash_buckets, vm = self.addr_space, targetType = 'Pointer', count = hash_size)
 
-        for i in xrange(0, hash_size):
+        for i in range(hash_size):
             if buckets[i]:
                 neighbor = obj.Object("neighbour", offset = buckets[i], vm = self.addr_space)
 
@@ -68,9 +69,9 @@ class linux_arp(linux_common.AbstractLinuxCommand):
             # get the family from each neighbour in order to work with ipv4 and 6
             family = n.tbl.family
 
-            if family == 2: # AF_INET
+            if family == socket.AF_INET:
                 ip = obj.Object("IpAddress", offset = n.primary_key.obj_offset, vm = self.addr_space).v()
-            elif family == 10: # AF_INET6
+            elif family == socket.AF_INET6:
                 ip = obj.Object("Ipv6Address", offset = n.primary_key.obj_offset, vm = self.addr_space).v()
             else:
                 ip = '?'
