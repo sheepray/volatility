@@ -116,7 +116,7 @@ class linux_netstat(lsof.linux_lsof):
 
     def get_state_str(self, inet_sock):
 
-        state = inet_sock.sk.__sk_common.skc_state
+        state = inet_sock.sk.__sk_common.skc_state #pylint: disable-msg=W0212
 
         return linux_flags.tcp_states[state]
 
