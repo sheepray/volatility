@@ -28,7 +28,7 @@ from operator import itemgetter
 import volatility.obj as obj
 import volatility.win32.tasks as tasks
 import volatility.win32.modules as modules
-import volatility.commands as commands
+import volatility.plugins.common as common
 import volatility.utils as utils
 import volatility.debug as debug #pylint: disable-msg=W0611
 from volatility.cache import CacheDecorator
@@ -105,12 +105,12 @@ def find_tables(start_addr, vm):
             op = obj.Object("_INSTRUCTION", offset = start_addr + i, vm = vm)
             if op.value == 0:
                 for s in ops_list:
-                    if op.opcode.v().startswith(s): 
+                    if op.opcode.v().startswith(s):
                         service_tables.append(op.disp)
 
     return service_tables
 
-class SSDT(commands.Command):
+class SSDT(common.AbstractWindowsCommand):
     "Display SSDT entries"
     # Declare meta information associated with this plugin
     meta_info = {

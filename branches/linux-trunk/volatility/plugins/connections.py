@@ -43,6 +43,12 @@ class Connections(commands.Command):
                           cache_invalidator = False,
                           help = "Physical Offset", action = "store_true")
 
+    @staticmethod
+    def is_valid_profile(profile):
+        return (profile.metadata.get('os', 'Unknown').lower() == 'windows' and
+                profile.metadata.get('major', 0) == 5 and
+                profile.metadata.get('minor', 0) == 1)
+
     def render_text(self, outfd, data):
         offsettype = "(V)" if not self._config.PHYSICAL_OFFSET else "(P)"
         outfd.write(" Offset{0}  Local Address             Remote Address            Pid   \n".format(offsettype) +
