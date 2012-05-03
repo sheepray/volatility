@@ -171,39 +171,39 @@ class linux_file(obj.CType):
 
 class list_head(obj.CType):
     """A list_head makes a doubly linked list."""
-    def list_of_type(self, type, member, forward = True):
+    def list_of_type(self, type, member, forward = True, head_sentinel = True):
         if not self.is_valid():
             return
 
         ## Get the first element
         if forward:
-            lst = self.next.dereference()
+            nxt = self.next.dereference()
         else:
-            lst = self.prev.dereference()
+            nxt = self.prev.dereference()
 
         offset = self.obj_vm.profile.get_obj_offset(type, member)
 
         seen = set()
-        seen.add(lst.obj_offset)
+        if head_sentinel:
+            # We're a header element and not to be included in the list
+            seen.add(self.obj_offset)
 
-        while 1:
+        while nxt.is_valid() and nxt.obj_offset not in seen:
             ## Instantiate the object
-            item = obj.Object(type, offset = lst.obj_offset - offset,
+            item = obj.Object(type, offset = nxt.obj_offset - offset,
                                     vm = self.obj_vm,
                                     parent = self.obj_parent,
                                     name = type)
 
-
-            if forward:
-                lst = item.m(member).next.dereference()
-            else:
-                lst = item.m(member).prev.dereference()
-
-            if not lst.is_valid() or lst.obj_offset in seen:
-                return
-            seen.add(lst.obj_offset)
+            seen.add(nxt.obj_offset)
 
             yield item
+
+            if forward:
+                nxt = item.m(member).next.dereference()
+            else:
+                nxt = item.m(member).prev.dereference()
+
 
     def __nonzero__(self):
         ## List entries are valid when both Flinks and Blink are valid
