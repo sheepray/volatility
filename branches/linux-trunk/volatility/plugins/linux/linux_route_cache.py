@@ -35,7 +35,7 @@ class linux_route_cache(linux_common.AbstractLinuxCommand):
         rt_hash_table = obj.Object(theType = "Array", offset = rt_pointer, vm = self.addr_space, targetType = "rt_hash_bucket", count = mask)
 
         # rt_do_flush / rt_cache_seq_show
-        for i in xrange(0, mask):
+        for i in range(mask):
 
             rth = rt_hash_table[i].chain
 
