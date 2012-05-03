@@ -93,27 +93,21 @@ class AbstractLinuxCommand(commands.Command):
 #
 
 # similar to for_each_process for this usage
-def walk_list_head(struct_name, list_member, list_head_ptr, addr_space):
+def walk_list_head(struct_name, list_member, list_head_ptr, _addr_space):
     debug.warning("Deprecated use of walk_list_head")
 
-    for item in list_head_ptr:
+    for item in list_head_ptr.list_of_type(struct_name, list_member):
         yield item
 
-#
-#def walk_internal_list(struct_name, list_member, list_start, addr_space):
-#
-#    # FIXME: Get rid of the while 1 statements
-#    while 1:
-#
-#        list_struct = obj.Object(struct_name, vm = addr_space, offset = list_start)
-#
-#        yield list_struct
-#
-#        list_start = list_struct.__getattribute__(list_member)
-#
-#        if not list_start:
-#            break
-#
+
+def walk_internal_list(struct_name, list_member, list_start, addr_space = None):
+    if not addr_space:
+        addr_space = list_start.obj_vm
+
+    while list_start:
+        list_struct = obj.Object(struct_name, vm = addr_space, offset = list_start.v())
+        yield list_struct
+        list_start = getattr(list_struct, list_member)
 
 
 # based on __d_path
@@ -169,29 +163,3 @@ def do_get_path(rdentry, rmnt, dentry, vfsmnt, addr_space):
 #
 #    return do_get_path(rdentry, rmnt, dentry, vfsmnt, addr_space)
 #
-## this is here b/c python is retarded and its inet_ntoa can't handle integers...
-#def ip2str(ip):
-#
-#    a = ip & 0xff
-#    b = (ip >> 8) & 0xff
-#    c = (ip >> 16) & 0xff
-#    d = (ip >> 24) & 0xff
-#
-#    return "{0}.{1}.{2}.{3}".format(a, b, c, d)
-#
-#def ip62str(in6addr):
-#
-#    ret = ""
-#    ipbytes = in6addr.in6_u.u6_addr8
-#    ctr = 0
-#
-#    for byte in ipbytes:
-#        ret = ret + "{0:02x}".format(byte)
-#
-#        # make it the : notation
-#        if ctr % 2 and ctr != 15:
-#            ret = ret + ":"
-#
-#        ctr = ctr + 1
-#
-#    return ret

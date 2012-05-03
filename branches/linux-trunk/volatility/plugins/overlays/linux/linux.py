@@ -29,6 +29,7 @@ import copy
 import zipfile
 
 import volatility.plugins
+import volatility.plugins.overlays.basic as basic
 import volatility.obj as obj
 import volatility.debug as debug
 import volatility.utils as utils
@@ -323,6 +324,8 @@ class LinuxObjectClasses(obj.ProfileModification):
             'files_struct': files_struct,
             'task_struct': task_struct,
             'VolatilityDTB': VolatilityDTB,
+            'IpAddress': basic.IpAddress,
+            'Ipv6Address': basic.Ipv6Address,
             })
 
 class LinuxOverlay(obj.ProfileModification):
