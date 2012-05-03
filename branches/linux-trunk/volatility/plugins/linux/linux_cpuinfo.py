@@ -25,8 +25,7 @@ import linux_common
 import volatility.obj as obj
 
 class linux_cpuinfo(linux_common.AbstractLinuxCommand):
-
-    ''' prints info about each active processor '''
+    """Prints info about each active processor"""
 
     def calculate(self):
 
