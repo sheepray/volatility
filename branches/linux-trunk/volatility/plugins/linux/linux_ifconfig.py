@@ -75,7 +75,7 @@ class linux_ifconfig(linux_common.AbstractLinuxCommand):
 
             # for interfaces w/o an ip address (dummy/bond)
             if in_dev.ifa_list:
-                ip = in_dev.ifa_list.ifa_address.dereference_as('IpAddress')
+                ip = in_dev.ifa_list.ifa_address.cast('IpAddress')
             else:
                 ip = "0.0.0.0"
 
