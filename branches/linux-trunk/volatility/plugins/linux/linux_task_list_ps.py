@@ -27,8 +27,6 @@ import linux_common
 class linux_pslist(linux_common.AbstractLinuxCommand):
     """Gathers active tasks by walking the task_struct->task list"""
 
-    __name = "pslist"
-
     @staticmethod
     def register_options(config):
         linux_common.AbstractLinuxCommand.register_options(config)
@@ -42,10 +40,8 @@ class linux_pslist(linux_common.AbstractLinuxCommand):
         init_task = obj.Object("task_struct", vm = self.addr_space, offset = init_task_addr)
 
         pidlist = self._config.PID
-        if isinstance(pidlist, str):
-            pidlist = [int(p) for p in pidlist.split(',')]
-        elif isinstance(pidlist, int):
-            pidlist = [pidlist]
+        if pidlist:
+            pidlist = [int(p) for p in self._config.PID.split(',')]
 
         # walk the ->tasks list, note that this will *not* display "swapper"
         for task in linux_common.walk_list_head("task_struct", "tasks", init_task.tasks, self.addr_space):
