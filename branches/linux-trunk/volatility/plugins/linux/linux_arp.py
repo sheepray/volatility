@@ -76,7 +76,7 @@ class linux_arp(linux_common.AbstractLinuxCommand):
             else:
                 ip = '?'
 
-            mac = ":".join(["%.02x" % x for x in n.ha][:n.dev.addr_len])
+            mac = ":".join(["{0:02x}".format(x) for x in n.ha][:n.dev.addr_len])
             devname = n.dev.name
 
             ret.append(a_ent(ip, mac, devname))

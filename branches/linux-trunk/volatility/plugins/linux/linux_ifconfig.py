@@ -84,7 +84,7 @@ class linux_ifconfig(linux_common.AbstractLinuxCommand):
             else:
                 hwaddr = net_dev.dev_addr
 
-            mac_addr = ":".join(["%.02x" % x for x in hwaddr][:6])
+            mac_addr = ":".join(["{0:02x}".format(x) for x in hwaddr][:6])
 
             outfd.write("{0:8s} {1:16s} {2:32s}\n".format(net_dev.name, ip, mac_addr))
 
