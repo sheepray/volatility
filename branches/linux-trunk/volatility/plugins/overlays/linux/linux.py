@@ -85,10 +85,10 @@ def LinuxProfileFactory(profpkg):
         if f.filename.lower().endswith('.dwarf'):
             data = profpkg.read(f.filename)
             vtypesvar.update(utils.DWARFParser(data).finalize())
-            debug.info("{2}: Found dwarf file {0} with {1} symbols".format(f.filename, len(vtypesvar.keys()), profilename))
+            debug.debug("{2}: Found dwarf file {0} with {1} symbols".format(f.filename, len(vtypesvar.keys()), profilename))
         elif 'system.map' in f.filename.lower():
             sysmapvar.update(parse_system_map(profpkg.read(f.filename)))
-            debug.info("{2}: Found system file {0} with {1} symbols".format(f.filename, len(sysmapvar.keys()), profilename))
+            debug.debug("{2}: Found system file {0} with {1} symbols".format(f.filename, len(sysmapvar.keys()), profilename))
 
     if not sysmapvar or not vtypesvar:
         # Might be worth throwing an exception here?
@@ -258,6 +258,10 @@ class task_struct(obj.CType):
         return ret
 
     def get_process_address_space(self):
+        ## If we've got a NoneObject, return it maintain the reason
+        if self.mm.pgd.v() == None:
+            return self.mm.pgd.v()
+
         directory_table_base = self.obj_vm.vtop(self.mm.pgd.v())
 
         try:
