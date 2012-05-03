@@ -103,7 +103,7 @@ class DWARFParser(object):
     }
 
 
-    def __init__(self):
+    def __init__(self, data = None):
         self.current_level = -1
         self.name_stack = []
         self.id_to_name = {}
@@ -115,6 +115,10 @@ class DWARFParser(object):
         self.all_local_vars = []
         self.local_vars = []
         self.anons = 0
+
+        if data:
+            for line in data.splitlines():
+                self.feed_line(line)
 
     def resolve(self, memb):
         """Lookup anonymouse member and replace it with a well known one."""
