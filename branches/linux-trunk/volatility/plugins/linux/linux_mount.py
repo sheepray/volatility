@@ -40,7 +40,7 @@ class linux_mount(linux_common.AbstractLinuxCommand):
 
                 dev_name = vfsmnt.mnt_devname.dereference_as("String", length = linux_common.MAX_STRING_LENGTH)
 
-                path = linux_common.do_get_path(vfsmnt.mnt_sb.s_root, vfsmnt.mnt_parent, vfsmnt.mnt_root, vfsmnt, self.addr_space)
+                path = linux_common.do_get_path(vfsmnt.mnt_sb.s_root, vfsmnt.mnt_parent, vfsmnt.mnt_root, vfsmnt)
 
                 fstype = vfsmnt.mnt_sb.s_type.name.dereference_as("String", length = linux_common.MAX_STRING_LENGTH)
                 mnt_string = self.calc_mnt_string(vfsmnt)

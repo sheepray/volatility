@@ -112,21 +112,17 @@ def walk_internal_list(struct_name, list_member, list_start, addr_space = None):
 
 # based on __d_path
 # TODO: (deleted) support
-def do_get_path(rdentry, rmnt, dentry, vfsmnt, addr_space):
+def do_get_path(rdentry, rmnt, dentry, vfsmnt):
     ret_path = []
 
     inode = dentry.d_inode
 
-    # TODO: Put a proper guard condition in place of while 1
-    while 1:
+    while dentry != rdentry or vfsmnt != rmnt:
 
         dname = dentry.d_name.name.dereference_as("String", length = MAX_STRING_LENGTH)
 
         if dname != '/':
             ret_path.append(dname)
-
-        if dentry == rdentry and vfsmnt == rmnt:
-            break
 
         if dentry == vfsmnt.mnt_root or dentry == dentry.d_parent:
             if vfsmnt.mnt_parent == vfsmnt:
@@ -154,12 +150,11 @@ def do_get_path(rdentry, rmnt, dentry, vfsmnt, addr_space):
 
     return ret_val
 
-#
-#def get_path(task, filp, addr_space):
-#    rdentry = task.fs.get_root_dentry()
-#    rmnt = task.fs.get_root_mnt()
-#    dentry = filp.get_dentry()
-#    vfsmnt = filp.get_vfsmnt()
-#
-#    return do_get_path(rdentry, rmnt, dentry, vfsmnt, addr_space)
-#
+
+def get_path(task, filp):
+    rdentry = task.fs.get_root_dentry()
+    rmnt = task.fs.get_root_mnt()
+    dentry = filp.get_dentry()
+    vfsmnt = filp.get_vfsmnt()
+
+    return do_get_path(rdentry, rmnt, dentry, vfsmnt)
