@@ -29,7 +29,7 @@ import volatility.plugins.linux.flags as linux_flags
 import socket
 
 class linux_netstat(linux_lsof.linux_lsof):
-    ''' lists open files '''
+    """Lists open sockets"""
 
     def calculate(self):
 
