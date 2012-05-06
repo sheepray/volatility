@@ -63,6 +63,7 @@ linux_overlay = {
 def parse_system_map(data):
     """Parse the symbol file."""
     sys_map = {}
+    arch = None
     # get the system map
     for line in data.splitlines():
         (address, _, symbol) = line.strip().split()
@@ -70,17 +71,25 @@ def parse_system_map(data):
             sys_map[symbol] = long(address, 16)
         except ValueError:
             pass
+    arch = str(len(address) * 4) + "bit"
 
-    return sys_map
+    return arch, sys_map
 
 def LinuxProfileFactory(profpkg):
-    """Takes in a zip file, spits out a LinuxProfile class"""
+    """ Takes in a zip file, spits out a LinuxProfile class
+
+        The zipfile should include at least one .dwarf file
+        and the appropriate system.map file.
+
+        To generate a suitable dwarf file:
+        dwarfdump -di vmlinux > output.dwarf
+    """
 
     vtypesvar = {}
     sysmapvar = {}
 
+    memmodel, arch = "32bit", "x86"
     profilename = os.path.splitext(os.path.basename(profpkg.filename))[0]
-    profilename = 'Linux' + profilename.replace('.', '_')
 
     for f in profpkg.filelist:
         if f.filename.lower().endswith('.dwarf'):
@@ -88,7 +97,10 @@ def LinuxProfileFactory(profpkg):
             vtypesvar.update(utils.DWARFParser(data).finalize())
             debug.debug("{2}: Found dwarf file {0} with {1} symbols".format(f.filename, len(vtypesvar.keys()), profilename))
         elif 'system.map' in f.filename.lower():
-            sysmapvar.update(parse_system_map(profpkg.read(f.filename)))
+            memmodel, sysmap = parse_system_map(profpkg.read(f.filename))
+            if memmodel == "64bit":
+                arch = "x64"
+            sysmapvar.update(sysmap)
             debug.debug("{2}: Found system file {0} with {1} symbols".format(f.filename, len(sysmapvar.keys()), profilename))
 
     if not sysmapvar or not vtypesvar:
@@ -96,13 +108,9 @@ def LinuxProfileFactory(profpkg):
         return None
 
     class AbstractLinuxProfile(obj.Profile):
-        """A Linux profile which works with dwarfdump output files.
-    
-        To generate a suitable dwarf file:
-        dwarfdump -di vmlinux > output.dwarf
-        """
+        __doc__ = "A Profile for Linux " + profilename + " " + arch
         _md_os = "linux"
-        _md_memory_model = "32bit"
+        _md_memory_model = memmodel
 
         def __init__(self, *args, **kwargs):
             self.sysmap = {}
@@ -133,7 +141,8 @@ def LinuxProfileFactory(profpkg):
             self.sysmap.update(sysmapvar)
 
     cls = AbstractLinuxProfile
-    cls.__name__ = profilename
+    cls.__name__ = 'Linux' + profilename.replace('.', '_') + arch
+
     return cls
 
 ################################
