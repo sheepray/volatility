@@ -22,16 +22,16 @@
 """
 
 import volatility.obj as obj
-import linux_common
-import linux_task_list_ps as ltps
+import volatility.plugins.linux.common as linux_common
+import volatility.plugins.linux.pslist as linux_pslist
 
 mn = linux_common.mask_number
 
-class linux_lsof(ltps.linux_pslist):
+class linux_lsof(linux_pslist.linux_pslist):
     """Lists open files"""
 
     def calculate(self):
-        tasks = ltps.linux_pslist.calculate(self)
+        tasks = linux_pslist.linux_pslist.calculate(self)
 
         for task in tasks:
             fds = task.files.get_fds()

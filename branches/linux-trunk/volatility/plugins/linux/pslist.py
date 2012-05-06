@@ -22,7 +22,7 @@
 """
 
 import volatility.obj as obj
-import linux_common
+import volatility.plugins.linux.common as linux_common
 
 class linux_pslist(linux_common.AbstractLinuxCommand):
     """Gather active tasks by walking the task_struct->task list"""

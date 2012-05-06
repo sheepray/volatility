@@ -22,7 +22,7 @@
 """
 
 import volatility.obj as obj
-import linux_common
+import volatility.plugins.linux.common as linux_common
 
 class linux_lsmod(linux_common.AbstractLinuxCommand):
     """Gather loaded kernel modules"""

@@ -22,18 +22,18 @@
 """
 
 import volatility.obj as obj
-import linux_common
-import linux_task_list_ps as ltps
-import linux_flags as flags
+import volatility.plugins.linux.flags as linux_flags
+import volatility.plugins.linux.common as linux_common
+import volatility.plugins.linux.pslist as linux_pslist
 
-class linux_proc_maps(ltps.linux_pslist):
+class linux_proc_maps(linux_pslist.linux_pslist):
     """gathers process maps for linux"""
 
     MINORBITS = 20
     MINORMASK = ((1 << MINORBITS) - 1)
 
     def calculate(self):
-        tasks = ltps.linux_pslist.calculate(self)
+        tasks = linux_pslist.linux_pslist.calculate(self)
 
         for task in tasks:
             if task.mm:
@@ -78,7 +78,7 @@ class linux_proc_maps(ltps.linux_pslist):
     def format_perms(self, vma_flags):
 
         ret = ""
-        check = [flags.VM_READ, flags.VM_WRITE, flags.VM_EXEC]
+        check = [linux_flags.VM_READ, linux_flags.VM_WRITE, linux_flags.VM_EXEC]
         perms = "rwx"
 
         for idx in range(len(check)):

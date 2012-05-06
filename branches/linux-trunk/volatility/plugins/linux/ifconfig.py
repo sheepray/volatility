@@ -21,9 +21,9 @@
 @organization: Digital Forensics Solutions
 """
 
+import volatility.plugins.linux.common as linux_common
 import volatility.debug as debug
 import volatility.obj as obj
-import linux_common
 
 class linux_ifconfig(linux_common.AbstractLinuxCommand):
     """Gathers active interfaces"""

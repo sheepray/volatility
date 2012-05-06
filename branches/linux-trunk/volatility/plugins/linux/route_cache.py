@@ -22,8 +22,7 @@
 """
 
 import volatility.obj as obj
-
-import linux_common
+import volatility.plugins.linux.common as linux_common
 
 class linux_route_cache(linux_common.AbstractLinuxCommand):
     """Lists routing table"""

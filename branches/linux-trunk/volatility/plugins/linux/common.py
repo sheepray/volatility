@@ -22,9 +22,9 @@
 """
 
 import volatility.commands as commands
-import volatility.utils    as utils
-import volatility.obj      as obj
-import volatility.debug    as debug
+import volatility.utils as utils
+import volatility.debug as debug
+import volatility.obj as obj
 
 MAX_STRING_LENGTH = 256
 

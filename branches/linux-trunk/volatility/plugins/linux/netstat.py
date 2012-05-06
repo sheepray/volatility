@@ -23,13 +23,12 @@
 
 import volatility.obj as obj
 import volatility.protos as protos
-
-import linux_flags
-import linux_list_open_files as lsof
+import volatility.plugins.linux.lsof as linux_lsof
+import volatility.plugins.linux.flags as linux_flags
 
 import socket
 
-class linux_netstat(lsof.linux_lsof):
+class linux_netstat(linux_lsof.linux_lsof):
     ''' lists open files '''
 
     def calculate(self):
@@ -38,7 +37,7 @@ class linux_netstat(lsof.linux_lsof):
             # ancient (2.6.9) centos kernels do not have inet_sock in debug info
             raise AttributeError, "Given profile does not have inet_sock, please file a bug if the kernel version is > 2.6.11"
 
-        openfiles = lsof.linux_lsof.calculate(self)
+        openfiles = linux_lsof.linux_lsof.calculate(self)
 
         for (task, filp, _i) in openfiles:
 

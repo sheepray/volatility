@@ -22,7 +22,8 @@
 """
 
 import volatility.obj as obj
-import linux_common, linux_flags
+import volatility.plugins.linux.flags as linux_flags
+import volatility.plugins.linux.common as linux_common
 
 class linux_mount(linux_common.AbstractLinuxCommand):
 

@@ -21,7 +21,7 @@
 @organization: Digital Forensics Solutions
 """
 
-import linux_common
+import volatility.plugins.linux.common as linux_common
 import volatility.obj as obj
 
 class linux_cpuinfo(linux_common.AbstractLinuxCommand):

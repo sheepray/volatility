@@ -22,9 +22,9 @@
 """
 
 import os.path
-import linux_common
-import linux_proc_maps
 import volatility.debug as debug
+import volatility.plugins.linux.common as linux_common
+import volatility.plugins.linux.proc_maps as linux_proc_maps
 
 class linux_dump_map(linux_common.AbstractLinuxCommand):
 

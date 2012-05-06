@@ -22,15 +22,15 @@
 """
 
 import volatility.obj as obj
-import linux_task_list_ps as ltps
+import volatility.plugins.linux.pslist as linux_pslist
 import time
 
-class linux_psaux(ltps.linux_pslist):
+class linux_psaux(linux_pslist.linux_pslist):
     ''' gathers processes along with full command line and start time '''
 
     def calculate(self):
 
-        tasks = ltps.linux_pslist.calculate(self)
+        tasks = linux_pslist.linux_pslist.calculate(self)
 
         for task in tasks:
 
