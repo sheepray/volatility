@@ -328,10 +328,10 @@ smss.exe (252): S-1-16-16384 (System Mandatory Level)
 
 To display the version information embedded in PE files, use the verinfo command. Not all PE files have version information, and many malware authors forge it to include false data, but nonetheless this command can be very helpful with identifying binaries and for making correlations with other files. 
 
-This command supports filtering by process ID, regular expression, and EPROCESS offset. 
+This command supports filtering by process ID, regular expression, and EPROCESS offset.  Note that this plugin resides in the contrib directory, therefore you'll need to tell volatility to look there using the --plugins option.
 
 {{{
-$ python vol.py --profile=Win7SP0x86 -f win7.dmp verinfo
+$ python vol.py --plugins=contrib/plugins --profile=Win7SP0x86 -f win7.dmp verinfo
 [snip]
 
 C:\Windows\system32\CRYPTBASE.dll
