@@ -32,7 +32,7 @@ To get help, type 'help()'
 In [1]: session.filename = "/dev/pmem"
 In [2]: session.profile_file = "myprofile.zip"
 In [3]: session.profile = "Linux64"
-In [4]: vol pslist
+In [4]: vol (plugins.pslist)
 }}}
 
 == Creating the profile for the running system ==
@@ -56,7 +56,7 @@ To get help, type 'help()'
 In [1]: session.filename = "linux_image.dd"
 In [2]: session.profile_file = "linux_image.dd.zip"
 In [3]: session.profile = "Linux64"
-In [4]: vol pslist
+In [4]: vol (plugins.pslist)
 }}}
 
 Notice that we can always just put these commands into a python script, so we dont have to type so much:
