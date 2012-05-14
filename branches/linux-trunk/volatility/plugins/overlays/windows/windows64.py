@@ -21,6 +21,9 @@ import copy
 import volatility.obj as obj
 import volatility.plugins.overlays.windows.windows as windows
 
+# File-wide pylint message disable because we have a few situations where we access structs starting _
+#pylint: disable-msg=W0212
+
 class Pointer64Decorator(object):
     def __init__(self, f):
         self.f = f
@@ -66,6 +69,15 @@ class Windows64Overlay(obj.ProfileModification):
 
         profile.merge_overlay({'_DBGKD_GET_VERSION64' : [  None, {
             'DebuggerDataList' : [ None, ['pointer', ['unsigned long long']]],
+            }]})
+
+        # In some auto-generated vtypes, the DTB is an array of 2 unsigned longs 
+        # (for x86) or an array of 2 unsigned long long (for x64). We have an overlay
+        # in windows.windows_overlay which sets the DTB to a single unsigned long,
+        # but we do not want that bleeding through to the x64 profiles. Instead we 
+        # want the x64 DTB to be a single unsigned long long. 
+        profile.merge_overlay({'_KPROCESS' : [ None, {
+            'DirectoryTableBase' : [ None, ['unsigned long long']],
             }]})
 
         # Note: the following method of profile modification is strongly discouraged
