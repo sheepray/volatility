@@ -27,8 +27,8 @@ import struct
 import volatility.utils as utils
 import volatility.scan as scan
 import volatility.cache as cache
-import volatility.obj as obj
 import volatility.plugins.common as common
+import volatility.obj as obj
 
 class KPCRScan(common.AbstractWindowsCommand):
     """Search for and dump potential KPCR values"""
