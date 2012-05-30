@@ -67,7 +67,7 @@ _Bleeding Edge Volatility Only_:
  * 64bit Windows 7 Service Pack 0 and 1
 
 Linux:
- * Support for Linux memory dumps is growing rapidly. We have two branches ([http://code.google.com/p/volatility/source/browse/#svn%2Fbranches%2Flin64-support lin64-support] and [http://code.google.com/p/volatility/source/browse/#svn%2Fbranches%2Flinux-support linux-support]) whose functionality will be merged into the main trunk in one of the next major releases of Volatility. For information on analyzing Linux memory dumps, see [DocFiles20#Linux_Support Linux Support] and [LinuxMemoryForensics Linux Memory Forensics]
+ * Support for Linux memory dumps is growing rapidly. We have a branch ([http://code.google.com/p/volatility/source/browse/#svn%2Fbranches%2Flinux-trunk linux-trunk]) whose functionality will be merged into the main trunk in one of the next major releases of Volatility. For information on analyzing Linux memory dumps, see [DocFiles20#Linux_Support Linux Support] and [LinuxMemoryForensics Linux Memory Forensics]
 
 == What about reading crash dumps and hibernation files == 
 
