@@ -18,7 +18,7 @@ The latest development version is 2.1 alpha which you can get by checking out th
 Please consider the following points when deciding which version of Volatility is best for your needs:
 
  * If you're using anything less than 2.0 (for example 1.3 or 1.4) you should upgrade and [ConvertingPluginsFromVol13toVol20 port your plugins]
- * If you need Linux support, use the ([http://code.google.com/p/volatility/source/browse/#svn%2Fbranches%2Flin64-support lin64-support] or [http://code.google.com/p/volatility/source/browse/#svn%2Fbranches%2Flinux-support linux-support]) branches 
+ * If you need Linux support, use the ([http://code.google.com/p/volatility/source/browse/#svn%2Fbranches%2Flinux-trunk linux-trunk]) branch 
  * If you're looking for something stable to analyze x86 (32-bit) Windows memory dumps, see the [http://code.google.com/p/volatility/downloads/list Downloads page]. 
       * Windows users who just want to be up and running in a matter of seconds (i.e. not install any dependencies) and who don't plan on viewing or modifying any source code, select the [http://volatility.googlecode.com/files/volatility-2.0.standalone.zip Standalone executable]. 
       * Windows users who want to install Volatility as a Python package, select the [http://volatility.googlecode.com/files/volatility-2.0.win32.exe Windows Module Installer]. 
