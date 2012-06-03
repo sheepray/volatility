@@ -94,13 +94,18 @@ class FileScan(common.AbstractWindowsCommand):
             yield (object_obj, file_obj)
 
     def render_text(self, outfd, data):
-        outfd.write("{0:10} {1:4} {2:4} {3:6} {4}\n".format(
-                     'Offset(P)', '#Ptr', '#Hnd', 'Access', 'Name'))
+
+        self.table_header(outfd, [('Offset(P)', '[addrpad]'),
+                                  ('#Ptr', '>6'),
+                                  ('#Hnd', '>6'),
+                                  ('Access', '>6'),
+                                  ('Name', '')
+                                  ])
 
         for object_obj, file_obj in data:
-            outfd.write("{0:#010x} {1:4} {2:4} {3:6} {4}\n".format(
+            self.table_row(outfd,
                          file_obj.obj_offset, object_obj.PointerCount,
-                         object_obj.HandleCount, file_obj.access_string(), str(file_obj.FileName or '')))
+                         object_obj.HandleCount, file_obj.access_string(), str(file_obj.FileName or ''))
 
 class PoolScanDriver(PoolScanFile):
     """ Scanner for _DRIVER_OBJECT """
@@ -161,19 +166,25 @@ class DriverScan(FileScan):
 
     def render_text(self, outfd, data):
         """Renders the text-based output"""
-        outfd.write("{0:10} {1:4} {2:4} {3:10} {4:>6} {5:20} {6}\n".format(
-                     'Offset(P)', '#Ptr', '#Hnd',
-                     'Start', 'Size', 'Service key', 'Name'))
+        self.table_header(outfd, [('Offset(P)', '[addrpad]'),
+                                  ('#Ptr', '>4'),
+                                  ('#Hnd', '>4'),
+                                  ('Start', '[addrpad]'),
+                                  ('Size', '[addr]'),
+                                  ('Service Key', '20'),
+                                  ('Name', '12'),
+                                  ('Driver Name', '')
+                                  ])
 
         for object_obj, driver_obj, extension_obj in data:
 
-            outfd.write("0x{0:08x} {1:4} {2:4} 0x{3:08x} {4:6} {5:20} {6:12} {7}\n".format(
+            self.table_row(outfd,
                          driver_obj.obj_offset, object_obj.PointerCount,
                          object_obj.HandleCount,
                          driver_obj.DriverStart, driver_obj.DriverSize,
                          str(extension_obj.ServiceKeyName or ''),
                          str(object_obj.NameInfo.Name or ''),
-                         str(driver_obj.DriverName or '')))
+                         str(driver_obj.DriverName or ''))
 
 class PoolScanSymlink(PoolScanFile):
     """ Scanner for symbolic link objects """
@@ -224,15 +235,20 @@ class SymLinkScan(FileScan):
     def render_text(self, outfd, data):
         """ Renders text-based output """
 
-        outfd.write("{0:10} {1:4} {2:4} {3:24} {4:<20} {5}\n".format(
-            'Offset(P)', '#Ptr', '#Hnd', 'CreateTime', 'From', 'To'))
+        self.table_header(outfd, [('Offset(P)', '[addrpad]'),
+                                  ('#Ptr', '>6'),
+                                  ('#Hnd', '>6'),
+                                  ('Creation time', '24'),
+                                  ('From', '<20'),
+                                  ('To', '60'),
+                                  ])
 
         for objct, link in data:
-            outfd.write("{0:#010x} {1:4} {2:4} {3:<24} {4:<20} {5}\n".format(
+            self.table_row(outfd,
                         link.obj_offset, objct.PointerCount,
                         objct.HandleCount, link.CreationTime or '',
                         str(objct.NameInfo.Name or ''),
-                        str(link.LinkTarget or '')))
+                        str(link.LinkTarget or ''))
 
 class PoolScanMutant(PoolScanDriver):
     """ Scanner for Mutants _KMUTANT """
@@ -295,9 +311,15 @@ class MutantScan(FileScan):
 
     def render_text(self, outfd, data):
         """Renders the output"""
-        outfd.write("{0:10} {1:4} {2:4} {3:6} {4:10} {5:10} {6}\n".format(
-                     'Offset(P)', '#Ptr', '#Hnd', 'Signal',
-                     'Thread', 'CID', 'Name'))
+
+        self.table_header(outfd, [('Offset(P)', '[addrpad]'),
+                                  ('#Ptr', '>4'),
+                                  ('#Hnd', '>4'),
+                                  ('Signal', '4'),
+                                  ('Thread', '[addrpad]'),
+                                  ('CID', '>9'),
+                                  ('Name', '')
+                                  ])
 
         for object_obj, mutant in data:
             if mutant.OwnerThread > 0x80000000:
@@ -306,12 +328,12 @@ class MutantScan(FileScan):
             else:
                 CID = ""
 
-            outfd.write("0x{0:08x} {1:4} {2:4} {3:6} 0x{4:08x} {5:10} {6}\n".format(
+            self.table_row(outfd,
                          mutant.obj_offset, object_obj.PointerCount,
                          object_obj.HandleCount, mutant.Header.SignalState,
                          mutant.OwnerThread, CID,
                          str(object_obj.NameInfo.Name or '')
-                         ))
+                         )
 
 class CheckProcess(scan.ScannerCheck):
     """ Check sanity of _EPROCESS """
@@ -409,18 +431,25 @@ class PSScan(common.AbstractWindowsCommand):
 
 
     def render_text(self, outfd, data):
-        outfd.write(" Offset(P)  Name             PID    PPID   PDB        Time created             Time exited             \n" +
-                    "---------- ---------------- ------ ------ ---------- ------------------------ ------------------------ \n")
+
+        self.table_header(outfd, [('Offset(P)', '[addrpad]'),
+                                  ('Name', '16'),
+                                  ('PID', '>6'),
+                                  ('PPID', '>6'),
+                                  ('PDB', '[addrpad]'),
+                                  ('Time created', '20'),
+                                  ('Time exited', '20')
+                                  ])
 
         for eprocess in data:
-            outfd.write("0x{0:08x} {1:16} {2:6} {3:6} 0x{4:08x} {5:24} {6:24}\n".format(
+            self.table_row(outfd,
                 eprocess.obj_offset,
                 eprocess.ImageFileName,
                 eprocess.UniqueProcessId,
                 eprocess.InheritedFromUniqueProcessId,
                 eprocess.Pcb.DirectoryTableBase,
                 eprocess.CreateTime or '',
-                eprocess.ExitTime or ''))
+                eprocess.ExitTime or '')
 
     def render_dot(self, outfd, data):
         objects = set()
