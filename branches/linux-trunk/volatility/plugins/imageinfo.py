@@ -25,9 +25,9 @@ import volatility.debug as debug
 import volatility.obj as obj
 import volatility.cache as cache
 import volatility.registry as registry
-import volatility.plugins.kdbgscan as kdbg
+import volatility.plugins.kdbgscan as kdbgscan
 
-class ImageInfo(kdbg.KDBGScan):
+class ImageInfo(kdbgscan.KDBGScan):
     """ Identify information for the image """
     def render_text(self, outfd, data):
         """Renders the calculated data as text to outfd"""
@@ -41,7 +41,7 @@ class ImageInfo(kdbg.KDBGScan):
         profilelist = [ p.__name__ for p in registry.get_plugin_classes(obj.Profile).values() ]
 
         bestguess = None
-        suglist = [ s for s, _, _ in kdbg.KDBGScan.calculate(self)]
+        suglist = [ s for s, _, _ in kdbgscan.KDBGScan.calculate(self)]
         if suglist:
             bestguess = suglist[0]
         suggestion = ", ".join(set(suglist))
@@ -87,31 +87,26 @@ class ImageInfo(kdbg.KDBGScan):
             yield ('DTB', hex(addr_space.dtb))
 
         volmagic = obj.VolMagic(addr_space)
-        kpcroffset = None
         if hasattr(addr_space, "dtb"):
             kdbgoffset = volmagic.KDBG.v()
             if kdbgoffset:
                 yield ('KDBG', hex(kdbgoffset))
+                kdbg = obj.Object("_KDDEBUGGER_DATA64", offset = kdbgoffset, vm = addr_space)
+                kpcr_list = list(kdbg.kpcrs())
+                yield ('Number of Processors', len(kpcr_list))
+                yield ('Image Type (Service Pack)', kdbg.ServicePack)
+                for kpcr in kpcr_list:
+                    yield ('KPCR for CPU {0}'.format(kpcr.ProcessorBlock.Number), hex(kpcr.obj_offset))
 
-            kpcroffset = volmagic.KPCR.v()
-            if kpcroffset:
-                yield ('KPCR', hex(kpcroffset))
-                KUSER_SHARED_DATA = volmagic.KUSER_SHARED_DATA.v()
-                if KUSER_SHARED_DATA:
-                    yield ('KUSER_SHARED_DATA', hex(KUSER_SHARED_DATA))
+            KUSER_SHARED_DATA = volmagic.KUSER_SHARED_DATA.v()
+            if KUSER_SHARED_DATA:
+                yield ('KUSER_SHARED_DATA', hex(KUSER_SHARED_DATA))
 
-                data = self.get_image_time(addr_space)
+            data = self.get_image_time(addr_space)
 
-                if data:
-                    yield ('Image date and time', data['ImageDatetime'])
-                    yield ('Image local date and time', timefmt.display_datetime(data['ImageDatetime'].as_datetime(), data['ImageTz']))
-
-                for csdversion, numprocessors in self.find_task_items(addr_space):
-                    try:
-                        yield ('Number of Processors', numprocessors)
-                        yield ('Image Type', csdversion)
-                    except tasks.TasksNotFound:
-                        pass
+            if data:
+                yield ('Image date and time', data['ImageDatetime'])
+                yield ('Image local date and time', timefmt.display_datetime(data['ImageDatetime'].as_datetime(), data['ImageTz']))
 
         # Make sure to reset the profile to its original value to keep the invalidator from blocking the cache
         self._config.update('PROFILE', origprofile)
@@ -121,8 +116,8 @@ class ImageInfo(kdbg.KDBGScan):
         result = {}
         KUSER_SHARED_DATA = obj.VolMagic(addr_space).KUSER_SHARED_DATA.v()
         k = obj.Object("_KUSER_SHARED_DATA",
-                              offset = KUSER_SHARED_DATA,
-                              vm = addr_space)
+                       offset = KUSER_SHARED_DATA,
+                       vm = addr_space)
 
         if k == None:
             return k
@@ -130,30 +125,3 @@ class ImageInfo(kdbg.KDBGScan):
         result['ImageTz'] = timefmt.OffsetTzInfo(-k.TimeZoneBias.as_windows_timestamp() / 10000000)
 
         return result
-
-    #I don't know what's better, but I don't think we need to go through all tasks twice
-    #so I combined finding csdvers and MaxNumberOfProcessors into one
-    def find_task_items(self, addr_space):
-        """Find items that require task list traversal"""
-        csdvers = {}
-        procnumdict = {}
-
-        procnumresult = obj.NoneObject("Unable to find number of processors")
-        cdsresult = obj.NoneObject("Unable to find version")
-
-        for task in tasks.pslist(addr_space):
-            ver = str(task.Peb.CSDVersion or '')
-            if ver:
-                csdvers[ver] = csdvers.get(ver, 0) + 1
-
-            if task.Peb.NumberOfProcessors != None:
-                procnumdict[int(task.Peb.NumberOfProcessors)] = procnumdict.get(int(task.Peb.NumberOfProcessors), 0) + 1
-
-        #I don't know if you can actually get the number of CPUs w/o CSDVersion, but just in case...
-        if csdvers:
-            _, _, cdsresult = max([(v, k, str(k)) for k, v in csdvers.items()])
-        if procnumdict:
-            _, procnumresult = max([(v, k) for k, v in procnumdict.items()])
-
-        yield (cdsresult, procnumresult)
-

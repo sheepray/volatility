@@ -30,58 +30,44 @@
 
 import volatility.obj as obj
 import volatility.debug as debug #pylint: disable-msg=W0611
-import volatility.exceptions as exceptions
 from bisect import bisect_right
 
-class TasksNotFound(exceptions.VolatilityException):
-    """Thrown when a tasklist cannot be determined"""
-    pass
-
 def get_kdbg(addr_space):
-    """A function designed to return the KDDEBUGGER structure from an address space"""
+    """A function designed to return the KDBG structure from 
+    an address space. First we try scanning for KDBG and if 
+    that fails, we try scanning for KPCR and bouncing back to
+    KDBG from there. Please note the backup method only works
+    on x86.
 
-    def verify_kdbg(kdbgobj):
-        """Returns true if the kdbg_object handed in appears valid"""
-        # Check the OwnerTag is in fact the string KDBG
-        return kdbgobj.Header.OwnerTag == 0x4742444B
+    Also note, both the primary and backup methods rely on the 
+    4-byte KDBG.Header.OwnerTag. If someone overwrites this 
+    value, then neither method will succeed. The same is true 
+    even if a user specifies --kdbg, because we check for the 
+    OwnerTag even in that case. 
+    """
 
     kdbgo = obj.VolMagic(addr_space).KDBG.v()
 
     kdbg = obj.Object("_KDDEBUGGER_DATA64", offset = kdbgo, vm = addr_space)
 
-    if verify_kdbg(kdbg):
+    if kdbg.is_valid():
         return kdbg
-    else:
-        # Fall back to finding it via the KPCR
-        kpcra = obj.VolMagic(addr_space).KPCR.v()
-        kpcrval = obj.Object("_KPCR", offset = kpcra, vm = addr_space)
 
-        DebuggerDataList = kpcrval.KdVersionBlock.dereference_as("_DBGKD_GET_VERSION64").DebuggerDataList
+    # Fall back to finding it via the KPCR
+    kpcr = obj.Object("_KPCR", offset = obj.VolMagic(addr_space).KPCR.v(), vm = addr_space)
 
-        # DebuggerDataList is a pointer to unsigned long on x86 
-        # and a pointer to unsigned long long on x64. The first 
-        # dereference() dereferences the pointer, and the second 
-        # dereference() dereferences the unsigned long or long long
-        # as the actual KDBG address. 
-        kobj = DebuggerDataList.dereference().dereference_as("_KDDEBUGGER_DATA64")
-        if verify_kdbg(kobj):
-            return kobj
+    kdbg = kpcr.get_kdbg()
+
+    if kdbg.is_valid():
+        return kdbg
 
     return obj.NoneObject("KDDEBUGGER structure not found using either KDBG signature or KPCR pointer")
 
 def pslist(addr_space):
-    """ A Generator for _EPROCESS objects (uses _KPCR symbols) """
+    """ A Generator for _EPROCESS objects """
 
-    PsActiveProcessHead = get_kdbg(addr_space).PsActiveProcessHead
-
-    PsActiveList = PsActiveProcessHead.dereference_as("_LIST_ENTRY")
-    if PsActiveList:
-        # Try to iterate over the process list in PsActiveProcessHead
-        # (its really a pointer to a _LIST_ENTRY)
-        for l in PsActiveList.list_of_type("_EPROCESS", "ActiveProcessLinks"):
-            yield l
-    else:
-        raise TasksNotFound("Could not list tasks, please verify the --profile option and whether this image is valid")
+    for p in get_kdbg(addr_space).processes():
+        yield p
 
 def find_space(addr_space, procs, mod_base):
     """Search for an address space (usually looking for a GUI process)"""

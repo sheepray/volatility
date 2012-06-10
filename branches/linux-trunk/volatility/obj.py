@@ -438,6 +438,12 @@ class NativeType(BaseObject, NumericProxyMixIn):
 
         (val,) = struct.unpack(self.format_string, data)
 
+        # Ensure that integer NativeTypes are converted to longs
+        # to avoid integer boundaries when doing __rand__ proxying
+        # (see issue 265)
+        if isinstance(val, int):
+            val = long(val)
+
         return val
 
     def cdecl(self):
@@ -615,6 +621,10 @@ class Array(BaseObject):
         return "<Array[{0} {1}] {2}>".format(self.__class__.__name__, self.obj_name or '', ",".join(result))
 
     def __eq__(self, other):
+        # Check we can carry out further tests for equality/inequality
+        if not (hasattr(other, '__len__') and hasattr(other, '__getitem__')):
+            return False
+
         if self.count != len(other):
             return False
 
@@ -690,7 +700,10 @@ class CType(BaseObject, NumericProxyMixIn):
     def v(self):
         """ When a struct is evaluated we just return our offset.
         """
-        return self.obj_offset
+        # Ensure that proxied offsets are converted to longs
+        # to avoid integer boundaries when doing __rand__ proxying
+        # (see issue 265)
+        return long(self.obj_offset)
 
     def proxied(self, attr):
         return self.obj_offset
@@ -744,6 +757,9 @@ class CType(BaseObject, NumericProxyMixIn):
 
 class VolatilityMagic(BaseObject):
     """Class to contain Volatility Magic value"""
+
+    # TODO: At some point, make it possible to use these without requiring .v()
+    # by making them inherit from NumericProxyMixIn when they're supposed to be numeric values
 
     def __init__(self, theType, offset, vm, value = None, configname = None, **kwargs):
         try:
