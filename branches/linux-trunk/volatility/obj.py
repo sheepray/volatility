@@ -667,7 +667,7 @@ class Array(BaseObject):
         if item != None:
             item.write(value)
 
-class CType(BaseObject, NumericProxyMixIn):
+class CType(BaseObject):
     """ A CType is an object which represents a c struct """
     def __init__(self, theType, offset, vm, name = None, members = None, struct_size = 0, **kwargs):
         """ This must be instantiated with a dict of members. The keys
@@ -704,9 +704,6 @@ class CType(BaseObject, NumericProxyMixIn):
         # to avoid integer boundaries when doing __rand__ proxying
         # (see issue 265)
         return long(self.obj_offset)
-
-    def proxied(self, attr):
-        return self.obj_offset
 
     def m(self, attr):
         if attr in self.members:
