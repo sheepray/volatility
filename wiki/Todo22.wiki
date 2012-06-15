@@ -1,0 +1,15 @@
+
+
+= To Do for 2.2 = 
+
+We can create a separate wiki for this if desired (so we don't have 2.2. items on the 2.1 wiki) but for simplicity I'll just use this existing wiki. 
+
+ * Anything leftover from 2.1 (linux support and registry hive AS)
+ * Faster/better KDBG and DTB scanners 
+ * Auto profile selection (see Issue #268)
+ * Pool scanner groups (see scudette branch) for scanning for multiple pool tags with one pass
+ * Application profiles (for wow64 on windows) for using 32 bit AS on x64 kernels 
+ * Bring x64 support to timers, callbacks, idt/gdt, and apihooks malware plugins 
+ * Add attc's mac support? 
+ * Add MHL's win32k suite (10+ plugins and API for investigating GUI memory released summer 2012) 
+ * Windows 8 and Server 2012 support?
