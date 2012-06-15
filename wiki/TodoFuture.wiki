@@ -16,15 +16,15 @@
 
 == Practical ==
 
-  * Investigate Vista/Windows 7 hibernation work
-  * Write a raw2dump plugin (possibly dependent on write support)
+  * ~~Investigate Vista/Windows 7 hibernation work~~
+  * ~~Write a raw2dump plugin (possibly dependent on write support)~~
   * Improve Hive AS integration
   * Allow module loading from http/other locations
   * Implement/improve linux support
     * ~~Requires linux overlay/types~~
     * ~~Requires linux plugins~~
     * Might require shuffling windows specific global features (--kpcr, etc)
-  * Support arches other than x86
+  * ~~Support arches other than x86~~
   * Conversion to Python 3+
   * Integrate pdbparse into the framework?
   * Create "scan3" versions of the scanners, so accurate structure locators like psscan3, but for sockscan and driverscan, etc.
