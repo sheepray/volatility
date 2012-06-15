@@ -1,4 +1,8 @@
+#summary TODO items for the 2.2 branch
 
+= Introduction =
+
+This page documents the things we want to accomplish in the 2.2 branch, so we can a) keep track of them, and b) people new to the project can find things to work on.
 
 = To Do for 2.2 = 
 
@@ -13,3 +17,7 @@ We can create a separate wiki for this if desired (so we don't have 2.2. items o
  * Add attc's mac support? 
  * Add MHL's win32k suite (10+ plugins and API for investigating GUI memory released summer 2012) 
  * Windows 8 and Server 2012 support?
+
+== Longterm Tasks ==
+
+Please see TodoFuture for long term tasks.
