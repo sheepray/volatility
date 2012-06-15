@@ -31,6 +31,7 @@ We can create a separate wiki for this if desired (so we don't have 2.2. items o
  * Bring x64 support to timers, callbacks, idt/gdt, and apihooks malware plugins 
  * Add attc's mac support? 
  * Add MHL's win32k suite (10+ plugins and API for investigating GUI memory released summer 2012) 
+ * Windows 8 and Server 2012 support?
 
 == Additional/Side projects ==
 
