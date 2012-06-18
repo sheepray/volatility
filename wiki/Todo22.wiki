@@ -6,8 +6,6 @@ This page documents the things we want to accomplish in the 2.2 branch, so we ca
 
 = To Do for 2.2 = 
 
-We can create a separate wiki for this if desired (so we don't have 2.2. items on the 2.1 wiki) but for simplicity I'll just use this existing wiki. 
-
  * Linux support
  * Mac support
  * Anything leftover from 2.1 (eg, registry hive AS)
