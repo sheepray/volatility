@@ -7,6 +7,7 @@ This page documents the things we want to accomplish in the 2.2 branch, so we ca
 = To Do for 2.2 = 
 
  * Linux support
+ * Android support (very simple basically uses the Linux support)
  * Mac support
  * Anything leftover from 2.1 (eg, registry hive AS)
  * Faster/better KDBG and DTB scanners 
