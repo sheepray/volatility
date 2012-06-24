@@ -162,7 +162,7 @@ Offset(V)          Name                    PID   PPID   Thds     Hnds   Sess  Wo
 0xfffffa8000acab30 conhost.exe            2236    344      2       51      1      0 2012-02-22 11:28:59 
 }}}
 
-By default, pslist shows virtual offsets for the !EPROCESS but the physical offset can be obtained with the -P switch:
+By default, pslist shows virtual offsets for the EPROCESS but the physical offset can be obtained with the -P switch:
 
 {{{
 $ python vol.py -f ~/Desktop/win7_trial_64bit.raw --profile=Win7SP0x64 pslist -P 
@@ -179,29 +179,27 @@ Offset(P)          Name                    PID   PPID   Thds     Hnds   Sess  Wo
 
 == pstree ==
 
-To view the process listing in tree form, use the pstree command. This enumerates processes using the same technique as pslist, so it will also not show hidden or unlinked processes. Child process are indicated using indention and periods.
+To view the process listing in tree form, use the pstree command. This enumerates processes using the same technique as pslist, so it will also not show hidden or unlinked processes. Child process are indicated using indention and periods. 
 
 {{{
-$ python vol.py --profile=Win7SP0x86 -f win7.dmp pstree
-Volatile Systems Volatility Framework 2.0
-Name                                        Pid    PPid   Thds   Hnds   Time  
- 0x84E6E3D8:wininit.exe                        384    340      3     73 2010-07-06 22:28:53       
-. 0x8D4CC030:services.exe                      492    384     12    216 2010-07-06 22:28:54       
-.. 0x84E19030:svchost.exe                     1920    492      8    115 2010-07-06 22:33:17       
-.. 0x8D4E5BB0:schtasks.exe                    2512    492      2     60 2010-07-06 22:39:09       
-.. 0x8D7E9030:wsqmcons.exe                    2576    492      1      3 2010-07-06 22:39:11       
-.. 0x8D5B18A8:dllhost.exe                     1944    492     16    187 2010-07-06 22:31:21       
-.. 0x8D7EE030:taskhost.exe                    1156    492     10    155 2010-07-06 22:37:54       
-.. 0x84D79D40:msdtc.exe                        284    492     15    152 2010-07-06 22:31:24       
-.. 0x8D6781D8:svchost.exe                     1056    492     16    589 2010-07-06 22:29:31       
-.. 0x8D777D40:taskhost.exe                    2520    492     11    224 2010-07-06 22:39:10       
-.. 0x8D759470:sdclt.exe                       2504    492      1      4 2010-07-06 22:39:09       
-.. 0x8D5574D8:rundll32.exe                    2484    492      1      5 2010-07-06 22:39:08       
-.. 0x84D82C08:SearchIndexer.                  1464    492     18    624 2010-07-06 22:33:20       
-... 0x8D759760:SearchFilterHo                 1724   1464      6     82 2010-07-06 22:37:36       
-... 0x8D55E678:SearchProtocol                 2680   1464      8    231 2010-07-06 22:39:27       
-.. 0x8D5CC030:svchost.exe                     1140    492     17    375 2010-07-06 22:29:51
-[snip]
+$ python vol.py -f ~/Desktop/win7_trial_64bit.raw --profile=Win7SP0x64 pstree
+Volatile Systems Volatility Framework 2.1_alpha
+Name                                                  Pid   PPid   Thds   Hnds Time                
+-------------------------------------------------- ------ ------ ------ ------ --------------------
+ 0xfffffa80004b09e0:System                              4      0     78    489 2012-02-22 19:58:20 
+. 0xfffffa8000ce97f0:smss.exe                         208      4      2     29 2012-02-22 19:58:20 
+ 0xfffffa8000c006c0:csrss.exe                         296    288      9    385 2012-02-22 19:58:24 
+ 0xfffffa8000c92300:wininit.exe                       332    288      3     74 2012-02-22 19:58:30 
+. 0xfffffa8000c5eb30:services.exe                     428    332      6    193 2012-02-22 19:58:32 
+.. 0xfffffa8000aa0b30:SearchIndexer.                 1800    428     12    757 2012-02-22 20:02:26 
+.. 0xfffffa80007d09e0:svchost.exe                     916    428     19    443 2012-02-22 19:58:43 
+.. 0xfffffa8000a4f630:svchost.exe                    1432    428     12    350 2012-02-22 20:04:14 
+.. 0xfffffa800094d960:wlms.exe                       1264    428      4     43 2012-02-22 20:02:11 
+.. 0xfffffa8001325950:sppsvc.exe                      816    428      5    154 2012-02-22 19:58:41 
+.. 0xfffffa8000e86690:spoolsv.exe                    1076    428     12    271 2012-02-22 20:02:10 
+.. 0xfffffa8001296b30:svchost.exe                     568    428     10    352 2012-02-22 19:58:34 
+... 0xfffffa8000a03b30:rundll32.exe                  2016    568      3     67 2012-02-22 20:03:16
+...
 }}}
 
 == psscan ==
@@ -237,6 +235,10 @@ Volatile Systems Volatility Framework 2.0
 }}}
 
 If a process has previously terminated, the Time exited field will show the exit time. If you want to investigate a hidden process (such as displaying its DLLs), then you'll need physical offset of the EPROCESS object, which is shown in the far left column.
+
+== pspdispscan ==
+
+
 
 == dlllist ==
 
