@@ -245,45 +245,49 @@ This plugin is similar to psscan, except it enumerates processes by scanning for
 To display a process's loaded DLLs, use the dlllist command. It walks the doubly-linked list of LDR_DATA_TABLE_ENTRY structures which is pointed to by the PEB's !InLoadOrderModuleList. DLLs are automatically added to this list when a process calls !LoadLibrary (or some derivative such as !LdrLoadDll) and they aren't removed until !FreeLibrary is called and the reference count reaches zero.
 
 {{{
-$ python vol.py --profile=Win7SP0x86 -f win7.dmp dlllist
-
-[snip]
-
+$ python vol.py -f ~/Desktop/win7_trial_64bit.raw --profile=Win7SP0x64 dlllist 
 ************************************************************************
-services.exe pid:    492
-Command line : C:\Windows\system32\services.exe
+wininit.exe pid:    332
+Command line : wininit.exe
 
-Base         Size         Path
-0x00a50000   0x041000     C:\Windows\system32\services.exe
-0x778a0000   0x13c000     C:\Windows\SYSTEM32\ntdll.dll
-0x779f0000   0x0d4000     C:\Windows\system32\kernel32.dll
-0x75ca0000   0x04a000     C:\Windows\system32\KERNELBASE.dll
-0x75e40000   0x0ac000     C:\Windows\system32\msvcrt.dll
-0x76650000   0x0a1000     C:\Windows\system32\RPCRT4.dll
-0x758d0000   0x01a000     C:\Windows\system32\SspiCli.dll
-0x759f0000   0x00b000     C:\Windows\system32\profapi.dll
-0x75d80000   0x019000     C:\Windows\SYSTEM32\sechost.dll
-0x75940000   0x00c000     C:\Windows\system32\CRYPTBASE.dll
-0x758c0000   0x00f000     C:\Windows\system32\scext.dll
-0x764a0000   0x0c9000     C:\Windows\system32\USER32.dll
-0x765b0000   0x04e000     C:\Windows\system32\GDI32.dll
-0x76330000   0x00a000     C:\Windows\system32\LPK.dll
+Base                             Size Path
+------------------ ------------------ ----
+0x00000000ff530000            0x23000 C:\Windows\system32\wininit.exe
+0x0000000076d40000           0x1ab000 C:\Windows\SYSTEM32\ntdll.dll
+0x0000000076b20000           0x11f000 C:\Windows\system32\kernel32.dll
+0x000007fefcd50000            0x6b000 C:\Windows\system32\KERNELBASE.dll
+0x0000000076c40000            0xfa000 C:\Windows\system32\USER32.dll
+0x000007fefd7c0000            0x67000 C:\Windows\system32\GDI32.dll
+0x000007fefe190000             0xe000 C:\Windows\system32\LPK.dll
+0x000007fefef80000            0xca000 C:\Windows\system32\USP10.dll
+0x000007fefd860000            0x9f000 C:\Windows\system32\msvcrt.dll
 [snip]
 }}}
 
-To display the DLLs for a specific process instead of all processes, use the -p or --pid filter like this:
+To display the DLLs for a specific process instead of all processes, use the -p or --pid filter as shown below. Also, in the following output, notice we're analyzing a Wow64 process. Wow64 processes have a limited list of DLLs in the PEB lists, but that doesn't mean they're the _only_ DLLs loaded in the process address space. Thus Volatility will remind you to use the [CommandReference21#ldrmodules] instead for these processes. 
 
 {{{
-$ python vol.py --profile=Win7SP0x86 -f win7.dmp dlllist --pid=492
+$ python vol.py -f ~/Desktop/win7_trial_64bit.raw --profile=Win7SP0x64 dlllist -p 1892
+Volatile Systems Volatility Framework 2.1_alpha
+************************************************************************
+iexplore.exe pid:   1892
+Command line : "C:\Program Files (x86)\Internet Explorer\iexplore.exe" 
+Note: use ldrmodules for listing DLLs in Wow64 processes
+
+Base                             Size Path
+------------------ ------------------ ----
+0x0000000000080000            0xa6000 C:\Program Files (x86)\Internet Explorer\iexplore.exe
+0x0000000076d40000           0x1ab000 C:\Windows\SYSTEM32\ntdll.dll
+0x00000000748d0000            0x3f000 C:\Windows\SYSTEM32\wow64.dll
+0x0000000074870000            0x5c000 C:\Windows\SYSTEM32\wow64win.dll
+0x0000000074940000             0x8000 C:\Windows\SYSTEM32\wow64cpu.dll
 }}}
 
-To display the DLLs for a process that is hidden or unlinked by a rootkit, first use the psscan to get the physical offset of the EPROCESS object and then:
+To display the DLLs for a process that is hidden or unlinked by a rootkit, first use the psscan to get the physical offset of the EPROCESS object and supply it with --offset=OFFSET. The plugin will "bounce back" and determine the virtual address of the EPROCESS and then acquire an address space in order to access the PEB. 
 
 {{{
-$ python vol.py --profile=Win7SP0x86 -f win7.dmp dlllist --offset=0x04a291a8
+$ python vol.py -f ~/Desktop/win7_trial_64bit.raw --profile=Win7SP0x64 dlllist --offset=0x04a291a8
 }}}
-
-For more ways to list DLLs in a process, see the [http://code.google.com/p/volatility/wiki/CommandReference#ldrmodules ldrmodules] command.
 
 == dlldump ==
 
@@ -293,8 +297,9 @@ To extract a DLL from a process's memory space and dump it to disk for analysis,
   * Dump all DLLs from a specific process (with --pid=PID)
   * Dump all DLLs from a hidden/unlinked process (with --offset=OFFSET)
   * Dump a PE from anywhere in process memory (with --base=BASEADDR), this option is useful for extracting hidden DLLs
+  * Dump one or more DLLs that match a regular expression (--regex=REGEX), case sensitive or not (--ignore-case)
 
-To specify an output directory, use --dump-dir=DIR or -d DIR. You can also supply a regular expression to dump a DLL with a particular pattern in its name. 
+To specify an output directory, use --dump-dir=DIR or -d DIR. 
 
 {{{
 $ python vol.py --profile=Win7SP0x86 -f win7.dmp dlldump -r kernel32 -D out
