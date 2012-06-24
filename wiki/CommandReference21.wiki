@@ -31,17 +31,17 @@ Determining profile based on KDBG search...
      Image local date and time : 2012-02-22 03:29:02 -0800
 }}}
 
-The imageinfo output tells you the suggested profile that you should pass as the parameter to --profile=PROFILE when using other plugins. There may be more than one profile suggestion if profiles are closely related (i.e. they have similar KDBGHeader signatures).  You can figure out which one is more appropriate by checking the Service Pack or by running the [CommandReference21#kdbgscan] plugin.  
+The imageinfo output tells you the suggested profile that you should pass as the parameter to --profile=PROFILE when using other plugins. There may be more than one profile suggestion if profiles are closely related. It also prints the address of the KDBG (short for `_KDDEBUGGER_DATA64`) structure that will be used by plugins like [CommandReference21#pslist] and [CommandReference21#modlist] to find the process and module list heads, respectively. In some cases, especially larger memory samples, there may be multiple KDBG structures. Similarly, if there are multiple processors, you'll see the KPCR address and CPU number for each one. 
 
-For each processor, you'll see the KPCR address and CPU number. It also prints the address of the KDBG (short for `_KDDEBUGGER_DATA64`) structure which is used by plugins like [CommandReference21#pslist] and [CommandReference21#modlist] to find the process and module list heads, respectively. Plugins automatically scan for these values when they need them, however you can specify them directly for any plugin by providing --kpcr=ADDRESS or --kdbg=ADDRESS. By supplying the profile and KDBG (or failing that KPCR) to other Volatility commands, you'll get the most accurate and fastest results possible.
+Plugins automatically scan for the KPCR and KDBG values when they need them. However, you can specify the values directly for any plugin by providing --kpcr=ADDRESS or --kdbg=ADDRESS. By supplying the profile and KDBG (or failing that KPCR) to other Volatility commands, you'll get the most accurate and fastest results possible.
 
 == kdbgscan ==
 
-Use this command to scan for potential KDBG structures. As opposed to [CommandReference21#imageinfo] which simply provides profile suggestions, kdbgscan is designed to positively identify the correct profile and the correct KDBG address (if there happen to be multiple). This plugin scans for the KDBGHeader signatures linked to Volatility profiles and applies sanity checks to reduce false positives. The verbosity of the output and number of sanity checks that can be performed depends on whether Volatility can find a DTB, so if you already know the correct profile (or if you have a profile suggestion from [CommandReference21#imageinfo]), then make sure you use it. 
+As opposed to [CommandReference21#imageinfo] which simply provides profile suggestions, kdbgscan is designed to positively identify the correct profile and the correct KDBG address (if there happen to be multiple). This plugin scans for the KDBGHeader signatures linked to Volatility profiles and applies sanity checks to reduce false positives. The verbosity of the output and number of sanity checks that can be performed depends on whether Volatility can find a DTB, so if you already know the correct profile (or if you have a profile suggestion from [CommandReference21#imageinfo]), then make sure you use it. 
 
-Here's an example scenario of when this plugin can be useful. You have a memory sample that you believe to be Windows 2003 SP2 x64, but [CommandReference21#pslist] doesn't show any processes. The pslist plugin relies on finding the process list head which is pointed to by KDBG. However, it takes the _first_ KDBG found in the memory sample, which is not always the _best_ one. If an invalid KDBG is found earlier in a sample (i.e. at a lower physical offset) than the valid KDBG, then you'll need to use kdbgscan to determine which KDBG to use. 
+Here's an example scenario of when this plugin can be useful. You have a memory sample that you believe to be Windows 2003 SP2 x64, but [CommandReference21#pslist] doesn't show any processes. The pslist plugin relies on finding the process list head which is pointed to by KDBG. However, the plugin takes the _first_ KDBG found in the memory sample, which is not always the _best_ one. You may run into this problem if a KDBG with an invalid PsActiveProcessHead pointer is found earlier in a sample (i.e. at a lower physical offset) than the valid KDBG.
 
-Notice below how kdbgscan picks up two KDBG structures: an invalid one (with 0 processes and 0 modules) at 0xf80001172cb0 and a valid one (with 37 processes and 116 modules) at 0xf80001175cf0. In order to "fix" [CommandReference21#pslist] for this sample, you would need to supply the --kdbg=0xf80001175cf0. 
+Notice below how kdbgscan picks up two KDBG structures: an invalid one (with 0 processes and 0 modules) is found first at 0xf80001172cb0 and a valid one (with 37 processes and 116 modules) is found next at 0xf80001175cf0. In order to "fix" [CommandReference21#pslist] for this sample, you would simply need to supply the --kdbg=0xf80001175cf0 to the plist plugin.
 
 {{{
 $ python vol.py -f Win2K3SP2x64-6f1bedec.vmem --profile=Win2003SP2x64 kdbgscan
@@ -82,77 +82,99 @@ For more information on how KDBG structures are identified read [http://moyix.bl
 
 == kprcscan ==
 
-Use this command to scan for potential KPCR structures. On a multi-core system, each processor has its own KPCR. Therefore, you'll should see *at least* as many KPCR addresses as there are processors on the machine from which the memory dump was acquired. 
-
-For information on how potential KPCR structures are found, read [http://blog.schatzforensic.com.au/2010/07/finding-object-roots-in-vista-kpcr/ Finding Object Roots in Vista]. 
+Use this command to scan for potential KPCR structures by checking for the self-referencing members as described by [http://blog.schatzforensic.com.au/2010/07/finding-object-roots-in-vista-kpcr/ Finding Object Roots in Vista]. On a multi-core system, each processor has its own KPCR. Therefore, you'll see details for each processor, including IDT and GDT address; current, idle, and next threads; CPU number, vendor & speed; and CR3 value. 
 
 {{{
-$ python vol.py --profile=Win7SP0x86 -f win7.dmp kpcrscan
-Volatile Systems Volatility Framework 2.0
-Potential KPCR structure virtual addresses:
- _KPCR: 0x8296dc00
-}}}
-
-An example of a multi-core system:
-
-{{{
-$ python vol.py --profile=Win7SP0x86 -f mem.dmp kpcrscan
+$ python vol.py -f dang_win7_x64.raw --profile=Win7SP1x64 kpcrscan
 Volatile Systems Volatility Framework 2.1_alpha
-Potential KPCR structure virtual addresses:
- _KPCR: 0x807c3000
- _KPCR: 0x8296fc00
- _KPCR: 0x8cd00000
- _KPCR: 0x8cd36000
+**************************************************
+Offset (V)                    : 0xf800029ead00
+Offset (P)                    : 0x29ead00
+KdVersionBlock                : 0x0
+IDT                           : 0xfffff80000b95080
+GDT                           : 0xfffff80000b95000
+CurrentThread                 : 0xfffffa800cf694d0 TID 2148 (kd.exe:2964)
+IdleThread                    : 0xfffff800029f8c40 TID 0 (Idle:0)
+Details                       : CPU 0 (GenuineIntel @ 2128 MHz)
+CR3/DTB                       : 0x1dcec000
+**************************************************
+Offset (V)                    : 0xf880009e7000
+Offset (P)                    : 0x4d9e000
+KdVersionBlock                : 0x0
+IDT                           : 0xfffff880009f2540
+GDT                           : 0xfffff880009f24c0
+CurrentThread                 : 0xfffffa800cf694d0 TID 2148 (kd.exe:2964)
+IdleThread                    : 0xfffff880009f1f40 TID 0 (Idle:0)
+Details                       : CPU 1 (GenuineIntel @ 2220 MHz)
+CR3/DTB                       : 0x1dcec000
 }}}
 
-Some plugins such as [http://code.google.com/p/volatility/wiki/CommandReference#idt idt] and [http://code.google.com/p/volatility/wiki/CommandReference#timers timers] reference fields in a processor's KPCR. Thus to be thorough, for example if you want to print the Interrupt Descriptor Table for all processors, you should run kpcrscan first and then pass each address to the plugin along with the --kpcr parameter. 
+If the KdVersionBlock is not null, then it may be possible to find the machine's KDBG address via the KPCR. In fact, the backup method of finding KDBG used by plugins such as [CommandReference21#pslist] is to leverage kpcrscan and then call the KPCR.get_kdbg() API function. 
 
 = Processes and DLLs =
 
 == pslist ==
 
-To list the processes of a system, use the pslist command. This walks the doubly-linked list pointed to by !PsActiveProcessHead. It does not detect hidden or unlinked processes. 
+To list the processes of a system, use the pslist command. This walks the doubly-linked list pointed to by !PsActiveProcessHead and shows the offset, process name, process ID, the parent process ID, number of threads, number of handles, and date/time when the process started and exited. As of 2.1 it also shows the Session ID and if the process is a Wow64 process (it uses a 32 bit address space on a 64 bit kernel).
 
-Also, if you see processes with 0 threads and 0 handles, the process may not actually still be active. For more information, see [http://mnin.blogspot.com/2011/03/mis-leading-active-in.html The Missing Active in PsActiveProcessHead]. 
+This plugin does not detect hidden or unlinked processes (but [CommandReference21#psscan] can do that).
+
+If you see processes with 0 threads, 0 handles, and/or a non-empty exit time, the process may not actually still be active. For more information, see [http://mnin.blogspot.com/2011/03/mis-leading-active-in.html The Missing Active in PsActiveProcessHead]. Below, you'll notice regsvr32.exe has terminated even though its still in the "active" list. 
+
+Also note the two processes System and smss.exe will not have a Session ID, because System starts before sessions are established and smss.exe is the session manager itself. 
 
 {{{
-$ python vol.py --profile=Win7SP0x86 -f win7.dmp pslist
-Volatile Systems Volatility Framework 2.0
- Offset(V)  Name                 PID    PPID   Thds   Hnds   Time 
----------- -------------------- ------ ------ ------ ------ ------------------- 
-0x84133a30 System                    4      0     88    486 2010-06-16 15:24:58       
-0x852e7020 smss.exe                252      4      2     29 2010-06-16 15:24:58       
-0x859f3d40 csrss.exe               352    316      9    406 2010-06-16 15:25:12       
-0x85a5a530 wininit.exe             392    316      3     75 2010-06-16 15:25:15       
-0x85a5f530 csrss.exe               400    384     10    361 2010-06-16 15:25:15       
-0x859f5bc0 winlogon.exe            464    384      3    112 2010-06-16 15:25:18       
-0x85b0b318 services.exe            508    392      6    185 2010-06-16 15:25:18       
-0x85d393f8 lsass.exe               516    392      6    584 2010-06-16 15:25:18       
-0x841d1750 lsm.exe                 524    392     10    143 2010-06-16 15:25:18       
-0x85d5b8f8 svchost.exe             628    508      9    361 2010-06-16 15:25:19       
-0x850c67e0 svchost.exe             688    508      7    268 2010-06-16 15:25:20   
-[snip]
+$ python vol.py -f ~/Desktop/win7_trial_64bit.raw --profile=Win7SP0x64 pslist
+Volatile Systems Volatility Framework 2.1_alpha
+Offset(V)          Name                    PID   PPID   Thds     Hnds   Sess  Wow64 Start                Exit                
+------------------ -------------------- ------ ------ ------ -------- ------ ------ -------------------- --------------------
+0xfffffa80004b09e0 System                    4      0     78      489 ------      0 2012-02-22 19:58:20                      
+0xfffffa8000ce97f0 smss.exe                208      4      2       29 ------      0 2012-02-22 19:58:20                      
+0xfffffa8000c006c0 csrss.exe               296    288      9      385      0      0 2012-02-22 19:58:24                      
+0xfffffa8000c92300 wininit.exe             332    288      3       74      0      0 2012-02-22 19:58:30                      
+0xfffffa8000c06b30 csrss.exe               344    324      7      252      1      0 2012-02-22 19:58:30                      
+0xfffffa8000c80b30 winlogon.exe            372    324      5      136      1      0 2012-02-22 19:58:31                      
+0xfffffa8000c5eb30 services.exe            428    332      6      193      0      0 2012-02-22 19:58:32                      
+0xfffffa80011c5700 lsass.exe               444    332      6      557      0      0 2012-02-22 19:58:32                      
+0xfffffa8000ea31b0 lsm.exe                 452    332     10      133      0      0 2012-02-22 19:58:32                      
+0xfffffa8001296b30 svchost.exe             568    428     10      352      0      0 2012-02-22 19:58:34                      
+0xfffffa80012c3620 svchost.exe             628    428      6      247      0      0 2012-02-22 19:58:34                      
+0xfffffa8001325950 sppsvc.exe              816    428      5      154      0      0 2012-02-22 19:58:41                      
+0xfffffa80007b7960 svchost.exe             856    428     16      404      0      0 2012-02-22 19:58:43                      
+0xfffffa80007bb750 svchost.exe             880    428     34     1118      0      0 2012-02-22 19:58:43                      
+0xfffffa80007d09e0 svchost.exe             916    428     19      443      0      0 2012-02-22 19:58:43                      
+0xfffffa8000c64840 svchost.exe             348    428     14      338      0      0 2012-02-22 20:02:07                      
+0xfffffa8000c09630 svchost.exe             504    428     16      496      0      0 2012-02-22 20:02:07                      
+0xfffffa8000e86690 spoolsv.exe            1076    428     12      271      0      0 2012-02-22 20:02:10                      
+0xfffffa8000518b30 svchost.exe            1104    428     18      307      0      0 2012-02-22 20:02:10                      
+0xfffffa800094d960 wlms.exe               1264    428      4       43      0      0 2012-02-22 20:02:11                      
+0xfffffa8000995b30 svchost.exe            1736    428     12      200      0      0 2012-02-22 20:02:25                      
+0xfffffa8000aa0b30 SearchIndexer.         1800    428     12      757      0      0 2012-02-22 20:02:26                      
+0xfffffa8000aea630 taskhost.exe           1144    428      7      189      1      0 2012-02-22 20:02:41                      
+0xfffffa8000eafb30 dwm.exe                1476    856      3       71      1      0 2012-02-22 20:02:41                      
+0xfffffa80008f3420 explorer.exe           1652    840     21      760      1      0 2012-02-22 20:02:42                      
+0xfffffa8000c9a630 regsvr32.exe           1180   1652      0 --------      1      0 2012-02-22 20:03:05  2012-02-22 20:03:08 
+0xfffffa8000a03b30 rundll32.exe           2016    568      3       67      1      0 2012-02-22 20:03:16                      
+0xfffffa8000a4f630 svchost.exe            1432    428     12      350      0      0 2012-02-22 20:04:14                      
+0xfffffa8000999780 iexplore.exe           1892   1652     19      688      1      1 2012-02-22 11:26:12                      
+0xfffffa80010c9060 iexplore.exe           2820   1892     23      733      1      1 2012-02-22 11:26:15                      
+0xfffffa8001016060 DumpIt.exe             2860   1652      2       42      1      1 2012-02-22 11:28:59                      
+0xfffffa8000acab30 conhost.exe            2236    344      2       51      1      0 2012-02-22 11:28:59 
 }}}
 
-The columns display the offset, process name, process ID, the parent process ID, number of threads, number of handles, and date/time when the process started.  The offset is a virtual address by default, but the physical offset can be obtained with the -P switch:
+By default, pslist shows virtual offsets for the !EPROCESS but the physical offset can be obtained with the -P switch:
 
 {{{
-$ python vol.py --profile=Win7SP0x86 -f win7.dmp pslist -P
-Volatile Systems Volatility Framework 2.0
- Offset(P)  Name                 PID    PPID   Thds   Hnds   Time 
----------- -------------------- ------ ------ ------ ------ ------------------- 
-0x3fff3a30 System                    4      0     88    486 2010-06-16 15:24:58       
-0x3ece7020 smss.exe                252      4      2     29 2010-06-16 15:24:58       
-0x3e7f3d40 csrss.exe               352    316      9    406 2010-06-16 15:25:12       
-0x3e45a530 wininit.exe             392    316      3     75 2010-06-16 15:25:15       
-0x3e45f530 csrss.exe               400    384     10    361 2010-06-16 15:25:15       
-0x3e7f5bc0 winlogon.exe            464    384      3    112 2010-06-16 15:25:18       
-0x3e50b318 services.exe            508    392      6    185 2010-06-16 15:25:18       
-0x3e3393f8 lsass.exe               516    392      6    584 2010-06-16 15:25:18       
-0x3ff11750 lsm.exe                 524    392     10    143 2010-06-16 15:25:18       
-0x3e35b8f8 svchost.exe             628    508      9    361 2010-06-16 15:25:19       
-0x3eec67e0 svchost.exe             688    508      7    268 2010-06-16 15:25:20
-[snip]       
+$ python vol.py -f ~/Desktop/win7_trial_64bit.raw --profile=Win7SP0x64 pslist -P 
+Volatile Systems Volatility Framework 2.1_alpha
+Offset(P)          Name                    PID   PPID   Thds     Hnds   Sess  Wow64 Start                Exit                
+------------------ -------------------- ------ ------ ------ -------- ------ ------ -------------------- --------------------
+0x0000000017fef9e0 System                    4      0     78      489 ------      0 2012-02-22 19:58:20                      
+0x00000000176e97f0 smss.exe                208      4      2       29 ------      0 2012-02-22 19:58:20                      
+0x00000000176006c0 csrss.exe               296    288      9      385      0      0 2012-02-22 19:58:24                      
+0x0000000017692300 wininit.exe             332    288      3       74      0      0 2012-02-22 19:58:30                      
+0x0000000017606b30 csrss.exe               344    324      7      252      1      0 2012-02-22 19:58:30
+... 
 }}}
 
 == pstree ==
