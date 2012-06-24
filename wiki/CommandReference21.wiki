@@ -1,6 +1,8 @@
 #summary Example usage cases and output for Volatility commands
 
-This is a copy of the [CommandReference] that will be customized for 2.1.
+This is the Command Reference and plugin documentation for Volatility 2.1. It differs from the original [CommandReference] in that where possible, 64 bit images will be used for demonstration, it covers new plugins released with 2.1, and it describes any major changes in plugin behavior and/or output since the previous release. 
+
+Please note that not all memory samples used in the demonstrations are publicly available, but many of them are. For links to public test images, see [FAQ#Are_there_any_public_memory_samples_available_that_I_can_use_for].
 
 <wiki:toc max_depth="3" />
 
@@ -8,41 +10,75 @@ This is a copy of the [CommandReference] that will be customized for 2.1.
 
 == imageinfo ==
 
-If you don't know what type of system your image came from, use the imageinfo command. 
+For a high level summary of the memory sample you're analyzing, use the imageinfo command. Most often this command is used to identify the operating system, service pack, and hardware architecture (32 or 64 bit), but it also contains other useful information such as the DTB address and time the sample was collected. 
 
 {{{
-$ python vol.py -f win7.dmp imageinfo
-Volatile Systems Volatility Framework 2.0
+$ python vol.py -f ~/Desktop/win7_trial_64bit.raw imageinfo
+Volatile Systems Volatility Framework 2.1_alpha
 Determining profile based on KDBG search...
-             Suggested Profile : Win7SP1x86, Win7SP0x86
-                     AS Layer1 : JKIA32PagedMemory (Kernel AS)
-                     AS Layer2 : FileAddressSpace (/Users/M/Desktop/win7.dmp)
-                      PAE type : No PAE
-                           DTB : 0x185000
-                          KDBG : 0x8296cbe8
-                          KPCR : 0x8296dc00
-             KUSER_SHARED_DATA : 0xffdf0000
-           Image date and time : 2010-07-06 22:40:28 
-     Image local date and time : 2010-07-06 22:40:28 
-          Number of Processors : 2
-                    Image Type : 
+
+          Suggested Profile(s) : Win7SP0x64, Win7SP1x64, Win2008R2SP0x64, Win2008R2SP1x64
+                     AS Layer1 : AMD64PagedMemory (Kernel AS)
+                     AS Layer2 : FileAddressSpace (/Users/Michael/Desktop/win7_trial_64bit.raw)
+                      PAE type : PAE
+                           DTB : 0x187000L
+                          KDBG : 0xf80002803070
+          Number of Processors : 1
+     Image Type (Service Pack) : 0
+                KPCR for CPU 0 : 0xfffff80002804d00L
+             KUSER_SHARED_DATA : 0xfffff78000000000L
+           Image date and time : 2012-02-22 11:29:02 UTC+0000
+     Image local date and time : 2012-02-22 03:29:02 -0800
 }}}
 
-Among other things, the `imageinfo` output tells you the suggested profile that you should pass as the parameter to --profile=PROFILE; there may be more than one profile suggestion if profiles are closely related.  You can figure out which one is more appropriate by checking the "Image Type" field, which is blank for Service Pack 0 and filled in for other Service Packs.  The `imageinfo` output also tells you the address of the KPCR and KDBG (short for `_KDDEBUGGER_DATA64`).  Plugins automatically scan for these values when they need them, however you can specify them directly for any plugin by providing --kpcr=ADDRESS or --kdbg=ADDRESS. By supplying the profile and KDBG (or failing that KPCR) to other Volatility commands, you'll get the most accurate and fastest results possible.
+The imageinfo output tells you the suggested profile that you should pass as the parameter to --profile=PROFILE when using other plugins. There may be more than one profile suggestion if profiles are closely related (i.e. they have similar KDBGHeader signatures).  You can figure out which one is more appropriate by checking the Service Pack or by running the [CommandReference21#kdbgscan] plugin.  
+
+For each processor, you'll see the KPCR address and CPU number. It also prints the address of the KDBG (short for `_KDDEBUGGER_DATA64`) structure which is used by plugins like [CommandReference21#pslist] and [CommandReference21#modlist] to find the process and module list heads, respectively. Plugins automatically scan for these values when they need them, however you can specify them directly for any plugin by providing --kpcr=ADDRESS or --kdbg=ADDRESS. By supplying the profile and KDBG (or failing that KPCR) to other Volatility commands, you'll get the most accurate and fastest results possible.
 
 == kdbgscan ==
 
-Use this command to scan for potential KDBG structures. For more information on how KDBG structures are identified read [http://moyix.blogspot.com/2008/04/finding-kernel-global-variables-in.html Finding Kernel Global Variables in Windows] and [http://gleeda.blogspot.com/2010/12/identifying-memory-images.html Identifying Memory Images]
+Use this command to scan for potential KDBG structures. As opposed to [CommandReference21#imageinfo] which simply provides profile suggestions, kdbgscan is designed to positively identify the correct profile and the correct KDBG address (if there happen to be multiple). This plugin scans for the KDBGHeader signatures linked to Volatility profiles and applies sanity checks to reduce false positives. The verbosity of the output and number of sanity checks that can be performed depends on whether Volatility can find a DTB, so if you already know the correct profile (or if you have a profile suggestion from [CommandReference21#imageinfo]), then make sure you use it. 
+
+Here's an example scenario of when this plugin can be useful. You have a memory sample that you believe to be Windows 2003 SP2 x64, but [CommandReference21#pslist] doesn't show any processes. The pslist plugin relies on finding the process list head which is pointed to by KDBG. However, it takes the _first_ KDBG found in the memory sample, which is not always the _best_ one. If an invalid KDBG is found earlier in a sample (i.e. at a lower physical offset) than the valid KDBG, then you'll need to use kdbgscan to determine which KDBG to use. 
+
+Notice below how kdbgscan picks up two KDBG structures: an invalid one (with 0 processes and 0 modules) at 0xf80001172cb0 and a valid one (with 37 processes and 116 modules) at 0xf80001175cf0. In order to "fix" [CommandReference21#pslist] for this sample, you would need to supply the --kdbg=0xf80001175cf0. 
 
 {{{
-$ python vol.py --profile=Win7SP0x86 -f win7.dmp kdbgscan
-Volatile Systems Volatility Framework 2.0
-Potential KDBG structure addresses (P = Physical, V = Virtual):
- _KDBG: V 0x80544ce0  (WinXPSP3x86)
- _KDBG: P 0x00544ce0  (WinXPSP3x86)
- _KDBG: V 0x80544ce0  (WinXPSP2x86)
- _KDBG: P 0x00544ce0  (WinXPSP2x86)
+$ python vol.py -f Win2K3SP2x64-6f1bedec.vmem --profile=Win2003SP2x64 kdbgscan
+Volatile Systems Volatility Framework 2.1_alpha
+**************************************************
+Instantiating KDBG using: Kernel AS Win2003SP2x64 (5.2.3791 64bit)
+Offset (V)                    : 0xf80001172cb0
+Offset (P)                    : 0x1172cb0
+KDBG owner tag check          : True
+Profile suggestion (KDBGHeader): Win2003SP2x64
+Version64                     : 0xf80001172c70 (Major: 15, Minor: 3790)
+Service Pack (CmNtCSDVersion) : 0
+Build string (NtBuildLab)     : T?
+PsActiveProcessHead           : 0xfffff800011947f0 (0 processes)
+PsLoadedModuleList            : 0xfffff80001197ac0 (0 modules)
+KernelBase                    : 0xfffff80001000000 (Matches MZ: True)
+Major (OptionalHeader)        : 5
+Minor (OptionalHeader)        : 2
+
+**************************************************
+Instantiating KDBG using: Kernel AS Win2003SP2x64 (5.2.3791 64bit)
+Offset (V)                    : 0xf80001175cf0
+Offset (P)                    : 0x1175cf0
+KDBG owner tag check          : True
+Profile suggestion (KDBGHeader): Win2003SP2x64
+Version64                     : 0xf80001175cb0 (Major: 15, Minor: 3790)
+Service Pack (CmNtCSDVersion) : 2
+Build string (NtBuildLab)     : 3790.srv03_sp2_rtm.070216-1710
+PsActiveProcessHead           : 0xfffff800011977f0 (37 processes)
+PsLoadedModuleList            : 0xfffff8000119aae0 (116 modules)
+KernelBase                    : 0xfffff80001000000 (Matches MZ: True)
+Major (OptionalHeader)        : 5
+Minor (OptionalHeader)        : 2
+KPCR                          : 0xfffff80001177000 (CPU 0)
 }}}
+
+For more information on how KDBG structures are identified read [http://moyix.blogspot.com/2008/04/finding-kernel-global-variables-in.html Finding Kernel Global Variables in Windows] and [http://gleeda.blogspot.com/2010/12/identifying-memory-images.html Identifying Memory Images]
 
 == kprcscan ==
 
