@@ -238,7 +238,7 @@ If a process has previously terminated, the Time exited field will show the exit
 
 == psdispscan ==
 
-This plugin is similar to psscan, except it enumerates processes by scanning for _DISPATCHER_HEADER instead of pool tags. This gives you an alternate way to carve EPROCESS objects in the event an attacker tried to hide by altering pool tags. This plugin is not well maintained and only supports XP x86. To use it, you must type --plugins=contrib/plugins on command-line. 
+This plugin is similar to psscan, except it enumerates processes by scanning for DISPATCHER_HEADER instead of pool tags. This gives you an alternate way to carve EPROCESS objects in the event an attacker tried to hide by altering pool tags. This plugin is not well maintained and only supports XP x86. To use it, you must type --plugins=contrib/plugins on command-line. 
 
 == dlllist ==
 
@@ -302,19 +302,23 @@ To extract a DLL from a process's memory space and dump it to disk for analysis,
 To specify an output directory, use --dump-dir=DIR or -d DIR. 
 
 {{{
-$ python vol.py --profile=Win7SP0x86 -f win7.dmp dlldump -r kernel32 -D out
-Cannot dump TrustedInstall@kernel32.dll at 779f0000
-Cannot dump WmiPrvSE.exe@kernel32.dll at 779f0000
-Dumping kernel32.dll, Process: SearchFilterHo, Base: 779f0000 output: module.623.da1d760.779f0000.dll
-Dumping kernel32.dll, Process: taskhost.exe, Base: 779f0000 output: module.484.546d030.779f0000.dll
-Cannot dump dwm.exe@kernel32.dll at 779f0000
-Dumping kernel32.dll, Process: explorer.exe, Base: 779f0000 output: module.758.4a291a8.779f0000.dll
-Cannot dump wuauclt.exe@kernel32.dll at 779f0000
-Dumping kernel32.dll, Process: VMwareTray.exe, Base: 779f0000 output: module.860.fe828d8.779f0000.dll
-[snip]
+$ python vol.py -f ~/Desktop/win7_trial_64bit.raw --profile=Win7SP0x64 dlldump -D dlls/
+...
+Dumping sechost.dll, Process: lsass.exe, Base: 7fefd830000 output: module.444.173c5700.7fefd830000.dll
+Dumping cryptbase.dll, Process: lsass.exe, Base: 7fefcb80000 output: module.444.173c5700.7fefcb80000.dll
+Cannot dump lsass.exe@pstorsvc.dll at 7fef71e0000
+Dumping USP10.dll, Process: lsass.exe, Base: 7fefef80000 output: module.444.173c5700.7fefef80000.dll
+Dumping LPK.dll, Process: lsass.exe, Base: 7fefe190000 output: module.444.173c5700.7fefe190000.dll
+Cannot dump lsass.exe@WINSTA.dll at 7fefcc40000
+Dumping GDI32.dll, Process: lsass.exe, Base: 7fefd7c0000 output: module.444.173c5700.7fefd7c0000.dll
+Dumping DNSAPI.dll, Process: lsass.exe, Base: 7fefc270000 output: module.444.173c5700.7fefc270000.dll
+Dumping Secur32.dll, Process: lsass.exe, Base: 7fefc5d0000 output: module.444.173c5700.7fefc5d0000.dll
+Dumping SAMSRV.dll, Process: lsass.exe, Base: 7fefc7e0000 output: module.444.173c5700.7fefc7e0000.dll
+Dumping KERNELBASE.dll, Process: lsass.exe, Base: 7fefcd50000 output: module.444.173c5700.7fefcd50000.dll
+...
 }}}
 
-If the extraction fails, as it did for a few processes above, it probably means that some of the memory pages in that process were not memory resident at the time (due to paging). 
+If the extraction fails, as it did for a few DLLs above, it probably means that some of the memory pages in that DLL were not memory resident (due to paging). In particular, this is a problem if the first page containing the PE header and thus the PE section mappings is not available. In these cases you can still extract the memory segment using the [CommandReference21#vaddump] command, but you'll need to manually rebuild the PE header and fixup the sections as described in [http://mnin.blogspot.com/2008/11/recovering-coreflood-binaries-with.html Recovering CoreFlood Binaries with Volatility]. 
 
 To dump a PE file that doesn't exist in the DLLs list (for example, due to code injection or malicious unlinking), just specify the base address of the PE in process memory:
 
