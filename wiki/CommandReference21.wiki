@@ -334,25 +334,38 @@ $ python vol.py --profile=Win7SP0x86 -f win7.dmp dlldump -o 0x3e3f64e8 -D out --
 
 == handles ==
 
-To display the open handles in a process, use the handles command. A process can obtain a file handle by calling functions such as !CreateFile, and the handle will stay valid until !CloseHandle is called. The same concept applies for registry keys, mutexes, named pipes, events, window stations, desktops, threads, and all other types of objects. This command replaces the older "files" and "regobjkeys" commands. 
+To display the open handles in a process, use the handles command. A process can obtain a file handle by calling functions such as !CreateFile, and the handle will stay valid until !CloseHandle is called. The same concept applies for registry keys, mutexes, named pipes, events, window stations, desktops, threads, and all other types of securable executive objects. This command replaces the older "files" and "regobjkeys" commands from the Volatility 1.3 framework. 
 
 {{{
-$ python vol.py --profile=Win7SP0x86 -f win7.dmp handles
-Volatile Systems Volatility Framework 1.4_rc1
-Offset(V)    Pid    Type             Details
-0x823c8818   4      Process          System(4)
-0x823c7008   4      Thread           TID 12 PID 4
-0xe13f8fa0   4      Key              MACHINE\SYSTEM\CONTROLSET001\CONTROL\SESSION MANAGER\MEMORY MANAGEMENT\PREFETCHPARAMETERS
-0xe100f418   4      Key              MACHINE\SYSTEM\WPA\MEDIACENTER
-0xe1406418   4      Key              MACHINE\SYSTEM\WPA\KEY-4F3B2RFXKC9C637882MBM
-0xe1404b20   4      Key              MACHINE\SYSTEM\WPA\PNP
-0xe1000480   4      Key              MACHINE\SYSTEM\WPA\SIGNINGHASH-V44KQMCFXKQCTQ
-0xe1013b80   4      Key              MACHINE\SYSTEM\CONTROLSET001\CONTROL\PRODUCTOPTIONS
-0xe142cc28   4      Key              MACHINE\SYSTEM\CONTROLSET001\SERVICES\EVENTLOG
-0x823c1778   4      Event            'TRKWKS_EVENT'
-0x81ebb938   4      File             '\\Documents and Settings\\NetworkService\\NTUSER.DAT'
-0xe14dc268   4      Key              MACHINE\HARDWARE\DEVICEMAP\SCSI
-[snip]
+$ python vol.py -f ~/Desktop/win7_trial_64bit.raw --profile=Win7SP0x64 handles
+Volatile Systems Volatility Framework 2.1_alpha
+Offset(V)             Pid             Handle             Access Type             Details
+------------------ ------ ------------------ ------------------ ---------------- -------
+0xfffffa80004b09e0      4                0x4           0x1fffff Process          System(4)
+0xfffff8a0000821a0      4               0x10            0x2001f Key              MACHINE\SYSTEM\CONTROLSET001\CONTROL\PRODUCTOPTIONS
+0xfffff8a00007e040      4               0x14            0xf003f Key              MACHINE\SYSTEM\CONTROLSET001\CONTROL\SESSION MANAGER\MEMORY MANAGEMENT\PREFETCHPARAMETERS
+0xfffff8a000081fa0      4               0x18            0x2001f Key              MACHINE\SYSTEM\SETUP
+0xfffffa8000546990      4               0x1c           0x1f0001 ALPC Port        PowerMonitorPort
+0xfffffa800054d070      4               0x20           0x1f0001 ALPC Port        PowerPort
+0xfffff8a0000676a0      4               0x24            0x20019 Key              MACHINE\HARDWARE\DESCRIPTION\SYSTEM\MULTIFUNCTIONADAPTER
+0xfffffa8000625460      4               0x28           0x1fffff Thread           TID 160 PID 4
+0xfffff8a00007f400      4               0x2c            0xf003f Key              MACHINE\SYSTEM\CONTROLSET001
+0xfffff8a00007f200      4               0x30            0xf003f Key              MACHINE\SYSTEM\CONTROLSET001\ENUM
+0xfffff8a000080d10      4               0x34            0xf003f Key              MACHINE\SYSTEM\CONTROLSET001\CONTROL\CLASS
+0xfffff8a00007f500      4               0x38            0xf003f Key              MACHINE\SYSTEM\CONTROLSET001\SERVICES
+0xfffff8a0001cd990      4               0x3c                0xe Token            
+0xfffff8a00007bfa0      4               0x40            0x20019 Key              MACHINE\SYSTEM\CONTROLSET001\CONTROL\WMI\SECURITY
+0xfffffa8000cd52b0      4               0x44           0x120116 File             \Device\Mup
+0xfffffa8000ce97f0      4               0x48               0x2a Process          smss.exe(208)
+0xfffffa8000df16f0      4               0x4c           0x120089 File             \Device\HarddiskVolume2\Windows\System32\en-US\win32k.sys.mui
+0xfffffa8000de37f0      4               0x50           0x12019f File             \Device\clfsTxfLog
+0xfffff8a000952fa0      4               0x54            0x2001f Key              MACHINE\SYSTEM\CONTROLSET001\CONTROL\VIDEO\{6A8FC9DC-A76B-47FC-A703-17800182E1CE}\0000\VOLATILESETTINGS
+0xfffffa800078da20      4               0x58           0x12019f File             \Device\Tcp
+0xfffff8a002e17610      4               0x5c                0x9 Key              MACHINE\SOFTWARE\MICROSOFT\WINDOWS NT\CURRENTVERSION\IMAGE FILE EXECUTION OPTIONS
+0xfffff8a0008f7b00      4               0x60               0x10 Key              MACHINE\SYSTEM\CONTROLSET001\CONTROL\LSA
+0xfffffa8000da2870      4               0x64           0x100001 File             \Device\KsecDD
+0xfffffa8000da3040      4               0x68                0x0 Thread           TID 228 PID 4
+...
 }}}
 
 Similar to other commands, you can display handles for a particular process by specifying a process ID (--pid) or the physical offset of an eprocess structure (--physical-offset). You can also filter by object type using -t or --object-type. For example to only display handles to process objects for pid 600, do the following:
