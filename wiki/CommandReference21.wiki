@@ -673,7 +673,7 @@ If you want to view the balanced binary tree in Graphviz format, just add --outp
 
 == vaddump ==
 
-To extract the data contained within each VAD segment, use the vaddump command. This is similar to [CommandReference21#memdump], except the data ends up in separate files, named according to the address in process memory where the data was found. 
+To extract the range of pages described by a VAD node, use the vaddump command. This is similar to [CommandReference21#memdump], except the pages belonging to each VAD node are placed in separate files (named according to the starting and ending addresses) instead of one large conglomerate file. If any pages in the range are not memory resident, they're padded with 0's using the address space's zread() method. 
 
 {{{
 $ python vol.py -f ~/Desktop/win7_trial_64bit.raw --profile=Win7SP0x64 vaddump -D vads
@@ -717,98 +717,92 @@ The reason the !PhysicalOffset field exists is so you can distinguish between tw
 
 == modules ==
 
-To view the list of kernel drivers loaded on the system, use the modules command. This walks the doubly-linked list of LDR_DATA_TABLE_ENTRY structures pointed to by !PsLoadedModuleList. It cannot find hidden/unlinked kernel drivers.  
+To view the list of kernel drivers loaded on the system, use the modules command. This walks the doubly-linked list of LDR_DATA_TABLE_ENTRY structures pointed to by !PsLoadedModuleList. Similar to the [CommandReference21#pslist] command, this relies on finding the KDBG structure. In rare cases, you may need to use [CommandReference21#kdbgscan] to find the most appropriate KDBG structure address and then supply it to this plugin like --kdbg=ADDRESS. 
+
+It cannot find hidden/unlinked kernel drivers, however [CommandReference21#modscan] serves that purpose. Also, since this plugin uses list walking techniques, you typically can assume that the order the modules are displayed in the output is the order they were loaded on the system. For example, below, ntoskrnl.exe was first to load, followed by hal.dll, etc. 
 
 {{{
-$ python vol.py --profile=Win7SP0x86 -f win7.dmp modules
-Volatile Systems Volatility Framework 2.0
-Offset(V)  File                                               Base         Size     Name
-0x84131c98 \SystemRoot\system32\ntkrnlpa.exe                  0x008283c000 0x410000 ntoskrnl.exe
-0x84131c20 \SystemRoot\system32\halmacpi.dll                  0x0082805000 0x037000 hal.dll
-0x84131ba0 \SystemRoot\system32\kdcom.dll                     0x0080b99000 0x008000 kdcom.dll
-0x84131b20 \SystemRoot\system32\mcupdate_GenuineIntel.dll     0x0082e24000 0x078000 mcupdate.dll
-0x84131aa0 \SystemRoot\system32\PSHED.dll                     0x0082e9c000 0x011000 PSHED.dll
-0x84131a20 \SystemRoot\system32\BOOTVID.dll                   0x0082ead000 0x008000 BOOTVID.dll
-0x841319a8 \SystemRoot\system32\CLFS.SYS                      0x0082eb5000 0x042000 CLFS.SYS
-0x84131930 \SystemRoot\system32\CI.dll                        0x0082ef7000 0x0ab000 CI.dll
-0x841318b0 \SystemRoot\system32\drivers\Wdf01000.sys          0x0086a1b000 0x071000 Wdf01000.sys
-0x84131830 \SystemRoot\system32\drivers\WDFLDR.SYS            0x0086a8c000 0x00e000 WDFLDR.SYS
-0x841317b8 \SystemRoot\system32\DRIVERS\ACPI.sys              0x0086a9a000 0x048000 ACPI.sys
-0x84131738 \SystemRoot\system32\DRIVERS\WMILIB.SYS            0x0086ae2000 0x009000 WMILIB.SYS
-0x841316b8 \SystemRoot\system32\DRIVERS\msisadrv.sys          0x0086aeb000 0x008000 msisadrv.sys
-0x8412be78 \SystemRoot\system32\DRIVERS\pci.sys               0x0086af3000 0x02a000 pci.sys
+$ python vol.py -f ~/Desktop/win7_trial_64bit.raw --profile=Win7SP0x64 modules
+Volatile Systems Volatility Framework 2.1_alpha
+Offset(V)          Name                 Base                             Size File
+------------------ -------------------- ------------------ ------------------ ----
+0xfffffa80004a11a0 ntoskrnl.exe         0xfffff8000261a000           0x5dd000 \SystemRoot\system32\ntoskrnl.exe
+0xfffffa80004a10b0 hal.dll              0xfffff80002bf7000            0x49000 \SystemRoot\system32\hal.dll
+0xfffffa80004a7950 kdcom.dll            0xfffff80000bb4000             0xa000 \SystemRoot\system32\kdcom.dll
+0xfffffa80004a7860 mcupdate.dll         0xfffff88000c3a000            0x44000 \SystemRoot\system32\mcupdate_GenuineIntel.dll
+0xfffffa80004a7780 PSHED.dll            0xfffff88000c7e000            0x14000 \SystemRoot\system32\PSHED.dll
+0xfffffa80004a7690 CLFS.SYS             0xfffff88000c92000            0x5e000 \SystemRoot\system32\CLFS.SYS
+0xfffffa80004a8010 CI.dll               0xfffff88000cf0000            0xc0000 \SystemRoot\system32\CI.dll
 [snip] 
 }}}
 
-Included in the output is the offset of the module, which is a virtual address by default but can be specified as a physical address with the -P switch:
+The output shows the offset of the LDR_DATA_TABLE_ENTRY structure, which is a virtual address by default but can be specified as a physical address with the -P switch as shown below. In either case, the Base column is the virtual address of the module's base in kernel memory (where you'd expect to find the PE header). 
 
 {{{
-$ python vol.py --profile=Win7SP0x86 -f win7.dmp modules -P
-Volatile Systems Volatility Framework 2.0
-Offset(P)  File                                               Base         Size     Name
-0x3fff1c98 \SystemRoot\system32\ntkrnlpa.exe                  0x008283c000 0x410000 ntoskrnl.exe
-0x3fff1c20 \SystemRoot\system32\halmacpi.dll                  0x0082805000 0x037000 hal.dll
-0x3fff1ba0 \SystemRoot\system32\kdcom.dll                     0x0080b99000 0x008000 kdcom.dll
-0x3fff1b20 \SystemRoot\system32\mcupdate_GenuineIntel.dll     0x0082e24000 0x078000 mcupdate.dll
-0x3fff1aa0 \SystemRoot\system32\PSHED.dll                     0x0082e9c000 0x011000 PSHED.dll
-0x3fff1a20 \SystemRoot\system32\BOOTVID.dll                   0x0082ead000 0x008000 BOOTVID.dll
-0x3fff19a8 \SystemRoot\system32\CLFS.SYS                      0x0082eb5000 0x042000 CLFS.SYS
-0x3fff1930 \SystemRoot\system32\CI.dll                        0x0082ef7000 0x0ab000 CI.dll
-0x3fff18b0 \SystemRoot\system32\drivers\Wdf01000.sys          0x0086a1b000 0x071000 Wdf01000.sys
-0x3fff1830 \SystemRoot\system32\drivers\WDFLDR.SYS            0x0086a8c000 0x00e000 WDFLDR.SYS
-0x3fff17b8 \SystemRoot\system32\DRIVERS\ACPI.sys              0x0086a9a000 0x048000 ACPI.sys
-0x3fff1738 \SystemRoot\system32\DRIVERS\WMILIB.SYS            0x0086ae2000 0x009000 WMILIB.SYS
-0x3fff16b8 \SystemRoot\system32\DRIVERS\msisadrv.sys          0x0086aeb000 0x008000 msisadrv.sys
-0x3ffebe78 \SystemRoot\system32\DRIVERS\pci.sys               0x0086af3000 0x02a000 pci.sys
+$ python vol.py -f ~/Desktop/win7_trial_64bit.raw --profile=Win7SP0x64 modules -P
+Volatile Systems Volatility Framework 2.1_alpha
+Offset(P)          Name                 Base                             Size File
+------------------ -------------------- ------------------ ------------------ ----
+0x0000000017fe01a0 ntoskrnl.exe         0xfffff8000261a000           0x5dd000 \SystemRoot\system32\ntoskrnl.exe
+0x0000000017fe00b0 hal.dll              0xfffff80002bf7000            0x49000 \SystemRoot\system32\hal.dll
+0x0000000017fe6950 kdcom.dll            0xfffff80000bb4000             0xa000 \SystemRoot\system32\kdcom.dll
+0x0000000017fe6860 mcupdate.dll         0xfffff88000c3a000            0x44000 \SystemRoot\system32\mcupdate_GenuineIntel.dll
+0x0000000017fe6780 PSHED.dll            0xfffff88000c7e000            0x14000 \SystemRoot\system32\PSHED.dll
+0x0000000017fe6690 CLFS.SYS             0xfffff88000c92000            0x5e000 \SystemRoot\system32\CLFS.SYS
+0x0000000017fe7010 CI.dll               0xfffff88000cf0000            0xc0000 \SystemRoot\system32\CI.dll
 [snip]
 }}}
 
 == modscan ==
 
-To scan physical memory for kernel modules, use the modscan command. This can pick up previously unloaded drivers and drivers that have been hidden/unlinked by rootkits.  Included in the output is the offset of the module, which is a physical address:
+The modscan command finds LDR_DATA_TABLE_ENTRY structures by scanning physical memory for pool tags. This can pick up previously unloaded drivers and drivers that have been hidden/unlinked by rootkits. Unlike [CommandReference21#modlist] the order of results has no relationship with the order in which the drivers loaded. As you can see below, DumpIt.sys was found at the lowest physical offset, but it was probably one of the last drivers to load (since it was used to acquire memory). 
 
 {{{
-$ python vol.py --profile=Win7SP0x86 -f win7.dmp modscan
-Volatile Systems Volatility Framework 2.0
-Offset     File                                               Base         Size     Name
-0x3e011200 '\\SystemRoot\\system32\\DRIVERS\\lltdio.sys'      0x008e7b6000 0x010000 'lltdio.sys'
-0x3e020a50 '\\SystemRoot\\system32\\DRIVERS\\rspndr.sys'      0x008e7c6000 0x013000 'rspndr.sys'
-0x3e03bec0 '\\SystemRoot\\system32\\DRIVERS\\asyncmac.sys'    0x0090b19000 0x009000 'asyncmac.sys'
-0x3e067370 '\\??\\c:\\Users\\user\\Desktop\\win32dd.sys'      0x0090a00000 0x00c000 'win32dd.sys'
-0x3e0dc7a0 '\\SystemRoot\\System32\\DRIVERS\\srv.sys'         0x0090a5e000 0x051000 'srv.sys'
-0x3e364908 '\\SystemRoot\\system32\\drivers\\luafv.sys'       0x008e781000 0x01b000 'luafv.sys'
-0x3e366608 '\\SystemRoot\\system32\\drivers\\WudfPf.sys'      0x008e79c000 0x01a000 'WudfPf.sys'
-0x3e36b850 '\\SystemRoot\\system32\\drivers\\HTTP.sys'        0x008dc04000 0x085000 'HTTP.sys'
-0x3e422648 '\\SystemRoot\\System32\\TSDDD.dll'                0x008fda0000 0x009000 'TSDDD.dll'
-0x3e4291e0 '\\SystemRoot\\system32\\DRIVERS\\mouhid.sys'      0x008e76b000 0x00b000 'mouhid.sys'
-0x3e429bd8 '\\SystemRoot\\system32\\DRIVERS\\HIDPARSE.SYS'    0x008e764000 0x007000 'HIDPARSE.SYS'
-0x3e46a4d0 '\\SystemRoot\\System32\\cdd.dll'                  0x008fdd0000 0x01e000 'cdd.dll'
-0x3e46aed0 '\\SystemRoot\\System32\\drivers\\mpsdrv.sys'      0x008dca2000 0x012000 'mpsdrv.sys'
-0x3e474a38 '\\SystemRoot\\system32\\DRIVERS\\bowser.sys'      0x008dc89000 0x019000 'bowser.sys'
-0x3e482870 '\\SystemRoot\\system32\\DRIVERS\\mrxsmb20.sys'    0x008dd12000 0x01b000 'mrxsmb20.sys'
-0x3e482da0 '\\SystemRoot\\system32\\DRIVERS\\mrxsmb10.sys'    0x008dcd7000 0x03b000 'mrxsmb10.sys'
+$ python vol.py -f ~/Desktop/win7_trial_64bit.raw --profile=Win7SP0x64 modscan
+Volatile Systems Volatility Framework 2.1_alpha
+Offset(P)          Name                 Base                             Size File
+------------------ -------------------- ------------------ ------------------ ----
+0x00000000173b90b0 DumpIt.sys           0xfffff88003980000            0x11000 \??\C:\Windows\SysWOW64\Drivers\DumpIt.sys
+0x000000001745b180 mouhid.sys           0xfffff880037e9000             0xd000 \SystemRoot\system32\DRIVERS\mouhid.sys
+0x0000000017473010 lltdio.sys           0xfffff88002585000            0x15000 \SystemRoot\system32\DRIVERS\lltdio.sys
+0x000000001747f010 rspndr.sys           0xfffff8800259a000            0x18000 \SystemRoot\system32\DRIVERS\rspndr.sys
+0x00000000174cac40 dxg.sys              0xfffff96000440000            0x1e000 \SystemRoot\System32\drivers\dxg.sys
+0x0000000017600190 monitor.sys          0xfffff8800360c000             0xe000 \SystemRoot\system32\DRIVERS\monitor.sys
+0x0000000017601170 HIDPARSE.SYS         0xfffff880037de000             0x9000 \SystemRoot\system32\DRIVERS\HIDPARSE.SYS
+0x0000000017604180 USBD.SYS             0xfffff880037e7000             0x2000 \SystemRoot\system32\DRIVERS\USBD.SYS
+0x0000000017611d70 cdrom.sys            0xfffff88001944000            0x2a000 \SystemRoot\system32\DRIVERS\cdrom.sys
 [snip]
 }}}
 
 == moddump ==
 
-To extract a kernel driver to a file, use the moddump command. It supports filtering by regular expression (case sensitive or not) and by physical offsets. To dump all drivers, don't use any command-line filters. 
+To extract a kernel driver to a file, use the moddump command. Supply the output directory with -D or --dump-dir=DIR. Without any additional parameters, all drivers identified by [CommandReference#21modlist] will be dumped. If you want a specific driver, supply a regular expression of the driver's name with --regex=REGEX or the module's base address with --base=BASE. 
 
 For more information, see BDG's [http://moyix.blogspot.com/2008/10/plugin-post-moddump.html Plugin Post: Moddump].
 
 {{{
-$ python vol.py --profile=Win7SP0x86 -f win7.dmp moddump -D mods/
-Volatile Systems Volatility Framework 2.0
-Dumping ntoskrnl.exe, Base: 8284c000 output: driver.8284c000.sys
-Dumping hal.dll, Base: 82815000 output: driver.82815000.sys
-Dumping fwpkclnt.sys, Base: 86550000 output: driver.86550000.sys
-Dumping kdcom.dll, Base: 80bcc000 output: driver.80bcc000.sys
-Dumping NDProxy.SYS, Base: 8c7ec000 output: driver.8c7ec000.sys
-Dumping CLFS.SYS, Base: 85cbe000 output: driver.85cbe000.sys
-Dumping luafv.sys, Base: 8840c000 output: driver.8840c000.sys
-Dumping peauth.sys, Base: 8857c000 output: driver.8857c000.sys
+$ python vol.py -f ~/Desktop/win7_trial_64bit.raw --profile=Win7SP0x64 moddump -D drivers/
+Volatile Systems Volatility Framework 2.1_alpha
+Dumping ntoskrnl.exe, Base: fffff8000261a000 output: driver.fffff8000261a000.sys
+Dumping hal.dll, Base: fffff80002bf7000 output: driver.fffff80002bf7000.sys
+Dumping intelide.sys, Base: fffff88000e5c000 output: driver.fffff88000e5c000.sys
+Dumping mouclass.sys, Base: fffff8800349b000 output: driver.fffff8800349b000.sys
+Dumping msisadrv.sys, Base: fffff88000f7c000 output: driver.fffff88000f7c000.sys
+Dumping ndistapi.sys, Base: fffff880035c3000 output: driver.fffff880035c3000.sys
+Dumping pacer.sys, Base: fffff88002c5d000 output: driver.fffff88002c5d000.sys
+Dumping WDFLDR.SYS, Base: fffff88000f0d000 output: driver.fffff88000f0d000.sys
+Dumping usbhub.sys, Base: fffff880036be000 output: driver.fffff880036be000.sys
+Dumping hwpolicy.sys, Base: fffff8800149f000 output: driver.fffff8800149f000.sys
+Dumping kbdclass.sys, Base: fffff8800348c000 output: driver.fffff8800348c000.sys
+Dumping amdxata.sys, Base: fffff88000c00000 output: driver.fffff88000c00000.sys
+Dumping crashdmp.sys, Base: fffff88003781000 output: driver.fffff88003781000.sys
+Dumping swenum.sys, Base: fffff88003461000 output: driver.fffff88003461000.sys
+Cannot dump TSDDD.dll at fffff96000670000
+Cannot dump framebuf.dll at fffff960008a0000
 [snip]
 }}}
+
+Similar to [CommandReference21#dlldump], if critical parts of the PE header are not memory resident, then rebuilding/extracting the driver may fail. Additionally, for drivers that are mapped in different sessions (like win32k.sys), there is currently no way to specify which session to use when acquiring the driver sample. This will be an enhancement added in the Volatility 2.2 release. 
 
 == ssdt ==
 
