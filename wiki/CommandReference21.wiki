@@ -236,9 +236,9 @@ Volatile Systems Volatility Framework 2.0
 
 If a process has previously terminated, the Time exited field will show the exit time. If you want to investigate a hidden process (such as displaying its DLLs), then you'll need physical offset of the EPROCESS object, which is shown in the far left column.
 
-== pspdispscan ==
+== psdispscan ==
 
-
+This plugin is similar to psscan, except it enumerates processes by scanning for _DISPATCHER_HEADER instead of pool tags. This gives you an alternate way to carve EPROCESS objects in the event an attacker tried to hide by altering pool tags. This plugin is not well maintained and only supports XP x86. To use it, you must type --plugins=contrib/plugins on command-line. 
 
 == dlllist ==
 
