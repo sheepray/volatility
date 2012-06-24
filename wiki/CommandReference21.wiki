@@ -109,7 +109,7 @@ Details                       : CPU 1 (GenuineIntel @ 2220 MHz)
 CR3/DTB                       : 0x1dcec000
 }}}
 
-If the KdVersionBlock is not null, then it may be possible to find the machine's KDBG address via the KPCR. In fact, the backup method of finding KDBG used by plugins such as [CommandReference21#pslist] is to leverage kpcrscan and then call the KPCR.get_kdbg() API function. 
+If the !KdVersionBlock is not null, then it may be possible to find the machine's KDBG address via the KPCR. In fact, the backup method of finding KDBG used by plugins such as [CommandReference21#pslist] is to leverage kpcrscan and then call the KPCR.get_kdbg() API function. 
 
 = Processes and DLLs =
 
