@@ -57,6 +57,7 @@ linux_overlay = {
         }],
     'VOLATILITY_MAGIC': [None, {
         'DTB'           : [ 0x0, ['VolatilityDTB', dict(configname = "DTB")]],
+        'ArmValidAS'   :  [ 0x0, ['VolatilityArmValidAS']],
         }],
     }
 
@@ -312,14 +313,30 @@ class VolatilityDTB(obj.VolatilityMagic):
         """Tries to locate the DTB."""
         profile = self.obj_vm.profile
 
-        # This is the difference between the virtual and physical addresses (aka
-        # PAGE_OFFSET). On linux there is a direct mapping between physical and
-        # virtual addressing in kernel mode:
+        if self.obj_vm.profile.metadata.get('memory_model', '32bit') == "32bit":
+            shift = 0xc0000000
+        else:
+            shift = 0xffffffff80000000
 
-        #define __va(x) ((void *)((unsigned long) (x) + PAGE_OFFSET))
-        PAGE_OFFSET = profile.sysmap["_text"] - profile.sysmap["phys_startup_32"]
+        yield profile.sysmap["swapper_pg_dir"] - shift
 
-        yield profile.sysmap["swapper_pg_dir"] - PAGE_OFFSET
+class VolatilityArmValidAS(obj.VolatilityMagic):
+    """An object to check that an address space is a valid Arm Paged space"""
+
+    def generate_suggestions(self):
+
+        # linux has a virtual to physical offset (minux 0xc0000000) for kernel addresses
+        # we simply .vtop an address that will be in the kernel and see if we get the correct address back
+        # will add 64 bit support if/when ARM ever releases 64 bit chips ;)
+        #val = self.obj_vm.vtop(0xc0315760)
+        val = self.obj_vm.vtop(0xc0548cf8)
+
+        #if val == 0x315760:
+        #if val and val & 0x548cf8 == 0x548cf8: 
+        if val > 0:
+            yield True
+        else:
+            yield False
 
 class LinuxObjectClasses(obj.ProfileModification):
     conditions = {'os': lambda x: x == 'linux'}
@@ -335,6 +352,7 @@ class LinuxObjectClasses(obj.ProfileModification):
             'VolatilityDTB': VolatilityDTB,
             'IpAddress': basic.IpAddress,
             'Ipv6Address': basic.Ipv6Address,
+            'VolatilityArmValidAS' : VolatilityArmValidAS,
             })
 
 class LinuxOverlay(obj.ProfileModification):
