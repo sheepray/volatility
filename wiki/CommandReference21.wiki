@@ -334,9 +334,7 @@ $ python vol.py --profile=Win7SP0x86 -f win7.dmp dlldump -o 0x3e3f64e8 -D out --
 
 == handles ==
 
-To display the open handles in a process, use the handles command. A process can obtain a file handle by calling functions such as !CreateFile, and the handle will stay valid until !CloseHandle is called. The same concept applies for registry keys, mutexes, named pipes, events, window stations, desktops, threads, and all other types of securable executive objects. This command replaces the older "files" and "regobjkeys" commands from the Volatility 1.3 framework. 
-
-New in 2.1: the output includes handle value and granted access for each object. 
+To display the open handles in a process, use the handles command. This applies to files, registry keys, mutexes, named pipes, events, window stations, desktops, threads, and all other types of securable executive objects. This command replaces the older "files" and "regobjkeys" commands from the Volatility 1.3 framework. As of 2.1, the output includes handle value and granted access for each object. 
 
 {{{
 $ python vol.py -f ~/Desktop/win7_trial_64bit.raw --profile=Win7SP0x64 handles
@@ -370,19 +368,22 @@ Offset(V)             Pid             Handle             Access Type            
 ...
 }}}
 
-Similar to other commands, you can display handles for a particular process by specifying a process ID (--pid) or the physical offset of an EPROCESS structure (--physical-offset). You can also filter by object type using -t or --object-type. For example to only display handles to process objects for pid 600, do the following:
+You can display handles for a particular process by specifying --pid=PID or the physical offset of an EPROCESS structure (--physical-offset=OFFSET). You can also filter by object type using -t or --object-type=OBJECTTYPE. For example to only display handles to process objects for pid 600, do the following:
 
 {{{
-$ python vol.py --profile=Win7SP0x86 -f win7.dmp handles -p 600 -t Process
-Volatile Systems Volatility Framework 1.4_rc1
-Offset(V)    Pid    Type             Details
-0x81da5638   600    Process          winlogon.exe(624)
-0x82073008   600    Process          services.exe(668)
-0x81e6b648   600    Process          VMwareUser.exe(1356)
-0x81e70008   600    Process          lsass.exe(680)
-0x823315c0   600    Process          vmacthlp.exe(844)
-0x81db8d88   600    Process          svchost.exe(856)
-[snip]
+$ python vol.py -f ~/Desktop/win7_trial_64bit.raw --profile=Win7SP0x64 handles -p 296 -t Process
+Volatile Systems Volatility Framework 2.1_alpha
+Offset(V)             Pid             Handle             Access Type             Details
+------------------ ------ ------------------ ------------------ ---------------- -------
+0xfffffa8000c92300    296               0x54           0x1fffff Process          wininit.exe(332)
+0xfffffa8000c5eb30    296               0xc4           0x1fffff Process          services.exe(428)
+0xfffffa80011c5700    296               0xd4           0x1fffff Process          lsass.exe(444)
+0xfffffa8000ea31b0    296               0xe4           0x1fffff Process          lsm.exe(452)
+0xfffffa8000c64840    296              0x140           0x1fffff Process          svchost.exe(348)
+0xfffffa8001296b30    296              0x150           0x1fffff Process          svchost.exe(568)
+0xfffffa80012c3620    296              0x18c           0x1fffff Process          svchost.exe(628)
+0xfffffa8001325950    296              0x1dc           0x1fffff Process          sppsvc.exe(816)
+...
 }}}
 
 In some cases, the Details column will be blank (for example, if the objects don't have names). By default, you'll see both named and un-named objects. However, if you want to hide the less meaningful results and only show named objects, use the --silent parameter to this plugin.
@@ -394,18 +395,18 @@ To view the SIDs (Security Identifiers) associated with a process, use the getsi
 For more information, see BDG's [http://moyix.blogspot.com/2008/08/linking-processes-to-users.html Linking Processes To Users].
 
 {{{
-$ python vol.py --profile=Win7SP0x86 -f win7.dmp getsids 
-Volatile Systems Volatility Framework 2.0
+$ python vol.py -f ~/Desktop/win7_trial_64bit.raw --profile=Win7SP0x64 getsids
+Volatile Systems Volatility Framework 2.1_alpha
 System (4): S-1-5-18 (Local System)
 System (4): S-1-5-32-544 (Administrators)
 System (4): S-1-1-0 (Everyone)
 System (4): S-1-5-11 (Authenticated Users)
 System (4): S-1-16-16384 (System Mandatory Level)
-smss.exe (252): S-1-5-18 (Local System)
-smss.exe (252): S-1-5-32-544 (Administrators)
-smss.exe (252): S-1-1-0 (Everyone)
-smss.exe (252): S-1-5-11 (Authenticated Users)
-smss.exe (252): S-1-16-16384 (System Mandatory Level)
+smss.exe (208): S-1-5-18 (Local System)
+smss.exe (208): S-1-5-32-544 (Administrators)
+smss.exe (208): S-1-1-0 (Everyone)
+smss.exe (208): S-1-5-11 (Authenticated Users)
+smss.exe (208): S-1-16-16384 (System Mandatory Level)
 [snip]
 }}}
 
@@ -413,44 +414,27 @@ smss.exe (252): S-1-16-16384 (System Mandatory Level)
 
 To display the version information embedded in PE files, use the verinfo command. Not all PE files have version information, and many malware authors forge it to include false data, but nonetheless this command can be very helpful with identifying binaries and for making correlations with other files. 
 
-This command supports filtering by process ID, regular expression, and EPROCESS offset.  Note that this plugin resides in the contrib directory, therefore you'll need to tell volatility to look there using the --plugins option.
+Note that this plugin resides in the contrib directory, therefore you'll need to tell Volatility to look there using the --plugins option. It currently only supports printing version information from process executables and DLLs, but later will be expanded to include kernel modules. If you want to filter by module name, use the --regex=REGEX and/or --ignore-case options. 
 
 {{{
-$ python vol.py --plugins=contrib/plugins --profile=Win7SP0x86 -f win7.dmp verinfo
-[snip]
+$ python vol.py --plugins=contrib/plugins/ -f ~/Desktop/win7_trial_64bit.raw --profile=Win7SP0x64 verinfo
+Volatile Systems Volatility Framework 2.1_alpha
+\SystemRoot\System32\smss.exe
+C:\Windows\SYSTEM32\ntdll.dll
 
-C:\Windows\system32\CRYPTBASE.dll
-C:\Windows\system32\winlogon.exe
-  File version    : 6.1.7600.16447
-  Product version : 6.1.7600.16447
+C:\Windows\system32\csrss.exe
+  File version    : 6.1.7600.16385
+  Product version : 6.1.7600.16385
   Flags           : 
   OS              : Windows NT
   File Type       : Application
   File Date       : 
   CompanyName : Microsoft Corporation
-  FileDescription : Windows Logon Application
-  FileVersion : 6.1.7600.16447 (win7_gdr.091027-1503)
-  InternalName : winlogon
-  LegalCopyright : \xa9 Microsoft Corporation. All rights reserved.
-  OriginalFilename : WINLOGON.EXE
-  ProductName : Microsoft\xae Windows\xae Operating System
-  ProductVersion : 6.1.7600.16447
-
-[snip] 
-
-C:\Windows\System32\ntlanman.dll
-  File version    : 6.1.7600.16385
-  Product version : 6.1.7600.16385
-  Flags           : 
-  OS              : Windows NT
-  File Type       : Dynamic Link Library
-  File Date       : 
-  CompanyName : Microsoft Corporation
-  FileDescription : Microsoft\xae Lan Manager
+  FileDescription : Client Server Runtime Process
   FileVersion : 6.1.7600.16385 (win7_rtm.090713-1255)
-  InternalName : ntlanman.dll
+  InternalName : CSRSS.Exe
   LegalCopyright : \xa9 Microsoft Corporation. All rights reserved.
-  OriginalFilename : ntlanman.dll
+  OriginalFilename : CSRSS.Exe
   ProductName : Microsoft\xae Windows\xae Operating System
   ProductVersion : 6.1.7600.16385
 
@@ -459,12 +443,12 @@ C:\Windows\System32\ntlanman.dll
 
 == enumfunc == 
 
-This plugin enumerates imported and exported functions from processes, dlls, and kernel drivers. Specifically, it handles functions imported by name or ordinal, functions exported by name or ordinal, and forwarded exports. The output will be very verbose in most cases (functions exported by ntdll, msvcrt, and kernel32 can reach 1000+ alone). So you can either reduce the verbosity by filtering criteria with the command-line options (shown below) or you can use look at the code in enumfunc.py and use it as an example of how to use the IAT and EAT parsing API functions in your own plugin. 
+This plugin enumerates imported and exported functions from processes, dlls, and kernel drivers. Specifically, it handles functions imported by name or ordinal, functions exported by name or ordinal, and forwarded exports. The output will be very verbose in most cases (functions exported by ntdll, msvcrt, and kernel32 can reach 1000+ alone). So you can either reduce the verbosity by filtering criteria with the command-line options (shown below) or you can use look at the code in enumfunc.py and use it as an example of how to use the IAT and EAT parsing API functions in your own plugin. For example, the [CommandReference21#apihooks] plugin leverages the imports and exports APIs to find functions in memory when checking for hooks. 
 
 Also note this plugin is in the contrib directory, so you can pass that to --plugins like this:
 
 {{{
-$ python vol.py --plugins=contrib/plugins --profile=Win7SP0x86 -f win7.dmp enumfunc -h
+$ python vol.py --plugins=contrib/plugins/ -f ~/Desktop/win7_trial_64bit.raw --profile=Win7SP0x64 enumfunc -h
 ....
   -s, --scan            Scan for objects
   -P, --process-only    Process only
@@ -473,21 +457,46 @@ $ python vol.py --plugins=contrib/plugins --profile=Win7SP0x86 -f win7.dmp enumf
   -E, --export-only     Exports only
 }}}
 
-To only show imported functions in process memory, use -P -I. To only show exported functions in kernel memory, use -K -E. To use pool scanners for finding processes and kernel drivers instead of walking linked lists, use the -s option. 
+To use pool scanners for finding processes and kernel drivers instead of walking linked lists, use the -s option. This can be useful if you're trying to enumerate functions in hidden processes or drivers. An example of the remaining command-line options is shown below. 
 
-Here is an example of the output:
+To show exported functions in process memory, use -P and -E like this:
 
 {{{
-$ python vol.py --plugins=contrib/plugins --profile=Win7SP0x86 -f win7.dmp enumfunc -P -E
+$ python vol.py --plugins=contrib/plugins/ -f ~/Desktop/win7_trial_64bit.raw --profile=Win7SP0x64 enumfunc -P -E
 Process              Type       Module               Ordinal    Address              Name
-winlogon.exe         Export     ntdll.dll            18         0x00000000778b657b A_SHAFinal
-winlogon.exe         Export     ntdll.dll            19         0x00000000778b6392 A_SHAInit
-winlogon.exe         Export     ntdll.dll            20         0x00000000778b63e8 A_SHAUpdate
-winlogon.exe         Export     ntdll.dll            21         0x00000000779185fe AlpcAdjustCompletionListConcurrencyCount
-winlogon.exe         Export     ntdll.dll            22         0x0000000077918b8e AlpcFreeCompletionListMessage
-winlogon.exe         Export     ntdll.dll            23         0x000000007794858d AlpcGetCompletionListLastMessageInformation
-winlogon.exe         Export     ntdll.dll            24         0x0000000077948559 AlpcGetCompletionListMessageAttributes
-winlogon.exe         Export     ntdll.dll            25         0x00000000778fb0ff AlpcGetHeaderSize
+lsass.exe            Export     ADVAPI32.dll         1133       0x000007fefd11dd34 CreateWellKnownSid
+lsass.exe            Export     ADVAPI32.dll         1134       0x000007fefd17a460 CredBackupCredentials
+lsass.exe            Export     ADVAPI32.dll         1135       0x000007fefd170590 CredDeleteA
+lsass.exe            Export     ADVAPI32.dll         1136       0x000007fefd1704d0 CredDeleteW
+lsass.exe            Export     ADVAPI32.dll         1137       0x000007fefd17a310 CredEncryptAndMarshalBinaryBlob
+lsass.exe            Export     ADVAPI32.dll         1138       0x000007fefd17d080 CredEnumerateA
+lsass.exe            Export     ADVAPI32.dll         1139       0x000007fefd17cf50 CredEnumerateW
+lsass.exe            Export     ADVAPI32.dll         1140       0x000007fefd17ca00 CredFindBestCredentialA
+lsass.exe            Export     ADVAPI32.dll         1141       0x000007fefd17c8f0 CredFindBestCredentialW
+lsass.exe            Export     ADVAPI32.dll         1142       0x000007fefd130c10 CredFree
+lsass.exe            Export     ADVAPI32.dll         1143       0x000007fefd1630f0 CredGetSessionTypes
+lsass.exe            Export     ADVAPI32.dll         1144       0x000007fefd1703d0 CredGetTargetInfoA
+[snip]
+}}}
+
+To show imported functions in kernel memory, use -K and -I like this:
+
+{{{
+$ python vol.py --plugins=contrib/plugins/ -f ~/Desktop/win7_trial_64bit.raw --profile=Win7SP0x64 enumfunc -K -I
+Volatile Systems Volatility Framework 2.1_alpha
+Process              Type       Module               Ordinal    Address              Name
+<KERNEL>             Import     VIDEOPRT.SYS         583        0xfffff80002acc320 ntoskrnl.exe!IoRegisterPlugPlayNotification
+<KERNEL>             Import     VIDEOPRT.SYS         1325       0xfffff800029f9f30 ntoskrnl.exe!RtlAppendStringToString
+<KERNEL>             Import     VIDEOPRT.SYS         509        0xfffff800026d06e0 ntoskrnl.exe!IoGetAttachedDevice
+<KERNEL>             Import     VIDEOPRT.SYS         443        0xfffff800028f7ec0 ntoskrnl.exe!IoBuildSynchronousFsdRequest
+<KERNEL>             Import     VIDEOPRT.SYS         1466       0xfffff80002699300 ntoskrnl.exe!RtlInitUnicodeString
+<KERNEL>             Import     VIDEOPRT.SYS         759        0xfffff80002697be0 ntoskrnl.exe!KeInitializeEvent
+<KERNEL>             Import     VIDEOPRT.SYS         1461       0xfffff8000265e8a0 ntoskrnl.exe!RtlInitAnsiString
+<KERNEL>             Import     VIDEOPRT.SYS         1966       0xfffff80002685060 ntoskrnl.exe!ZwSetValueKey
+<KERNEL>             Import     VIDEOPRT.SYS         840        0xfffff80002699440 ntoskrnl.exe!KeReleaseSpinLock
+<KERNEL>             Import     VIDEOPRT.SYS         1190       0xfffff800027a98b0 ntoskrnl.exe!PoRequestPowerIrp
+<KERNEL>             Import     VIDEOPRT.SYS         158        0xfffff800026840f0 ntoskrnl.exe!ExInterlockedInsertTailList
+<KERNEL>             Import     VIDEOPRT.SYS         1810       0xfffff80002684640 ntoskrnl.exe!ZwClose
 [snip]
 }}}
 
