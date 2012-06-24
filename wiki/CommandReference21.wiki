@@ -336,6 +336,8 @@ $ python vol.py --profile=Win7SP0x86 -f win7.dmp dlldump -o 0x3e3f64e8 -D out --
 
 To display the open handles in a process, use the handles command. A process can obtain a file handle by calling functions such as !CreateFile, and the handle will stay valid until !CloseHandle is called. The same concept applies for registry keys, mutexes, named pipes, events, window stations, desktops, threads, and all other types of securable executive objects. This command replaces the older "files" and "regobjkeys" commands from the Volatility 1.3 framework. 
 
+New in 2.1: the output includes handle value and granted access for each object. 
+
 {{{
 $ python vol.py -f ~/Desktop/win7_trial_64bit.raw --profile=Win7SP0x64 handles
 Volatile Systems Volatility Framework 2.1_alpha
@@ -368,7 +370,7 @@ Offset(V)             Pid             Handle             Access Type            
 ...
 }}}
 
-Similar to other commands, you can display handles for a particular process by specifying a process ID (--pid) or the physical offset of an eprocess structure (--physical-offset). You can also filter by object type using -t or --object-type. For example to only display handles to process objects for pid 600, do the following:
+Similar to other commands, you can display handles for a particular process by specifying a process ID (--pid) or the physical offset of an EPROCESS structure (--physical-offset). You can also filter by object type using -t or --object-type. For example to only display handles to process objects for pid 600, do the following:
 
 {{{
 $ python vol.py --profile=Win7SP0x86 -f win7.dmp handles -p 600 -t Process
