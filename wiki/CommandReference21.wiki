@@ -410,6 +410,10 @@ smss.exe (208): S-1-16-16384 (System Mandatory Level)
 [snip]
 }}}
 
+== cmdscan == 
+
+== consoles ==
+
 == envars == 
 
 To display a process's environment variables, use the envars plugin. Typically this will show the number of CPUs installed and the hardware architecture (though the [CommandReference21#kdbgscan] output is a much more reliable source), the process's current directory, temporary directory, session name, computer name, user name, and various other interesting artifacts. 
@@ -1333,22 +1337,19 @@ Subkeys:
 To recursively list all subkeys in a hive, use the hivedump command and pass it the virtual address to the desired hive. 
 
 {{{
-$ python vol.py --profile=Win7SP0x86 -f win7.dmp hivedump -o 0x8e23e008
-2010-03-09 19:50:19  \CMI-CreateHive{899121E8-11D8-44B6-ACEB-301713D5ED8C}\SAM\Domains\Builtin\Aliases\Names
-2010-03-09 19:50:19  \CMI-CreateHive{899121E8-11D8-44B6-ACEB-301713D5ED8C}\SAM\Domains\Builtin\Aliases\Names\Administrators
-2010-03-09 19:50:19  \CMI-CreateHive{899121E8-11D8-44B6-ACEB-301713D5ED8C}\SAM\Domains\Builtin\Aliases\Names\Backup Operators
-2010-03-09 19:50:19  \CMI-CreateHive{899121E8-11D8-44B6-ACEB-301713D5ED8C}\SAM\Domains\Builtin\Aliases\Names\Cryptographic Operators
-2010-03-09 19:50:19  \CMI-CreateHive{899121E8-11D8-44B6-ACEB-301713D5ED8C}\SAM\Domains\Builtin\Aliases\Names\Distributed COM Users
-2010-03-09 19:50:19  \CMI-CreateHive{899121E8-11D8-44B6-ACEB-301713D5ED8C}\SAM\Domains\Builtin\Aliases\Names\Event Log Readers
-2010-03-09 19:50:19  \CMI-CreateHive{899121E8-11D8-44B6-ACEB-301713D5ED8C}\SAM\Domains\Builtin\Aliases\Names\Guests
-2010-03-09 19:50:19  \CMI-CreateHive{899121E8-11D8-44B6-ACEB-301713D5ED8C}\SAM\Domains\Builtin\Aliases\Names\IIS_IUSRS
-2010-03-09 19:50:19  \CMI-CreateHive{899121E8-11D8-44B6-ACEB-301713D5ED8C}\SAM\Domains\Builtin\Aliases\Names\Network Configuration Operators
-2010-03-09 19:50:19  \CMI-CreateHive{899121E8-11D8-44B6-ACEB-301713D5ED8C}\SAM\Domains\Builtin\Aliases\Names\Performance Log Users
-2010-03-09 19:50:19  \CMI-CreateHive{899121E8-11D8-44B6-ACEB-301713D5ED8C}\SAM\Domains\Builtin\Aliases\Names\Performance Monitor Users
-2010-03-09 19:50:19  \CMI-CreateHive{899121E8-11D8-44B6-ACEB-301713D5ED8C}\SAM\Domains\Builtin\Aliases\Names\Power Users
-2010-03-09 19:50:19  \CMI-CreateHive{899121E8-11D8-44B6-ACEB-301713D5ED8C}\SAM\Domains\Builtin\Aliases\Names\Remote Desktop Users
-2010-03-09 19:50:19  \CMI-CreateHive{899121E8-11D8-44B6-ACEB-301713D5ED8C}\SAM\Domains\Builtin\Aliases\Names\Replicator
-2010-03-09 19:50:19  \CMI-CreateHive{899121E8-11D8-44B6-ACEB-301713D5ED8C}\SAM\Domains\Builtin\Aliases\Names\Users
+$ python vol.py -f ~/Desktop/win7_trial_64bit.raw --profile=Win7SP0x64 hivedump -o 0xfffff8a000a15010
+Volatile Systems Volatility Framework 2.1_alpha
+Last Written         Key
+2009-07-14 07:13:38  \CMI-CreateHive{199DAFC2-6F16-4946-BF90-5A3FC3A60902}
+2009-07-14 04:48:57  \CMI-CreateHive{199DAFC2-6F16-4946-BF90-5A3FC3A60902}\ATI Technologies
+2009-07-14 04:48:57  \CMI-CreateHive{199DAFC2-6F16-4946-BF90-5A3FC3A60902}\ATI Technologies\Install
+2009-07-14 04:48:57  \CMI-CreateHive{199DAFC2-6F16-4946-BF90-5A3FC3A60902}\ATI Technologies\Install\South Bridge
+2009-07-14 04:48:57  \CMI-CreateHive{199DAFC2-6F16-4946-BF90-5A3FC3A60902}\ATI Technologies\Install\South Bridge\ATI_AHCI_RAID
+2009-07-14 07:13:39  \CMI-CreateHive{199DAFC2-6F16-4946-BF90-5A3FC3A60902}\Classes
+2009-07-14 04:53:38  \CMI-CreateHive{199DAFC2-6F16-4946-BF90-5A3FC3A60902}\Classes\*
+2009-07-14 04:53:38  \CMI-CreateHive{199DAFC2-6F16-4946-BF90-5A3FC3A60902}\Classes\*\OpenWithList
+2009-07-14 04:53:38  \CMI-CreateHive{199DAFC2-6F16-4946-BF90-5A3FC3A60902}\Classes\*\OpenWithList\Excel.exe
+2009-07-14 04:53:38  \CMI-CreateHive{199DAFC2-6F16-4946-BF90-5A3FC3A60902}\Classes\*\OpenWithList\IExplore.exe
 [snip]
 }}}
 
@@ -1396,9 +1397,9 @@ To get help, type 'hh()'
 Then you can use the printkey plugin to make sure the keys and their data are there.  Since the "!CurrentControlSet" is 1 in our previous example, we use "!ControlSet001" in the first command:
 
 {{{
-$ ./vol.py -f XPSP3.vmem --profile=WinXPSP3x86 printkey -K "ControlSet001\Control\lsa" --no-cache
+$ ./vol.py -f XPSP3.vmem --profile=WinXPSP3x86 printkey -K "ControlSet001\Control\lsa" 
 
-$ ./vol.py -f XPSP3.vmem --profile=WinXPSP3x86 printkey -K "SAM\Domains\Account" --no-cache
+$ ./vol.py -f XPSP3.vmem --profile=WinXPSP3x86 printkey -K "SAM\Domains\Account"
 }}}
 
 If the key is missing you should see an error message:
@@ -1517,6 +1518,8 @@ Last updated:   2010-03-18 01:56:31
 0040   3E C6 CA 01 00 00 00 00                            >.......
 [snip]
 }}}
+
+== shimcache == 
 
 = Crash Dumps, Hibernation, and Conversion =
 
