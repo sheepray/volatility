@@ -2151,20 +2151,49 @@ Disassembly(1):
 
 == idt ==
 
-To print the system's IDT (Interrupt Descriptor Table), use the idt command. If there are multiple processors on the system, the IDT for each individual CPU is displayed. You'll see the CPU number, the GDT selector, the current address and owning module. 
+To print the system's IDT (Interrupt Descriptor Table), use the idt command. If there are multiple processors on the system, the IDT for each individual CPU is displayed. You'll see the CPU number, the GDT selector, the current address and owning module, and the name of the PE section in which the IDT function resides. If you supply the --verbose parameter, a disassembly of the IDT function will be shown. 
 
-It also checks the IDT entries for Inline style API hooks. This is important because some rootkits hook the IDT entry for !KiSystemService, but point it at a routine inside the NT module (where !KiSystemService should point). However, at that address, there is an Inline hook!
+Some rootkits hook the IDT entry for !KiSystemService, but point it at a routine inside the NT module (where !KiSystemService should point). However, at that address, there is an Inline hook. The following output shows an example of how Volatility can point this out for you. Notice how the 0x2E entry for !KiSystemService is in the .rsrc section of ntoskrnl.exe instead of .text like all others. 
 
 {{{
-$ python vol.py idt -f rustock.vmem 
-Index    Selector Function                   Value        Details
+$ python vol.py -f rustock.vmem idt 
+Volatile Systems Volatility Framework 2.1_alpha
+   CPU  Index Selector Value      Module               Section     
+------ ------ -------- ---------- -------------------- ------------
+     0      0        8 0x8053e1cc ntoskrnl.exe         .text       
+     0      1        8 0x8053e344 ntoskrnl.exe         .text       
+     0      2       88 0x00000000 ntoskrnl.exe                     
+     0      3        8 0x8053e714 ntoskrnl.exe         .text       
+     0      4        8 0x8053e894 ntoskrnl.exe         .text       
+     0      5        8 0x8053e9f0 ntoskrnl.exe         .text       
+     0      6        8 0x8053eb64 ntoskrnl.exe         .text       
+     0      7        8 0x8053f1cc ntoskrnl.exe         .text       
+     0      8       80 0x00000000 ntoskrnl.exe                     
+[snip]    
+     0     2B        8 0x8053db10 ntoskrnl.exe         .text       
+     0     2C        8 0x8053dcb0 ntoskrnl.exe         .text       
+     0     2D        8 0x8053e5f0 ntoskrnl.exe         .text       
+     0     2E        8 0x806b01b8 ntoskrnl.exe         .rsrc
 [snip]
-2A       8        KiGetTickCount             0x8053cbae   ntoskrnl.exe .text
-2B       8        KiCallbackReturn           0x8053ccb0   ntoskrnl.exe .text
-2C       8        KiSetLowWaitHighThread     0x8053ce50   ntoskrnl.exe .text
-2D       8        KiDebugService             0x8053d790   ntoskrnl.exe .text
-2E       8        KiSystemService            0x806b973c   ntoskrnl.exe .rsrc => JMP 0xf6ec0e45
+}}}
+
+To get more details about the possible IDT modification, use --verbose:
+
+{{{
+$ python vol.py -f rustock.vmem idt --verbose
+Volatile Systems Volatility Framework 2.1_alpha
+   CPU  Index Selector Value      Module               Section     
+------ ------ -------- ---------- -------------------- ------------
 [snip]
+     0     2E        8 0x806b01b8 ntoskrnl.exe         .rsrc       
+0x806b01b8 e95c2c0f31       JMP 0xb17a2e19
+0x806b01bd e9832c0f31       JMP 0xb17a2e45
+0x806b01c2 4e               DEC ESI
+0x806b01c3 44               INC ESP
+0x806b01c4 4c               DEC ESP
+0x806b01c5 45               INC EBP
+0x806b01c6 44               INC ESP
+0x806b01c7 5f               POP EDI
 }}}
 
 == gdt == 
