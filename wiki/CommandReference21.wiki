@@ -1563,22 +1563,20 @@ FileOffset    Start Address    Length
 The hibinfo command reveals additional information stored in the hibernation file, including the state of the Control Registers, such as CR0, etc.  It also identifies the time at which the hibernation file was created, the state of the hibernation file, and the version of windows being hibernated.  Example output for the function is shown below:
 
 {{{
-
-$ python vol.py -f hiberfil.sys hibinfo
-Volatile Systems Volatility Framework 2.0
+$ python vol.py -f hiberfil.sys --profile=Win7SP1x64 hibinfo
 IMAGE_HIBER_HEADER:
- Signature: hibr
- SystemTime: 2009-10-03 15:33:26 
+Signature: HIBR
+SystemTime: 2011-12-23 16:34:27 
 
 Control registers flags
- CR0: 80010031
- CR0[PAGING]: 1
- CR3: 1a300060
- CR4: 000006f9
- CR4[PSE]: 1
- CR4[PAE]: 1
+CR0: 80050031
+CR0[PAGING]: 1
+CR3: 00187000
+CR4: 000006f8
+CR4[PSE]: 1
+CR4[PAE]: 1
 
-Windows Version is 5.1 (2600)
+Windows Version is 6.1 (7601)
 }}}
 
 == imagecopy ==
@@ -1609,98 +1607,108 @@ Although all Volatility commands can help you hunt malware in one way or another
 
 == malfind ==
 
-The malfind command has several purposes. You can use it to find hidden or injected code/DLLs in user mode memory, based on characteristics such as VAD tag and page permissions. You can also use it to locate any sequence of bytes, regular expressions, ANSI strings, or Unicode strings in user mode or kernel memory. 
+The malfind command helps find hidden or injected code/DLLs in user mode memory, based on characteristics such as VAD tag and page permissions. 
 
-Note: malfind does not detect DLLs injected into a process using !CreateRemoteThread->!LoadLibrary. DLLs injected with this technique are not hidden and thus you can view them with [http://code.google.com/p/volatility/wiki/CommandReference#dlllist dlllist]. The purpose of malfind is to locate DLLs that standard methods/tools do not see. For more information see Issue #178. 
+Note: malfind does not detect DLLs injected into a process using !CreateRemoteThread->!LoadLibrary. DLLs injected with this technique are not hidden and thus you can view them with [CommandReference21#dlllist]. The purpose of malfind is to locate DLLs that standard methods/tools do not see. For more information see Issue #178. 
 
-Here is an example of using it to detect the presence of Zeus. The first memory segment (starting at 0x01600000) was detected because its executable and has a VadS tag...which means there is memory mapped file already occupying the space. Based on a disassembly of the data found at this address, it seems to contain some API hook trampoline stubs. 
+Here is an example of using it to detect the presence of Zeus. The first memory segment (starting at 0x01600000) was detected because its executable, marked as private (not shared between processes) and has a VadS tag...which means there is no memory mapped file already occupying the space. Based on a disassembly of the data found at this address, it seems to contain some API hook trampoline stubs. 
 
-The second memory segment (starting at 0x015D0000) was detected because it contained an executable that isn't listed in the PEB's module lists. A copy of the PE file was saved to hidden_dumps/explorer.exe.4a065d0.015d0000-015f5fff.dmp. This is an unpacked copy of the Zeus binary that was injected into explorer.exe. 
+The second memory segment (starting at 0x015D0000) was detected because it contained an executable that isn't listed in the PEB's module lists. 
+
+If you want to save extracted copies of the memory segments identified by malfind, just supply an output directory with -D or --dump-dir=DIR. In this case, an unpacked copy of the Zeus binary that was injected into explorer.exe would be written to disk. 
 
 {{{
-$ python vol.py -f zeus.vmem malfind -p 1724 -D hidden_dumps/
-Volatile Systems Volatility Framework 2.0
-Name                 Pid    Start      End        Tag    Hits Protect
-explorer.exe           1724 0x01600000 0x01600FFF VadS      0      6 (MM_EXECUTE_READWRITE)
-Dumped to: hidden_dumps/explorer.exe.4a065d0.01600000-01600fff.dmp
-0x01600000   b8 35 00 00 00 e9 cd d7 30 7b b8 91 00 00 00 e9    .5......0{......
-0x01600010   4f df 30 7b 8b ff 55 8b ec e9 ef 17 c1 75 8b ff    O.0{..U......u..
-0x01600020   55 8b ec e9 95 76 bc 75 8b ff 55 8b ec e9 be 53    U....v.u..U....S
-0x01600030   bd 75 8b ff 55 8b ec e9 d6 18 c1 75 8b ff 55 8b    .u..U......u..U.
-0x01600040   ec e9 14 95 bc 75 8b ff 55 8b ec e9 4f 7e bf 75    .....u..U...O~.u
-0x01600050   8b ff 55 8b ec e9 0a 32 bd 75 8b ff 55 8b ec e9    ..U....2.u..U...
-0x01600060   7d 61 bc 75 6a 2c 68 b8 8d 1c 77 e9 01 8c bc 75    }a.uj,h...w....u
-0x01600070   8b ff 55 8b ec e9 c4 95 4b 70 8b ff 55 8b ec e9    ..U.....Kp..U...
+$ python vol.py -f zeus.vmem malfind -p 1724
+Volatile Systems Volatility Framework 2.1_alpha
 
-Disassembly:
-01600000: b835000000                       MOV EAX, 0x35
-01600005: e9cdd7307b                       JMP 0x7c90d7d7
-0160000a: b891000000                       MOV EAX, 0x91
-0160000f: e94fdf307b                       JMP 0x7c90df63
-01600014: 8bff                             MOV EDI, EDI
-01600016: 55                               PUSH EBP
-01600017: 8bec                             MOV EBP, ESP
-01600019: e9ef17c175                       JMP 0x7721180d
-0160001e: 8bff                             MOV EDI, EDI
-01600020: 55                               PUSH EBP
+Process: explorer.exe Pid: 1724 Address: 0x1600000
+Vad Tag: VadS Protection: PAGE_EXECUTE_READWRITE
+Flags: CommitCharge: 1, MemCommit: 1, PrivateMemory: 1, Protection: 6
 
-explorer.exe           1724 0x015D0000 0x015F5FFF VadS      0      6 (MM_EXECUTE_READWRITE)
-Dumped to: hidden_dumps/explorer.exe.4a065d0.015d0000-015f5fff.dmp
-0x015d0000   4d 5a 90 00 03 00 00 00 04 00 00 00 ff ff 00 00    MZ..............
-0x015d0010   b8 00 00 00 00 00 00 00 40 00 00 00 00 00 00 00    ........@.......
-0x015d0020   00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00    ................
-0x015d0030   00 00 00 00 00 00 00 00 00 00 00 00 d0 00 00 00    ................
-0x015d0040   0e 1f ba 0e 00 b4 09 cd 21 b8 01 4c cd 21 54 68    ........!..L.!Th
-0x015d0050   69 73 20 70 72 6f 67 72 61 6d 20 63 61 6e 6e 6f    is program canno
-0x015d0060   74 20 62 65 20 72 75 6e 20 69 6e 20 44 4f 53 20    t be run in DOS 
-0x015d0070   6d 6f 64 65 2e 0d 0d 0a 24 00 00 00 00 00 00 00    mode....$.......
+0x01600000  b8 35 00 00 00 e9 cd d7 30 7b b8 91 00 00 00 e9   .5......0{......
+0x01600010  4f df 30 7b 8b ff 55 8b ec e9 ef 17 c1 75 8b ff   O.0{..U......u..
+0x01600020  55 8b ec e9 95 76 bc 75 8b ff 55 8b ec e9 be 53   U....v.u..U....S
+0x01600030  bd 75 8b ff 55 8b ec e9 d6 18 c1 75 8b ff 55 8b   .u..U......u..U.
+
+0x1600000 b835000000       MOV EAX, 0x35
+0x1600005 e9cdd7307b       JMP 0x7c90d7d7
+0x160000a b891000000       MOV EAX, 0x91
+0x160000f e94fdf307b       JMP 0x7c90df63
+0x1600014 8bff             MOV EDI, EDI
+0x1600016 55               PUSH EBP
+
+Process: explorer.exe Pid: 1724 Address: 0x15d0000
+Vad Tag: VadS Protection: PAGE_EXECUTE_READWRITE
+Flags: CommitCharge: 38, MemCommit: 1, PrivateMemory: 1, Protection: 6
+
+0x015d0000  4d 5a 90 00 03 00 00 00 04 00 00 00 ff ff 00 00   MZ..............
+0x015d0010  b8 00 00 00 00 00 00 00 40 00 00 00 00 00 00 00   ........@.......
+0x015d0020  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................
+0x015d0030  00 00 00 00 00 00 00 00 00 00 00 00 d0 00 00 00   ................
+
+0x15d0000 4d               DEC EBP
+0x15d0001 5a               POP EDX
+0x15d0002 90               NOP
+0x15d0003 0003             ADD [EBX], AL
+0x15d0005 0000             ADD [EAX], AL
+0x15d0007 000400           ADD [EAX+EAX], AL
+0x15d000a 0000             ADD [EAX], AL
 }}}
 
-Now let's say you wanted to search for a pattern in process memory. You can create a YARA rules file and pass it to malfind as --yara-rules. Or, if you're just looking for something simple, and only plan to do the search a few times, then you can specify the criteria on command line instead. Here are some examples:
+== yarascan ==
 
-Search for signatures defined in the file rules.yar, in any process
+Volatility has several built-in scanning engines to help you find simple patterns like pool tags in physical or virtual address spaces. However, if you need to scan for more complex things like regular expressions or compound rules (i.e. search for "this" and not "that"), you can use the yarascan command. This plugin can help you locate any sequence of bytes (like assembly instructions with wild cards), regular expressions, ANSI strings, or Unicode strings in user mode or kernel memory. 
+
+You can create a YARA rules file and specify it as --yara-file=RULESFILE. Or, if you're just looking for something simple, and only plan to do the search a few times, then you can specify the criteria like --yara-rules=RULESTEXT. 
+
+To search for signatures defined in the file rules.yar, in any process, and simply display the results on screen:
 
 {{{
-$ python vol.py -f zeus.vmem malfind -D hidden_dumps --yara-rules=rules.yar
+$ python vol.py -f zeus.vmem yarascan --yara-file=/path/to/rules.yar
 }}}
 
-Search for a simple string in any process: 
+To search for a simple string in any process and dump the memory segments containing a match:
 
 {{{
-$ python vol.py -f zeus.vmem malfind -D hidden_dumps --yara-rules="simpleStringToFind"
+$ python vol.py -f zeus.vmem malfind -D dump_files --yara-rules="simpleStringToFind"
 }}}
 
-Search for a byte pattern in kernel memory. This does not check the entire range of kernel memory, it only checks the memory that belongs to loaded kernel drivers. For example, TDL3 applies a hard-patch to atapi.sys on disk. In particular, it adds some shell code to the .rsrc section of the file, and then modifies the !AddressOfEntryPoint so that it points at the shell code. This is TDL3's main persistence method. One of the unique instructions in the shell code is `cmp dword ptr [eax], ‘3LDT’` so I made a YARA signature from that. 
+To search for a byte pattern in kernel memory, use the following technique. This searches through memory in 1MB chunks, in all sessions. The TDL3 malware applies a hard-patch to SCSI adaptors on disk (sometimes atapi.sys or vmscsi.sys). In particular, it adds some shell code to the .rsrc section of the file, and then modifies the !AddressOfEntryPoint so that it points at the shell code. This is TDL3's main persistence method. One of the unique instructions in the shell code is `cmp dword ptr [eax], ‘3LDT’` so I made a YARA signature from those opcodes:
 
 {{{
-$ python vol.py -f tdl3.dmp malfind --yara-rules=rules.yar -D hidden_dumps --kernel
-Volatile Systems Volatility Framework 2.0
-Name                 Pid    Start      End        Tag    Hits Protect
-vmscsi.sys           -      0xF9DB8000 0xF9DBB000 -         1 -      (Unknown)
-Hit: 8b00813854444c33755a
-0xf9dba4c3   8b 00 81 38 54 44 4c 33 75 5a 8b 45 f4 05 fd 29    ...8TDL3uZ.E...)
-0xf9dba4d3   b7 f0 50 b8 08 03 00 00 8b 80 00 00 df ff ff b0    ..P.............
-0xf9dba4e3   00 01 00 00 b8 08 03 00 00 8b 80 00 00 df ff 8b    ................
-0xf9dba4f3   40 04 8b 4d ec 03 41 20 ff d0 ff 75 e0 b8 08 03    @..M..A ...u....
-0xf9dba503   00 00 8b 80 00 00 df ff ff b0 00 01 00 00 b8 08    ................
-0xf9dba513   03 00 00 8b 80 00 00 df ff 8b 00 05 84 03 00 00    ................
-0xf9dba523   ff d0 eb 10 8b 45 e0 8b 40 0c 89 45 e0 e9 66 fe    .....E..@..E..f.
-0xf9dba533   ff ff 33 c0 c9 c2 08 00 5e f8 a8 f2 fe 63 ec d0    ..3.....^....c..
+$ python vol.py -f tdl3.vmem yarascan --yara-rules="{8B 00 81 38 54 44 4C 33 75 5A}" -K 
+Volatile Systems Volatility Framework 2.1_alpha
+Rule: r1
+Owner: (Unknown Kernel Memory)
+0x8138dcc0  8b 00 81 38 54 44 4c 33 75 5a 8b 45 f4 05 fd 29   ...8TDL3uZ.E...)
+0x8138dcd0  b7 f0 50 b8 08 03 00 00 8b 80 00 00 df ff ff b0   ..P.............
+0x8138dce0  00 01 00 00 b8 08 03 00 00 8b 80 00 00 df ff 8b   ................
+0x8138dcf0  40 04 8b 4d ec 03 41 20 ff d0 ff 75 e0 b8 08 03   @..M..A....u....
+Rule: r1
+Owner: dump_vmscsi.sys
+0xf94bb4c3  8b 00 81 38 54 44 4c 33 75 5a 8b 45 f4 05 fd 29   ...8TDL3uZ.E...)
+0xf94bb4d3  b7 f0 50 b8 08 03 00 00 8b 80 00 00 df ff ff b0   ..P.............
+0xf94bb4e3  00 01 00 00 b8 08 03 00 00 8b 80 00 00 df ff 8b   ................
+0xf94bb4f3  40 04 8b 4d ec 03 41 20 ff d0 ff 75 e0 b8 08 03   @..M..A....u....
+Rule: r1
+Owner: vmscsi.sys
+0xf9dba4c3  8b 00 81 38 54 44 4c 33 75 5a 8b 45 f4 05 fd 29   ...8TDL3uZ.E...)
+0xf9dba4d3  b7 f0 50 b8 08 03 00 00 8b 80 00 00 df ff ff b0   ..P.............
+0xf9dba4e3  00 01 00 00 b8 08 03 00 00 8b 80 00 00 df ff 8b   ................
+0xf9dba4f3  40 04 8b 4d ec 03 41 20 ff d0 ff 75 e0 b8 08 03   @..M..A....u....
 }}}
 
 Search for a given byte pattern in a particular process:
 
 {{{
-$ python vol.py -f zeus.vmem malfind -D hidden_dumps --yara-rules="{eb 90 ff e4 88 32 0d}" --pid=624
+$ python vol.py -f zeus.vmem yarascan --yara-rules="{eb 90 ff e4 88 32 0d}" --pid=624
 }}}
 
 Search for a regular expression in a particular process:
 
 {{{
-$ python vol.py -f zeus.vmem malfind -D hidden_dumps --yara-rules="/my(regular|expression{0,2})/" --pid=624
+$ python vol.py -f zeus.vmem yarascan --yara-rules="/my(regular|expression{0,2})/" --pid=624
 }}}
-
-== yarascan ==
 
 == svcscan ==
 
