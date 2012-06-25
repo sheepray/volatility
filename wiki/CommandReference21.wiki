@@ -1523,37 +1523,39 @@ Last updated:   2010-03-18 01:56:31
 
 = Crash Dumps, Hibernation, and Conversion =
 
+Volatility supports Microsoft crash dumps and hibernation files in addition to raw memory dumps. All commands that work on raw dumps also work on crash and hiber images. 
+
 == crashinfo ==
 
-Information from the crashdump header can be printed using the crashinfo command.  You will see information like that of the Microsoft [http://support.microsoft.com/kb/119490 dumpcheck] utility.
+Information from the crashdump header can be printed using the crashinfo command.  You will see information like that of the Microsoft [http://support.microsoft.com/kb/119490 dumpcheck] utility. 
 
 {{{
-$ python vol.py crashinfo -f win7.dmp --profile=Win7SP0x86
-Volatile Systems Volatility Framework 2.0
-DUMP_HEADER32:
+$ python vol.py -f win7_x64.dmp --profile=Win7SP0x64 crashinfo
+Volatile Systems Volatility Framework 2.1_alpha
+_DMP_HEADER64:
  Majorversion:         0x0000000f (15)
  Minorversion:         0x00001db0 (7600)
- KdSecondaryVersion    0x00000041
- DirectoryTableBase    0x00185000
- PfnDataBase           0x83a00000
- PsLoadedModuleList    0x82984810
- PsActiveProcessHead   0x8297ce98
- MachineImageType      0x0000014c
- NumberProcessors      0x00000001
- BugCheckCode          0x5454414d
- PaeEnabled            0x00000001
- KdDebuggerDataBlock   0x82964be8
- ProductType           0x45474150
- SuiteMask             0x45474150
- WriterStatus          0x45474150
+ KdSecondaryVersion    0x00000000
+ DirectoryTableBase    0x32a44000
+ PfnDataBase           0xfffff80002aa8220
+ PsLoadedModuleList    0xfffff80002a3de50
+ PsActiveProcessHead   0xfffff80002a1fb30
+ MachineImageType      0x00008664
+ NumberProcessors      0x00000002
+ BugCheckCode          0x00000000
+ KdDebuggerDataBlock   0xfffff800029e9070
+ ProductType           0x00000001
+ SuiteMask             0x00000110
+ WriterStatus          0x00000000
+ Comment               PAGEPAGEPAGEPAGEPAGEPAGE[snip]
 
 Physical Memory Description:
 Number of runs: 3
 FileOffset    Start Address    Length
-00001000      00001000         0009e000
-0009f000      00100000         3fdf0000
-3fe8f000      3ff00000         00100000
-3ff8e000      3ffff000
+00002000      00001000         0009e000
+000a0000      00100000         3fde0000
+3fe80000      3ff00000         00100000
+3ff7f000      3ffff000
 }}}
 
 == hibinfo ==
@@ -1581,12 +1583,24 @@ Windows Version is 5.1 (2600)
 
 == imagecopy ==
 
-The imagecopy command allows one to convert any existing type of address space (such as a crashdump, hibernation file, or live firewire session) to a raw memory image.  The profile should be specified for any address space from a machine other than Windows XP SP2.  Also the output file is specified with the -O flag.  The progress is updated as the file is converted:
+The imagecopy command allows one to convert any existing type of address space (such as a crashdump, hibernation file, or live firewire session) to a raw memory image. This conversion be necessary if some of your other forensic tools only support reading raw memory dumps. 
+
+The profile should be specified for this command, so if you don't know it already, use the [CommandReference21#imageinfo] or [CommandReference21#kdbgscan] commands first.  The output file is specified with the -O flag.  The progress is updated as the file is converted:
 
 {{{
-$ python vol.py imagecopy -f win7.dmp --profile=Win7SP0x86 -O win7.raw
-Volatile Systems Volatility Framework 2.0
-Writing data (5.00 MB chunks): |.....................................................|
+$ python vol.py -f win7_x64.dmp --profile=Win7SP0x64 imagecopy -O copy.raw
+Volatile Systems Volatility Framework 2.1_alpha
+Writing data (5.00 MB chunks): |.......................................|
+}}}
+
+== raw2dmp ==
+
+To convert a raw memory dump (for example from a win32dd acquisition or a VMware .vmem file) into a Microsoft crash dump, use the raw2dmp command. This is useful if you want to load the memory in the WinDbg kernel debugger for analysis. 
+
+{{{
+$ python vol.py -f ~/Desktop/win7_trial_64bit.raw --profile=Win7SP0x64 raw2dmp -O copy.dmp
+Volatile Systems Volatility Framework 2.1_alpha
+Writing data (5.00 MB chunks): |..............................................................................|
 }}}
 
 = Malware and Rootkits =
@@ -1687,6 +1701,8 @@ Search for a regular expression in a particular process:
 {{{
 $ python vol.py -f zeus.vmem malfind -D hidden_dumps --yara-rules="/my(regular|expression{0,2})/" --pid=624
 }}}
+
+== yarascan ==
 
 == svcscan ==
 
