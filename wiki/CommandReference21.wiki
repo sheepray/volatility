@@ -2200,42 +2200,42 @@ Volatile Systems Volatility Framework 2.1_alpha
 
 To print the system's GDT (Global Descriptor Table), use the gdt command. This is useful for detecting rootkits like Alipop that install a call gate so that user mode programs can call directly into kernel mode (using a CALL FAR instruction).
 
-In the output below, you can see that selector 0x3e0 has been infected and used for the purposes of a 32-bit call gate. The hook address is 0x8003f000, which as you can see in the disassembly, contains the instructions to further transfer control to 0xffdf0adb.
+If your system has multiple CPUs, the GDT for each processor is shown. 
+
+In the output below, you can see that selector 0x3e0 has been infected and used for the purposes of a 32-bit call gate. The call gate address is 0x8003f000, which is where execution continues. 
 
 {{{
 $ python vol.py -f alipop.vmem gdt 
-Volatile Systems Volatility Framework 2.0
-Sel    Base         Limit        Type           DPL    Gr     Pr    
-0x0    0xffdf0a     0xdbbb       TSS16 Busy     2      By     P     
-0x8    0x0          0xffffffff   Code RE Ac     0      Pg     P     
-0x10   0x0          0xffffffff   Data RW Ac     0      Pg     P     
-0x18   0x0          0xffffffff   Code RE Ac     3      Pg     P     
-0x20   0x0          0xffffffff   Data RW Ac     3      Pg     P     
-0x28   0x80042000   0x20ab       TSS32 Busy     0      By     P     
-0x30   0xffdff000   0x1fff       Data RW Ac     0      Pg     P     
-0x38   0x0          0xfff        Data RW Ac     3      By     P
-[...]
-0x3c8  0x8003       0xf3d0       <Reserved>     0      By     Np    
-0x3d0  0x8003       0xf3d8       <Reserved>     0      By     Np    
-0x3d8  0x8003       0xf3e0       <Reserved>     0      By     Np    
-0x3e0  0x8003f000   -            CallGate32     3      -      P     
-
-8003f000: bbdb0adfff                       MOV EBX, 0xffdf0adb
-8003f005: c3                               RET
-
-0x3e8  0x0          0xffffffff   Code RE Ac     0      Pg     P     
-0x3f0  0x8003       0xf3f8       <Reserved>     0      By     Np    
-0x3f8  0x0          0x0          <Reserved>     0      By     Np
+Volatile Systems Volatility Framework 2.1_alpha
+   CPU        Sel Base            Limit Type              DPL Gr   Pr  
+------ ---------- ---------- ---------- -------------- ------ ---- ----
+     0        0x0 0x00ffdf0a     0xdbbb TSS16 Busy          2 By   P   
+     0        0x8 0x00000000 0xffffffff Code RE Ac          0 Pg   P   
+     0       0x10 0x00000000 0xffffffff Data RW Ac          0 Pg   P   
+     0       0x18 0x00000000 0xffffffff Code RE Ac          3 Pg   P   
+     0       0x20 0x00000000 0xffffffff Data RW Ac          3 Pg   P   
+     0       0x28 0x80042000     0x20ab TSS32 Busy          0 By   P   
+     0       0x30 0xffdff000     0x1fff Data RW Ac          0 Pg   P   
+     0       0x38 0x00000000      0xfff Data RW Ac          3 By   P   
+     0       0x40 0x00000400     0xffff Data RW             3 By   P   
+     0       0x48 0x00000000        0x0 <Reserved>          0 By   Np 
+[snip]
+     0      0x3d0 0x00008003     0xf3d8 <Reserved>          0 By   Np  
+     0      0x3d8 0x00008003     0xf3e0 <Reserved>          0 By   Np  
+     0      0x3e0 0x8003f000        0x0 CallGate32          3 -    P   
+     0      0x3e8 0x00000000 0xffffffff Code RE Ac          0 Pg   P   
+     0      0x3f0 0x00008003     0xf3f8 <Reserved>          0 By   Np  
+     0      0x3f8 0x00000000        0x0 <Reserved>          0 By   Np 
 }}}
 
-If you want to further investigate the infection, you can break into a [http://code.google.com/p/volatility/wiki/CommandReference#volshell volshell] as shown below:
+If you want to further investigate the infection, you can break into a [CommandReference21#volshell] as shown below. Then disassemble code at the call gate address.
 
 {{{
 $ python vol.py -f alipop.vmem volshell
-Volatile Systems Volatility Framework 2.0
+Volatile Systems Volatility Framework 2.1_alpha
 Current context: process System, pid=4, ppid=0 DTB=0x320000
 Welcome to volshell! Current memory image is:
-file:///Users/M/Desktop/alipop.vmem
+file:///Users/Michael/Desktop/alipop.vmem
 To get help, type 'hh()'
 
 >>> dis(0xffdf0adb, length=32)
@@ -2282,7 +2282,7 @@ To see a list of available tags/filters, use -L like this:
 
 {{{
 $ python vol.py -f test.vmem threads -L
-Volatile Systems Volatility Framework 2.0
+Volatile Systems Volatility Framework 2.1_alpha
 Tag                  Description
 --------------       --------------
 DkomExit             Detect inconsistencies wrt exit times and termination
@@ -2299,7 +2299,7 @@ If you don't specify any filters, then the command will output information on al
 
 {{{
 $ python vol.py -f XPSP3.vmem threads -F AttachedProcess
-Volatile Systems Volatility Framework 2.0
+Volatile Systems Volatility Framework 2.1_alpha
 ------
 ETHREAD: 0x81eda7a0 Pid: 4 Tid: 484
 Tags: SystemThread,AttachedProcess,HookedSSDT
@@ -2353,7 +2353,7 @@ Here's an example of detecting the thread creation callback installed by the !Bl
 
 {{{
 $ python vol.py -f be2.vmem callbacks
-Volatile Systems Volatility Framework 2.0
+Volatile Systems Volatility Framework 2.1_alpha
 Type                                 Callback   Owner
 PsSetCreateThreadNotifyRoutine       0xff0d2ea7 00004A2A
 PsSetCreateProcessNotifyRoutine      0xfc58e194 vmci.sys
@@ -2368,7 +2368,7 @@ Here is an example of detecting the malicious process creation callback installe
 
 {{{
 $ python vol.py -f rustock.vmem callbacks
-Volatile Systems Volatility Framework 2.0
+Volatile Systems Volatility Framework 2.1_alpha
 Type                                 Callback   Owner
 PsSetCreateProcessNotifyRoutine      0xf88bd194 vmci.sys
 PsSetCreateProcessNotifyRoutine      0xb17a27ed '\\Driver\\pe386'
@@ -2387,7 +2387,7 @@ Here is an example of detecting the malicious registry change callback installed
 
 {{{
 $ python vol.py -f ascesso.vmem callbacks
-Volatile Systems Volatility Framework 2.0
+Volatile Systems Volatility Framework 2.1_alpha
 Type                                 Callback   Owner
 IoRegisterShutdownNotification       0xf853c2be ftdisk.sys (\Driver\Ftdisk)
 IoRegisterShutdownNotification       0x805f5d66 ntoskrnl.exe (\Driver\WMIxWDM)
@@ -2409,18 +2409,21 @@ Many drivers forward their IRP functions to other drivers for legitimate purpose
 This command outputs information for all drivers, unless you specify a regular expression filter. 
 
 {{{
-$ python vol.py -f tdl3.vmem driverirp -r vmscsi 
-Volatile Systems Volatility Framework 2.0
-DriverStart  Name             IRP                                  IrpAddr      IrpOwner         HookAddr     HookOwner
-0xf9db8000   'vmscsi'         IRP_MJ_CREATE                        0xf9db9cbd   vmscsi.sys       -            -
-0xf9db8000   'vmscsi'         IRP_MJ_CREATE_NAMED_PIPE             0xf9db9cbd   vmscsi.sys       -            -
-0xf9db8000   'vmscsi'         IRP_MJ_CLOSE                         0xf9db9cbd   vmscsi.sys       -            -
-0xf9db8000   'vmscsi'         IRP_MJ_READ                          0xf9db9cbd   vmscsi.sys       -            -
-0xf9db8000   'vmscsi'         IRP_MJ_WRITE                         0xf9db9cbd   vmscsi.sys       -            -
-0xf9db8000   'vmscsi'         IRP_MJ_QUERY_INFORMATION             0xf9db9cbd   vmscsi.sys       -            -
-0xf9db8000   'vmscsi'         IRP_MJ_SET_INFORMATION               0xf9db9cbd   vmscsi.sys       -            -
-0xf9db8000   'vmscsi'         IRP_MJ_QUERY_EA                      0xf9db9cbd   vmscsi.sys       -            -
-0xf9db8000   'vmscsi'         IRP_MJ_SET_EA                        0xf9db9cbd   vmscsi.sys       -            -
+$ python vol.py -f tdl3.vmem driverirp -r vmscsi
+Volatile Systems Volatility Framework 2.1_alpha
+--------------------------------------------------
+DriverName: vmscsi
+DriverStart: 0xf9db8000
+DriverSize: 0x2c00
+DriverStartIo: 0xf97ea40e
+   0 IRP_MJ_CREATE                        0xf9db9cbd vmscsi.sys
+   1 IRP_MJ_CREATE_NAMED_PIPE             0xf9db9cbd vmscsi.sys
+   2 IRP_MJ_CLOSE                         0xf9db9cbd vmscsi.sys
+   3 IRP_MJ_READ                          0xf9db9cbd vmscsi.sys
+   4 IRP_MJ_WRITE                         0xf9db9cbd vmscsi.sys
+   5 IRP_MJ_QUERY_INFORMATION             0xf9db9cbd vmscsi.sys
+   6 IRP_MJ_SET_INFORMATION               0xf9db9cbd vmscsi.sys
+   7 IRP_MJ_QUERY_EA                      0xf9db9cbd vmscsi.sys
 [snip]
 }}}
 
@@ -2428,21 +2431,25 @@ In the output, it is not apparent that the vmscsi.sys driver has been infected b
 
 {{{
 $ python vol.py -f tdl3.vmem driverirp -r vmscsi --verbose
-Volatile Systems Volatility Framework 2.0
-DriverStart  Name             IRP                                  IrpAddr      IrpOwner         HookAddr     HookOwner
-0xf9db8000   'vmscsi'         IRP_MJ_CREATE                        0xf9db9cbd   vmscsi.sys       -            -
-f9db9cbd: a10803dfff                       MOV EAX, [0xffdf0308]
-f9db9cc2: ffa0fc000000                     JMP DWORD [EAX+0xfc]
-f9db9cc8: 0000                             ADD [EAX], AL
-f9db9cca: 0000                             ADD [EAX], AL
-f9db9ccc: 0000                             ADD [EAX], AL
+Volatile Systems Volatility Framework 2.1_alpha
+--------------------------------------------------
+DriverName: vmscsi
+DriverStart: 0xf9db8000
+DriverSize: 0x2c00
+DriverStartIo: 0xf97ea40e
+   0 IRP_MJ_CREATE                        0xf9db9cbd vmscsi.sys
 
-0xf9db8000   'vmscsi'         IRP_MJ_CREATE_NAMED_PIPE             0xf9db9cbd   vmscsi.sys       -            -
-f9db9cbd: a10803dfff                       MOV EAX, [0xffdf0308]
-f9db9cc2: ffa0fc000000                     JMP DWORD [EAX+0xfc]
-f9db9cc8: 0000                             ADD [EAX], AL
-f9db9cca: 0000                             ADD [EAX], AL
-f9db9ccc: 0000                             ADD [EAX], AL
+0xf9db9cbd a10803dfff       MOV EAX, [0xffdf0308]
+0xf9db9cc2 ffa0fc000000     JMP DWORD [EAX+0xfc]
+0xf9db9cc8 0000             ADD [EAX], AL
+0xf9db9cca 0000             ADD [EAX], AL
+
+   1 IRP_MJ_CREATE_NAMED_PIPE             0xf9db9cbd vmscsi.sys
+0xf9db9cbd a10803dfff       MOV EAX, [0xffdf0308]
+0xf9db9cc2 ffa0fc000000     JMP DWORD [EAX+0xfc]
+0xf9db9cc8 0000             ADD [EAX], AL
+0xf9db9cca 0000             ADD [EAX], AL
+
 [snip]
 }}}
 
@@ -2456,7 +2463,7 @@ In the example below, Stuxnet has infected \FileSystem\Ntfs by attaching a malic
 
 {{{
 $ python vol.py -f stuxnet.vmem devicetree
-Volatile Systems Volatility Framework 1.4_rc1
+Volatile Systems Volatility Framework 2.1_alpha
 [snip]
 DRV 0x0253d180 '\\FileSystem\\Ntfs'
 ---| DEV 0x82166020 (unnamed) FILE_DEVICE_DISK_FILE_SYSTEM
@@ -2472,6 +2479,44 @@ DRV 0x0253d180 '\\FileSystem\\Ntfs'
 
 The devicetree plugin uses "DRV" to indicate drivers, "DEV" to indicate devices, and "ATT" to indicate attached devices (just like OSR's !DeviceTree utility). 
 
+The x64 version looks very similar: 
+
+{{{
+$ /usr/bin/python2.6 vol.py -f ~/Desktop/win7_trial_64bit.raw --profile=Win7SP0x64 devicetreeVolatile Systems Volatility Framework 2.1_alpha
+DRV 0x174c6350 \Driver\mouhid
+---| DEV 0xfffffa8000dfbc90  FILE_DEVICE_MOUSE
+------| ATT 0xfffffa8000ec7060  - \Driver\mouclass FILE_DEVICE_MOUSE
+DRV 0x17660cb0 \Driver\rspndr
+---| DEV 0xfffffa80005a1c20 rspndr FILE_DEVICE_NETWORK
+DRV 0x17663e70 \Driver\lltdio
+---| DEV 0xfffffa8000c78b70 lltdio FILE_DEVICE_NETWORK
+DRV 0x17691d70 \Driver\cdrom
+---| DEV 0xfffffa8000d00060 CdRom0 FILE_DEVICE_CD_ROM
+DRV 0x176a7280 \FileSystem\Msfs
+---| DEV 0xfffffa8000cac060 Mailslot FILE_DEVICE_MAILSLOT
+DRV 0x176ac6f0 \FileSystem\Npfs
+---| DEV 0xfffffa8000cac320 NamedPipe FILE_DEVICE_NAMED_PIPE
+DRV 0x176ade70 \Driver\tdx
+---| DEV 0xfffffa8000cb8c00 RawIp6 FILE_DEVICE_NETWORK
+---| DEV 0xfffffa8000cb8e30 RawIp FILE_DEVICE_NETWORK
+---| DEV 0xfffffa8000cb7510 Udp6 FILE_DEVICE_NETWORK
+---| DEV 0xfffffa8000cb7740 Udp FILE_DEVICE_NETWORK
+---| DEV 0xfffffa8000cb7060 Tcp6 FILE_DEVICE_NETWORK
+---| DEV 0xfffffa8000cad140 Tcp FILE_DEVICE_NETWORK
+---| DEV 0xfffffa8000cadbb0 Tdx FILE_DEVICE_TRANSPORT
+DRV 0x176ae350 \Driver\Psched
+---| DEV 0xfffffa8000cc4590 Psched FILE_DEVICE_NETWORK
+DRV 0x176aee70 \Driver\WfpLwf
+DRV 0x176b93a0 \Driver\AFD
+---| DEV 0xfffffa8000cb9180 Afd FILE_DEVICE_NAMED_PIPE
+DRV 0x176c28a0 \Driver\NetBT
+---| DEV 0xfffffa8000db4060 NetBT_Tcpip_{EE0434CC-82D1-47EA-B5EB-AF721863ACC2} FILE_DEVICE_NETWORK
+---| DEV 0xfffffa8000c1d8f0 NetBt_Wins_Export FILE_DEVICE_NETWORK
+DRV 0x176c3930 \FileSystem\NetBIOS
+---| DEV 0xfffffa8000cc3680 Netbios FILE_DEVICE_TRANSPORT
+[snip]
+}}}
+
 == psxview ==
 
 This plugin helps you detect hidden processes by comparing what  !PsActiveProcessHead contains with what is reported by various other sources of process listings. It compares the following:
@@ -2485,82 +2530,60 @@ This plugin helps you detect hidden processes by comparing what  !PsActiveProces
 
 On Windows Vista and Windows 7 the internal list of processes in csrss.exe is not available. It also may not be available in some XP images where certain pages are not memory resident. 
 
-Here is an example of detecting the Prolaco malware with psxview. A zero in any column indicates that the respective process is missing. You can tell "1_doc_RCData_61" is suspicious since it shows up in every column except pslist (!PsActiveProcessHead). 
+Here is an example of detecting the Prolaco malware with psxview. A "False" in any column indicates that the respective process is missing. You can tell "1_doc_RCData_61" is suspicious since it shows up in every column except pslist (!PsActiveProcessHead). 
 
 {{{
 $ python vol.py -f prolaco.vmem psxview
-Offset       Name                 Pid      pslist     psscan     thrdproc   pspcid     csr_hnds   csr_list  
-0xff1b8b28   vmtoolsd.exe         1668     1          1          1          1          1          0         
-0x80ff88d8   svchost.exe          856      1          1          1          1          1          0         
-0xff1d7da0   spoolsv.exe          1432     1          1          1          1          1          0         
-0x810b1660   System               4        1          1          1          1          0          0         
-0x80fbf910   svchost.exe          1028     1          1          1          1          1          0         
-0xff2ab020   smss.exe             544      1          1          1          1          0          0         
-0xff3667e8   VMwareTray.exe       432      1          1          1          1          1          0         
-0xff247020   services.exe         676      1          1          1          1          1          0         
-0xff217560   svchost.exe          936      1          1          1          1          1          0         
-0xff143b28   TPAutoConnSvc.e      1968     1          1          1          1          1          0         
-0x80fdc648   1_doc_RCData_61      1336     0          1          1          1          1          0         
-0xff255020   lsass.exe            688      1          1          1          1          1          0         
-0xff3865d0   explorer.exe         1724     1          1          1          1          1          0         
-0xff22d558   svchost.exe          1088     1          1          1          1          1          0         
-0xff374980   VMwareUser.exe       452      1          1          1          1          1          0         
-0xff1fdc88   VMUpgradeHelper      1788     1          1          1          1          1          0         
-0xff218230   vmacthlp.exe         844      1          1          1          1          1          0         
-0xff364310   wscntfy.exe          888      1          1          1          1          1          0         
-0x80f94588   wuauclt.exe          468      1          1          1          1          1          0         
-0xff25a7e0   alg.exe              216      1          1          1          1          1          0         
-0xff1ecda0   csrss.exe            608      1          1          1          1          0          0         
-0xff38b5f8   TPAutoConnect.e      1084     1          1          1          1          1          0         
-0xff37a4b0   ImmunityDebugge      1136     1          1          1          1          1          0         
-0xff1ec978   winlogon.exe         632      1          1          1          1          1          0         
-0xff203b80   svchost.exe          1148     1          1          1          1          1          0
+Volatile Systems Volatility Framework 2.1_alpha
+Offset(P)  Name                    PID pslist psscan thrdproc pspcdid csrss
+---------- -------------------- ------ ------ ------ -------- ------- -----
+0x06499b80 svchost.exe            1148 True   True   True     True    True 
+0x04b5a980 VMwareUser.exe          452 True   True   True     True    True 
+0x0655fc88 VMUpgradeHelper        1788 True   True   True     True    True 
+0x0211ab28 TPAutoConnSvc.e        1968 True   True   True     True    True 
+0x04c2b310 wscntfy.exe             888 True   True   True     True    True 
+0x061ef558 svchost.exe            1088 True   True   True     True    True 
+0x06945da0 spoolsv.exe            1432 True   True   True     True    True 
+0x05471020 smss.exe                544 True   True   True     True    False
+0x04a544b0 ImmunityDebugge        1136 True   True   True     True    True 
+0x069d5b28 vmtoolsd.exe           1668 True   True   True     True    True 
+0x06384230 vmacthlp.exe            844 True   True   True     True    True 
+0x010f7588 wuauclt.exe             468 True   True   True     True    True 
+0x066f0da0 csrss.exe               608 True   True   True     True    False
+0x05f027e0 alg.exe                 216 True   True   True     True    True 
+0x06015020 services.exe            676 True   True   True     True    True 
+0x04a065d0 explorer.exe           1724 True   True   True     True    True 
+0x049c15f8 TPAutoConnect.e        1084 True   True   True     True    True 
+0x0115b8d8 svchost.exe             856 True   True   True     True    True 
+0x01214660 System                    4 True   True   True     True    False
+0x01122910 svchost.exe            1028 True   True   True     True    True 
+0x04be97e8 VMwareTray.exe          432 True   True   True     True    True 
+0x05f47020 lsass.exe               688 True   True   True     True    True 
+0x063c5560 svchost.exe             936 True   True   True     True    True 
+0x066f0978 winlogon.exe            632 True   True   True     True    True 
+0x0640ac10 msiexec.exe            1144 False  True   False    False   False
+0x005f23a0 rundll32.exe           1260 False  True   False    False   False
+0x0113f648 1_doc_RCData_61        1336 False  True   True     True    True 
 }}}
 
-== ssdt_ex ==
-
-If you want to explore SSDT hooks installed by rootkits, use the ssdt_ex command. This will automatically detect which SSDT functions are hooked, extract the hooking kernel driver to disk, and generate an IDC file (IDA script) containing labels for the rootkit functions. Then, if you have idag.exe (Windows) or idal (Linux/OS X) in your $PATH, then it will create an IDB file from the extracted kernel driver and run the IDC script. The result is a pre-labeled IDB for you to explore and reverse engineer, after typing just one command in Volatility.
-
-Here is an example:
+The output looks similar for x64 systems:
 
 {{{
-$ python vol.py -f laqma.vmem ssdt_ex -D outdir/
-Volatile Systems Volatility Framework 2.0
-  Entry 0x0049: 0xf8c52884 (NtEnumerateValueKey) owned by lanmandrv.sys
-  Entry 0x007a: 0xf8c5253e (NtOpenProcess) owned by lanmandrv.sys
-  Entry 0x0091: 0xf8c52654 (NtQueryDirectoryFile) owned by lanmandrv.sys
-  Entry 0x00ad: 0xf8c52544 (NtQuerySystemInformation) owned by lanmandrv.sys
-Dumping IDC file to /Users/M/Desktop/Volatility-2.0/outdir/driver.f8c52000.sys.idc
-
+$ python vol.py -f ~/Desktop/win7_trial_64bit.raw --profile=Win7SP0x64 psxview
+Volatile Systems Volatility Framework 2.1_alpha
+Offset(P)          Name                    PID pslist psscan thrdproc pspcdid csrss
+------------------ -------------------- ------ ------ ------ -------- ------- -----
+0x00000000173c5700 lsass.exe               444 True   True   True     True    True 
+0x00000000176006c0 csrss.exe               296 True   True   True     True    False
+0x0000000017803b30 rundll32.exe           2016 True   True   True     True    True 
+0x0000000017486690 spoolsv.exe            1076 True   True   True     True    True 
+0x0000000017db7960 svchost.exe             856 True   True   True     True    True 
+0x0000000017dd09e0 svchost.exe             916 True   True   True     True    True 
+0x0000000017606b30 csrss.exe               344 True   True   True     True    False
+0x000000001769a630 regsvr32.exe           1180 True   True   False    True    False
+0x0000000017692300 wininit.exe             332 True   True   True     True    True 
 [snip]
 }}}
-
-Now if you look in outdir, you'll find:
-
-  * The extracted kernel driver (driver.f8c52000.sys)
-  * The IDC script (driver.f8c52000.sys.idc)
-  * The IDA database (driver.f8c52000.idb)
-
-Inside the IDC script, you'll see something like this:
-
-{{{
-#include <idc.idc>
-static main(void) {
-   MakeFunction(0xF8C52A4C, BADADDR);
-   MakeFunction(0xF8C52E7C, BADADDR);
-   MakeName(0xF8C52544, "HookNtQuerySystemInformation");
-   MakeFunction(0xF8C52544, BADADDR);
-   MakeName(0xF8C52654, "HookNtQueryDirectoryFile");
-   MakeFunction(0xF8C52654, BADADDR);
-   MakeName(0xF8C52884, "HookNtEnumerateValueKey");
-   MakeFunction(0xF8C52884, BADADDR);
-   MakeName(0xF8C5253E, "HookNtOpenProcess");
-   MakeFunction(0xF8C5253E, BADADDR);
-Exit(0);
-}
-}}}
-
-When you open the IDB, just navigate to any functions with a "Hook" prefix and you'll be staring at the rootkit's payload. 
 
 == timers == 
 
@@ -2569,58 +2592,37 @@ This command prints installed kernel timers (KTIMER) and any associated DPCs (De
 Here's an example. Notice how one of the timers has an UNKNOWN module (the DPC points to an unknown region of kernel memory). This is ultimately where the rootkit is hiding. 
 
 {{{
-$ python vol.py timers -f rustock-c.vmem 
-Offset       DueTime               Period(ms) Signaled   Routine      Module
-0xf730a790   0x00000000:0x6db0f0b4 0          -          0xf72fb385   srv.sys
-0x80558a40   0x00000000:0x68f10168 1000       Yes        0x80523026   ntoskrnl.exe
-0x80559160   0x00000000:0x695c4b3a 0          -          0x80526bac   ntoskrnl.exe
-0x820822e4   0x00000000:0xa2a56bb0 150000     Yes        0x81c1642f   UNKNOWN
-0xf842f150   0x00000000:0xb5cb4e80 0          -          0xf841473e   Ntfs.sys
+$ python vol.py -f rustock-c.vmem timers
+Volatile Systems Volatility Framework 2.1_alpha
+Offset(V)  DueTime                  Period(ms) Signaled   Routine    Module
+---------- ------------------------ ---------- ---------- ---------- ------
+0xf730a790 0x00000000:0x6db0f0b4             0 -          0xf72fb385 srv.sys
+0x80558a40 0x00000000:0x68f10168          1000 Yes        0x80523026 ntoskrnl.exe
+0x821cb240 0x00000000:0x68fa8ad0             0 -          0xf84b392e sr.sys
+0x8054f288 0x00000000:0x69067692             0 -          0x804e5aec ntoskrnl.exe
+0xf7c13fa0 0x00000000:0x74f6fd46         60000 Yes        0xf7c044d3 ipsec.sys
+0xf7c13b08 0x00000000:0x74f6fd46             0 -          0xf7c04449 ipsec.sys
+0x8055a300 0x00000008:0x61e82b46             0 -          0x80533bf8 ntoskrnl.exe
+0xf7c13b70 0x00000008:0x6b719346             0 -          0xf7c04449 ipsec.sys
+0xf7befbf0 0x00000000:0x690d9da0             0 -          0xf89aa3f0 TDI.SYS
+0x81ea5ee8 0x00000000:0x7036f590             0 -          0x80534016 ntoskrnl.exe
+0x81d69180 0x80000000:0x3ae334ee             0 -          0x80534016 ntoskrnl.exe
+0xf70d0040 0x00000000:0x703bd2ae             0 -          0xf70c3ae8 HTTP.sys
+0xf7a74260 0x00000000:0x75113724         60000 Yes        0xf7a6cf98 ipnat.sys
+0x82012e08 0x00000000:0x8a87d2d2             0 -          0xf832653c ks.sys
+0x81f01358 0x00000008:0x6b97b8e6             0 -          0xf7b8448a netbt.sys
+0x81f41218 0x00000000:0x6933c340             0 -          0xf7b8448a netbt.sys
+0x805508d0 0x00000000:0x6ba6cdb6         60000 Yes        0x804f3b72 ntoskrnl.exe
+0x80559160 0x00000000:0x695c4b3a             0 -          0x80526bac ntoskrnl.exe
+0x820822e4 0x00000000:0xa2a56bb0        150000 Yes        0x81c1642f UNKNOWN
+0xf842f150 0x00000000:0xb5cb4e80             0 -          0xf841473e Ntfs.sys
+0x821811b0 0x00000131:0x34c6cb8e             0 -          0xf83fafdf NDIS.sys
 ...
 }}}
 
-Please note: the timers are enumerated in different ways depending on the target operating system. Windows stores the timers in global variables for XP, 2003, 2008, and Vista. Since Windows 7, the timers are are in processor-specific regions off of KPCR (Kernel Processor Control Region). Thus, to enumerate all timers for multi-core Windows 7 systems, you should use the [http://code.google.com/p/volatility/wiki/CommandReference#kpcrscan kpcrscan] command first and then pass each value to the timers plugin with the --kpcr=KPCRADDRESS parameter. 
+Please note: the timers are enumerated in different ways depending on the target operating system. Windows stores the timers in global variables for XP, 2003, 2008, and Vista. Since Windows 7, the timers are are in processor-specific regions off of KPCR (Kernel Processor Control Region). As of Volatility 2.1, if there are multiple CPUs, the timers plugin finds all KPCRs and prints the timers associated with each CPU. 
 
-{{{
-$ python vol.py -f mem.dmp --profile=Win7SP0x86 kpcrscan
-Volatile Systems Volatility Framework 2.1_alpha
-Potential KPCR structure virtual addresses:
- _KPCR: 0x807c3000
- _KPCR: 0x8296fc00
- _KPCR: 0x8cd00000
- _KPCR: 0x8cd36000
-
-$ python vol.py -h
-Volatile Systems Volatility Framework 2.1_alpha
-Usage: Volatility - A memory forensics analysis platform.
-
-Options:
-[...]
--k KPCR, --kpcr=KPCR  Specify a specific KPCR address
-[...]
-
-$ python vol.py -f mem.dmp timers --profile=Win7SP0x86 --kpcr=0x807c3000
-Volatile Systems Volatility Framework 2.1_alpha
-Offset       DueTime              Period(ms) Signaled   Routine      Module
-0x869ed930   0x0000217a:0x47a09f1a 0          -          0x99a78005 srv.sys
-0x85f451d8   0x0000217a:0x5f8703b2 10         -          0x8b0a78b9 tcpip.sys
-0x807c65a8   0x0000217a:0x47e7b336 15000      Yes        0x8287b4d3 ntoskrnl.exe
-
-$ python vol.py -f mem.dmp timers --profile=Win7SP0x86 --kpcr=0x8296fc00
-Volatile Systems Volatility Framework 2.1_alpha
-Offset       DueTime              Period(ms) Signaled   Routine      Module
-0x91593180   0x0000217a:0x4f4a5c00 0          -          0x9158e240 luafv.sys
-0x829810a0   0x0000217a:0x4f4a5c00 5000       Yes        0x8290b2d0 ntoskrnl.exe
-0x86135d70   0x0000217a:0x5b361e00 30000      Yes        0x8f6e0298 afd.sys
-0x96243900   0x0000217a:0x4f5de140 0          -          0x9621b3b2 HTTP.sys
-0x829ac4f0   0x0000217a:0x62940216 60000      Yes        0x82878d8f ntoskrnl.exe
-0x862d9150   0x0000217a:0x5448bae0 0          -          0x8aedda4f ndis.sys
-0x99a878c0   0x0000217a:0x51eb2594 0          -          0x99a780b6 srv.sys
-0x8605dd20   0x0000217a:0x4dc62f22 0          -          0x82fbbba4 storport.sys
-[...]
-}}}
-
-As you can see, depending on the KPCR used, you'll get a different list of timers. That's because each processor handles its own set of timers. For more information on timer objects, see [http://mnin.blogspot.com/2011/10/aint-nuthin-but-ktimer-thing-baby.html Ain't Nuthin But a K(Timer) Thing, Baby].
+For more information on timer objects, see [http://mnin.blogspot.com/2011/10/aint-nuthin-but-ktimer-thing-baby.html Ain't Nuthin But a K(Timer) Thing, Baby].
 
 = Miscellaneous =
 
