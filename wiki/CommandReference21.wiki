@@ -1027,182 +1027,169 @@ Offset(P)             PID    TID      Start Address Create Time               Ex
 
 == connections ==
 
-To view TCP connections that were active at the time of the memory acquisition, use the connections command. This walks the singly-linked list of connection structures pointed to by a non-exported symbol in the tcpip.sys module. This command is for x86 and x64 Windows XP and Windows 2003 Server only. 
+To view TCP connections that were active at the time of the memory acquisition, use the connections command. This walks the singly-linked list of connection structures pointed to by a non-exported symbol in the tcpip.sys module. 
+
+This command is for x86 and x64 Windows XP and Windows 2003 Server only. 
 
 {{{
-$ python vol.py -f Bob.vmem connections
-Volatile Systems Volatility Framework 2.0
- Offset(V)  Local Address             Remote Address            Pid   
----------- ------------------------- ------------------------- ------ 
-0x81c6a9f0 192.168.0.176:1176        212.150.164.203:80           888
-0x82123008 192.168.0.176:1184        193.104.22.71:80             880
-0x81cd4270 192.168.0.176:2869        192.168.0.1:30379           1244
-0x81cd4270 127.0.0.1:1168            127.0.0.1:1169               888
-0x81e41108 127.0.0.1:1169            127.0.0.1:1168               888
-0x82108890 192.168.0.176:1178        212.150.164.203:80          1752
-0x82210440 192.168.0.176:1185        193.104.22.71:80             880
-0x8207ac58 192.168.0.176:1171        66.249.90.104:80             888
-0x81cef808 192.168.0.176:2869        192.168.0.1:30380              4
-0x81cc57c0 192.168.0.176:1189        192.168.0.1:9393            1244
-0x8205a448 192.168.0.176:1172        66.249.91.104:80             888
+$ python vol.py -f Win2003SP2x64.vmem --profile=Win2003SP2x64 connections
+Volatile Systems Volatility Framework 2.1_alpha
+Offset(V)          Local Address             Remote Address               Pid
+------------------ ------------------------- ------------------------- ------
+0xfffffadfe6f2e2f0 172.16.237.150:1408       72.246.25.25:80             2136
+0xfffffadfe72e8080 172.16.237.150:1369       64.4.11.30:80               2136
+0xfffffadfe622d010 172.16.237.150:1403       74.125.229.188:80           2136
+0xfffffadfe62e09e0 172.16.237.150:1352       64.4.11.20:80               2136
+0xfffffadfe6f2e630 172.16.237.150:1389       209.191.122.70:80           2136
+0xfffffadfe5e7a610 172.16.237.150:1419       74.125.229.187:80           2136
+0xfffffadfe7321bc0 172.16.237.150:1418       74.125.229.188:80           2136
+0xfffffadfe5ea3c90 172.16.237.150:1393       216.115.98.241:80           2136
+0xfffffadfe72a3a80 172.16.237.150:1391       209.191.122.70:80           2136
+0xfffffadfe5ed8560 172.16.237.150:1402       74.125.229.188:80           2136
 }}}
 
-Output includes the virtual offset of the `_TCPT_OBJECT` by default.  The physical offset is obtained with the -P switch:
-
-{{{
-$ python vol.py -f Bob.vmem connections -P
-Volatile Systems Volatility Framework 2.0
- Offset(P)  Local Address             Remote Address            Pid   
----------- ------------------------- ------------------------- ------ 
-0x01e6a9f0 192.168.0.176:1176        212.150.164.203:80           888
-0x02323008 192.168.0.176:1184        193.104.22.71:80             880
-0x01ed4270 192.168.0.176:2869        192.168.0.1:30379           1244
-0x01ed4270 127.0.0.1:1168            127.0.0.1:1169               888
-0x02041108 127.0.0.1:1169            127.0.0.1:1168               888
-0x02308890 192.168.0.176:1178        212.150.164.203:80          1752
-0x02410440 192.168.0.176:1185        193.104.22.71:80             880
-0x0227ac58 192.168.0.176:1171        66.249.90.104:80             888
-0x01eef808 192.168.0.176:2869        192.168.0.1:30380              4
-0x01ec57c0 192.168.0.176:1189        192.168.0.1:9393            1244
-0x0225a448 192.168.0.176:1172        66.249.91.104:80             888
-}}}
+Output includes the virtual offset of the `_TCPT_OBJECT` by default.  The physical offset can be obtained with the -P switch.
 
 == connscan ==
 
-To find connection structures using pool tag scanning, use the connscan command. This can find artifacts from previous connections that have since been terminated. In the output below, you'll notice some fields have been partially overwritten, but some of the information is still accurate. Thus, while it may find false positives sometimes, you also get the benefit of detecting as much information as possible. This command is for Windows XP and Windows 2003 Server only. 
+To find `_TCPT_OBJECT` structures using pool tag scanning, use the connscan command. This can find artifacts from previous connections that have since been terminated, in addition to the active ones. In the output below, you'll notice some fields have been partially overwritten, but some of the information is still accurate. For example, the very last entry's Pid field is 0, but all other fields are still in tact. Thus, while it may find false positives sometimes, you also get the benefit of detecting as much information as possible. 
+
+This command is for x86 and x64 Windows XP and Windows 2003 Server only. 
 
 {{{
-$ python vol.py -f Bob.vmem connscan
-Volatile Systems Volatility Framework 2.0
- Offset     Local Address             Remote Address            Pid   
+$ python vol.py -f Win2K3SP0x64.vmem --profile=Win2003SP2x64 connscan
+Volatile Systems Volatility Framework 2.1_alpha
+ Offset(P)  Local Address             Remote Address            Pid   
 ---------- ------------------------- ------------------------- ------ 
-0x01e6a9f0 192.168.0.176:1176        212.150.164.203:80           888
-0x01ec57c0 192.168.0.176:1189        192.168.0.1:9393            1244
-0x01ed4270 192.168.0.176:2869        192.168.0.1:30379           1244
-0x01eef808 192.168.0.176:2869        192.168.0.1:30380              4
-0x01ffa7f8 0.0.0.0:0                 80.206.204.129:0               0
-0x02041108 127.0.0.1:1168            127.0.0.1:1169               888
-0x0225a448 192.168.0.176:1172        66.249.91.104:80             888
-0x0226ac58 127.0.0.1:1169            127.0.0.1:1168               888
-0x0227ac58 192.168.0.176:1171        66.249.90.104:80             888
-0x02308890 192.168.0.176:1178        212.150.164.203:80          1752
-0x02323008 192.168.0.176:1184        193.104.22.71:80             880
-0x02410440 192.168.0.176:1185        193.104.22.71:80             880
+0x0ea7a610 172.16.237.150:1419       74.125.229.187:80           2136
+0x0eaa3c90 172.16.237.150:1393       216.115.98.241:80           2136
+0x0eaa4480 172.16.237.150:1398       216.115.98.241:80           2136
+0x0ead8560 172.16.237.150:1402       74.125.229.188:80           2136
+0x0ee2d010 172.16.237.150:1403       74.125.229.188:80           2136
+0x0eee09e0 172.16.237.150:1352       64.4.11.20:80               2136
+0x0f9f83c0 172.16.237.150:1425       98.139.240.23:80            2136
+0x0f9fe010 172.16.237.150:1394       216.115.98.241:80           2136
+0x0fb2e2f0 172.16.237.150:1408       72.246.25.25:80             2136
+0x0fb2e630 172.16.237.150:1389       209.191.122.70:80           2136
+0x0fb72730 172.16.237.150:1424       98.139.240.23:80            2136
+0x0fea3a80 172.16.237.150:1391       209.191.122.70:80           2136
+0x0fee8080 172.16.237.150:1369       64.4.11.30:80               2136
+0x0ff21bc0 172.16.237.150:1418       74.125.229.188:80           2136
+0x1019ec90 172.16.237.150:1397       216.115.98.241:80           2136
+0x179099e0 172.16.237.150:1115       66.150.117.33:80            2856
+0x2cdb1bf0 172.16.237.150:139        172.16.237.1:63369             4
+0x339c2c00 172.16.237.150:1138       23.45.66.43:80              1332
+0x39b10010 172.16.237.150:1148       172.16.237.138:139             0
 }}}
 
 == sockets ==
 
-To detect listening sockets for any protocol (TCP, UDP, RAW, etc), use the sockets command. This walks a singly-linked list of socket structures which is pointed to by a non-exported symbol in the tcpip.sys module. This command is for Windows XP and Windows 2003 Server only. 
+To detect listening sockets for any protocol (TCP, UDP, RAW, etc), use the sockets command. This walks a singly-linked list of socket structures which is pointed to by a non-exported symbol in the tcpip.sys module. 
+
+This command is for x86 and x64 Windows XP and Windows 2003 Server only. 
 
 {{{
-$ python vol.py -f silentbanker.vmem --profile=WinXPSP3x86 sockets
-Volatile Systems Volatility Framework 2.0
- Offset(V)  PID    Port   Proto  Address        Create Time               
----------- ------ ------ ------ -------------- -------------------------- 
-0x80fd1008      4      0     47 0.0.0.0            2010-08-11 06:08:00       
-0xff362d18   1088   1066     17 0.0.0.0            2010-08-15 18:54:13       
-0xff258008    688    500     17 0.0.0.0            2010-08-11 06:06:35       
-0xff367008      4    445      6 0.0.0.0            2010-08-11 06:06:17       
-0x80ffc128    936    135      6 0.0.0.0            2010-08-11 06:06:24       
-0xff225b70    688      0    255 0.0.0.0            2010-08-11 06:06:35       
-0xff225b70   1028    123     17 127.0.0.1          2010-08-15 19:01:51       
-0x80fce930   1088   1025     17 0.0.0.0            2010-08-11 06:06:38       
-0xff127d28    216   1026      6 127.0.0.1          2010-08-11 06:06:39       
-0xff2608c0   1088   1053     17 0.0.0.0            2010-08-15 18:54:09       
-0x80fdc708   1884   1051     17 127.0.0.1          2010-08-15 18:54:07       
-0x80fdc708   1148   1900     17 127.0.0.1          2010-08-15 19:01:51         
+$ python vol.py -f Win2K3SP0x64.vmem --profile=Win2003SP2x64 sockets
+Volatile Systems Volatility Framework 2.1_alpha
+Offset(V)             PID   Port  Proto Protocol        Address         Create Time
+------------------ ------ ------ ------ --------------- --------------- -----------
+0xfffffadfe71bbda0    432   1025      6 TCP             0.0.0.0         2012-01-23 18:20:01 
+0xfffffadfe7350490    776   1028     17 UDP             0.0.0.0         2012-01-23 18:21:44 
+0xfffffadfe6281120    804    123     17 UDP             127.0.0.1       2012-06-25 12:40:55 
+0xfffffadfe7549010    432    500     17 UDP             0.0.0.0         2012-01-23 18:20:09 
+0xfffffadfe5ee8400      4      0     47 GRE             0.0.0.0         2012-02-24 18:09:07 
+0xfffffadfe606dc90      4    445      6 TCP             0.0.0.0         2012-01-23 18:19:38 
+0xfffffadfe6eef770      4    445     17 UDP             0.0.0.0         2012-01-23 18:19:38 
+0xfffffadfe7055210   2136   1321     17 UDP             127.0.0.1       2012-05-09 02:09:59 
+0xfffffadfe750c010      4    139      6 TCP             172.16.237.150  2012-06-25 12:40:55 
+0xfffffadfe745f610      4    138     17 UDP             172.16.237.150  2012-06-25 12:40:55 
+0xfffffadfe6096560      4    137     17 UDP             172.16.237.150  2012-06-25 12:40:55 
+0xfffffadfe7236da0    720    135      6 TCP             0.0.0.0         2012-01-23 18:19:51 
+0xfffffadfe755c5b0   2136   1419      6 TCP             0.0.0.0         2012-06-25 12:42:37 
+0xfffffadfe6f36510   2136   1418      6 TCP             0.0.0.0         2012-06-25 12:42:37       
 [snip]
 }}}
 
-Output includes the virtual offset of the `_ADDRESS_OBJECT` by default.  The physical offset is obtained with the -P switch:
-
-{{{
-$ python vol.py -f silentbanker.vmem --profile=WinXPSP3x86 sockets -P
-Volatile Systems Volatility Framework 2.0
- Offset(P)  PID    Port   Proto  Address        Create Time               
----------- ------ ------ ------ -------------- -------------------------- 
-0x01134008      4      0     47 0.0.0.0            2010-08-11 06:08:00       
-0x04c2dd18   1088   1066     17 0.0.0.0            2010-08-15 18:54:13       
-0x05f44008    688    500     17 0.0.0.0            2010-08-11 06:06:35       
-0x04be7008      4    445      6 0.0.0.0            2010-08-11 06:06:17       
-0x0115f128    936    135      6 0.0.0.0            2010-08-11 06:06:24       
-0x06237b70    688      0    255 0.0.0.0            2010-08-11 06:06:35       
-0x06237b70   1028    123     17 127.0.0.1          2010-08-15 19:01:51       
-0x01131930   1088   1025     17 0.0.0.0            2010-08-11 06:06:38       
-0x02daad28    216   1026      6 127.0.0.1          2010-08-11 06:06:39       
-0x05e3c8c0   1088   1053     17 0.0.0.0            2010-08-15 18:54:09       
-0x0113f708   1884   1051     17 127.0.0.1          2010-08-15 18:54:07       
-0x0113f708   1148   1900     17 127.0.0.1          2010-08-15 19:01:51        
-[snip]     
-}}}
-
+Output includes the virtual offset of the `_ADDRESS_OBJECT` by default.  The physical offset can be obtained with the -P switch.
 
 == sockscan ==
 
-To find socket structures using pool tag scanning, use the sockscan command. As with connscan, this can pick up residual data and artifacts from previous sockets, and it only applies to Windows XP and Windows 2003 Server. 
+To find `_ADDRESS_OBJECT` structures using pool tag scanning, use the sockscan command. As with connscan, this can pick up residual data and artifacts from previous sockets.
+
+This command is for x86 and x64 Windows XP and Windows 2003 Server only. 
 
 {{{
-$ python vol.py -f silentbanker.vmem --profile=WinXPSP3x86 sockscan
-Volatile Systems Volatility Framework 2.0
- Offset     PID    Port   Proto  Address        Create Time               
----------- ------ ------ ------ -------------- -------------------------- 
-0x00096e08   1884   1069      6 0.0.0.0            2010-08-15 18:54:13       
-0x0089bab8   1148   1900     17 127.0.0.1          2010-08-15 18:53:56       
-0x01073910   1884   1077      6 0.0.0.0            2010-08-15 18:54:14       
-0x01073e98   1884   1082      6 0.0.0.0            2010-08-15 18:54:15       
-0x0107aba8   1884   1057      6 0.0.0.0            2010-08-15 18:54:10       
-0x0107c500   1884   1073      6 0.0.0.0            2010-08-15 18:54:13       
-0x0107db70   1884   1072      6 0.0.0.0            2010-08-15 18:54:13       
-0x010f1e98   1884   1079      6 0.0.0.0            2010-08-15 18:54:15       
-0x01120c40      4    445     17 0.0.0.0            2010-08-11 06:06:17       
-0x0112ee30   1884   1071      6 0.0.0.0            2010-08-15 18:54:13       
-0x01131930   1088   1025     17 0.0.0.0            2010-08-11 06:06:38       
-0x01134008      4      0     47 0.0.0.0            2010-08-11 06:08:00       
-0x01139e98   1884   1087      6 0.0.0.0            2010-08-15 18:54:17       
-0x0113b7d0   1884   1076      6 0.0.0.0            2010-08-15 18:54:14       
-0x011568a8      4    137     17 172.16.176.143     2010-08-15 18:53:56       
-0x0115f128    936    135      6 0.0.0.0            2010-08-11 06:06:24 
+$ python vol.py -f Win2K3SP0x64.vmem --profile=Win2003SP2x64 sockscan
+Volatile Systems Volatility Framework 2.1_alpha
+Offset(P)             PID   Port  Proto Protocol        Address         Create Time
+------------------ ------ ------ ------ --------------- --------------- -----------
+0x0000000000608010    804    123     17 UDP             172.16.237.150  2012-05-08 22:17:44 
+0x000000000eae8400      4      0     47 GRE             0.0.0.0         2012-02-24 18:09:07 
+0x000000000eaf1240   2136   1403      6 TCP             0.0.0.0         2012-06-25 12:42:37 
+0x000000000ec6dc90      4    445      6 TCP             0.0.0.0         2012-01-23 18:19:38 
+0x000000000ec96560      4    137     17 UDP             172.16.237.150  2012-06-25 12:40:55 
+0x000000000ecf7d20   2136   1408      6 TCP             0.0.0.0         2012-06-25 12:42:37 
+0x000000000ed5a010   2136   1352      6 TCP             0.0.0.0         2012-06-25 12:42:18 
+0x000000000ed84ca0    804    123     17 UDP             172.16.237.150  2012-06-25 12:40:55 
+0x000000000ee2d380   2136   1393      6 TCP             0.0.0.0         2012-06-25 12:42:37 
+0x000000000ee81120    804    123     17 UDP             127.0.0.1       2012-06-25 12:40:55 
+0x000000000eeda8c0    776   1363     17 UDP             0.0.0.0         2012-06-25 12:42:20 
+0x000000000f0be1a0   2136   1402      6 TCP             0.0.0.0         2012-06-25 12:42:37 
+0x000000000f0d0890      4   1133      6 TCP             0.0.0.0         2012-02-24 18:09:07
 [snip]
 }}}
 
 == netscan ==
 
-To scan for network artifacts in Windows Vista, Windows 2008 Server and Windows 7 memory dumps, use the netscan command. This finds TCP endpoints, TCP listeners, UDP endpoints, and UDP listeners. It distinguishes between IPv4 and IPv6, prints the local and remote IP (if applicable), the local and remote port (if applicable), the time when the socket was bound or when the connection was established, and the current state (for TCP connections only). For more information, see [http://mnin.blogspot.com/2011/03/volatilitys-new-netscan-module.html Volatility's New Netscan Module.]
+To scan for network artifacts in 32- and 64-bit Windows Vista, Windows 2008 Server and Windows 7 memory dumps, use the netscan command. This finds TCP endpoints, TCP listeners, UDP endpoints, and UDP listeners. It distinguishes between IPv4 and IPv6, prints the local and remote IP (if applicable), the local and remote port (if applicable), the time when the socket was bound or when the connection was established, and the current state (for TCP connections only). For more information, see [http://mnin.blogspot.com/2011/03/volatilitys-new-netscan-module.html Volatility's New Netscan Module.]
+
+Please note the following: 
+
+ * The netscan command uses pool tag scanning 
+ * There are at least 2 alternate ways to enumerate connections and sockets on Vista+ operating systems. One of them is using partitions and dynamic hash tables, which is how the netstat.exe utility on Windows systems works. The other involves bitmaps and port pools. Plugins for both of these methods exist for the Volatility 2.1 framework, but are currently not in the public trunk. 
 
 {{{
-$ python vol.py --profile=Win7SP0x86 -f win7.dmp netscan 
-Volatile Systems Volatility Framework 2.0
-Offset     Proto    Local Address                  Foreign Address      State            Pid      Owner          Created
-0xca3008   TCPv4    192.168.181.133:139            0.0.0.0:0            LISTENING        4        System         1970-01-01 00:00:00 
-0x3027008  TCPv4    0.0.0.0:49155                  0.0.0.0:0            LISTENING        876      svchost.exe    1970-01-01 00:00:00 
-0x3027008  TCPv6    :::49155                       :::0                 LISTENING        876      svchost.exe    1970-01-01 00:00:00 
-0x5ac5c80  TCPv4    0.0.0.0:49153                  0.0.0.0:0            LISTENING        728      svchost.exe    1970-01-01 00:00:00 
-0x5ac5c80  TCPv6    :::49153                       :::0                 LISTENING        728      svchost.exe    1970-01-01 00:00:00 
-0xbfe1208  TCPv4    0.0.0.0:49152                  0.0.0.0:0            LISTENING        384      wininit.exe    1970-01-01 00:00:00 
-0xbfe1208  TCPv6    :::49152                       :::0                 LISTENING        384      wininit.exe    1970-01-01 00:00:00 
-0xbfe1648  TCPv4    0.0.0.0:49152                  0.0.0.0:0            LISTENING        384      wininit.exe    1970-01-01 00:00:00 
-0xc1fad48  TCPv4    0.0.0.0:49153                  0.0.0.0:0            LISTENING        728      svchost.exe    1970-01-01 00:00:00 
-0xc5ae148  TCPv4    0.0.0.0:135                    0.0.0.0:0            LISTENING        680      svchost.exe    1970-01-01 00:00:00 
-0xc6f5bb0  TCPv4    0.0.0.0:135                    0.0.0.0:0            LISTENING        680      svchost.exe    1970-01-01 00:00:00 
-0xc6f5bb0  TCPv6    :::135                         :::0                 LISTENING        680      svchost.exe    1970-01-01 00:00:00 
-0xd816270  TCPv4    0.0.0.0:445                    0.0.0.0:0            LISTENING        4        System         1970-01-01 00:00:00 
-0xd816270  TCPv6    :::445                         :::0                 LISTENING        4        System         1970-01-01 00:00:00 
-0xdc5a368  TCPv4    0.0.0.0:49156                  0.0.0.0:0            LISTENING        492      services.exe   1970-01-01 00:00:00 
-0xde59008  TCPv4    0.0.0.0:49156                  0.0.0.0:0            LISTENING        492      services.exe   1970-01-01 00:00:00 
-0xde59008  TCPv6    :::49156                       :::0                 LISTENING        492      services.exe   1970-01-01 00:00:00 
-0xed29808  TCPv4    0.0.0.0:49155                  0.0.0.0:0            LISTENING        876      svchost.exe    1970-01-01 00:00:00 
-0xee49450  TCPv4    0.0.0.0:49154                  0.0.0.0:0            LISTENING        500      lsass.exe      1970-01-01 00:00:00 
-0xee52d98  TCPv4    0.0.0.0:49154                  0.0.0.0:0            LISTENING        500      lsass.exe      1970-01-01 00:00:00 
-0xee52d98  TCPv6    :::49154                       :::0                 LISTENING        500      lsass.exe      1970-01-01 00:00:00 
-0x4b5c008  TCPv4    0.0.0.0:49170                  65.54.89.134:80      CLOSED           876      svchost.exe    1970-01-01 00:00:00 
-0x9b3ca30  TCPv4    192.168.181.133:49167          192.168.181.2:80     CLOSED           876      svchost.exe    1970-01-01 00:00:00 
-0xee8e0c8  TCPv4    0.0.0.0:49159                  65.54.89.134:80      CLOSED           876      svchost.exe    1970-01-01 00:00:00 
-0xf78d468  TCPv4    0.0.0.0:49164                  65.54.89.135:80      CLOSED           876      svchost.exe    1970-01-01 00:00:00 
-0x3165c8   UDPv4    0.0.0.0:0                      *:*                                   1056     svchost.exe    2010-07-06 22:40:01 
-0x3165c8   UDPv6    :::0                           *:*                                   1056     svchost.exe    2010-07-06 22:40:01 
-0xea9868   UDPv4    127.0.0.1:1900                 *:*                                   1920     svchost.exe    2010-07-06 22:33:18 
-0x12d6738  UDPv4    0.0.0.0:0                      *:*                                   1140     svchost.exe    2010-07-06 22:31:23 
-0x12d6738  UDPv6    :::0                           *:*                                   1140     svchost.exe    2010-07-06 22:31:23
+$ python vol.py -f ~/Desktop/win7_trial_64bit.raw --profile=Win7SP0x64 netscan
+Volatile Systems Volatility Framework 2.1_alpha
+Offset(P)  Proto    Local Address                  Foreign Address      State            Pid      Owner          Created
+0xf882a30  TCPv4    0.0.0.0:135                    0.0.0.0:0            LISTENING        628      svchost.exe    
+0xfc13770  TCPv4    0.0.0.0:49154                  0.0.0.0:0            LISTENING        916      svchost.exe    
+0xfdda1e0  TCPv4    0.0.0.0:49154                  0.0.0.0:0            LISTENING        916      svchost.exe    
+0xfdda1e0  TCPv6    :::49154                       :::0                 LISTENING        916      svchost.exe    
+0x1121b7b0 TCPv4    0.0.0.0:135                    0.0.0.0:0            LISTENING        628      svchost.exe    
+0x1121b7b0 TCPv6    :::135                         :::0                 LISTENING        628      svchost.exe    
+0x11431360 TCPv4    0.0.0.0:49152                  0.0.0.0:0            LISTENING        332      wininit.exe    
+0x11431360 TCPv6    :::49152                       :::0                 LISTENING        332      wininit.exe    
+
+[snip]
+
+0x17de8980 TCPv6    :::49153                       :::0                 LISTENING        444      lsass.exe      
+0x17f35240 TCPv4    0.0.0.0:49155                  0.0.0.0:0            LISTENING        880      svchost.exe    
+0x17f362b0 TCPv4    0.0.0.0:49155                  0.0.0.0:0            LISTENING        880      svchost.exe    
+0x17f362b0 TCPv6    :::49155                       :::0                 LISTENING        880      svchost.exe    
+0xfd96570  TCPv4    -:0                            232.9.125.0:0        CLOSED           1        ?C?            
+0x17236010 TCPv4    -:49227                        184.26.31.55:80      CLOSED           2820     iexplore.exe   
+0x1725d010 TCPv4    -:49359                        93.184.220.20:80     CLOSED           2820     iexplore.exe   
+0x17270530 TCPv4    10.0.2.15:49363                173.194.35.38:80     ESTABLISHED      2820     iexplore.exe   
+0x17285010 TCPv4    -:49341                        82.165.218.111:80    CLOSED           2820     iexplore.exe   
+0x17288a90 TCPv4    10.0.2.15:49254                74.125.31.157:80     CLOSE_WAIT       2820     iexplore.exe   
+0x1728f6b0 TCPv4    10.0.2.15:49171                204.245.34.130:80    ESTABLISHED      2820     iexplore.exe   
+0x17291ba0 TCPv4    10.0.2.15:49347                173.194.35.36:80     CLOSE_WAIT       2820     iexplore.exe   
+
+[snip]
+
+0x17854010 TCPv4    -:49168                        157.55.15.32:80      CLOSED           2820     iexplore.exe   
+0x178a2a20 TCPv4    -:0                            88.183.123.0:0       CLOSED           504      svchost.exe    
+0x178f5b00 TCPv4    10.0.2.15:49362                173.194.35.38:80     CLOSE_WAIT       2820     iexplore.exe   
+0x17922910 TCPv4    -:49262                        184.26.31.55:80      CLOSED           2820     iexplore.exe   
+0x17a9d860 TCPv4    10.0.2.15:49221                204.245.34.130:80    ESTABLISHED      2820     iexplore.exe   
+0x17ac84d0 TCPv4    10.0.2.15:49241                74.125.31.157:80     CLOSE_WAIT       2820     iexplore.exe   
+0x17b9acf0 TCPv4    10.0.2.15:49319                74.125.127.148:80    CLOSE_WAIT       2820     iexplore.exe   
+0x10f38d70 UDPv4    10.0.2.15:1900                 *:*                                   1736     svchost.exe    2012-02-22 20:04:12 
+0x173b3dc0 UDPv4    0.0.0.0:59362                  *:*                                   1736     svchost.exe    2012-02-22 20:02:27 
+0x173b3dc0 UDPv6    :::59362                       *:*                                   1736     svchost.exe    2012-02-22 20:02:27 
+0x173b4cf0 UDPv4    0.0.0.0:3702                   *:*                                   1736     svchost.exe    2012-02-22 20:02:27 
+0x173b4cf0 UDPv6    :::3702                        *:*                                   1736     svchost.exe    2012-02-22 20:02:27
 [snip]
 }}}
 
@@ -1212,47 +1199,48 @@ Volatility is the only memory forensics framework with the ability to carve regi
 
 == hivescan ==
 
-To find the physical addresses of CMHIVEs (registry hives) in memory, use the hivescan command. For more information, see BDG's [http://moyix.blogspot.com/2008/02/enumerating-registry-hives.html Enumerating Registry Hives].
+To find the physical addresses of CMHIVEs (registry hives) in memory, use the hivescan command. For more information, see BDG's [http://moyix.blogspot.com/2008/02/enumerating-registry-hives.html Enumerating Registry Hives]. 
+
+This plugin isn't generally useful by itself. Its meant to be inherited by other plugins (such as [CommandReference21#hivelist] below) that build on and interpret the information found in CMHIVEs. 
 
 {{{
-$ python vol.py --profile=Win7SP0x86 -f win7.dmp hivescan
-Volatile Systems Volatility Framework 2.0
-Offset          (hex)          
-1493000         0x0016c808
-37018064        0x0234d9d0
-66253488        0x03f2f2b0
-73746896        0x046549d0
-86327304        0x05254008
-148837272       0x08df1398
-148838864       0x08df19d0
-153573840       0x092759d0
+$python vol.py -f ~/Desktop/win7_trial_64bit.raw --profile=Win7SP0x64 hivescan
+Volatile Systems Volatility Framework 2.1_alpha
+Offset(P)         
+------------------
+0x0000000008c95010
+0x000000000aa1a010
+0x000000000acf9010
+0x000000000b1a9010
+0x000000000c2b4010
+0x000000000cd20010
+0x000000000da51010
 [snip]
 }}}
 
 == hivelist ==
 
-To locate the virtual addresses of registry hives in memory, and the full paths to the corresponding hive on disk, use the hivelist command. 
+To locate the virtual addresses of registry hives in memory, and the full paths to the corresponding hive on disk, use the hivelist command. If you want to print values from a certain hive, run this command first so you can see the address of the hives. 
 
 {{{
-$ python vol.py --profile=Win7SP0x86 -f win7.dmp hivelist 
-Volatile Systems Volatility Framework 2.0
-Virtual     Physical    Name
-0x99f0d008  0x0da7d008  \??\C:\Windows\ServiceProfiles\LocalService\NTUSER.DAT
-0x9c1692b0  0x03f2f2b0  \??\C:\Users\admin\ntuser.dat
-0x9c7dc5c8  0x0d46d5c8  \??\C:\Users\admin\AppData\Local\Microsoft\Windows\UsrClass.dat
-0x9cc839d0  0x046549d0  \??\C:\Windows\System32\SMI\Store\Machine\SCHEMA.DAT
-0x82baa140  0x02baa140  [no name]
-0x8780c008  0x0ac97008  [no name]
-0x878197b8  0x0ab5e7b8  \REGISTRY\MACHINE\SYSTEM
-0x878419d0  0x0a7489d0  \REGISTRY\MACHINE\HARDWARE
-0x8c089398  0x08df1398  \SystemRoot\System32\Config\SOFTWARE
-0x8c0899d0  0x08df19d0  \SystemRoot\System32\Config\SECURITY
-0x8c18f9d0  0x092759d0  \SystemRoot\System32\Config\DEFAULT
-0x8e23e008  0x05254008  \SystemRoot\System32\Config\SAM
-0x980e75e0  0x0dccd5e0  \??\C:\Windows\System32\config\COMPONENTS
-0x984709d0  0x0234d9d0  \Device\HarddiskVolume1\Boot\BCD
-0x99e22808  0x0016c808  \??\C:\System Volume Information\Syscache.hve
-[snip]
+$ python vol.py -f ~/Desktop/win7_trial_64bit.raw --profile=Win7SP0x64 hivelist
+Volatile Systems Volatility Framework 2.1_alpha
+Virtual            Physical           Name
+------------------ ------------------ ----
+0xfffff8a001053010 0x000000000b1a9010 \??\C:\System Volume Information\Syscache.hve
+0xfffff8a0016a7420 0x0000000012329420 \REGISTRY\MACHINE\SAM
+0xfffff8a0017462a0 0x00000000101822a0 \??\C:\Windows\ServiceProfiles\NetworkService\NTUSER.DAT
+0xfffff8a001abe420 0x000000000eae0420 \??\C:\Windows\ServiceProfiles\LocalService\NTUSER.DAT
+0xfffff8a002ccf010 0x0000000014659010 \??\C:\Users\testing\AppData\Local\Microsoft\Windows\UsrClass.dat
+0xfffff80002b53b10 0x000000000a441b10 [no name]
+0xfffff8a00000d010 0x000000000ddc6010 [no name]
+0xfffff8a000022010 0x000000000da51010 \REGISTRY\MACHINE\SYSTEM
+0xfffff8a00005c010 0x000000000dacd010 \REGISTRY\MACHINE\HARDWARE
+0xfffff8a00021d010 0x000000000cd20010 \SystemRoot\System32\Config\SECURITY
+0xfffff8a0009f1010 0x000000000aa1a010 \Device\HarddiskVolume1\Boot\BCD
+0xfffff8a000a15010 0x000000000acf9010 \SystemRoot\System32\Config\SOFTWARE
+0xfffff8a000ce5010 0x0000000008c95010 \SystemRoot\System32\Config\DEFAULT
+0xfffff8a000f95010 0x000000000c2b4010 \??\C:\Users\testing\ntuser.dat
 }}}
 
 == printkey ==
@@ -1262,80 +1250,82 @@ To display the subkeys, values, data, and data types contained within a specifie
 Say you want to traverse into the HKEY_LOCAL_MACHINE\Microsoft\Security Center\Svc key. You can do that in the following manner. Note: if you're running Volatility on Windows, enclose the key in double quotes (see issue 166).
 
 {{{
-$ python vol.py --profile=Win7SP0x86 -f win7.dmp printkey -K "Microsoft\Security Center\Svc"
-Volatile Systems Volatility Framework 2.0
+$ python vol.py -f ~/Desktop/win7_trial_64bit.raw --profile=Win7SP0x64 printkey -K "Microsoft\Security Center\Svc"
+Volatile Systems Volatility Framework 2.1_alpha
 Legend: (S) = Stable   (V) = Volatile
 
 ----------------------------
 Registry: \SystemRoot\System32\Config\SOFTWARE
 Key name: Svc (S)
-Last updated: 2010-07-06 22:33:20 
+Last updated: 2012-02-22 20:04:44 
 
 Subkeys:
   (V) Vol
 
 Values:
-REG_QWORD     VistaSp1        : (S) 128920209537502489
-REG_DWORD     AntiVirusOverride : (S) 0
+REG_QWORD     VistaSp1        : (S) 128920218544262440
 REG_DWORD     AntiSpywareOverride : (S) 0
-REG_DWORD     FirewallOverride : (S) 0
+REG_DWORD     ConfigMask      : (S) 4361
 }}}
 
-Here you can see output for more than one hive containing the key "Software\Microsoft\Windows NT\!CurrentVersion\Winlogon"
+Here you can see how the output appears when multiple hives (DEFAULT and ntuser.dat) contain the same key "Software\Microsoft\Windows NT\!CurrentVersion". 
 
 {{{
-$ python vol.py -f ds_fuzz_hidden_proc.img --profile=WinXPSP3x86 printkey -K "Software\Microsoft\Windows NT\CurrentVersion\Winlogon"
-Volatile Systems Volatility Framework 2.0
-Legend: (S) = Stable (V) = Volatile
+$ python vol.py -f ~/Desktop/win7_trial_64bit.raw --profile=Win7SP0x64 printkey -K "Software\Microsoft\Windows NT\CurrentVersion"
+Volatile Systems Volatility Framework 2.1_alpha
+Legend: (S) = Stable   (V) = Volatile
 
 ----------------------------
-Registry: \Device\HarddiskVolume1\Documents and Settings\NetworkService\NTUSER.DAT
-Key name: Winlogon (S)
-Last updated: 2008-11-26 07:38:23
+Registry: \SystemRoot\System32\Config\DEFAULT
+Key name: CurrentVersion (S)
+Last updated: 2009-07-14 04:53:31 
 
 Subkeys:
+  (S) Devices
+  (S) PrinterPorts
 
 Values:
-REG_SZ ParseAutoexec : (S) 1
-REG_SZ ExcludeProfileDirs : (S) Local Settings;Temporary Internet Files;History;Temp
-REG_DWORD BuildNumber : (S) 2600
 ----------------------------
-Registry: \Device\HarddiskVolume1\WINDOWS\system32\config\default
-Key name: Winlogon (S)
-Last updated: 2008-11-26 07:39:40
+Registry: \??\C:\Users\testing\ntuser.dat
+Key name: CurrentVersion (S)
+Last updated: 2012-02-22 11:26:13 
 
 Subkeys:
+  (S) Devices
+  (S) EFS
+  (S) MsiCorruptedFileRecovery
+  (S) Network
+  (S) PeerNet
+  (S) PrinterPorts
+  (S) Windows
+  (S) Winlogon
 
-Values:
-REG_SZ ParseAutoexec : (S) 1
-REG_SZ ExcludeProfileDirs : (S) Local Settings;Temporary Internet Files;History;Temp
-REG_DWORD BuildNumber : (S) 2600
 [snip]
 }}}
 
-Printkey also accepts a virtual address to the hive in which you want to search for a key. For example, to see the contents of HKEY_LOCAL_MACHINE, do the following:
+If you want to limit your search to a specific hive, printkey also accepts a virtual address to the hive. For example, to see the contents of HKEY_LOCAL_MACHINE, use the command below. Note: the offset is taken from the previous [CommandReference21#hivelist] output. 
 
 {{{
-$ python vol.py --profile=Win7SP0x86 -f win7.dmp printkey -o 0x8c089398 
-Volatile Systems Volatility Framework 2.0
+$ python vol.py -f ~/Desktop/win7_trial_64bit.raw --profile=Win7SP0x64 printkey -o 0xfffff8a000a15010
+Volatile Systems Volatility Framework 2.1_alpha
 Legend: (S) = Stable   (V) = Volatile
 
 ----------------------------
 Registry: User Specified
-Key name: CMI-CreateHive{3D971F19-49AB-4000-8D39-A6D9C673D809} (S)
-Last updated: 2010-03-10 22:48:38 
+Key name: CMI-CreateHive{199DAFC2-6F16-4946-BF90-5A3FC3A60902} (S)
+Last updated: 2009-07-14 07:13:38 
 
 Subkeys:
-  (S) AccessData
-  (S) BreakPoint
+  (S) ATI Technologies
   (S) Classes
   (S) Clients
-  (S) Foxit Software
   (S) Intel
   (S) Microsoft
-  (S) Mozilla
-  (S) mozilla.org
-[snip]
+  (S) ODBC
+  (S) Policies
+  (S) RegisteredApplications
+  (S) Sonic
+  (S) Wow6432Node
 }}}
 
 == hivedump ==
