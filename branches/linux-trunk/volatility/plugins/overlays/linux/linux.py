@@ -333,10 +333,7 @@ class VolatilityArmValidAS(obj.VolatilityMagic):
 
         #if val == 0x315760:
         #if val and val & 0x548cf8 == 0x548cf8: 
-        if val > 0:
-            yield True
-        else:
-            yield False
+        yield (val > 0)
 
 class LinuxObjectClasses(obj.ProfileModification):
     conditions = {'os': lambda x: x == 'linux'}
