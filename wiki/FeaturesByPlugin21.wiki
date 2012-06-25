@@ -11,34 +11,34 @@ Before using these plugins, make sure to read the BasicUsage instructions. To se
 == Image Identification ==
 
 ||Command||Description||OS Support||
-||[CommandReference21#imageinfo]||Prints the suggested profile (OS version and patch level).<br>Tells you if the system is PAE vs no PAE.<br>Locates the DTB, KDBG, KPCR, and KUSER_SHARED_DATA.<br>Prints the date/time info.||All||
-||[CommandReference21#kdbgscan]||Search for and dump potential KDBG addresses||All||
-||[CommandReference21#kpcrscan]||Search for and dump potential KPCR addresses||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#imageinfo imageinfo]||Prints the suggested profile (OS version and patch level).<br>Tells you if the system is PAE vs no PAE.<br>Locates the DTB, KDBG, KPCR, and KUSER_SHARED_DATA.<br>Prints the date/time info.||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#kdbgscan kdbgscan]||Search for and dump potential KDBG values||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#kpcrscan kpcrscan]||Search for and dump potential KDBG values||All||
 
 == Processes and DLLs ==
 
 ||Command||Description||OS Support||
-||[CommandReference21#pslist]||Print active processes by walking the !PsActiveProcessHead linked list.<br>For inactive/terminated or hidden/unlinked processes, see psscan.||All||
-||[CommandReference21#pstree]||Print process list as a tree so you can visualize the parent/child relationships||All||
-||[CommandReference21#psscan]||Find _EPROCESS objects using pool tag scanning||All||
-||[CommandReference21#dlllist]||Print loaded DLLs by walking the !InLoadOrderModuleList in the PEB.<br>Print DLLs in unlinked/hidden processes by specifying an _EPROCESS offset.<br>To cross reference this list with 3 other sources of information, see !LdrModules.||All||
-||[CommandReference21#dlldump]||Extract DLLs to executable files.<br>Dump a PE from process memory (even if it's not in the DLL list) by specifying a base address.||All||
-||[CommandReference21#handles]||Print list of open handles for each process||All||
-||[CommandReference21#getsids]||Print the SIDs owning each process||All||
-||[CommandReference21#verinfo]||Print the version information compiled into a process or DLL's PE file||All||
-||[CommandReference21#enumfunc]||Enumerate imported and exported functions from PE files (applies to processes, DLLs, and kernel drivers)||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#pslist pslist]||Print active processes by walking the !PsActiveProcessHead linked list.<br>For inactive/terminated or hidden/unlinked processes, see psscan.||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#pstree pstree]||Print process list as a tree so you can visualize the parent/child relationships||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#psscan psscan]||Find _EPROCESS objects using pool tag scanning||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#dlllist dlllist]||Print loaded DLLs by walking the !InLoadOrderModuleList in the PEB.<br>Print DLLs in unlinked/hidden processes by specifying an _EPROCESS offset.<br>To cross reference this list with 3 other sources of information, see !LdrModules.||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#dlldump dlldump]||Extract DLLs to executable files.<br>Dump a PE from process memory (even if it's not in the DLL list) by specifying a base address.||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#handles handles]||Print list of open handles for each process||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#getsids getsids]||Print the SIDs owning each process||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#verinfo verinfo]||Print the version information compiled into a process or DLL's PE file||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#enumfunc enumfunc]||Enumerate imported and exported functions from PE files (applies to processes, DLLs, and kernel drivers)||All||
 
 == Processes Memory ==
 
 ||Command||Description||OS Support||
-||[CommandReference21#memmap]||Print the virtual addresses, physical addresses, and size of each page accessible to a process||All||
-||[CommandReference21#memdump]||Dump the addressable memory for a process (outputs 1 file per process)||All||
-||[CommandReference21#procmemdump]||Extract a process's executable, preserving slack space||All||
-||[CommandReference21#procexedump]||Extract a process's executable, do not preserve slack space||All||
-||[CommandReference21#vadwalk]||Walk the VAD tree and print basic information||All||
-||[CommandReference#vadtree]||Walk the VAD tree and display in tree format||All||
-||[CommandReference21#vadinfo]||Walk the VAD tree and print extended information||All||
-||[CommandReference21#vaddump]||Dumps out the VAD sections (outputs multiple files per process)||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#memmap memmap]||Print the virtual addresses, physical addresses, and size of each page accessible to a process||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#memdump memdump]||Dump the addressable memory for a process (outputs 1 file per process)||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#procmemdump procmemdump]||Extract a process's executable, preserving slack space||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#procexedump procexedump]||Extract a process's executable, do not preserve slack space||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#vadwalk vadwalk]||Walk the VAD tree and print basic information||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#vadtree vadtree]||Walk the VAD tree and display in tree format||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#vadinfo vadinfo]||Walk the VAD tree and print extended information||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#vaddump vaddump]||Dumps out the VAD sections (outputs multiple files per process)||All||
 
 == Kernel Memory and Objects ==
 
@@ -96,6 +96,7 @@ Before using these plugins, make sure to read the BasicUsage instructions. To se
 ||[http://code.google.com/p/volatility/wiki/CommandReference#driverirp driverirp]||Print the 28 IRP handlers for each driver object.<br>Checks for inline API hooks of each function.<br>Detects hooks of DriverStartIO.||All||
 ||[http://code.google.com/p/volatility/wiki/CommandReference#devicetree devicetree]||Walk a driver's device tree||All||
 ||[http://code.google.com/p/volatility/wiki/CommandReference#psxview psxview]||Detect hidden processes by cross-referencing with various sources of process listings:<br>!PsActiveProcessHead linked list<br>EPROCESS pool scanning<br>ETHREAD pool scanning<br>!PspCidTable<br>Csrss.exe handle table<br>Csrss.exe internal linked list||All, but no internal list on Vista and 7||
+||[http://code.google.com/p/volatility/wiki/CommandReference#ssdt_ex ssdt_ex]||Automated SSDT hook explorer for use with IDA Pro.<br>Detects which SSDT functions are hooked.<br>Extracts the hooking driver and creates an IDA Database.<br>Labels the rootkit function in the IDA Database.||All||
 ||[http://code.google.com/p/volatility/wiki/CommandReference#timers timers]||Explore kernel timers (KTIMER) and DPCs (Deferred Procedure Calls)||All||
 
 == Miscellaneous ==
