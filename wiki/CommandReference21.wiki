@@ -1670,7 +1670,7 @@ $ python vol.py -f zeus.vmem yarascan --yara-file=/path/to/rules.yar
 To search for a simple string in any process and dump the memory segments containing a match:
 
 {{{
-$ python vol.py -f zeus.vmem malfind -D dump_files --yara-rules="simpleStringToFind"
+$ python vol.py -f zeus.vmem yarascan -D dump_files --yara-rules="simpleStringToFind"
 }}}
 
 To search for a byte pattern in kernel memory, use the following technique. This searches through memory in 1MB chunks, in all sessions. The TDL3 malware applies a hard-patch to SCSI adaptors on disk (sometimes atapi.sys or vmscsi.sys). In particular, it adds some shell code to the .rsrc section of the file, and then modifies the !AddressOfEntryPoint so that it points at the shell code. This is TDL3's main persistence method. One of the unique instructions in the shell code is `cmp dword ptr [eax], ‘3LDT’` so I made a YARA signature from those opcodes:
@@ -1712,282 +1712,441 @@ $ python vol.py -f zeus.vmem yarascan --yara-rules="/my(regular|expression{0,2})
 
 == svcscan ==
 
-Volatility is the only memory forensics framework with the ability to list Windows services. To see which services are registered on your memory image, use the svcscan command. The output shows the process ID of each service (if its active and pertains to a usermode process), the service name, service display name, service type, and current status. It also shows the binary path for the registered service - which will be an EXE for usermode services and a driver name for services that run from kernel mode. 
-
-The lanmandrv entry displayed below is the name of the service that Laqma installs to load its malicious kernel driver.
+Volatility is the only memory forensics framework with the ability to list services without using the Windows API on a live machine. To see which services are registered on your memory image, use the svcscan command. The output shows the process ID of each service (if its active and pertains to a usermode process), the service name, service display name, service type, and current status. It also shows the binary path for the registered service - which will be an EXE for usermode services and a driver name for services that run from kernel mode. 
 
 {{{
-$ python vol.py svcscan -f laqma.vmem
-Volatile Systems Volatility Framework 2.0
-Record       Order    Pid      Name             DisplayName                              Type                           State                Path
+$ python vol.py -f ~/Desktop/win7_trial_64bit.raw --profile=Win7SP0x64 svcscan
+Volatile Systems Volatility Framework 2.1_alpha
+Offset: 0xa26e70
+Order: 71
+Process ID: 1104
+Service Name: DPS
+Display Name: Diagnostic Policy Service
+Service Type: SERVICE_WIN32_SHARE_PROCESS
+Service State: SERVICE_RUNNING
+Binary Path: C:\Windows\system32\svchost.exe -k LocalServiceNoNetwork
+
+Offset: 0xa25620
+Order: 70
+Process ID: -
+Service Name: dot3svc
+Display Name: Wired AutoConfig
+Service Type: SERVICE_WIN32_SHARE_PROCESS
+Service State: SERVICE_STOPPED
+Binary Path: -
+
+Offset: 0xa25440
+Order: 68
+Process ID: -
+Service Name: Disk
+Display Name: Disk Driver
+Service Type: SERVICE_KERNEL_DRIVER
+Service State: SERVICE_RUNNING
+Binary Path: \Driver\Disk
 
 [snip]
-
-0x6ea738     0xf5     1148     WebClient        WebClient                                SERVICE_WIN32_SHARE_PROCESS    SERVICE_RUNNING      C:\WINDOWS\system32\svchost.exe -k LocalService
-0x6ea7c8     0xf6     1028     winmgmt          Windows Management Instrumentation       SERVICE_WIN32_SHARE_PROCESS    SERVICE_RUNNING      C:\WINDOWS\System32\svchost.exe -k netsvcs
-0x6ea858     0xf7     -------- WmdmPmSN         Portable Media Serial Number Service     SERVICE_WIN32_SHARE_PROCESS    SERVICE_STOPPED      --------
-0x6ea8e8     0xf8     -------- Wmi              Windows Management Instrumentation Driver Extensions SERVICE_WIN32_SHARE_PROCESS    SERVICE_STOPPED      --------
-0x6ea970     0xf9     -------- WmiApSrv         WMI Performance Adapter                  SERVICE_WIN32_OWN_PROCESS      SERVICE_STOPPED      --------
-0x6eaa00     0xfa     -------- WS2IFSL          Windows Socket 2.0 Non-IFS Service Provider Support Environment SERVICE_KERNEL_DRIVER          SERVICE_RUNNING      \Driver\WS2IFSL
-0x6eaa90     0xfb     1028     wscsvc           Security Center                          SERVICE_WIN32_SHARE_PROCESS    SERVICE_RUNNING      C:\WINDOWS\System32\svchost.exe -k netsvcs
-0x6eab20     0xfc     1028     wuauserv         Automatic Updates                        SERVICE_WIN32_SHARE_PROCESS    SERVICE_RUNNING      C:\WINDOWS\System32\svchost.exe -k netsvcs
-0x6eabb0     0xfd     1028     WZCSVC           Wireless Zero Configuration              SERVICE_WIN32_SHARE_PROCESS    SERVICE_RUNNING      C:\WINDOWS\System32\svchost.exe -k netsvcs
-0x6eac40     0xfe     -------- xmlprov          Network Provisioning Service             SERVICE_WIN32_SHARE_PROCESS    SERVICE_STOPPED      --------
-0x6eacd0     0xff     -------- lanmandrv        lanmandrv                                SERVICE_KERNEL_DRIVER          SERVICE_RUNNING      \Driver\lanmandrv
 }}}
 
 == ldrmodules ==
 
 There are many ways to hide a DLL. One of the ways involves unlinking the DLL from one (or all) of the linked lists in the PEB. However, when this is done, there is still information contained within the VAD (Virtual Address Descriptor) which identifies the base address of the DLL and its full path on disk. To cross-reference this information (known as memory mapped files) with the 3 PEB lists, use the ldrmodules command. 
 
-For each memory mapped PE file, the ldrmodules command prints a 0 or a 1 if the PE exists in the PEB lists. 
+For each memory mapped PE file, the ldrmodules command prints True or False if the PE exists in the PEB lists. 
 
 {{{
-$ python vol.py -f laqma.vmem ldrmodules 
-Volatile Systems Volatility Framework 2.0
-Pid      Process              Base     InLoad   InInit   InMem    Path
-   608 csrss.exe            0x010E0000      0      0      0 \WINDOWS\Fonts\vgasys.fon
-   608 csrss.exe            0x75B60000      0      0      0 \WINDOWS\system32\winsrv.dll
-   608 csrss.exe            0x77D40000      0      0      0 \WINDOWS\system32\user32.dll
-   632 winlogon.exe         0x01000000      1      0      1 \WINDOWS\system32\winlogon.exe
-   632 winlogon.exe         0x77DD0000      1      1      1 \WINDOWS\system32\advapi32.dll
-   632 winlogon.exe         0x77D40000      1      1      1 \WINDOWS\system32\user32.dll
-   676 services.exe         0x01000000      1      0      1 \WINDOWS\system32\services.exe
-   676 services.exe         0x758E0000      1      1      1 \WINDOWS\system32\scesrv.dll
-   688 lsass.exe            0x01000000      1      0      1 \WINDOWS\system32\lsass.exe
-   936 svchost.exe          0x01000000      1      0      1 \WINDOWS\system32\svchost.exe
-  1028 svchost.exe          0x01000000      1      0      1 \WINDOWS\system32\svchost.exe
-  1028 svchost.exe          0x20000000      1      1      1 \WINDOWS\system32\xpsp2res.dll
-  1028 svchost.exe          0x76D30000      1      1      1 \WINDOWS\system32\wmi.dll
-  1028 svchost.exe          0x77F60000      1      1      1 \WINDOWS\system32\shlwapi.dll
+$ python vol.py -f ~/Desktop/win7_trial_64bit.raw --profile=Win7SP0x64 ldrmodules
+Volatile Systems Volatility Framework 2.1_alpha
+Pid      Process              Base               InLoad InInit InMem MappedPath
+-------- -------------------- ------------------ ------ ------ ----- ----------
+     208 smss.exe             0x0000000047a90000 True   False  True  \Windows\System32\smss.exe
+     296 csrss.exe            0x0000000049700000 True   False  True  \Windows\System32\csrss.exe
+     344 csrss.exe            0x0000000000390000 False  False  False \Windows\Fonts\vgasys.fon
+     344 csrss.exe            0x00000000007a0000 False  False  False \Windows\Fonts\vgaoem.fon
+     344 csrss.exe            0x00000000020e0000 False  False  False \Windows\Fonts\ega40woa.fon
+     344 csrss.exe            0x0000000000a60000 False  False  False \Windows\Fonts\dosapp.fon
+     344 csrss.exe            0x0000000000a70000 False  False  False \Windows\Fonts\cga40woa.fon
+     344 csrss.exe            0x00000000020d0000 False  False  False \Windows\Fonts\cga80woa.fon
+     428 services.exe         0x0000000000020000 False  False  False \Windows\System32\en-US\services.exe.mui
+     428 services.exe         0x00000000ff670000 True   False  True  \Windows\System32\services.exe
+     444 lsass.exe            0x0000000000180000 False  False  False \Windows\System32\en-US\crypt32.dll.mui
+     444 lsass.exe            0x0000000076b20000 True   True   True  \Windows\System32\kernel32.dll
+     444 lsass.exe            0x0000000076c40000 True   True   True  \Windows\System32\user32.dll
+     444 lsass.exe            0x0000000074a70000 True   True   True  \Windows\System32\msprivs.dll
+     444 lsass.exe            0x0000000076d40000 True   True   True  \Windows\System32\ntdll.dll
+     568 svchost.exe          0x00000000001e0000 False  False  False \Windows\System32\en-US\umpnpmgr.dll.mui
 [snip]
 }}}
 
-Since the PEB and the DLL lists that it contains all exist in user mode, its also possible for malware to hide (or obscure) a DLL by simply overwriting the path. Tools that only look for unlinked entries may miss the fact that malware overwrite C:\bad.dll to show C:\windows\system32\kernel32.dll. So you can also pass -v or --verbose to ldrmodules to see the full path of all entries:
+Since the PEB and the DLL lists that it contains all exist in user mode, its also possible for malware to hide (or obscure) a DLL by simply overwriting the path. Tools that only look for unlinked entries may miss the fact that malware could overwrite C:\bad.dll to show C:\windows\system32\kernel32.dll. So you can also pass -v or --verbose to ldrmodules to see the full path of all entries:
 
 {{{
-$ python vol.py -f laqma.vmem ldrmodules -v
-Volatile Systems Volatility Framework 2.0
-Pid      Process              Base     InLoad   InInit   InMem    Path
-
-[snip]
-
-  1028 svchost.exe          0x77C10000      1      1      1 \WINDOWS\system32\msvcrt.dll
-  Load Path: C:\WINDOWS\system32\msvcrt.dll : msvcrt.dll
-  Init Path: C:\WINDOWS\system32\msvcrt.dll : msvcrt.dll
-  Mem Path:  C:\WINDOWS\system32\msvcrt.dll : msvcrt.dll
-  1028 svchost.exe          0x76D10000      1      1      1 \WINDOWS\system32\clusapi.dll
-  Load Path: C:\WINDOWS\System32\CLUSAPI.DLL : CLUSAPI.DLL
-  Init Path: C:\WINDOWS\System32\CLUSAPI.DLL : CLUSAPI.DLL
-  Mem Path:  C:\WINDOWS\System32\CLUSAPI.DLL : CLUSAPI.DLL
-  1028 svchost.exe          0x76E80000      1      1      1 \WINDOWS\system32\rtutils.dll
-  Load Path: c:\windows\system32\rtutils.dll : rtutils.dll
-  Init Path: c:\windows\system32\rtutils.dll : rtutils.dll
-  Mem Path:  c:\windows\system32\rtutils.dll : rtutils.dll
-  1028 svchost.exe          0x71AA0000      1      1      1 \WINDOWS\system32\ws2help.dll
-  Load Path: c:\windows\system32\WS2HELP.dll : WS2HELP.dll
-  Init Path: c:\windows\system32\WS2HELP.dll : WS2HELP.dll
-  Mem Path:  c:\windows\system32\WS2HELP.dll : WS2HELP.dll
+$ python vol.py -f ~/Desktop/win7_trial_64bit.raw --profile=Win7SP0x64 ldrmodules -v
+Volatile Systems Volatility Framework 2.1_alpha
+Pid      Process              Base               InLoad InInit InMem MappedPath
+-------- -------------------- ------------------ ------ ------ ----- ----------
+     208 smss.exe             0x0000000047a90000 True   False  True  \Windows\System32\smss.exe
+  Load Path: \SystemRoot\System32\smss.exe : smss.exe
+  Mem Path:  \SystemRoot\System32\smss.exe : smss.exe
+     296 csrss.exe            0x0000000049700000 True   False  True  \Windows\System32\csrss.exe
+  Load Path: C:\Windows\system32\csrss.exe : csrss.exe
+  Mem Path:  C:\Windows\system32\csrss.exe : csrss.exe
+     344 csrss.exe            0x0000000000390000 False  False  False \Windows\Fonts\vgasys.fon
+     344 csrss.exe            0x00000000007a0000 False  False  False \Windows\Fonts\vgaoem.fon
+     344 csrss.exe            0x00000000020e0000 False  False  False \Windows\Fonts\ega40woa.fon
+     344 csrss.exe            0x0000000000a60000 False  False  False \Windows\Fonts\dosapp.fon
+     344 csrss.exe            0x0000000000a70000 False  False  False \Windows\Fonts\cga40woa.fon
+     344 csrss.exe            0x00000000020d0000 False  False  False \Windows\Fonts\cga80woa.fon
+     428 services.exe         0x0000000000020000 False  False  False \Windows\System32\en-US\services.exe.mui
+     428 services.exe         0x00000000ff670000 True   False  True  \Windows\System32\services.exe
+  Load Path: C:\Windows\system32\services.exe : services.exe
+  Mem Path:  C:\Windows\system32\services.exe : services.exe
+     444 lsass.exe            0x0000000000180000 False  False  False \Windows\System32\en-US\crypt32.dll.mui
+     444 lsass.exe            0x0000000076b20000 True   True   True  \Windows\System32\kernel32.dll
+  Load Path: C:\Windows\system32\kernel32.dll : kernel32.dll
+  Init Path: C:\Windows\system32\kernel32.dll : kernel32.dll
+  Mem Path:  C:\Windows\system32\kernel32.dll : kernel32.dll
 [snip]
 }}}
 
 == impscan ==
 
-In order to fully reverse engineer code that you find in memory dumps, its necessary to see which functions the code imports. In other words, which API functions it calls. When you dump binaries with dlldump, moddump, procexedump/procmemdump, it doesn't rebuild the IAT (Import Address Table) - many times the required memory pages are paged to disk. Thus, we created impscan. Impscan identifies calls to APIs without parsing a PE file's IAT. It even works if malware completely erases the PE header, and it works on kernel drivers. 
+In order to fully reverse engineer code that you find in memory dumps, its necessary to see which functions the code imports. In other words, which API functions it calls. When you dump binaries with [CommandReference21#dlldump], [CommandReference21#moddump], or [CommandReference21#procexedump], the IAT (Import Address Table) may not properly be reconstructed due to the high likelihood that one or more pages in the PE header or IAT are not memory resident (paged). Thus, we created impscan. Impscan identifies calls to APIs without parsing a PE's IAT. It even works if malware completely erases the PE header, and it works on kernel drivers. 
 
-If you have IDA Pro installed, make sure idag.exe (Windows) or idal (Linux/OS X) is in your $PATH variable. If so, then impscan will automatically create a labeled IDB from the code you want to analyze. You can then open up the extracted code in IDA and begin reversing...
+Previous versions of impscan automatically created a labeled IDB for use with IDA Pro. This functionality has temporarily been disabled, but will return sometime in the future when other similar functionality is introduced. 
 
-Take Conficker for example. This malware deleted its PE header once it loaded in the target process. You can use malfind to detect the presence of Conficker based on the typical malfind criteria (page permissions, VAD tags, etc). Notice how the PE's base address doesn't contain the usual 'MZ' header:
+Take Coreflood for example. This malware deleted its PE header once it loaded in the target process (by calling !VirtualFree on the injected DLL's !ImageBase). You can use [CommandReference21#malfind] to detect the presence of Coreflood based on the typical criteria (page permissions, VAD tags, etc). Notice how the PE's base address doesn't contain the usual 'MZ' header:
 
 {{{
-$ python vol.py -f conficker.bin -p 3108 malfind -D out/
-Volatile Systems Volatility Framework 2.0
-Name                 Pid    Start      End        Tag    Hits Protect
-notepad.exe            3108 0x00A10000 0x00A2BFFF VadS      0     24 (MM_EXECUTE_UNKNOWN)
-Dumped to: out/services.exe.20c8558.00a10000-00a2bfff.dmp
-0x00a10000   00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00    ................
-0x00a10010   00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00    ................
-0x00a10020   00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00    ................
-0x00a10030   00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00    ................
-0x00a10040   00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00    ................
-0x00a10050   00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00    ................
-0x00a10060   00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00    ................
-0x00a10070   00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00    ................
+$ python vol.py -f coreflood.vmem -p 2044 malfind
+Volatile Systems Volatility Framework 2.1_alpha
+
+Process: IEXPLORE.EXE Pid: 2044 Address: 0x7ff80000
+Vad Tag: VadS Protection: PAGE_EXECUTE_READWRITE
+Flags: CommitCharge: 45, PrivateMemory: 1, Protection: 6
+
+0x7ff80000  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................
+0x7ff80010  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................
+0x7ff80020  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................
+0x7ff80030  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................
+
+0x7ff80000 0000             ADD [EAX], AL
+0x7ff80002 0000             ADD [EAX], AL
+0x7ff80004 0000             ADD [EAX], AL
+0x7ff80006 0000             ADD [EAX], AL
 }}}
 
-Let's assume you want to extract the unpacked copy of Conficker and see its imported APIs. Use impscan by specifying the base address provided to you by malfind:
+Let's assume you want to extract the unpacked copy of Coreflood and see its imported APIs. Use impscan by specifying the base address provided to you by malfind. In this case, we fixup the base address by 0x1000 to account for the missing page at the real !ImageBase. 
 
 {{{
-$ python vol.py -f conficker.bin -p 3108 impscan -a 0x00A10000 -D out
-Volatile Systems Volatility Framework 2.0
-a11204 RPCRT4.dll NdrClientCall2 77ef44d0
-a11208 RPCRT4.dll RpcStringBindingComposeA 77e9a8e4
-a110ac kernel32.dll Process32First 7c864f55
-a1120c RPCRT4.dll RpcBindingFromStringBindingA 77e9a898
-a11210 RPCRT4.dll RpcBindingFree 77e7b3d8
-a11058 kernel32.dll FreeLibrary 7c80ac7e
-a11220 VERSION.dll VerQueryValueA 77c018aa
-a110b0 kernel32.dll Process32Next 7c8650c8
-a11224 VERSION.dll GetFileVersionInfoA 77c01a40
-a11228 VERSION.dll GetFileVersionInfoSizeA 77c019ef
-a11230 WININET.dll InternetOpenA 771c5796
-a11034 kernel32.dll WriteFile 7c810e27
-a11238 WININET.dll InternetReadFile 771c82f2
-a1123c WININET.dll InternetCloseHandle 771c4d94
-a11240 WININET.dll InternetGetConnectedState 771d5c8e
-a11260 WS2_32.dll sendto 71ab2f51
-a11244 WININET.dll InternetOpenUrlA 771c5a62
+$ python vol.py -f coreflood.vmem -p 2044 impscan -b 0x7ff81000
+Volatile Systems Volatility Framework 2.1_alpha
+IAT        Call       Module               Function
+---------- ---------- -------------------- --------
+0x7ff9e000 0x77dd77b3 ADVAPI32.dll         SetSecurityDescriptorDacl
+0x7ff9e004 0x77dfd4c9 ADVAPI32.dll         GetUserNameA
+0x7ff9e008 0x77dd6bf0 ADVAPI32.dll         RegCloseKey
+0x7ff9e00c 0x77ddeaf4 ADVAPI32.dll         RegCreateKeyExA
+0x7ff9e010 0x77dfc123 ADVAPI32.dll         RegDeleteKeyA
+0x7ff9e014 0x77ddede5 ADVAPI32.dll         RegDeleteValueA
+0x7ff9e018 0x77ddd966 ADVAPI32.dll         RegNotifyChangeKeyValue
+0x7ff9e01c 0x77dd761b ADVAPI32.dll         RegOpenKeyExA
+0x7ff9e020 0x77dd7883 ADVAPI32.dll         RegQueryValueExA
+0x7ff9e024 0x77ddebe7 ADVAPI32.dll         RegSetValueExA
+0x7ff9e028 0x77dfc534 ADVAPI32.dll         AdjustTokenPrivileges
+0x7ff9e02c 0x77e34c3f ADVAPI32.dll         InitiateSystemShutdownA
+0x7ff9e030 0x77dfd11b ADVAPI32.dll         LookupPrivilegeValueA
+0x7ff9e034 0x77dd7753 ADVAPI32.dll         OpenProcessToken
+0x7ff9e038 0x77dfc8c1 ADVAPI32.dll         RegEnumKeyExA
 [snip]
 }}}
 
-If you don't specify a base address with -a or --address, then you'll end up scanning the process's main module (i.e. services.exe) for imported functions. You can also specify the base address of a kernel driver to scan the driver for imported kernel-mode functions. 
+If you don't specify a base address with -b or --base, then you'll end up scanning the process's main module (i.e. IEXPLORE.EXE since that's -p 2044) for imported functions. You can also specify the base address of a kernel driver to scan the driver for imported kernel-mode functions. 
 
-Laqma loads a kernel driver named lanmandrv.sys. If you extract it with moddump, the IAT will be corrupt. So use impscan to rebuild it:
+Laqma loads a kernel driver named lanmandrv.sys. If you extract it with [CommandReference21#moddump], the IAT will be corrupt. So use impscan to rebuild it:
 
 {{{
-$ python vol.py -f laqma.vmem modules | grep lanman
-Volatile Systems Volatility Framework 2.0
-\??\C:\WINDOWS\System32\lanmandrv.sys              0x00f8c52000 0x002000 lanmandrv.sys
+$ python vol.py -f laqma.vmem impscan -b 0xfca29000
+Volatile Systems Volatility Framework 2.1_alpha
+IAT        Call       Module               Function
+---------- ---------- -------------------- --------
+0xfca2a080 0x804ede90 ntoskrnl.exe         IofCompleteRequest
+0xfca2a084 0x804f058c ntoskrnl.exe         IoDeleteDevice
+0xfca2a088 0x80568140 ntoskrnl.exe         IoDeleteSymbolicLink
+0xfca2a08c 0x80567dcc ntoskrnl.exe         IoCreateSymbolicLink
+0xfca2a090 0x805a2130 ntoskrnl.exe         MmGetSystemRoutineAddress
+0xfca2a094 0x805699e0 ntoskrnl.exe         IoCreateDevice
+0xfca2a098 0x80544080 ntoskrnl.exe         ExAllocatePoolWithTag
+0xfca2a09c 0x80536dc3 ntoskrnl.exe         wcscmp
+0xfca2a0a0 0x804fdbc0 ntoskrnl.exe         ZwOpenKey
+0xfca2a0a4 0x80535010 ntoskrnl.exe         _except_handler3
+0xfca2a3ac 0x8056df44 ntoskrnl.exe         NtQueryDirectoryFile
+0xfca2a3b4 0x8060633e ntoskrnl.exe         NtQuerySystemInformation
+0xfca2a3bc 0x805bfb78 ntoskrnl.exe         NtOpenProcess
 }}}
 
-Now that you know the base address:
+The next example shows impscan on an x64 driver and using the render_idc output format. This gives you an IDC file you can import into IDA Pro to apply labels to the function calls. 
 
 {{{
-$ python vol.py -f laqma.vmem impscan -a 0x00f8c52000 -D out/
-Volatile Systems Volatility Framework 2.0
-f8c53080 ntoskrnl.exe IofCompleteRequest 804ee07a
-f8c530a0 ntoskrnl.exe ZwOpenKey 804fdd8c
-f8c530a4 ntoskrnl.exe _except_handler3 80535230
-f8c53084 ntoskrnl.exe IoDeleteDevice 804f0776
-f8c53088 ntoskrnl.exe IoDeleteSymbolicLink 8056833a
-f8c5309c ntoskrnl.exe wcscmp 80536fe3
-f8c533ac ntoskrnl.exe NtQueryDirectoryFile 8056e1c2
-f8c5308c ntoskrnl.exe IoCreateSymbolicLink 80567fc6
-f8c53090 ntoskrnl.exe MmGetSystemRoutineAddress 805a23dc
-f8c53094 ntoskrnl.exe IoCreateDevice 80569c5e
-f8c53098 ntoskrnl.exe ExAllocatePoolWithTag 80544280
-f8c533b4 ntoskrnl.exe NtQuerySystemInformation 806065e4
-f8c533bc ntoskrnl.exe NtOpenProcess 805bfe1e
+$ python vol.py -f ~/Desktop/win7_trial_64bit.raw --profile=Win7SP0x64 impscan -b 0xfffff88003980000 --output=idc --output-file=imps.idc
+Volatile Systems Volatility Framework 2.1_alpha
+
+$ cat imps.idc 
+#include <idc.idc>
+static main(void) {
+   MakeDword(0xFFFFF8800398A000);
+   MakeName(0xFFFFF8800398A000, "KeSetEvent");
+   MakeDword(0xFFFFF8800398A008);
+   MakeName(0xFFFFF8800398A008, "PsTerminateSystemThread");
+   MakeDword(0xFFFFF8800398A010);
+   MakeName(0xFFFFF8800398A010, "KeInitializeEvent");
+   MakeDword(0xFFFFF8800398A018);
+   MakeName(0xFFFFF8800398A018, "PsCreateSystemThread");
+   MakeDword(0xFFFFF8800398A020);
+   MakeName(0xFFFFF8800398A020, "KeWaitForSingleObject");
+   MakeDword(0xFFFFF8800398A028);
+   MakeName(0xFFFFF8800398A028, "ZwClose");
+   MakeDword(0xFFFFF8800398A030);
+   MakeName(0xFFFFF8800398A030, "RtlInitUnicodeString");
+[snip]
+   MakeDword(0xFFFFF8800398A220);
+   MakeName(0xFFFFF8800398A220, "RtlAnsiCharToUnicodeChar");
+   MakeDword(0xFFFFF8800398A228);
+   MakeName(0xFFFFF8800398A228, "__C_specific_handler");
+Exit(0);}
 }}}
 
 == apihooks ==
 
-To find API hooks in user mode or kernel mode, use the apihooks plugin. This finds IAT, EAT, Inline style hooks, and several special types of hooks. For Inline hooks, it detects CALLs and JMPs to direct and indirect locations, and it detects PUSH/RET instruction sequences. The special types of hooks that it detects include syscall hooking in ntdll.dll and calls to unknown code pages in kernel memory.
+To find API hooks in user mode or kernel mode, use the apihooks plugin. This finds IAT, EAT, Inline style hooks, and several special types of hooks. For Inline hooks, it detects CALLs and JMPs to direct and indirect locations, and it detects PUSH/RET instruction sequences. The special types of hooks that it detects include syscall hooking in ntdll.dll and calls to unknown code pages in kernel memory. 
 
-Here is an example of detecting IAT hooks installed by Coreflood. The far right field contains UNKNOWN because there is no module associated with the memory in which the rootkit code exists. If you want to extract the code containing the hooks, you have a few options:
+As of Volatility 2.1, apihooks also detects hooked winsock procedure tables, includes an easier to read output format, supports multiple hop disassembly, and can optionally scan quicker through memory by ignoring non-critical processes and DLLs. 
 
-1. See if [http://code.google.com/p/volatility/wiki/CommandReference#malfind malfind] can automatically find and extract it. 
+Here is an example of detecting IAT hooks installed by Coreflood. The hooking module is unknown because there is no module (DLL) associated with the memory in which the rootkit code exists. If you want to extract the code containing the hooks, you have a few options:
 
-2. Use [http://code.google.com/p/volatility/wiki/CommandReference#volshell volshell's] dd/db commands to scan backwards and look for an MZ header. Then pass that address to [http://code.google.com/p/volatility/wiki/CommandReference#dlldump dlldump] as the --base value. 
+1. See if [CommandReference21#malfind] can automatically find and extract it. 
 
-2. Use [http://code.google.com/p/volatility/wiki/CommandReference#vaddump vaddump] to extract all code segments to individual files (named according to start and end address), then find the file that contains the 0x7ff82 ranges.
+2. Use [CommandReference21#volshell] dd/db commands to scan backwards and look for an MZ header. Then pass that address to [CommandReference#dlldump] as the --base value. 
+
+3. Use [CommandReference21#vaddump] to extract all code segments to individual files (named according to start and end address), then find the file that contains the 0x7ff82 ranges.
 
 {{{
 $ python vol.py -f coreflood.vmem -p 2044 apihooks 
-Volatile Systems Volatility Framework 2.0
-Name                             Type     Target                                   Value
-IEXPLORE.EXE[2044]@winspool.drv  iat      KERNEL32.dll!GetProcAddress              0x0 0x7ff82360 (UNKNOWN)
-IEXPLORE.EXE[2044]@winspool.drv  iat      KERNEL32.dll!LoadLibraryW                0x0 0x7ff82ac0 (UNKNOWN)
-IEXPLORE.EXE[2044]@winspool.drv  iat      KERNEL32.dll!CreateFileW                 0x0 0x7ff82240 (UNKNOWN)
-IEXPLORE.EXE[2044]@winspool.drv  iat      KERNEL32.dll!LoadLibraryA                0x0 0x7ff82a50 (UNKNOWN)
-IEXPLORE.EXE[2044]@winspool.drv  iat      ADVAPI32.dll!RegSetValueExW              0x0 0x7ff82080 (UNKNOWN)
+Volatile Systems Volatility Framework 2.1_alpha
+************************************************************************
+Hook mode: Usermode
+Hook type: Import Address Table (IAT)
+Process: 2044 (IEXPLORE.EXE)
+Victim module: iexplore.exe (0x400000 - 0x419000)
+Function: kernel32.dll!GetProcAddress at 0x7ff82360
+Hook address: 0x7ff82360
+Hooking module: <unknown>
+
+Disassembly(0):
+0x7ff82360 e8fbf5ffff       CALL 0x7ff81960
+0x7ff82365 84c0             TEST AL, AL
+0x7ff82367 740b             JZ 0x7ff82374
+0x7ff82369 8b150054fa7f     MOV EDX, [0x7ffa5400]
+0x7ff8236f 8b4250           MOV EAX, [EDX+0x50]
+0x7ff82372 ffe0             JMP EAX
+0x7ff82374 8b4c2408         MOV ECX, [ESP+0x8]
+
+************************************************************************
+Hook mode: Usermode
+Hook type: Import Address Table (IAT)
+Process: 2044 (IEXPLORE.EXE)
+Victim module: iexplore.exe (0x400000 - 0x419000)
+Function: kernel32.dll!LoadLibraryA at 0x7ff82a50
+Hook address: 0x7ff82a50
+Hooking module: <unknown>
+
+Disassembly(0):
+0x7ff82a50 51               PUSH ECX
+0x7ff82a51 e80aefffff       CALL 0x7ff81960
+0x7ff82a56 84c0             TEST AL, AL
+0x7ff82a58 7414             JZ 0x7ff82a6e
+0x7ff82a5a 8b442408         MOV EAX, [ESP+0x8]
+0x7ff82a5e 8b0d0054fa7f     MOV ECX, [0x7ffa5400]
+0x7ff82a64 8b512c           MOV EDX, [ECX+0x2c]
+0x7ff82a67 50               PUSH EAX
+
 [snip]
 }}}
 
-Here is an example of detecting the Inline hooks installed by Silentbanker:
+Here is an example of detecting the Inline hooks installed by Silentbanker. Note the multiple hop disassembly which is new in 2.1. It shows the first hop of the hook at 0x7c81caa2 jumps to 0xe50000. Then you also see a disassembly of the code at 0xe50000 which executes the rest of the trampoline. 
 
 {{{
 $ python vol.py -f silentbanker.vmem -p 1884 apihooks
-Volatile Systems Volatility Framework 2.0
-Name                             Type     Target                                   Value
-IEXPLORE.EXE[1884]               inline   ws2_32.dll!connect                       0x71ab406a JMP 0xe90000 (UNKNOWN)
-IEXPLORE.EXE[1884]               inline   ws2_32.dll!send                          0x71ab428a JMP 0xe70000 (UNKNOWN)
-IEXPLORE.EXE[1884]               inline   user32.dll!DispatchMessageA              0x77d4bcbd JMP 0x10e0000 (UNKNOWN)
-IEXPLORE.EXE[1884]               inline   user32.dll!DispatchMessageW              0x77d489d9 JMP 0x1100000 (UNKNOWN)
-IEXPLORE.EXE[1884]               inline   user32.dll!GetClipboardData              0x77d6fcb2 JMP 0x10c0000 (UNKNOWN)
+Volatile Systems Volatility Framework 2.1_alpha
+************************************************************************
+Hook mode: Usermode
+Hook type: Inline/Trampoline
+Process: 1884 (IEXPLORE.EXE)
+Victim module: kernel32.dll (0x7c800000 - 0x7c8f4000)
+Function: kernel32.dll!ExitProcess at 0x7c81caa2
+Hook address: 0xe50000
+Hooking module: <unknown>
+
+Disassembly(0):
+0x7c81caa2 e959356384       JMP 0xe50000
+0x7c81caa7 6aff             PUSH -0x1
+0x7c81caa9 68b0f3e877       PUSH DWORD 0x77e8f3b0
+0x7c81caae ff7508           PUSH DWORD [EBP+0x8]
+0x7c81cab1 e846ffffff       CALL 0x7c81c9fc
+
+Disassembly(1):
+0xe50000 58               POP EAX
+0xe50001 680500e600       PUSH DWORD 0xe60005
+0xe50006 6800000000       PUSH DWORD 0x0
+0xe5000b 680000807c       PUSH DWORD 0x7c800000
+0xe50010 6828180310       PUSH DWORD 0x10031828
+0xe50015 50               PUSH EAX
+
 [snip]
-}}}
-
-Here is an example of detecting the 8-byte SHORT JMP + LONG JMP Inline hooks installed by SpyEye, the malware used in [http://www.honeynet.org/node/668 The Honeynet Project's Forensic Challenge 8]. 
-
-{{{
-$ python vol.py -f spyeye.vmem apihooks -p 700
-Volatile Systems Volatility Framework 2.0
-Name                             Type     Target                                   Value
-explorer.exe[700]                inline   ws2_32.dll!send                          0x71ab4c27 JMP 0xbb6a9b8 (UNKNOWN)
-explorer.exe[700]                inline   crypt32.dll!PFXImportCertStore           0x77aeff8f JMP 0xbb5e80d (UNKNOWN)
-explorer.exe[700]                inline   wininet.dll!HttpSendRequestA             0x771c7519 JMP 0xbb6e13b (UNKNOWN)
-explorer.exe[700]                inline   wininet.dll!HttpSendRequestW             0x771ddb8e JMP 0xbb6e299 (UNKNOWN)
-explorer.exe[700]                inline   wininet.dll!InternetCloseHandle          0x771be85d JMP 0xbb68418 (UNKNOWN)
-explorer.exe[700]                inline   wininet.dll!InternetWriteFile            0x771d27a3 JMP 0xbb6e3f7 (UNKNOWN)
-explorer.exe[700]                inline   advapi32.dll!CryptEncrypt                0x77dee340 JMP 0xbb6a0e4 (UNKNOWN)
-explorer.exe[700]                inline   ntdll.dll!NtEnumerateValueKey            0x7c90d2d0 JMP 0xbb5769e (UNKNOWN)
-explorer.exe[700]                inline   ntdll.dll!NtQueryDirectoryFile           0x7c90d750 JMP 0xbb62dc5 (UNKNOWN)
-explorer.exe[700]                inline   ntdll.dll!NtResumeThread                 0x7c90db20 JMP 0xbb7150a (UNKNOWN)
-[snip]
-}}}
-
-If you look in memory (using the ws2_32.dll!send hook as an example), the layout uses a JMP SHORT followed by a JMP. This is slightly more dangerous and more complex to install than your basic 5-byte detour patch, but it can hide from some anti-rootkit tools that only check the first instruction in a function for hooks. 
-
-{{{
-Address   Hex dump          Command                               
-71AB4C27   /EB 01           JMP SHORT 71AB4C2A
-71AB4C29   |C3              RETN
-71AB4C2A  -\E9 895D0B9A     JMP 0BB6A9B8
 }}}
 
 Here is an example of detecting the PUSH/RET Inline hooks installed by Laqma:
 
 {{{
 $ python vol.py -f laqma.vmem -p 1624 apihooks
-Volatile Systems Volatility Framework 2.0
-Name                             Type     Target                                   Value
-explorer.exe[1624]               inline   user32.dll!MessageBoxA                   0x7e45058a PUSH 0xac10aa; RET (Dll.dll)
-explorer.exe[1624]               inline   crypt32.dll!CertSerializeCRLStoreElement 0x77aa28df PUSH 0xac1104; RET (Dll.dll)
-explorer.exe[1624]               inline   crypt32.dll!CertSerializeCTLStoreElement 0x77aa28df PUSH 0xac1104; RET (Dll.dll)
-explorer.exe[1624]               inline   crypt32.dll!CertSerializeCertificateStoreElement 0x77aa28df PUSH 0xac1104; RET (Dll.dll)
-explorer.exe[1624]               inline   crypt32.dll!PFXImportCertStore           0x77aef748 PUSH 0xac12a8; RET (Dll.dll)
-explorer.exe[1624]               inline   wininet.dll!HttpOpenRequestA             0x771c36dd PUSH 0xac148c; RET (Dll.dll)
-explorer.exe[1624]               inline   wininet.dll!HttpSendRequestA             0x771c6129 PUSH 0xac162c; RET (Dll.dll)
+Volatile Systems Volatility Framework 2.1_alpha
+************************************************************************
+Hook mode: Usermode
+Hook type: Inline/Trampoline
+Process: 1624 (explorer.exe)
+Victim module: USER32.dll (0x7e410000 - 0x7e4a0000)
+Function: USER32.dll!MessageBoxA at 0x7e45058a
+Hook address: 0xac10aa
+Hooking module: Dll.dll
+
+Disassembly(0):
+0x7e45058a 68aa10ac00       PUSH DWORD 0xac10aa
+0x7e45058f c3               RET
+0x7e450590 3dbc04477e       CMP EAX, 0x7e4704bc
+0x7e450595 00742464         ADD [ESP+0x64], DH
+0x7e450599 a118000000       MOV EAX, [0x18]
+0x7e45059e 6a00             PUSH 0x0
+0x7e4505a0 ff               DB 0xff
+0x7e4505a1 70               DB 0x70
+
+Disassembly(1):
+0xac10aa 53               PUSH EBX
+0xac10ab 56               PUSH ESI
+0xac10ac 57               PUSH EDI
+0xac10ad 90               NOP
+0xac10ae 90               NOP
+
 [snip]
 }}}
 
 Here is an example of using apihooks to detect the syscall patches in ntdll.dll (using a Carberp sample):
 
 {{{
-$ python vol.py -f carberp.vmem apihooks
-Volatile Systems Volatility Framework 2.0
-Name                             Type     Target                                   Value
-explorer.exe[1004]               inline   ntdll.dll!NtCreateThread                 0x7c90d190 JMP 0x15a3fa7 (UNKNOWN)
-explorer.exe[1004]               inline   ntdll.dll!ZwCreateThread                 0x7c90d190 JMP 0x15a3fa7 (UNKNOWN)
-explorer.exe[1004]               syscall  ntdll.dll!NtQueryDirectoryFile           0x1dadd84 MOV EDX, 0x1dadd84 (UNKNOWN)
-explorer.exe[1004]               syscall  ntdll.dll!NtResumeThread                 0x1dadd78 MOV EDX, 0x1dadd78 (UNKNOWN)
-explorer.exe[1004]               syscall  ntdll.dll!ZwQueryDirectoryFile           0x1dadd84 MOV EDX, 0x1dadd84 (UNKNOWN)
-explorer.exe[1004]               syscall  ntdll.dll!ZwResumeThread                 0x1dadd78 MOV EDX, 0x1dadd78 (UNKNOWN)
-explorer.exe[1004]               inline   ws2_32.dll!WSASend                       0x71ab68fa JMP 0x15a97f7 (UNKNOWN)
-explorer.exe[1004]               inline   ws2_32.dll!closesocket                   0x71ab3e2b JMP 0x15a979e (UNKNOWN)
+$ python vol.py -f carberp.vmem -p 1004 apihooks
+Volatile Systems Volatility Framework 2.1_alpha
+************************************************************************
+Hook mode: Usermode
+Hook type: NT Syscall
+Process: 1004 (explorer.exe)
+Victim module: ntdll.dll (0x7c900000 - 0x7c9af000)
+Function: NtQueryDirectoryFile
+Hook address: 0x1da658f
+Hooking module: <unknown>
+
+Disassembly(0):
+0x7c90d750 b891000000       MOV EAX, 0x91
+0x7c90d755 ba84ddda01       MOV EDX, 0x1dadd84
+0x7c90d75a ff12             CALL DWORD [EDX]
+0x7c90d75c c22c00           RET 0x2c
+0x7c90d75f 90               NOP
+0x7c90d760 b892000000       MOV EAX, 0x92
+0x7c90d765 ba               DB 0xba
+0x7c90d766 0003             ADD [EBX], AL
+
+Disassembly(1):
+0x1da658f 58               POP EAX
+0x1da6590 8d056663da01     LEA EAX, [0x1da6366]
+0x1da6596 ffe0             JMP EAX
+0x1da6598 c3               RET
+0x1da6599 55               PUSH EBP
+0x1da659a 8bec             MOV EBP, ESP
+0x1da659c 51               PUSH ECX
+0x1da659d 8365fc00         AND DWORD [EBP+0xfffffffc], 0x0
+0x1da65a1 688f88d69b       PUSH DWORD 0x9bd6888f
+
 [snip]
 }}}
 
 Here is an example of using apihooks to detect the Inline hook of a kernel mode function:
 
 {{{
-$ python vol.py apihooks -K -f rustock.vmem 
+$ python vol.py apihooks -f rustock.vmem 
+************************************************************************
+Hook mode: Kernelmode
+Hook type: Inline/Trampoline
+Victim module: ntoskrnl.exe (0x804d7000 - 0x806cf980)
+Function: ntoskrnl.exe!IofCallDriver at 0x804ee130
+Hook address: 0xb17a189d
+Hooking module: <unknown>
 
-Name     Type     Function                        Value
--        inlinek  ntoskrnl.exe!IofCallDriver      0x804ee130 jmp [0x8054c280] =>> 0xb17a189d (\Driver\pe386)
+Disassembly(0):
+0x804ee130 ff2580c25480     JMP DWORD [0x8054c280]
+0x804ee136 cc               INT 3
+0x804ee137 cc               INT 3
+0x804ee138 cc               INT 3
+0x804ee139 cc               INT 3
+0x804ee13a cc               INT 3
+0x804ee13b cc               INT 3
+0x804ee13c 8bff             MOV EDI, EDI
+0x804ee13e 55               PUSH EBP
+0x804ee13f 8bec             MOV EBP, ESP
+0x804ee141 8b4d08           MOV ECX, [EBP+0x8]
+0x804ee144 83f929           CMP ECX, 0x29
+0x804ee147 72               DB 0x72
+
+Disassembly(1):
+0xb17a189d 56               PUSH ESI
+0xb17a189e 57               PUSH EDI
+0xb17a189f 8bf9             MOV EDI, ECX
+0xb17a18a1 8b7708           MOV ESI, [EDI+0x8]
+0xb17a18a4 3b35ab6d7ab1     CMP ESI, [0xb17a6dab]
+0xb17a18aa 7509             JNZ 0xb17a18b5
+0xb17a18ac 52               PUSH EDX
+0xb17a18ad 57               PUSH EDI
+0xb17a18ae e8c6430000       CALL 0xb17a5c79
+0xb17a18b3 eb6a             JMP 0xb17a191f
 }}}
 
 Here is an example of using apihooks to detect the calls to an unknown code page from a kernel driver. In this case, malware has patched tcpip.sys with some malicious redirections. 
 
 {{{
-$ python vol.py -f rustock-2.vmem apihooks -K
-Volatile Systems Volatility Framework 2.0
-Name                             Type     Target                                   Value
--                                ucpcall  tcpip.sys                                0xf7be2514 CALL [0x81ecd0c0]
--                                ucpcall  tcpip.sys                                0xf7be28ad CALL [0x81e9da60]
--                                ucpcall  tcpip.sys                                0xf7be2c61 CALL [0x81f8a058]
--                                ucpcall  tcpip.sys                                0xf7bfa0c0 CALL [0x82009dd0]
+$ python vol.py -f rustock-c.vmem apihooks 
+Volatile Systems Volatility Framework 2.1_alpha
+************************************************************************
+Hook mode: Kernelmode
+Hook type: Unknown Code Page Call
+Victim module: tcpip.sys (0xf7bac000 - 0xf7c04000)
+Function: <unknown>
+Hook address: 0x81ecd0c0
+Hooking module: <unknown>
+
+Disassembly(0):
+0xf7be2514 ff15bcd0ec81     CALL DWORD [0x81ecd0bc]
+0xf7be251a 817dfc03010000   CMP DWORD [EBP+0xfffffffc], 0x103
+0xf7be2521 7506             JNZ 0xf7be2529
+0xf7be2523 57               PUSH EDI
+0xf7be2524 e8de860000       CALL 0xf7beac07
+0xf7be2529 83               DB 0x83
+0xf7be252a 66               DB 0x66
+0xf7be252b 10               DB 0x10
+
+Disassembly(1):
+0x81ecd0c0 0e               PUSH CS
+0x81ecd0c1 90               NOP
+0x81ecd0c2 83ec04           SUB ESP, 0x4
+0x81ecd0c5 c704246119c481   MOV DWORD [ESP], 0x81c41961
+0x81ecd0cc cb               RETF
+
+[snip]
 }}}
 
 == idt ==
