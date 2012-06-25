@@ -412,7 +412,54 @@ smss.exe (208): S-1-16-16384 (System Mandatory Level)
 
 == cmdscan == 
 
+The cmdscan plugin searches the memory of csrss.exe on XP/2003/Vista/2008 and conhost.exe on Windows 7 for commands that attackers entered through a console shell (cmd.exe). This is one of the most powerful commands you can use to gain visibility into an attackers actions on a victim system, whether they opened cmd.exe through an RDP session or proxied input/output to a command shell from a networked backdoor. 
+
+The structures used by this plugin are not public (i.e. Microsoft does not produce PDBs for them), thus they're not available in WinDBG or any other forensic framework. They were reverse engineered by Michael Ligh from the conhost.exe and winsrv.dll binaries. 
+
+In addition to the commands entered into a shell, this plugin shows: 
+
+  * The name of the console host process (csrss.exe or conhost.exe)
+  * The name of the application using the console (whatever process is using cmd.exe)
+  * The location of the command history buffers, including the current buffer count, last added command, and last displayed command 
+  * The application process handle 
+
+{{{
+$ python vol.py -f VistaSP2x64.vmem --profile=VistaSP2x64 cmdscan
+Volatile Systems Volatility Framework 2.1_alpha
+
+**************************************************
+CommandProcess: csrss.exe Pid: 528
+CommandHistory: 0x135ec00 Application: cmd.exe Flags: Allocated, Reset
+CommandCount: 18 LastAdded: 17 LastDisplayed: 17
+FirstCommand: 0 CommandCountMax: 50
+ProcessHandle: 0x330
+Cmd #0 @ 0x135ef10: cd \
+Cmd #1 @ 0x135ef50: cd de
+Cmd #2 @ 0x135ef70: cd PerfLogs
+Cmd #3 @ 0x135ef90: cd ..
+Cmd #4 @ 0x5c78b90: cd "Program Files"
+Cmd #5 @ 0x135fae0: cd "Debugging Tools for Windows (x64)"
+Cmd #6 @ 0x135efb0: livekd -w
+Cmd #7 @ 0x135f010: windbg 
+Cmd #8 @ 0x135efd0: cd \
+Cmd #9 @ 0x135fd20: rundll32 c:\apphelp.dll,ExportFunc
+Cmd #10 @ 0x5c8bdb0: rundll32 c:\windows_apphelp.dll,ExportFunc
+Cmd #11 @ 0x5c8be10: rundll32 c:\windows_apphelp.dll
+Cmd #12 @ 0x135ee30: rundll32 c:\windows_apphelp.dll,Test
+Cmd #13 @ 0x135fd70: cd "Program Files"
+Cmd #14 @ 0x5c8b9e0: dir
+Cmd #15 @ 0x5c8be60: cd "Debugging Tools for Windows (x64)"
+Cmd #16 @ 0x5c8ba00: dir
+Cmd #17 @ 0x135eff0: livekd -w
+
+[snip]
+}}}
+
+For background information, see Richard Stevens and Eoghan Casey's [http://ww.dfrws.org/2010/proceedings/stevens.pdf Extracting Windows Cmd Line Details from Physical Memory].
+
 == consoles ==
+
+
 
 == envars == 
 
@@ -1520,6 +1567,21 @@ Last updated:   2010-03-18 01:56:31
 }}}
 
 == shimcache == 
+
+This plugin parses the Application Compatibility Shim Cache registry key. 
+
+{{{
+$ python vol.py -f ~/Desktop/win7_trial_64bit.raw --profile=Win7SP0x64 shimcache
+Volatile Systems Volatility Framework 2.1_alpha
+Last Modified: 2009-07-14 01:39:15 , Path: \??\C:\Windows\system32\LogonUI.exe
+Last Modified: 2009-07-14 01:39:46 , Path: \??\C:\Windows\System32\svchost.exe
+Last Modified: 2009-07-14 01:39:50 , Path: \??\C:\Windows\system32\vssvc.exe
+Last Modified: 2009-06-10 20:39:58 , Path: \??\C:\Windows\Microsoft.NET\Framework64\v2.0.50727\mscorsvw.exe
+Last Modified: 2009-06-10 21:23:09 , Path: \??\C:\Windows\Microsoft.NET\Framework\v2.0.50727\mscorsvw.exe
+Last Modified: 2009-06-10 20:39:44 , Path: \??\C:\Windows\WinSxS\amd64_netfx-clrgc_b03f5f7f11d50a3a_6.1.7600.16385_none_ada52b8ba0da82ba\clrgc.exe
+Last Modified: 2009-07-14 01:39:25 , Path: \??\C:\Windows\System32\netsh.exe
+Last Modified: 2009-07-14 01:39:07 , Path: \??\C:\Windows\system32\DrvInst.exe
+}}}
 
 = Crash Dumps, Hibernation, and Conversion =
 
