@@ -2151,7 +2151,9 @@ Disassembly(1):
 
 == idt ==
 
-To print the system's IDT (Interrupt Descriptor Table), use the idt command. This displays the purpose of the interrupts, along with the current address and owning module. It also checks the IDT entries for Inline style API hooks. This is important because some rootkits hook the IDT entry for !KiSystemService, but point it at a routine inside the NT module (where !KiSystemService should point). However, at that address, there is an Inline hook!
+To print the system's IDT (Interrupt Descriptor Table), use the idt command. If there are multiple processors on the system, the IDT for each individual CPU is displayed. You'll see the CPU number, the GDT selector, the current address and owning module. 
+
+It also checks the IDT entries for Inline style API hooks. This is important because some rootkits hook the IDT entry for !KiSystemService, but point it at a routine inside the NT module (where !KiSystemService should point). However, at that address, there is an Inline hook!
 
 {{{
 $ python vol.py idt -f rustock.vmem 
