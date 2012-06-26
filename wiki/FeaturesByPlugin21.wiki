@@ -4,91 +4,90 @@
 
 This is a list of Volatility 2.1 features organized by plugins and categories. Plugins for older versions of Volatility can be found on [http://www.forensicswiki.org/wiki/List_of_Volatility_Plugins The Forensics Wiki] or in the [http://code.google.com/p/volatility/wiki/Plugins deprecated Plugins page].
 
-If the OS Support column contains the word "All", that doesn't mean it works on all operating systems - it just means it works on all operating systems that Volatility supports. For a list, see the [http://code.google.com/p/volatility/wiki/FAQ FAQ page]. 
-
 Before using these plugins, make sure to read the BasicUsage instructions. To see example use cases and example output from the plugins, see the CommandReference or click on the name of the plugin.
 
 == Image Identification ==
 
 ||Command||Description||OS Support||
-||[http://code.google.com/p/volatility/wiki/CommandReference#imageinfo imageinfo]||Identity information for the image||All||
-||[http://code.google.com/p/volatility/wiki/CommandReference#kdbgscan kdbgscan]||Search for and dump potential KDBG values||All||
-||[http://code.google.com/p/volatility/wiki/CommandReference#kpcrscan kpcrscan]||Search for and dump potential KPCR values||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference21#imageinfo imageinfo]||Identity information for the image||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference21#kdbgscan kdbgscan]||Search for and dump potential KDBG values||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference21#kpcrscan kpcrscan]||Search for and dump potential KPCR values||All||
 
 == Processes and DLLs ==
 
 ||Command||Description||OS Support||
-||[http://code.google.com/p/volatility/wiki/CommandReference#pslist pslist]||Print all running processes by following the EPROCESS lists||All||
-||[http://code.google.com/p/volatility/wiki/CommandReference#pstree pstree]||Print process list as a tree||All||
-||[http://code.google.com/p/volatility/wiki/CommandReference#psscan psscan]||Scan Physical memory for EPROCESS pool allocations||All||
-||[http://code.google.com/p/volatility/wiki/CommandReference#psdispscan psdispscan]||Scan Physical memory for EPROCESS objects based on their Dispatch Headers||Only Windows XP x86||
-||[http://code.google.com/p/volatility/wiki/CommandReference#dlllist dlllist]||Print list of loaded dlls for each process||All||
-||[http://code.google.com/p/volatility/wiki/CommandReference#dlldump dlldump]||Dump DLLs from a process address space||All||
-||[http://code.google.com/p/volatility/wiki/CommandReference#handles handles]||Print list of open handles for each process||All||
-||[http://code.google.com/p/volatility/wiki/CommandReference#getsids getsids]||Print the SIDs owning each process||All||
-||[http://code.google.com/p/volatility/wiki/CommandReference#cmdscan cmdscan]||Extract command history by scanning for COMMAND_HISTORY||All except Windows 7 x64||
-||[http://code.google.com/p/volatility/wiki/CommandReference#consoles consoles]||PExtract command history by scanning for _CONSOLE_INFORMATION||All except Windows 7 x64||
-||[http://code.google.com/p/volatility/wiki/CommandReference#envars envars]||Display process environment variables||All||
-||[http://code.google.com/p/volatility/wiki/CommandReference#verinfo verinfo]||Prints out the version information from PE images||All||
-||[http://code.google.com/p/volatility/wiki/CommandReference#enumfunc enumfunc]||Enumerate imported and exported functions||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference21#pslist pslist]||Print all running processes by following the EPROCESS lists||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference21#pstree pstree]||Print process list as a tree||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference21#psscan psscan]||Scan Physical memory for EPROCESS pool allocations||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference21#psdispscan psdispscan]||Scan Physical memory for EPROCESS objects based on their Dispatch Headers||Only Windows XP x86||
+||[http://code.google.com/p/volatility/wiki/CommandReference21#dlllist dlllist]||Print list of loaded dlls for each process||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference21#dlldump dlldump]||Dump DLLs from a process address space||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference21#handles handles]||Print list of open handles for each process||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference21#getsids getsids]||Print the SIDs owning each process||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference21#cmdscan cmdscan]||Extract command history by scanning for COMMAND_HISTORY||All except Windows 7 x64||
+||[http://code.google.com/p/volatility/wiki/CommandReference21#consoles consoles]||PExtract command history by scanning for CONSOLE_INFORMATION||All except Windows 7 x64||
+||[http://code.google.com/p/volatility/wiki/CommandReference21#envars envars]||Display process environment variables||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference21#verinfo verinfo]||Prints out the version information from PE images||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference21#enumfunc enumfunc]||Enumerate imported and exported functions||All||
 
 == Processes Memory ==
 
 ||Command||Description||OS Support||
-||[http://code.google.com/p/volatility/wiki/CommandReference#memmap memmap]||Print the virtual addresses, physical addresses, and size of each page accessible to a process||All||
-||[http://code.google.com/p/volatility/wiki/CommandReference#memdump memdump]||Dump the addressable memory for a process||All||
-||[http://code.google.com/p/volatility/wiki/CommandReference#procmemdump procmemdump]||Extract a process's executable, preserving slack space||All||
-||[http://code.google.com/p/volatility/wiki/CommandReference#procexedump procexedump]||Extract a process's executable, do not preserve slack space||All||
-||[http://code.google.com/p/volatility/wiki/CommandReference#vadwalk vadwalk]||Walk the VAD tree and print basic information||All||
-||[http://code.google.com/p/volatility/wiki/CommandReference#vadtree vadtree]||Walk the VAD tree and display in tree format||All||
-||[http://code.google.com/p/volatility/wiki/CommandReference#vadinfo vadinfo]||Walk the VAD tree and print extended information||All||
-||[http://code.google.com/p/volatility/wiki/CommandReference#vaddump vaddump]||Dumps out the VAD sections to a file||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference21#memmap memmap]||Print the virtual addresses, physical addresses, and size of each page accessible to a process||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference21#memdump memdump]||Dump the addressable memory for a process||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference21#procmemdump procmemdump]||Extract a process's executable, preserving slack space||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference21#procexedump procexedump]||Extract a process's executable, do not preserve slack space||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference21#vadwalk vadwalk]||Walk the VAD tree and print basic information||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference21#vadtree vadtree]||Walk the VAD tree and display in tree format||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference21#vadinfo vadinfo]||Walk the VAD tree and print extended information||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference21#vaddump vaddump]||Dumps out the VAD sections to a file||All||
 
 == Kernel Memory and Objects ==
 
 ||Command||Description||OS Support||
-||[http://code.google.com/p/volatility/wiki/CommandReference#modules modules]||Print list of loaded kernel modules||All||
-||[http://code.google.com/p/volatility/wiki/CommandReference#modscan modscan]||Scan physical memory for LDR_DATA_TABLE_ENTRY objects||All||
-||[http://code.google.com/p/volatility/wiki/CommandReference#moddump moddump]||Dump a kernel driver to an executable file sample||All||
-||[http://code.google.com/p/volatility/wiki/CommandReference#ssdt ssdt]||Display SSDT entries||All||
-||[http://code.google.com/p/volatility/wiki/CommandReference#driverscan driverscan]||Scan physical memory for DRIVER_OBJECT objects||All||
-||[http://code.google.com/p/volatility/wiki/CommandReference#filescan filescan]||Scan physical memory for FILE_OBJECT objects||All||
-||[http://code.google.com/p/volatility/wiki/CommandReference#mutantscan mutantscan]||Scan physical memory for KMUTANT objects||All||
-||[http://code.google.com/p/volatility/wiki/CommandReference#symlinkscan symlinkscan] ||Scans for symbolic link objects||All|| 
-||[http://code.google.com/p/volatility/wiki/CommandReference#thrdscan thrdscan]||Scan physical memory for ETHREAD objects||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference21#modules modules]||Print list of loaded kernel modules||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference21#modscan modscan]||Scan physical memory for LDR_DATA_TABLE_ENTRY objects||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference21#moddump moddump]||Dump a kernel driver to an executable file sample||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference21#ssdt ssdt]||Display SSDT entries||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference21#driverscan driverscan]||Scan physical memory for DRIVER_OBJECT objects||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference21#filescan filescan]||Scan physical memory for FILE_OBJECT objects||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference21#mutantscan mutantscan]||Scan physical memory for KMUTANT objects||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference21#symlinkscan symlinkscan] ||Scans for symbolic link objects||All|| 
+||[http://code.google.com/p/volatility/wiki/CommandReference21#thrdscan thrdscan]||Scan physical memory for ETHREAD objects||All||
 
 == Networking ==
 
 ||Command||Description||OS Support||
-||[http://code.google.com/p/volatility/wiki/CommandReference#connections connections]||Display open network connections by walking the linked list in tcpip.sys||Windows XP, 2003||
-||[http://code.google.com/p/volatility/wiki/CommandReference#connscan2 connscan]||Scan physical memory for connection objects||Windows XP, 2003||
-||[http://code.google.com/p/volatility/wiki/CommandReference#sockets sockets]||Display open client and server (listening) sockets by walking the linked list in tcpip.sys||Windows XP, 2003||
-||[http://code.google.com/p/volatility/wiki/CommandReference#sockscan sockscan]||Scan physical memory for socket objects||Windows XP, 2003||
-||[http://code.google.com/p/volatility/wiki/CommandReference#netscan netscan]||Scan physical memory for connection and socket objects.<br>Distinguishes between IPv4 and IPv6.<br>Shows owning process, creation time, and state (for TCP connections).||Windows Vista, 2008 and 7||
+||[http://code.google.com/p/volatility/wiki/CommandReference21#connections connections]||Print a list of open TCP connections||Only Windows XP and 2003||
+||[http://code.google.com/p/volatility/wiki/CommandReference21#connscan connscan]||Scan physical memory for connection objects||Only Windows XP and 2003||
+||[http://code.google.com/p/volatility/wiki/CommandReference21#sockets sockets]||Print a list of open sockets||Only Windows XP and 2003||
+||[http://code.google.com/p/volatility/wiki/CommandReference21#sockscan sockscan]||Scan physical memory for socket objects||Only Windows XP and 2003||
+||[http://code.google.com/p/volatility/wiki/CommandReference21#netscan netscan]||Scan a Vista, 2008 or Windows 7 image for connections and sockets||Only Windows Vista, 2008 and 7||
 
 == Registry ==
 
 ||Command||Description||OS Support||
-||[http://code.google.com/p/volatility/wiki/CommandReference#hivescan hivescan]||Scan Physical memory for _CMHIVE objects (registry hives)||All||
-||[http://code.google.com/p/volatility/wiki/CommandReference#hivelist hivelist]||Walk the linked list of registry hives and print their virtual addresses and corresponding paths on disk||All||
-||[http://code.google.com/p/volatility/wiki/CommandReference#printkey printkey]||Print the contents of a registry key, its values, timestamps, and data||All||
-||[http://code.google.com/p/volatility/wiki/CommandReference#hivedump hivedump]||Recursively prints all keys and timestamps in a given hive||All||
-||[http://code.google.com/p/volatility/wiki/CommandReference#hashdump hashdump]||Dumps passwords hashes (LM/NTLM) from memory||All||
-||[http://code.google.com/p/volatility/wiki/CommandReference#lsadump lsadump]||Dump (decrypted) LSA secrets from the registry||Windows XP||
-||[http://code.google.com/p/volatility/wiki/CommandReference#userassist userassist]||Parses and output !UserAssist keys from the registry||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference21#hivescan hivescan]||Scan Physical memory for _CMHIVE objects (registry hives)||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference21#hivelist hivelist]||Walk the linked list of registry hives and print their virtual addresses and corresponding paths on disk||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference21#printkey printkey]||Print the contents of a registry key, its values, timestamps, and data||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference21#hivedump hivedump]||Recursively prints all keys and timestamps in a given hive||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference21#hashdump hashdump]||Dumps passwords hashes (LM/NTLM) from memory||||
+||[http://code.google.com/p/volatility/wiki/CommandReference21#lsadump lsadump]||Dump (decrypted) LSA secrets from the registry||||
+||[http://code.google.com/p/volatility/wiki/CommandReference21#userassist userassist]||Parses and output !UserAssist keys from the registry||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference21#shimcache shimcache]||Parses the Application Compatibility Shim Cache registry key||All||
 
 == Crash Dumps, Hibernation, and Conversion ==
 
 ||Command||Description||OS Support||
-||[http://code.google.com/p/volatility/wiki/CommandReference#crashinfo crashinfo]||Dump crash-dump information||All||
-||[http://code.google.com/p/volatility/wiki/CommandReference#hibdump hibdump]||Dumps the hibernation file to a raw file||||
-||[http://code.google.com/p/volatility/wiki/CommandReference#hibinfo hibinfo]||Dump hibernation file information||||
-||[http://code.google.com/p/volatility/wiki/CommandReference#imagecopy imagecopy]||Copies a physical address space out as a raw DD image||||
+||[http://code.google.com/p/volatility/wiki/CommandReference21#crashinfo crashinfo]||Dump crash-dump information||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference21#hibinfo hibinfo]||Dump hibernation file information||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference21#imagecopy imagecopy]||Copies a physical address space out as a raw DD image||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference21#raw2dmp raw2dmp]||Converts a raw memory dump into a crash dump||All||
 
 == Malware/Rootkits ==
 
 ||Command||Description||OS Support||
-||[http://code.google.com/p/volatility/wiki/CommandReference#malfind malfind]||Extract injected DLLs, injected code, unpacker stubs, API hook trampolines.<br>Scan for any ANSI string, Unicode string, regular expression, or byte sequence in process or kernel driver memory.||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference21#malfind malfind]||Find hidden and injected code||All||
 ||[http://code.google.com/p/volatility/wiki/CommandReference#svcscan svcscan]||Scan the Service Control Manager for information on Windows services.<br>Shows binary path, process ID or driver object, current state, etc).||All||
 ||[http://code.google.com/p/volatility/wiki/CommandReference#ldrmodules ldrmodules]||Detect unlinked DLLs by cross-referencing memory mapped files with the 3 PEB DLL lists||All||
 ||[http://code.google.com/p/volatility/wiki/CommandReference#impscan impscan]||Scan for calls to imported functions.<br>Does not rely on the Import Address Table (for example it works when the PE header has been erased).<br>Automatically generates a labeled IDA Pro Database.<br>Works on EXEs, DLLs, arbitrary executable ranges of process memory, and kernel drivers.||All||
