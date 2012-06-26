@@ -463,7 +463,149 @@ For background information, see Richard Stevens and Eoghan Casey's [http://ww.df
 
 == consoles ==
 
+Similar to [CommandReference21#cmdscan] the consoles plugin finds commands that attackers typed into cmd.exe or executed via backdoors. However, instead of scanning for COMMAND_HISTORY, this plugin scans for CONSOLE_INFORMATION. The major advantage to this plugin is it not only prints the commands attackers typed, but it collects the entire screen buffer (input *and* output). For instance, instead of just seeing "dir", you'll see exactly what the attacker saw, including all files and directories listed by the "dir" command. 
 
+Additionally, this plugin prints the following: 
+
+ * The original console window title and current console window title 
+ * The name and pid of attached processes (walks a LIST_ENTRY to enumerate all of them if more than one)
+ * Any aliases associated with the commands executed. For example, attackers can register an alias such that typing "hello" actually executes "cd system"
+ * The screen coordinates of the cmd.exe console  
+
+Here's an example of the consoles command. For more information and a single file with various example output from public images, see the [http://bit.ly/LYEQOc cmd_history.txt attachment to issue #147]. Below, you'll notice something quite funny. The forensic investigator seems to have lost his mind and cannot find the dd.exe tool for dumping memory. Nearly 20 typos later, he finds the tool and uses it. 
+
+{{{
+$ python vol.py -f xp-laptop-2005-07-04-1430.img consoles
+Volatile Systems Volatility Framework 2.1_alpha
+
+[csrss.exe @ 0x821c11a8 pid 456 console @ 0x4e23b0]
+  OriginalTitle: '%SystemRoot%\\system32\\cmd.exe'
+  Title: 'C:\\WINDOWS\\system32\\cmd.exe - dd if=\\\\.\\PhysicalMemory of=c:\\xp-2005-07-04-1430.img conv=noerror'
+  HistoryBufferCount: 2
+  HistoryBufferMax: 4
+  CommandHistorySize: 50
+[history @ 0x4e4008]
+  CommandCount: 0
+  CommandCountMax: 50
+  Application: 'dd.exe'
+[history @ 0x4e4d88]
+  CommandCount: 20
+  CommandCountMax: 50
+  Application: 'cmd.exe'
+  Cmd #0 @ 0x4e1f90: 'dd'
+  Cmd #1 @ 0x4e2cb8: 'cd\\'
+  Cmd #2 @ 0x4e2d18: 'dr'
+  Cmd #3 @ 0x4e2d28: 'ee:'
+  Cmd #4 @ 0x4e2d38: 'e;'
+  Cmd #5 @ 0x4e2d48: 'e:'
+  Cmd #6 @ 0x4e2d58: 'dr'
+  Cmd #7 @ 0x4e2d68: 'd;'
+  Cmd #8 @ 0x4e2d78: 'd:'
+  Cmd #9 @ 0x4e2d88: 'dr'
+  Cmd #10 @ 0x4e2d98: 'ls'
+  Cmd #11 @ 0x4e2da8: 'cd Docu'
+  Cmd #12 @ 0x4e2dc0: 'cd Documents and'
+  Cmd #13 @ 0x4e2e58: 'dr'
+  Cmd #14 @ 0x4e2e68: 'd:'
+  Cmd #15 @ 0x4e2e78: 'cd dd\\'
+  Cmd #16 @ 0x4e2e90: 'cd UnicodeRelease'
+  Cmd #17 @ 0x4e2ec0: 'dr'
+  Cmd #18 @ 0x4e2ed0: 'dd '
+  Cmd #19 @ 0x4e4100: 'dd if=\\\\.\\PhysicalMemory of=c:\\xp-2005-07-04-1430.img conv=noerror'
+[screen @ 0x4e2460 X:80 Y:300]
+  Output: Microsoft Windows XP [Version 5.1.2600]                                         
+  Output: (C) Copyright 1985-2001 Microsoft Corp.                                         
+  Output:                                                                                 
+  Output: C:\Documents and Settings\Sarah>dd                                              
+  Output: 'dd' is not recognized as an internal or external command,                      
+  Output: operable program or batch file.                                                 
+  Output:                                                                                 
+  Output: C:\Documents and Settings\Sarah>cd\                                             
+  Output:                                                                                 
+  Output: C:\>dr                                                                          
+  Output: 'dr' is not recognized as an internal or external command,                      
+  Output: operable program or batch file.                                                 
+  Output:                                                                                 
+  Output: C:\>ee:                                                                         
+  Output: 'ee:' is not recognized as an internal or external command,                     
+  Output: operable program or batch file.                                                 
+  Output:                                                                                 
+  Output: C:\>e;                                                                          
+  Output: 'e' is not recognized as an internal or external command,                       
+  Output: operable program or batch file.                                                 
+  Output:                                                                                 
+  Output: C:\>e:                                                                          
+  Output: The system cannot find the drive specified.                                     
+  Output:                                                                                 
+  Output: C:\>dr                                                                          
+  Output: 'dr' is not recognized as an internal or external command,                      
+  Output: operable program or batch file.                                                 
+  Output:                                                                                 
+  Output: C:\>d;                                                                          
+  Output: 'd' is not recognized as an internal or external command,                       
+  Output: operable program or batch file.                                                 
+  Output:                                                                                 
+  Output: C:\>d:                                                                          
+  Output:                                                                                 
+  Output: D:\>dr                                                                          
+  Output: 'dr' is not recognized as an internal or external command,                      
+  Output: operable program or batch file.                                                 
+  Output:                                                                                 
+  Output: D:\>dr                                                                          
+  Output: 'dr' is not recognized as an internal or external command,                      
+  Output: operable program or batch file.                                                 
+  Output:                                                                                 
+  Output: D:\>ls                                                                          
+  Output: 'ls' is not recognized as an internal or external command,                      
+  Output: operable program or batch file.                                                 
+  Output:                                                                                 
+  Output: D:\>cd Docu                                                                     
+  Output: The system cannot find the path specified.                                      
+  Output:                                                                                 
+  Output: D:\>cd Documents and                                                            
+  Output: The system cannot find the path specified.                                      
+  Output:                                                                                 
+  Output: D:\>dr                                                                          
+  Output: 'dr' is not recognized as an internal or external command,                      
+  Output: operable program or batch file.                                                 
+  Output:                                                                                 
+  Output: D:\>d:                                                                          
+  Output:                                                                                 
+  Output: D:\>cd dd\                                                                      
+  Output:                                                                                 
+  Output: D:\dd>                                                                          
+  Output: D:\dd>cd UnicodeRelease                                                         
+  Output:                                                                                 
+  Output: D:\dd\UnicodeRelease>dr                                                         
+  Output: 'dr' is not recognized as an internal or external command,                      
+  Output: operable program or batch file.                                                 
+  Output:                                                                                 
+  Output: D:\dd\UnicodeRelease>dd                                                         
+  Output:                                                                                 
+  Output: 0+0 records in                                                                  
+  Output: 0+0 records out                                                                 
+  Output: ^C                                                                              
+  Output: D:\dd\UnicodeRelease>dd if=\\.\PhysicalMemory of=c:\xp-2005-07-04-1430.img conv=
+  Output: noerror                                                                         
+  Output: Forensic Acquisition Utilities, 1, 0, 0, 1035                                   
+  Output: dd, 3, 16, 2, 1035                                                              
+  Output: Copyright (C) 2002-2004 George M. Garner Jr.                                    
+  Output:                                                                                 
+  Output: Command Line: dd if=\\.\PhysicalMemory of=c:\xp-2005-07-04-1430.img conv=noerror
+  Output:                                                                                 
+  Output: Based on original version developed by Paul Rubin, David MacKenzie, and Stuart K
+  Output: emp                                                                             
+  Output: Microsoft Windows: Version 5.1 (Build 2600.Professional Service Pack 2)         
+  Output:                                                                                 
+  Output: 04/07/2005  18:30:32 (UTC)                                                      
+  Output: 04/07/2005  14:30:32 (local time)                                               
+  Output:                                                                                 
+  Output: Current User: SPLATITUDE\Sarah                                                  
+  Output:                                                                                 
+  Output: Total physical memory reported: 523676 KB                                       
+  Output: Copying physical memory...                                                      
+  Output: Physical memory in the range 0x00004000-0x00004000 could not be read.                              
+}}}
 
 == envars == 
 
