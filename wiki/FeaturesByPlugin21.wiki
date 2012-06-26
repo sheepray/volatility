@@ -11,42 +11,46 @@ Before using these plugins, make sure to read the BasicUsage instructions. To se
 == Image Identification ==
 
 ||Command||Description||OS Support||
-||[http://code.google.com/p/volatility/wiki/CommandReference#imageinfo imageinfo]||Prints the suggested profile (OS version and patch level).<br>Tells you if the system is PAE vs no PAE.<br>Locates the DTB, KDBG, KPCR, and KUSER_SHARED_DATA.<br>Prints the date/time info.||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#imageinfo imageinfo]||Identity information for the image||All||
 ||[http://code.google.com/p/volatility/wiki/CommandReference#kdbgscan kdbgscan]||Search for and dump potential KDBG values||All||
-||[http://code.google.com/p/volatility/wiki/CommandReference#kpcrscan kpcrscan]||Search for and dump potential KDBG values||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#kpcrscan kpcrscan]||Search for and dump potential KPCR values||All||
 
 == Processes and DLLs ==
 
 ||Command||Description||OS Support||
-||[http://code.google.com/p/volatility/wiki/CommandReference#pslist pslist]||Print active processes by walking the !PsActiveProcessHead linked list.<br>For inactive/terminated or hidden/unlinked processes, see psscan.||All||
-||[http://code.google.com/p/volatility/wiki/CommandReference#pstree pstree]||Print process list as a tree so you can visualize the parent/child relationships||All||
-||[http://code.google.com/p/volatility/wiki/CommandReference#psscan psscan]||Find _EPROCESS objects using pool tag scanning||All||
-||[http://code.google.com/p/volatility/wiki/CommandReference#dlllist dlllist]||Print loaded DLLs by walking the !InLoadOrderModuleList in the PEB.<br>Print DLLs in unlinked/hidden processes by specifying an _EPROCESS offset.<br>To cross reference this list with 3 other sources of information, see !LdrModules.||All||
-||[http://code.google.com/p/volatility/wiki/CommandReference#dlldump dlldump]||Extract DLLs to executable files.<br>Dump a PE from process memory (even if it's not in the DLL list) by specifying a base address.||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#pslist pslist]||Print all running processes by following the EPROCESS lists||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#pstree pstree]||Print process list as a tree||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#psscan psscan]||Scan Physical memory for EPROCESS pool allocations||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#psdispscan psdispscan]||Scan Physical memory for EPROCESS objects based on their Dispatch Headers||Only Windows XP x86||
+||[http://code.google.com/p/volatility/wiki/CommandReference#dlllist dlllist]||Print list of loaded dlls for each process||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#dlldump dlldump]||Dump DLLs from a process address space||All||
 ||[http://code.google.com/p/volatility/wiki/CommandReference#handles handles]||Print list of open handles for each process||All||
 ||[http://code.google.com/p/volatility/wiki/CommandReference#getsids getsids]||Print the SIDs owning each process||All||
-||[http://code.google.com/p/volatility/wiki/CommandReference#verinfo verinfo]||Print the version information compiled into a process or DLL's PE file||All||
-||[http://code.google.com/p/volatility/wiki/CommandReference#enumfunc enumfunc]||Enumerate imported and exported functions from PE files (applies to processes, DLLs, and kernel drivers)||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#cmdscan cmdscan]||Extract command history by scanning for COMMAND_HISTORY||All except Windows 7 x64||
+||[http://code.google.com/p/volatility/wiki/CommandReference#consoles consoles]||PExtract command history by scanning for _CONSOLE_INFORMATION||All except Windows 7 x64||
+||[http://code.google.com/p/volatility/wiki/CommandReference#envars envars]||Display process environment variables||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#verinfo verinfo]||Prints out the version information from PE images||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#enumfunc enumfunc]||Enumerate imported and exported functions||All||
 
 == Processes Memory ==
 
 ||Command||Description||OS Support||
 ||[http://code.google.com/p/volatility/wiki/CommandReference#memmap memmap]||Print the virtual addresses, physical addresses, and size of each page accessible to a process||All||
-||[http://code.google.com/p/volatility/wiki/CommandReference#memdump memdump]||Dump the addressable memory for a process (outputs 1 file per process)||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#memdump memdump]||Dump the addressable memory for a process||All||
 ||[http://code.google.com/p/volatility/wiki/CommandReference#procmemdump procmemdump]||Extract a process's executable, preserving slack space||All||
 ||[http://code.google.com/p/volatility/wiki/CommandReference#procexedump procexedump]||Extract a process's executable, do not preserve slack space||All||
 ||[http://code.google.com/p/volatility/wiki/CommandReference#vadwalk vadwalk]||Walk the VAD tree and print basic information||All||
 ||[http://code.google.com/p/volatility/wiki/CommandReference#vadtree vadtree]||Walk the VAD tree and display in tree format||All||
 ||[http://code.google.com/p/volatility/wiki/CommandReference#vadinfo vadinfo]||Walk the VAD tree and print extended information||All||
-||[http://code.google.com/p/volatility/wiki/CommandReference#vaddump vaddump]||Dumps out the VAD sections (outputs multiple files per process)||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#vaddump vaddump]||Dumps out the VAD sections to a file||All||
 
 == Kernel Memory and Objects ==
 
 ||Command||Description||OS Support||
-||[http://code.google.com/p/volatility/wiki/CommandReference#modules modules]||Print loaded kernel drivers by walking the !PsLoadedModuleList linked list||All||
-||[http://code.google.com/p/volatility/wiki/CommandReference#modscan modscan]||Scan physical memory for LDR_DATA_TABLE_ENTRY objects.<br>Can locate unloaded and unlinked kernel drivers.||All||
-||[http://code.google.com/p/volatility/wiki/CommandReference#moddump moddump]||Extract a kernel driver to disk (by base address or regular expression)||All||
-||[http://code.google.com/p/volatility/wiki/CommandReference#ssdt ssdt]||Print the Native and GDI System Service Descriptor Tables||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#modules modules]||Print list of loaded kernel modules||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#modscan modscan]||Scan physical memory for LDR_DATA_TABLE_ENTRY objects||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#moddump moddump]||Dump a kernel driver to an executable file sample||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference#ssdt ssdt]||Display SSDT entries||All||
 ||[http://code.google.com/p/volatility/wiki/CommandReference#driverscan driverscan]||Scan physical memory for DRIVER_OBJECT objects||All||
 ||[http://code.google.com/p/volatility/wiki/CommandReference#filescan filescan]||Scan physical memory for FILE_OBJECT objects||All||
 ||[http://code.google.com/p/volatility/wiki/CommandReference#mutantscan mutantscan]||Scan physical memory for KMUTANT objects||All||
