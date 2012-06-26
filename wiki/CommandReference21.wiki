@@ -414,6 +414,8 @@ smss.exe (208): S-1-16-16384 (System Mandatory Level)
 
 The cmdscan plugin searches the memory of csrss.exe on XP/2003/Vista/2008 and conhost.exe on Windows 7 for commands that attackers entered through a console shell (cmd.exe). This is one of the most powerful commands you can use to gain visibility into an attackers actions on a victim system, whether they opened cmd.exe through an RDP session or proxied input/output to a command shell from a networked backdoor. 
 
+This plugin finds structures known as COMMAND_HISTORY by looking for a known constant value (!MaxHistory) and then applying sanity checks. It is important to note that the !MaxHistory value can be changed by right clicking in the top left of a cmd.exe window and going to Properties. The value can also be changed for all consoles opened by a given user by modifying the registry key HKCU\Console\!HistoryBufferSize. The default is 50 on Windows systems, meaning the most recent 50 commands are saved. You can tweak it if needed by using the --max_history=NUMBER parameter. 
+
 The structures used by this plugin are not public (i.e. Microsoft does not produce PDBs for them), thus they're not available in WinDBG or any other forensic framework. They were reverse engineered by Michael Ligh from the conhost.exe and winsrv.dll binaries. 
 
 In addition to the commands entered into a shell, this plugin shows: 
@@ -422,6 +424,8 @@ In addition to the commands entered into a shell, this plugin shows:
   * The name of the application using the console (whatever process is using cmd.exe)
   * The location of the command history buffers, including the current buffer count, last added command, and last displayed command 
   * The application process handle 
+
+Due to the scanning technique this plugin uses, it has the capability to find commands from both active and closed consoles. 
 
 {{{
 $ python vol.py -f VistaSP2x64.vmem --profile=VistaSP2x64 cmdscan
