@@ -88,26 +88,26 @@ Before using these plugins, make sure to read the BasicUsage instructions. To se
 
 ||Command||Description||OS Support||
 ||[http://code.google.com/p/volatility/wiki/CommandReference21#malfind malfind]||Find hidden and injected code||All||
-||[http://code.google.com/p/volatility/wiki/CommandReference#svcscan svcscan]||Scan the Service Control Manager for information on Windows services.<br>Shows binary path, process ID or driver object, current state, etc).||All||
-||[http://code.google.com/p/volatility/wiki/CommandReference#ldrmodules ldrmodules]||Detect unlinked DLLs by cross-referencing memory mapped files with the 3 PEB DLL lists||All||
-||[http://code.google.com/p/volatility/wiki/CommandReference#impscan impscan]||Scan for calls to imported functions.<br>Does not rely on the Import Address Table (for example it works when the PE header has been erased).<br>Automatically generates a labeled IDA Pro Database.<br>Works on EXEs, DLLs, arbitrary executable ranges of process memory, and kernel drivers.||All||
-||[http://code.google.com/p/volatility/wiki/CommandReference#apihooks apihooks]||Detect IAT, EAT, and Inline hooks in process or kernel memory.<br>For inline hooks, it checks direct calls, direct jumps, indirect calls, indirect jumps, and push/ret instructions.<br>Detects calls to unknown code pages in kernel drivers.<br>Detects redirected system calls in ntdll.dll.<br>Allows whitelisting by process name, hooked module, hooking module, or function name.||All||
-||[http://code.google.com/p/volatility/wiki/CommandReference#idt idt]||Dumps the Interrupt Descriptor Table.<br>Checks for inline API hooks of all IDT entries.||All||
-||[http://code.google.com/p/volatility/wiki/CommandReference#gdt gdt]||Dumps the Global Descriptor Table.<br>Prints a disassembly for malicious 32-bit call gates.||All||
-||[http://code.google.com/p/volatility/wiki/CommandReference#threads threads]||Investigate threads using various heuristics - find hardware breakpoints, threads with hooked SSDTs, orphan threads, etc.||All||
-||[http://code.google.com/p/volatility/wiki/CommandReference#callbacks callbacks]||Prints kernel callbacks of the following types:<br>!PsSetCreateProcessNotifyRoutine (process creation).<br>!PsSetCreateThreadNotifyRoutine (thread creation).<br>!PsSetImageLoadNotifyRoutine (DLL/image load).<br>!IoRegisterFsRegistrationChange (file system registration).<br>!KeRegisterBugCheck and !KeRegisterBugCheckReasonCallback.<br>!CmRegisterCallback (registry callbacks on XP).<br>!CmRegisterCallbackEx (registry callbacks on Vista and 7).<br>!IoRegisterShutdownNotification (shutdown callbacks).<br>!DbgSetDebugPrintCallback (debug print callbacks on Vista and 7).<br>!DbgkLkmdRegisterCallback (debug callbacks on 7).||All||
-||[http://code.google.com/p/volatility/wiki/CommandReference#driverirp driverirp]||Print the 28 IRP handlers for each driver object.<br>Checks for inline API hooks of each function.<br>Detects hooks of DriverStartIO.||All||
-||[http://code.google.com/p/volatility/wiki/CommandReference#devicetree devicetree]||Walk a driver's device tree||All||
-||[http://code.google.com/p/volatility/wiki/CommandReference#psxview psxview]||Detect hidden processes by cross-referencing with various sources of process listings:<br>!PsActiveProcessHead linked list<br>EPROCESS pool scanning<br>ETHREAD pool scanning<br>!PspCidTable<br>Csrss.exe handle table<br>Csrss.exe internal linked list||All, but no internal list on Vista and 7||
-||[http://code.google.com/p/volatility/wiki/CommandReference#ssdt_ex ssdt_ex]||Automated SSDT hook explorer for use with IDA Pro.<br>Detects which SSDT functions are hooked.<br>Extracts the hooking driver and creates an IDA Database.<br>Labels the rootkit function in the IDA Database.||All||
-||[http://code.google.com/p/volatility/wiki/CommandReference#timers timers]||Explore kernel timers (KTIMER) and DPCs (Deferred Procedure Calls)||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference21#yarascan yarascan]||Scan process or kernel memory with Yara signatures||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference21#svcscan svcscan]||Scan for Windows service records||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference21#ldrmodules ldrmodules]||Detect unlinked DLLs||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference21#impscan impscan]||Scan for calls to imported functions||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference21#apihooks apihooks]||Detect API hooks in process and kernel memory||All x86||
+||[http://code.google.com/p/volatility/wiki/CommandReference21#idt idt]||Display Interrupt Descriptor Table||All x86||
+||[http://code.google.com/p/volatility/wiki/CommandReference21#gdt gdt]||Dumps the Global Descriptor Table||All x86||
+||[http://code.google.com/p/volatility/wiki/CommandReference21#threads threads]||Investigate ETHREADs and KTHREADs||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference21#callbacks callbacks]||Print system-wide notification routines and callbacks||All x86||
+||[http://code.google.com/p/volatility/wiki/CommandReference21#driverirp driverirp]||Driver IRP hook detection||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference21#devicetree devicetree]||Walk a driver's device tree||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference21#psxview psxview]||Find hidden processes with various process listings||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference21#timers timers]||Explore kernel timers (KTIMER) and DPCs (Deferred Procedure Calls)||All x86||
 
 == Miscellaneous ==
 
 ||Command||Description||OS Support||
-||[http://code.google.com/p/volatility/wiki/CommandReference#strings strings]||Match physical offsets to virtual addresses||All||
-||[http://code.google.com/p/volatility/wiki/CommandReference#volshell volshell]||Shell to interactively explore a memory image||All||
-||[http://code.google.com/p/volatility/wiki/CommandReference#bioskbd bioskbd]||Reads the keyboard buffer from Real Mode memory||||
-||[http://code.google.com/p/volatility/wiki/CommandReference#inspectcache inspectcache]||Inspect the contents of a cache||||
-||[http://code.google.com/p/volatility/wiki/CommandReference#patcher patcher]||Patches memory based on page scans||||
-||[http://code.google.com/p/volatility/wiki/CommandReference#testsuite testsuite]||Run unit test suit using the Cache||||
+||[http://code.google.com/p/volatility/wiki/CommandReference21#strings strings]||Match physical offsets to virtual addresses for string correlations||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference21#volshell volshell]||Shell to interactively explore a memory image||All||
+||[http://code.google.com/p/volatility/wiki/CommandReference21#bioskbd bioskbd]||Reads the keyboard buffer from Real Mode memory||||
+||[http://code.google.com/p/volatility/wiki/CommandReference21#inspectcache inspectcache]||Inspect the contents of a cache||||
+||[http://code.google.com/p/volatility/wiki/CommandReference21#patcher patcher]||Patches memory based on page scans||||
+||[http://code.google.com/p/volatility/wiki/CommandReference21#testsuite testsuite]||Run unit test suit using the Cache||||
