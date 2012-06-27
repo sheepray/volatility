@@ -28,6 +28,7 @@
   * Conversion to Python 3+
   * Integrate pdbparse into the framework?
   * Create "scan3" versions of the scanners, so accurate structure locators like psscan3, but for sockscan and driverscan, etc.
+  * pagefile analysis 
 
 = Features for current Milestone =
 
