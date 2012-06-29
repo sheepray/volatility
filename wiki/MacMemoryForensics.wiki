@@ -1,3 +1,72 @@
 #summary Instructions on how access and use the Mac OS X support
 
-This is a place holder until after the SANS Summit talk
+= Overview =
+
+These are the instructions for using the new Mac support in Volatility. A presentation on the initial set of features is [http://www.slideshare.net/AndrewDFIR/mac-memory-analysis-with-volatility here].
+
+NOTE: This initial set of instructions *will* change as the mac branch is updated to align with the coding style and functions of trunk. *Please* check back on this wiki and always test the latest version before filing bug reports.  
+
+= Getting the source =
+
+
+
+= Creating a profile =
+
+To create a profile, you first need to download the KernelDebugKit for the kernel you want to analyze. This can be downloaded from the [Apple Developer's website http://developer.apple.com]. This account is free and only requires a valid Email address.
+
+After the DebugKit is downloaded, mount the dmg file. This will place the contents at "/Volumes/KernelDebugKit". 
+
+== Creating the vtypes ==
+
+=== Step 1 ===
+
+The first step is to get the dwarf (debug) info from the kernel. The following shows how this can be done for the 32 bit debug information:
+
+dwarfdump -arch i386 -i /Volumes/KernelDebugKit/DEBUG_Kernel/mach_kernel.dSYM/Contents/Resources/DWARF/mach_kernel > 10.7.2.32bit.dwarfdump
+
+You would use "-arch x86_64" for the 64 bit information.
+
+Note: The output file name can be anything you want.
+
+=== Step 2 ===
+
+The next step is to convert the Mac dwarfdump output to the Linux style output supported by Volatility:
+
+python convert.py 10.7.2.32bit.dwarfdump converted-10.7.2.32bit.dwarfdump 1
+
+Note: The last argument "1" needs to be there and is not a typo
+
+=== Step 3 ===
+
+Create the vtypes file from the converted file
+
+python convert.py converted-10.7.2.32bit.dwarfdump > 10.7.2.32bit.vtypes
+
+== Symbol Information ==
+
+dsymutil -s -arch i386 /mach_kernel > 10.7.2.32bit.symbol.dsymutil
+
+Note: Do not run this against the kernel from the DebugKit, use the kernel at / instead
+
+== Creating the profile (zip) ==
+
+zip 10.7.2.32bit.zip 10.7.2.32-bit.symbol.dsymutil 10.7.2.32bit.vtypes 
+
+The zip file is now what you use as the profile
+
+= Acquiring memory =
+
+Volatility does provide the ability to acquire memory. We recommend using [http://www.cybermarshal.com/index.php/cyber-marshal-utilities/mac-memory-reader Mac Memory Reader] from ATC-NY for this purpose. It supports 32 and 64 bit captures from native hardware, parallels, and virtual box. It currently does not support VMware fusion guests.
+
+
+= Plugins =
+
+
+
+= Questions/Comments =
+
+Please contact Andrew Case (atcuno) with any questions or comments
+
+= Filing Bugs = 
+
+Please use the issue tracker to file bugs: http://code.google.com/p/volatility/issues/list
