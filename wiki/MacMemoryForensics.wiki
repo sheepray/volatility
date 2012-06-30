@@ -24,9 +24,9 @@ http://code.google.com/p/volatility/source/browse/#svn%2Fbranches%2Fmac-trunk
 
 = Creating a profile =
 
-To create a profile, you first need to download the KernelDebugKit for the kernel you want to analyze. This can be downloaded from the [http://developer.apple.com Apple Developer's website]. This account is free and only requires a valid Email address.
+To create a profile, you first need to download the !KernelDebugKit for the kernel you want to analyze. This can be downloaded from the [http://developer.apple.com/hardwaredrivers Apple Developer's website] (click OS X Kernel Debug Kits on the right). This account is free and only requires a valid Email address.
 
-After the DebugKit is downloaded, mount the dmg file. This will place the contents at "/Volumes/KernelDebugKit". 
+After the !DebugKit is downloaded, mount the dmg file. This will place the contents at "/Volumes/!KernelDebugKit". 
 
 == Creating the vtypes ==
 
