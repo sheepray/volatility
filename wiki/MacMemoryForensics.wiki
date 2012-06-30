@@ -71,8 +71,7 @@ $ python tools/mac/convert.py converted-10.7.2.32bit.dwarfdump > 10.7.2.32bit.vt
 == Symbol Information ==
 
 {{{
-$ dsymutil -arch i386 -s
-/Volumes/KernelDebugKit//mach_kernel.dSYM/Contents/Resources/DWARF/mach_kernel > 10.7.2.32bit.symbol.dsymutil
+$ $ dsymutil -s -arch i386 /mach_kernel > 10.7.2.32bit.symbol.dsymutil 
 }}}
 
 
