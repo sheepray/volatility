@@ -15,7 +15,7 @@ svn co http://volatility.googlecode.com/svn/branches/mac-trunk mac-trunk
 
 = Creating a profile =
 
-To create a profile, you first need to download the KernelDebugKit for the kernel you want to analyze. This can be downloaded from the [Apple Developer's website http://developer.apple.com]. This account is free and only requires a valid Email address.
+To create a profile, you first need to download the KernelDebugKit for the kernel you want to analyze. This can be downloaded from the [http://developer.apple.com Apple Developer's website]. This account is free and only requires a valid Email address.
 
 After the DebugKit is downloaded, mount the dmg file. This will place the contents at "/Volumes/KernelDebugKit". 
 
@@ -59,7 +59,7 @@ The zip file is now what you use as the profile
 
 = Acquiring memory =
 
-Volatility does provide the ability to acquire memory. We recommend using [http://www.cybermarshal.com/index.php/cyber-marshal-utilities/mac-memory-reader Mac Memory Reader] from ATC-NY for this purpose. It supports 32 and 64 bit captures from native hardware, parallels, and virtual box. It currently does not support VMware fusion guests.
+Volatility does not provide the ability to acquire memory. We recommend using [http://www.cybermarshal.com/index.php/cyber-marshal-utilities/mac-memory-reader Mac Memory Reader] from ATC-NY for this purpose. It supports 32 and 64 bit captures from native hardware, parallels, and virtual box. It currently does not support VMware fusion guests.
 
 
 = Plugins =
