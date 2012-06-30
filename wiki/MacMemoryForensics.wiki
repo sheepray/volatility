@@ -10,13 +10,17 @@ NOTE: This initial set of instructions *will* change as the mac branch is update
 
 The presentation was based on an old code base. To run the plugins shown in the presentation, do not use the "profile_file" option and instead pass the name of your profile (explained later) to the "profile" option. You also do not have to use the "--no-cache" option anymore. Example:
 
+{{{
 $ python vol.py -f <name of memory dump> --profile=<profile name> plugin_name <optional plugin options>
+}}}
 
 = Getting the source =
 
 The source can be currently downloaded by checking out with SVN:
 
+{{{
 $ svn co http://volatility.googlecode.com/svn/branches/mac-trunk mac-trunk
+}}}
 
 It can be browsed here:
 
@@ -34,7 +38,9 @@ After the !DebugKit is downloaded, mount the dmg file. This will place the conte
 
 The first step is to get the dwarf (debug) info from the kernel. The following shows how this can be done for the 32 bit debug information:
 
+{{{
 $ dwarfdump -arch i386 -i /Volumes/!KernelDebugKit/DEBUG_Kernel/mach_kernel.dSYM/Contents/Resources/DWARF/mach_kernel > 10.7.2.32bit.dwarfdump
+}}}
 
 You would use "-arch x86_64" for the 64 bit information.
 
@@ -44,7 +50,9 @@ Note: The output file name can be anything you want.
 
 The next step is to convert the Mac dwarfdump output to the Linux style output supported by Volatility:
 
+{{{
 $ python tools/mac/convert.py 10.7.2.32bit.dwarfdump converted-10.7.2.32bit.dwarfdump 1
+}}}
 
 Note: The last argument "1" needs to be there and is not a typo
 
@@ -52,21 +60,29 @@ Note: The last argument "1" needs to be there and is not a typo
 
 Create the vtypes file from the converted file
 
+{{{
 $ python tools/mac/convert.py converted-10.7.2.32bit.dwarfdump > 10.7.2.32bit.vtypes
+}}}
 
 == Symbol Information ==
 
-dsymutil -s -arch i386 /mach_kernel > 10.7.2.32bit.symbol.dsymutil
+{{{
+$ dsymutil -s -arch i386 /mach_kernel > 10.7.2.32bit.symbol.dsymutil
+}}}
 
 Note: Do not run this against the kernel from the !DebugKit, use the kernel at / instead
 
 == Creating the profile (zip) ==
 
-zip 10.7.2.32bit.zip 10.7.2.32-bit.symbol.dsymutil 10.7.2.32bit.vtypes 
+{{{
+$ zip 10.7.2.32bit.zip 10.7.2.32-bit.symbol.dsymutil 10.7.2.32bit.vtypes 
+}}}
 
 The zip file is now what you use as the profile. Copy the profile into the "volatility/plugins/overlays/mac" directory and then run:
 
-python vol.py --info | grep Mac
+{{{
+$ python vol.py --info | grep Mac
+}}}
 
 and find the name of your profile. This is what you will use to the --profile option.
 
@@ -79,7 +95,9 @@ Volatility does not provide the ability to acquire memory. We recommend using [h
 
 To see how to use some of the initial plugins, read the presentation referenced above. To find all currently available plugins:
 
-python vol.py --info | grep mac_
+{{{
+$ python vol.py --info | grep mac_
+}}}
 
 = Questions/Comments =
 
