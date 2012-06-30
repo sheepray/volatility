@@ -325,15 +325,20 @@ class VolatilityArmValidAS(obj.VolatilityMagic):
 
     def generate_suggestions(self):
 
+        print "name: %s" % profile.name
+        if profile.__name__.startswith("Linux") != True:
+            yield False 
+
+
         # linux has a virtual to physical offset (minux 0xc0000000) for kernel addresses
         # we simply .vtop an address that will be in the kernel and see if we get the correct address back
         # will add 64 bit support if/when ARM ever releases 64 bit chips ;)
-        #val = self.obj_vm.vtop(0xc0315760)
         val = self.obj_vm.vtop(0xc0548cf8)
 
-        #if val == 0x315760:
-        #if val and val & 0x548cf8 == 0x548cf8: 
-        yield (val > 0)
+        if val & 0x548cf8 == 0x548cf8: 
+            yield True
+        else:
+            yield False
 
 class LinuxObjectClasses(obj.ProfileModification):
     conditions = {'os': lambda x: x == 'linux'}

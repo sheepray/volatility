@@ -24,7 +24,7 @@ import volatility.debug as debug #pylint: disable-msg=W0611
 import volatility.plugins.addrspaces.intel as intel
 
 class ArmAddressSpace(intel.JKIA32PagedMemory):
-    order = 8
+    order = 800
     cache = False
     pae = False
     paging_address_space = True
