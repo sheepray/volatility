@@ -4,7 +4,7 @@
 
 These are the instructions for using the new Mac support in Volatility. A presentation on the initial set of features is [http://www.slideshare.net/AndrewDFIR/mac-memory-analysis-with-volatility here].
 
-NOTE: This initial set of instructions *will* change as the mac branch is updated to align with the coding style and functions of trunk. *Please* check back on this wiki and always test the latest version before filing bug reports.  
+NOTE: This initial set of instructions *will* change as the mac branch is updated to align with the coding style and functions of trunk. *Please* check back on this wiki and always test the latest version before filing bug reports. 
 
 = Changes since the presentation =
 
@@ -28,7 +28,11 @@ http://code.google.com/p/volatility/source/browse/#svn%2Fbranches%2Fmac-trunk
 
 = Creating a profile =
 
-To create a profile, you first need to download the !KernelDebugKit for the kernel you want to analyze. This can be downloaded from the [http://developer.apple.com/hardwaredrivers Apple Developer's website] (click OS X Kernel Debug Kits on the right). This account is free and only requires a valid Email address.
+In the near future, the volatility source code will include profiles for the most common Mac kernels. Until then, you'll need to create your own profile. 
+
+To create a profile, you first need to download the !KernelDebugKit for the kernel you want to analyze. This can be downloaded from the [http://developer.apple.com/hardwaredrivers Apple Developer's website] (click OS X Kernel Debug Kits on the right). This account is free and only requires a valid Email address. 
+
+Note: The most recent kernel debug kit available is 10.7.4. If you have a kernel 10.8.0 or greater, go ahead and use the 10.7.4 kit until apple releases newer versions. 
 
 After the !DebugKit is downloaded, mount the dmg file. This will place the contents at "/Volumes/!KernelDebugKit". 
 
