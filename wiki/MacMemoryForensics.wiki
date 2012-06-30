@@ -34,7 +34,7 @@ After the !DebugKit is downloaded, mount the dmg file. This will place the conte
 
 The first step is to get the dwarf (debug) info from the kernel. The following shows how this can be done for the 32 bit debug information:
 
-dwarfdump -arch i386 -i /Volumes/KernelDebugKit/DEBUG_Kernel/mach_kernel.dSYM/Contents/Resources/DWARF/mach_kernel > 10.7.2.32bit.dwarfdump
+dwarfdump -arch i386 -i /Volumes/!KernelDebugKit/DEBUG_Kernel/mach_kernel.dSYM/Contents/Resources/DWARF/mach_kernel > 10.7.2.32bit.dwarfdump
 
 You would use "-arch x86_64" for the 64 bit information.
 
@@ -58,7 +58,7 @@ python convert.py converted-10.7.2.32bit.dwarfdump > 10.7.2.32bit.vtypes
 
 dsymutil -s -arch i386 /mach_kernel > 10.7.2.32bit.symbol.dsymutil
 
-Note: Do not run this against the kernel from the DebugKit, use the kernel at / instead
+Note: Do not run this against the kernel from the !DebugKit, use the kernel at / instead
 
 == Creating the profile (zip) ==
 
