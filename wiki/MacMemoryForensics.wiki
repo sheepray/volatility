@@ -6,6 +6,12 @@ These are the instructions for using the new Mac support in Volatility. A presen
 
 NOTE: This initial set of instructions *will* change as the mac branch is updated to align with the coding style and functions of trunk. *Please* check back on this wiki and always test the latest version before filing bug reports.  
 
+= Changes since the presentation =
+
+The presentation was based on an old code base. To run the plugins shown in the presentation, do not use the "profile_file" option and instead pass the name of your profile (explained later) to the "profile" option. You also do not have to use the "--no-cache" option anymore. Example:
+
+python vol.py -f <name of memory dump> --profile=<profile name> <plugin_name> <optional plugin options>
+
 = Getting the source =
 
 The source can be currently downloaded by checking out with SVN:
@@ -58,7 +64,11 @@ Note: Do not run this against the kernel from the DebugKit, use the kernel at / 
 
 zip 10.7.2.32bit.zip 10.7.2.32-bit.symbol.dsymutil 10.7.2.32bit.vtypes 
 
-The zip file is now what you use as the profile
+The zip file is now what you use as the profile. Copy the profile into the "volatility/plugins/overlays/mac" directory and then run:
+
+python vol.py --info | grep Mac
+
+and find the name of your profile. This is what you will use to the --profile option.
 
 = Acquiring memory =
 
