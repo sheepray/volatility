@@ -71,10 +71,10 @@ $ python tools/mac/convert.py converted-10.7.2.32bit.dwarfdump > 10.7.2.32bit.vt
 == Symbol Information ==
 
 {{{
-$ dsymutil -s -arch i386 /mach_kernel > 10.7.2.32bit.symbol.dsymutil
+$ dsymutil -arch i386 -s
+/Volumes/KernelDebugKit//mach_kernel.dSYM/Contents/Resources/DWARF/mach_kernel > 10.7.2.32bit.symbol.dsymutil
 }}}
 
-Note: Do not run this against the kernel from the !DebugKit, use the kernel at / instead
 
 == Creating the profile (zip) ==
 
