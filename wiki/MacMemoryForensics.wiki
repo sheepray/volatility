@@ -12,6 +12,9 @@ The source can be currently downloaded by checking out with SVN:
 
 svn co http://volatility.googlecode.com/svn/branches/mac-trunk mac-trunk
 
+It can be browsed here:
+
+http://code.google.com/p/volatility/source/browse/#svn%2Fbranches%2Fmac-trunk
 
 = Creating a profile =
 
