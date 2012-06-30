@@ -78,4 +78,4 @@ Please use the issue tracker to file bugs: http://code.google.com/p/volatility/i
 
 = Known Issues =
 
-The 'psaux' plugin will break if you get on a memory capture from a 64 bit machine booted into a 32 bit kernel.
+The 'psaux' plugin will break if you get a memory capture from a 64 bit machine booted into a 32 bit kernel.
