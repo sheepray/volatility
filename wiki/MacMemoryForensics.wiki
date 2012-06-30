@@ -8,6 +8,9 @@ NOTE: This initial set of instructions *will* change as the mac branch is update
 
 = Getting the source =
 
+The source can be currently downloaded by checking out with SVN:
+
+svn co http://volatility.googlecode.com/svn/branches/mac-trunk mac-trunk
 
 
 = Creating a profile =
@@ -61,7 +64,9 @@ Volatility does provide the ability to acquire memory. We recommend using [http:
 
 = Plugins =
 
+To see how to use some of the initial plugins, read the presentation referenced above. To find all currently available plugins:
 
+python vol.py --info | grep mac_
 
 = Questions/Comments =
 
@@ -70,3 +75,7 @@ Please contact Andrew Case (atcuno) with any questions or comments
 = Filing Bugs = 
 
 Please use the issue tracker to file bugs: http://code.google.com/p/volatility/issues/list
+
+= Known Issues =
+
+The 'psaux' plugin will break if you get on a memory capture from a 64 bit machine booted into a 32 bit kernel.
