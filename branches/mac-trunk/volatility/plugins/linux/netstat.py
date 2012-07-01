@@ -94,12 +94,16 @@ class linux_netstat(linux_lsof.linux_lsof):
 
     # formats an ipv4 address
     def format_ipv4(self, inet_sock):
+        # FIXME: Consider using kernel version metadata rather than checking hasattr
         if hasattr(inet_sock, 'daddr') and inet_sock.daddr:
             daddr = inet_sock.daddr
             saddr = inet_sock.rcv_saddr
-        else:
+        elif hasattr(inet_sock, 'inet_daddr') and inet_sock.inet_daddr:
             daddr = inet_sock.inet_daddr
             saddr = inet_sock.inet_rcv_saddr
+        else:
+            daddr = inet_sock.sk.__sk_common.skc_daddr
+            saddr = inet_sock.sk.__sk_common.skc_rcv_saddr
 
         return (daddr.cast('IpAddress'), saddr.cast('IpAddress').v())
 

@@ -110,26 +110,23 @@ def do_get_path(rdentry, rmnt, dentry, vfsmnt):
     inode = dentry.d_inode
 
     while dentry != rdentry or vfsmnt != rmnt:
-
         dname = dentry.d_name.name.dereference_as("String", length = MAX_STRING_LENGTH)
-
-        if dname != '/':
-            ret_path.append(dname)
-
+        
+        ret_path.append(dname.strip('/'))
+        
         if dentry == vfsmnt.mnt_root or dentry == dentry.d_parent:
-            if vfsmnt.mnt_parent == vfsmnt:
+            if vfsmnt.mnt_parent == vfsmnt.v():
                 break
             dentry = vfsmnt.mnt_mountpoint
             vfsmnt = vfsmnt.mnt_parent
             continue
 
         parent = dentry.d_parent
-
         dentry = parent
 
     ret_path.reverse()
 
-    ret_val = '/'.join([str(p) for p in ret_path])
+    ret_val = '/'.join([str(p) for p in ret_path if p != ""])
 
     if ret_val.startswith(("socket:", "pipe:")):
         if ret_val.find("]") == -1:

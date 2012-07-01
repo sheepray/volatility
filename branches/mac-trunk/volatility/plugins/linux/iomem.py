@@ -36,8 +36,10 @@ class linux_iomem(linux_common.AbstractLinuxCommand):
         io_res = obj.Object("resource", offset = io_ptr, vm = self.addr_space)
 
         name = io_res.name.dereference_as("String", length = linux_common.MAX_STRING_LENGTH)
+        start = io_res.start
+        end = io_res.end
 
-        output = [ (depth, name)]
+        output = [ (depth, name, start, end)]
 
         output += self.yield_resource(io_res.child, depth + 1)
         output += self.yield_resource(io_res.sibling, depth)
@@ -53,5 +55,5 @@ class linux_iomem(linux_common.AbstractLinuxCommand):
     def render_text(self, outfd, data):
 
         for output in data:
-            depth, name = output
-            outfd.write(("  " * depth) + name + "\n")
+            depth, name, start, end = output
+            outfd.write("{0:35s}\t0x{1:<16X}\t0x{2:<16X}\n".format(("  " * depth) + name, start, end))

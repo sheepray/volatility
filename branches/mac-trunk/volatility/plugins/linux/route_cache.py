@@ -41,8 +41,14 @@ class linux_route_cache(linux_common.AbstractLinuxCommand):
             if not rth:
                 continue
 
-            if rth.u.dst.dev:
-                name = rth.u.dst.dev.name
+            # FIXME: Consider using kernel version metadata rather than checking hasattr
+            if hasattr(rth, 'u'):
+                dst = rth.u.dst
+            else:
+                dst = rth.dst
+
+            if dst.dev:
+                name = dst.dev.name
             else:
                 name = "*"
 

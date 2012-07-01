@@ -47,10 +47,14 @@ class linux_arp(common.AbstractLinuxCommand):
     def handle_table(self, ntable):
 
         ret = []
-        hash_size = ntable.hash_mask
 
-        buckets = obj.Object(theType = 'Array', offset = ntable.hash_buckets, vm = self.addr_space, targetType = 'Pointer', count = hash_size)
-
+        # FIXME: Consider using kernel version metadata rather than checking hasattr
+        if hasattr(ntable, 'hash_mask'):
+            hash_size = ntable.hash_mask
+            buckets = obj.Object(theType = 'Array', offset = ntable.hash_buckets, vm = self.addr_space, targetType = 'Pointer', count = hash_size)
+        else:
+            hash_size = (1 << ntable.nht.hash_shift)
+            buckets = obj.Object(theType = 'Array', offset = ntable.nht.hash_buckets, vm = self.addr_space, targetType = 'Pointer', count = hash_size)
         for i in range(hash_size):
             if buckets[i]:
                 neighbor = obj.Object("neighbour", offset = buckets[i], vm = self.addr_space)
