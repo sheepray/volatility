@@ -269,18 +269,17 @@ class VADDump(VADInfo):
 
             outfd.write("*" * 72 + "\n")
             for vad in task.VadRoot.traverse():
-                # Ignore Vads with bad tags (which we explicitly include as None)
-                if vad == None:
-                    continue
-
-                # avoid potential invalid values 
-                if vad.Start > 0xFFFFFFFF or vad.End > (0xFFFFFFFF << 12):
-                    continue
+                if not vad.is_valid():
+                    continue 
 
                 # Open the file and initialize the data
+
+                vad_start = self.format_value(vad.Start, "[addrpad]")
+                vad_end = self.format_value(vad.End, "[addrpad]")
+
                 path = os.path.join(
-                    self._config.DUMP_DIR, "{0}.{1:x}.{2:08x}-{3:08x}.dmp".format(
-                    name, offset, vad.Start, vad.End))
+                    self._config.DUMP_DIR, "{0}.{1:x}.{2}-{3}.dmp".format(
+                    name, offset, vad_start, vad_end))
 
                 f = open(path, 'wb')
                 if f:
