@@ -45,7 +45,11 @@ class VolatilityDTB(obj.VolatilityMagic):
             ret = profile.sysmap["_IdlePDPT"]
         else:
             ret = profile.sysmap["_IdlePML4"]
-
+            # so it seems some kernels don't define this as the physical address, but actually the virtual
+            # while others define it as the physical, easy enough to figure out on the fly
+            if ret > 0xffffff8000000000:
+                ret = ret - 0xffffff8000000000
+        
         yield ret
 
 def exec_vtypes(filename):
