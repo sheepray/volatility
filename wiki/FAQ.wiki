@@ -109,7 +109,7 @@ Other Images
 ||Hogfly's malware memory samples || [http://cid-5694a755c9c6a175.skydrive.live.com/browse.aspx/Public  http://cid-5694a755c9c6a175.skydrive.live.com/browse.aspx/Public]|| ? ||
 ||Moyix's Fuzzy Hidden Process Sample || [http://amnesia.gtisc.gatech.edu/~moyix/ds_fuzz_hidden_proc.img.bz2 http://amnesia.gtisc.gatech.edu/~moyix/ds_fuzz_hidden_proc.img.bz2]|| XP SP3 ||
 ||Honeynet Banking Troubles Image || [https://www.honeynet.org/challenges/2010_3_banking_troubles https://www.honeynet.org/challenges/2010_3_banking_troubles]|| XP SP2 ||
-||NPS 2009-M57|| [http://domex.nps.edu/corp/scenarios/2009-m57/ram/ http://domex.nps.edu/corp/scenarios/2009-m57/ram/] ||  Various XP / Vista ||
+||NPS 2009-M57|| [https://domex.nps.edu/corp/nps/scenarios/2009-m57-patents/ram/ https://domex.nps.edu/corp/nps/scenarios/2009-m57-patents/ram/] ||  Various XP / Vista ||
 || [http://dougee652.blogspot.com/2011/04/malware-memory-images.html Dougee's comparison samples] || [http://dl.dropbox.com/u/21148428/xp-clean.tgz before] and [http://dl.dropbox.com/u/21148428/xp-infected.tgz after infection] || XP ||
 || Shylock Sample || [http://various-things.googlecode.com/files/vmem2.zip Shylock vmem] || XP ||
 || !R2D2 Sample || [http://www.mediafire.com/file/yxqodp1p2aca91x/0zapftis.rar 0zapftis.rar] (pw: infected) || XP SP2 ||
