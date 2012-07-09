@@ -1,5 +1,5 @@
 #summary TODO items for the 2.1 branch
-#labels Phase-Design
+#labels Phase-Design,Deprecated
 
 = Introduction =
 
