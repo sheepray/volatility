@@ -1,5 +1,4 @@
 #summary Basic usage for Volatility 2.0
-#labels Featured
 
 = Basic Usage of Volatility 2.0 =
 
