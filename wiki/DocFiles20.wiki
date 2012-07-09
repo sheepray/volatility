@@ -1,5 +1,4 @@
 #summary Links to VDP Documentation
-#labels Featured
 
 <wiki:toc/>
 
