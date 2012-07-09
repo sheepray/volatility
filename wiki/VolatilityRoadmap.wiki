@@ -1,12 +1,69 @@
 #summary Volatility Roadmap
+#labels Featured
 
 = Introduction =
 
-Add your content here.
+This page is the official Volatility RoadMap. The goal of the RoadMap is to help set expectations as to when new features will be officially supported. Please keep in mind that on occasion the exact dates or features may change a bit based on resource availability, change in priority, or unforeseen circumstances, so please check back frequently.  Any date referenced as RC1 will also denote an official code freeze for that release, after which no new features will be added to the release and development efforts will primarily focus on testing the release candidate and fixing bugs as necessary.  After the official Release date, new features for the next release will be merged into trunk and thus available to those who track "bleeding edge".
 
-= Details =
+==Volatility 2.1 (Official x64 Support)==
 
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
+*RC1:* July 8, 2012
+*Release:* July 27, 2012
+
+ * New Address Spaces (AMD64PagedMemory, !WindowsCrashDumpSpace64)
+ * Majority of Existing Plugins Updated with x64 Support
+ * Merged Malware Plugins into Volatility Core with Preliminary x64 Support 
+ * !WindowsHiberFileSpace32 Overhaul (also includes x64 Support)
+ * Now supports the following profiles:
+           * Windows XP SP1, SP2 and SP3 x86 
+           * Windows XP SP1 and SP2 x64 (there is no SP3 x64)
+           * Windows Server 2003 SP0, SP1, and SP2 x86
+           * Windows Server 2003 SP1 and SP2 x64 (there is no SP0 x64)
+           * Windows Vista SP0, SP1, and SP2 x86
+           * Windows Vista SP0, SP1, and SP2 x64
+           * Windows Server 2008 SP1 and SP2 x86 (there is no SP0)
+           * Windows Server 2008 SP1 and SP2 x64 (there is no SP0)
+           * Windows Server 2008 R2 SP0 and SP1 x64
+           * Windows 7 SP0 and SP1 x86
+           * Windows 7 SP0 and SP1 x64
+ * Plugin Additions
+	* Printing Process Environment Variables (envvars)
+	* Inspecting the Shim Cache (shimcache)
+ * Profiling Command History and Console Usage (cmdscan, consoles)
+ * Converting x86 and x64 Raw Dumps to MS !CrashDump (raw2dmp)
+ * New Output Formatting Support (Table Rendering)
+ * New Mechanism for Profile Modifications
+ * New Registry API Support
+ * New Volshell Commands
+ * Updated Documentation and Command Reference 
+
+== Volatility 2.2 (Official Multi-OS Support) ==
+
+*RC1:* Sept 7, 2012
+*Release:* Oct 2, 2012
+
+ * Linux Support (x86, x64)
+ * Mac Support (x86, x64)
+ * Android/Arm Support
+ * New Address Spaces (VMWareSnapshotFile, !VirtualBoxCoreDumpElf64)
+ * Pool Scanner Updates
+ * KDBG/DTB Improvements
+ * Profile Selection Enhancements
+ * New or Updated Plugins 
+   * filedump	
+   * eventlogs
+   * getservicesids
+
+==Volatility 3.0 (Official Tech Preview Merge) ==
+
+...coming soon
+
+==Volatility Future ==
+
+ * Update to Python 3.0
+ * Updates to PDBParse
+ * !PyVmiAddressSpace
+ * Pagefile.sys 
+ * support single process dumps
+ * Multiprocessing module 
+ * Performance profiling (C modules for some functions?)
