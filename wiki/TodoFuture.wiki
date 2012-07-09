@@ -1,4 +1,5 @@
 #summary Longer term goals that may not make the current beta
+#labels Deprecated
 
 = Long Term Goals =
 
