@@ -1,4 +1,5 @@
 #summary Example usage cases and output for Volatility 2.1 commands
+#labels Featured
 
 This is the Command Reference and plugin documentation for Volatility 2.1. It differs from the original [CommandReference] in that where possible, 64 bit images will be used for demonstration, it covers new plugins released with 2.1, and it describes any major changes in plugin behavior and/or output since the previous release. 
 
