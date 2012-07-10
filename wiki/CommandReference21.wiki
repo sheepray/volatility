@@ -3226,7 +3226,6 @@ For more information, see BDG's [http://moyix.blogspot.com/2008/08/indroducing-v
 
 To read keystrokes from the BIOS area of memory, use the bioskbd command. This can reveal passwords typed into HP, Intel, and Lenovo BIOS and !SafeBoot, !TrueCrypt, and !BitLocker software. Depending on the tool used to acquire memory, not all memory samples will contain the necessary BIOS area. For more information, see Andreas Schuster's [http://computer.forensikblog.de/en/2009/04/read_password_from_keyboard_buffer.html#more Reading Passwords From the Keyboard Buffer], David Sharpe's [http://blog.sharpesecurity.com/2011/05/09/duplicating-volatility-bioskbd-command-function-on-live-windows-systems/ Duplicating Volatility Bioskbd Command Function on Live Windows Systems], and Jonathan Brossard's [http://www.ivizsecurity.com/research/preboot/preboot_whitepaper.pdf Bypassing pre-boot authentication passwords by instrumenting the BIOS keyboard buffer].
 
-== inspectcache ==
 == patcher ==
 
 The patcher plugin accepts a single argument of '-x' followed by an XML file.  The XML file then specifies any required patches as in the following example:
