@@ -108,4 +108,4 @@ This is a list of Volatility 2.1 features organized by plugins and categories. B
 ||[http://code.google.com/p/volatility/wiki/CommandReference21#volshell volshell]||Shell to interactively explore a memory image||All||
 ||[http://code.google.com/p/volatility/wiki/CommandReference21#bioskbd bioskbd]||Reads the keyboard buffer from Real Mode memory||||
 ||[http://code.google.com/p/volatility/wiki/CommandReference21#patcher patcher]||Patches memory based on page scans||All||
-||[http://code.google.com/p/volatility/wiki/CommandReference21#pagecheck pagecheck]||Reads the available pages and reports if any are inaccessible||||
+||[http://code.google.com/p/volatility/wiki/CommandReference21#pagecheck pagecheck]||Reads the available pages and reports if any are inaccessible||Non-PAE x86||
