@@ -72,8 +72,8 @@ Before using these plugins, make sure to read the BasicUsage instructions. To se
 ||[http://code.google.com/p/volatility/wiki/CommandReference21#hivelist hivelist]||Walk the linked list of registry hives and print their virtual addresses and corresponding paths on disk||All||
 ||[http://code.google.com/p/volatility/wiki/CommandReference21#printkey printkey]||Print the contents of a registry key, its values, timestamps, and data||All||
 ||[http://code.google.com/p/volatility/wiki/CommandReference21#hivedump hivedump]||Recursively prints all keys and timestamps in a given hive||All||
-||[http://code.google.com/p/volatility/wiki/CommandReference21#hashdump hashdump]||Dumps passwords hashes (LM/NTLM) from memory||||
-||[http://code.google.com/p/volatility/wiki/CommandReference21#lsadump lsadump]||Dump (decrypted) LSA secrets from the registry||||
+||[http://code.google.com/p/volatility/wiki/CommandReference21#hashdump hashdump]||Dumps passwords hashes (LM/NTLM) from memory||All x86||
+||[http://code.google.com/p/volatility/wiki/CommandReference21#lsadump lsadump]||Dump (decrypted) LSA secrets from the registry||XP and 2003 x86||
 ||[http://code.google.com/p/volatility/wiki/CommandReference21#userassist userassist]||Parses and output !UserAssist keys from the registry||All||
 ||[http://code.google.com/p/volatility/wiki/CommandReference21#shimcache shimcache]||Parses the Application Compatibility Shim Cache registry key||All||
 
