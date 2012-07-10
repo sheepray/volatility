@@ -3,9 +3,7 @@
 
 = Introduction =
 
-This is a list of Volatility 2.1 features organized by plugins and categories. Plugins for older versions of Volatility can be found on [http://www.forensicswiki.org/wiki/List_of_Volatility_Plugins The Forensics Wiki] or in the [http://code.google.com/p/volatility/wiki/Plugins deprecated Plugins page].
-
-Before using these plugins, make sure to read the BasicUsage instructions. To see example use cases and example output from the plugins, see the CommandReference or click on the name of the plugin.
+This is a list of Volatility 2.1 features organized by plugins and categories. Before using these plugins, make sure to read the BasicUsage instructions. To see example use cases and example output from the plugins, see the CommandReference21 or click on the name of the plugin.
 
 == Image Identification ==
 
