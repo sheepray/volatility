@@ -3256,5 +3256,3 @@ The `constraints` element contains any number of `match` elements which take a s
 The `patches` element contains any number of `setbytes` elements which take a specific offset attribute (specifying where with the page the patch should modify data) and then contains a hexidecimal string for the bytes that should be written into the page.
 
 Note: When running the patcher plugin, there will be no modification made to memory unless the *write* option (-w) has been specified on the command line.
-
-== testsuite ==
