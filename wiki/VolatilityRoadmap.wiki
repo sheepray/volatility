@@ -29,10 +29,14 @@ This page is the official Volatility Roadmap. The goal of the Roadmap is to help
            * Windows 7 SP0 and SP1 x86
            * Windows 7 SP0 and SP1 x64
  * Plugin Additions
-	* Printing Process Environment Variables (envvars)
-	* Inspecting the Shim Cache (shimcache)
- * Profiling Command History and Console Usage (cmdscan, consoles)
- * Converting x86 and x64 Raw Dumps to MS !CrashDump (raw2dmp)
+          * Printing Process Environment Variables (envvars)
+          * Inspecting the Shim Cache (shimcache)
+          * Profiling Command History and Console Usage (cmdscan, consoles)
+          * Converting x86 and x64 Raw Dumps to MS !CrashDump (raw2dmp)
+ * Plugin Enhancements
+          * Verbose details for kdbgscan and kpcrscan 
+          * idt/gdt/timers plugins cycle automatically for each CPU 
+          * apihooks detects LSP/winsock procedure tables
  * New Output Formatting Support (Table Rendering)
  * New Mechanism for Profile Modifications
  * New Registry API Support
