@@ -3255,3 +3255,24 @@ The `constraints` element contains any number of `match` elements which take a s
 The `patches` element contains any number of `setbytes` elements which take a specific offset attribute (specifying where with the page the patch should modify data) and then contains a hexidecimal string for the bytes that should be written into the page.
 
 Note: When running the patcher plugin, there will be no modification made to memory unless the *write* option (-w) has been specified on the command line.
+
+== pagecheck == 
+
+The pagecheck plugin uses a kernel DTB (from the System/Idle process) and determines which pages should be memory resident (using the AddressSpace.get_available_pages method). For each page, it attempts to access the page data and reports details, such as the PDE and PTE addresses if the attempt fails. This is a diagnostic plugin, usually helpful in troubleshooting "holes" in an address space. 
+
+This plugin is not well-supported. It is in the contrib directory and currently only works with non-PAE x86 address spaces. 
+
+{{{
+$ python vol.py --plugins=contrib/plugins/ -f pat-2009-11-16.mddramimage pagecheck
+Volatile Systems Volatility Framework 2.1_rc1
+(V): 0x06a5a000 [PDE] 0x038c3067 [PTE] 0x1fe5e047 (P): 0x1fe5e000 Size: 0x00001000
+(V): 0x06c5f000 [PDE] 0x14d62067 [PTE] 0x1fe52047 (P): 0x1fe52000 Size: 0x00001000
+(V): 0x06cd5000 [PDE] 0x14d62067 [PTE] 0x1fe6f047 (P): 0x1fe6f000 Size: 0x00001000
+(V): 0x06d57000 [PDE] 0x14d62067 [PTE] 0x1fe5c047 (P): 0x1fe5c000 Size: 0x00001000
+(V): 0x06e10000 [PDE] 0x14d62067 [PTE] 0x1fe62047 (P): 0x1fe62000 Size: 0x00001000
+(V): 0x070e4000 [PDE] 0x1cac7067 [PTE] 0x1fe1e047 (P): 0x1fe1e000 Size: 0x00001000
+(V): 0x077a8000 [PDE] 0x1350a067 [PTE] 0x1fe06047 (P): 0x1fe06000 Size: 0x00001000
+(V): 0x07a41000 [PDE] 0x05103067 [PTE] 0x1fe05047 (P): 0x1fe05000 Size: 0x00001000
+(V): 0x07c05000 [PDE] 0x103f7067 [PTE] 0x1fe30047 (P): 0x1fe30000 Size: 0x00001000
+...
+}}}
