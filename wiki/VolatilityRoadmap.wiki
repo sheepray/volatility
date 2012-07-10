@@ -49,6 +49,7 @@ This page is the official Volatility Roadmap. The goal of the Roadmap is to help
  * Android/Arm Support
  * New Address Spaces (VMWareSnapshotFile, !VirtualBoxCoreDumpElf64)
  * Pool Scanner Updates
+ * Unicode improvements 
  * KDBG/DTB Improvements
  * Profile Selection Enhancements
  * New or Updated Plugins 
