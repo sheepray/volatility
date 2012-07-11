@@ -63,7 +63,27 @@ This page is the official Volatility Roadmap. The goal of the Roadmap is to help
 
 = Volatility 3.0 (Official Tech Preview Merge) =
 
-...coming soon
+*RC1:* March 2013
+*Release:* April 2013
+
+ * A refactor and clean up of the vtype language/profiles/object system
+ * Plugin management and the session object 
+ * Interactive IPython shell 
+ * Unified Plugin Output Format (+ JSON renderers) 
+ * Updated Registry Hive and PE File Address Spaces
+ * Performance Profiling and Regression Testing Framework
+ * Updates to Config System
+ * Improved Framework Support (Use as a Library)
+ * Application Profiles and WOW64
+ * Addition of Windows 8/Server 2012 Support/Testing
+ * Win32k Suite (10+ new plugins and API)
+ * New or Updated Plugins 
+   * privileges 
+   * pktscan
+   * cachedump
+   * dnscache
+   * stack, heaps
+ * x64 Updates to Malware Plugins (timers, callbacks, idt/gdt, apihooks)
 
 = Volatility Future =
 
