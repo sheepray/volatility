@@ -86,6 +86,8 @@ If you're using the standalone Windows executable, no installation is necessary 
  * [http://code.google.com/p/yara-project/ Yara] - A malware identification and classification tool
  * [https://www.dlitz.net/software/pycrypto/ PyCrypto] - The Python Cryptography Toolkit
 
+If you do not install these libraries, you may see a warning message to raise your awareness, but all plugins that do not rely on the missing libraries will still work properly. 
+
 = Contact = 
 
 == Who wrote/is writing Volatility ==
