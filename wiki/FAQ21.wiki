@@ -76,7 +76,7 @@ There is technically no limit. We've heard reports of Volatility handling 30-40 
 
 See the contact section below. 
 
-= Installation = 
+= Installation/Usage = 
 
 == How do I install Volatility == 
 
@@ -87,6 +87,28 @@ If you're using the standalone Windows executable, no installation is necessary 
  * [https://www.dlitz.net/software/pycrypto/ PyCrypto] - The Python Cryptography Toolkit
 
 If you do not install these libraries, you may see a warning message to raise your awareness, but all plugins that do not rely on the missing libraries will still work properly. 
+
+== How do I use Volatility == 
+
+If you're using the standalone Windows executable, run it from a command prompt: 
+
+{{{
+C:\> volatility.exe -h 
+}}}
+
+If you're using the Pyinstaller executable, run it using the python interpreter. The main vol.py script will be in the Scripts folder for your python version. Note: for convenience you might want to add the "C:\Python??" directory to your PATH environment variable. 
+
+{{{
+C:\> python C:\Python27\Scripts\vol.py -h 
+}}}
+
+If you're using the zip or tar source code archive, just run the vol.py script in the top level directory. For convenience on Linux/OSX systems, you might set up a command alias for "/usr/bin/python /path/to/vol.py" to be just "volatility" - then you can always type "volatility" from any directory.
+
+{{{
+$ python vol.py -h 
+}}}
+
+The -h/--help option shows the available plugins and other command-line parameters. It should be enough to get you started. If not, please read the BasicUsage21 or CommandReference21 wiki pages. 
 
 = Contact = 
 
