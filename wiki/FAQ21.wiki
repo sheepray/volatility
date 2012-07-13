@@ -6,11 +6,71 @@
 
 == What is the latest stable version of Volatility ==
 
-The latest stable version is 2.1. It was released July 2012. You can grab the source code, Python installer, or Windows standalone executable from the [http://code.google.com/p/volatility/downloads/list Downloads page]. 
+The latest stable version is 2.1. It was released July 2012. The code in available in the following formats, all of which can be found on the [http://code.google.com/p/volatility/downloads/list Downloads page]. 
+
+ * Source code in zip or tar archive (all platforms). 
+ * Pyinstaller executable (Windows only).
+ * Standalone executable (Windows only). 
+
+If you plan to develop your own plugins or address spaces, or just want to see how Volatility works, choose the source code or Pyinstaller executable. You must already have a Python interpreter and dependent libraries installed. To just be up and running in a matter of seconds, choose the standalone executable - it comes packaged with Python and the dependencies. The standalone executable is portable and can be run from USB drives or CDROMs.
+
+== What's new in 2.1 ==
+
+Please see the [http://code.google.com/p/volatility/wiki/VolatilityRoadmap#Volatility_2.1_(Official_x64_Support) VolatilityRoadmap 2.1 Release]
 
 == What is the latest development version of Volatility ==
 
-The VolatilityRoadmap should tell you everything you need to know about upcoming release dates and features. 
+The VolatilityRoadmap should tell you everything you need to know about upcoming release dates and features. We always make an effort to keep the code in [http://code.google.com/p/volatility/source/checkout svn trunk] as stable as possible, while preparing it for the next release. For that reason, we may fork and perform development in a separate [http://code.google.com/p/volatility/source/browse/#svn/branches branch] and then merge it back in with trunk after the necessary testing. 
+
+Currently, there are several major new features under development in separate branches. For example, the [http://code.google.com/p/volatility/source/browse/#svn/branches/linux-trunk linux-trunk] and [http://code.google.com/p/volatility/source/browse/#svn/branches/mac-trunk mac-trunk] provide memory analysis capabilities for linux and mac osx systems, respectively. They are planned to be merged with trunk for the 2.2 release (October 2012). Also, the [http://code.google.com/p/volatility/source/browse/#svn/branches/scudette technology preview] branch is being designed in preparation for the exciting new features coming in 3.0. 
+
+== What operating systems are supported ==
+
+The 2.1 release supports the following:
+
+ * Microsoft Windows:
+    * 32-bit Windows XP Service Pack 2 and 3
+    * 32-bit Windows 2003 Server Service Pack 0, 1, 2
+    * 32-bit Windows Vista Service Pack 0, 1, 2
+    * 32-bit Windows 2008 Server Service Pack 1, 2 (there is no SP0)
+    * 32-bit Windows 7 Service Pack 0, 1
+    * 64-bit Windows XP Service Pack 1 and 2 (there is no SP0)
+    * 64-bit Windows 2003 Server Service Pack 1 and 2 (there is no SP0)
+    * 64-bit Windows Vista Service Pack 0, 1, 2
+    * 64-bit Windows 2008 Server Service Pack 1 and 2 (there is no SP0)
+    * 64-bit Windows 2008 R2 Server Service Pack 0 and 1
+    * 64-bit Windows 7 Service Pack 0 and 1
+
+Development branches as described above contain support for the following additional systems:
+
+ * Mac OS X:
+    * 32-bit and 64-bit 10.6.x Snow Leopard (partial support only)
+    * 32-bit and 64-bit 10.7.x Lion (full support)
+    * 32-bit and 64-bit 10.8.x Mountain Lion (partial support only)
+ * Linux and Android:
+    * 32-bit Linux 2.6.9 - 3.x 
+    * 64-bit Linux 2.6.9 - 3.x
+
+== What memory dump formats are supported == 
+
+The following formats for Windows memory dumps are supported:
+
+ * Raw dd style, such as those produced by most live acquisition tools and VMware's .vmem files
+ * Microsoft Crash Dump 
+ * Hibernation (hiberfil.sys) files 
+ * EWF (requires installation of [http://sourceforge.net/projects/libewf/ libewf])
+ 
+Volatility will automatically determine which format your file is in and treat it accordingly. However, if you wish to convert your sample to raw format, use [CommandReference21#imagecopy]. You can also convert from raw to a crash dump with [CommandReference21#raw2dmp]. 
+
+In addition, the 2.2 release of Volatility is planned to support: 
+
+  * !VirtualBox ELF64 core dumps (thanks to Philippe Teuwen) 
+  * VMware snapshot and suspended state files - .vmss and .vmsn (thanks to Nir Izraeli)
+  * LiME (Linux Memory Extractor) format for Linux and Android devices (thanks to Joe Sylve)
+
+== Is there a maximum memory dump size == 
+
+There is technically no limit. We've heard reports of Volatility handling 30-40 GB images on both Windows and Linux host operating systems. If you routinely analyze large memory dumps and would like to supply some performance benchmarks for the FAQ, please let us know.
 
 == How can I report a bug or feature request ==
 
