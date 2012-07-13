@@ -1,0 +1,31 @@
+#summary Frequently Asked Questions
+
+<wiki:toc />
+
+= General = 
+
+== What is the latest stable version of Volatility ==
+
+The latest stable version is 2.1. It was released July 2012. You can grab the source code, Python installer, or Windows standalone executable from the [http://code.google.com/p/volatility/downloads/list Downloads page]. 
+
+== What is the latest development version of Volatility ==
+
+The VolatilityRoadmap should tell you everything you need to know about upcoming release dates and features. 
+
+== How can I report a bug or feature request ==
+
+See the contact section below. 
+
+= Contact = 
+
+== Who wrote/is writing Volatility ==
+
+See the AUTHORS.txt and CREDITS.txt files provided with the Volatility source code. 
+
+== How can I contribute to Volatility ==
+
+If you have documentation, code or ideas to contribute, use one of the following methods:
+
+ * Through the [http://code.google.com/p/volatility/issues/list Google Code web interface]
+ * Through IRC: #volatility on freenode 
+ * Through the [http://lists.volatilesystems.com/mailman/listinfo Volatility Mailing List]
