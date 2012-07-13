@@ -60,7 +60,7 @@ The following formats for Windows memory dumps are supported:
  * Hibernation (hiberfil.sys) files 
  * EWF (requires installation of [http://sourceforge.net/projects/libewf/ libewf])
  
-Volatility will automatically determine which format your file is in and treat it accordingly. However, if you wish to convert your sample to raw format, use [CommandReference21#imagecopy]. You can also convert from raw to a crash dump with [CommandReference21#raw2dmp]. 
+Volatility will automatically determine which format your file is in and treat it accordingly. However, if you wish to convert your sample to raw format, use [http://code.google.com/p/volatility/wiki/CommandReference21#imagecopy imagecopy]. You can also convert from raw to a crash dump with [http://code.google.com/p/volatility/wiki/CommandReference21#raw2dmp raw2dmp]. 
 
 In addition, the 2.2 release of Volatility is planned to support: 
 
@@ -75,6 +75,16 @@ There is technically no limit. We've heard reports of Volatility handling 30-40 
 == How can I report a bug or feature request ==
 
 See the contact section below. 
+
+= Installation = 
+
+== How do I install Volatility == 
+
+If you're using the standalone Windows executable, no installation is necessary - it works right out of the box. If you downloaded the zip or tar source code archive, extract it on your Windows, Linux, or OSX system with Python 2.6 or greater (but not 3.0). For the most comprehensive plugin support, you should also install the following libraries: 
+
+ * [http://code.google.com/p/distorm/ Distorm3] - Powerful Disassembler Library For x86/AMD64
+ * [http://code.google.com/p/yara-project/ Yara] - A malware identification and classification tool
+ * [https://www.dlitz.net/software/pycrypto/ PyCrypto] - The Python Cryptography Toolkit
 
 = Contact = 
 
