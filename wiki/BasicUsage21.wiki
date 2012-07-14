@@ -1,3 +1,165 @@
 #summary Basic Usage for Volatility 2.1
 
-= Basic Usage of Volatility 2.1 =
+<wiki:toc />
+
+= Quick Start = 
+
+The most basic volatility commands are constructed as shown below. Replace _plugin_ with the name of the plugin to use, _image_ with the file path to your memory image, and _profile_ with the name of the profile (such as Win7SP1x64). 
+
+{{{
+$ python vol.py [plugin] -f [image] --profile=[profile] 
+}}}
+
+Here is an example: 
+
+{{{
+$ python vol.py pslist -f /path/to/memory.img --profile=Win7SP1x64
+}}}
+
+For everything beyond this example, such as controlling the output format, listing the available plugins and profiles, or supplying plugin-specific options, see the rest of the text below. 
+
+= Global Options =
+
+There are several command-line options that are global (i.e. they apply to all plugins). This section is for folks who are new to Volatility or anyone who wants to become more familiar with what functionality can be tweaked. 
+
+== Displaying Help ==
+
+You can display the main help menu by passing -h or --help on command-line. The remainder of this section will discuss the various options in greater detail. 
+
+{{{
+$ python vol.py -h
+Volatile Systems Volatility Framework 2.1_rc1
+
+Usage: Volatility - A memory forensics analysis platform.
+
+Options:
+  -h, --help            list all available options and their default values.
+                        Default values may be set in the configuration file
+                        (/etc/volatilityrc)
+  --conf-file=/Users/Michael/.volatilityrc
+                        User based configuration file
+  -d, --debug           Debug volatility
+  --plugins=PLUGINS     Additional plugin directories to use (colon separated)
+  --info                Print information about all registered objects
+  --cache-directory=/Users/Michael/.cache/volatility
+                        Directory where cache files are stored
+  --cache               Use caching
+  --tz=TZ               Sets the timezone for displaying timestamps
+  -f FILENAME, --filename=FILENAME
+                        Filename to use when opening an image
+  --profile=WinXPSP2x86
+                        Name of the profile to load
+  -l LOCATION, --location=LOCATION
+                        A URN location from which to load an address space
+  -w, --write           Enable write support
+  --use-old-as          Use the legacy address spaces
+  --dtb=DTB             DTB Address
+  --cache-dtb           Cache virtual to physical mappings
+  --output=text         Output in this format (format support is module
+                        specific)
+  --output-file=OUTPUT_FILE
+                        write output in this file
+  -v, --verbose         Verbose information
+  -k KPCR, --kpcr=KPCR  Specify a specific KPCR address
+  -g KDBG, --kdbg=KDBG  Specify a specific KDBG virtual address
+
+	Supported Plugin Commands:
+
+		apihooks       	Detect API hooks in process and kernel memory
+		bioskbd        	Reads the keyboard buffer from Real Mode memory
+		callbacks      	Print system-wide notification routines
+		cmdscan        	Extract command history by scanning for _COMMAND_HISTORY
+		connections    	Print list of open connections [Windows XP and 2003 Only]
+[snip]
+}}}
+
+== Selecting a Profile == 
+
+Volatility needs to know what type of system your memory dump came from, so it knows which data structures, algorithms, and symbols to use. A default profile of WinXPSP2x86 is set internally, so if you're analyzing a Windows XP SP2 x86 memory dump, you do not need to supply --profile at all. However, for all others, you must specify the proper profile name. If you do not know what type of system the memory dump is from, use the [http://code.google.com/p/volatility/wiki/CommandReference21#imageinfo imageinfo] or [http://code.google.com/p/volatility/wiki/CommandReference21#kdbgscan kdbgscan] plugins for a suggestion. 
+
+If you want to see a list of supported profile names, do the following:
+
+{{{
+$ python vol.py --info
+
+[snip]
+
+Profiles
+--------
+VistaSP0x64     - A Profile for Windows Vista SP0 x64
+VistaSP0x86     - A Profile for Windows Vista SP0 x86
+VistaSP1x64     - A Profile for Windows Vista SP1 x64
+VistaSP1x86     - A Profile for Windows Vista SP1 x86
+VistaSP2x64     - A Profile for Windows Vista SP2 x64
+VistaSP2x86     - A Profile for Windows Vista SP2 x86
+Win2003SP0x86   - A Profile for Windows 2003 SP0 x86
+Win2003SP1x64   - A Profile for Windows 2003 SP1 x64
+Win2003SP1x86   - A Profile for Windows 2003 SP1 x86
+Win2003SP2x64   - A Profile for Windows 2003 SP2 x64
+Win2003SP2x86   - A Profile for Windows 2003 SP2 x86
+Win2008R2SP0x64 - A Profile for Windows 2008 R2 SP0 x64
+Win2008R2SP1x64 - A Profile for Windows 2008 R2 SP1 x64
+Win2008SP1x64   - A Profile for Windows 2008 SP1 x64
+Win2008SP1x86   - A Profile for Windows 2008 SP1 x86
+Win2008SP2x64   - A Profile for Windows 2008 SP2 x64
+Win2008SP2x86   - A Profile for Windows 2008 SP2 x86
+Win7SP0x64      - A Profile for Windows 7 SP0 x64
+Win7SP0x86      - A Profile for Windows 7 SP0 x86
+Win7SP1x64      - A Profile for Windows 7 SP1 x64
+Win7SP1x86      - A Profile for Windows 7 SP1 x86
+WinXPSP1x64     - A Profile for Windows XP SP1 x64
+WinXPSP2x64     - A Profile for Windows XP SP2 x64
+WinXPSP2x86     - A Profile for Windows XP SP2 x86
+WinXPSP3x86     - A Profile for Windows XP SP3 x86
+}}}
+
+== Alternatives to Command Line Options  == 
+
+If you're about to enter a lengthy engagement and don't want to type the path to your memory dump and the corresponding profile name each time, there are two alternatives: environment variables and configuration files. If an option is not supplied on command-line, Volatility will try to get it from an environment variable and if that fails - from a configuration file. 
+
+Note also that to avoid confusion, the (-h/--help) option also lists the current value of each parameter so you can easily check what value is being used (from the environment or the config files). 
+
+=== Environment Variables === 
+
+On a Linux or OS X system you can set options by exporting them in your shell, as shown below:
+
+{{{
+$ export VOLATILITY_PROFILE=Win7SP0x86
+$ export VOLATILITY_LOCATION=file:///tmp/myimage.img
+$ ./vol.py pslist
+$ ./vol.py files
+}}}
+
+=== Configuration Files ===
+
+Configuration files are typically "volatilityrc" in the current directory or ~/.volatilityrc (user's home directory), or at user specified path (using the --conf-file option). An example of the file contents is shown below: 
+
+{{{
+[DEFAULT]
+PROFILE=Win7SP0x86
+LOCATION=file:///tmp/myimage.img
+}}}
+
+== Enabling Debug Messages ==
+
+If something isn't happening in Volatility the way you'd expect, try running the command with -d/--debug. This will enable the printing of debug messages to standard error. If you *really* need to debug Volatility (as in using pdb debugger), then add -d -d -d to your commands. 
+
+== Using the Cache == 
+
+== Setting the Timezone == 
+
+== Setting the DTB == 
+
+== Setting the KDBG Address == 
+
+== Setting the KPCR Address ==
+
+== Enabling Write Support == 
+
+== Specifying Additional Plugin Directories ==
+
+== Choosing an Output Format == 
+
+= Plugin Specific Options = 
+
+= Using Volatility as a Library = 
