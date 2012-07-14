@@ -146,9 +146,13 @@ If something isn't happening in Volatility the way you'd expect, try running the
 
 == Using the Cache == 
 
+The cache allows Volatility to store arbitrary objects and constants for later retrieval. This can include, DTB, KDBG, or KPCR addresses, entire x86 page translation tables, or even hibernation decompression data structures. To enable use of the cache, add --cache to your commands. This feature pickles (serializes) the data in files on your disk, so if you want to choose the location of cache files, use --cache-directory. 
+
 == Setting the Timezone == 
 
 == Setting the DTB == 
+
+The DTB (Directory Table Base) is what Volatility uses to translate virtual addresses to physical addresses. By default, a kernel DTB is used (from the Idle/System process). If you want to use a different process's DTB when accessing data, supply the address to --dtb. 
 
 == Setting the KDBG Address == 
 
