@@ -1,4 +1,5 @@
 #summary Basic usage for Volatility 2.0
+#labels Deprecated
 
 = Basic Usage of Volatility 2.0 =
 
