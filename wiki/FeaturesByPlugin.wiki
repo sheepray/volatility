@@ -1,4 +1,5 @@
 #summary Volatility 2.0 Features by Plugin
+#labels Deprecated
 
 = Introduction =
 
