@@ -1,0 +1,31 @@
+#summary Public Memory Images
+
+= Introduction =
+
+Images from The [http://www.malwarecookbook.com Malware Analyst's Cookbook]
+
+|| *Description*    || *url* || *OS* ||
+|| be2.vmem.zip || [http://malwarecookbook.googlecode.com/svn-history/r26/trunk/17/6/be2.vmem.zip be2.vmem.zip]|| XP SP2 ||
+|| coreflood.vmem.zip || [http://malwarecookbook.googlecode.com/svn-history/r26/trunk/16/6/coreflood.vmem.zip coreflood.vmem.zip] || XP SP2 ||
+|| laqma.vmem.zip || [http://malwarecookbook.googlecode.com/svn-history/r26/trunk/16/7/laqma.vmem.zip laqma.vmem.zip] || XP SP2 ||
+|| prolaco.vmem.zip || [http://malwarecookbook.googlecode.com/svn-history/r26/trunk/15/6/prolaco.vmem.zip prolaco.vmem.zip]|| XP SP2 ||
+|| sality.vmem.zip || [http://malwarecookbook.googlecode.com/svn-history/r26/trunk/17/11/sality.vmem.zip sality.vmem.zip]|| XP SP2 ||
+||  silentbanker.vmem.zip || [http://malwarecookbook.googlecode.com/svn-history/r26/trunk/16/6/silentbanker.vmem.zip silentbanker.vmem.zip]|| XP SP2 ||
+|| tigger.vmem.zip|| [http://malwarecookbook.googlecode.com/svn-history/r26/trunk/17/8/tigger.vmem.zip tigger.vmem.zip]|| XP SP2 ||
+|| zeus.vmem.zip|| [http://malwarecookbook.googlecode.com/svn-history/r26/trunk/17/1/zeus.vmem.zip zeus.vmem.zip]|| XP SP2 ||
+|| spyeye.vmem.zip||[http://code.google.com/p/malwarecookbook/source/browse/trunk/spyeye.vmem.zip spyeye.vmem.zip]|| XP SP2 ||
+
+Other Images 
+
+|| *Description*    || *url* || *OS* ||
+|| Stuxnet image || [http://malwarecookbook.googlecode.com/svn/trunk/stuxnet.vmem.zip stuxnet.vmem.zip]|| XP SP3 ||
+|| NIST || [http://www.cfreds.nist.gov/mem/memory-images.rar http://www.cfreds.nist.gov/mem/memory-images.rar]|| XP SP2 ||
+||Hogfly's malware memory samples || [http://cid-5694a755c9c6a175.skydrive.live.com/browse.aspx/Public  http://cid-5694a755c9c6a175.skydrive.live.com/browse.aspx/Public]|| ? ||
+||Moyix's Fuzzy Hidden Process Sample || [http://amnesia.gtisc.gatech.edu/~moyix/ds_fuzz_hidden_proc.img.bz2 http://amnesia.gtisc.gatech.edu/~moyix/ds_fuzz_hidden_proc.img.bz2]|| XP SP3 ||
+||Honeynet Banking Troubles Image || [https://www.honeynet.org/challenges/2010_3_banking_troubles https://www.honeynet.org/challenges/2010_3_banking_troubles]|| XP SP2 ||
+||NPS 2009-M57|| [https://domex.nps.edu/corp/nps/scenarios/2009-m57-patents/ram/ https://domex.nps.edu/corp/nps/scenarios/2009-m57-patents/ram/] ||  Various XP / Vista ||
+|| [http://dougee652.blogspot.com/2011/04/malware-memory-images.html Dougee's comparison samples] || [http://dl.dropbox.com/u/21148428/xp-clean.tgz before] and [http://dl.dropbox.com/u/21148428/xp-infected.tgz after infection] || XP ||
+|| Shylock Sample || [http://various-things.googlecode.com/files/vmem2.zip Shylock vmem] || XP ||
+|| !R2D2 Sample || [http://www.mediafire.com/file/yxqodp1p2aca91x/0zapftis.rar 0zapftis.rar] (pw: infected) || XP SP2 ||
+|| Honeynet Compromised Server Challenge || [http://www.honeynet.org/challenges/2011_7_compromised_server] || Linux - Debian 2.6.26-26 ||
+|| Pikeworks Linux Samples || [http://secondlookforensics.com/images.html] || Misc Linux ||
