@@ -171,7 +171,7 @@ Write support in Volatility should be used with caution. Therefore, to actually 
 
 Volatility's plugin architecture can load plugin files from multiple directories at once. In the Volatility source code, most plugins are located in volatility/plugins. However, there is another directory (volatility/contrib) which is reserved for contributions from third party developers, or weakly supported plugins that simply aren't enabled by default. To access these plugins you just type --plugins=contrib/plugins on command-line. It also enables you to create a separate directory of your own plugins that you can manage without having to add/remove/modify files in the core volatility directories. 
 
-Note: the parameter to --plugins can also be a zip file containing the plugins such as --plugins=myplugins.zip. 
+Note: the parameter to --plugins can also be a zip file containing the plugins such as --plugins=myplugins.zip. Due to the way plugins are loaded, the external plugins directory or zip file must be specified before any plugin-specific arguments (including the name of the plugin).
 
 == Choosing an Output Format == 
 
