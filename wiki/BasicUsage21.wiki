@@ -153,15 +153,23 @@ The cache allows Volatility to store arbitrary objects and constants for later r
 
 == Setting the DTB == 
 
-The DTB (Directory Table Base) is what Volatility uses to translate virtual addresses to physical addresses. By default, a kernel DTB is used (from the Idle/System process). If you want to use a different process's DTB when accessing data, supply the address to --dtb. 
+The DTB (Directory Table Base) is what Volatility uses to translate virtual addresses to physical addresses. By default, a kernel DTB is used (from the Idle/System process). If you want to use a different process's DTB when accessing data, supply the address to --dtb=ADDRESS. 
 
 == Setting the KDBG Address == 
 
+Volatility scans for the KDDEBUGGER_DATA64 structure using hard-coded signatures "KDBG" and a series of sanity checks. These signatures are not critical for the operating system to function properly, thus malware can overwrite them in attempt to throw off tools that *do* rely on the signature. Additionally, in some cases there may be more than one KDDEBUGGER_DATA64 (for example if you apply a major OS update and don't reboot), which can cause confusion and lead to incorrect process and module listings, among other problems. If you know the address add KDDEBUGGER_DATA64, you can specify it with --kdbg=ADDRESS and this override the automated scans. For more information, see the [http://code.google.com/p/volatility/wiki/CommandReference21#kdbgscan kdbgscan] plugin. 
+
 == Setting the KPCR Address ==
+
+There is one KPCR (Kernel Processor Control Region) for each CPU on a system. Some Volatility plugins display per-processor information. Thus if you want to display data for a specific CPU, for example CPU 3 instead of CPU 1, you can pass the address of that CPU's KPCR with --kpcr=ADDRESS. To locate the KPCRs for all CPUs, see the [http://code.google.com/p/volatility/wiki/CommandReference21#kpcrscan kpcrscan] plugin. Also note that starting in Volatility 2.2, many of the plugins such as [http://code.google.com/p/volatility/wiki/CommandReference21#idt idt] and [http://code.google.com/p/volatility/wiki/CommandReference21#gdt gdt] automatically iterate through the list of KPCRs.
 
 == Enabling Write Support == 
 
+Write support in Volatility should be used with caution. Therefore, to actually enable it, you must not only type --write on command-line but you must type a "password" in response to a question that you'll be prompted with. In most cases you will not want to use write support since it can lead to corruption or modification of data in your memory dump. However, special cases exist that make this feature really interesting. For example, you could cleanse a live system of certain malware by writing to RAM over firewire, or you could break into a locked workstation by patching bytes in the winlogon DLLs. 
+
 == Specifying Additional Plugin Directories ==
+
+Volatility's plugin architecture can load plugin files from multiple directories at once. In the Volatility source code, most plugins are located in volatility/plugins. However, there is another directory (volatility/contrib) which is reserved for contributions from third party developers, or weakly supported plugins that simply aren't enabled by default. To access these plugins you just type --plugins=contrib/plugins on command-line. It also enables you to create a separate directory of your own plugins that you can manage without having to add/remove/modify files in the core volatility directories. 
 
 == Choosing an Output Format == 
 
