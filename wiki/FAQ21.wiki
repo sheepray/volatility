@@ -69,6 +69,8 @@ In addition, the 2.2 release of Volatility is planned to support:
   * VMware snapshot and suspended state files - .vmss and .vmsn (thanks to Nir Izraeli)
   * LiME (Linux Memory Extractor) format for Linux and Android devices (thanks to Joe Sylve)
 
+== Can Volatility acquire physical memory ==
+
 == Is there a maximum memory dump size == 
 
 There is technically no limit. We've heard reports of Volatility handling 30-40 GB images on both Windows and Linux host operating systems. If you routinely analyze large memory dumps and would like to supply some performance benchmarks for the FAQ, please let us know.
