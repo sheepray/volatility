@@ -77,9 +77,9 @@ Traditionally, the goal of Volatility is to analyze physical memory, not acquire
 
 There is technically no limit. We've heard reports of Volatility handling 30-40 GB images on both Windows and Linux host operating systems. If you routinely analyze large memory dumps and would like to supply some performance benchmarks for the FAQ, please let us know.
 
-== How can I report a bug or feature request ==
+== How can I report a bug ==
 
-See the contact section below. 
+You can use the [http://code.google.com/p/volatility/issues/list issue tracker]. Please collect details on the system from which the memory dump was acquired, including OS, service pack, amount of memory installed, and memory model (x86 vs x64). Depending on the problem, you may be asked other details such as your analysis system (windows, linux, mac), python version, samples of output from Volatility plugins - anything to help reproduce the bug. 
 
 = Installation/Usage = 
 
