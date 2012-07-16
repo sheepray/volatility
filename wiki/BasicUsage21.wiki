@@ -175,6 +175,37 @@ Note: the parameter to --plugins can also be a zip file containing the plugins s
 
 == Choosing an Output Format == 
 
+By default, plugins use text renderers to standard output.  If you want to redirect to a file, you can of course use the console's redirection (i.e. > out.txt) or you could use --output-file=out.txt. The reason you can also choose --output=FORMAT is for allowing plugins to also render output as HTML, JSON, SQL, or whatever you choose. However, there are no plugins with those alternate output formats pre-configured for use, so you'll need to add a function named render_html, render_json, render_sql, respectively to each plugin before using --output=HTML. 
+
 = Plugin Specific Options = 
 
+Many plugins accept arguments of their own, which are independent of the global options.  To see the list of available options, type both the plugin name and -h/--help on command-line. 
+
+{{{
+$ python vol.py dlllist -h
+}}}
+
 = Using Volatility as a Library = 
+
+Although its possible to use Volatility as a library, we hope to support it better in the future. Currently, if you need to import volatility from one of your other python scripts, you can use the following example code:
+
+{{{
+$ python
+>>> import volatility.conf as conf
+>>> import volatility.registry as registry
+>>> registry.PluginImporter()
+<volatility.registry.PluginImporter object at 0x7f9608f3ac10>
+>>> config = conf.ConfObject()
+>>> import volatility.commands as commands
+>>> import volatility.addrspace as addrspace
+>>> registry.register_global_options(config, commands.Command)
+>>> registry.register_global_options(config, addrspace.BaseAddressSpace)
+>>> config.parse_options()
+>>> config.PROFILE="WinXPSP2x86"
+>>> config.LOCATION = "file:///media/memory/private/image.dmp"
+>>> import volatility.plugins.taskmods as taskmods
+>>> p = taskmods.PSList(config)
+>>> for process in p.calculate():
+...   print process
+... 
+}}}
