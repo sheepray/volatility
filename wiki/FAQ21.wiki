@@ -71,6 +71,8 @@ In addition, the 2.2 release of Volatility is planned to support:
 
 == Can Volatility acquire physical memory ==
 
+Traditionally, the goal of Volatility is to analyze physical memory, not acquire it. Thus, all versions up to and including 2.1 do not have any acquisition capabilities. We do however, support acquisition of memory over firewire with the [http://code.google.com/p/volatility/wiki/CommandReference21#imagecopy imagecopy] plugin, since that is just a generic copy of any address space into a raw memory dump format. 
+
 == Is there a maximum memory dump size == 
 
 There is technically no limit. We've heard reports of Volatility handling 30-40 GB images on both Windows and Linux host operating systems. If you routinely analyze large memory dumps and would like to supply some performance benchmarks for the FAQ, please let us know.
