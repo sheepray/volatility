@@ -23,6 +23,7 @@ import volatility.plugins.common as common
 import volatility.scan as scan
 import volatility.obj as obj
 import volatility.cache as cache
+import volatility.debug as debug
 import socket
 import volatility.plugins.overlays.windows.tcpip_vtypes as tcpip_vtypes
 
@@ -181,6 +182,9 @@ class Netscan(common.AbstractWindowsCommand):
         # Physical space for scanning 
         flat_space = utils.load_as(self._config, astype = 'physical')
 
+        if not self.is_valid_profile(kernel_space.profile):
+            debug.error("This command does not support the selected profile.")
+
         # Scan for TCP listeners also known as sockets
         for offset in PoolScanTcpListener().scan(flat_space):
 
@@ -209,9 +213,9 @@ class Netscan(common.AbstractWindowsCommand):
                 continue
 
             # These are our sanity checks 
-            if (tcpentry.State.v() not in tcpip_vtypes.TCP_STATE_ENUM or 
+            if (tcpentry.State.v() not in tcpip_vtypes.TCP_STATE_ENUM or
                     (not tcpentry.LocalAddress and (not tcpentry.Owner or
-                    tcpentry.Owner.UniqueProcessId == 0 or 
+                    tcpentry.Owner.UniqueProcessId == 0 or
                     tcpentry.Owner.UniqueProcessId > 65535))):
                 continue
 

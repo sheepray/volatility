@@ -8,17 +8,15 @@ def get_plugins(list):
 
 exeext = ".exe" if 'win' in sys.platform else ""
 
-a = Analysis([os.path.join(HOMEPATH, 'support/_mountzlib.py'),
-              os.path.join(HOMEPATH, 'support/useUnicode.py'),
-              os.path.join(projpath, 'vol.py')],
+a = Analysis([os.path.join(projpath, 'vol.py')],
               pathex = [HOMEPATH],
               hookspath = [os.path.join(projpath, 'pyinstaller')])
-pyz = PYZ(a.pure - set(get_plugins(a.pure)),
+pyz = PYZ(a.pure,
           name = os.path.join(BUILDPATH, 'vol.pkz'))
 plugins = Tree(os.path.join(projpath, 'volatility', 'plugins'),
                os.path.join('plugins'))
 exe = EXE(pyz,
-          a.scripts,
+          a.scripts + [('u', '', 'OPTION')],
           a.binaries,
           a.zipfiles,
           a.datas,

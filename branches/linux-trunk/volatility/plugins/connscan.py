@@ -29,7 +29,7 @@ This module implements the fast connection scanning
 #pylint: disable-msg=C0111
 
 import volatility.scan as scan
-import volatility.commands as commands
+import volatility.plugins.common as common
 import volatility.cache as cache
 import volatility.utils as utils
 import volatility.obj as obj
@@ -48,7 +48,7 @@ class PoolScanConnFast(scan.PoolScanner):
                ('CheckPoolIndex', dict(value = 0)),
                ]
 
-class ConnScan(commands.Command):
+class ConnScan(common.AbstractWindowsCommand):
     """ Scan Physical memory for _TCPT_OBJECT objects (tcp connections)
     """
     meta_info = dict(
@@ -61,10 +61,18 @@ class ConnScan(commands.Command):
         version = '1.0',
         )
 
+    @staticmethod
+    def is_valid_profile(profile):
+        return (profile.metadata.get('os', 'unknown') == 'windows' and
+                profile.metadata.get('major', 0) == 5)
+
     @cache.CacheDecorator("scans/connscan2")
     def calculate(self):
         ## Just grab the AS and scan it using our scanner
         address_space = utils.load_as(self._config, astype = 'physical')
+
+        if not self.is_valid_profile(address_space.profile):
+            debug.error("This command does not support the selected profile.")
 
         scanner = PoolScanConnFast()
         for offset in scanner.scan(address_space):
@@ -74,10 +82,17 @@ class ConnScan(commands.Command):
             yield tcp_obj
 
     def render_text(self, outfd, data):
-        outfd.write(" Offset(P)  Local Address             Remote Address            Pid   \n" +
-                    "---------- ------------------------- ------------------------- ------ \n")
+        self.table_header(outfd,
+                          [("Offset(P)", "[addrpad]"),
+                           ("Local Address", "25"),
+                           ("Remote Address", "25"),
+                           ("Pid", "")
+                           ])
 
         for tcp_obj in data:
             local = "{0}:{1}".format(tcp_obj.LocalIpAddress, tcp_obj.LocalPort)
             remote = "{0}:{1}".format(tcp_obj.RemoteIpAddress, tcp_obj.RemotePort)
-            outfd.write("{0:#010x} {1:25} {2:25} {3:6}\n".format(tcp_obj.obj_offset, local, remote, tcp_obj.Pid))
+            self.table_row(outfd,
+                            tcp_obj.obj_offset,
+                            local, remote,
+                            tcp_obj.Pid)
