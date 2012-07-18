@@ -81,6 +81,9 @@ class NoneObject(object):
         """Write procedure only ever returns False"""
         return False
 
+    def __repr__(self):
+        return "<NoneObject: " + self.reason + ">"
+
     ## Behave like an empty set
     def __iter__(self):
         return self
@@ -89,7 +92,7 @@ class NoneObject(object):
         return 0
 
     def __format__(self, formatspec):
-        spec = fmtspec.FormatSpec(string = formatspec, fill = "-", align = ">")
+        spec = fmtspec.FormatSpec(string = formatspec, altform = False, formtype = 's', fill = "-", align = ">")
         return format('-', str(spec))
 
     def next(self):
@@ -729,7 +732,10 @@ class CType(BaseObject):
             ## Otherwise its relative to the start of our struct
             offset = int(offset) + int(self.obj_offset)
 
-        result = cls(offset = offset, vm = self.obj_vm, parent = self, name = attr, native_vm = self.obj_native_vm)
+        try:
+            result = cls(offset = offset, vm = self.obj_vm, parent = self, name = attr, native_vm = self.obj_native_vm)
+        except InvalidOffsetError, e:
+            return NoneObject(str(e))
 
         return result
 

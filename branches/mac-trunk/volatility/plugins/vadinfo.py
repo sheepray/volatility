@@ -157,7 +157,7 @@ class VADInfo(taskmods.DllList):
         file_object = vad.FileObject
 
         if file_object:
-            outfd.write("FileObject @{0:08x}, Name: {1}\n".format(file_object.obj_offset, file_object.FileName))
+            outfd.write("FileObject @{0:08x}, Name: {1}\n".format(file_object.obj_offset, str(file_object.FileName or '')))
 
     def write_vad_ext(self, outfd, vad):
         """Renders a text version of a Long Vad"""
@@ -270,7 +270,7 @@ class VADDump(VADInfo):
             outfd.write("*" * 72 + "\n")
             for vad in task.VadRoot.traverse():
                 if not vad.is_valid():
-                    continue 
+                    continue
 
                 # Open the file and initialize the data
 
