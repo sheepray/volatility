@@ -151,6 +151,10 @@ The cache allows Volatility to store arbitrary objects and constants for later r
 
 == Setting the Timezone == 
 
+Timestamps extracted from memory can either be in system-local time, or in Universal Time Coordinates (UTC).  If they're in UTC, volatility can be instructed to display them in a time zone of the analyst's choosing.  To choose a timezone, use one of the standard timezone names (such as Europe/London, US/Eastern or most Olson timezones) with the --tz=TIMEZONE flag.
+
+Please note that specifying a timezone will not affect how system-local times are displayed.  If you identify a time that you know is UTC-based, please file it as an issue in the issue tracker.
+
 == Setting the DTB == 
 
 The DTB (Directory Table Base) is what Volatility uses to translate virtual addresses to physical addresses. By default, a kernel DTB is used (from the Idle/System process). If you want to use a different process's DTB when accessing data, supply the address to --dtb=ADDRESS. 
