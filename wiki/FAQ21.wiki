@@ -7,7 +7,7 @@
 
 == What is the latest stable version of Volatility ==
 
-The latest stable version is 2.1. It was released July 2012. The code in available in the following formats, all of which can be found on the [http://code.google.com/p/volatility/downloads/list Downloads page]. 
+The latest stable version is 2.1. It was released August 2012. The code in available in the following formats, all of which can be found on the [http://code.google.com/p/volatility/downloads/list Downloads page]. 
 
  * Source code in zip or tar archive (all platforms). 
  * Pyinstaller executable (Windows only).
