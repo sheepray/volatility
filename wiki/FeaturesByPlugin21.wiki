@@ -23,8 +23,8 @@ This is a list of Volatility 2.1 features organized by plugins and categories. B
 ||[http://code.google.com/p/volatility/wiki/CommandReference21#dlldump dlldump]||Dump DLLs from a process address space||All||
 ||[http://code.google.com/p/volatility/wiki/CommandReference21#handles handles]||Print list of open handles for each process||All||
 ||[http://code.google.com/p/volatility/wiki/CommandReference21#getsids getsids]||Print the SIDs owning each process||All||
-||[http://code.google.com/p/volatility/wiki/CommandReference21#cmdscan cmdscan]||Extract command history by scanning for COMMAND_HISTORY||All except Windows 7 x64||
-||[http://code.google.com/p/volatility/wiki/CommandReference21#consoles consoles]||Extract command history by scanning for CONSOLE_INFORMATION||All except Windows 7 x64||
+||[http://code.google.com/p/volatility/wiki/CommandReference21#cmdscan cmdscan]||Extract command history by scanning for COMMAND_HISTORY||All except Windows 7 x64 (patch available, see Issue #318)||
+||[http://code.google.com/p/volatility/wiki/CommandReference21#consoles consoles]||Extract command history by scanning for CONSOLE_INFORMATION||All except Windows 7 x64 (patch available, see Issue #318)||
 ||[http://code.google.com/p/volatility/wiki/CommandReference21#envars envars]||Display process environment variables||All||
 ||[http://code.google.com/p/volatility/wiki/CommandReference21#verinfo verinfo]||Prints out the version information from PE images||All||
 ||[http://code.google.com/p/volatility/wiki/CommandReference21#enumfunc enumfunc]||Enumerate imported and exported functions||All||
