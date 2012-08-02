@@ -17,7 +17,8 @@ symbols and then read the DWARF symbols from it.
 #include <linux/fdtable.h>
 #include <net/ip_fib.h>
 #include <net/af_unix.h>
-
+#include <linux/pid.h>
+#include <linux/pid_namespace.h>
 
 struct uts_namespace uts_namespace;
 struct sock sock;
@@ -26,6 +27,8 @@ struct vfsmount vfsmount;
 struct in_device in_device;
 struct fib_table fib_table;
 struct unix_sock unix_sock;
+struct pid pid;
+struct pid_namespace pid_namespace;
 
 
 /********************************************************************
