@@ -1,5 +1,4 @@
 #summary Covers full installation for Volatility 2.0 Dev
-#labels Featured
 
 = Full Dev Installation for Volatility 2.0 =
 
