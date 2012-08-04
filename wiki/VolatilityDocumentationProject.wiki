@@ -17,10 +17,24 @@ January
 Feburary 
    * [http://wiki.yobi.be/wiki/RAM_analysis RAM dump with VirtualBox: via ELF64 coredump]
 
+March 
+   * [http://www.youtube.com/watch?v=iiYMgqVEQk0 Malgram Dynamic Analyses (SRI International uses Volatility in their sandbox]
+
 June 
    * [http://mnin.blogspot.com/2012/06/quickpost-flame-volatility.html QuickPost: Flame & Volatility]
    * [http://memoryforensics.blogspot.com/2012/06/announcing-mac-support-in-volatility.html Announcing Mac Support in Volatility]
    * [http://memoryanalysis.net/research/mac-memory-analysis-with-volatility.pdf Mac Memory Analysis with Volatility]
+   * [http://dfsforensics.blogspot.com/2012/06/lime-11-released.html LiME 1.1 Released]
+   * [http://nagareshwar.securityxploded.com/2012/06/16/training-session-part-8-%E2%80%93-practical-reversing-iii-memory-forensics/ Training Session Part 8 – Practical Reversing (III) – Memory Forensics]
+   * [http://computer.forensikblog.de/files/volatility_plugins/poison_ivy.py Volatility plugin to detect Poison Ivy in memory and dump run-time config]
+   * [http://www.youtube.com/watch?v=mzhX-Z_OunI&feature=plcp Memory Analysis During Incident Response]
+
+July
+   * [https://citizenlab.org/2012/07/from-bahrain-with-love-finfishers-spy-kit-exposed/ From Bahrain With Love: FinFisher’s Spy Kit Exposed?]
+
+August
+   * [http://pen-testing.sans.org/blog/2012/08/03/pen-test-privilege-escalation-through-suspended-virtual-machines Pen Test Privilege Escalation Through Suspended Virtual Machines]
+   * [http://sempersecurus.blogspot.com/2012/08/cridex-analysis-using-volatility.html Cridex Analysis Using Volatility]
 
 = 2011 =
 ----
@@ -35,6 +49,8 @@ March
    * [http://mnin.blogspot.com/2011/03/volatilitys-new-netscan-module.html Volatility's New Netscan Module]
    * [http://mnin.blogspot.com/2011/03/mis-leading-active-in.html The Mis-leading 'Active' in PsActiveProcessHead and ActiveProcessLinks]
    * [http://moyix.blogspot.com/2011/03/automatically-generating-memory.html Automatically Generating Memory Forensic Tools]
+   * [http://dfsforensics.blogspot.com/2011/03/analyzing-new-honeynet-memory-analysis.html Analyzing the New Honeynet Memory Analysis Challenge with Volatility]
+   * [http://dfsforensics.blogspot.com/2011/03/bringing-linux-support-to-volatility.html Bringing Linux Support to Volatility]
 
 April 
    * [http://lorgor.blogspot.com/2011/04/volatility-14-new-great-and-with-shiny.html Volatility 1.4: new, great (and with a shiny new plugin)]
