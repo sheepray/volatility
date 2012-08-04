@@ -1,4 +1,5 @@
 #summary Volatility Documentation Project
+#labels Deprecated
 
 = Introduction =
 
