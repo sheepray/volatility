@@ -13,7 +13,7 @@ The latest stable version is 2.1. It was released August 2012. The code in avail
  * Pyinstaller executable (Windows only).
  * Standalone executable (Windows only). 
 
-If you plan to develop your own plugins or address spaces, or just want to see how Volatility works, choose the source code or Pyinstaller executable. You must already have a Python interpreter and dependent libraries installed. To just be up and running in a matter of seconds, choose the standalone executable - it comes packaged with Python and the dependencies. The standalone executable is portable and can be run from USB drives or CDROMs.
+If you plan to develop your own plugins or address spaces, or examine Volatility's internals, choose the source code or Pyinstaller executable. Both options will give you access to the Python source files. You must already have a Python interpreter and dependent libraries installed. To just be up and running in a matter of seconds, and you're on a Windows analysis system, choose the standalone executable - it comes packaged with Python and the dependencies. The standalone executable is portable and can be run from USB drives or CDROMs.
 
 == What's new in 2.1 ==
 
@@ -75,7 +75,7 @@ Traditionally, the goal of Volatility is to analyze physical memory, not acquire
 
 == Is there a maximum memory dump size == 
 
-There is technically no limit. We've heard reports of Volatility handling 30-40 GB images on both Windows and Linux host operating systems. If you routinely analyze large memory dumps and would like to supply some performance benchmarks for the FAQ, please let us know.
+There is technically no limit. We've heard reports of Volatility handling 30-40 GB images on both Windows and Linux host operating systems. More recently, a member of the Volatility community tested successfully on an 80 GB RAM dump. If you routinely analyze large memory dumps and would like to supply some performance benchmarks for the FAQ, please let us know.
 
 == How can I report a bug ==
 
