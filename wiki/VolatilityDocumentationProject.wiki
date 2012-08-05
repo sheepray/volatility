@@ -13,12 +13,24 @@ January
    * [http://www.sysforensics.org/2012/01/malware-analysis-with-sift-and.html Malware Analysis with SIFT and Volatility]
    * [http://jamaaldev.blogspot.com/2012/01/running-volatility-memory-forensics-on.html Running Volatility Memory Forensics Framework on your android phone!]
    * [http://digitalforensicssolutions.com/Android_Mind_Reading.pdf Android Mind Reading: Memory Acquisition and Analysis with DMD and Volatility]
+   * [http://active-security.blogspot.com/2012/01/ramnit-zeus-and-bat-part-2.html Ramnit, Zeus and the BAT! Part 2]
  
 Feburary 
    * [http://wiki.yobi.be/wiki/RAM_analysis RAM dump with VirtualBox: via ELF64 coredump]
 
 March 
    * [http://www.youtube.com/watch?v=iiYMgqVEQk0 Malgram Dynamic Analyses (SRI International uses Volatility in their sandbox]
+   * [http://securitybananas.com/?p=747 From Hibernation file to Malware analysis with Volatility]
+   * [http://computerforensics.champlain.edu/blog/capstone-project-volatile-memory-analysis-%E2%80%93-identifying-rogue-executables Capstone Project: Volatile Memory Analysis – Identifying Rogue Executables]
+   * [http://hakin9.org/hakin9-32012-dns-cache-poisoning/ Memory Timelines Using Volatility’s Timeliner]
+
+April 
+   * [http://computer-forensics.sans.org/blog/2012/04/25/cheat-sheet Memory Forensics Cheat Sheet]
+   * [http://hiddenillusion.blogspot.com/2012/04/yara-volatility-beginning.html YARA + Volatility ... the beginning]
+   * [http://www.sysforensics.org/2012/04/ietabie65-malware-memory-analysis.html IETab_IE65 Malware Memory Analysis]
+
+May 
+   * [http://www.crysys.hu/skywiper/skywiper.pdf sKyWIper (a.k.a. Flame, Flamer): A complex malware for targeted attacks]
 
 June 
    * [http://mnin.blogspot.com/2012/06/quickpost-flame-volatility.html QuickPost: Flame & Volatility]
@@ -28,6 +40,7 @@ June
    * [http://nagareshwar.securityxploded.com/2012/06/16/training-session-part-8-%E2%80%93-practical-reversing-iii-memory-forensics/ Training Session Part 8 – Practical Reversing (III) – Memory Forensics]
    * [http://computer.forensikblog.de/files/volatility_plugins/poison_ivy.py Volatility plugin to detect Poison Ivy in memory and dump run-time config]
    * [http://www.youtube.com/watch?v=mzhX-Z_OunI&feature=plcp Memory Analysis During Incident Response]
+   * [http://encase-forensic-blog.guidancesoftware.com/2012/06/using-volatility-with-encase.html Using Volatility with EnCase]
 
 July
    * [https://citizenlab.org/2012/07/from-bahrain-with-love-finfishers-spy-kit-exposed/ From Bahrain With Love: FinFisher’s Spy Kit Exposed?]
@@ -93,6 +106,15 @@ October
    * [http://www.evild3ad.com/1088/volatility-memory-forensics-graphviz/ Volatility Memory Forensics | Graphviz]
    * [http://mnin.blogspot.com/2011/10/aint-nuthin-but-ktimer-thing-baby.html Ain't Nuthin But a K(Timer) Thing, Baby]
    * [http://mnin.blogspot.com/2011/10/zeroaccess-volatility-and-kernel-timers.html ZeroAccess, Volatility, and Kernel Timers]
+   * [http://thehackernews.com/2011/10/volatility-20-advanced-memory-forensics.html Volatility 2.0 - Advanced Memory Forensics (With Video Demonstration)]
+
+November 
+   * [http://volatility.tumblr.com/post/13314918507/grr-google-rapid-response-and-volatility GRR: Google Rapid Response and Volatility]
+   * [http://volatility.tumblr.com/post/12961272816/sandia-national-laboratories-virtual-machine Sandia National Laboratories: Virtual Machine Introspection (VMI) Tools and Volatility Support]
+   * [http://c0decstuff.blogspot.com/2011/11/memory-forensics.html Memory Forensics: Pull Process & Network Connections from a Memory Dump]
+   * [http://cyberarms.wordpress.com/2011/11/04/memory-forensics-how-to-pull-passwords-from-a-memory-dump/ Memory Forensics: How to Pull Passwords from a Memory Dump]
+   * [http://www.sahw.com/wp/archivos/2011/11/02/analisis-avanzado-de-memoria-de-sistemas-microsoft-windows-con-volatility/ Análisis avanzado de memoria de sistemas Microsoft Windows con Volatility]
+   * [http://sketchymoose.blogspot.com/2011/11/using-volatility-suspicious-process.html Using Volatility: Suspicious Process]
 
 December 
    * [http://www.reconstructer.org/papers/Hunting%20malware%20with%20Volatility%20v2.0.pdf Hunting Malware with Volatiltiy 2.0]
