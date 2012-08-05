@@ -56,7 +56,7 @@ class ArmAddressSpace(intel.JKIA32PagedMemory):
     def pde_index(self, vaddr):
         return (vaddr >> 20)
 
-	# 1st Level Descriptor
+    # 1st Level Descriptor
     def pde_value(self, vaddr):
         return self.read_long_phys(self.dtb | (self.pde_index(vaddr) << 2))
     
@@ -72,7 +72,7 @@ class ArmAddressSpace(intel.JKIA32PagedMemory):
     def pde2_index_fine(self, vaddr):
         return ((vaddr >> 10) & 0x3FF)
 
-   # 2nd Level Page Table Descriptor (Fine Pages)
+    # 2nd Level Page Table Descriptor (Fine Pages)
     def pde2_value_fine(self, vaddr, pde):
         return self.read_long_phys((pde & 0xFFFFF000) | (self.pde2_index_fine(vaddr) << 2))
 
@@ -111,11 +111,11 @@ class ArmAddressSpace(intel.JKIA32PagedMemory):
             if (pde2_value & 0b11) == 0b01:
                 # 64K large pages
                 return ((pde2_value & 0xFFFF0000) | (vaddr & 0x0000FFFF))
-            elif (pde2_value & 0b11) == 0b10:
+            elif (pde2_value & 0b11) == 0b10 or (pde2_value & 0b11) == 0b11:
                 # 4K small pages
                 return ((pde2_value & 0xFFFFF000) | (vaddr & 0x00000FFF))
-            else:
-                debug.warning("get_pte: invalid pde2_value {:x}".format(pde2_value))
+            else:			
+                debug.warning("get_pte: invalid course pde2_value {:x}".format(pde2_value))
                 return None
             
         elif (pde_value & 0b11) == 0b11:
@@ -123,7 +123,25 @@ class ArmAddressSpace(intel.JKIA32PagedMemory):
             # second-level page table specifies how the associated 1MB modified virtual address range is mapped.
 
             pde2_value = self.pde2_value_fine(vaddr, pde_value)
-            return ((pde2_value & 0xFFFFFC00) | (vaddr & 0x3FF))
+
+            if not pde2_value:
+                debug.debug("no pde2_value", 4)
+                return None
+
+            if (pde2_value & 0b11) == 0b01:
+                # 64K large pages
+                return ((pde2_value & 0xFFFF0000) | (vaddr & 0x0000FFFF))
+            elif (pde2_value & 0b11) == 0b10:
+                # 4K small pages
+                return ((pde2_value & 0xFFFFF000) | (vaddr & 0x00000FFF))
+            elif (pde2_value & 0b11) == 0b11:
+                #1k tiny pages
+                return ((pde2_value & 0xFFFFFC00) | (vaddr & 0x3FF))
+            else:			
+                debug.warning("get_pte: invalid fine pde2_value {:x}".format(pde2_value))
+                return None
+
+            
             
 
 
