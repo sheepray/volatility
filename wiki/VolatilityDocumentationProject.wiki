@@ -23,6 +23,7 @@ March
    * [http://securitybananas.com/?p=747 From Hibernation file to Malware analysis with Volatility]
    * [http://computerforensics.champlain.edu/blog/capstone-project-volatile-memory-analysis-%E2%80%93-identifying-rogue-executables Capstone Project: Volatile Memory Analysis – Identifying Rogue Executables]
    * [http://hakin9.org/hakin9-32012-dns-cache-poisoning/ Memory Timelines Using Volatility’s Timeliner]
+   * [http://media.blackhat.com/bh-eu-12/Haruyama/bh-eu-12-Haruyama-Memory_Forensic-Slides.pdf One-byte Modification for Breaking Memory Forensic Analysis]
 
 April 
    * [http://computer-forensics.sans.org/blog/2012/04/25/cheat-sheet Memory Forensics Cheat Sheet]
