@@ -73,6 +73,8 @@ April
    * [http://mnin.blogspot.com/2011/04/detectingmemory-forging-attempt-by.html Detecting/Memory Forging Attempt by a Rootkit]
    * [http://mnin.blogspot.com/2011/04/investigating-windows-threads-with.html Investigating Windows Threads with Volatility]
    * [http://moyix.blogspot.com/2011/04/applying-forensic-tools-to-virtual.html Applying Forensic Tools to Virtual Machine Introspection]
+   * [http://leetmore.ctf.su/wp/nuit-du-hack-2011-ctf-forensic/ Nuit du hack 2011 CTF Forensic]
+   * [http://contagiodump.blogspot.com/2011/04/apr-8-cve-2011-0611-flash-player-zero.html Apr. 8 CVE-2011-0611 Flash Player Zero day]
 
 May 
    * [http://blog.spiderlabs.com/2011/05/analyzing-malware-hollow-processes.html Analyzing Malware Hollow Processes]
@@ -126,6 +128,9 @@ January
    * [http://neosysforensics.blogspot.com/2010/01/analisis-de-un-caso-real-3.html Análisis de un caso ¿real?, #3]
    * [http://gleeda.blogspot.com/2010/01/volatilitys-output-rendering-functions.html Volatility's Output Rendering Functions]
 
+February: 
+   * [http://cci.cocolog-nifty.com/blog/2010/02/encase-enscri-1.html EnCase EnScripts for Memory Forensics]
+
 March 
    * [https://www.honeynet.org/challenges/2010_3_banking_troubles Challenge 3 of the Forensic Challenge 2010 - Banking Troubles]
 
@@ -149,6 +154,8 @@ November
 
 December 
    * [http://gleeda.blogspot.com/2010/12/identifying-memory-images.html Identifying Memory Images]
+   * [http://blog.commandlinekungfu.com/2010/12/episode-127-making-difference.html Command Line Kung Fu: Episode #127: Making a Difference]
+   * [http://zeltser.com/remnux/ REMnux: A Linux Distribution for Reverse-Engineering Malware]
 
 = 2009 =
 ----
