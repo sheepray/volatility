@@ -25,7 +25,7 @@ This page is the official Volatility Roadmap. The goal of the Roadmap is to help
            * Windows Vista SP0, SP1, and SP2 x64
            * Windows Server 2008 SP1 and SP2 x86 (there is no SP0)
            * Windows Server 2008 SP1 and SP2 x64 (there is no SP0)
-           * Windows Server 2008 R2 SP0 and SP1 x64
+           * Windows Server 2008 `R2` SP0 and SP1 x64
            * Windows 7 SP0 and SP1 x86
            * Windows 7 SP0 and SP1 x64
  * Plugin Additions
