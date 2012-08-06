@@ -49,6 +49,8 @@ July
 August
    * [http://pen-testing.sans.org/blog/2012/08/03/pen-test-privilege-escalation-through-suspended-virtual-machines Pen Test Privilege Escalation Through Suspended Virtual Machines]
    * [http://sempersecurus.blogspot.com/2012/08/cridex-analysis-using-volatility.html Cridex Analysis Using Volatility]
+   * [http://ykx100.tumblr.com/post/28759838009/extracting-processes-binary-w-volatility-disk-image Extracting processes binary w/ volatility, disk image]
+   * [http://www.chmag.in/article/aug2012/malware-memory-forensics Malware Memory Forensics]
 
 = 2011 =
 ----
