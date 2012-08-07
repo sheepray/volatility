@@ -165,7 +165,7 @@ def do_get_path(rdentry, rmnt, dentry, vfsmnt):
 
     if ret_val.startswith(("socket:", "pipe:")):
         if ret_val.find("]") == -1:
-            ret_val = ret_val[:-1] + "[{0}]".format(inode.i_ino)
+            ret_val = ret_val[:-1] + ":[{0}]".format(inode.i_ino)
         else:
             ret_val = ret_val.replace("/", "")
 

@@ -23,13 +23,19 @@
 
 import volatility.obj as obj
 import volatility.protos as protos
+import volatility.plugins.linux.common as linux_common
 import volatility.plugins.linux.lsof as linux_lsof
 import volatility.plugins.linux.flags as linux_flags
 
 import socket
 
-class linux_netstat(linux_lsof.linux_lsof):
+class linux_netstat(linux_common.AbstractLinuxCommand):
     """Lists open sockets"""
+
+    def __init__(self, config, *args): 
+
+        linux_common.AbstractLinuxCommand.__init__(self, config, *args)
+        self._config.add_option('IGNORE_UNIX', short_option = 'u', default = None, help = 'ignore unix sockets', action = 'store_true')
 
     def calculate(self):
 
@@ -37,7 +43,7 @@ class linux_netstat(linux_lsof.linux_lsof):
             # ancient (2.6.9) centos kernels do not have inet_sock in debug info
             raise AttributeError, "Given profile does not have inet_sock, please file a bug if the kernel version is > 2.6.11"
 
-        openfiles = linux_lsof.linux_lsof.calculate(self)
+        openfiles = linux_lsof.linux_lsof(self._config).calculate()
 
         for (task, filp, _i) in openfiles:
 
@@ -56,12 +62,16 @@ class linux_netstat(linux_lsof.linux_lsof):
 
             proto = self.get_proto_str(inet_sock)
 
-            if proto in ("TCP", "UDP", "IP"):
+            if proto in ("TCP", "UDP", "IP", "HOPOPT"): #hopopt is where unix sockets end up on linux
 
                 state = self.get_state_str(inet_sock) if proto == "TCP" else ""
                 family = inet_sock.sk.__sk_common.skc_family #pylint: disable-msg=W0212
 
                 if family == socket.AF_UNIX:
+
+                    # the user choose to ignore unix sockets
+                    if self._config.IGNORE_UNIX:
+                        continue
 
                     unix_sock = obj.Object("unix_sock", offset = inet_sock.sk.v(), vm = self.addr_space)
 
@@ -70,7 +80,7 @@ class linux_netstat(linux_lsof.linux_lsof):
                         name = obj.Object("sockaddr_un", offset = unix_sock.addr.name.obj_offset, vm = self.addr_space)
 
                         # only print out sockets with paths
-                        if name.sun_path != "":
+                        if str(name.sun_path) != "":
                             outfd.write("UNIX {0:s}\n".format(name.sun_path))
 
                 elif family in (socket.AF_INET, socket.AF_INET6):
@@ -85,6 +95,8 @@ class linux_netstat(linux_lsof.linux_lsof):
 
                     outfd.write("{0:8s} {1}:{2:<5} {3}:{4:<5} {5:s} {6:>17s}/{7:<5d}\n".format(proto, saddr, sport, daddr, dport, state, task.comm, task.pid))
 
+                #else:
+                #    print "unknown family: %d" % family
 
     def format_ipv6(self, inet_sock):
         daddr = inet_sock.pinet6.daddr
