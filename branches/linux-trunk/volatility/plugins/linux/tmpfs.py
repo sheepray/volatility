@@ -45,6 +45,7 @@ class linux_tmpfs(linux_common.AbstractLinuxCommand):
     # fix metadata for new files
     def fix_md(self, new_file, perms, atime, mtime, isdir=0):
 
+        # FIXME
         atime = atime.tv_sec + 18000
         mtime = mtime.tv_sec + 18000
 
@@ -84,17 +85,17 @@ class linux_tmpfs(linux_common.AbstractLinuxCommand):
         
                     contents = self.get_file_contents(inode)
 
-                    f = open(new_file, "w")
+                    f = open(new_file, "wb")
                     f.write(contents)
                     f.close()
                     self.fix_md(new_file, perms, atime, mtime)
 
                 # TODO add support for symlinks
                 else:
-                    print "skipped: %s" % name
+                    #print "skipped: %s" % name
                     pass
             else:
-                print "no inode for %s" % name
+                #print "no inode for %s" % name
                 pass
 
     def walk_sb(self, root_dentry):
@@ -174,11 +175,11 @@ class linux_tmpfs(linux_common.AbstractLinuxCommand):
 
     def radix_tree_is_indirect_ptr(self, ptr):
 
-        return ptr.obj_offset & 1
+        return ptr & 1
 
     def radix_tree_indirect_to_ptr(self, ptr):
 
-        return obj.Object("radix_tree_node", offset=ptr.obj_offset & ~1, vm=self.addr_space)        
+        return obj.Object("radix_tree_node", offset=ptr & ~1, vm=self.addr_space)        
 
     def radix_tree_lookup_slot(self, root, index):
 
@@ -188,41 +189,48 @@ class linux_tmpfs(linux_common.AbstractLinuxCommand):
 
         node = root.rnode
 
-        if not self.radix_tree_is_indirect_ptr(node):
+        if self.radix_tree_is_indirect_ptr(node) == 0:
 
             if index > 0:
-                print "returning None: index > 0"
+                #print "returning None: index > 0"
                 return None
 
-            return root.obj_offset + self.profile.get_obj_offset("radix_tree_root", "rnode")
+            #print "returning obj_Offset"
+            off = root.obj_offset + self.profile.get_obj_offset("radix_tree_root", "rnode")
 
-        node = radix_tree_indirect_to_ptr(node)
+            page = obj.Object("Pointer", offset = off, vm=self.addr_space)
+
+            return page
+
+        node = self.radix_tree_indirect_to_ptr(node)
         
         height = node.height
-        
+
         shift = (height - 1) * 6 # RADIX_TREE_MAP_SHIFT
 
-        print "height: %d" % height
+        slot = -1
 
         while 1:
 
             idx  = (index >> shift) & self.RADIX_TREE_MAP_MASK
 
-            for s in node.slots:
-                print s            
-
             slot = node.slots[idx]
 
-            print type(slot)
+            shift = shift - self.RADIX_TREE_MAP_SHIFT
+
+            height = height - 1
 
             if height <= 0:
                 break
 
+        if slot == -1:
+            return None
+
+        return slot
+
     def find_get_page(self, mapping, offset):
 
-        pagep = self.radix_tree_lookup_slot(mapping.page_tree, offset)
-
-        page = obj.Object("Pointer", offset = pagep, vm=self.addr_space)
+        page = self.radix_tree_lookup_slot(mapping.page_tree, offset)
 
         if not page:
             print "no page?"
@@ -238,11 +246,11 @@ class linux_tmpfs(linux_common.AbstractLinuxCommand):
 
         return filepage
 
-    def get_file_contents(self, inode):
+    def get_page_contents(self, inode, offset):
 
         page = self.shmem_getpage(inode, 0)
 
-        print "%x" % self.smap["mem_map"]
+        #print "inode: %x page: %x" % (inode, page)
 
         mem_map_ptr = obj.Object("Pointer", offset=self.smap["mem_map"], vm=self.addr_space)
 
@@ -250,21 +258,36 @@ class linux_tmpfs(linux_common.AbstractLinuxCommand):
 
         phys_offset = phys_offset << 12
 
+        #print "phys_offset: %d | %x" % (phys_offset, phys_offset)
+
         phys_as = utils.load_as(self._config, astype = 'physical')
-        data = phys_as.read(phys_offset, 4096)
+        
+        # should this be zread or read?
+        data = phys_as.zread(phys_offset, 4096)
 
         return data
-                    
         
+    def get_file_contents(self, inode):
 
+        file_sz = inode.i_size
 
+        data = ""
 
+        for offset in range(0, file_sz, 4096):
 
+            page = self.get_page_contents(inode, offset)
+            
+            data = data + page
 
+        # this is chop off any extra data on the last page
+        extra = 4096 - (inode.i_size % 4096)
+        extra = extra * -1
 
+        data = data[:extra]
 
-
-
+        return data
+                   
+        
 
 
 
