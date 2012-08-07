@@ -51,6 +51,9 @@ linux_overlay = {
     'sockaddr_un' : [None, {
         'sun_path'      : [ None , ['String', dict(length = 108)]],
         }],
+    'dentry' : [None, {
+        'd_u'      : [ None , ['list_head', {}]],
+    }],
     'cpuinfo_x86' : [None, {
         'x86_model_id'  : [ None , ['String', dict(length = 64)]],
         'x86_vendor_id' : [ None, ['String', dict(length = 16)]],
@@ -164,7 +167,8 @@ for path in set(volatility.plugins.__path__):
 # really 'file' but don't want to mess with python's version
 class linux_file(obj.CType):
 
-    def get_dentry(self):
+    @property
+    def dentry(self):
         if hasattr(self, "f_dentry"):
             ret = self.f_dentry
         else:
@@ -172,7 +176,8 @@ class linux_file(obj.CType):
 
         return ret
 
-    def get_vfsmnt(self):
+    @property
+    def vfsmnt(self):
         if hasattr(self, "f_vfsmnt"):
             ret = self.f_vfsmnt
         else:
@@ -182,7 +187,7 @@ class linux_file(obj.CType):
 
 class list_head(obj.CType):
     """A list_head makes a doubly linked list."""
-    def list_of_type(self, type, member, forward = True, head_sentinel = True):
+    def list_of_type(self, type, member, offset=-1, forward = True, head_sentinel = True):
         if not self.is_valid():
             return
 

@@ -51,12 +51,12 @@ class linux_mount(linux_common.AbstractLinuxCommand):
                 else:
                     rr = "rw"
 
-                yield dev_name, path, fstype, rr, mnt_string
+                yield vfsmnt.mnt_sb, dev_name, path, fstype, rr, mnt_string
 
 
     def render_text(self, outfd, data):
 
-        for (dev_name, path, fstype, rr, mnt_string) in data:
+        for (sb, dev_name, path, fstype, rr, mnt_string) in data:
             outfd.write("{0:15s} {1:35s} {2:12s} {3:2s}{4:64s}\n".format(dev_name, path, fstype, rr, mnt_string))
 
     def calc_mnt_string(self, vfsmnt):

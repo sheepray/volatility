@@ -19,6 +19,7 @@ symbols and then read the DWARF symbols from it.
 #include <net/af_unix.h>
 #include <linux/pid.h>
 #include <linux/pid_namespace.h>
+#include <linux/radix-tree.h>
 
 struct uts_namespace uts_namespace;
 struct sock sock;
@@ -29,7 +30,7 @@ struct fib_table fib_table;
 struct unix_sock unix_sock;
 struct pid pid;
 struct pid_namespace pid_namespace;
-
+struct radix_tree_root radix_tree_root;
 
 /********************************************************************
 The following structs are not defined in headers, so we cant import
@@ -71,3 +72,19 @@ struct fn_hash {
 struct rt_hash_bucket {
   struct rtable __rcu     *chain;
 } rt_hash_bucket;
+
+
+#define RADIX_TREE_MAP_SHIFT    (CONFIG_BASE_SMALL ? 4 : 6)
+#define RADIX_TREE_MAP_SIZE     (1UL << RADIX_TREE_MAP_SHIFT)
+#define RADIX_TREE_MAP_MASK     (RADIX_TREE_MAP_SIZE-1)
+#define RADIX_TREE_TAG_LONGS    ((RADIX_TREE_MAP_SIZE + BITS_PER_LONG - 1) / BITS_PER_LONG)
+
+struct radix_tree_node {
+    unsigned int    height;         /* Height from the bottom */
+    unsigned int    count;
+    struct rcu_head rcu_head;
+    void            *slots[RADIX_TREE_MAP_SIZE];
+    unsigned long   tags[RADIX_TREE_MAX_TAGS][RADIX_TREE_TAG_LONGS];
+};
+
+

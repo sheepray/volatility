@@ -25,6 +25,7 @@ import volatility.commands as commands
 import volatility.utils as utils
 import volatility.debug as debug
 import volatility.obj as obj
+import volatility.plugins.linux.flags as linux_flags
 
 MAX_STRING_LENGTH = 256
 
@@ -177,7 +178,23 @@ def do_get_path(rdentry, rmnt, dentry, vfsmnt):
 def get_path(task, filp):
     rdentry = task.fs.get_root_dentry()
     rmnt = task.fs.get_root_mnt()
-    dentry = filp.get_dentry()
-    vfsmnt = filp.get_vfsmnt()
+    dentry = filp.dentry
+    vfsmnt = filp.vfsmnt
 
     return do_get_path(rdentry, rmnt, dentry, vfsmnt)
+
+def get_obj(self, ptr, sname, member):
+
+    offset = self.profile.get_obj_offset(sname, member)
+
+    addr  = ptr - offset
+
+    return obj.Object(sname, offset = addr, vm = self.addr_space)
+
+def S_ISDIR(mode):
+    return (mode & linux_flags.S_IFMT) == linux_flags.S_IFDIR
+
+def S_ISREG(mode):
+    return (mode & linux_flags.S_IFMT) == linux_flags.S_IFREG
+
+

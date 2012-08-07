@@ -42,9 +42,9 @@ class linux_netstat(linux_lsof.linux_lsof):
         for (task, filp, _i) in openfiles:
 
             # its a socket!
-            if filp.f_op == self.smap["socket_file_ops"] or filp.get_dentry().d_op == self.smap["sockfs_dentry_operations"]:
+            if filp.f_op == self.smap["socket_file_ops"] or filp.dentry.d_op == self.smap["sockfs_dentry_operations"]:
 
-                iaddr = filp.get_dentry().d_inode
+                iaddr = filp.dentry.d_inode
                 skt = self.SOCKET_I(iaddr)
                 inet_sock = obj.Object("inet_sock", offset = skt.sk, vm = self.addr_space)
 

@@ -28,17 +28,10 @@ import volatility.plugins.linux.pslist as linux_pslist
 
 PIDTYPE_PID = 0
 
+# the < 2.6.24 processing is based on crash from redhat
 class linux_pidhashtable(linux_pslist.linux_pslist):
 
     """Enumerates processes through the PID hash table"""
-
-    def get_obj(self, ptr, sname, member):
-
-        offset = self.profile.get_obj_offset(sname, member)
-
-        addr  = ptr - offset
-
-        return obj.Object(sname, offset = addr, vm = self.addr_space)
 
     def walk_tasks_for_pid(self, pid):
 
@@ -84,11 +77,11 @@ class linux_pidhashtable(linux_pslist.linux_pslist):
 
             while ent:
     
-                upid = self.get_obj(ent.obj_offset, "upid", "pid_chain")
+                upid = linux_common.get_obj(self, ent.obj_offset, "upid", "pid_chain")
            
                 while upid:
 
-                    pid = self.get_obj(upid.obj_offset, "pid", "numbers")
+                    pid = linux_common.get_obj(self, upid.obj_offset, "pid", "numbers")
 
                     for task in self.walk_tasks_for_pid(pid):
                         yield task
@@ -96,7 +89,7 @@ class linux_pidhashtable(linux_pslist.linux_pslist):
                     if not upid.pid_chain.next:
                         break
             
-                    upid = self.get_obj(upid.pid_chain.next, "upid", "pid_chain")
+                    upid = linux_common.get_obj(self, upid.pid_chain.next, "upid", "pid_chain")
                     
                 ent = ent.next
 

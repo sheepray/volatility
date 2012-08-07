@@ -46,7 +46,7 @@ class linux_proc_maps(linux_pslist.linux_pslist):
             mm = task.mm
 
             if vma.vm_file:
-                inode = vma.vm_file.get_dentry().d_inode
+                inode = vma.vm_file.dentry.d_inode
                 sb = obj.Object("super_block", offset = inode.i_sb, vm = self.addr_space)
                 dev = sb.s_dev
                 ino = inode.i_ino
