@@ -258,32 +258,27 @@ class linux_tmpfs(linux_common.AbstractLinuxCommand):
 
         phys_offset = phys_offset << 12
 
-        #print "phys_offset: %d | %x" % (phys_offset, phys_offset)
-
         phys_as = utils.load_as(self._config, astype = 'physical')
         
         # should this be zread or read?
-        data = phys_as.zread(phys_offset, 4096)
+        data = phys_as.read(phys_offset, 4096)
 
         return data
         
     def get_file_contents(self, inode):
 
         file_sz = inode.i_size
-
-        data = ""
-
-        for offset in range(0, file_sz, 4096):
-
-            page = self.get_page_contents(inode, offset)
-            
-            data = data + page
+    
+        # this is the supposdly the fastest way to do mass string concatenation
+        data = ''.join([self.get_page_contents(inode, offset) for offset in range(0, file_sz, 4096)])
 
         # this is chop off any extra data on the last page
         extra = 4096 - (inode.i_size % 4096)
-        extra = extra * -1
+        
+        if extra:
+            extra = extra * -1
 
-        data = data[:extra]
+            data = data[:extra]
 
         return data
                    
