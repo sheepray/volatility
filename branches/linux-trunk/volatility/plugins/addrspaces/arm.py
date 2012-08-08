@@ -83,7 +83,7 @@ class ArmAddressSpace(intel.JKIA32PagedMemory):
             # If bits[1:0] == 0b00, the associated modified virtual addresses are unmapped, 
             # and attempts to access them generate a translation fault
 
-            debug.warning("get_pte: invalid pde_value {:x}".format(pde_value))            
+            debug.warning("get_pte: invalid pde_value {0:x}".format(pde_value))            
             return None
 
         elif (pde_value & 0b11) == 0b10:
@@ -115,7 +115,7 @@ class ArmAddressSpace(intel.JKIA32PagedMemory):
                 # 4K small pages
                 return ((pde2_value & 0xFFFFF000) | (vaddr & 0x00000FFF))
             else:			
-                debug.warning("get_pte: invalid course pde2_value {:x}".format(pde2_value))
+                debug.warning("get_pte: invalid course pde2_value {0:x}".format(pde2_value))
                 return None
             
         elif (pde_value & 0b11) == 0b11:
@@ -138,7 +138,7 @@ class ArmAddressSpace(intel.JKIA32PagedMemory):
                 #1k tiny pages
                 return ((pde2_value & 0xFFFFFC00) | (vaddr & 0x3FF))
             else:			
-                debug.warning("get_pte: invalid fine pde2_value {:x}".format(pde2_value))
+                debug.warning("get_pte: invalid fine pde2_value {0:x}".format(pde2_value))
                 return None
 
             
@@ -146,7 +146,7 @@ class ArmAddressSpace(intel.JKIA32PagedMemory):
 
 
     def vtop(self, vaddr):
-        debug.debug("\n--vtop start: {:x}".format(vaddr), 4)
+        debug.debug("\n--vtop start: {0:x}".format(vaddr), 4)
 
         pde_value = self.pde_value(vaddr)
 
@@ -154,7 +154,7 @@ class ArmAddressSpace(intel.JKIA32PagedMemory):
             debug.debug("no pde_value", 4)
             return None
 
-        debug.debug("!!!pde_value: {:x}".format(pde_value), 4)
+        debug.debug("!!!pde_value: {0:x}".format(pde_value), 4)
 
         pte_value = self.get_pte(vaddr, pde_value)
 
