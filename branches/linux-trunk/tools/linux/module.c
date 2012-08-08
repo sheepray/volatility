@@ -112,3 +112,19 @@ struct radix_tree_node {
 };
 
 
+struct module_sect_attr
+{
+        struct module_attribute mattr;
+        char *name;
+        unsigned long address;
+};
+
+struct module_sect_attrs
+{
+        struct attribute_group grp;
+        unsigned int nsections;
+        struct module_sect_attr attrs[0];
+};
+
+struct module_sect_attrs module_sect_attrs;
+
