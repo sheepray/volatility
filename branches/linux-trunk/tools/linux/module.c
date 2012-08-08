@@ -68,6 +68,30 @@ struct fn_hash {
   struct fn_zone    *fn_zone_list;
 } fn_hash;
 
+struct fib_alias 
+{
+    struct list_head        fa_list;
+    struct fib_info         *fa_info;
+    u8                      fa_tos;
+    u8                      fa_type;
+    u8                      fa_scope;
+    u8                      fa_state;
+#ifdef CONFIG_IP_FIB_TRIE
+        struct rcu_head         rcu;
+#endif
+};
+
+struct fib_node 
+{
+    struct hlist_node       fn_hash;
+    struct list_head        fn_alias;
+    __be32                  fn_key;
+    struct fib_alias        fn_embedded_alias;
+};
+
+
+struct fib_node fib_node;
+struct fib_alias fib_alias;
 
 struct rt_hash_bucket {
   struct rtable __rcu     *chain;

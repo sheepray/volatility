@@ -185,6 +185,51 @@ class linux_file(obj.CType):
 
         return ret
 
+# FIXME - walking backwards has not been thorougly tested
+class hlist_node(obj.CType):
+    """A hlist_node makes a doubly linked list."""
+    def list_of_type(self, type, member, offset=-1, forward = True, head_sentinel = True):
+        if not self.is_valid():
+            return
+
+        ## Get the first element
+        if forward:
+            nxt = self.next.dereference()
+        else:
+            nxt = self.pprev.dereference().dereference()
+
+        offset = self.obj_vm.profile.get_obj_offset(type, member)
+
+        seen = set()
+        if head_sentinel:
+            # We're a header element and not to be included in the list
+            seen.add(self.obj_offset)
+
+        while nxt.is_valid() and nxt.obj_offset not in seen:
+            ## Instantiate the object
+            item = obj.Object(type, offset = nxt.obj_offset - offset,
+                                    vm = self.obj_vm,
+                                    parent = self.obj_parent,
+                                    name = type)
+
+            seen.add(nxt.obj_offset)
+
+            yield item
+
+            if forward:
+                nxt = item.m(member).next.dereference()
+            else:
+                nxt = item.m(member).pprev.dereference().dereference()
+
+
+    def __nonzero__(self):
+        ## List entries are valid when both Flinks and Blink are valid
+        return bool(self.next) or bool(self.prev)
+
+    def __iter__(self):
+        return self.list_of_type(self.obj_parent.obj_name, self.obj_name)
+
+
 class list_head(obj.CType):
     """A list_head makes a doubly linked list."""
     def list_of_type(self, type, member, offset=-1, forward = True, head_sentinel = True):
@@ -349,6 +394,7 @@ class LinuxObjectClasses(obj.ProfileModification):
             'fs_struct': linux_fs_struct,
             'file': linux_file,
             'list_head': list_head,
+            'hlist_node': hlist_node,
             'files_struct': files_struct,
             'task_struct': task_struct,
             'VolatilityDTB': VolatilityDTB,
