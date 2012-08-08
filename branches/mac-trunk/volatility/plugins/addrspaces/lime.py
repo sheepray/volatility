@@ -32,6 +32,12 @@ lime_types = {
 
 }
 
+class LimeTypes(obj.ProfileModification):
+
+    def modification(self, profile):
+
+        profile.vtypes.update(lime_types)
+
 class segment(object):
 
     def __init__(self, start, end, offset):
@@ -58,8 +64,7 @@ class LimeAddressSpace(addrspace.BaseAddressSpace):
         sig = base.read(0, 4)
 
         self.as_assert(sig == '\x45\x4D\x69\x4c' or sig == '\x4c\x69\x4d\x45', "Invalid Lime header signature")
-        self.profile.add_types(lime_types)
-
+        
         self.addr_cache = {}
         self.segs = []
         self.parse_lime()

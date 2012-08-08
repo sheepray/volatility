@@ -27,7 +27,74 @@ import volatility.plugins.linux.common as linux_common
 class linux_lsmod(linux_common.AbstractLinuxCommand):
     """Gather loaded kernel modules"""
 
+    def __init__(self, config, *args): 
+
+        linux_common.AbstractLinuxCommand.__init__(self, config, *args)
+        self._config.add_option('SECTIONS', short_option = 'S', default = None, help = 'show section addresses', action = 'store_true')
+
+    def get_param_val(self, param):
+        
+        ints = {
+                self.smap["param_get_invbool"] : "int",
+                self.smap["param_get_bool"]    : "int",
+                self.smap["param_get_ulong"]   : "unsigned long",
+                self.smap["param_get_long"]    : "long",
+                self.smap["param_get_uint"]    : "unsigned int",
+                self.smap["param_get_ushort"]  : "unsigned short",
+                self.smap["param_get_short"]   : "short",
+                self.smap["param_get_byte"]    : "char",
+               }
+
+        getfn = param.get
+
+        # FIXME
+        if getfn == self.smap["param_array_get"]:
+            val = "param_array_get"
+
+        elif getfn == self.smap["param_get_string"]:
+            val = param.str.dereference_as("String", length=param.str.maxlen)
+        
+        elif getfn == self.smap["param_get_charp"]:
+            v = self.addr_space.read(param.arg, 256)
+            val = ''.join(["%c" % ord(c) for c in v if 30 < ord(c) < 128])
+               
+ 
+        elif getfn.v() in ints:
+            val = obj.Object(ints[getfn.v()], offset=param.arg.obj_offset, vm=self.addr_space)
+
+        else:
+            print "Unknown get_fn: %x" % getfn
+            return None
+
+        return val
+
+    def get_params(self, module):
+
+        param_array = obj.Object(theType = 'Array', offset = module.kp, vm = self.addr_space, targetType = 'kernel_param', count = module.num_kp)
+
+        for param in param_array:
+
+            val = self.get_param_val(param)
+
+            print "name: %s val: %s" % (param.name.dereference_as("String", length=255), val) 
+            
+    
+    def get_sections(self, module):
+
+        attrs = obj.Object(theType = 'Array', offset = module.sect_attrs.attrs.obj_offset, vm = self.addr_space, targetType = 'module_sect_attr', count = module.sect_attrs.nsections)
+    
+        sects = []
+
+        for attr in attrs:
+            
+            name = attr.name.dereference_as("String", length=255)
+
+            sects.append((name, attr.address))
+
+        return sects
+
     def calculate(self):
+
         modules_addr = self.smap["modules"]
 
         modules = obj.Object("list_head", vm = self.addr_space, offset = modules_addr)
@@ -35,9 +102,29 @@ class linux_lsmod(linux_common.AbstractLinuxCommand):
         # walk the modules list
         for module in modules.list_of_type("module", "list"):
 
-            yield module
+            #if str(module.name) != "lime":
+            #    continue
+
+            # FIXME - on hold until anon unions can be accessed
+            # params = self.get_params(module)
+
+            sections = self.get_sections(module)
+
+            yield (module, sections)
 
     def render_text(self, outfd, data):
 
-        for module in data:
-            outfd.write("{0:s}\n".format(module.name))
+        for (module, sections)  in data:
+            outfd.write("{0:s} {1:d}\n".format(module.name, module.init_size + module.core_size))
+
+            if self._config.SECTIONS:
+
+                for sect in sections:
+        
+                    (name, address) = sect
+
+                    outfd.write("\t{0:30s} {1:#x}\n".format(name, address))
+            
+
+
+ 

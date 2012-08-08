@@ -2,6 +2,7 @@
 #
 # Authors:
 # attc - atcuno@gmail.com
+# Joe Sylve - joe.sylve@gmail.com
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -34,8 +35,6 @@ class ArmAddressSpace(intel.JKIA32PagedMemory):
     def register_options(config):
         intel.JKIA32PagedMemory.register_options(config)
 
-        config.add_option("RAM", type = 'int', default = 0, help = "Where ram starts")
-
     def _cache_values(self):
         '''
         buf = self.base.read(self.dtb, 0x1000)
@@ -53,117 +52,111 @@ class ArmAddressSpace(intel.JKIA32PagedMemory):
             return True # TODO FIXME
         return False
 
+    # Page Directory Index (1st Level Index)
     def pde_index(self, vaddr):
-        return vaddr >> 20
+        return (vaddr >> 20)
 
-    def pgdir_offset(self, val):
-        return val & 0x3FFF
+    # 1st Level Descriptor
+    def pde_value(self, vaddr):
+        return self.read_long_phys(self.dtb | (self.pde_index(vaddr) << 2))
+    
+    # 2nd Level Page Table Index (Course Pages)
+    def pde2_index(self, vaddr):
+        return ((vaddr >> 12) & 0x0FF)
 
-    def get_pde(self, vaddr):
+    # 2nd Level Page Table Descriptor (Course Pages)
+    def pde2_value(self, vaddr, pde):
+        return self.read_long_phys((pde & 0xFFFFFC00) | (self.pde2_index(vaddr) << 2))
 
-        #if self.cache:
-        #   return self.pde_cache[self.pde_index(vaddr)]
+    # 2nd Level Page Table Index (Fine Pages)
+    def pde2_index_fine(self, vaddr):
+        return ((vaddr >> 10) & 0x3FF)
 
-        page_dir = self.dtb + ((vaddr >> 21) * 8)
+    # 2nd Level Page Table Descriptor (Fine Pages)
+    def pde2_value_fine(self, vaddr, pde):
+        return self.read_long_phys((pde & 0xFFFFF000) | (self.pde2_index_fine(vaddr) << 2))
 
-        pgd_pte = self.dtb + self.pgdir_offset(page_dir)
 
-        ret = self.read_long_phys(pgd_pte)
-
-        return ret
-
-    def pmd_page_addr(self, pde_value):
-
-        # CHECK HERE
-        #return (pde_value & 0xfffff800) + 2048
-        return pde_value & 0xfffff000
-
-    def get_pte_crash(self, vaddr, pde_value):
-
-        debug.debug("Getting crash", 4)
-        #page_table = (ulong *)PTOV(pmd_page_addr(pmd_pte)) + PTE_OFFSET(vaddr);
-        #pte = ULONG(machdep->ptbl + PAGEOFFSET(page_table));
-
-        #*paddr = PAGEBASE(pte) + PAGEOFFSET(vaddr);
-
-        pte_offset = (vaddr >> 12) & 255 #! !!!sdaf
-
-        page_table = ((pde_value >> 10) << 10) + (pte_offset * 4)
-
-        pte = self.read_long_phys(page_table)
-
-        if pte:
-            pte_addr = pte + ((page_table & 0xfff) * 4)
-        else:
-            pte_addr = None
-
-        return pte_addr
-
-    def get_pte(self, vaddr, pde_value):
-
+    def get_pte(self, vaddr, pde_value):        
         # page table
-        if (pde_value & 0b11) == 0b01:
-            pte_addr = self.get_pte_crash(vaddr, pde_value)
+        if (pde_value & 0b11) == 0b00:
+            # If bits[1:0] == 0b00, the associated modified virtual addresses are unmapped, 
+            # and attempts to access them generate a translation fault
 
-        elif (pde_value & 0b11) == 0b10:
-
-            debug.debug("super", 4)
-            issuper = int(pde_value & (1 << 18))
-
-            if not issuper:
-                p = pde_value & 0xfffff000
-                v = vaddr & 0x1fffff
-                debug.debug("{:x} + {:x} = {:x}".format(p, v, p + v), 4)
-                pte_addr = p + v
-            else:
-                debug.warning("super page found")
-                return None
-
-        else:
-            debug.warning("get_pte: invalid pde_value {:x}".format(pde_value))
+            debug.warning("get_pte: invalid pde_value {0:x}".format(pde_value))            
             return None
 
+        elif (pde_value & 0b11) == 0b10:
+            # If bits[1:0] == 0b10, the entry is a section descriptor for its associated modified virtual addresses.
+            # If bit[18] is set, optional supersections are used, which we don't support yet
 
-        return pte_addr
+            issuper = int(pde_value & (1 << 18))
 
-    def get_phys_addr(self, vaddr, pte_value):
+            if issuper:
+                # TODO: Implement Supersection support if needed
+                debug.warning("supersection found")
+                return None
+            else:
+                return ((pde_value & 0xFFE00000) | (vaddr & 0x1FFFFF))
+  
+        elif (pde_value & 0b11) == 0b01:
+            # If bits[1:0] == 0b01, the entry gives the physical address of a coarse second-level table, that specifies
+            # how the associated 1MB modified virtual address range is mapped. 
+            pde2_value = self.pde2_value(vaddr, pde_value)
 
-        return (pte_value & 0xfffff000) | (vaddr & 0xfff)
+            if not pde2_value:
+                debug.debug("no pde2_value", 4)
+                return None
+
+            if (pde2_value & 0b11) == 0b01:
+                # 64K large pages
+                return ((pde2_value & 0xFFFF0000) | (vaddr & 0x0000FFFF))
+            elif (pde2_value & 0b11) == 0b10 or (pde2_value & 0b11) == 0b11:
+                # 4K small pages
+                return ((pde2_value & 0xFFFFF000) | (vaddr & 0x00000FFF))
+            else:			
+                debug.warning("get_pte: invalid course pde2_value {0:x}".format(pde2_value))
+                return None
+            
+        elif (pde_value & 0b11) == 0b11:
+            # If bits[1:0] == 0b11, the entry gives the physical address of a fine second-level table. A fine
+            # second-level page table specifies how the associated 1MB modified virtual address range is mapped.
+
+            pde2_value = self.pde2_value_fine(vaddr, pde_value)
+
+            if not pde2_value:
+                debug.debug("no pde2_value", 4)
+                return None
+
+            if (pde2_value & 0b11) == 0b01:
+                # 64K large pages
+                return ((pde2_value & 0xFFFF0000) | (vaddr & 0x0000FFFF))
+            elif (pde2_value & 0b11) == 0b10:
+                # 4K small pages
+                return ((pde2_value & 0xFFFFF000) | (vaddr & 0x00000FFF))
+            elif (pde2_value & 0b11) == 0b11:
+                #1k tiny pages
+                return ((pde2_value & 0xFFFFFC00) | (vaddr & 0x3FF))
+            else:			
+                debug.warning("get_pte: invalid fine pde2_value {0:x}".format(pde2_value))
+                return None
+
+            
+            
+
 
     def vtop(self, vaddr):
+        debug.debug("\n--vtop start: {0:x}".format(vaddr), 4)
 
-        debug.debug("\n--vtop start: {:x}".format(vaddr), 4)
-
-        pde_value = self.get_pde(vaddr)
+        pde_value = self.pde_value(vaddr)
 
         if not pde_value:
             debug.debug("no pde_value", 4)
             return None
 
-        debug.debug("!!!pde_value: {:x}".format(pde_value), 4)
-
-        pte_value = self.get_pte_wrap(pde_value, vaddr)
-
-        if pte_value:
-            ret = self.get_phys_addr(vaddr, pte_value)
-        else:
-            ret = None
-
-        if ret:
-            debug.debug("vtop ret {:x}".format(ret), 4)
-
-        return ret
-
-    def get_pte_wrap(self, pde_value, vaddr):
+        debug.debug("!!!pde_value: {0:x}".format(pde_value), 4)
 
         pte_value = self.get_pte(vaddr, pde_value)
-
-        debug.debug("pte_value: {:x}".format(pte_value), 4)
-
-        if not self.page_table_present(pte_value):
-            # Add support for paged out PTE
-            #print "page table not present"
-            return None
 
         return pte_value
 

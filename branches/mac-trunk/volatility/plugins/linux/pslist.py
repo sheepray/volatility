@@ -24,6 +24,8 @@
 import volatility.obj as obj
 import volatility.plugins.linux.common as linux_common
 
+import time
+
 class linux_pslist(linux_common.AbstractLinuxCommand):
     """Gather active tasks by walking the task_struct->task list"""
 
@@ -47,16 +49,28 @@ class linux_pslist(linux_common.AbstractLinuxCommand):
         for task in init_task.tasks:
 
             if not pidlist or task.pid in pidlist:
+            
                 yield task
+
+    ## FIXME: This currently returns using localtime, we should probably use UTC?
+    def start_time(self, task):
+
+        start_time  = task.start_time
+        
+        start_secs = start_time.tv_sec + (start_time.tv_nsec / linux_common.nsecs_per / 100)
+        
+        sec = linux_common.get_boot_time(self) + start_secs
+
+        return time.strftime("%a, %d %b %Y %H:%M:%S +0000", time.localtime(sec))
 
     def render_text(self, outfd, data):
 
-        outfd.write("{0:8s} {1:20s} {2:15s} {3:15s}\n".format(
-            "Offset", "Name", "Pid", "Uid"))
+        outfd.write("{0:8s} {1:20s} {2:15s} {3:15s} {4:35s}\n".format(
+            "Offset", "Name", "Pid", "Uid", "Start Time"))
 
         for task in data:
-            outfd.write("0x{0:08x} {1:20s} {2:15s} {3:15s}\n".format(
-                task.obj_offset, task.comm, str(task.pid), str(task.uid)))
+            outfd.write("0x{0:08x} {1:20s} {2:15s} {3:15s} {4:35s}\n".format(
+                task.obj_offset, task.comm, str(task.pid), str(task.uid), self.start_time(task)))
 
 class linux_memmap(linux_pslist):
     """Dumps the memory map for linux tasks."""

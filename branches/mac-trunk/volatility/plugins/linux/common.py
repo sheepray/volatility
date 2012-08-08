@@ -25,9 +25,12 @@ import volatility.commands as commands
 import volatility.utils as utils
 import volatility.debug as debug
 import volatility.obj as obj
+import volatility.plugins.linux.flags as linux_flags
 
 MAX_STRING_LENGTH = 256
 
+import time
+nsecs_per = 1000000000
 
 def mask_number(num):
     return num & 0xffffffff
@@ -84,6 +87,38 @@ def walk_per_cpu_var(obj_ref, per_var, var_type):
 
         yield i, var
 
+# based on 2.6.35 getboottime
+def get_boot_time(self):
+
+    wall_addr  = self.smap["wall_to_monotonic"]
+    wall       = obj.Object("timespec", offset=wall_addr, vm=self.addr_space)
+
+    sleep_addr = self.smap["total_sleep_time"]
+    timeo      = obj.Object("timespec", offset=sleep_addr, vm=self.addr_space)
+
+    secs  = wall.tv_sec  + timeo.tv_sec
+    nsecs = wall.tv_nsec + timeo.tv_nsec 
+
+    secs  = secs  * -1
+    nsecs = nsecs * -1
+
+    while nsecs >= nsecs_per:
+
+        nsecs = nsecs - nsecs_per
+
+        secs = secs + 1
+
+    while nsecs < 0:
+
+        nsecs = nsecs + nsecs_per
+
+        secs = secs - 1
+
+    boot_time = secs + (nsecs / nsecs_per / 100)
+
+    return boot_time
+
+
 # similar to for_each_process for this usage
 def walk_list_head(struct_name, list_member, list_head_ptr, _addr_space):
     debug.warning("Deprecated use of walk_list_head")
@@ -130,7 +165,7 @@ def do_get_path(rdentry, rmnt, dentry, vfsmnt):
 
     if ret_val.startswith(("socket:", "pipe:")):
         if ret_val.find("]") == -1:
-            ret_val = ret_val[:-1] + "[{0}]".format(inode.i_ino)
+            ret_val = ret_val[:-1] + ":[{0}]".format(inode.i_ino)
         else:
             ret_val = ret_val.replace("/", "")
 
@@ -143,7 +178,23 @@ def do_get_path(rdentry, rmnt, dentry, vfsmnt):
 def get_path(task, filp):
     rdentry = task.fs.get_root_dentry()
     rmnt = task.fs.get_root_mnt()
-    dentry = filp.get_dentry()
-    vfsmnt = filp.get_vfsmnt()
+    dentry = filp.dentry
+    vfsmnt = filp.vfsmnt
 
     return do_get_path(rdentry, rmnt, dentry, vfsmnt)
+
+def get_obj(self, ptr, sname, member):
+
+    offset = self.profile.get_obj_offset(sname, member)
+
+    addr  = ptr - offset
+
+    return obj.Object(sname, offset = addr, vm = self.addr_space)
+
+def S_ISDIR(mode):
+    return (mode & linux_flags.S_IFMT) == linux_flags.S_IFDIR
+
+def S_ISREG(mode):
+    return (mode & linux_flags.S_IFMT) == linux_flags.S_IFREG
+
+

@@ -17,7 +17,9 @@ symbols and then read the DWARF symbols from it.
 #include <linux/fdtable.h>
 #include <net/ip_fib.h>
 #include <net/af_unix.h>
-
+#include <linux/pid.h>
+#include <linux/pid_namespace.h>
+#include <linux/radix-tree.h>
 
 struct uts_namespace uts_namespace;
 struct sock sock;
@@ -26,7 +28,9 @@ struct vfsmount vfsmount;
 struct in_device in_device;
 struct fib_table fib_table;
 struct unix_sock unix_sock;
-
+struct pid pid;
+struct pid_namespace pid_namespace;
+struct radix_tree_root radix_tree_root;
 
 /********************************************************************
 The following structs are not defined in headers, so we cant import
@@ -64,7 +68,63 @@ struct fn_hash {
   struct fn_zone    *fn_zone_list;
 } fn_hash;
 
+struct fib_alias 
+{
+    struct list_head        fa_list;
+    struct fib_info         *fa_info;
+    u8                      fa_tos;
+    u8                      fa_type;
+    u8                      fa_scope;
+    u8                      fa_state;
+#ifdef CONFIG_IP_FIB_TRIE
+        struct rcu_head         rcu;
+#endif
+};
+
+struct fib_node 
+{
+    struct hlist_node       fn_hash;
+    struct list_head        fn_alias;
+    __be32                  fn_key;
+    struct fib_alias        fn_embedded_alias;
+};
+
+
+struct fib_node fib_node;
+struct fib_alias fib_alias;
 
 struct rt_hash_bucket {
   struct rtable __rcu     *chain;
 } rt_hash_bucket;
+
+
+#define RADIX_TREE_MAP_SHIFT    (CONFIG_BASE_SMALL ? 4 : 6)
+#define RADIX_TREE_MAP_SIZE     (1UL << RADIX_TREE_MAP_SHIFT)
+#define RADIX_TREE_MAP_MASK     (RADIX_TREE_MAP_SIZE-1)
+#define RADIX_TREE_TAG_LONGS    ((RADIX_TREE_MAP_SIZE + BITS_PER_LONG - 1) / BITS_PER_LONG)
+
+struct radix_tree_node {
+    unsigned int    height;         /* Height from the bottom */
+    unsigned int    count;
+    struct rcu_head rcu_head;
+    void            *slots[RADIX_TREE_MAP_SIZE];
+    unsigned long   tags[RADIX_TREE_MAX_TAGS][RADIX_TREE_TAG_LONGS];
+};
+
+
+struct module_sect_attr
+{
+        struct module_attribute mattr;
+        char *name;
+        unsigned long address;
+};
+
+struct module_sect_attrs
+{
+        struct attribute_group grp;
+        unsigned int nsections;
+        struct module_sect_attr attrs[0];
+};
+
+struct module_sect_attrs module_sect_attrs;
+
