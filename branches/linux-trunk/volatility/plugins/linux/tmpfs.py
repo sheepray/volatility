@@ -246,9 +246,9 @@ class linux_tmpfs(linux_common.AbstractLinuxCommand):
 
         return filepage
 
-    def get_page_contents(self, inode, offset):
+    def get_page_contents(self, inode, idx):
 
-        page = self.shmem_getpage(inode, 0)
+        page = self.shmem_getpage(inode, idx)
 
         #print "inode: %x page: %x" % (inode, page)
 
@@ -267,15 +267,24 @@ class linux_tmpfs(linux_common.AbstractLinuxCommand):
         
     def get_file_contents(self, inode):
 
-        file_sz = inode.i_size
-    
-        # this is the supposdly the fastest way to do mass string concatenation
-        data = ''.join([self.get_page_contents(inode, offset) for offset in range(0, file_sz, 4096)])
+        data = ""
+        file_size = inode.i_size
+
+        extra = file_size % 4096 
+
+        idxs  = file_size / 4096
+
+        if extra != 0:
+            extra = 4096 - extra
+            idxs = idxs + 1
+
+        for idx in range(0, idxs):
+
+            data = data + self.get_page_contents(inode, idx)
 
         # this is chop off any extra data on the last page
-        extra = 4096 - (inode.i_size % 4096)
         
-        if extra:
+        if extra != 0:
             extra = extra * -1
 
             data = data[:extra]
