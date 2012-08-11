@@ -45,6 +45,7 @@ June
 
 July
    * [https://citizenlab.org/2012/07/from-bahrain-with-love-finfishers-spy-kit-exposed/ From Bahrain With Love: FinFisher’s Spy Kit Exposed?]
+   * [http://code.google.com/p/malware-lu/wiki/en_xtreme_RAT Xtreme RAT analysis]
 
 August
    * [http://pen-testing.sans.org/blog/2012/08/03/pen-test-privilege-escalation-through-suspended-virtual-machines Pen Test Privilege Escalation Through Suspended Virtual Machines]
@@ -237,7 +238,7 @@ October
    * [http://www.4tphi.net/fatkit/papers/Walters_2008_SANS.pdf Upping the ‘Anti’: Using Memory Analysis to Fight Malware]
 
 November 
-   * [http://mnin.blogspot.com/2008/11/recovering-coreflood-binaries-with.html http://mnin.blogspot.com/2008/11/recovering-coreflood-binaries-with.html]
+   * [http://mnin.blogspot.com/2008/11/recovering-coreflood-binaries-with.html Recovering Coreflood Binaries with Volatility]
    * [http://mnin.blogspot.com/2008/11/locating-hidden-clampi-dlls-vad-style.html Locating Hidden Clampi DLLs (VAD-style)]
 
 = 2007 = 
