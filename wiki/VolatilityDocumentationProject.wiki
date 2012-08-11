@@ -206,6 +206,9 @@ October
    * [http://forensiczone.blogspot.com/2009/10/volatility-batch-file-maker.html Volatility Batch File Maker]
    * [http://neosysforensics.blogspot.com/2009/10/volatility-132-is-out.html Volatility 1.3.2 is out!]
 
+November
+   * [http://www.cc.gatech.edu/~brendan/ccs09_siggen.pdf Robust Signatures for Kernel Data Structures]
+
 December 
    * [http://mnin.blogspot.com/2009/12/new-and-updated-volatility-plug-ins.html New and Updated Volatility Plug-ins Part II] 
 
@@ -222,6 +225,7 @@ August
 
 September 
    * [http://moyix.blogspot.com/2008/09/window-messages-as-forensic-resource.html Window Messages as a Forensic Resource]
+   * [http://dfrws.org/2008/proceedings/p26-dolan-gavitt.pdf Forensic analysis of the Windows registry in memory]
 
 October 
    * [http://moyix.blogspot.com/2008/10/plugin-post-moddump.html Plugin Post: Moddump]
@@ -241,3 +245,6 @@ May
 
 August
    * [http://computer.forensikblog.de/en/2007/08/from-volatools-to-volatility.html From Volatools to Volatility]
+
+September 
+   * [http://dfrws.org/2007/proceedings/p62-dolan-gavitt.pdf The VAD Tree: A process-eye view of physical memory]
