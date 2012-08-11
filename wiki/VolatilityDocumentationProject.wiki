@@ -215,6 +215,9 @@ December
 = 2008 = 
 ----
 
+Feburary
+   * [http://www.4tphi.net/fatkit/papers/aw_AAFS_pubv2.pdf Using Hashing to Improve Volatile Memory Forensic Analysis]
+
 May 
    * [http://moyix.blogspot.com/2008/05/dfrws-2008-registry-forensics-in-memory.html DFRWS 2008 - Registry Forensics in Memory]
 
@@ -222,6 +225,8 @@ August
    * [http://moyix.blogspot.com/2008/08/auditing-system-call-table.html Auditing the System Call Table]
    * [http://moyix.blogspot.com/2008/08/indroducing-volshell.html Introducing Volshell] 
    * [http://moyix.blogspot.com/2008/08/linking-processes-to-users.html Linking Processes to Users]
+   * [https://docs.google.com/document/pub?id=1ZGrBppBveDkNf3RTp0pMdd19VGI09y8GgErzlDA7aMc Digital Forensics Research Workshop 2008 - Submission for Forensic Challenge]
+   * [https://www.volatilesystems.com/volatility/omfw/Walters_OMFW_2008.pdf Volatility 1.3 Open Memory Forensics Workshop]
 
 September 
    * [http://moyix.blogspot.com/2008/09/window-messages-as-forensic-resource.html Window Messages as a Forensic Resource]
@@ -229,6 +234,7 @@ September
 
 October 
    * [http://moyix.blogspot.com/2008/10/plugin-post-moddump.html Plugin Post: Moddump]
+   * [http://www.4tphi.net/fatkit/papers/Walters_2008_SANS.pdf Upping the ‘Anti’: Using Memory Analysis to Fight Malware]
 
 November 
    * [http://mnin.blogspot.com/2008/11/recovering-coreflood-binaries-with.html http://mnin.blogspot.com/2008/11/recovering-coreflood-binaries-with.html]
@@ -236,6 +242,9 @@ November
 
 = 2007 = 
 ----
+
+Feburary
+   * [https://www.blackhat.com/presentations/bh-dc-07/Walters/Paper/bh-dc-07-Walters-WP.pdf Volatools: Integrating Volatile Memory Forensics into the Digital Investigation Process]
 
 March 
    * [http://computer.forensikblog.de/en/2007/03/volatools.html Volatools]
@@ -248,3 +257,12 @@ August
 
 September 
    * [http://dfrws.org/2007/proceedings/p62-dolan-gavitt.pdf The VAD Tree: A process-eye view of physical memory]
+
+= 2006 = 
+----
+
+Feburary
+   * [http://dx.doi.org/10.1016/j.diin.2006.10.001 FATKit: A Framework for the Extraction and Analysis of Digital Forensic Data from Volatile System Memory]
+
+July
+   * [http://www.4tphi.net/fatkit/papers/fatkit_dll_rc3.pdf FATKit: Detecting Malicious Library Injection and Upping the “Anti”]
