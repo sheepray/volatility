@@ -130,6 +130,7 @@ December
 January 
    * [http://neosysforensics.blogspot.com/2010/01/analisis-de-un-caso-real-3.html Análisis de un caso ¿real?, #3]
    * [http://gleeda.blogspot.com/2010/01/volatilitys-output-rendering-functions.html Volatility's Output Rendering Functions]
+   * [http://computer.forensikblog.de/en/2010/01/cross-view-analysis-with-volatility.html Cross-view analysis with Volatility]
 
 February: 
    * [http://cci.cocolog-nifty.com/blog/2010/02/encase-enscri-1.html EnCase EnScripts for Memory Forensics]
@@ -151,6 +152,9 @@ July
 
 August 
    * [http://gleeda.blogspot.com/2010/08/upated-sqlite-plugins.html Upated Volatility SQLite plugins]
+
+September 
+   * [http://computer.forensikblog.de/files/talks/ZISC2010-Recent_Advances_in_Memory_Forensics.pdf Recent Advances in Memory Forensics]
 
 November 
    * [http://lorgor.blogspot.com/2010/11/volatility-memory-forensics-i.html Volatility Memory Forensics]
@@ -174,6 +178,14 @@ March
    * [http://carnal0wnage.attackresearch.com/2009/03/dumping-memory-to-extract-password.html Dumping Memory to Extract Password Hashes]
    * [http://moyix.blogspot.com/2009/03/using-volatility-for-introspection.html Using Volatility for Introspection]
    * [http://moyix.blogspot.com/2009/03/regripper-and-volatility-prototype.html RegRipper and Volatility Prototype]
+
+April 
+   * [http://computer.forensikblog.de/en/2009/04/reading-passwords-from-the-keyboard-buffer.html Reading Passwords from the Keyboard buffer]
+   * [http://computer.forensikblog.de/en/2009/04/searching-for-mutants.html Searching for Mutants]
+   * [http://computer.forensikblog.de/en/2009/04/symbolic-link-objects.html Symbolic Link Objects]
+   * [http://computer.forensikblog.de/en/2009/04/scanning-for-drivers.html Scanning for Drivers]
+   * [http://computer.forensikblog.de/en/2009/04/linking-file-objects-to-processes.html Linking File Objects to Processes]
+   * [http://computer.forensikblog.de/en/2009/04/enumerate-object-types.html Enumerate Object Types]
 
 May  
    * [http://neosysforensics.blogspot.com/2009/05/analisis-de-un-caso-real-2.html Análisis de un caso ¿real?, #2]
@@ -217,3 +229,15 @@ October
 November 
    * [http://mnin.blogspot.com/2008/11/recovering-coreflood-binaries-with.html http://mnin.blogspot.com/2008/11/recovering-coreflood-binaries-with.html]
    * [http://mnin.blogspot.com/2008/11/locating-hidden-clampi-dlls-vad-style.html Locating Hidden Clampi DLLs (VAD-style)]
+
+= 2007 = 
+----
+
+March 
+   * [http://computer.forensikblog.de/en/2007/03/volatools.html Volatools]
+
+May 
+   * [http://computer.forensikblog.de/en/2007/05/walking-the-vad-tree.html Walking the VAD Tree]
+
+August
+   * [http://computer.forensikblog.de/en/2007/08/from-volatools-to-volatility.html From Volatools to Volatility]
