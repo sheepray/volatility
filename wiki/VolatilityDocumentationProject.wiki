@@ -31,6 +31,7 @@ April
    * [http://hiddenillusion.blogspot.com/2012/04/yara-volatility-beginning.html YARA + Volatility ... the beginning]
    * [http://www.sysforensics.org/2012/04/ietabie65-malware-memory-analysis.html IETab_IE65 Malware Memory Analysis]
    * [http://securesmb.blogspot.com/2012/04/registry-analysis-in-volatility.html Registry Analysis in Volatility]
+   * [http://blog.basementpctech.com/2012/04/in-acquiring-memory-blog-list-of-tools.html Malware Memory Analysis - Volatility]
 
 May 
    * [http://www.crysys.hu/skywiper/skywiper.pdf sKyWIper (a.k.a. Flame, Flamer): A complex malware for targeted attacks]
@@ -48,6 +49,7 @@ June
 July
    * [https://citizenlab.org/2012/07/from-bahrain-with-love-finfishers-spy-kit-exposed/ From Bahrain With Love: FinFisher’s Spy Kit Exposed?]
    * [http://code.google.com/p/malware-lu/wiki/en_xtreme_RAT Xtreme RAT analysis]
+   * [http://s0ck3t.blogspot.com/2012/07/volatility-guide-living-doc.html Volatility Guide - Living Doc]
 
 August
    * [http://pen-testing.sans.org/blog/2012/08/03/pen-test-privilege-escalation-through-suspended-virtual-machines Pen Test Privilege Escalation Through Suspended Virtual Machines]
