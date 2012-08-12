@@ -139,6 +139,7 @@ January
    * [http://neosysforensics.blogspot.com/2010/01/analisis-de-un-caso-real-3.html Análisis de un caso ¿real?, #3]
    * [http://gleeda.blogspot.com/2010/01/volatilitys-output-rendering-functions.html Volatility's Output Rendering Functions]
    * [http://computer.forensikblog.de/en/2010/01/cross-view-analysis-with-volatility.html Cross-view analysis with Volatility]
+   * [http://opensecuritytraining.info/Rootkits_files/Rootkits-Part3.ppt.pdf Using Volatility for Rootkit Detection]
 
 February: 
    * [http://cci.cocolog-nifty.com/blog/2010/02/encase-enscri-1.html EnCase EnScripts for Memory Forensics]
