@@ -29,6 +29,7 @@ April
    * [http://computer-forensics.sans.org/blog/2012/04/25/cheat-sheet Memory Forensics Cheat Sheet]
    * [http://hiddenillusion.blogspot.com/2012/04/yara-volatility-beginning.html YARA + Volatility ... the beginning]
    * [http://www.sysforensics.org/2012/04/ietabie65-malware-memory-analysis.html IETab_IE65 Malware Memory Analysis]
+   * [http://securesmb.blogspot.com/2012/04/registry-analysis-in-volatility.html Registry Analysis in Volatility]
 
 May 
    * [http://www.crysys.hu/skywiper/skywiper.pdf sKyWIper (a.k.a. Flame, Flamer): A complex malware for targeted attacks]
@@ -55,6 +56,9 @@ August
 
 = 2011 =
 ----
+
+January
+   * [http://computer-forensics.sans.org/blog/2011/01/13/whats-new-volatility-1-4 A Quick Look at Volatility 1.4 RC1 - What's New?]
 
 Feburary 
    * [http://quequero.org/Shylock_via_volatility Shylock via volatility]
@@ -121,6 +125,7 @@ November
    * [http://cyberarms.wordpress.com/2011/11/04/memory-forensics-how-to-pull-passwords-from-a-memory-dump/ Memory Forensics: How to Pull Passwords from a Memory Dump]
    * [http://www.sahw.com/wp/archivos/2011/11/02/analisis-avanzado-de-memoria-de-sistemas-microsoft-windows-con-volatility/ Análisis avanzado de memoria de sistemas Microsoft Windows con Volatility]
    * [http://sketchymoose.blogspot.com/2011/11/using-volatility-suspicious-process.html Using Volatility: Suspicious Process]
+   * [http://cyberarms.wordpress.com/2011/11/10/memory-forensics-analying-a-stuxnet-memory-dump-and-you-can-too/ Memory Forensics: Analyzing a Stuxnet Memory Dump (And you can too!)]
 
 December 
    * [http://www.reconstructer.org/papers/Hunting%20malware%20with%20Volatility%20v2.0.pdf Hunting Malware with Volatiltiy 2.0]
