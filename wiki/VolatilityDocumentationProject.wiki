@@ -17,6 +17,7 @@ January
  
 Feburary 
    * [http://wiki.yobi.be/wiki/RAM_analysis RAM dump with VirtualBox: via ELF64 coredump]
+   * [http://www.sysforensics.org/2012/02/suspected-south-korean-malware.html Suspected South Korean Malware]
 
 March 
    * [http://www.youtube.com/watch?v=iiYMgqVEQk0 Malgram Dynamic Analyses (SRI International uses Volatility in their sandbox]
@@ -53,6 +54,7 @@ August
    * [http://sempersecurus.blogspot.com/2012/08/cridex-analysis-using-volatility.html Cridex Analysis Using Volatility]
    * [http://ykx100.tumblr.com/post/28759838009/extracting-processes-binary-w-volatility-disk-image Extracting processes binary w/ volatility, disk image]
    * [http://www.chmag.in/article/aug2012/malware-memory-forensics Malware Memory Forensics]
+   * [http://antelox.blogspot.com/2012/08/configure-volatility-framework-on.html Configure Volatility framework on Windows OS]
 
 = 2011 =
 ----
