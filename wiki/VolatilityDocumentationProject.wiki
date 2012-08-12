@@ -9,55 +9,41 @@ This is a catalog of research, documentation, analysis, and tutorials generated 
 = 2012 =
 ----
 
-January 
-   * [http://www.sysforensics.org/2012/01/malware-analysis-with-sift-and.html Malware Analysis with SIFT and Volatility]
-   * [http://jamaaldev.blogspot.com/2012/01/running-volatility-memory-forensics-on.html Running Volatility Memory Forensics Framework on your android phone!]
-   * [http://digitalforensicssolutions.com/Android_Mind_Reading.pdf Android Mind Reading: Memory Acquisition and Analysis with DMD and Volatility]
-   * [http://active-security.blogspot.com/2012/01/ramnit-zeus-and-bat-part-2.html Ramnit, Zeus and the BAT! Part 2]
- 
-Feburary 
-   * [http://wiki.yobi.be/wiki/RAM_analysis RAM dump with VirtualBox: via ELF64 coredump]
-   * [http://www.sysforensics.org/2012/02/suspected-south-korean-malware.html Suspected South Korean Malware]
-
-March 
-   * [http://www.youtube.com/watch?v=iiYMgqVEQk0 Malgram Dynamic Analyses (SRI International uses Volatility in their sandbox]
-   * [http://securitybananas.com/?p=747 From Hibernation file to Malware analysis with Volatility]
-   * [http://computerforensics.champlain.edu/blog/capstone-project-volatile-memory-analysis-%E2%80%93-identifying-rogue-executables Capstone Project: Volatile Memory Analysis – Identifying Rogue Executables]
-   * [http://hakin9.org/hakin9-32012-dns-cache-poisoning/ Memory Timelines Using Volatility’s Timeliner]
-   * [http://media.blackhat.com/bh-eu-12/Haruyama/bh-eu-12-Haruyama-Memory_Forensic-Slides.pdf One-byte Modification for Breaking Memory Forensic Analysis]
-
-April 
-   * [http://computer-forensics.sans.org/blog/2012/04/25/cheat-sheet Memory Forensics Cheat Sheet]
-   * [http://hiddenillusion.blogspot.com/2012/04/yara-volatility-beginning.html YARA + Volatility ... the beginning]
-   * [http://www.sysforensics.org/2012/04/ietabie65-malware-memory-analysis.html IETab_IE65 Malware Memory Analysis]
-   * [http://securesmb.blogspot.com/2012/04/registry-analysis-in-volatility.html Registry Analysis in Volatility]
-   * [http://blog.basementpctech.com/2012/04/in-acquiring-memory-blog-list-of-tools.html Malware Memory Analysis - Volatility]
-
-May 
-   * [http://www.crysys.hu/skywiper/skywiper.pdf sKyWIper (a.k.a. Flame, Flamer): A complex malware for targeted attacks]
-   * [http://ykx100.tumblr.com/post/22440277850/tracking-malware-crumb-in-memory Tracking Malware Crumb in Memory]
-
-June 
-   * [http://mnin.blogspot.com/2012/06/quickpost-flame-volatility.html QuickPost: Flame & Volatility]
-   * [http://memoryforensics.blogspot.com/2012/06/announcing-mac-support-in-volatility.html Announcing Mac Support in Volatility]
-   * [http://memoryanalysis.net/research/mac-memory-analysis-with-volatility.pdf Mac Memory Analysis with Volatility]
-   * [http://dfsforensics.blogspot.com/2012/06/lime-11-released.html LiME 1.1 Released]
-   * [http://nagareshwar.securityxploded.com/2012/06/16/training-session-part-8-%E2%80%93-practical-reversing-iii-memory-forensics/ Training Session Part 8 – Practical Reversing (III) – Memory Forensics]
-   * [http://computer.forensikblog.de/files/volatility_plugins/poison_ivy.py Volatility plugin to detect Poison Ivy in memory and dump run-time config]
-   * [http://www.youtube.com/watch?v=mzhX-Z_OunI&feature=plcp Memory Analysis During Incident Response]
-   * [http://encase-forensic-blog.guidancesoftware.com/2012/06/using-volatility-with-encase.html Using Volatility with EnCase]
-
-July
-   * [https://citizenlab.org/2012/07/from-bahrain-with-love-finfishers-spy-kit-exposed/ From Bahrain With Love: FinFisher’s Spy Kit Exposed?]
-   * [http://code.google.com/p/malware-lu/wiki/en_xtreme_RAT Xtreme RAT analysis]
-   * [http://s0ck3t.blogspot.com/2012/07/volatility-guide-living-doc.html Volatility Guide - Living Doc]
-
-August
-   * [http://pen-testing.sans.org/blog/2012/08/03/pen-test-privilege-escalation-through-suspended-virtual-machines Pen Test Privilege Escalation Through Suspended Virtual Machines]
-   * [http://sempersecurus.blogspot.com/2012/08/cridex-analysis-using-volatility.html Cridex Analysis Using Volatility]
-   * [http://ykx100.tumblr.com/post/28759838009/extracting-processes-binary-w-volatility-disk-image Extracting processes binary w/ volatility, disk image]
-   * [http://www.chmag.in/article/aug2012/malware-memory-forensics Malware Memory Forensics]
-   * [http://antelox.blogspot.com/2012/08/configure-volatility-framework-on.html Configure Volatility framework on Windows OS]
+||Month||Type||Title||Author||
+||January||Blog||[http://www.sysforensics.org/2012/01/malware-analysis-with-sift-and.html Malware Analysis with SIFT and Volatility]||@patrickrolsen||
+||January||Blog||[http://jamaaldev.blogspot.com/2012/01/running-volatility-memory-forensics-on.html Running Volatility Memory Forensics Framework on your android phone!]||Jamaal Speights||
+||January||Paper||[http://digitalforensicssolutions.com/Android_Mind_Reading.pdf Android Mind Reading: Memory Acquisition and Analysis with DMD and Volatility]||Joe Sylve (@jtsylve)||
+||January||Blog||[http://active-security.blogspot.com/2012/01/ramnit-zeus-and-bat-part-2.html Ramnit, Zeus and the BAT! Part 2]||cbentle2||
+||February||Blog||[http://wiki.yobi.be/wiki/RAM_analysis RAM dump with VirtualBox: via ELF64 coredump]||Philippe Teuwen||
+||February||Blog||[http://www.sysforensics.org/2012/02/suspected-south-korean-malware.html Suspected South Korean Malware]||@patrickrolsen||
+||March||Video||[http://www.youtube.com/watch?v=iiYMgqVEQk0 Malgram Dynamic Analyses (SRI International) uses Volatility in their sandbox]||SRI International||
+||March||Blog||[http://securitybananas.com/?p=747 From Hibernation file to Malware analysis with Volatility]||Christiaan Beek||
+||March||Blog/Video||[http://computerforensics.champlain.edu/blog/capstone-project-volatile-memory-analysis-%E2%80%93-identifying-rogue-executables Capstone Project: Volatile Memory Analysis – Identifying Rogue Executables]||Ben Rogers||
+||March||Magazine||[http://hakin9.org/hakin9-32012-dns-cache-poisoning/ Memory Timelines Using Volatility’s Timeliner]||Nick Baronian||
+||March||Slides||[http://media.blackhat.com/bh-eu-12/Haruyama/bh-eu-12-Haruyama-Memory_Forensic-Slides.pdf One-byte Modification for Breaking Memory Forensic Analysis]||Takahiro Haruyama and Hiroshi Suzuki||
+||April||Blog||[http://computer-forensics.sans.org/blog/2012/04/25/cheat-sheet Memory Forensics Cheat Sheet]||@chadtilbury||
+||April||Blog||[http://hiddenillusion.blogspot.com/2012/04/yara-volatility-beginning.html YARA + Volatility ... the beginning]||@hiddenillusion||
+||April||Blog||[http://www.sysforensics.org/2012/04/ietabie65-malware-memory-analysis.html IETab_IE65 Malware Memory Analysis]||@patrickrolsen||
+||April||Blog||[http://securesmb.blogspot.com/2012/04/registry-analysis-in-volatility.html Registry Analysis in Volatility]||Tamer Hassan||
+||April||Blog||[http://blog.basementpctech.com/2012/04/in-acquiring-memory-blog-list-of-tools.html Malware Memory Analysis - Volatility]||Basement Tech||
+||May||Paper||[http://www.crysys.hu/skywiper/skywiper.pdf sKyWIper (a.k.a. Flame, Flamer): A complex malware for targeted attacks]||CrySyS Lab (@`CrySysLab`)||
+||May||Blog||[http://ykx100.tumblr.com/post/22440277850/tracking-malware-crumb-in-memory Tracking Malware Crumb in Memory]||@ykx100||
+||June||Blog||[http://mnin.blogspot.com/2012/06/quickpost-flame-volatility.html QuickPost: Flame & Volatility]||Michael Ligh (@iMHLv2)||
+||June||Blog||[http://memoryforensics.blogspot.com/2012/06/announcing-mac-support-in-volatility.html Announcing Mac Support in Volatility]||Andrew Case (@attrc)||
+||June||Slides||[http://memoryanalysis.net/research/mac-memory-analysis-with-volatility.pdf Mac Memory Analysis with Volatility]||Andrew Case (@attrc)||
+||June||Blog||[http://dfsforensics.blogspot.com/2012/06/lime-11-released.html LiME 1.1 Released]||Joe Sylve (@jtsylve)||
+||June||Blog/Video||[http://nagareshwar.securityxploded.com/2012/06/16/training-session-part-8-%E2%80%93-practical-reversing-iii-memory-forensics/ Training Session Part 8 – Practical Reversing (III) – Memory Forensics]||Monnappa||
+||June||Code||[http://computer.forensikblog.de/files/volatility_plugins/poison_ivy.py Volatility plugin to detect Poison Ivy in memory and dump run-time config]||Andreas Schuster (@forensikblog)||
+||June||Video||[http://www.youtube.com/watch?v=mzhX-Z_OunI&feature=plcp Memory Analysis During Incident Response]||Brett Cunningham||
+||June||Blog||[http://encase-forensic-blog.guidancesoftware.com/2012/06/using-volatility-with-encase.html Using Volatility with EnCase]||Mark Morgan||
+||July||Blog||[https://citizenlab.org/2012/07/from-bahrain-with-love-finfishers-spy-kit-exposed/ From Bahrain With Love: FinFisher’s Spy Kit Exposed?]||Morgan Marquis-Boire||
+||July||Blog||[http://code.google.com/p/malware-lu/wiki/en_xtreme_RAT Xtreme RAT analysis]||Malware.lu (rootbsd@r00ted.com)||
+||July||Blog||[http://s0ck3t.blogspot.com/2012/07/volatility-guide-living-doc.html Volatility Guide - Living Doc]||s0ck3t||
+||August||Blog||[http://pen-testing.sans.org/blog/2012/08/03/pen-test-privilege-escalation-through-suspended-virtual-machines Pen Test Privilege Escalation Through Suspended Virtual Machines]||Mark Baggett (@markbaggett)||
+||August||Blog||[http://sempersecurus.blogspot.com/2012/08/cridex-analysis-using-volatility.html Cridex Analysis Using Volatility]||Andre M. DiMino (@sempersecurus)||
+||August||Blog||[http://ykx100.tumblr.com/post/28759838009/extracting-processes-binary-w-volatility-disk-image Extracting processes binary w/ volatility, disk image]||@ykx100||
+||August||Magazine||[http://www.chmag.in/article/aug2012/malware-memory-forensics Malware Memory Forensics]||Monnappa||
+||August||Blog||[http://antelox.blogspot.com/2012/08/configure-volatility-framework-on.html Configure Volatility framework on Windows OS]||Stefano Antenucci||
 
 = 2011 =
 ----
