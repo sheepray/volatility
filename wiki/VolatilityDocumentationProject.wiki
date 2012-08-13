@@ -59,14 +59,13 @@ This is a catalog of research, documentation, analysis, and tutorials generated 
 ||March||Blog||[http://dfsforensics.blogspot.com/2011/03/analyzing-new-honeynet-memory-analysis.html Analyzing the New Honeynet Memory Analysis Challenge with Volatility]||Andrew Case (@attrc)||
 ||March||Blog||[http://dfsforensics.blogspot.com/2011/03/bringing-linux-support-to-volatility.html Bringing Linux Support to Volatility]||Andrew Case (@attrc)||
 ||March||Blog||[http://www.zonbi.org/?p=429 Volatility (Undead Security)]||Matt??||
+||April||Blog||[http://lorgor.blogspot.com/2011/04/volatility-14-new-great-and-with-shiny.html Volatility 1.4: new, great (and with a shiny new plugin)]||lg||
+||April||Blog||[http://sempersecurus.blogspot.com/2011/04/using-volatility-to-study-cve-2011-6011.html Using "volatility" to study the CVE-2011-0611 Adobe Flash 0-day]||Andre M. DiMino (@sempersecurus)||
+||April||Blog||[http://gleeda.blogspot.com/2011_04_01_archive.html Volatility 1.4 UserAssist plugin]||Jamie Levy (@gleeda)||
+||April||Blog||[http://gleeda.blogspot.com/2011/04/whats-difference-brief-volatility-14.html What's the Difference? (A Brief Volatility 1.4 Plugin Tutorial)]||Jamie Levy (@gleeda)||
+||April||Blog||[http://mnin.blogspot.com/2011/04/detectingmemory-forging-attempt-by.html Detecting/Memory Forging Attempt by a Rootkit]||Michael Ligh (@iMHLv2)||
+||April||Blog||[http://mnin.blogspot.com/2011/04/investigating-windows-threads-with.html Investigating Windows Threads with Volatility]||Michael Ligh (@iMHLv2)||
 
-April 
-   * [http://lorgor.blogspot.com/2011/04/volatility-14-new-great-and-with-shiny.html Volatility 1.4: new, great (and with a shiny new plugin)]
-   * [http://sempersecurus.blogspot.com/2011/04/using-volatility-to-study-cve-2011-6011.html Using "volatility" to study the CVE-2011-0611 Adobe Flash 0-day]
-   * [http://gleeda.blogspot.com/2011_04_01_archive.html Volatility 1.4 UserAssist plugin]
-   * [http://gleeda.blogspot.com/2011/04/whats-difference-brief-volatility-14.html What's the Difference? (A Brief Volatility 1.4 Plugin Tutorial)]
-   * [http://mnin.blogspot.com/2011/04/detectingmemory-forging-attempt-by.html Detecting/Memory Forging Attempt by a Rootkit]
-   * [http://mnin.blogspot.com/2011/04/investigating-windows-threads-with.html Investigating Windows Threads with Volatility]
    * [http://moyix.blogspot.com/2011/04/applying-forensic-tools-to-virtual.html Applying Forensic Tools to Virtual Machine Introspection]
    * [http://leetmore.ctf.su/wp/nuit-du-hack-2011-ctf-forensic/ Nuit du hack 2011 CTF Forensic]
    * [http://contagiodump.blogspot.com/2011/04/apr-8-cve-2011-0611-flash-player-zero.html Apr. 8 CVE-2011-0611 Flash Player Zero day]
