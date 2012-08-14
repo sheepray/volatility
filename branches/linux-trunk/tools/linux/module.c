@@ -20,6 +20,8 @@ symbols and then read the DWARF symbols from it.
 #include <linux/pid.h>
 #include <linux/pid_namespace.h>
 #include <linux/radix-tree.h>
+#include <linux/netfilter.h>
+#include <linux/netfilter/x_tables.h>
 
 struct uts_namespace uts_namespace;
 struct sock sock;
@@ -31,6 +33,9 @@ struct unix_sock unix_sock;
 struct pid pid;
 struct pid_namespace pid_namespace;
 struct radix_tree_root radix_tree_root;
+struct nf_hook_ops nf_hook_ops;
+struct nf_sockopt_ops nf_sockopt_ops;
+struct xt_table xt_table;
 
 /********************************************************************
 The following structs are not defined in headers, so we cant import
