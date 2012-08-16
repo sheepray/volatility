@@ -32,7 +32,7 @@ import volatility.plugins
 import volatility.plugins.overlays.basic as basic
 import volatility.obj as obj
 import volatility.debug as debug
-import volatility.utils as utils
+import volatility.dwarf as dwarf
 
 
 linux_overlay = {
@@ -98,7 +98,7 @@ def LinuxProfileFactory(profpkg):
     for f in profpkg.filelist:
         if f.filename.lower().endswith('.dwarf'):
             data = profpkg.read(f.filename)
-            vtypesvar.update(utils.DWARFParser(data).finalize())
+            vtypesvar.update(dwarf.DWARFParser(data).finalize())
             debug.debug("{2}: Found dwarf file {0} with {1} symbols".format(f.filename, len(vtypesvar.keys()), profilename))
         elif 'system.map' in f.filename.lower():
             memmodel, sysmap = parse_system_map(profpkg.read(f.filename))
