@@ -44,6 +44,7 @@ This is a catalog of research, documentation, analysis, and tutorials generated 
 ||August||Blog||[http://ykx100.tumblr.com/post/28759838009/extracting-processes-binary-w-volatility-disk-image Extracting processes binary w/ volatility, disk image]||@ykx100||
 ||August||Magazine||[http://www.chmag.in/article/aug2012/malware-memory-forensics Malware Memory Forensics]||Monnappa||
 ||August||Blog||[http://antelox.blogspot.com/2012/08/configure-volatility-framework-on.html Configure Volatility framework on Windows OS]||Stefano Antenucci||
+||August||Blog||[http://memoryforensics.blogspot.com/2012/08/recoving-tmpfs-from-memory-with.htm Recoving tmpfs from Memory with Volatility]l||Andrew Case (@attrc)||
 
 = 2011 =
 ----
@@ -65,35 +66,24 @@ This is a catalog of research, documentation, analysis, and tutorials generated 
 ||April||Blog||[http://gleeda.blogspot.com/2011/04/whats-difference-brief-volatility-14.html What's the Difference? (A Brief Volatility 1.4 Plugin Tutorial)]||Jamie Levy (@gleeda)||
 ||April||Blog||[http://mnin.blogspot.com/2011/04/detectingmemory-forging-attempt-by.html Detecting/Memory Forging Attempt by a Rootkit]||Michael Ligh (@iMHLv2)||
 ||April||Blog||[http://mnin.blogspot.com/2011/04/investigating-windows-threads-with.html Investigating Windows Threads with Volatility]||Michael Ligh (@iMHLv2)||
-
-   * [http://moyix.blogspot.com/2011/04/applying-forensic-tools-to-virtual.html Applying Forensic Tools to Virtual Machine Introspection]
-   * [http://leetmore.ctf.su/wp/nuit-du-hack-2011-ctf-forensic/ Nuit du hack 2011 CTF Forensic]
-   * [http://contagiodump.blogspot.com/2011/04/apr-8-cve-2011-0611-flash-player-zero.html Apr. 8 CVE-2011-0611 Flash Player Zero day]
-
-May 
-   * [http://blog.spiderlabs.com/2011/05/analyzing-malware-hollow-processes.html Analyzing Malware Hollow Processes]
-
-June 
-   * [http://mnin.blogspot.com/2011/06/examining-stuxnets-footprint-in-memory.html Stuxnet's Footprint in Memory with Volatility 2.0]
-   * [http://digitalforensicssolutions.com/papers/omfw.pdf Linux Memory Analysis with Volatility]
-
-July 
-   * [https://www.honeynet.org/challenges/2011_7_compromised_server Challenge 7 of the Forensic Challenge 2011 - Forensic Analysis of a Compromised Server]
-
-August 
-   * [http://www.digitalforensicssolutions.com/papers/blackhat-workshop-full-presentation.pdf Linux Memory Analysis Workshop]
-   * [http://gleeda.blogspot.com/2011_08_01_archive.html Volatility 2.0 and OMFW]
-
-September 
-   * [http://www.h-online.com/security/features/CSI-Internet-A-trip-into-RAM-1339479.html CSI:Internet Episode 3: A trip into RAM]
-   * [http://p4r4n0id.com/?p=821 MORTO – From a Memory-Dump Point of View]
-   * [http://malwarereversing.wordpress.com/2011/09/30/shylock-in-depth-malware-analysis/ Shylock In-Depth Malware Analysis]
-   * [http://holisticinfosec.blogspot.com/2011/09/toolsmith-memory-analysis-with-dumpit.html toolsmith: Memory Analysis with DumpIt and Volatility]
-   * [http://www.evild3ad.com/956/volatility-memory-forensics-basic-usage-for-malware-analysis/ Volatility Memory Forensics | Basic Usage for Malware Analysis]
-   * [http://malwarereversing.wordpress.com/2011/09/23/zeus-analysis-in-volatility-2-0/ Zeus Analysis in Volatility 2.0]
-   * [http://malwarereversing.wordpress.com/2011/09/17/volatility-2-0-plugin-vscan/ Volatility 2.0 Plugin Vscan]
-   * [http://gleeda.blogspot.com/2011_09_01_archive.html Volatility 2.0: Timeliner, RegistryAPI, evtlogs and more]
-   * [http://mnin.blogspot.com/2011/09/abstract-memory-analysis-zeus.html Abstract Memory Analysis: Zeus Encryption Keys]
+||April||Blog||[http://moyix.blogspot.com/2011/04/applying-forensic-tools-to-virtual.html Applying Forensic Tools to Virtual Machine Introspection]||Brendan Dolan-Gavitt (@mooyix)||
+||April||Blog||[http://leetmore.ctf.su/wp/nuit-du-hack-2011-ctf-forensic/ Nuit du hack 2011 CTF Forensic]||Alexmin||
+||April||Blog||[http://contagiodump.blogspot.com/2011/04/apr-8-cve-2011-0611-flash-player-zero.html Apr. 8 CVE-2011-0611 Flash Player Zero day]||Mila||
+||May||Blog||[http://blog.spiderlabs.com/2011/05/analyzing-malware-hollow-processes.html Analyzing Malware Hollow Processes]||Eric Monti||
+||June||Blog||[http://mnin.blogspot.com/2011/06/examining-stuxnets-footprint-in-memory.html Stuxnet's Footprint in Memory with Volatility 2.0]||Michael Ligh (@iMHLv2)||
+||June||Slides||[http://digitalforensicssolutions.com/papers/omfw.pdf Linux Memory Analysis with Volatility]||Andrew Case (@attrc)||
+||July||Blog/Paper||[https://www.honeynet.org/challenges/2011_7_compromised_server Forensic Challenge 2011 - Forensic Analysis of a Compromised Server]||K. Mau, J. Kahlich, M. Erasmus, F. Quintero, D. Anand||
+||August||Slides||[http://www.digitalforensicssolutions.com/papers/blackhat-workshop-full-presentation.pdf Linux Memory Analysis Workshop]||Andrew Case (@attrc)||
+||August||Blog||[http://gleeda.blogspot.com/2011_08_01_archive.html Volatility 2.0 and OMFW]||Jamie Levy (@gleeda)||
+||September||Article||[http://www.h-online.com/security/features/CSI-Internet-A-trip-into-RAM-1339479.html CSI:Internet Episode 3: A trip into RAM]||Frank Boldewin||
+||September||Blog||[http://p4r4n0id.com/?p=821 MORTO – From a Memory-Dump Point of View]|| p4r4n0id||
+||September||Blog||[http://malwarereversing.wordpress.com/2011/09/30/shylock-in-depth-malware-analysis/ Shylock In-Depth Malware Analysis]||Brad Arndt (@bradarndt)||
+||September||Blog||[http://holisticinfosec.blogspot.com/2011/09/toolsmith-memory-analysis-with-dumpit.html toolsmith: Memory Analysis with DumpIt and Volatility]||Russ McRee (@holisticinfosec)||
+||September||Blog||[http://www.evild3ad.com/956/volatility-memory-forensics-basic-usage-for-malware-analysis/ Volatility Memory Forensics | Basic Usage for Malware Analysis]||Evild3ad (@Evild3ad79)||
+||September||Blog||[http://malwarereversing.wordpress.com/2011/09/23/zeus-analysis-in-volatility-2-0/ Zeus Analysis in Volatility 2.0]||Brad Arndt (@bradarndt)||
+||September||Blog||[http://malwarereversing.wordpress.com/2011/09/17/volatility-2-0-plugin-vscan/ Volatility 2.0 Plugin Vscan]||Brad Arndt (@bradarndt)||
+||September||Blog||[http://gleeda.blogspot.com/2011_09_01_archive.html Volatility 2.0: Timeliner, RegistryAPI, evtlogs and more]||Jamie Levy (@gleeda)||
+||September||Blog||[http://mnin.blogspot.com/2011/09/abstract-memory-analysis-zeus.html Abstract Memory Analysis: Zeus Encryption Keys]||Michael Ligh (@iMHLv2)||
 
 October 
    * [http://www.h-online.com/security/features/CSI-Internet-Open-heart-surgery-1350313.html CSI:Internet Episode 4: Open heart surgery]
