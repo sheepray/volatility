@@ -125,6 +125,35 @@ class linux_lsmod(linux_common.AbstractLinuxCommand):
 
                     outfd.write("\t{0:30s} {1:#x}\n".format(name, address))
             
+    # returns a list of tuples of (name, .text start, .text end) for each module
+    # include_list can contain a list of only the modules wanted by a plugin
+    def get_modules(self, include_list=[]):
+
+        ret = []
+
+        for (module, _sections) in self.calculate():
+
+            if len(include_list) == 0 or str(module.name) in include_list:
+
+                ret.append(("%s" % module.name, module.module_core, module.module_core + module.module_core + module.core_size))
+
+        return ret
+   
+    # This returns the name of the module that contains an address or None
+    # The module_list parameter comes from a call to get_modules
+    # This function will be updated after 2.2 to resolve symbols within the module as well
+    def address_in_module(self, module_list, address):
+
+        ret = None
+
+        for (name, start, end) in module_list:
+            
+            if start <= address < end:
+                
+                ret = name
+                break
+
+        return ret
 
 
- 
+
