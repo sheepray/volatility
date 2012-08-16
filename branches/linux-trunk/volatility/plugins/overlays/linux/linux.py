@@ -188,7 +188,7 @@ class linux_file(obj.CType):
 # FIXME - walking backwards has not been thorougly tested
 class hlist_node(obj.CType):
     """A hlist_node makes a doubly linked list."""
-    def list_of_type(self, type, member, offset=-1, forward = True, head_sentinel = True):
+    def list_of_type(self, type, member, offset = -1, forward = True, head_sentinel = True):
         if not self.is_valid():
             return
 
@@ -232,7 +232,7 @@ class hlist_node(obj.CType):
 
 class list_head(obj.CType):
     """A list_head makes a doubly linked list."""
-    def list_of_type(self, type, member, offset=-1, forward = True, head_sentinel = True):
+    def list_of_type(self, type, member, offset = -1, forward = True, head_sentinel = True):
         if not self.is_valid():
             return
 
