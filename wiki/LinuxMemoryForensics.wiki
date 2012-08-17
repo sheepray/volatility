@@ -1,13 +1,81 @@
-#summary One-sentence summary of this page.
+#summary Instructions on how access and use the Linux support
 
 = Introduction =
 
-Add your content here.
+These are the instructions for using the Linux support in Volatility.
 
 
-= Details =
+NOTE: This initial set of instructions *will* change over time. *Please* check back on this wiki and always test the latest version before filing bug reports.
 
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
+= Getting the source =
+
+The source can be currently downloaded by checking out with SVN:
+
+{{{
+$ svn co http://volatility.googlecode.com/svn/trunk volatility
+}}}
+
+It can be browsed here:
+
+http://code.google.com/p/volatility/source/browse/#svn%2Ftrunk
+
+= Creating a profile =
+
+In the near future, Volatility will include profiles for the most common Linux kernels. Until then, you'll need to create your own profile. 
+
+== Creating vtypes ==
+
+The current method to create vtypes is to check out the source code and compile 'module.c' against the kernel that you want to analyze. To do this on the running system, cd to 'tools/linux' and type make. This will create a file named 'module.dwarf'. You can also compile against any kernel by simply pointing make to the directory with the kernel headers and .config file. 
+
+Note: For now, you will need dwarfdump installed on the system you create the profile on in order for Volatility to gain access to the debug symbols.
+
+Note 2: You must currently install an old version of dwarfump in order to generate the vtype correctly. This issue is being tracked at http://code.google.com/p/volatility/issues/detail?id=260 and should be resolved soon.
+
+== Getting Symbols ==
+
+The symbols are contained in the System.map file for the kernel you want to analyze. This can almost always be found in the "/boot" directory of the installation or you can generate this file yourself by running "nm" on the vmlinux file of the kernel.
+
+
+== Making the profile ==
+
+To create the profile, place both the module.dwarf and the system.map file into a zip file. Then move this zip file under 'volatility/plugins/overlays/linux/'.
+
+== Using the Profile ==
+
+To find the name of your profile, run:
+
+{{ 
+python vol.py --info | grep -i Linux
+}}
+
+You can then use this name as the --profile option.
+
+
+= Using the Plugins =
+
+The basic form to run Volatility is:
+
+{{
+python vol.py -f <path to mem image> --profile=<profile_name> plugin_name <plugin_options>
+}}
+
+Soon, a wiki page will be created that details every plugin and its output. Until then, to find all the available plugins and get a quick description of their purpose, you can run:
+
+python vol.py --info | grep -i linux_
+
+
+= Acquiring memory =
+
+Volatility does not provide the ability to acquire memory. We recommend using [http://code.google.com/p/lime-forensics/ Lime] for this purpose. It supports 32 and 64 bit captures from native Intel hardware as well as virtual machine guests. It also supports capture from Android devices.
+
+= Questions/Comments =
+
+Please contact Andrew Case (atcuno) with any questions or comments
+
+= Filing Bugs = 
+
+Please use the issue tracker to file bugs: http://code.google.com/p/volatility/issues/list
+
+= Known Issues =
+
+The 'route' command is broken on very new kernels 3.2+
