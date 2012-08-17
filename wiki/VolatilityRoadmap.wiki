@@ -43,12 +43,24 @@ This page is the official Volatility Roadmap. The goal of the Roadmap is to help
  * New Volshell Commands
  * Updated Documentation and Command Reference 
 
-= Volatility 2.2 (Official Multi-OS Support) =
+= Volatility 2.2 (Official Linux Support) =
 
 *RC1:* Sept 7, 2012
 *Release:* Oct 2, 2012
 
- * Linux Support (x86, x64)
+ * Linux Support (Intel x86, x64) kernels 2.6.11 - 3.x 
+ * Over 25+ Linux plugins 
+ * Windows win32k suite (14+ plugins, classes, algorithms and APIs for analyzing GUI memory)
+ * New or Updated Plugins 
+   * filedump	
+   * eventlogs
+   * getservicesids
+
+= Volatility 2.3 (Official Mac/Android/ARM Support) =
+
+*RC1:* N/A
+*Release:* Before the end of 2012
+
  * Mac Support (x86, x64)
  * Android/Arm Support
  * New Address Spaces (VMWareSnapshotFile, !VirtualBoxCoreDumpElf64)
@@ -56,10 +68,6 @@ This page is the official Volatility Roadmap. The goal of the Roadmap is to help
  * Unicode improvements 
  * KDBG/DTB Improvements
  * Profile Selection Enhancements
- * New or Updated Plugins 
-   * filedump	
-   * eventlogs
-   * getservicesids
 
 = Volatility 3.0 (Official Tech Preview Merge) =
 
