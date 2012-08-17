@@ -1,6 +1,8 @@
 #summary An outline of scudette's branch.
 <g:plusone size="medium"></g:plusone>
 
+<wiki:toc max_depth="2" />
+
 = Introduction =
 
 Volatility has become a very powerful project, with expanding use cases. Some of these use cases have not been thought of when we first started writing the framework, and now it is time to evolve the framework and make it better, and more powerful. In particular, Volatility is not designed to support multiple operating systems simultaneously right now.
@@ -212,3 +214,71 @@ Smc.exe
 }}}
 
 This is actually how pslist works. The first corrupted looking entry corresponds with the PsActiveListHead (the list head for the process list which is not actually an _EPROCESS object).
+
+= Linux Support =
+
+Note, the previous branches lin64-support and linux-support are deprecated. The current subversion branch "scudette" provides support for linux memory forensics (currently supported architectures are 32 bit and 64 bit intel based systems). 
+
+== Checking out the code ==
+Since this code is experimental you will need to check out the subversion repository:
+
+{{{
+svn checkout https://volatility.googlecode.com/svn/branches/scudette lin64-support
+}}}
+
+== Acquisition ==
+
+There is a linux physical memory driver provided in the tools/linux/ directory. This needs to be compiled for the correct kernel. Typically this means installing the kernel headers for the correct version and typing "make" at the prompt:
+
+{{{
+# apt-get install linux-headers-3.0.0-14-generic
+# export KVER=3.0.0-14-generic
+# make
+}}} 
+
+This will make pmem.ko - a physical memory driver which will create a /dev/pmem device, mapping the physical memory. It is possible to just insert the pmem module into the running kernel and just run volatility directly on the running system:
+
+{{{
+# insmod ./pmem.ko
+# python vol.py 
+Welcome to volshell! 
+To get help, type 'help()'
+
+In [1]: session.filename = "/dev/pmem"
+In [2]: session.profile_file = "myprofile.zip"
+In [3]: session.profile = "Linux64"
+In [4]: vol (plugins.pslist)
+}}}
+
+== Creating the profile for the running system ==
+For a specific linux system you will need a profile - this essentially documents the specific struct offsets required for this system. Profiles are typically generated from debug symbols (on linux this format is called DWARF).
+
+You will need the dwarfdump utility installed (apt-get install dwarfdump), and the make file will generate a module.dwarf file in the tools directory. This contains all the debug information for the target kernel.
+
+You will also need the System map file (usually found in /boot/) for the target kernel. To make it easier to keep these together, volatility allows them to be put into a zip file - which we call the profile file:
+
+{{{
+# zip myprofile.zip /boot/System.map-3.0.0-12-server module.dwarf
+}}}
+
+== Running volatility ==
+To actually run volatility, we need to specify the profile (this can be either Linux32 or Linux64), and additionally we need to provide the profile file obtained from above. To see all the plugins that report themselves as available for linux, we can use -h to list them:
+{{{
+$ python vol.py 
+Welcome to volshell! 
+To get help, type 'help()'
+
+In [1]: session.filename = "linux_image.dd"
+In [2]: session.profile_file = "linux_image.dd.zip"
+In [3]: session.profile = "Linux64"
+In [4]: vol (plugins.pslist)
+}}}
+
+Notice that we can always just put these commands into a python script, so we dont have to type so much:
+{{{
+$ python vol.py 
+Welcome to volshell! 
+To get help, type 'help()'
+
+In [1]: run -i my_script.py
+}}}
