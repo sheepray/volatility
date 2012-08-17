@@ -1,4 +1,5 @@
 #summary An outline of scudette's branch.
+#labels Deprecated
 <g:plusone size="medium"></g:plusone>
 
 = Introduction =
