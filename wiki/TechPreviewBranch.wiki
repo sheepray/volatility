@@ -1,0 +1,214 @@
+#summary An outline of scudette's branch.
+<g:plusone size="medium"></g:plusone>
+
+= Introduction =
+
+Volatility has become a very powerful project, with expanding use cases. Some of these use cases have not been thought of when we first started writing the framework, and now it is time to evolve the framework and make it better, and more powerful. In particular, Volatility is not designed to support multiple operating systems simultaneously right now.
+
+The next version of volatility will feature:
+
+- An externally usable framework. Right now its very difficult to use volatility from other python programs. The framework is very rigid and there is a lot of "Magic" everywhere (automated processes which just happen in a non-intuitive way), making it very hard to understand for new comers.
+
+- Flexible profile system. Right now the profile system is very rigid - there is one global profile and its very hard to add new types to it, there can be type conflicts and it is difficult to use the profile programmatically. We need a system where different, often conflicting profiles, can exist at the same time. For example, a kernel profile for kernel space, and a userspace profile for user applications.
+
+- Flexible plugin system. Right now the only way to extend volatility is to introduce a command plugin. These are very inflexible classes, which need to inherit from one another in a particular way, encouraging deep and complex inheritance relationships. The structure of the command plugin is non-intuitive (i.e. calculate(), execute() and render() methods must be present). This is bad for code reuse because you cant build a plugin which just calls another plugin to receive objects. In addition, plugin names are inflexible so we can not provide an implementation for different operating systems (e.g. pslist is for windows, linux_pslist for linux). We need a system that we can use the same name and produce the correct plugin for the system under analysis.
+
+- An improved, interactive user interface. The user interface is very primitive at the moment, and does not easily support the use case of advanced users. Right now you can look at the result of pslist, represented in a textual way. Unless you write your own plugin its difficult to access the _EPROCESS members themselves and inspect them. The volshell plugin was an attempt to give users an interactive shell for examining objects, and is a great step in the right direction. The idea is that by simplifying the APIs it will be possible to just use the shell for all analysis in a similar way to the API use.
+
+- Scriptable interface. Right now volatility can only be scripted by either parsing the textual output externally, or adding code in the form of plugins. This increases the barrier for entry to users. The new system allows very simple python scripts to be written and specialized output to be produced.
+
+
+= Details =
+
+The new version is currently being developed in the Scudette branch. It is pretty much a complete rewrite of the current codebase, which aims to simplify, and update the current code base.
+
+The following sections describe the current implementation, and will be updated as the implementation evolves.
+
+== The user interface ==
+Volatility will use the ipython shell as the main user interface. Ipython is an excellent environment as it offers command-line completion and also the ability to quickly run python commands (even something as simple as converting hex to decimal is easy to do in the shell).
+
+Ipython allows the option of running external scripts:
+{{{
+%run -i /tmp/myscript.py
+}}}
+
+
+That file can contain:
+{{{
+session.filename = "test_data/xp-laptop-2005-06-25.img"
+session.profile = "WinXPSP3x86"
+
+vol(plugins.pslist)
+vol(plugins.dlllist)
+}}}
+
+This is just like being in the shell - this allows users to trivially automate many of their common tasks, and even implement more novel tasks.
+
+Ipython also offers extensive help facilities, which we use extensively. If any variable is followed by a "?", ipython will print the doc string for that function. For example let's see what the pslist plugin can do:
+
+<pre>
+In [11]: plugins.pslist?
+...
+Docstring:
+    List processes for windows.
+
+Constructor information:
+Definition:	plugins.pslist(self, kdbg=None, eprocess=None, **kwargs)
+Docstring:
+    Lists the processes by following the _EPROCESS.PsActiveList.
+    
+    In the windows operating system, processes are linked together through a
+    doubly linked list. This plugin follows the list around, printing
+    information about each process.
+    
+    To begin, we need to find any element on the list. This can be done by:
+    
+    1) Obtaining the _KDDEBUGGER_DATA64.PsActiveProcessHead - debug information.
+    2) Finding any _EPROCESS in memory (e.g. through psscan) and following its list.
+    
+    This plugin supports both approaches.
+    
+    Args:
+      kernel_address_space: The kernel AS we operate on, if None we use the session's.
+    
+      profile: The profile. If None we use the session's.
+    
+      kdbg: The location of the kernel debugger block (In the physical
+         AS). If this is specified we use the PsActiveProcessHead method.
+    
+      eprocess: The location of any eprocess location (in kernel AS). This
+         can be obtained from e.g. psscan or find_dtb. If neither kdbg or
+         eprocess are specified we just do the best we have from the
+         session.
+</pre>
+
+Since the volatility process is now long lived, there is no need for caching of any kind. Previously starting up a volatility process was expensive since we needed to scan for various structures (e.g. DTB, KDBG etc). We introduced a caching system to help alleviate this cost but it proved very complex and unreliable.
+
+It is now possible to keep objects around for a long time, and maintain their data with them.
+
+== The session ==
+When you first start a Volatility session, you receive a new session object. This session contains:
+
+- Session global parameters that will be passed to plugins by default, so users do not need to keep specifying the same parameters all the time to all plugins.
+
+- A handle to all the plugins that are current for this session. Not all plugins support all operating systems, and often the same feature will be provided by different plugins. For example, the WinPsList class implements process listing for windows, while the LinPsList class implements this for linux. Depending on the profile current active in the session, plugins.pslist refers to either the WinPsList class or to the LinPsList class.
+
+
+Here is a sample session:
+{{{
+In [1]: session.filename = "test_data/xp-laptop-2005-06-25.img"
+In [2]: session.profile = "WinXPSP3x86"
+In [3]: vol plugins.pslist
+
+ Offset(V) Offset(P)  Name                 PID    PPID   Thds   Hnds   Time
+---------- ---------- -------------------- ------ ------ ------ ------ ------------------- 
+0x823c87c0 0x023c87c0 System                    4      0     61   1140 1970-01-01 00:00:00       
+0x81fdf020 0x01fdf020 smss.exe                448      4      3     21 2005-06-25 16:47:28       
+....
+}}}
+
+The first 2 statements set the filename and profile for this image. The following line is an ipython shortcut, equivalent to running vol(plugins.pslist). The vol function, simply instantiates the plugin, and calls its render method, and is equivalent to:
+
+{{{
+plugins.pslist().render(sys.stdout)
+}}}
+
+== Commandline Completion ==
+Suppose now that we want do something more interesting with the pslist plugin. Specifically, we want to find a process with the a specific pid. We can see what methods the pslist plugin provides by double tabbing command line completion:
+
+{{{
+In [4]: plugins.pslist.[tab][tab]
+...
+plugins.pslist.get_processes_from_pids
+plugins.pslist.list_eprocess
+plugins.pslist.list_eprocess_from_eprocess
+plugins.pslist.list_eprocess_from_kdbg
+...
+}}}
+
+We can see that the plugin provides a number of useful methods - "get_processes_from_pids" looks promising:
+{{{
+In [5]: plugins.pslist.get_processes_from_pids?
+...
+Definition:	plugins.pslist.get_processes_from_pids(self, pids)
+Docstring:
+    Generates _EPROCESS objects from a list of pids.
+
+    Args:
+      pids: A list of integers of the pids needed.
+
+    Yields:
+      _EPROCESS objects.
+}}}
+
+Lets see which eprocess object has pid 448:
+
+{{{
+In [6]: for proc in plugins.pslist().get_processes_from_pids([448]):
+   ...:     print proc.ImageFileName
+smss.exe
+}}}
+
+Similarly we can fetch all the processes with a name of "svchost.exe":
+
+{{{
+In [7]: for proc in plugins.pslist().list_eprocess():
+   ...:      if proc.ImageFileName == "svchost.exe":
+   ...:          print proc.UniqueProcessId
+   ...:         
+   ...:         
+740
+800
+840
+984
+1024
+1484
+}}}
+
+For the next example, we assume we forgot what members the _EPROCESS struct actually contains. We can find out by using command line completion:
+
+{{{
+In [8]: proc.[tab][tab]
+Display all 162 possibilities? (y or n)
+proc.ActiveProcessLinks            proc.PeakVirtualSize               proc.__class__
+proc.ActiveThreads                 proc.Peb                           proc.__delattr__
+proc.AddressCreationLock           proc.PhysicalVadList               proc.__dict__
+proc.AddressSpaceInitialized       proc.PrefetchTrace                 proc.__dir__
+proc.AweInfo                       proc.PriorityClass                 proc.__doc__
+proc.BreakOnTermination            proc.ProcessDelete                 proc.__eq__
+proc.CloneRoot                     proc.ProcessExiting                proc.__format__
+proc.CommitCharge                  proc.ProcessInSession              proc.__getattr__
+...
+
+In [12]: proc.ActiveThreads
+Out[12]:  [NativeType]: 1
+}}}
+
+We can see the ActiveThreads member is just an integer of value 1. I wonder what the ActiveProcessLinks member is?
+
+{{{
+In [13]: proc.ActiveProcessLinks
+Out[13]: [_LIST_ENTRY ActiveProcessLinks] @ 0x81ED8570
+}}}
+
+It is a list - maybe its a list of other _EPROCESS structs?
+
+{{{
+In [14]: for eprocess in proc.ActiveProcessLinks:
+   ....:     print eprocess.ImageFileName
+   ....:     
+   ....:     
+����
+System
+smss.exe
+csrss.exe
+winlogon.exe
+services.exe
+lsass.exe
+svchost.exe
+svchost.exe
+svchost.exe
+Smc.exe
+}}}
+
+This is actually how pslist works. The first corrupted looking entry corresponds with the PsActiveListHead (the list head for the process list which is not actually an _EPROCESS object).
