@@ -5,7 +5,7 @@
 These are the instructions for using the Linux support in Volatility.
 
 
-NOTE: This initial set of instructions *will* change over time. *Please* check back on this wiki and always test the latest version before filing bug reports.
+NOTE: This initial set of instructions *will* change over time. *Please* check back on this wiki and always test the latest version before filing bug reports. The first official Volatility release will Linux support will be 2.2 (expected October 2012). 
 
 = Getting the source =
 
@@ -15,9 +15,7 @@ The source can be currently downloaded by checking out with SVN:
 $ svn co http://volatility.googlecode.com/svn/trunk volatility
 }}}
 
-It can be browsed here:
-
-http://code.google.com/p/volatility/source/browse/#svn%2Ftrunk
+The source code can be browsed [http://code.google.com/p/volatility/source/browse/#svn%2Ftrunk here]
 
 = Creating a profile =
 
@@ -35,7 +33,6 @@ Note 2: You must currently install an old version of dwarfump in order to genera
 
 The symbols are contained in the System.map file for the kernel you want to analyze. This can almost always be found in the "/boot" directory of the installation or you can generate this file yourself by running "nm" on the vmlinux file of the kernel.
 
-
 == Making the profile ==
 
 To create the profile, place both the module.dwarf and the system.map file into a zip file. Then move this zip file under 'volatility/plugins/overlays/linux/'.
@@ -45,24 +42,23 @@ To create the profile, place both the module.dwarf and the system.map file into 
 To find the name of your profile, run:
 
 {{{
-python vol.py --info | grep -i Linux
+$ python vol.py --info | grep -i Linux
 }}}
 
 You can then use this name as the --profile option.
-
 
 = Using the Plugins =
 
 The basic form to run Volatility is:
 
 {{{
-python vol.py -f <path to mem image> --profile=<profile_name> plugin_name <plugin_options>
+$ python vol.py -f <path to mem image> --profile=<profile_name> plugin_name <plugin_options>
 }}}
 
 Soon, a wiki page will be created that details every plugin and its output. Until then, to find all the available plugins and get a quick description of their purpose, you can run:
 
 {{{
-python vol.py --info | grep -i linux_
+# python vol.py --info | grep -i linux_
 }}}
 
 = Acquiring memory =
