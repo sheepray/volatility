@@ -44,9 +44,9 @@ To create the profile, place both the module.dwarf and the system.map file into 
 
 To find the name of your profile, run:
 
-{{ 
+{{{
 python vol.py --info | grep -i Linux
-}}
+}}}
 
 You can then use this name as the --profile option.
 
@@ -55,14 +55,15 @@ You can then use this name as the --profile option.
 
 The basic form to run Volatility is:
 
-{{
+{{{
 python vol.py -f <path to mem image> --profile=<profile_name> plugin_name <plugin_options>
-}}
+}}}
 
 Soon, a wiki page will be created that details every plugin and its output. Until then, to find all the available plugins and get a quick description of their purpose, you can run:
 
+{{{
 python vol.py --info | grep -i linux_
-
+}}}
 
 = Acquiring memory =
 
