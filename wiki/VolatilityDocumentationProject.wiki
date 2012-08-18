@@ -6,103 +6,96 @@ This is a catalog of research, documentation, analysis, and tutorials generated 
 
 <wiki:toc max_depth="1" />
 
-= 2012 =
-----
-
-||Month||Type||Title||Author||
-||January||Blog||[http://www.sysforensics.org/2012/01/malware-analysis-with-sift-and.html Malware Analysis with SIFT and Volatility]||@patrickrolsen||
-||January||Blog||[http://jamaaldev.blogspot.com/2012/01/running-volatility-memory-forensics-on.html Running Volatility Memory Forensics Framework on your android phone!]||Jamaal Speights||
-||January||Paper||[http://digitalforensicssolutions.com/Android_Mind_Reading.pdf Android Mind Reading: Memory Acquisition and Analysis with DMD and Volatility]||Joe Sylve (@jtsylve)||
-||January||Blog||[http://active-security.blogspot.com/2012/01/ramnit-zeus-and-bat-part-2.html Ramnit, Zeus and the BAT! Part 2]||cbentle2||
-||February||Blog||[http://wiki.yobi.be/wiki/RAM_analysis RAM dump with VirtualBox: via ELF64 coredump]||Philippe Teuwen||
-||February||Blog||[http://www.sysforensics.org/2012/02/suspected-south-korean-malware.html Suspected South Korean Malware]||@patrickrolsen||
-||March||Video||[http://www.youtube.com/watch?v=iiYMgqVEQk0 Malgram Dynamic Analyses (SRI International) uses Volatility in their sandbox]||SRI International||
-||March||Blog||[http://securitybananas.com/?p=747 From Hibernation file to Malware analysis with Volatility]||Christiaan Beek||
-||March||Blog/Video||[http://computerforensics.champlain.edu/blog/capstone-project-volatile-memory-analysis-%E2%80%93-identifying-rogue-executables Capstone Project: Volatile Memory Analysis – Identifying Rogue Executables]||Ben Rogers||
-||March||Magazine||[http://hakin9.org/hakin9-32012-dns-cache-poisoning/ Memory Timelines Using Volatility’s Timeliner]||Nick Baronian||
-||March||Slides||[http://media.blackhat.com/bh-eu-12/Haruyama/bh-eu-12-Haruyama-Memory_Forensic-Slides.pdf One-byte Modification for Breaking Memory Forensic Analysis]||Takahiro Haruyama and Hiroshi Suzuki||
-||April||Blog||[http://computer-forensics.sans.org/blog/2012/04/25/cheat-sheet Memory Forensics Cheat Sheet]||@chadtilbury||
-||April||Blog||[http://hiddenillusion.blogspot.com/2012/04/yara-volatility-beginning.html YARA + Volatility ... the beginning]||@hiddenillusion||
-||April||Blog||[http://www.sysforensics.org/2012/04/ietabie65-malware-memory-analysis.html IETab_IE65 Malware Memory Analysis]||@patrickrolsen||
-||April||Blog||[http://securesmb.blogspot.com/2012/04/registry-analysis-in-volatility.html Registry Analysis in Volatility]||Tamer Hassan||
-||April||Blog||[http://blog.basementpctech.com/2012/04/in-acquiring-memory-blog-list-of-tools.html Malware Memory Analysis - Volatility]||Basement Tech||
-||April||Video||[http://www.youtube.com/watch?v=cxEfTlcms8A VOLATILITY & DUMPIT : DEADLY COMBO TO GET UR PASSWORDS]||anupam50||
-||May||Paper||[http://www.crysys.hu/skywiper/skywiper.pdf sKyWIper (a.k.a. Flame, Flamer): A complex malware for targeted attacks]||CrySyS Lab (@`CrySysLab`)||
-||May||Blog||[http://ykx100.tumblr.com/post/22440277850/tracking-malware-crumb-in-memory Tracking Malware Crumb in Memory]||@ykx100||
-||June||Blog||[http://mnin.blogspot.com/2012/06/quickpost-flame-volatility.html QuickPost: Flame & Volatility]||Michael Ligh (@iMHLv2)||
-||June||Blog||[http://memoryforensics.blogspot.com/2012/06/announcing-mac-support-in-volatility.html Announcing Mac Support in Volatility]||Andrew Case (@attrc)||
-||June||Slides||[http://memoryanalysis.net/research/mac-memory-analysis-with-volatility.pdf Mac Memory Analysis with Volatility]||Andrew Case (@attrc)||
-||June||Blog||[http://dfsforensics.blogspot.com/2012/06/lime-11-released.html LiME 1.1 Released]||Joe Sylve (@jtsylve)||
-||June||Blog/Video||[http://nagareshwar.securityxploded.com/2012/06/16/training-session-part-8-%E2%80%93-practical-reversing-iii-memory-forensics/ Training Session Part 8 – Practical Reversing (III) – Memory Forensics]||Monnappa||
-||June||Code||[http://computer.forensikblog.de/files/volatility_plugins/poison_ivy.py Volatility plugin to detect Poison Ivy in memory and dump run-time config]||Andreas Schuster (@forensikblog)||
-||June||Video||[http://www.youtube.com/watch?v=mzhX-Z_OunI&feature=plcp Memory Analysis During Incident Response]||Brett Cunningham||
-||June||Video||[http://www.youtube.com/watch?v=E4itTgRjvC0 Volatility Know How's]||MrKishorD||
-||June||Blog||[http://encase-forensic-blog.guidancesoftware.com/2012/06/using-volatility-with-encase.html Using Volatility with EnCase]||Mark Morgan||
-||July||Blog||[https://citizenlab.org/2012/07/from-bahrain-with-love-finfishers-spy-kit-exposed/ From Bahrain With Love: FinFisher’s Spy Kit Exposed?]||Morgan Marquis-Boire||
-||July||Blog||[http://code.google.com/p/malware-lu/wiki/en_xtreme_RAT Xtreme RAT analysis]||Malware.lu (rootbsd@r00ted.com)||
-||July||Blog||[http://s0ck3t.blogspot.com/2012/07/volatility-guide-living-doc.html Volatility Guide - Living Doc]||s0ck3t||
-||August||Blog||[http://pen-testing.sans.org/blog/2012/08/03/pen-test-privilege-escalation-through-suspended-virtual-machines Pen Test Privilege Escalation Through Suspended Virtual Machines]||Mark Baggett (@markbaggett)||
-||August||Blog||[http://sempersecurus.blogspot.com/2012/08/cridex-analysis-using-volatility.html Cridex Analysis Using Volatility]||Andre M. DiMino (@sempersecurus)||
-||August||Blog||[http://ykx100.tumblr.com/post/28759838009/extracting-processes-binary-w-volatility-disk-image Extracting processes binary w/ volatility, disk image]||@ykx100||
-||August||Magazine||[http://www.chmag.in/article/aug2012/malware-memory-forensics Malware Memory Forensics]||Monnappa||
-||August||Blog||[http://antelox.blogspot.com/2012/08/configure-volatility-framework-on.html Configure Volatility framework on Windows OS]||Stefano Antenucci||
-||August||Blog||[http://memoryforensics.blogspot.com/2012/08/recoving-tmpfs-from-memory-with.htm Recoving tmpfs from Memory with Volatility]||Andrew Case (@attrc)||
-
-= 2011 =
-----
-
-||January||Blog||[http://computer-forensics.sans.org/blog/2011/01/13/whats-new-volatility-1-4 A Quick Look at Volatility 1.4 RC1 - What's New?]||Lenny Zeltser (@lennyzeltser)||
-||February||Blog||[http://quequero.org/Shylock_via_volatility Shylock via volatility]||Evilcry||
-||March||Blog||[http://quequero.org/Carberp_Reverse_Engineering#Carberp_Analysis_via_Volatility Carberp Analysis via Volatility]||Evilcry||
-||March||Blog||[http://gleeda.blogspot.com/2011_03_01_archive.html Update: Volatility printkey Plugin]||Jamie Levy (@gleeda)||
-||March||Blog||[http://gleeda.blogspot.com/2011/03/volatility-14-getplugins-script.html Volatility 1.4 get_plugins Script]||Jamie Levy (@gleeda)||
-||March||Blog||[http://mnin.blogspot.com/2011/03/volatilitys-new-netscan-module.html Volatility's New Netscan Module]||Michael Ligh (@iMHLv2)||
-||March||Blog||[http://mnin.blogspot.com/2011/03/mis-leading-active-in.html The Mis-leading 'Active' in PsActiveProcessHead and ActiveProcessLinks]||Michael Ligh (@iMHLv2)||
-||March||Blog||[http://moyix.blogspot.com/2011/03/automatically-generating-memory.html Automatically Generating Memory Forensic Tools]||Brendan Dolan-Gavitt (@mooyix)||
-||March||Blog||[http://dfsforensics.blogspot.com/2011/03/analyzing-new-honeynet-memory-analysis.html Analyzing the New Honeynet Memory Analysis Challenge with Volatility]||Andrew Case (@attrc)||
-||March||Blog||[http://dfsforensics.blogspot.com/2011/03/bringing-linux-support-to-volatility.html Bringing Linux Support to Volatility]||Andrew Case (@attrc)||
-||March||Blog||[http://www.zonbi.org/?p=429 Volatility (Undead Security)]||Matt??||
-||April||Blog||[http://lorgor.blogspot.com/2011/04/volatility-14-new-great-and-with-shiny.html Volatility 1.4: new, great (and with a shiny new plugin)]||lg||
-||April||Blog||[http://sempersecurus.blogspot.com/2011/04/using-volatility-to-study-cve-2011-6011.html Using "volatility" to study the CVE-2011-0611 Adobe Flash 0-day]||Andre M. DiMino (@sempersecurus)||
-||April||Blog||[http://gleeda.blogspot.com/2011_04_01_archive.html Volatility 1.4 UserAssist plugin]||Jamie Levy (@gleeda)||
-||April||Blog||[http://gleeda.blogspot.com/2011/04/whats-difference-brief-volatility-14.html What's the Difference? (A Brief Volatility 1.4 Plugin Tutorial)]||Jamie Levy (@gleeda)||
-||April||Blog||[http://mnin.blogspot.com/2011/04/detectingmemory-forging-attempt-by.html Detecting/Memory Forging Attempt by a Rootkit]||Michael Ligh (@iMHLv2)||
-||April||Blog||[http://mnin.blogspot.com/2011/04/investigating-windows-threads-with.html Investigating Windows Threads with Volatility]||Michael Ligh (@iMHLv2)||
-||April||Blog||[http://moyix.blogspot.com/2011/04/applying-forensic-tools-to-virtual.html Applying Forensic Tools to Virtual Machine Introspection]||Brendan Dolan-Gavitt (@mooyix)||
-||April||Blog||[http://leetmore.ctf.su/wp/nuit-du-hack-2011-ctf-forensic/ Nuit du hack 2011 CTF Forensic]||Alexmin||
-||April||Blog||[http://contagiodump.blogspot.com/2011/04/apr-8-cve-2011-0611-flash-player-zero.html Apr. 8 CVE-2011-0611 Flash Player Zero day]||Mila||
-||May||Blog||[http://blog.spiderlabs.com/2011/05/analyzing-malware-hollow-processes.html Analyzing Malware Hollow Processes]||Eric Monti||
-||June||Blog||[http://mnin.blogspot.com/2011/06/examining-stuxnets-footprint-in-memory.html Stuxnet's Footprint in Memory with Volatility 2.0]||Michael Ligh (@iMHLv2)||
-||June||Slides||[http://digitalforensicssolutions.com/papers/omfw.pdf Linux Memory Analysis with Volatility]||Andrew Case (@attrc)||
-||July||Blog/Paper||[https://www.honeynet.org/challenges/2011_7_compromised_server Forensic Challenge 2011 - Forensic Analysis of a Compromised Server]||K. Mau, J. Kahlich, M. Erasmus, F. Quintero, D. Anand||
-||August||Slides||[http://www.digitalforensicssolutions.com/papers/blackhat-workshop-full-presentation.pdf Linux Memory Analysis Workshop]||Andrew Case (@attrc)||
-||August||Blog||[http://gleeda.blogspot.com/2011_08_01_archive.html Volatility 2.0 and OMFW]||Jamie Levy (@gleeda)||
-||September||Article||[http://www.h-online.com/security/features/CSI-Internet-A-trip-into-RAM-1339479.html CSI:Internet Episode 3: A trip into RAM]||Frank Boldewin||
-||September||Blog||[http://p4r4n0id.com/?p=821 MORTO – From a Memory-Dump Point of View]|| p4r4n0id||
-||September||Blog||[http://malwarereversing.wordpress.com/2011/09/30/shylock-in-depth-malware-analysis/ Shylock In-Depth Malware Analysis]||Brad Arndt (@bradarndt)||
-||September||Blog||[http://holisticinfosec.blogspot.com/2011/09/toolsmith-memory-analysis-with-dumpit.html toolsmith: Memory Analysis with DumpIt and Volatility]||Russ McRee (@holisticinfosec)||
-||September||Blog||[http://www.evild3ad.com/956/volatility-memory-forensics-basic-usage-for-malware-analysis/ Volatility Memory Forensics | Basic Usage for Malware Analysis]||Evild3ad (@Evild3ad79)||
-||September||Blog||[http://malwarereversing.wordpress.com/2011/09/23/zeus-analysis-in-volatility-2-0/ Zeus Analysis in Volatility 2.0]||Brad Arndt (@bradarndt)||
-||September||Blog||[http://malwarereversing.wordpress.com/2011/09/17/volatility-2-0-plugin-vscan/ Volatility 2.0 Plugin Vscan]||Brad Arndt (@bradarndt)||
-||September||Blog||[http://gleeda.blogspot.com/2011_09_01_archive.html Volatility 2.0: Timeliner, RegistryAPI, evtlogs and more]||Jamie Levy (@gleeda)||
-||September||Blog||[http://mnin.blogspot.com/2011/09/abstract-memory-analysis-zeus.html Abstract Memory Analysis: Zeus Encryption Keys]||Michael Ligh (@iMHLv2)||
-||October||Article||[http://www.h-online.com/security/features/CSI-Internet-Open-heart-surgery-1350313.html CSI:Internet Episode 4: Open heart surgery]||Frank Boldewin||
-||October||Blog||[http://www.deependresearch.org/2011/10/dirt-jumper-ddos-bot-new-versions-new.html Dirt Jumper DDoS Bot - New versions, New targets]||Andre M. DiMino (@sempersecurus)||
-||October||Blog||[http://www.evild3ad.com/1136/volatility-memory-forensics-federal-trojan-aka-r2d2/ Volatility Memory Forensics | Federal Trojan aka R2D2]||Evild3ad (@Evild3ad79)||
-||October||Blog||[http://www.evild3ad.com/1088/volatility-memory-forensics-graphviz/ Volatility Memory Forensics | Graphviz]||Evild3ad (@Evild3ad79)||
-||October||Blog||[http://mnin.blogspot.com/2011/10/aint-nuthin-but-ktimer-thing-baby.html Ain't Nuthin But a K(Timer) Thing, Baby]||Michael Ligh (@iMHLv2)||
-||October||Blog||[http://mnin.blogspot.com/2011/10/zeroaccess-volatility-and-kernel-timers.html ZeroAccess, Volatility, and Kernel Timers]||Michael Ligh (@iMHLv2)||
-||October||Video||[http://www.youtube.com/watch?v=YO1mlynbsmc Windows Password Retrieval and Hacking]||Melissa (@sk3tchymoos3)||
-||November||Video||[http://www.youtube.com/watch?v=8HsZLge0wWc Using Volatility: Suspicious Process (1/2)]||Melissa (@sk3tchymoos3)||
-||November||Video||[http://www.youtube.com/watch?v=XTZPNk-Esok Using Volatility: Suspicious Process (Part 2/2)]||Melissa (@sk3tchymoos3)||
-||November||Blog||[http://volatility.tumblr.com/post/13314918507/grr-google-rapid-response-and-volatility GRR: Google Rapid Response and Volatility]||AAron Walters||
-||November||Blog||[http://volatility.tumblr.com/post/12961272816/sandia-national-laboratories-virtual-machine Sandia National Laboratories: Virtual Machine Introspection (VMI) Tools and Volatility Support]||AAron Walters||
-||November||Blog||[http://c0decstuff.blogspot.com/2011/11/memory-forensics.html Memory Forensics: Pull Process & Network Connections from a Memory Dump]||c0decstuff||
-||November||Blog||[http://cyberarms.wordpress.com/2011/11/04/memory-forensics-how-to-pull-passwords-from-a-memory-dump/ Memory Forensics: How to Pull Passwords from a Memory Dump]||Daniel Dieterle||
-||November||Blog||[http://www.sahw.com/wp/archivos/2011/11/02/analisis-avanzado-de-memoria-de-sistemas-microsoft-windows-con-volatility/ Análisis avanzado de memoria de sistemas Microsoft Windows con Volatility]||Sergio Hernando (@sergiohernando)||
-||November||Blog||[http://sketchymoose.blogspot.com/2011/11/using-volatility-suspicious-process.html Using Volatility: Suspicious Process]||Melissa (@sk3tchymoos3)||
-||November||Blog||[http://cyberarms.wordpress.com/2011/11/10/memory-forensics-analying-a-stuxnet-memory-dump-and-you-can-too/ Memory Forensics: Analyzing a Stuxnet Memory Dump (And you can too!)]||Daniel Dieterle||
-||December||Slides||[http://www.reconstructer.org/papers/Hunting%20malware%20with%20Volatility%20v2.0.pdf Hunting Malware with Volatiltiy 2.0]||Frank Boldewin||
+||Year||Month||Type||Title||Author||
+||2012||August||Blog||[http://pen-testing.sans.org/blog/2012/08/03/pen-test-privilege-escalation-through-suspended-virtual-machines Pen Test Privilege Escalation Through Suspended Virtual Machines]||Mark Baggett (@markbaggett)||
+||2012||August||Blog||[http://sempersecurus.blogspot.com/2012/08/cridex-analysis-using-volatility.html Cridex Analysis Using Volatility]||Andre M. DiMino (@sempersecurus)||
+||2012||August||Blog||[http://ykx100.tumblr.com/post/28759838009/extracting-processes-binary-w-volatility-disk-image Extracting processes binary w/ volatility, disk image]||@ykx100||
+||2012||August||Magazine||[http://www.chmag.in/article/aug2012/malware-memory-forensics Malware Memory Forensics]||Monnappa||
+||2012||August||Blog||[http://antelox.blogspot.com/2012/08/configure-volatility-framework-on.html Configure Volatility framework on Windows OS]||Stefano Antenucci||
+||2012||August||Blog||[http://memoryforensics.blogspot.com/2012/08/recoving-tmpfs-from-memory-with.htm Recoving tmpfs from Memory with Volatility]||Andrew Case (@attrc)||
+||2012||June||Blog||[http://mnin.blogspot.com/2012/06/quickpost-flame-volatility.html QuickPost: Flame & Volatility]||Michael Ligh (@iMHLv2)||
+||2012||June||Blog||[http://memoryforensics.blogspot.com/2012/06/announcing-mac-support-in-volatility.html Announcing Mac Support in Volatility]||Andrew Case (@attrc)||
+||2012||June||Slides||[http://memoryanalysis.net/research/mac-memory-analysis-with-volatility.pdf Mac Memory Analysis with Volatility]||Andrew Case (@attrc)||
+||2012||June||Blog||[http://dfsforensics.blogspot.com/2012/06/lime-11-released.html LiME 1.1 Released]||Joe Sylve (@jtsylve)||
+||2012||June||Blog/Video||[http://nagareshwar.securityxploded.com/2012/06/16/training-session-part-8-%E2%80%93-practical-reversing-iii-memory-forensics/ Training Session Part 8 – Practical Reversing (III) – Memory Forensics]||Monnappa||
+||2012||June||Code||[http://computer.forensikblog.de/files/volatility_plugins/poison_ivy.py Volatility plugin to detect Poison Ivy in memory and dump run-time config]||Andreas Schuster (@forensikblog)||
+||2012||June||Video||[http://www.youtube.com/watch?v=mzhX-Z_OunI&feature=plcp Memory Analysis During Incident Response]||Brett Cunningham||
+||2012||June||Video||[http://www.youtube.com/watch?v=E4itTgRjvC0 Volatility Know How's]||MrKishorD||
+||2012||June||Blog||[http://encase-forensic-blog.guidancesoftware.com/2012/06/using-volatility-with-encase.html Using Volatility with EnCase]||Mark Morgan||
+||2012||July||Blog||[https://citizenlab.org/2012/07/from-bahrain-with-love-finfishers-spy-kit-exposed/ From Bahrain With Love: FinFisher’s Spy Kit Exposed?]||Morgan Marquis-Boire||
+||2012||July||Blog||[http://code.google.com/p/malware-lu/wiki/en_xtreme_RAT Xtreme RAT analysis]||Malware.lu (rootbsd@r00ted.com)||
+||2012||July||Blog||[http://s0ck3t.blogspot.com/2012/07/volatility-guide-living-doc.html Volatility Guide - Living Doc]||s0ck3t||
+||2012||May||Paper||[http://www.crysys.hu/skywiper/skywiper.pdf sKyWIper (a.k.a. Flame, Flamer): A complex malware for targeted attacks]||CrySyS Lab (@`CrySysLab`)||
+||2012||May||Blog||[http://ykx100.tumblr.com/post/22440277850/tracking-malware-crumb-in-memory Tracking Malware Crumb in Memory]||@ykx100||
+||2012||April||Blog||[http://computer-forensics.sans.org/blog/2012/04/25/cheat-sheet Memory Forensics Cheat Sheet]||@chadtilbury||
+||2012||April||Blog||[http://hiddenillusion.blogspot.com/2012/04/yara-volatility-beginning.html YARA + Volatility ... the beginning]||@hiddenillusion||
+||2012||April||Blog||[http://www.sysforensics.org/2012/04/ietabie65-malware-memory-analysis.html IETab_IE65 Malware Memory Analysis]||@patrickrolsen||
+||2012||April||Blog||[http://securesmb.blogspot.com/2012/04/registry-analysis-in-volatility.html Registry Analysis in Volatility]||Tamer Hassan||
+||2012||April||Blog||[http://blog.basementpctech.com/2012/04/in-acquiring-memory-blog-list-of-tools.html Malware Memory Analysis - Volatility]||Basement Tech||
+||2012||April||Video||[http://www.youtube.com/watch?v=cxEfTlcms8A VOLATILITY & DUMPIT : DEADLY COMBO TO GET UR PASSWORDS]||anupam50||
+||2012||March||Video||[http://www.youtube.com/watch?v=iiYMgqVEQk0 Malgram Dynamic Analyses (SRI International) uses Volatility in their sandbox]||SRI International||
+||2012||March||Blog||[http://securitybananas.com/?p=747 From Hibernation file to Malware analysis with Volatility]||Christiaan Beek||
+||2012||March||Blog/Video||[http://computerforensics.champlain.edu/blog/capstone-project-volatile-memory-analysis-%E2%80%93-identifying-rogue-executables Capstone Project: Volatile Memory Analysis – Identifying Rogue Executables]||Ben Rogers||
+||2012||March||Magazine||[http://hakin9.org/hakin9-32012-dns-cache-poisoning/ Memory Timelines Using Volatility’s Timeliner]||Nick Baronian||
+||2012||March||Slides||[http://media.blackhat.com/bh-eu-12/Haruyama/bh-eu-12-Haruyama-Memory_Forensic-Slides.pdf One-byte Modification for Breaking Memory Forensic Analysis]||Takahiro Haruyama and Hiroshi Suzuki||
+||2012||February||Blog||[http://wiki.yobi.be/wiki/RAM_analysis RAM dump with VirtualBox: via ELF64 coredump]||Philippe Teuwen||
+||2012||February||Blog||[http://www.sysforensics.org/2012/02/suspected-south-korean-malware.html Suspected South Korean Malware]||@patrickrolsen||
+||2012||January||Blog||[http://www.sysforensics.org/2012/01/malware-analysis-with-sift-and.html Malware Analysis with SIFT and Volatility]||@patrickrolsen||
+||2012||January||Blog||[http://jamaaldev.blogspot.com/2012/01/running-volatility-memory-forensics-on.html Running Volatility Memory Forensics Framework on your android phone!]||Jamaal Speights||
+||2012||January||Paper||[http://digitalforensicssolutions.com/Android_Mind_Reading.pdf Android Mind Reading: Memory Acquisition and Analysis with DMD and Volatility]||Joe Sylve (@jtsylve)||
+||2012||January||Blog||[http://active-security.blogspot.com/2012/01/ramnit-zeus-and-bat-part-2.html Ramnit, Zeus and the BAT! Part 2]||cbentle2||
+||2011||December||Slides||[http://www.reconstructer.org/papers/Hunting%20malware%20with%20Volatility%20v2.0.pdf Hunting Malware with Volatiltiy 2.0]||Frank Boldewin||
+||2011||November||Video||[http://www.youtube.com/watch?v=8HsZLge0wWc Using Volatility: Suspicious Process (1/2)]||Melissa (@sk3tchymoos3)||
+||2011||November||Video||[http://www.youtube.com/watch?v=XTZPNk-Esok Using Volatility: Suspicious Process (Part 2/2)]||Melissa (@sk3tchymoos3)||
+||2011||November||Blog||[http://volatility.tumblr.com/post/13314918507/grr-google-rapid-response-and-volatility GRR: Google Rapid Response and Volatility]||AAron Walters||
+||2011||November||Blog||[http://volatility.tumblr.com/post/12961272816/sandia-national-laboratories-virtual-machine Sandia National Laboratories: Virtual Machine Introspection (VMI) Tools and Volatility Support]||AAron Walters||
+||2011||November||Blog||[http://c0decstuff.blogspot.com/2011/11/memory-forensics.html Memory Forensics: Pull Process & Network Connections from a Memory Dump]||c0decstuff||
+||2011||November||Blog||[http://cyberarms.wordpress.com/2011/11/04/memory-forensics-how-to-pull-passwords-from-a-memory-dump/ Memory Forensics: How to Pull Passwords from a Memory Dump]||Daniel Dieterle||
+||2011||November||Blog||[http://www.sahw.com/wp/archivos/2011/11/02/analisis-avanzado-de-memoria-de-sistemas-microsoft-windows-con-volatility/ Análisis avanzado de memoria de sistemas Microsoft Windows con Volatility]||Sergio Hernando (@sergiohernando)||
+||2011||November||Blog||[http://sketchymoose.blogspot.com/2011/11/using-volatility-suspicious-process.html Using Volatility: Suspicious Process]||Melissa (@sk3tchymoos3)||
+||2011||November||Blog||[http://cyberarms.wordpress.com/2011/11/10/memory-forensics-analying-a-stuxnet-memory-dump-and-you-can-too/ Memory Forensics: Analyzing a Stuxnet Memory Dump (And you can too!)]||Daniel Dieterle||
+||2011||October||Article||[http://www.h-online.com/security/features/CSI-Internet-Open-heart-surgery-1350313.html CSI:Internet Episode 4: Open heart surgery]||Frank Boldewin||
+||2011||October||Blog||[http://www.deependresearch.org/2011/10/dirt-jumper-ddos-bot-new-versions-new.html Dirt Jumper DDoS Bot - New versions, New targets]||Andre M. DiMino (@sempersecurus)||
+||2011||October||Blog||[http://www.evild3ad.com/1136/volatility-memory-forensics-federal-trojan-aka-r2d2/ Volatility Memory Forensics | Federal Trojan aka R2D2]||Evild3ad (@Evild3ad79)||
+||2011||October||Blog||[http://www.evild3ad.com/1088/volatility-memory-forensics-graphviz/ Volatility Memory Forensics | Graphviz]||Evild3ad (@Evild3ad79)||
+||2011||October||Blog||[http://mnin.blogspot.com/2011/10/aint-nuthin-but-ktimer-thing-baby.html Ain't Nuthin But a K(Timer) Thing, Baby]||Michael Ligh (@iMHLv2)||
+||2011||October||Blog||[http://mnin.blogspot.com/2011/10/zeroaccess-volatility-and-kernel-timers.html ZeroAccess, Volatility, and Kernel Timers]||Michael Ligh (@iMHLv2)||
+||2011||October||Video||[http://www.youtube.com/watch?v=YO1mlynbsmc Windows Password Retrieval and Hacking]||Melissa (@sk3tchymoos3)||
+||2011||September||Article||[http://www.h-online.com/security/features/CSI-Internet-A-trip-into-RAM-1339479.html CSI:Internet Episode 3: A trip into RAM]||Frank Boldewin||
+||2011||September||Blog||[http://p4r4n0id.com/?p=821 MORTO – From a Memory-Dump Point of View]|| p4r4n0id||
+||2011||September||Blog||[http://malwarereversing.wordpress.com/2011/09/30/shylock-in-depth-malware-analysis/ Shylock In-Depth Malware Analysis]||Brad Arndt (@bradarndt)||
+||2011||September||Blog||[http://holisticinfosec.blogspot.com/2011/09/toolsmith-memory-analysis-with-dumpit.html toolsmith: Memory Analysis with DumpIt and Volatility]||Russ McRee (@holisticinfosec)||
+||2011||September||Blog||[http://www.evild3ad.com/956/volatility-memory-forensics-basic-usage-for-malware-analysis/ Volatility Memory Forensics | Basic Usage for Malware Analysis]||Evild3ad (@Evild3ad79)||
+||2011||September||Blog||[http://malwarereversing.wordpress.com/2011/09/23/zeus-analysis-in-volatility-2-0/ Zeus Analysis in Volatility 2.0]||Brad Arndt (@bradarndt)||
+||2011||September||Blog||[http://malwarereversing.wordpress.com/2011/09/17/volatility-2-0-plugin-vscan/ Volatility 2.0 Plugin Vscan]||Brad Arndt (@bradarndt)||
+||2011||September||Blog||[http://gleeda.blogspot.com/2011_09_01_archive.html Volatility 2.0: Timeliner, RegistryAPI, evtlogs and more]||Jamie Levy (@gleeda)||
+||2011||September||Blog||[http://mnin.blogspot.com/2011/09/abstract-memory-analysis-zeus.html Abstract Memory Analysis: Zeus Encryption Keys]||Michael Ligh (@iMHLv2)||
+||2011||August||Slides||[http://www.digitalforensicssolutions.com/papers/blackhat-workshop-full-presentation.pdf Linux Memory Analysis Workshop]||Andrew Case (@attrc)||
+||2011||August||Blog||[http://gleeda.blogspot.com/2011_08_01_archive.html Volatility 2.0 and OMFW]||Jamie Levy (@gleeda)||
+||2011||July||Blog/Paper||[https://www.honeynet.org/challenges/2011_7_compromised_server Forensic Challenge 2011 - Forensic Analysis of a Compromised Server]||Mau, Kahlich, Erasmus, Quintero, & Anand||
+||2011||June||Blog||[http://mnin.blogspot.com/2011/06/examining-stuxnets-footprint-in-memory.html Stuxnet's Footprint in Memory with Volatility 2.0]||Michael Ligh (@iMHLv2)||
+||2011||June||Slides||[http://digitalforensicssolutions.com/papers/omfw.pdf Linux Memory Analysis with Volatility]||Andrew Case (@attrc)||
+||2011||May||Blog||[http://blog.spiderlabs.com/2011/05/analyzing-malware-hollow-processes.html Analyzing Malware Hollow Processes]||Eric Monti||
+||2011||April||Blog||[http://lorgor.blogspot.com/2011/04/volatility-14-new-great-and-with-shiny.html Volatility 1.4: new, great (and with a shiny new plugin)]||lg||
+||2011||April||Blog||[http://sempersecurus.blogspot.com/2011/04/using-volatility-to-study-cve-2011-6011.html Using "volatility" to study the CVE-2011-0611 Adobe Flash 0-day]||Andre M. DiMino (@sempersecurus)||
+||2011||April||Blog||[http://gleeda.blogspot.com/2011_04_01_archive.html Volatility 1.4 UserAssist plugin]||Jamie Levy (@gleeda)||
+||2011||April||Blog||[http://gleeda.blogspot.com/2011/04/whats-difference-brief-volatility-14.html What's the Difference? (A Brief Volatility 1.4 Plugin Tutorial)]||Jamie Levy (@gleeda)||
+||2011||April||Blog||[http://mnin.blogspot.com/2011/04/detectingmemory-forging-attempt-by.html Detecting/Memory Forging Attempt by a Rootkit]||Michael Ligh (@iMHLv2)||
+||2011||April||Blog||[http://mnin.blogspot.com/2011/04/investigating-windows-threads-with.html Investigating Windows Threads with Volatility]||Michael Ligh (@iMHLv2)||
+||2011||April||Blog||[http://moyix.blogspot.com/2011/04/applying-forensic-tools-to-virtual.html Applying Forensic Tools to Virtual Machine Introspection]||Brendan Dolan-Gavitt (@mooyix)||
+||2011||April||Blog||[http://leetmore.ctf.su/wp/nuit-du-hack-2011-ctf-forensic/ Nuit du hack 2011 CTF Forensic]||Alexmin||
+||2011||April||Blog||[http://contagiodump.blogspot.com/2011/04/apr-8-cve-2011-0611-flash-player-zero.html Apr. 8 CVE-2011-0611 Flash Player Zero day]||Mila||
+||2011||March||Blog||[http://quequero.org/Carberp_Reverse_Engineering#Carberp_Analysis_via_Volatility Carberp Analysis via Volatility]||Evilcry||
+||2011||March||Blog||[http://gleeda.blogspot.com/2011_03_01_archive.html Update: Volatility printkey Plugin]||Jamie Levy (@gleeda)||
+||2011||March||Blog||[http://gleeda.blogspot.com/2011/03/volatility-14-getplugins-script.html Volatility 1.4 get_plugins Script]||Jamie Levy (@gleeda)||
+||2011||March||Blog||[http://mnin.blogspot.com/2011/03/volatilitys-new-netscan-module.html Volatility's New Netscan Module]||Michael Ligh (@iMHLv2)||
+||2011||March||Blog||[http://mnin.blogspot.com/2011/03/mis-leading-active-in.html The Mis-leading 'Active' in PsActiveProcessHead and ActiveProcessLinks]||Michael Ligh (@iMHLv2)||
+||2011||March||Blog||[http://moyix.blogspot.com/2011/03/automatically-generating-memory.html Automatically Generating Memory Forensic Tools]||Brendan Dolan-Gavitt (@mooyix)||
+||2011||March||Blog||[http://dfsforensics.blogspot.com/2011/03/analyzing-new-honeynet-memory-analysis.html Analyzing the New Honeynet Memory Analysis Challenge with Volatility]||Andrew Case (@attrc)||
+||2011||March||Blog||[http://dfsforensics.blogspot.com/2011/03/bringing-linux-support-to-volatility.html Bringing Linux Support to Volatility]||Andrew Case (@attrc)||
+||2011||March||Blog||[http://www.zonbi.org/?p=429 Volatility (Undead Security)]||Matt??||
+||2011||February||Blog||[http://quequero.org/Shylock_via_volatility Shylock via volatility]||Evilcry||
+||2011||January||Blog||[http://computer-forensics.sans.org/blog/2011/01/13/whats-new-volatility-1-4 A Quick Look at Volatility 1.4 RC1 - What's New?]||Lenny Zeltser (@lennyzeltser)||
 
 = 2010 =
 ----
