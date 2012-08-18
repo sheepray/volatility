@@ -41,7 +41,8 @@ This is a catalog of research, documentation, analysis, and tutorials generated 
 ||2012||February||Blog||[http://www.sysforensics.org/2012/02/suspected-south-korean-malware.html Suspected South Korean Malware]||@patrickrolsen||
 ||2012||January||Blog||[http://www.sysforensics.org/2012/01/malware-analysis-with-sift-and.html Malware Analysis with SIFT and Volatility]||@patrickrolsen||
 ||2012||January||Blog||[http://jamaaldev.blogspot.com/2012/01/running-volatility-memory-forensics-on.html Running Volatility Memory Forensics Framework on your android phone!]||Jamaal Speights||
-||2012||January||Paper||[http://digitalforensicssolutions.com/Android_Mind_Reading.pdf Android Mind Reading: Memory Acquisition and Analysis with DMD and Volatility]||Joe Sylve (@jtsylve)||
+||2012||January||Slides||[http://digitalforensicssolutions.com/Android_Mind_Reading.pdf Android Mind Reading: Memory Acquisition and Analysis with DMD and Volatility]||Joe Sylve (@jtsylve)||
+||2012||January||Paper||[http://www.memoryanalysis.net/research/android-memory-analysis-DI.pdf Acquisition and Analysis of Volatile Memory from Android Devices]||Joe Sylve (@jtsylve) & Andrew Case (@attrc)||
 ||2012||January||Blog||[http://active-security.blogspot.com/2012/01/ramnit-zeus-and-bat-part-2.html Ramnit, Zeus and the BAT! Part 2]||cbentle2||
 ||2011||December||Slides||[http://www.reconstructer.org/papers/Hunting%20malware%20with%20Volatility%20v2.0.pdf Hunting Malware with Volatiltiy 2.0]||Frank Boldewin||
 ||2011||November||Video||[http://www.youtube.com/watch?v=8HsZLge0wWc Using Volatility: Suspicious Process (1/2)]||Melissa (@sk3tchymoos3)||
@@ -70,10 +71,11 @@ This is a catalog of research, documentation, analysis, and tutorials generated 
 ||2011||September||Blog||[http://gleeda.blogspot.com/2011_09_01_archive.html Volatility 2.0: Timeliner, RegistryAPI, evtlogs and more]||Jamie Levy (@gleeda)||
 ||2011||September||Blog||[http://mnin.blogspot.com/2011/09/abstract-memory-analysis-zeus.html Abstract Memory Analysis: Zeus Encryption Keys]||Michael Ligh (@iMHLv2)||
 ||2011||August||Slides||[http://www.digitalforensicssolutions.com/papers/blackhat-workshop-full-presentation.pdf Linux Memory Analysis Workshop]||Andrew Case (@attrc)||
+||2011||June||Slides||[http://digitalforensicssolutions.com/papers/omfw.pdf Linux Memory Analysis with Volatility]||Andrew Case (@attrc)||
 ||2011||August||Blog||[http://gleeda.blogspot.com/2011_08_01_archive.html Volatility 2.0 and OMFW]||Jamie Levy (@gleeda)||
 ||2011||July||Blog/Paper||[https://www.honeynet.org/challenges/2011_7_compromised_server Forensic Challenge 2011 - Forensic Analysis of a Compromised Server]||Mau, Kahlich, Erasmus, Quintero, & Anand||
 ||2011||June||Blog||[http://mnin.blogspot.com/2011/06/examining-stuxnets-footprint-in-memory.html Stuxnet's Footprint in Memory with Volatility 2.0]||Michael Ligh (@iMHLv2)||
-||2011||June||Slides||[http://digitalforensicssolutions.com/papers/omfw.pdf Linux Memory Analysis with Volatility]||Andrew Case (@attrc)||
+||2011||June||Slides||[http://memoryanalysis.net/research/android-memory-analysis.pdf Forensic Memory Analysis of Android’s Dalvik VM]||Andrew Case (@attrc)||
 ||2011||May||Blog||[http://blog.spiderlabs.com/2011/05/analyzing-malware-hollow-processes.html Analyzing Malware Hollow Processes]||Eric Monti||
 ||2011||April||Blog||[http://lorgor.blogspot.com/2011/04/volatility-14-new-great-and-with-shiny.html Volatility 1.4: new, great (and with a shiny new plugin)]||lg||
 ||2011||April||Blog||[http://sempersecurus.blogspot.com/2011/04/using-volatility-to-study-cve-2011-6011.html Using "volatility" to study the CVE-2011-0611 Adobe Flash 0-day]||Andre M. DiMino (@sempersecurus)||
@@ -95,6 +97,7 @@ This is a catalog of research, documentation, analysis, and tutorials generated 
 ||2011||March||Blog||[http://www.zonbi.org/?p=429 Volatility (Undead Security)]||Matt??||
 ||2011||February||Blog||[http://quequero.org/Shylock_via_volatility Shylock via volatility]||Evilcry||
 ||2011||January||Blog||[http://computer-forensics.sans.org/blog/2011/01/13/whats-new-volatility-1-4 A Quick Look at Volatility 1.4 RC1 - What's New?]||Lenny Zeltser (@lennyzeltser)||
+||2011||January||Paper||[http://www.memoryanalysis.net/research/PAPER-De-Anonymizing%20Live%20CDs%20through%20Physical%20Memory%20Analysis.pdf De-Anonymizing Live CDs through Physical Memory Analysis]||Andrew Case (@attrc)||
 ||2010||December||Blog||[http://gleeda.blogspot.com/2010/12/identifying-memory-images.html Identifying Memory Images]||Jamie Levy (@gleeda)||
 ||2010||December||Blog||[http://blog.commandlinekungfu.com/2010/12/episode-127-making-difference.html Command Line Kung Fu: Episode #127: Making a Difference]||Hal Pomeranz (@hal_pomeranz)||
 ||2010||December||Blog||[http://zeltser.com/remnux/ REMnux: A Linux Distribution for Reverse-Engineering Malware]||||
