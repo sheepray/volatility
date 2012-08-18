@@ -26,6 +26,7 @@ This is a catalog of research, documentation, analysis, and tutorials generated 
 ||April||Blog||[http://www.sysforensics.org/2012/04/ietabie65-malware-memory-analysis.html IETab_IE65 Malware Memory Analysis]||@patrickrolsen||
 ||April||Blog||[http://securesmb.blogspot.com/2012/04/registry-analysis-in-volatility.html Registry Analysis in Volatility]||Tamer Hassan||
 ||April||Blog||[http://blog.basementpctech.com/2012/04/in-acquiring-memory-blog-list-of-tools.html Malware Memory Analysis - Volatility]||Basement Tech||
+||April||Video||[http://www.youtube.com/watch?v=cxEfTlcms8A VOLATILITY & DUMPIT : DEADLY COMBO TO GET UR PASSWORDS]||anupam50||
 ||May||Paper||[http://www.crysys.hu/skywiper/skywiper.pdf sKyWIper (a.k.a. Flame, Flamer): A complex malware for targeted attacks]||CrySyS Lab (@`CrySysLab`)||
 ||May||Blog||[http://ykx100.tumblr.com/post/22440277850/tracking-malware-crumb-in-memory Tracking Malware Crumb in Memory]||@ykx100||
 ||June||Blog||[http://mnin.blogspot.com/2012/06/quickpost-flame-volatility.html QuickPost: Flame & Volatility]||Michael Ligh (@iMHLv2)||
@@ -35,6 +36,7 @@ This is a catalog of research, documentation, analysis, and tutorials generated 
 ||June||Blog/Video||[http://nagareshwar.securityxploded.com/2012/06/16/training-session-part-8-%E2%80%93-practical-reversing-iii-memory-forensics/ Training Session Part 8 – Practical Reversing (III) – Memory Forensics]||Monnappa||
 ||June||Code||[http://computer.forensikblog.de/files/volatility_plugins/poison_ivy.py Volatility plugin to detect Poison Ivy in memory and dump run-time config]||Andreas Schuster (@forensikblog)||
 ||June||Video||[http://www.youtube.com/watch?v=mzhX-Z_OunI&feature=plcp Memory Analysis During Incident Response]||Brett Cunningham||
+||June||Video||[http://www.youtube.com/watch?v=E4itTgRjvC0 Volatility Know How's]||MrKishorD||
 ||June||Blog||[http://encase-forensic-blog.guidancesoftware.com/2012/06/using-volatility-with-encase.html Using Volatility with EnCase]||Mark Morgan||
 ||July||Blog||[https://citizenlab.org/2012/07/from-bahrain-with-love-finfishers-spy-kit-exposed/ From Bahrain With Love: FinFisher’s Spy Kit Exposed?]||Morgan Marquis-Boire||
 ||July||Blog||[http://code.google.com/p/malware-lu/wiki/en_xtreme_RAT Xtreme RAT analysis]||Malware.lu (rootbsd@r00ted.com)||
@@ -91,18 +93,16 @@ This is a catalog of research, documentation, analysis, and tutorials generated 
 ||October||Blog||[http://mnin.blogspot.com/2011/10/aint-nuthin-but-ktimer-thing-baby.html Ain't Nuthin But a K(Timer) Thing, Baby]||Michael Ligh (@iMHLv2)||
 ||October||Blog||[http://mnin.blogspot.com/2011/10/zeroaccess-volatility-and-kernel-timers.html ZeroAccess, Volatility, and Kernel Timers]||Michael Ligh (@iMHLv2)||
 ||October||Video||[http://www.youtube.com/watch?v=YO1mlynbsmc Windows Password Retrieval and Hacking]||Melissa (@sk3tchymoos3)||
-
-November 
-   * [http://volatility.tumblr.com/post/13314918507/grr-google-rapid-response-and-volatility GRR: Google Rapid Response and Volatility]
-   * [http://volatility.tumblr.com/post/12961272816/sandia-national-laboratories-virtual-machine Sandia National Laboratories: Virtual Machine Introspection (VMI) Tools and Volatility Support]
-   * [http://c0decstuff.blogspot.com/2011/11/memory-forensics.html Memory Forensics: Pull Process & Network Connections from a Memory Dump]
-   * [http://cyberarms.wordpress.com/2011/11/04/memory-forensics-how-to-pull-passwords-from-a-memory-dump/ Memory Forensics: How to Pull Passwords from a Memory Dump]
-   * [http://www.sahw.com/wp/archivos/2011/11/02/analisis-avanzado-de-memoria-de-sistemas-microsoft-windows-con-volatility/ Análisis avanzado de memoria de sistemas Microsoft Windows con Volatility]
-   * [http://sketchymoose.blogspot.com/2011/11/using-volatility-suspicious-process.html Using Volatility: Suspicious Process]
-   * [http://cyberarms.wordpress.com/2011/11/10/memory-forensics-analying-a-stuxnet-memory-dump-and-you-can-too/ Memory Forensics: Analyzing a Stuxnet Memory Dump (And you can too!)]
-
-December 
-   * [http://www.reconstructer.org/papers/Hunting%20malware%20with%20Volatility%20v2.0.pdf Hunting Malware with Volatiltiy 2.0]
+||November||Video||[http://www.youtube.com/watch?v=8HsZLge0wWc Using Volatility: Suspicious Process (1/2)]||Melissa (@sk3tchymoos3)||
+||November||Video||[http://www.youtube.com/watch?v=XTZPNk-Esok Using Volatility: Suspicious Process (Part 2/2)]||Melissa (@sk3tchymoos3)||
+||November||Blog||[http://volatility.tumblr.com/post/13314918507/grr-google-rapid-response-and-volatility GRR: Google Rapid Response and Volatility]||AAron Walters||
+||November||Blog||[http://volatility.tumblr.com/post/12961272816/sandia-national-laboratories-virtual-machine Sandia National Laboratories: Virtual Machine Introspection (VMI) Tools and Volatility Support]||AAron Walters||
+||November||Blog||[http://c0decstuff.blogspot.com/2011/11/memory-forensics.html Memory Forensics: Pull Process & Network Connections from a Memory Dump]||c0decstuff||
+||November||Blog||[http://cyberarms.wordpress.com/2011/11/04/memory-forensics-how-to-pull-passwords-from-a-memory-dump/ Memory Forensics: How to Pull Passwords from a Memory Dump]||Daniel Dieterle||
+||November||Blog||[http://www.sahw.com/wp/archivos/2011/11/02/analisis-avanzado-de-memoria-de-sistemas-microsoft-windows-con-volatility/ Análisis avanzado de memoria de sistemas Microsoft Windows con Volatility]||Sergio Hernando (@sergiohernando)||
+||November||Blog||[http://sketchymoose.blogspot.com/2011/11/using-volatility-suspicious-process.html Using Volatility: Suspicious Process]||Melissa (@sk3tchymoos3)||
+||November||Blog||[http://cyberarms.wordpress.com/2011/11/10/memory-forensics-analying-a-stuxnet-memory-dump-and-you-can-too/ Memory Forensics: Analyzing a Stuxnet Memory Dump (And you can too!)]||Daniel Dieterle||
+||December||Slides||[http://www.reconstructer.org/papers/Hunting%20malware%20with%20Volatility%20v2.0.pdf Hunting Malware with Volatiltiy 2.0]||Frank Boldewin||
 
 = 2010 =
 ----
@@ -160,6 +160,7 @@ March
    * [http://carnal0wnage.attackresearch.com/2009/03/dumping-memory-to-extract-password.html Dumping Memory to Extract Password Hashes]
    * [http://moyix.blogspot.com/2009/03/using-volatility-for-introspection.html Using Volatility for Introspection]
    * [http://moyix.blogspot.com/2009/03/regripper-and-volatility-prototype.html RegRipper and Volatility Prototype]
+   * [http://www.youtube.com/watch?v=UYGMjLTjHxE Advanced Memory Analysis]
 
 April 
    * [http://computer.forensikblog.de/en/2009/04/reading-passwords-from-the-keyboard-buffer.html Reading Passwords from the Keyboard buffer]
