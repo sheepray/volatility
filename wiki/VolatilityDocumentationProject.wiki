@@ -94,6 +94,10 @@ This is a catalog of research, documentation, analysis, and tutorials generated 
 ||2011||March||Blog||[http://www.zonbi.org/?p=429 Volatility (Undead Security)]||Matt??||
 ||2011||February||Blog||[http://quequero.org/Shylock_via_volatility Shylock via volatility]||Evilcry||
 ||2011||January||Blog||[http://computer-forensics.sans.org/blog/2011/01/13/whats-new-volatility-1-4 A Quick Look at Volatility 1.4 RC1 - What's New?]||Lenny Zeltser (@lennyzeltser)||
+||2010||December||Blog||[http://gleeda.blogspot.com/2010/12/identifying-memory-images.html Identifying Memory Images]||Jamie Levy (@gleeda)||
+||2010||December||Blog||[http://blog.commandlinekungfu.com/2010/12/episode-127-making-difference.html Command Line Kung Fu: Episode #127: Making a Difference]||Hal Pomeranz (@hal_pomeranz)||
+||2010||December||Blog||[http://zeltser.com/remnux/ REMnux: A Linux Distribution for Reverse-Engineering Malware]||||
+||2010||December||Blog||[http://perpetualhorizon.blogspot.com/2010/12/peeling-apart-tdl4-and-other-seeds-of.html Peeling Apart TDL4 and Other Seeds of Evil Part I]||||
 
 = 2010 =
 ----
@@ -131,11 +135,6 @@ September
 November 
    * [http://lorgor.blogspot.com/2010/11/volatility-memory-forensics-i.html Volatility Memory Forensics]
 
-December 
-   * [http://gleeda.blogspot.com/2010/12/identifying-memory-images.html Identifying Memory Images]
-   * [http://blog.commandlinekungfu.com/2010/12/episode-127-making-difference.html Command Line Kung Fu: Episode #127: Making a Difference]
-   * [http://zeltser.com/remnux/ REMnux: A Linux Distribution for Reverse-Engineering Malware]
-   * [http://perpetualhorizon.blogspot.com/2010/12/peeling-apart-tdl4-and-other-seeds-of.html Peeling Apart TDL4 and Other Seeds of Evil Part I]
 
 = 2009 =
 ----
