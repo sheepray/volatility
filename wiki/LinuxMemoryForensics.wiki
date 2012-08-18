@@ -96,7 +96,28 @@ $ python vol.py -f <path to mem image> --profile=<profile_name> plugin_name <plu
 Soon, a wiki page will be created that details every plugin and its output. Until then, to find all the available plugins and get a quick description of their purpose, you can run:
 
 {{{
-# python vol.py --info | grep -i linux_
+$ python vol.py --info | grep -i linux_
+Volatile Systems Volatility Framework 2.2_alpha
+linux_arp          - Print the ARP table
+linux_cpuinfo      - Prints info about each active processor
+linux_dmesg        - Gather dmesg buffer
+linux_dump_map     - No docs        
+linux_ifconfig     - Gathers active interfaces
+linux_iomem        - Provides output similar to /proc/iomem
+linux_lsmod        - Gather loaded kernel modules
+linux_lsof         - Lists open files
+linux_memmap       - Dumps the memory map for linux tasks.
+linux_mount        - Gather mounted fs/devices
+linux_netstat      - Lists open sockets
+linux_pidhashtable - Enumerates processes through the PID hash table
+linux_proc_maps    - gathers process maps for linux
+linux_psaux        - gathers processes along with full command line and start time
+linux_pslist       - Gather active tasks by walking the task_struct->task list
+linux_pstree       - shows the parent/child relationship between processes
+linux_psxview      - Find hidden processes with various process listings
+linux_route        - lists routing table
+linux_route_cache  - Lists routing table
+linux_tmpfs        - recovers tmpfs filesystems from memory
 }}}
 
 = Acquiring memory =
