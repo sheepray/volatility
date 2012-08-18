@@ -4,7 +4,6 @@
 
 These are the instructions for using the Linux support in Volatility.
 
-
 NOTE: This initial set of instructions *will* change over time. *Please* check back on this wiki and always test the latest version before filing bug reports. The first official Volatility release will Linux support will be 2.2 (expected October 2012). 
 
 = Getting the source =
@@ -19,15 +18,42 @@ The source code can be browsed [http://code.google.com/p/volatility/source/brows
 
 = Creating a profile =
 
-In the near future, Volatility will include profiles for the most common Linux kernels. Until then, you'll need to create your own profile. 
+A Linux Profile is essentially a zip file with information on the kernel's data structures and debug symbols. This is what Volatility uses to locate critical information and how to parse it once found. In the near future, Volatility will include profiles for the most common Linux kernels. Until then, you'll need to create your own profile. 
 
 == Creating vtypes ==
 
-The current method to create vtypes is to check out the source code and compile 'module.c' against the kernel that you want to analyze. To do this on the running system, cd to 'tools/linux' and type make. This will create a file named 'module.dwarf'. You can also compile against any kernel by simply pointing make to the directory with the kernel headers and .config file. 
+The current method to create vtypes (kernel's data structures) is to check out the source code and compile 'module.c' against the kernel that you want to analyze. To do this on the running system, you will need dwarfdump installed in order to gain access to the debug symbols. However, you must currently install an old version of dwarfump in order to generate the vtype correctly. This issue is being tracked at http://code.google.com/p/volatility/issues/detail?id=260 and should be resolved soon. 
 
-Note: For now, you will need dwarfdump installed on the system you create the profile on in order for Volatility to gain access to the debug symbols.
+See below for an example of building the right tools on Ubuntu. We're installing the libelf (or libelf1) development library, fetching an older version of dwarfdump that is known to work, then installing the libdwarf and dwarfdump tools. 
 
-Note 2: You must currently install an old version of dwarfump in order to generate the vtype correctly. This issue is being tracked at http://code.google.com/p/volatility/issues/detail?id=260 and should be resolved soon.
+{{{
+$ sudo apt-get install libelf-dev
+$ wget http://reality.sgiweb.org/davea/libdwarf-20091012.tar.gz
+$ tar -xvzf libdwarf-20091012.tar.gz
+$ cd libdwarf-20091012
+$ ls 
+dwarfdump  dwarfdump2  dwarfexample  libdwarf
+$ cd libdwarf
+$ ./configure && sudo make && sudo make install
+$ cd ../dwarfdump
+$ ./configure && sudo make && sudo make install
+}}}
+
+Now cd to 'tools/linux' in the Volatility source directory and type make. This will create a file named 'module.dwarf'. 
+
+{{{
+$ cd volatility/tools/linux
+$ make
+$ head module.dwarf
+
+.debug_info
+
+<0><0+11><DW_TAG_compile_unit> DW_AT_producer<GNU C 4.6.3> DW_AT_language<DW_LANG_C89>.....
+
+<1><45><DW_TAG_typedef> DW_AT_name<__s8> DW_AT_decl_file<1 include/asm-generic/int-ll64.h>.....
+}}}
+
+You can also compile against any kernel by simply pointing make to the directory with the kernel headers and .config file. 
 
 == Getting Symbols ==
 
@@ -35,14 +61,26 @@ The symbols are contained in the System.map file for the kernel you want to anal
 
 == Making the profile ==
 
-To create the profile, place both the module.dwarf and the system.map file into a zip file. Then move this zip file under 'volatility/plugins/overlays/linux/'.
+To create the profile, place both the module.dwarf and the system.map file into a zip file. Then move this zip file under 'volatility/plugins/overlays/linux/'. Or to do it all in one step:
+
+{{{
+$ sudo zip volatility/volatility/plugins/overlays/linux/Ubuntu1204.zip volatility/tools/linux/module.dwarf /boot/System.map-3.2.0-23-generic 
+  adding: volatility/tools/linux/module.dwarf (deflated 89%)
+  adding: boot/System.map-3.2.0-23-generic (deflated 79%)
+}}}
+
+There are technically no naming rules for your zip file, but we recommend you choose a name that's descriptive of your Linux distribution and version. 
 
 == Using the Profile ==
 
 To find the name of your profile, run:
 
 {{{
-$ python vol.py --info | grep -i Linux
+$ python vol.py --info | grep Linux
+Volatile Systems Volatility Framework 2.2_alpha
+LinuxDebian2632_zipx86 - A Profile for Linux Debian2632.zip x86
+LinuxDebian2632x86     - A Profile for Linux Debian2632 x86
+LinuxUbuntu1204x64    - A Profile for Linux Ubuntu1204 x64 <=== This is the one we just created
 }}}
 
 You can then use this name as the --profile option.
