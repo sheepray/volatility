@@ -7,7 +7,7 @@ This is a catalog of research, documentation, analysis, and tutorials generated 
 ||Year||Month||Type||Title||Author||
 ||2012||August||Blog||[http://www.scribd.com/doc/103174530/Identifying-a-mounted-TrueCrypt-volume-from-artefacts-in-volatile-memory-using-Volatility-2-1 Identifying a mounted TrueCrypt volume from artifacts in volatile memory]||Adam Bridge (bridgeythegeek)||
 ||2012||August||Blog||[http://pen-testing.sans.org/blog/2012/08/03/pen-test-privilege-escalation-through-suspended-virtual-machines Pen Test Privilege Escalation Through Suspended Virtual Machines]||Mark Baggett (@markbaggett)||
-||2012||August||Blog||[http://sempersecurus.blogspot.com/2012/08/cridex-analysis-using-volatility.html Cridex Analysis Using Volatility]||Andre M. DiMino (@sempersecurus)||
+||2012||August||Blog||[http://sempersecurus.blogspot.com/2012/08/cridex-analysis-using-volatility.html Cridex Analysis Using Volatility]||Andre M. !DiMino (@sempersecurus)||
 ||2012||August||Blog||[http://ykx100.tumblr.com/post/28759838009/extracting-processes-binary-w-volatility-disk-image Extracting processes binary w/ volatility, disk image]||@ykx100||
 ||2012||August||Magazine||[http://www.chmag.in/article/aug2012/malware-memory-forensics Malware Memory Forensics]||Monnappa||
 ||2012||August||Blog||[http://antelox.blogspot.com/2012/08/configure-volatility-framework-on.html Configure Volatility framework on Windows OS]||Stefano Antenucci||
@@ -64,7 +64,7 @@ This is a catalog of research, documentation, analysis, and tutorials generated 
 ||2011||September||Article||[http://www.h-online.com/security/features/CSI-Internet-A-trip-into-RAM-1339479.html CSI:Internet Episode 3: A trip into RAM]||Frank Boldewin||
 ||2011||September||Blog||[http://p4r4n0id.com/?p=821 MORTO – From a Memory-Dump Point of View]|| p4r4n0id||
 ||2011||September||Blog||[http://malwarereversing.wordpress.com/2011/09/30/shylock-in-depth-malware-analysis/ Shylock In-Depth Malware Analysis]||Brad Arndt (@bradarndt)||
-||2011||September||Blog||[http://holisticinfosec.blogspot.com/2011/09/toolsmith-memory-analysis-with-dumpit.html toolsmith: Memory Analysis with DumpIt and Volatility]||Russ McRee (@holisticinfosec)||
+||2011||September||Blog||[http://holisticinfosec.blogspot.com/2011/09/toolsmith-memory-analysis-with-dumpit.html toolsmith: Memory Analysis with DumpIt and Volatility]||Russ !McRee (@holisticinfosec)||
 ||2011||September||Blog||[http://www.evild3ad.com/956/volatility-memory-forensics-basic-usage-for-malware-analysis/ Volatility Memory Forensics | Basic Usage for Malware Analysis]||Evild3ad (@Evild3ad79)||
 ||2011||September||Blog||[http://malwarereversing.wordpress.com/2011/09/23/zeus-analysis-in-volatility-2-0/ Zeus Analysis in Volatility 2.0]||Brad Arndt (@bradarndt)||
 ||2011||September||Blog||[http://malwarereversing.wordpress.com/2011/09/17/volatility-2-0-plugin-vscan/ Volatility 2.0 Plugin Vscan]||Brad Arndt (@bradarndt)||
