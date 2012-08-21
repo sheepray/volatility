@@ -55,7 +55,7 @@ This is a catalog of research, documentation, analysis, and tutorials generated 
 ||2011||November||Blog||[http://sketchymoose.blogspot.com/2011/11/using-volatility-suspicious-process.html Using Volatility: Suspicious Process]||Melissa (@sk3tchymoos3)||
 ||2011||November||Blog||[http://cyberarms.wordpress.com/2011/11/10/memory-forensics-analying-a-stuxnet-memory-dump-and-you-can-too/ Memory Forensics: Analyzing a Stuxnet Memory Dump (And you can too!)]||Daniel Dieterle||
 ||2011||October||Article||[http://www.h-online.com/security/features/CSI-Internet-Open-heart-surgery-1350313.html CSI:Internet Episode 4: Open heart surgery]||Frank Boldewin||
-||2011||October||Blog||[http://www.deependresearch.org/2011/10/dirt-jumper-ddos-bot-new-versions-new.html Dirt Jumper DDoS Bot - New versions, New targets]||Andre M. DiMino (@sempersecurus)||
+||2011||October||Blog||[http://www.deependresearch.org/2011/10/dirt-jumper-ddos-bot-new-versions-new.html Dirt Jumper DDoS Bot - New versions, New targets]||Andre M. !DiMino (@sempersecurus)||
 ||2011||October||Blog||[http://www.evild3ad.com/1136/volatility-memory-forensics-federal-trojan-aka-r2d2/ Volatility Memory Forensics | Federal Trojan aka R2D2]||Evild3ad (@Evild3ad79)||
 ||2011||October||Blog||[http://www.evild3ad.com/1088/volatility-memory-forensics-graphviz/ Volatility Memory Forensics | Graphviz]||Evild3ad (@Evild3ad79)||
 ||2011||October||Blog||[http://mnin.blogspot.com/2011/10/aint-nuthin-but-ktimer-thing-baby.html Ain't Nuthin But a K(Timer) Thing, Baby]||Michael Ligh (@iMHLv2)||
@@ -78,7 +78,7 @@ This is a catalog of research, documentation, analysis, and tutorials generated 
 ||2011||June||Slides||[http://memoryanalysis.net/research/android-memory-analysis.pdf Forensic Memory Analysis of Android’s Dalvik VM]||Andrew Case (@attrc)||
 ||2011||May||Blog||[http://blog.spiderlabs.com/2011/05/analyzing-malware-hollow-processes.html Analyzing Malware Hollow Processes]||Eric Monti||
 ||2011||April||Blog||[http://lorgor.blogspot.com/2011/04/volatility-14-new-great-and-with-shiny.html Volatility 1.4: new, great (and with a shiny new plugin)]||lg||
-||2011||April||Blog||[http://sempersecurus.blogspot.com/2011/04/using-volatility-to-study-cve-2011-6011.html Using "volatility" to study the CVE-2011-0611 Adobe Flash 0-day]||Andre M. DiMino (@sempersecurus)||
+||2011||April||Blog||[http://sempersecurus.blogspot.com/2011/04/using-volatility-to-study-cve-2011-6011.html Using "volatility" to study the CVE-2011-0611 Adobe Flash 0-day]||Andre M. !DiMino (@sempersecurus)||
 ||2011||April||Blog||[http://gleeda.blogspot.com/2011_04_01_archive.html Volatility 1.4 UserAssist plugin]||Jamie Levy (@gleeda)||
 ||2011||April||Blog||[http://gleeda.blogspot.com/2011/04/whats-difference-brief-volatility-14.html What's the Difference? (A Brief Volatility 1.4 Plugin Tutorial)]||Jamie Levy (@gleeda)||
 ||2011||April||Blog||[http://mnin.blogspot.com/2011/04/detectingmemory-forging-attempt-by.html Detecting/Memory Forging Attempt by a Rootkit]||Michael Ligh (@iMHLv2)||
