@@ -100,45 +100,23 @@ This is a catalog of research, documentation, analysis, and tutorials generated 
 ||2011||January||Paper||[http://www.memoryanalysis.net/research/PAPER-De-Anonymizing%20Live%20CDs%20through%20Physical%20Memory%20Analysis.pdf De-Anonymizing Live CDs through Physical Memory Analysis]||Andrew Case (@attrc)||
 ||2010||December||Blog||[http://gleeda.blogspot.com/2010/12/identifying-memory-images.html Identifying Memory Images]||Jamie Levy (@gleeda)||
 ||2010||December||Blog||[http://blog.commandlinekungfu.com/2010/12/episode-127-making-difference.html Command Line Kung Fu: Episode #127: Making a Difference]||Hal Pomeranz (@hal_pomeranz)||
-||2010||December||Blog||[http://zeltser.com/remnux/ REMnux: A Linux Distribution for Reverse-Engineering Malware]||||
-||2010||December||Blog||[http://perpetualhorizon.blogspot.com/2010/12/peeling-apart-tdl4-and-other-seeds-of.html Peeling Apart TDL4 and Other Seeds of Evil Part I]||||
-
-= 2010 =
-----
-
-January 
-   * [http://neosysforensics.blogspot.com/2010/01/analisis-de-un-caso-real-3.html Análisis de un caso ¿real?, #3]
-   * [http://gleeda.blogspot.com/2010/01/volatilitys-output-rendering-functions.html Volatility's Output Rendering Functions]
-   * [http://computer.forensikblog.de/en/2010/01/cross-view-analysis-with-volatility.html Cross-view analysis with Volatility]
-   * [http://opensecuritytraining.info/Rootkits_files/Rootkits-Part3.ppt.pdf Using Volatility for Rootkit Detection]
-
-February: 
-   * [http://cci.cocolog-nifty.com/blog/2010/02/encase-enscri-1.html EnCase EnScripts for Memory Forensics]
-
-March 
-   * [https://www.honeynet.org/challenges/2010_3_banking_troubles Challenge 3 of the Forensic Challenge 2010 - Banking Troubles]
-
-April 
-   * [http://network-forensics.blogspot.com/2010/04/honeynet-forensics-contest.html Challenge 3 of the Forensic Challenge 2010 - Banking Troubles]
-
-May 
-   * [http://holisticinfosec.blogspot.com/2010/05/memory-forensics-with-sift-20.html Memory forensics with SIFT 2.0, Volatility, and PTK]
-   * [http://blog.schatzforensic.com.au/2010/05/adding-new-structure-definitions-to-volatility/ Adding new structure definitions to Volatility]
-
-July 
-   * [http://blog.schatzforensic.com.au/2010/07/finding-object-roots-in-vista-kpcr/ Finding Object Roots in Vista (KPCR)]
-   * [http://moyix.blogspot.com/2010/07/gdi-utilities-taking-screenshots-of.html GDI Utilities: Taking Screenshots of Memory Dumps]
-   * [http://moyix.blogspot.com/2010/07/plugin-post-robust-process-scanner.html Plugin Post: Robust Process Scanner]
-
-August 
-   * [http://gleeda.blogspot.com/2010/08/upated-sqlite-plugins.html Upated Volatility SQLite plugins]
-
-September 
-   * [http://computer.forensikblog.de/files/talks/ZISC2010-Recent_Advances_in_Memory_Forensics.pdf Recent Advances in Memory Forensics]
-
-November 
-   * [http://lorgor.blogspot.com/2010/11/volatility-memory-forensics-i.html Volatility Memory Forensics]
-
+||2010||December||Blog||[http://zeltser.com/remnux/ REMnux: A Linux Distribution for Reverse-Engineering Malware]||Lenny Zeltser (@lennyzeltser)||
+||2010||December||Blog||[http://perpetualhorizon.blogspot.com/2010/12/peeling-apart-tdl4-and-other-seeds-of.html Peeling Apart TDL4 and Other Seeds of Evil Part I]||Curt Wilson||
+||2010||November||Blog||[http://lorgor.blogspot.com/2010/11/volatility-memory-forensics-i.html Volatility Memory Forensics]||lg||
+||2010||Septmeber||Blog||[http://computer.forensikblog.de/files/talks/ZISC2010-Recent_Advances_in_Memory_Forensics.pdf Recent Advances in Memory Forensics]||Andreas Schuster (@forensikblog)||
+||2010||August||Blog||[http://gleeda.blogspot.com/2010/08/upated-sqlite-plugins.html Upated Volatility SQLite plugins]||Jamie Levy (@gleeda)||
+||2010||July||Blog||[http://blog.schatzforensic.com.au/2010/07/finding-object-roots-in-vista-kpcr/ Finding Object Roots in Vista (KPCR)]||Bradley Schatz||
+||2010||July||Blog||[http://moyix.blogspot.com/2010/07/gdi-utilities-taking-screenshots-of.html GDI Utilities: Taking Screenshots of Memory Dumps]||Brendan Dolan-Gavitt (@mooyix)||
+||2010||July||Blog||[http://moyix.blogspot.com/2010/07/plugin-post-robust-process-scanner.html Plugin Post: Robust Process Scanner]||Brendan Dolan-Gavitt (@mooyix)||
+||2010||May||Blog||[http://holisticinfosec.blogspot.com/2010/05/memory-forensics-with-sift-20.html Memory forensics with SIFT 2.0, Volatility, and PTK]||Russ McRee (@holisticinfosec)||
+||2010||May||Blog||[http://blog.schatzforensic.com.au/2010/05/adding-new-structure-definitions-to-volatility/ Adding new structure definitions to Volatility]||Bradley Schatz||
+||2010||April||Blog||[http://network-forensics.blogspot.com/2010/04/honeynet-forensics-contest.html Challenge 3 of the Forensic Challenge 2010 - Banking Troubles]||@pstutz||
+||2010||March||Paper(s)||[https://www.honeynet.org/challenges/2010_3_banking_troubles Challenge 3 of the Forensic Challenge 2010 - Banking Troubles]||Pascucci, Hudak, and Pulley||
+||2010||February||Blog||[http://cci.cocolog-nifty.com/blog/2010/02/encase-enscri-1.html EnCase EnScripts for Memory Forensics]||Takahiro Haruyama (@cci_forensics)||
+||2010||January||Blog||[http://neosysforensics.blogspot.com/2010/01/analisis-de-un-caso-real-3.html Análisis de un caso ¿real?, #3]||neofito (@neosysforensics)||
+||2010||January||Blog||[http://gleeda.blogspot.com/2010/01/volatilitys-output-rendering-functions.html Volatility's Output Rendering Functions]||Jamie Levy (@gleeda)||
+||2010||January||Blog|| [http://computer.forensikblog.de/en/2010/01/cross-view-analysis-with-volatility.html Cross-view analysis with Volatility]||Andreas Schuster (@forensikblog)||
+||2010||January||Blog||[http://opensecuritytraining.info/Rootkits_files/Rootkits-Part3.ppt.pdf Using Volatility for Rootkit Detection]||Xeno Kovah||
 
 = 2009 =
 ----
