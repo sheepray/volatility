@@ -36,3 +36,6 @@ Volatility currently requires python-2.6 or greater.
    * Consistency, ease of reading (particularly 0x123 vs 0X123).
  * Avoid using super, call the superclass's function by name instead.
    * See http://fuhm.net/super-harmful/
+ * Always try to catch the most specific exception you can.
+   * Never use "except:" or "except Exception:"
+   * Makes debugging far easier if you only catch what you're expecting.
