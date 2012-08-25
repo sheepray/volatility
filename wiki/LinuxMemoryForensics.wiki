@@ -6,7 +6,14 @@ These are the instructions for using the Linux support in Volatility.
 
 NOTE: This initial set of instructions *will* change over time. *Please* check back on this wiki and always test the latest version before filing bug reports. The first official Volatility release will Linux support will be 2.2 (expected October 2012). 
 
-= Getting the source =
+= Prerequisites =
+
+First check the FAQ22 page for the supported Linux kernels, distributions, and architectures. Then ensure you have the following tools:
+
+  * Dwarfdump: `apt-get install dwarfdump` on Debian/Ubuntu or the libdwarf-tools package on OpenSuSE, Fedora, and other distributions. 
+  * GCC/make: `apt-get install build-essential' on Debial/Ubuntu.
+
+= Getting the Volatility source =
 
 The source can be currently downloaded by checking out with SVN:
 
@@ -24,22 +31,7 @@ A Linux Profile is essentially a zip file with information on the kernel's data 
 
 The current method to create vtypes (kernel's data structures) is to check out the source code and compile 'module.c' against the kernel that you want to analyze. To do this on the running system, you will need dwarfdump installed in order to gain access to the debug symbols. 
 
-See below for an example of building the right tools on Ubuntu. We're installing the libelf (or libelf1) development library, fetching an older version of dwarfdump that is known to work, then installing the libdwarf and dwarfdump tools. 
-
-{{{
-$ sudo apt-get install libelf-dev
-$ wget http://reality.sgiweb.org/davea/libdwarf-20091012.tar.gz
-$ tar -xvzf libdwarf-20091012.tar.gz
-$ cd libdwarf-20091012
-$ ls 
-dwarfdump  dwarfdump2  dwarfexample  libdwarf
-$ cd libdwarf
-$ ./configure && sudo make && sudo make install
-$ cd ../dwarfdump
-$ ./configure && sudo make && sudo make install
-}}}
-
-Now cd to 'tools/linux' in the Volatility source directory and type make. This will create a file named 'module.dwarf'. 
+See below for an example of creating vtypes on Ubuntu. Just cd to 'tools/linux' in the Volatility source directory and type make. This will create a file named 'module.dwarf'. 
 
 {{{
 $ cd volatility/tools/linux
