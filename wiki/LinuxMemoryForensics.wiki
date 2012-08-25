@@ -22,7 +22,7 @@ A Linux Profile is essentially a zip file with information on the kernel's data 
 
 == Creating vtypes ==
 
-The current method to create vtypes (kernel's data structures) is to check out the source code and compile 'module.c' against the kernel that you want to analyze. To do this on the running system, you will need dwarfdump installed in order to gain access to the debug symbols. However, you must currently install an old version of dwarfump in order to generate the vtype correctly. This issue is being tracked at http://code.google.com/p/volatility/issues/detail?id=260 and should be resolved soon. 
+The current method to create vtypes (kernel's data structures) is to check out the source code and compile 'module.c' against the kernel that you want to analyze. To do this on the running system, you will need dwarfdump installed in order to gain access to the debug symbols. 
 
 See below for an example of building the right tools on Ubuntu. We're installing the libelf (or libelf1) development library, fetching an older version of dwarfdump that is known to work, then installing the libdwarf and dwarfdump tools. 
 
