@@ -129,6 +129,8 @@ $ ls -alh /home/mhl/ubuntu.lime
 
 Note: If you acquire memory using LiME, you will need a special LiME address space for Volatility. This file is currently not in the 2.2 alpha trunk, but you can download it [http://volatility.googlecode.com/svn/branches/linux-trunk/volatility/plugins/addrspaces/lime.py here]. Place it in the directory volatility/plugins/addrspaces/lime.py. 
 
+= Enterprise Linux Memory Forensics = 
+
 = Questions/Comments =
 
 Please contact Andrew Case (atcuno) with any questions or comments
