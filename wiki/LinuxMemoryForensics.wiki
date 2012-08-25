@@ -57,7 +57,7 @@ You can also compile against any kernel by simply pointing make to the directory
 
 == Getting Symbols ==
 
-The symbols are contained in the System.map file for the kernel you want to analyze. This can almost always be found in the "/boot" directory of the installation or you can generate this file yourself by running "nm" on the vmlinux file of the kernel.
+The symbols are contained in the System.map file (i.e. System.map-3.5.2-3.fc17.x86_64) for the kernel you want to analyze. This can almost always be found in the /boot directory of the installation or you can generate this file yourself by running "nm" on the vmlinux file of the kernel. If you have updated the kernel on your system in the past, the /boot directory may contain multiple System.map files - so make sure to choose the right one.
 
 == Making the profile ==
 
