@@ -83,7 +83,7 @@ This is a catalog of research, documentation, analysis, and tutorials generated 
 ||2011||April||Blog||[http://gleeda.blogspot.com/2011/04/whats-difference-brief-volatility-14.html What's the Difference? (A Brief Volatility 1.4 Plugin Tutorial)]||Jamie Levy (@gleeda)||
 ||2011||April||Blog||[http://mnin.blogspot.com/2011/04/detectingmemory-forging-attempt-by.html Detecting/Memory Forging Attempt by a Rootkit]||Michael Ligh (@iMHLv2)||
 ||2011||April||Blog||[http://mnin.blogspot.com/2011/04/investigating-windows-threads-with.html Investigating Windows Threads with Volatility]||Michael Ligh (@iMHLv2)||
-||2011||April||Blog||[http://moyix.blogspot.com/2011/04/applying-forensic-tools-to-virtual.html Applying Forensic Tools to Virtual Machine Introspection]||Brendan Dolan-Gavitt (@mooyix)||
+||2011||April||Blog||[http://moyix.blogspot.com/2011/04/applying-forensic-tools-to-virtual.html Applying Forensic Tools to Virtual Machine Introspection]||Brendan Dolan-Gavitt (@moyix)||
 ||2011||April||Blog||[http://leetmore.ctf.su/wp/nuit-du-hack-2011-ctf-forensic/ Nuit du hack 2011 CTF Forensic]||Alexmin||
 ||2011||April||Blog||[http://contagiodump.blogspot.com/2011/04/apr-8-cve-2011-0611-flash-player-zero.html Apr. 8 CVE-2011-0611 Flash Player Zero day]||Mila||
 ||2011||March||Blog||[http://quequero.org/Carberp_Reverse_Engineering#Carberp_Analysis_via_Volatility Carberp Analysis via Volatility]||Evilcry||
@@ -91,7 +91,7 @@ This is a catalog of research, documentation, analysis, and tutorials generated 
 ||2011||March||Blog||[http://gleeda.blogspot.com/2011/03/volatility-14-getplugins-script.html Volatility 1.4 get_plugins Script]||Jamie Levy (@gleeda)||
 ||2011||March||Blog||[http://mnin.blogspot.com/2011/03/volatilitys-new-netscan-module.html Volatility's New Netscan Module]||Michael Ligh (@iMHLv2)||
 ||2011||March||Blog||[http://mnin.blogspot.com/2011/03/mis-leading-active-in.html The Mis-leading 'Active' in PsActiveProcessHead and ActiveProcessLinks]||Michael Ligh (@iMHLv2)||
-||2011||March||Blog||[http://moyix.blogspot.com/2011/03/automatically-generating-memory.html Automatically Generating Memory Forensic Tools]||Brendan Dolan-Gavitt (@mooyix)||
+||2011||March||Blog||[http://moyix.blogspot.com/2011/03/automatically-generating-memory.html Automatically Generating Memory Forensic Tools]||Brendan Dolan-Gavitt (@moyix)||
 ||2011||March||Blog||[http://dfsforensics.blogspot.com/2011/03/analyzing-new-honeynet-memory-analysis.html Analyzing the New Honeynet Memory Analysis Challenge with Volatility]||Andrew Case (@attrc)||
 ||2011||March||Blog||[http://dfsforensics.blogspot.com/2011/03/bringing-linux-support-to-volatility.html Bringing Linux Support to Volatility]||Andrew Case (@attrc)||
 ||2011||March||Blog||[http://www.zonbi.org/?p=429 Volatility (Undead Security)]||Matt??||
@@ -106,8 +106,8 @@ This is a catalog of research, documentation, analysis, and tutorials generated 
 ||2010||Septmeber||Blog||[http://computer.forensikblog.de/files/talks/ZISC2010-Recent_Advances_in_Memory_Forensics.pdf Recent Advances in Memory Forensics]||Andreas Schuster (@forensikblog)||
 ||2010||August||Blog||[http://gleeda.blogspot.com/2010/08/upated-sqlite-plugins.html Upated Volatility SQLite plugins]||Jamie Levy (@gleeda)||
 ||2010||July||Blog||[http://blog.schatzforensic.com.au/2010/07/finding-object-roots-in-vista-kpcr/ Finding Object Roots in Vista (KPCR)]||Bradley Schatz||
-||2010||July||Blog||[http://moyix.blogspot.com/2010/07/gdi-utilities-taking-screenshots-of.html GDI Utilities: Taking Screenshots of Memory Dumps]||Brendan Dolan-Gavitt (@mooyix)||
-||2010||July||Blog||[http://moyix.blogspot.com/2010/07/plugin-post-robust-process-scanner.html Plugin Post: Robust Process Scanner]||Brendan Dolan-Gavitt (@mooyix)||
+||2010||July||Blog||[http://moyix.blogspot.com/2010/07/gdi-utilities-taking-screenshots-of.html GDI Utilities: Taking Screenshots of Memory Dumps]||Brendan Dolan-Gavitt (@moyix)||
+||2010||July||Blog||[http://moyix.blogspot.com/2010/07/plugin-post-robust-process-scanner.html Plugin Post: Robust Process Scanner]||Brendan Dolan-Gavitt (@moyix)||
 ||2010||May||Blog||[http://holisticinfosec.blogspot.com/2010/05/memory-forensics-with-sift-20.html Memory forensics with SIFT 2.0, Volatility, and PTK]||Russ McRee (@holisticinfosec)||
 ||2010||May||Blog||[http://blog.schatzforensic.com.au/2010/05/adding-new-structure-definitions-to-volatility/ Adding new structure definitions to Volatility]||Bradley Schatz||
 ||2010||April||Blog||[http://network-forensics.blogspot.com/2010/04/honeynet-forensics-contest.html Challenge 3 of the Forensic Challenge 2010 - Banking Troubles]||@pstutz||
@@ -117,55 +117,32 @@ This is a catalog of research, documentation, analysis, and tutorials generated 
 ||2010||January||Blog||[http://gleeda.blogspot.com/2010/01/volatilitys-output-rendering-functions.html Volatility's Output Rendering Functions]||Jamie Levy (@gleeda)||
 ||2010||January||Blog|| [http://computer.forensikblog.de/en/2010/01/cross-view-analysis-with-volatility.html Cross-view analysis with Volatility]||Andreas Schuster (@forensikblog)||
 ||2010||January||Blog||[http://opensecuritytraining.info/Rootkits_files/Rootkits-Part3.ppt.pdf Using Volatility for Rootkit Detection]||Xeno Kovah||
-
-= 2009 =
-----
-
-January 
- - [http://forensiczone.blogspot.com/2009/01/using-volatility-1.html Using Volatility (1.3_Beta)]
- - [http://moyix.blogspot.com/2009/01/memory-registry-tools.html Memory Registry Tools!]
-
-March  
-   * [http://neosysforensics.blogspot.com/2009/03/tuneando-volatility.html Tuneando Volatility]
-   * [http://neosysforensics.blogspot.com/2009/03/analisis-de-un-caso-real.html Análisis de un caso ¿real?]
-   * [http://neosysforensics.blogspot.com/2009/03/volatility-y-regripper-juntos.html Volatility y RegRipper, ¡juntos!]
-   * [http://carnal0wnage.attackresearch.com/2009/03/dumping-memory-to-extract-password.html Dumping Memory to Extract Password Hashes]
-   * [http://moyix.blogspot.com/2009/03/using-volatility-for-introspection.html Using Volatility for Introspection]
-   * [http://moyix.blogspot.com/2009/03/regripper-and-volatility-prototype.html RegRipper and Volatility Prototype]
-   * [http://www.youtube.com/watch?v=UYGMjLTjHxE Advanced Memory Analysis]
-
-April 
-   * [http://computer.forensikblog.de/en/2009/04/reading-passwords-from-the-keyboard-buffer.html Reading Passwords from the Keyboard buffer]
-   * [http://computer.forensikblog.de/en/2009/04/searching-for-mutants.html Searching for Mutants]
-   * [http://computer.forensikblog.de/en/2009/04/symbolic-link-objects.html Symbolic Link Objects]
-   * [http://computer.forensikblog.de/en/2009/04/scanning-for-drivers.html Scanning for Drivers]
-   * [http://computer.forensikblog.de/en/2009/04/linking-file-objects-to-processes.html Linking File Objects to Processes]
-   * [http://computer.forensikblog.de/en/2009/04/enumerate-object-types.html Enumerate Object Types]
-
-May  
-   * [http://neosysforensics.blogspot.com/2009/05/analisis-de-un-caso-real-2.html Análisis de un caso ¿real?, #2]
-   * [http://mnin.blogspot.com/2009/05/volatility-plug-in-for-iateatinline.html Volatility Plug-in for IAT/EAT/Inline Hook Detection]
-
-June 
-   * [http://computer.forensikblog.de/files/talks/FIRST2009-Windows_Memory_Forensics_with_Volatility.pdf Windows Memory Forensics with Volatility]
-
-July 
-   * [http://neosysforensics.blogspot.com/2009/07/modificando-volatility.html Modificando Volatility]
-   * [http://mnin.blogspot.com/2009/07/new-and-updated-volatility-plug-ins.html New and Updated Volatility Plug-ins]
-
-August 
-   * [http://gleeda.blogspot.com/2009/08/installing-volatility-modules.html Installing Volatility Plugins]
-
-October 
-   * [http://forensiczone.blogspot.com/2009/10/walk-through-volatility-batch-file.html Walk-Through: Volatility Batch File Maker and Volatility's ProcDump]
-   * [http://forensiczone.blogspot.com/2009/10/volatility-batch-file-maker.html Volatility Batch File Maker]
-   * [http://neosysforensics.blogspot.com/2009/10/volatility-132-is-out.html Volatility 1.3.2 is out!]
-
-November
-   * [http://www.cc.gatech.edu/~brendan/ccs09_siggen.pdf Robust Signatures for Kernel Data Structures]
-
-December 
-   * [http://mnin.blogspot.com/2009/12/new-and-updated-volatility-plug-ins.html New and Updated Volatility Plug-ins Part II] 
+||2009||December||Blog||[http://mnin.blogspot.com/2009/12/new-and-updated-volatility-plug-ins.html New and Updated Volatility Plug-ins Part II]||Michael Ligh (@iMHLv2)||
+||2009||November||Paper||[http://www.cc.gatech.edu/~brendan/ccs09_siggen.pdf Robust Signatures for Kernel Data Structures]||Brendan Dolan-Gavitt (@moyix)||
+||2009||October||Blog||[http://forensiczone.blogspot.com/2009/10/walk-through-volatility-batch-file.html Walk-Through: Volatility Batch File Maker and Volatility's ProcDump]||Forensiczone||
+||2009||October||Blog||[http://forensiczone.blogspot.com/2009/10/volatility-batch-file-maker.html Volatility Batch File Maker]||Forensiczone||
+||2009||October||Blog||[http://neosysforensics.blogspot.com/2009/10/volatility-132-is-out.html Volatility 1.3.2 is out!]||neofito (@neosysforensics)||
+||2009||August||Blog||[http://gleeda.blogspot.com/2009/08/installing-volatility-modules.html Installing Volatility Plugins]||Jamie Levy (@gleeda)||
+||2009||July||Blog||[http://neosysforensics.blogspot.com/2009/07/modificando-volatility.html Modificando Volatility]||neofito (@neosysforensics)||
+||2009||July||Blog||[http://mnin.blogspot.com/2009/07/new-and-updated-volatility-plug-ins.html New and Updated Volatility Plug-ins]||Michael Ligh (@iMHLv2)||
+||2009||June||Slides||[http://computer.forensikblog.de/files/talks/FIRST2009-Windows_Memory_Forensics_with_Volatility.pdf Windows Memory Forensics with Volatility]||Andreas Schuster (@forensikblog)||
+||2009||May||Blog||[http://neosysforensics.blogspot.com/2009/05/analisis-de-un-caso-real-2.html Análisis de un caso ¿real?, #2]||neofito (@neosysforensics)||
+||2009||May||Blog||[http://mnin.blogspot.com/2009/05/volatility-plug-in-for-iateatinline.html Volatility Plug-in for IAT/EAT/Inline Hook Detection]||Michael Ligh (@iMHLv2)||
+||2009||April||Blog||[http://computer.forensikblog.de/en/2009/04/reading-passwords-from-the-keyboard-buffer.html Reading Passwords from the Keyboard buffer]||Andreas Schuster (@forensikblog)||
+||2009||April||Blog||[http://computer.forensikblog.de/en/2009/04/searching-for-mutants.html Searching for Mutants]||Andreas Schuster (@forensikblog)||
+||2009||April||Blog||[http://computer.forensikblog.de/en/2009/04/symbolic-link-objects.html Symbolic Link Objects]||Andreas Schuster (@forensikblog)||
+||2009||April||Blog||[http://computer.forensikblog.de/en/2009/04/scanning-for-drivers.html Scanning for Drivers]||Andreas Schuster (@forensikblog)||
+||2009||April||Blog||[http://computer.forensikblog.de/en/2009/04/linking-file-objects-to-processes.html Linking File Objects to Processes]||Andreas Schuster (@forensikblog)||
+||2009||April||Blog||[http://computer.forensikblog.de/en/2009/04/enumerate-object-types.html Enumerate Object Types]||Andreas Schuster (@forensikblog)||
+||2009||March||Blog||[http://neosysforensics.blogspot.com/2009/03/tuneando-volatility.html Tuneando Volatility]||neofito (@neosysforensics)||
+||2009||March||Blog||[http://neosysforensics.blogspot.com/2009/03/analisis-de-un-caso-real.html Análisis de un caso ¿real?]||neofito (@neosysforensics)||
+||2009||March||Blog||[http://neosysforensics.blogspot.com/2009/03/volatility-y-regripper-juntos.html Volatility y RegRipper, ¡juntos!]||neofito (@neosysforensics)||
+||2009||March||Blog||[http://carnal0wnage.attackresearch.com/2009/03/dumping-memory-to-extract-password.html Dumping Memory to Extract Password Hashes]||CG||
+||2009||March||Blog||[http://moyix.blogspot.com/2009/03/using-volatility-for-introspection.html Using Volatility for Introspection]||Brendan Dolan-Gavitt (@moyix)||
+||2009||March||Blog||[http://moyix.blogspot.com/2009/03/regripper-and-volatility-prototype.html RegRipper and Volatility Prototype]||Brendan Dolan-Gavitt (@moyix)||
+||2009||March||Video||[http://www.youtube.com/watch?v=UYGMjLTjHxE Advanced Memory Analysis]||Brendan Dolan-Gavitt (@moyix)||
+||2009||January||Blog||[http://forensiczone.blogspot.com/2009/01/using-volatility-1.html Using Volatility (1.3_Beta)]||Forensiczone||
+||2009||January||Blog||[http://moyix.blogspot.com/2009/01/memory-registry-tools.html Memory Registry Tools!]||Brendan Dolan-Gavitt (@moyix)||
 
 = 2008 = 
 ----
