@@ -143,58 +143,23 @@ This is a catalog of research, documentation, analysis, and tutorials generated 
 ||2009||March||Video||[http://www.youtube.com/watch?v=UYGMjLTjHxE Advanced Memory Analysis]||Brendan Dolan-Gavitt (@moyix)||
 ||2009||January||Blog||[http://forensiczone.blogspot.com/2009/01/using-volatility-1.html Using Volatility (1.3_Beta)]||Forensiczone||
 ||2009||January||Blog||[http://moyix.blogspot.com/2009/01/memory-registry-tools.html Memory Registry Tools!]||Brendan Dolan-Gavitt (@moyix)||
-
-= 2008 = 
-----
-
-Feburary
-   * [http://www.4tphi.net/fatkit/papers/aw_AAFS_pubv2.pdf Using Hashing to Improve Volatile Memory Forensic Analysis]
-
-May 
-   * [http://moyix.blogspot.com/2008/05/dfrws-2008-registry-forensics-in-memory.html DFRWS 2008 - Registry Forensics in Memory]
-
-August 
-   * [http://moyix.blogspot.com/2008/08/auditing-system-call-table.html Auditing the System Call Table]
-   * [http://moyix.blogspot.com/2008/08/indroducing-volshell.html Introducing Volshell] 
-   * [http://moyix.blogspot.com/2008/08/linking-processes-to-users.html Linking Processes to Users]
-   * [https://docs.google.com/document/pub?id=1ZGrBppBveDkNf3RTp0pMdd19VGI09y8GgErzlDA7aMc Digital Forensics Research Workshop 2008 - Submission for Forensic Challenge]
-   * [https://www.volatilesystems.com/volatility/omfw/Walters_OMFW_2008.pdf Volatility 1.3 Open Memory Forensics Workshop]
-
-September 
-   * [http://moyix.blogspot.com/2008/09/window-messages-as-forensic-resource.html Window Messages as a Forensic Resource]
-   * [http://dfrws.org/2008/proceedings/p26-dolan-gavitt.pdf Forensic analysis of the Windows registry in memory]
-
-October 
-   * [http://moyix.blogspot.com/2008/10/plugin-post-moddump.html Plugin Post: Moddump]
-   * [http://www.4tphi.net/fatkit/papers/Walters_2008_SANS.pdf Upping the ‘Anti’: Using Memory Analysis to Fight Malware]
-
-November 
-   * [http://mnin.blogspot.com/2008/11/recovering-coreflood-binaries-with.html Recovering Coreflood Binaries with Volatility]
-   * [http://mnin.blogspot.com/2008/11/locating-hidden-clampi-dlls-vad-style.html Locating Hidden Clampi DLLs (VAD-style)]
-
-= 2007 = 
-----
-
-Feburary
-   * [https://www.blackhat.com/presentations/bh-dc-07/Walters/Paper/bh-dc-07-Walters-WP.pdf Volatools: Integrating Volatile Memory Forensics into the Digital Investigation Process]
-
-March 
-   * [http://computer.forensikblog.de/en/2007/03/volatools.html Volatools]
-
-May 
-   * [http://computer.forensikblog.de/en/2007/05/walking-the-vad-tree.html Walking the VAD Tree]
-
-August
-   * [http://computer.forensikblog.de/en/2007/08/from-volatools-to-volatility.html From Volatools to Volatility]
-
-September 
-   * [http://dfrws.org/2007/proceedings/p62-dolan-gavitt.pdf The VAD Tree: A process-eye view of physical memory]
-
-= 2006 = 
-----
-
-Feburary
-   * [http://dx.doi.org/10.1016/j.diin.2006.10.001 FATKit: A Framework for the Extraction and Analysis of Digital Forensic Data from Volatile System Memory]
-
-July
-   * [http://www.4tphi.net/fatkit/papers/fatkit_dll_rc3.pdf FATKit: Detecting Malicious Library Injection and Upping the “Anti”]
+||2008||November||Blog||[http://mnin.blogspot.com/2008/11/recovering-coreflood-binaries-with.html Recovering Coreflood Binaries with Volatility]||Michael Ligh (@iMHLv2)||
+||2008||November||Blog||[http://mnin.blogspot.com/2008/11/locating-hidden-clampi-dlls-vad-style.html Locating Hidden Clampi DLLs (VAD-style)]||Michael Ligh (@iMHLv2)||
+||2008||October||Blog||[http://moyix.blogspot.com/2008/10/plugin-post-moddump.html Plugin Post: Moddump]||Brendan Dolan-Gavitt (@moyix)||
+||2008||October||Slides||[http://www.4tphi.net/fatkit/papers/Walters_2008_SANS.pdf Upping the ‘Anti’: Using Memory Analysis to Fight Malware]||AAron Walters||
+||2008||September||Blog||[http://moyix.blogspot.com/2008/09/window-messages-as-forensic-resource.html Window Messages as a Forensic Resource]||Brendan Dolan-Gavitt (@moyix)||
+||2008||September||Paper||[http://dfrws.org/2008/proceedings/p26-dolan-gavitt.pdf Forensic analysis of the Windows registry in memory]||Brendan Dolan-Gavitt (@moyix)||
+||2008||August||Blog||[http://moyix.blogspot.com/2008/08/auditing-system-call-table.html Auditing the System Call Table]||Brendan Dolan-Gavitt (@moyix)||
+||2008||August||Blog||[http://moyix.blogspot.com/2008/08/indroducing-volshell.html Introducing Volshell]||Brendan Dolan-Gavitt (@moyix)||
+||2008||August||Blog||[http://moyix.blogspot.com/2008/08/linking-processes-to-users.html Linking Processes to Users]||Brendan Dolan-Gavitt (@moyix)||
+||2008||August||Paper||[https://docs.google.com/document/pub?id=1ZGrBppBveDkNf3RTp0pMdd19VGI09y8GgErzlDA7aMc Digital Forensics Research Workshop 2008 - Submission for Forensic Challenge]||M. I. Cohen, D. J. Collett, A. Walters||
+||2008||August||Slides||[https://www.volatilesystems.com/volatility/omfw/Walters_OMFW_2008.pdf Volatility 1.3 Open Memory Forensics Workshop]||AAron Walters||
+||2008||May||Blog||[http://moyix.blogspot.com/2008/05/dfrws-2008-registry-forensics-in-memory.html DFRWS 2008 - Registry Forensics in Memory]||Brendan Dolan-Gavitt (@moyix)||
+||2008||February||Paper||[http://www.4tphi.net/fatkit/papers/aw_AAFS_pubv2.pdf Using Hashing to Improve Volatile Memory Forensic Analysis]||AAron Walters||
+||2007||September||Paper||[http://dfrws.org/2007/proceedings/p62-dolan-gavitt.pdf The VAD Tree: A process-eye view of physical memory]||Brendan Dolan-Gavitt (@moyix)||
+||2007||August||Blog||[http://computer.forensikblog.de/en/2007/08/from-volatools-to-volatility.html From Volatools to Volatility]||Andreas Schuster (@forensikblog)||
+||2007||May||Blog||[http://computer.forensikblog.de/en/2007/05/walking-the-vad-tree.html Walking the VAD Tree]||Andreas Schuster (@forensikblog)||
+||2007||March||Blog||[http://computer.forensikblog.de/en/2007/03/volatools.html Volatools]||Andreas Schuster (@forensikblog)||
+||2007||February||Paper||[https://www.blackhat.com/presentations/bh-dc-07/Walters/Paper/bh-dc-07-Walters-WP.pdf Volatools: Integrating Volatile Memory Forensics into the Digital Investigation Process]||A. Walters and N. Petroni||
+||2006||July||Slides||[http://www.4tphi.net/fatkit/papers/fatkit_dll_rc3.pdf FATKit: Detecting Malicious Library Injection and Upping the “Anti”]||AAron Walters||
+||2006||February||Paper||[http://dx.doi.org/10.1016/j.diin.2006.10.001 FATKit: A Framework for the Extraction and Analysis of Digital Forensic Data from Volatile System Memory]||Petroni, Walters, Fraser, Arbaugh||
