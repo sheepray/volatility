@@ -19,8 +19,8 @@
 || NIST (5 samples) || [http://www.cfreds.nist.gov/mem/memory-images.rar memory-images.rar]|| Windows XP SP2, 2003 SP0, and Vista Beta 2 (all x86)||
 ||Hogfly's skydrive (13 samples) || [http://cid-5694a755c9c6a175.skydrive.live.com/browse.aspx/Public  http://cid-5694a755c9c6a175.skydrive.live.com/browse.aspx/Public]|| Assorted (mostly Windows XP x86) ||
 ||Moyix's Fuzzy Hidden Process Sample || [http://amnesia.gtisc.gatech.edu/~moyix/ds_fuzz_hidden_proc.img.bz2 ds_fuzz_hidden_proc.img.bz2]|| Windows XP SP3 x86 ||
-||Honeynet Banking Troubles Image || [https://www.honeynet.org/challenges/2010_3_banking_troubles https://www.honeynet.org/challenges/2010_3_banking_troubles]|| XP SP2 ||
-||NPS 2009-M57|| [https://domex.nps.edu/corp/nps/scenarios/2009-m57-patents/ram/ https://domex.nps.edu/corp/nps/scenarios/2009-m57-patents/ram/] ||  Various XP / Vista ||
-|| [http://dougee652.blogspot.com/2011/04/malware-memory-images.html Dougee's comparison samples] || [http://dl.dropbox.com/u/21148428/xp-clean.tgz before] and [http://dl.dropbox.com/u/21148428/xp-infected.tgz after infection] || XP ||
-|| Honeynet Compromised Server Challenge || [http://www.honeynet.org/challenges/2011_7_compromised_server] || Linux - Debian 2.6.26-26 ||
-|| Pikeworks Linux Samples || [http://secondlookforensics.com/images.html] || Misc Linux ||
+||Honeynet Banking Troubles Image || [https://www.honeynet.org/challenges/2010_3_banking_troubles https://www.honeynet.org/challenges/2010_3_banking_troubles]|| Windows XP SP2 x86 ||
+||NPS 2009-M57 (~70 samples) || [https://domex.nps.edu/corp/nps/scenarios/2009-m57-patents/ram/ https://domex.nps.edu/corp/nps/scenarios/2009-m57-patents/ram/] ||  Various XP / Vista x86 ||
+|| [http://dougee652.blogspot.com/2011/04/malware-memory-images.html Dougee's comparison samples] || [http://dl.dropbox.com/u/21148428/xp-clean.tgz xp-clean.tgz] and [http://dl.dropbox.com/u/21148428/xp-infected.tgz xp-infected.tgz] || WIndows XP x86 ||
+|| Honeynet Compromised Server Challenge || [http://www.honeynet.org/challenges/2011_7_compromised_server] || Linux Debian 2.6.26-26 x86 ||
+|| Pikeworks Linux Samples || [http://secondlookforensics.com/images.html] || Linux CentOS and Ubuntu (x86/x64) ||
