@@ -10,8 +10,9 @@ NOTE: This initial set of instructions *will* change over time. *Please* check b
 
 First check the FAQ22 page for the supported Linux kernels, distributions, and architectures. Then ensure you have the following tools:
 
-  * Dwarfdump: `apt-get install dwarfdump` on Debian/Ubuntu or the libdwarf-tools package on OpenSuSE, Fedora, and other distributions. 
+  * dwarfdump: `apt-get install dwarfdump` on Debian/Ubuntu or the libdwarf-tools package on OpenSuSE, Fedora, and other distributions. 
   * GCC/make: `apt-get install build-essential` on Debial/Ubuntu.
+  * kernel-devel (headers for building kernel modules)
 
 = Getting the Volatility source =
 
