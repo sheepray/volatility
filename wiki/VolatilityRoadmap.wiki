@@ -45,7 +45,7 @@ This page is the official Volatility Roadmap. The goal of the Roadmap is to help
 
 = Volatility 2.2 (Official Linux Support) =
 
-*RC1:* Sept 7, 2012
+*RC1:* Sept 10, 2012
 *Release:* Oct 2, 2012
 
  * Linux Support (Intel x86, x64) kernels 2.6.11 - 3.x 
