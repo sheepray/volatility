@@ -29,7 +29,6 @@ lime_types = {
     'end':       [0x10, ['unsigned long long']],
     'reversed':  [0x18, ['unsigned long long']],
 }],
-
 }
 
 class LimeTypes(obj.ProfileModification):
@@ -42,8 +41,8 @@ class segment(object):
 
     def __init__(self, start, end, offset):
 
-        self.start = start
-        self.end = end
+        self.start  = start
+        self.end    = end
         self.offset = offset
 
 class LimeAddressSpace(addrspace.BaseAddressSpace):
@@ -56,7 +55,6 @@ class LimeAddressSpace(addrspace.BaseAddressSpace):
     checkname = 'LimeValidAS'
 
     def __init__(self, base, config, *args, **kwargs):
-
         self.as_assert(base, "lime: need base")
 
         addrspace.BaseAddressSpace.__init__(self, base, config, *args, **kwargs)
@@ -70,7 +68,6 @@ class LimeAddressSpace(addrspace.BaseAddressSpace):
         self.parse_lime()
 
     def parse_lime(self):
-
         # get the segments
         self.segs = []
 
@@ -84,22 +81,19 @@ class LimeAddressSpace(addrspace.BaseAddressSpace):
             seg = segment(header.start, header.end, offset + self.profile.get_obj_size("lime_header"))
             self.segs.append(seg)
 
-            seglength = header.end - header.start + 1
+            seglength = header.end - header.start
 
-            offset = offset + seglength + self.profile.get_obj_size("lime_header")
+            offset = offset + seglength + 1 + self.profile.get_obj_size("lime_header")
 
             header = obj.Object("lime_header", offset = offset, vm = self.base)
 
     def read(self, addr, length):
-
         return self.__read_bytes(addr, length)
 
     def zread(self, addr, length):
-
         return self.__read_bytes(addr, length, True)
-
+    
     def __read_bytes(self, addr, length, pad = False):
-
         firstram = self.segs[0].start
 
         if addr < firstram:
@@ -110,8 +104,16 @@ class LimeAddressSpace(addrspace.BaseAddressSpace):
         if key in self.addr_cache:
             return self.addr_cache[key]
 
-        for seg in self.segs:
+        (_, where) = self.__get_offset(addr)
+        
+        ret = self.base.read(where, length)
 
+        self.addr_cache[key] = ret
+        
+        return ret        
+
+    def __get_offset(self, addr):
+        for seg in self.segs:
             if seg.start <= addr <= seg.end:
 
                 delta = addr - seg.start
@@ -119,10 +121,21 @@ class LimeAddressSpace(addrspace.BaseAddressSpace):
                 where = seg.offset + delta
 
                 # find offset into seg and return place inside file
-                ret = self.base.read(where, length)
-
-                self.addr_cache[key] = ret
-
+                ret = [addr, where]
+                
                 return ret
 
-        return None if not pad else ("\x00" * length)
+        return None
+
+    # returns a tuple of (start of segment, size of segment) for each segment
+    # we do not need special logic to ensure multiple tuples aren't contiguos
+    # because lime only creates segments for non-contig RAM sections
+    def get_available_addresses(self):
+        for seg in self.segs:
+
+            seglength = seg.end - seg.start
+
+            yield (seg.start, seglength)
+
+    def is_valid_address(self, addr):
+        return self.__get_offset(addr) != None
