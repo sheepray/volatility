@@ -20,12 +20,12 @@
 
 import volatility.utils as utils
 import volatility.obj as obj
-import volatility.commands as commands
+import volatility.plugins.common as common
 import volatility.debug as debug
 import volatility.cache as cache
 import volatility.win32.tasks as tasks
 
-class HibInfo(commands.Command):
+class HibInfo(common.AbstractWindowsCommand):
     """Dump hibernation file information"""
 
     @cache.CacheDecorator("tests/hibinfo")
@@ -66,7 +66,7 @@ class HibInfo(commands.Command):
         sr = data['sr']
         peb = data['peb']
 
-        outfd.write("IMAGE_HIBER_HEADER:\n")
+        outfd.write("PO_MEMORY_IMAGE:\n")
         outfd.write(" Signature: {0}\n".format(hdr.Signature))
         outfd.write(" SystemTime: {0}\n".format(hdr.SystemTime))
 

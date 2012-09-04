@@ -30,10 +30,15 @@ import zipfile
 
 import volatility.plugins
 import volatility.plugins.overlays.basic as basic
+import volatility.plugins.overlays.native_types as native_types
 import volatility.obj as obj
 import volatility.debug as debug
 import volatility.dwarf as dwarf
 
+x64_native_types = copy.deepcopy(native_types.x64_native_types)
+
+x64_native_types['long'] = [8, '<q']
+x64_native_types['unsigned long'] = [8, '<Q']
 
 linux_overlay = {
     'task_struct' : [None, {
@@ -60,22 +65,34 @@ linux_overlay = {
         }],
     'VOLATILITY_MAGIC': [None, {
         'DTB'           : [ 0x0, ['VolatilityDTB', dict(configname = "DTB")]],
-        'ArmValidAS'   :  [ 0x0, ['VolatilityArmValidAS']],
+        'ArmValidAS'   :  [ 0x0, ['VolatilityLinuxValidAS']],
+        'IA32ValidAS'  :  [ 0x0, ['VolatilityLinuxValidAS']],
         }],
     }
 
-def parse_system_map(data):
+def parse_system_map(data, module):
     """Parse the symbol file."""
     sys_map = {}
+    sys_map[module] = {}
+
     arch = None
+
     # get the system map
     for line in data.splitlines():
-        (address, _, symbol) = line.strip().split()
+        (str_addr, symbol_type, symbol) = line.strip().split()
+
         try:
-            sys_map[symbol] = long(address, 16)
+            sym_addr = long(str_addr, 16)
+
         except ValueError:
-            pass
-    arch = str(len(address) * 4) + "bit"
+            continue
+
+        if not symbol in sys_map[module]:
+            sys_map[module][symbol] = []
+
+        sys_map[module][symbol].append([sym_addr, symbol_type])
+
+    arch = str(len(str_addr) * 4) + "bit"
 
     return arch, sys_map
 
@@ -89,25 +106,24 @@ def LinuxProfileFactory(profpkg):
         dwarfdump -di vmlinux > output.dwarf
     """
 
-    vtypesvar = {}
-    sysmapvar = {}
+    dwarfdata = None
+    sysmapdata = None
 
     memmodel, arch = "32bit", "x86"
     profilename = os.path.splitext(os.path.basename(profpkg.filename))[0]
 
     for f in profpkg.filelist:
         if f.filename.lower().endswith('.dwarf'):
-            data = profpkg.read(f.filename)
-            vtypesvar.update(dwarf.DWARFParser(data).finalize())
-            debug.debug("{2}: Found dwarf file {0} with {1} symbols".format(f.filename, len(vtypesvar.keys()), profilename))
+            dwarfdata = profpkg.read(f.filename)
         elif 'system.map' in f.filename.lower():
-            memmodel, sysmap = parse_system_map(profpkg.read(f.filename))
-            if memmodel == "64bit":
-                arch = "x64"
-            sysmapvar.update(sysmap)
-            debug.debug("{2}: Found system file {0} with {1} symbols".format(f.filename, len(sysmapvar.keys()), profilename))
+            sysmapdata = profpkg.read(f.filename)
+            (address, _a, _b) = sysmapdata.splitlines()[0].strip().split()
+            memmodel = str(len(address) * 4) + "bit"
 
-    if not sysmapvar or not vtypesvar:
+    if memmodel == "64bit":
+        arch = "x64"
+
+    if not sysmapdata or not dwarfdata:
         # Might be worth throwing an exception here?
         return None
 
@@ -115,14 +131,18 @@ def LinuxProfileFactory(profpkg):
         __doc__ = "A Profile for Linux " + profilename + " " + arch
         _md_os = "linux"
         _md_memory_model = memmodel
+        # Override 64-bit native_types
+        native_mapping = {'32bit': native_types.x86_native_types,
+                          '64bit': x64_native_types}
 
         def __init__(self, *args, **kwargs):
-            self.sysmap = {}
+            # change the name to catch any code referencing the old hash table
+            self.sys_map = {}
             obj.Profile.__init__(self, *args, **kwargs)
 
         def clear(self):
             """Clear out the system map, and everything else"""
-            self.sysmap = {}
+            self.sys_map = {}
             obj.Profile.clear(self)
 
         def reset(self):
@@ -138,11 +158,145 @@ def LinuxProfileFactory(profpkg):
             ntvar = self.metadata.get('memory_model', '32bit')
             self.native_types = copy.deepcopy(self.native_mapping.get(ntvar))
 
+            vtypesvar = dwarf.DWARFParser(dwarfdata).finalize()
             self.vtypes.update(vtypesvar)
+            debug.debug("{2}: Found dwarf file {0} with {1} symbols".format(f.filename, len(vtypesvar.keys()), profilename))
 
         def load_sysmap(self):
             """Loads up the system map data"""
-            self.sysmap.update(sysmapvar)
+            _memmodel, sysmapvar = parse_system_map(sysmapdata, "kernel")
+            debug.debug("{2}: Found system file {0} with {1} symbols".format(f.filename, len(sysmapvar.keys()), profilename))
+
+            self.sys_map.update(sysmapvar)
+
+        def get_all_symbols(self, module="kernel"):
+            """ Gets all the symbol tuples for the given module """        
+
+            ret = []
+
+            symtable = self.sys_map
+
+            if module in symtable:
+
+                mod = symtable[module]
+        
+                for (name, addrs) in mod.items():
+                    ret.append(addrs)
+            else:
+                debug.info("All symbols requested for non-existent module %s" % module)
+
+            return ret
+
+        def get_all_addresses(self, module="kernel"):
+            """ Gets all the symbol addresses for the given module """
+            
+            # returns a hash table for quick looks
+            # the main use of this function is to see if an address is known
+            ret = {}
+
+            symbols = self.get_all_symbols(module)
+
+            for sym in symbols:
+
+                for (addr, addrtype) in sym:
+                    ret[addr] = 1
+    
+            return ret
+
+        def get_all_symbol_names(self, module="kernel"):
+
+            symtable = self.sys_map
+            
+            if module in symtable:
+            
+                ret = symtable[module].keys()                
+
+            else:
+                debug.error("get_all_symbol_names called on non-existent module")
+
+            return ret
+
+        def get_next_symbol_address(self, sym_name, module="kernel"):
+            """
+            This is used to find the address of the next symbol in the profile
+            For some data structures, we cannot determine their size automaticlaly so this
+            can be used to figure it out on the fly
+            """
+            
+            high_addr  = 0xffffffffffffffff
+            table_addr = self.get_symbol(sym_name, module=module)
+
+            addrs = self.get_all_addresses(module=module)            
+
+            for addr in addrs.keys():
+
+                if table_addr < addr < high_addr:
+                    high_addr = addr
+
+            return high_addr
+
+        def get_symbol(self, sym_name, nm_type = "", sym_type = "", module = "kernel"):
+            """Gets a symbol out of the profile
+            
+            sym_name -> name of the symbol
+            nm_tyes  -> types as defined by 'nm' (man nm for examples)
+            sym_type -> the type of the symbol (passing Pointer will provide auto deref)
+            module   -> which module to get the symbol from, default is kernel, otherwise can be any name seen in 'lsmod'
+    
+            This fixes a few issues from the old static hash table method:
+            1) Conflicting symbols can be handled, if a symbol is found to conflict on any profile, 
+               then the plugin will need to provide the nm_type to differentiate, otherwise the plugin will be errored out
+            2) Can handle symbols gathered from modules on disk as well from the static kernel
+    
+            symtable is stored as a hash table of:
+            
+            symtable[module][sym_name] = [(symbol address, symbol type), (symbol addres, symbol type), ...]
+    
+            The function has overly verbose error checking on purpose...
+            """
+
+            symtable = self.sys_map
+
+            ret = None
+
+            # check if the module is there...
+            if module in symtable:
+
+                mod = symtable[module]
+
+                # check if the requested symbol is in the module
+                if sym_name in mod:
+
+                    sym_list = mod[sym_name]
+
+                    # if a symbol has multiple definitions, then the plugin needs to specify the type
+                    if len(sym_list) > 1:
+                        if nm_type == "":
+                            debug.error("Requested symbol {0:s} in module {1:s} has multiple definitions and no type given\n".format(sym_name, module))
+                        else:
+                            for (addr, stype) in sym_list:
+
+                                if stype == nm_type:
+                                    ret = addr
+                                    break
+
+                            if ret == None:
+                                debug.error("Requested symbol {0:s} in module {1:s} of type {3:s} could not be found\n".format(sym_name, module, sym_type))
+
+                    else:
+                        # get the address of the symbol
+                        ret = sym_list[0][0]
+
+                else:
+                    debug.debug("Requested symbol {0:s} not found in module {1:s}\n".format(sym_name, module))
+            else:
+                debug.info("Requested module {0:s} not found in symbol table\n".format(module))
+
+
+            if ret and sym_type == "Pointer":
+                ret = ret & 0xffffffffffff
+
+            return ret
 
     cls = AbstractLinuxProfile
     cls.__name__ = 'Linux' + profilename.replace('.', '_') + arch
@@ -189,6 +343,7 @@ class linux_file(obj.CType):
 class hlist_node(obj.CType):
     """A hlist_node makes a doubly linked list."""
     def list_of_type(self, type, member, offset = -1, forward = True, head_sentinel = True):
+
         if not self.is_valid():
             return
 
@@ -229,7 +384,6 @@ class hlist_node(obj.CType):
     def __iter__(self):
         return self.list_of_type(self.obj_parent.obj_name, self.obj_name)
 
-
 class list_head(obj.CType):
     """A list_head makes a doubly linked list."""
     def list_of_type(self, type, member, offset = -1, forward = True, head_sentinel = True):
@@ -265,7 +419,6 @@ class list_head(obj.CType):
             else:
                 nxt = item.m(member).prev.dereference()
 
-
     def __nonzero__(self):
         ## List entries are valid when both Flinks and Blink are valid
         return bool(self.next) or bool(self.prev)
@@ -291,6 +444,50 @@ class files_struct(obj.CType):
             ret = self.max_fds
 
         return ret
+
+class kernel_param(obj.CType):
+
+    @property
+    def get(self):
+
+        if self.members.get("get"):
+            ret = self.m("get")
+        else:
+            ret = self.ops.get
+
+        return ret
+
+class kparam_array(obj.CType):
+
+    @property
+    def get(self):
+
+        if self.members.get("get"):
+            ret = self.m("get")
+        else:
+            ret = self.ops.get
+
+        return ret
+
+class gate_struct64(obj.CType):
+
+    @property
+    def Address(self):
+    
+        low    = self.offset_low
+        middle = self.offset_middle
+        high   = self.offset_high
+
+        ret = (high << 32) | (middle << 16) | low
+
+        return ret
+
+class desc_struct(obj.CType):
+
+    @property
+    def Address(self):
+    
+        return (self.b & 0xffff0000) | (self.a & 0x0000ffff)
 
 class task_struct(obj.CType):
 
@@ -368,27 +565,99 @@ class VolatilityDTB(obj.VolatilityMagic):
         else:
             shift = 0xffffffff80000000
 
-        yield profile.sysmap["swapper_pg_dir"] - shift
+        # this is the only code allowed to reference the internal sys_map!
+        yield profile.get_symbol("swapper_pg_dir") - shift
 
-class VolatilityArmValidAS(obj.VolatilityMagic):
+# this check will work for all linux profiles/archs (intel, arm, etc)
+# it checks the static paging of init_task
+class VolatilityLinuxValidAS(obj.VolatilityMagic):
     """An object to check that an address space is a valid Arm Paged space"""
 
     def generate_suggestions(self):
 
-        print "name: %s" % profile.name
-        if profile.__name__.startswith("Linux") != True:
-            yield False 
+        init_task_addr = self.obj_vm.profile.get_symbol("init_task")
 
-
-        # linux has a virtual to physical offset (minux 0xc0000000) for kernel addresses
-        # we simply .vtop an address that will be in the kernel and see if we get the correct address back
-        # will add 64 bit support if/when ARM ever releases 64 bit chips ;)
-        val = self.obj_vm.vtop(0xc0548cf8)
-
-        if val & 0x548cf8 == 0x548cf8: 
-            yield True
+        if self.obj_vm.profile.metadata.get('memory_model', '32bit') == "32bit":
+            shift = 0xc0000000
         else:
-            yield False
+            shift = 0xffffffff80000000
+
+        yield self.obj_vm.vtop(init_task_addr) == init_task_addr - shift
+
+class kmem_cache(obj.CType):
+    def __init__(self, theType, offset, vm, name = None, members = None, struct_size = 0, **kwargs):
+        obj.CType.__init__(self, theType, offset, vm, name, members, struct_size, **kwargs)
+
+    def get_type(self):
+        if self.members.has_key("next"):
+            return "slab"
+        elif self.members.has_key("list"):
+            return "slub"
+
+        return None
+
+    def get_name(self):
+        return str(self.name.dereference_as("String", length = 255))
+
+    def get_free_list(self):
+        slablist = self.nodelists[0].slabs_free
+
+        for slab in slablist.list_of_type("slab", "list"):
+            yield slab
+
+    def get_partial_list(self):
+        slablist = self.nodelists[0].slabs_partial
+
+        for slab in slablist.list_of_type("slab", "list"):
+            yield slab
+
+    def get_full_list(self):
+        slablist = self.nodelists[0].slabs_full
+
+        for slab in slablist.list_of_type("slab", "list"):
+            yield slab
+
+    def get_objs_of_type(self, type, unalloc = 0):
+        if not unalloc:
+            for slab in self.get_full_list():
+                for i in range(0, self.num):
+                    yield obj.Object(type,
+                            offset = slab.s_mem.v() + i * self.buffer_size,
+                            vm = self.obj_vm,
+                            parent = self.obj_parent,
+                            name = type)
+
+        for slab in self.get_partial_list():
+            bufctl = obj.Object("Array",
+                        offset = slab.v() + slab.size(),
+                        vm = self.obj_vm,
+                        parent = self.obj_parent,
+                        targetType = "unsigned int",
+                        count = self.num)
+
+            unallocated = [0] * self.num
+
+            i = slab.free
+            while i != 0xFFFFFFFF:
+                unallocated[i] = 1
+                i = bufctl[i]
+
+            for i in range(0, self.num):
+                if unallocated[i] == unalloc:
+                    yield obj.Object(type,
+                        offset = slab.s_mem.v() + i * self.buffer_size,
+                        vm = self.obj_vm,
+                        parent = self.obj_parent,
+                        name = type)
+
+        if unalloc:
+            for slab in self.get_free_list():
+                for i in range(0, self.num):
+                    yield obj.Object(type,
+                            offset = slab.s_mem.v() + i * self.buffer_size,
+                            vm = self.obj_vm,
+                            parent = self.obj_parent,
+                            name = type)
 
 class LinuxObjectClasses(obj.ProfileModification):
     conditions = {'os': lambda x: x == 'linux'}
@@ -405,7 +674,12 @@ class LinuxObjectClasses(obj.ProfileModification):
             'VolatilityDTB': VolatilityDTB,
             'IpAddress': basic.IpAddress,
             'Ipv6Address': basic.Ipv6Address,
-            'VolatilityArmValidAS' : VolatilityArmValidAS,
+            'VolatilityLinuxValidAS' : VolatilityLinuxValidAS,
+            'kmem_cache' : kmem_cache,
+            'kernel_param' : kernel_param,
+            'kparam_array'  : kparam_array,
+            'gate_struct64'  : gate_struct64,
+            'desc_struct'    : desc_struct,
             })
 
 class LinuxOverlay(obj.ProfileModification):
@@ -414,3 +688,74 @@ class LinuxOverlay(obj.ProfileModification):
 
     def modification(self, profile):
         profile.merge_overlay(linux_overlay)
+
+class mount(obj.CType):
+
+    @property
+    def mnt_sb(self):
+        
+        if hasattr(self, "mnt"):
+            ret = self.mnt.mnt_sb
+        else:
+            ret = self.mnt_sb
+
+        return ret
+
+    @property
+    def mnt_root(self):
+
+        if hasattr(self, "mnt"):
+            ret = self.mnt.mnt_root
+        else:
+            ret = self.mnt_root
+
+        return ret
+
+    @property
+    def mnt_flags(self):
+
+        if hasattr(self, "mnt"):
+            ret = self.mnt.mnt_flags
+        else:
+            ret = self.mnt_flags
+
+        return ret
+
+class vfsmount(obj.CType):
+
+    def _get_real_mnt(self):
+
+        offset = self.obj_vm.profile.get_obj_offset("mount", "mnt")
+        mnt = obj.Object("mount", offset=self.obj_offset - offset, vm=self.obj_vm)
+        return mnt        
+    
+    @property
+    def mnt_parent(self):
+    
+        ret = self.members.get("mnt_parent")
+        if ret is None:
+            ret = self._get_real_mnt().mnt_parent
+        else:
+            ret = self.m("mnt_parent") 
+        return ret
+
+    @property
+    def mnt_mountpoint(self):
+
+        ret = self.members.get("mnt_mountpoint")
+        if ret is None:
+            ret = self._get_real_mnt().mnt_mountpoint
+        else:
+            ret = self.m("mnt_mountpoint")
+        return ret
+
+class LinuxMountOverlay(obj.ProfileModification):
+    conditions = {'os': lambda x: x == 'linux'}
+    before = ['BasicObjectClasses'] # , 'LinuxVTypes']
+
+    def modification(self, profile):
+
+        if profile.vtypes.get("mount"):
+            profile.object_classes.update({'mount' : mount, 'vfsmount' : vfsmount})
+
+

@@ -27,7 +27,7 @@ import volatility.plugins.linux.common as linux_common
 import volatility.plugins.linux.pslist as linux_pslist
 
 class linux_proc_maps(linux_pslist.linux_pslist):
-    """gathers process maps for linux"""
+    """Gathers process maps for linux"""
 
     MINORBITS = 20
     MINORMASK = ((1 << MINORBITS) - 1)
@@ -74,7 +74,6 @@ class linux_proc_maps(linux_pslist.linux_pslist):
                     ino,
                     fname))
 
-
     def format_perms(self, vma_flags):
 
         ret = ""
@@ -87,7 +86,6 @@ class linux_proc_maps(linux_pslist.linux_pslist):
             else:
                 ret = ret + "-"
         return ret
-
 
     def MAJOR(self, num):
         return num >> self.MINORBITS

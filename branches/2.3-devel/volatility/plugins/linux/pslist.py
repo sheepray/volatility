@@ -23,7 +23,6 @@
 
 import volatility.obj as obj
 import volatility.plugins.linux.common as linux_common
-
 import time
 
 class linux_pslist(linux_common.AbstractLinuxCommand):
@@ -37,7 +36,7 @@ class linux_pslist(linux_common.AbstractLinuxCommand):
                           action = 'store', type = 'str')
 
     def calculate(self):
-        init_task_addr = self.smap["init_task"]
+        init_task_addr = self.get_profile_symbol("init_task")
 
         init_task = obj.Object("task_struct", vm = self.addr_space, offset = init_task_addr)
 
@@ -52,50 +51,43 @@ class linux_pslist(linux_common.AbstractLinuxCommand):
             
                 yield task
 
-    ## FIXME: This currently returns using localtime, we should probably use UTC?
-    def start_time(self, task):
-
-        start_time  = task.start_time
-        
-        start_secs = start_time.tv_sec + (start_time.tv_nsec / linux_common.nsecs_per / 100)
-        
-        sec = linux_common.get_boot_time(self) + start_secs
-
-        return time.strftime("%a, %d %b %Y %H:%M:%S +0000", time.localtime(sec))
-
     def render_text(self, outfd, data):
-
-        outfd.write("{0:8s} {1:20s} {2:15s} {3:15s} {4:35s}\n".format(
-            "Offset", "Name", "Pid", "Uid", "Start Time"))
-
+            
+        self.table_header(outfd, [("Offset", "[addrpad]"), 
+                                  ("Name", "20"),
+                                  ("Pid", "15"), 
+                                  ("Uid", "15"), 
+                                  ("Start Time", "")])
         for task in data:
-            outfd.write("0x{0:08x} {1:20s} {2:15s} {3:15s} {4:35s}\n".format(
-                task.obj_offset, task.comm, str(task.pid), str(task.uid), self.start_time(task)))
+            self.table_row(outfd, task.obj_offset, 
+                                  task.comm,
+                                  str(task.pid), 
+                                  str(task.uid) if task.uid else "-",
+                                  self.get_task_start_time(task))
 
 class linux_memmap(linux_pslist):
-    """Dumps the memory map for linux tasks."""
+    """Dumps the memory map for linux tasks"""
 
     def render_text(self, outfd, data):
-        first = True
-        for task in data:
-            if not first:
-                outfd.write("*" * 72 + "\n")
+    
+        self.table_header(outfd, [("Task", "16"), 
+                                  ("Pid", "8"), 
+                                  ("Virtual", "[addrpad]"), 
+                                  ("Physical", "[addrpad]"), 
+                                  ("Size", "[addr]")])
 
+        for task in data:
             task_space = task.get_process_address_space()
-            outfd.write("{0} pid: {1:6}\n".format(task.comm, task.pid))
-            first = False
 
             pagedata = task_space.get_available_pages()
             if pagedata:
-                outfd.write("{0:12} {1:12} {2:12}\n".format('Virtual', 'Physical', 'Size'))
-
                 for p in pagedata:
                     pa = task_space.vtop(p[0])
                     # pa can be 0, according to the old memmap, but can't == None(NoneObject)
                     if pa != None:
-                        outfd.write("0x{0:010x} 0x{1:010x} 0x{2:012x}\n".format(p[0], pa, p[1]))
+                        self.table_row(outfd, task.comm, task.pid, p[0], pa, p[1])
                     #else:
                     #    outfd.write("0x{0:10x} 0x000000     0x{1:12x}\n".format(p[0], p[1]))
             else:
-                outfd.write("Unable to read pages for task.\n")
+                outfd.write("Unable to read pages for {0} pid {1}.\n".format(task.comm, task.pid))
 

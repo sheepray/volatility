@@ -25,12 +25,12 @@ import volatility.obj as obj
 import volatility.plugins.linux.common as linux_common
 
 class linux_route_cache(linux_common.AbstractLinuxCommand):
-    """Lists routing table"""
+    """ Recovers the routing cache from memory """
 
     def calculate(self):
 
-        mask = obj.Object("unsigned int", offset = self.smap["rt_hash_mask"], vm = self.addr_space)
-        rt_pointer = obj.Object("Pointer", offset = self.smap["rt_hash_table"], vm = self.addr_space)
+        mask = obj.Object("unsigned int", offset = self.get_profile_symbol("rt_hash_mask"), vm = self.addr_space)
+        rt_pointer = obj.Object("Pointer", offset = self.get_profile_symbol("rt_hash_table"), vm = self.addr_space)
         rt_hash_table = obj.Object(theType = "Array", offset = rt_pointer, vm = self.addr_space, targetType = "rt_hash_bucket", count = mask)
 
         # rt_do_flush / rt_cache_seq_show
@@ -59,6 +59,10 @@ class linux_route_cache(linux_common.AbstractLinuxCommand):
 
     def render_text(self, outfd, data):
 
+        self.table_header(outfd, [("Interface", "16"), 
+                                  ("Destination", "20"), 
+                                  ("Gateway", "")])
+                                  
         for (name, dest, gw) in data:
-            outfd.write("{0:6s} {1:15s} {2:15s}\n".format(name, dest.cast("IpAddress"), gw.cast("IpAddress")))
+            self.table_row(outfd, name, dest.cast("IpAddress"), gw.cast("IpAddress"))
 

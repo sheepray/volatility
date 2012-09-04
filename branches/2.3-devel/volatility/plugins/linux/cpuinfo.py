@@ -29,12 +29,12 @@ class linux_cpuinfo(linux_common.AbstractLinuxCommand):
 
     def calculate(self):
 
-        cpus = linux_common.online_cpus(self.smap, self.addr_space)
-
-        if len(cpus) > 1 and "per_cpu__cpu_info" in self.smap:
+        cpus = linux_common.online_cpus(self)
+        
+        if len(cpus) > 1 and self.get_per_cpu_symbol("cpu_info"):
             func = self.get_info_smp
 
-        elif "boot_cpu_data" in self.smap:
+        elif self.get_per_cpu_symbol("boot_cpu_data"):
             func = self.get_info_single
 
         else:
@@ -44,7 +44,7 @@ class linux_cpuinfo(linux_common.AbstractLinuxCommand):
 
     def get_info_single(self):
 
-        cpu = obj.Object("cpuinfo_x86", offset = self.smap["boot_cpu_data"], vm = self.addr_space)
+        cpu = obj.Object("cpuinfo_x86", offset = self.get_profile_symbol("boot_cpu_data"), vm = self.addr_space)
 
         yield 0, cpu
 
@@ -57,7 +57,9 @@ class linux_cpuinfo(linux_common.AbstractLinuxCommand):
 
     def render_text(self, outfd, data):
 
-        outfd.write("{0:12s} {1:16s} {2:64s}\n".format("Processor", "Vendor", "Model"))
+        self.table_header(outfd, [("Processor", "12"), 
+                                  ("Vendor", "16"), 
+                                  ("Model", "")])
         for i, cpu in data:
-            outfd.write("{0:12s} {1:16s} {2:64s}\n".format(str(i), cpu.x86_vendor_id, cpu.x86_model_id))
+            self.table_row(outfd, str(i), cpu.x86_vendor_id, cpu.x86_model_id)
 
