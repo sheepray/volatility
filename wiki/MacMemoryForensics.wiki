@@ -1,10 +1,16 @@
 #summary Instructions on how access and use the Mac OS X support
 
-= Overview =
+= Introduction =
 
 These are the instructions for using the new Mac support in Volatility. A presentation on the initial set of features is [http://www.slideshare.net/AndrewDFIR/mac-memory-analysis-with-volatility here].
 
 NOTE: This initial set of instructions *will* change as the mac branch is updated to align with the coding style and functions of trunk. *Please* check back on this wiki and always test the latest version before filing bug reports. 
+
+= Supported Systems = 
+
+  * 32-bit and 64-bit 10.6.x Snow Leopard (partial support only)
+  * 32-bit and 64-bit 10.7.x Lion (full support)
+  * 32-bit and 64-bit 10.8.x Mountain Lion (partial support only)
 
 = Changes since the presentation =
 
@@ -22,9 +28,7 @@ The source can be currently downloaded by checking out with SVN:
 $ svn co http://volatility.googlecode.com/svn/branches/mac-trunk mac-trunk
 }}}
 
-It can be browsed here:
-
-http://code.google.com/p/volatility/source/browse/#svn%2Fbranches%2Fmac-trunk
+It can be browsed [http://code.google.com/p/volatility/source/browse/#svn%2Fbranches%2Fmac-trunk here]
 
 = Creating a profile =
 
@@ -93,22 +97,34 @@ and find the name of your profile. This is what you will use to the --profile op
 
 Volatility does not provide the ability to acquire memory. We recommend using [http://www.cybermarshal.com/index.php/cyber-marshal-utilities/mac-memory-reader Mac Memory Reader] from ATC-NY for this purpose. It supports 32 and 64 bit captures from native hardware, parallels, and virtual box. It currently does not support VMware fusion guests.
 
-
 = Plugins =
 
 To see how to use some of the initial plugins, read the presentation referenced above. To find all currently available plugins:
 
 {{{
 $ python vol.py --info | grep mac_
+Volatile Systems Volatility Framework 2.2_alpha
+mac_arp             - prints the arp table
+mac_dmesg           - prints the kernel debug buffer
+mac_get_processors  - No docs        
+mac_ifconfig        - No docs        
+mac_ip_filters      - No docs        
+mac_list_open_files - No docs        
+mac_lsmod           - No docs        
+mac_machine_info    - No docs        
+mac_mount           - No docs        
+mac_netstat         - No docs        
+mac_notifiers       - detects rootkits that add hooks into I/O Kit (e.g. LogKext)
+mac_proc_maps       - No docs        
+mac_psaux           - No docs        
+mac_pslist          - No docs        
+mac_route           - No docs        
+mac_runq            - No docs        
+mac_trustedbsd      - No docs        
+mac_version         - No docs        
+mac_vfs_events      - No docs        
+mac_wait_queues     - No docs 
 }}}
-
-= Questions/Comments =
-
-Please contact Andrew Case (atcuno) with any questions or comments
-
-= Filing Bugs = 
-
-Please use the issue tracker to file bugs: http://code.google.com/p/volatility/issues/list
 
 = Known Issues =
 
