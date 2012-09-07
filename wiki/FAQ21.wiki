@@ -1,5 +1,5 @@
 #summary Frequently Asked Questions
-#labels Featured
+#labels Deprecated
 
 <wiki:toc />
 
