@@ -1,4 +1,5 @@
 #summary VolatilityMagic objects for retrieving constants from a profile
+#labels Deprecated
 
 = Introduction =
 
