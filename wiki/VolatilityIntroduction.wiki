@@ -3,7 +3,7 @@
 
 = Quick Start = 
 
-  # *Choose a release* - the most recent is [Release21] (Volatility 2.1), released August 2012. Older versions are also available on the [http://code.google.com/p/volwiki/wiki/Downloads Downloads] page or respective release pages. If you want the cutting edge development build, use an svn client and [http://code.google.com/p/volatility/source/checkout checkout trunk]. 
+  # *Choose a release* - the most recent is [Release21] (Volatility 2.1), released August 2012. Older versions are also available on the [http://code.google.com/p/volatility/downloads/list Downloads] page or respective release pages. If you want the cutting edge development build, use an svn client and [http://code.google.com/p/volatility/source/checkout checkout trunk]. 
   # *Install the code* - Volatility is packaged in several formats, including source code in zip or tar archive (all platforms), a Pyinstaller executable (Windows only) and a standalone executable (Windows only). For help deciding which format is best for your needs, and for installation or upgrade instructions, see VolatilityInstallation.
   # *Target OS specific setup* - the Linux, Mac, and Andoid support may require accessing symbols and building your own profiles before using volatility. If you plan to analyze these operating systems, please see LinuxMemoryForensics, MacMemoryForensics, or AndroidMemoryForensics.
   # *Read usage and plugins* - command-line parameters, options, and plugins may differ between releases. Thus, each release has a basic usage page and a command reference. For Volatility 2.1, see VolatilityUsage21 and CommandReference21. 
