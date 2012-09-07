@@ -1,9 +1,4 @@
 #summary Example usage cases and output for Volatility 2.1 commands
-#labels Deprecated
-
-This is the Command Reference and plugin documentation for Volatility 2.1. It differs from the original [CommandReference] in that where possible, 64 bit images will be used for demonstration, it covers new plugins released with 2.1, and it describes any major changes in plugin behavior and/or output since the previous release. 
-
-Please note that not all memory samples used in the demonstrations are publicly available, but many of them are. For links to public test images, see [FAQ#Are_there_any_public_memory_samples_available_that_I_can_use_for].
 
 <wiki:toc max_depth="3" />
 
