@@ -1,0 +1,28 @@
+#summary Public Memory Images
+
+= Introduction = 
+
+This is a list of publicly available memory samples for testing purposes. 
+
+|| *Description* || *OS* ||
+|| [http://malwarecookbook.googlecode.com/svn-history/r26/trunk/17/6/be2.vmem.zip Malware - BlackEnergy] || Windows XP SP2 x86 ||
+|| [http://malwarecookbook.googlecode.com/svn-history/r26/trunk/16/6/coreflood.vmem.zip Malware- CoreFlood] || Windows XP SP2 x86 ||
+|| [http://malwarecookbook.googlecode.com/svn-history/r26/trunk/16/7/laqma.vmem.zip Malware - Laqma] || Windows XP SP2 x86 ||
+|| [http://malwarecookbook.googlecode.com/svn-history/r26/trunk/15/6/prolaco.vmem.zip Malware - Prolaco]|| Windows XP SP2 x86 ||
+|| [http://malwarecookbook.googlecode.com/svn-history/r26/trunk/17/11/sality.vmem.zip Malware - Sality]|| Windows XP SP2 x86 ||
+|| [http://malwarecookbook.googlecode.com/svn-history/r26/trunk/16/6/silentbanker.vmem.zip Malware - Silentbanker]|| Windows XP SP2 x86 ||
+|| [http://malwarecookbook.googlecode.com/svn-history/r26/trunk/17/8/tigger.vmem.zip Malware - Tigger]|| Windows XP SP2 x86 ||
+|| [http://malwarecookbook.googlecode.com/svn-history/r26/trunk/17/1/zeus.vmem.zip Malware - Zeus]|| Windows XP SP2 x86 ||
+|| [http://code.google.com/p/malwarecookbook/source/browse/trunk/spyeye.vmem.zip Malware - SpyEye]|| Windows XP SP2 x86 ||
+|| [http://malwarecookbook.googlecode.com/svn/trunk/stuxnet.vmem.zip Malware - Stuxnet]|| Windows XP SP3 x86||
+|| [http://files.sempersecurus.org/dumps/cridex_memdump.zip Malware - Cridex] || Windows XP SP2 x86 ||
+|| [http://various-things.googlecode.com/files/vmem2.zip Malware - Shylock] || Windows XP SP3 x86 ||
+|| [http://www.mediafire.com/file/yxqodp1p2aca91x/0zapftis.rar Malware - R2D2] (pw: infected) || Windows XP SP2 x86 ||
+|| [http://www.cfreds.nist.gov/mem/memory-images.rar NIST] (5 samples)|| Windows XP SP2, 2003 SP0, and Vista Beta 2 (all x86)||
+|| [http://cid-5694a755c9c6a175.skydrive.live.com/browse.aspx/Public Hogfly's skydrive] (13 samples)|| Assorted (mostly Windows XP x86) ||
+|| [http://amnesia.gtisc.gatech.edu/~moyix/ds_fuzz_hidden_proc.img.bz2 Moyix's Fuzzy Hidden Process Sample]|| Windows XP SP3 x86 ||
+|| [https://www.honeynet.org/challenges/2010_3_banking_troubles Honeynet Banking Troubles Image]|| Windows XP SP2 x86 ||
+|| [https://domex.nps.edu/corp/nps/scenarios/2009-m57-patents/ram/ NPS 2009-M57] (~70 samples) ||  Various XP / Vista x86 ||
+|| [http://dougee652.blogspot.com/2011/04/malware-memory-images.html Dougee's comparison samples]|| WIndows XP x86 ||
+|| [http://www.honeynet.org/challenges/2011_7_compromised_server Honeynet Compromised Server Challenge] || Linux Debian 2.6.26-26 x86 ||
+|| [http://secondlookforensics.com/images.html Pikeworks Linux Samples] || Linux CentOS and Ubuntu (x86/x64) ||
