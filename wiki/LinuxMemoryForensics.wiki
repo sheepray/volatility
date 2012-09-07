@@ -1,4 +1,5 @@
 #summary Instructions on how access and use the Linux support
+#labels Deprecated
 
 = Introduction =
 
