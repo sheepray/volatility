@@ -1,5 +1,3 @@
-# summary The Table of Contents for Volatility's Wiki
-
   * [VolatilityIntroduction Introduction]
   * Getting Started
       * [VolatilityInstallation Installation]
