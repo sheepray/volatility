@@ -1,4 +1,5 @@
 #summary Public Memory Images
+#labels Deprecated
 
 = Introduction =
 
