@@ -1,4 +1,5 @@
 #summary Projects Using Volatility
+#labels Deprecated
 
 This page lists third-party projects that leverage the power of Volatility.
 
