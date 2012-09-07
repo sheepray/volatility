@@ -1,4 +1,5 @@
 #summary Volatility Address Space Interface
+#labels Deprecated
 
 = Introduction =
 
