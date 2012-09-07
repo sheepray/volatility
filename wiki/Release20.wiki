@@ -1,0 +1,120 @@
+#summary Volatility 2.0 Release Notes
+
+= Introduction =
+
+Volatility 2.0 was released August 2011. 
+
+  * [http://volatility.googlecode.com/files/volatility-2.0.standalone.exe Volatility 2.0 Standalone Windows Program]
+  * [http://volatility.googlecode.com/files/volatility-2.0.win32.exe Volatility 2.0 Windows Module Installer]
+  * [http://volatility.googlecode.com/files/volatility-2.0.tar.gz 	Volatility 2.0 Source code (tgz)]
+  * [http://volatility.googlecode.com/files/volatility-2.0.zip Volatility 2.0 Source code (zip)]
+
+= Release Highlights = 
+
+  * Restructured and depolluted namespace
+  * Usage and Development Documentation
+  * New Configuration Subsystem
+  * New Caching Subsystem
+  * New Pluggable address spaces with automated election
+  * New Address Spaces (i.e. EWF, Firewire)
+  * Updated Object Model and Profile Subsystems (!VolatilityMagic)
+  * Support for Windows Server 2003, Windows Vista, Windows Server 2008, Windows 7
+  * Updated Scanning Framework
+  * Volshell integration
+  * Over 40 new plugins!
+
+= Operating Systems = 
+
+  * 32-bit Windows XP Service Pack 2 and 3
+  * <font color='red'>(new)</font> 32-bit Windows 2003 Server Service Pack 0, 1, 2
+  * <font color='red'>(new)</font> 32-bit Windows Vista Service Pack 0, 1, 2
+  * <font color='red'>(new)</font> 32-bit Windows 2008 Server Service Pack 1, 2 
+  * <font color='red'>(new)</font> 32-bit Windows 7 Service Pack 0, 1
+
+= Address Spaces = 
+
+  * !FileAddressSpace - This is a direct file AS
+  * Legacy Intel x86 address spaces
+      * IA32PagedMemoryPae 
+      * IA32PagedMemory
+  * Standard Intel x86 address spaces
+      * JKIA32PagedMemoryPae
+      * JKIA32PagedMemory
+  * [CrashAddressSpace WindowsCrashDumpSpace32] - This AS supports windows Crash Dump format (x86)
+  * [HiberAddressSpace WindowsHiberFileSpace32] - This AS supports windows hibernation files (x86)
+  * <font color='red'>(new)</font> [EWFAddressSpace EWFAddressSpace] - This AS supports expert witness (EWF) files
+  * <font color='red'>(new)</font> [FirewireAddressSpace FirewireAddressSpace] - This AS supports direct memory access over firewire
+
+= Plugins = 
+
+  * *Image Identification*
+      * [CommandReference20#imageinfo imageinfo] - Identify information for the image
+      * [CommandReference20#kdbgscan kdbgscan] - Search for and dump potential KDBG values
+      * [CommandReference20#kpcrscan kpcrscan] - Search for and dump potential `_KPCR` values
+  * *Process and DLLs*
+      * [CommandReference20#pslist pslist] - Print active processes by following the `_EPROCESS` list
+      * [CommandReference20#pstree pstree] - Print process list as a tree
+      * [CommandReference20#psscan psscan] - Scan Physical memory for `_EPROCESS` pool allocations
+      * [CommandReference20#dlllist dlllist] - Print list of loaded DLLs for each process
+      * [CommandReference20#dlldump dlldump] - Dump DLLs from a process address space
+      * [CommandReference20#handles handles] - Print list of open handles for each process
+      * [CommandReference20#getsids getsids] - Print the SIDs owning each process
+      * [CommandReference20#verinfo verinfo] - Print a PE file's version information 
+      * [CommandReference20#enumfunc enumfunc] - Enumerate a PE file's imports and exports
+  * *Process Memory*
+      * [CommandReference20#memmap memmap] - Print the memory map
+      * [CommandReference20#memdump memdump] - Dump the addressable memory for a process
+      * [CommandReference20#procexedump procexedump] - Dump a process to an executable file
+      * [CommandReference20#procmemdump procmemdump] - Dump a process to an executable memory sample
+      * [CommandReference20#vadwalk vadwalk] - Walk the VAD tree
+      * [CommandReference20#vadtree vadtree] - Walk the VAD tree and display in tree format
+      * [CommandReference20#vadinfo vadinfo] - Dump the VAD info
+      * [CommandReference20#vaddump vaddump] - Dumps out the vad sections to a file
+  * *Kernel Memory and Objects*
+      * [CommandReference20#modules modules] - Print list of loaded modules
+      * [CommandReference20#modscan modscan] - Scan Physical memory for `_LDR_DATA_TABLE_ENTRY` objects
+      * [CommandReference20#moddump moddump] - Extract a kernel driver to disk
+      * [CommandReference20#ssdt ssdt] - Print the Native and GDI System Service Descriptor Tables
+      * [CommandReference20#driverscan driverscan] - Scan physical memory for `_DRIVER_OBJECT` objects
+      * [CommandReference20#filescan filescan] - Scan physical memory for `_FILE_OBJECT` objects
+      * [CommandReference20#mutantscan mutantscan] - Scan physical memory for `_KMUTANT` objects
+      * [CommandReference20#symlinkscan symlinkscan] - Scans for symbolic link objects
+      * [CommandReference20#thrdscan thrdscan] - Scan physical memory for `_ETHREAD` objects
+  * *Networking*
+      * [CommandReference20#connections connections] - Print open connections (XP and 2003 only)
+      * [CommandReference20#connscan connscan] - Scan Physical memory for `_TCPT_OBJECT` objects (XP and 2003 only)
+      * [CommandReference20#sockets sockets] - Print open sockets (XP and 2003 only)
+      * [CommandReference20#sockscan sockscan] - Scan Physical memory for `_ADDRESS_OBJECT` (XP and 2003 only)
+      * [CommandReference20#netscan netscan] - Scan physical memory for network objects (Vista, 2008, and 7)
+  * *Registry*
+      * [CommandReference20#hivescan hivescan] - Scan Physical memory for `_CMHIVE` objects
+      * [CommandReference20#hivelist hivelist] - Print list of registry hives
+      * [CommandReference20#printkey printkey] - Print a registry key, and its subkeys and values
+      * [CommandReference20#hivedump hivedump] - Recursively prints all keys and timestamps in a given hive
+      * [CommandReference20#hashdump hashdump] - Dumps passwords hashes (LM/NTLM) from memory
+      * [CommandReference20#lsadump lsadump] - Dump (decrypted) LSA secrets from the registry
+      * [CommandReference20#userassist userassist] - Parses and output User Assist keys from the registry
+  * *File Formats*
+      * [CommandReference20#crashinfo crashinfo] - Dump crash-dump information
+      * [CommandReference20#hibinfo hibinfo] - Dump hibernation file information
+      * [CommandReference20#imagecopy imagecopy] - Copies a physical address space out as a raw DD image
+  * *Malware*
+      * [CommandReference20#malfind malfind] - Find hidden and injected code
+      * [CommandReference20#svcscan svcscan] - Scan for Windows services
+      * [CommandReference20#ldrmodules ldrmodules] - Detect unlinked DLLs
+      * [CommandReference20#impscan impscan] - Scan for calls to imported functions
+      * [CommandReference20#apihooks apihooks] - Detect API hooks in process and kernel memory
+      * [CommandReference20#idt idt] - Dumps the Interrupt Descriptor Table
+      * [CommandReference20#gdt gdt] - Dumps the Global Descriptor Table
+      * [CommandReference20#threads threads] - Investigate `_ETHREAD` and `_KTHREAD`s
+      * [CommandReference20#callbacks callbacks] - Print system-wide notification routines
+      * [CommandReference20#driverirp driverirp] - Driver IRP hook detection
+      * [CommandReference20#devicetree devicetree] - Show device tree
+      * [CommandReference20#psxview psxview] - Find hidden processes with various process listings
+      * [CommandReference20#timers timers] - Print kernel timers and associated module DPCs
+  * *Miscellaneous*
+      * [CommandReference20#strings strings] - Match physical offsets to virtual addresses
+      * [CommandReference20#volshell volshell] - Shell to interactively explore a memory image
+      * [CommandReference20#bioskbd bioskbd] - Reads the keyboard buffer from Real Mode memory
+      * [CommandReference20#patcher patcher] - Patches memory based on page scans
+     
