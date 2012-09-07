@@ -1,5 +1,5 @@
 #summary How to process command line options in your plugins
-#labels Phase-Implementation
+#labels Deprecated
 
 This page describes features available since Volatility 2.0 beta
 
