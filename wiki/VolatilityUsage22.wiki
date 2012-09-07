@@ -75,7 +75,7 @@ Options:
 
 == Selecting a Profile == 
 
-Volatility needs to know what type of system your memory dump came from, so it knows which data structures, algorithms, and symbols to use. A default profile of WinXPSP2x86 is set internally, so if you're analyzing a Windows XP SP2 x86 memory dump, you do not need to supply --profile at all. However, for all others, you must specify the proper profile name. If you do not know what type of system the memory dump is from, use the [http://code.google.com/p/volatility/wiki/CommandReference21#imageinfo imageinfo] or [http://code.google.com/p/volatility/wiki/CommandReference21#kdbgscan kdbgscan] plugins for a suggestion. 
+Volatility needs to know what type of system your memory dump came from, so it knows which data structures, algorithms, and symbols to use. A default profile of WinXPSP2x86 is set internally, so if you're analyzing a Windows XP SP2 x86 memory dump, you do not need to supply --profile at all. However, for all others, you must specify the proper profile name. If you do not know what type of system the memory dump is from, use the [http://code.google.com/p/volatility/wiki/CommandReference22#imageinfo imageinfo] or [http://code.google.com/p/volatility/wiki/CommandReference22#kdbgscan kdbgscan] plugins for a suggestion. 
 
 If you want to see a list of supported profile names, do the following:
 
@@ -162,13 +162,13 @@ The DTB (Directory Table Base) is what Volatility uses to translate virtual addr
 
 *This is a Windows-only option*
 
-Volatility scans for the KDDEBUGGER_DATA64 structure using hard-coded signatures "KDBG" and a series of sanity checks. These signatures are not critical for the operating system to function properly, thus malware can overwrite them in attempt to throw off tools that *do* rely on the signature. Additionally, in some cases there may be more than one KDDEBUGGER_DATA64 (for example if you apply a major OS update and don't reboot), which can cause confusion and lead to incorrect process and module listings, among other problems. If you know the address add KDDEBUGGER_DATA64, you can specify it with --kdbg=ADDRESS and this override the automated scans. For more information, see the [http://code.google.com/p/volatility/wiki/CommandReference21#kdbgscan kdbgscan] plugin. 
+Volatility scans for the KDDEBUGGER_DATA64 structure using hard-coded signatures "KDBG" and a series of sanity checks. These signatures are not critical for the operating system to function properly, thus malware can overwrite them in attempt to throw off tools that *do* rely on the signature. Additionally, in some cases there may be more than one KDDEBUGGER_DATA64 (for example if you apply a major OS update and don't reboot), which can cause confusion and lead to incorrect process and module listings, among other problems. If you know the address add KDDEBUGGER_DATA64, you can specify it with --kdbg=ADDRESS and this override the automated scans. For more information, see the [http://code.google.com/p/volatility/wiki/CommandReference22#kdbgscan kdbgscan] plugin. 
 
 == Setting the KPCR Address ==
 
 *This is a Windows-only option*
 
-There is one KPCR (Kernel Processor Control Region) for each CPU on a system. Some Volatility plugins display per-processor information. Thus if you want to display data for a specific CPU, for example CPU 3 instead of CPU 1, you can pass the address of that CPU's KPCR with --kpcr=ADDRESS. To locate the KPCRs for all CPUs, see the [http://code.google.com/p/volatility/wiki/CommandReference21#kpcrscan kpcrscan] plugin. Also note that starting in Volatility 2.2, many of the plugins such as [http://code.google.com/p/volatility/wiki/CommandReference21#idt idt] and [http://code.google.com/p/volatility/wiki/CommandReference21#gdt gdt] automatically iterate through the list of KPCRs.
+There is one KPCR (Kernel Processor Control Region) for each CPU on a system. Some Volatility plugins display per-processor information. Thus if you want to display data for a specific CPU, for example CPU 3 instead of CPU 1, you can pass the address of that CPU's KPCR with --kpcr=ADDRESS. To locate the KPCRs for all CPUs, see the [http://code.google.com/p/volatility/wiki/CommandReference22#kpcrscan kpcrscan] plugin. Also note that starting in Volatility 2.2, many of the plugins such as [http://code.google.com/p/volatility/wiki/CommandReference22#idt idt] and [http://code.google.com/p/volatility/wiki/CommandReference22#gdt gdt] automatically iterate through the list of KPCRs.
 
 == Enabling Write Support == 
 
