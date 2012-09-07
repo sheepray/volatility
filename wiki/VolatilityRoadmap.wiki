@@ -6,7 +6,7 @@
 
 This page is the official Volatility Roadmap. The goal of the Roadmap is to help set expectations as to when new features will be officially supported. Please keep in mind that on occasion the exact dates or features may change a bit based on resource availability, change in priority, or unforeseen circumstances, so please check back frequently.  Any date referenced as RC1 will also denote an official code freeze for that release, after which no new features will be added to the release and development efforts will primarily focus on testing the release candidate and fixing bugs as necessary.  After the official Release date, new features for the next release will be merged into trunk and thus available to those who track "bleeding edge".
 
-= Volatility 2.1 (Official x64 Support) =
+= ~~Volatility 2.1 (Official x64 Support)~~ =
 
 *RC1:* July 8, 2012
 *Release:* August 3, 2012
