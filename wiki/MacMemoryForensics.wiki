@@ -1,5 +1,4 @@
 #summary Instructions on how access and use the Mac OS X support
-#labels Deprecated
 
 = Overview =
 
