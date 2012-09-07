@@ -1,5 +1,4 @@
 #summary Volatility Roadmap
-#labels Featured
 
 <wiki:toc max_depth="1" />
 
