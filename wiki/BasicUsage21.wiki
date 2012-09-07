@@ -1,5 +1,5 @@
 #summary Basic Usage for Volatility 2.1
-#labels Featured
+#labels Deprecated
 
 <wiki:toc />
 
