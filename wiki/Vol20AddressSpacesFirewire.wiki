@@ -1,4 +1,5 @@
 #summary Information on using the Volatility 2.0 Firewire Address Space
+#labels Deprecated
 
 = Introduction =
 
