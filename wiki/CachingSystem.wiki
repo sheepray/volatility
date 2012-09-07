@@ -1,4 +1,5 @@
 #summary Design document of the caching system
+#labels Deprecated
 
 = The volatility Caching Subsystem =
 
