@@ -1,0 +1,141 @@
+#summary Volatility 2.1 Release Notes
+
+= Introduction =
+
+Volatility 2.1 was released August 2012. 
+
+  * [http://volatility.googlecode.com/files/volatility-2.1.standalone.exe Volatility 2.1 Standalone Windows Program]
+  * [http://volatility.googlecode.com/files/volatility-2.1.win32.exe Volatility 2.1 Windows Module Installer]
+  * [http://volatility.googlecode.com/files/volatility-2.1.tar.gz 	Volatility 2.1 Source code (tgz)]
+  * [http://volatility.googlecode.com/files/volatility-2.1.zip Volatility 2.1 Source code (zip)]
+
+= Release Highlights = 
+
+  * New Address Spaces (AMD64PagedMemory, !WindowsCrashDumpSpace64)
+  * Majority of Existing Plugins Updated with x64 Support
+  * Merged Malware Plugins into Volatility Core with Preliminary x64 Support 
+  * !WindowsHiberFileSpace32 Overhaul (also includes x64 Support)
+  * Now supports all major x64 Windows Operating Systems
+  * Plugin Additions
+    * Printing Process Environment Variables (envvars)
+    * Inspecting the Shim Cache (shimcache)
+    * Profiling Command History and Console Usage (cmdscan, consoles)
+    * Converting x86 and x64 Raw Dumps to MS Crash Dump (raw2dmp)
+  * Plugin Enhancements
+    * Verbose details for kdbgscan and kpcrscan
+    * idt/gdt/timers plugins cycle automatically for each CPU
+    * apihooks detects LSP/winsock procedure tables
+  * New Output Formatting Support (Table Rendering)
+  * New Mechanism for Profile Modifications
+  * New Registry API Support
+  * New Volshell Commands
+  * Updated Documentation and Command Reference
+
+= Operating Systems = 
+
+  * 32-bit Windows XP Service Pack 2 and 3
+  * 32-bit Windows 2003 Server Service Pack 0, 1, 2
+  * 32-bit Windows Vista Service Pack 0, 1, 2
+  * 32-bit Windows 2008 Server Service Pack 1, 2 
+  * 32-bit Windows 7 Service Pack 0, 1
+  * <font color='red'>(new)</font> 64-bit Windows XP Service Pack 1 and 2 
+  * <font color='red'>(new)</font> 64-bit Windows 2003 Server Service Pack 1 and 2 
+  * <font color='red'>(new)</font> 64-bit Windows Vista Service Pack 0, 1, 2
+  * <font color='red'>(new)</font> 64-bit Windows 2008 Server Service Pack 1 and 2 
+  * <font color='red'>(new)</font> 64-bit Windows 2008 `R2` Server Service Pack 0 and 1
+  * <font color='red'>(new)</font> 64-bit Windows 7 Service Pack 0 and 1
+
+= Address Spaces =
+
+  * !FileAddressSpace - This is a direct file AS
+  * Legacy Intel x86 address spaces
+      * IA32PagedMemoryPae 
+      * IA32PagedMemory
+  * Standard Intel x86 address spaces
+      * JKIA32PagedMemoryPae
+      * JKIA32PagedMemory
+  * <font color='red'>(new)</font> AMD64PagedMemory - This AS supports AMD 64-bit address spaces
+  * [CrashAddressSpace WindowsCrashDumpSpace32] - This AS supports windows Crash Dump format (x86)
+  * <font color='red'>(new)</font> [CrashAddressSpace WindowsCrashDumpSpace64] - This AS supports windows Crash Dump format (x64)
+  * <font color='red'>(new)</font> [HiberAddressSpace WindowsHiberFileSpace32] - This AS supports windows hibernation files (x86 and x64)
+  * [EWFAddressSpace EWFAddressSpace] - This AS supports expert witness (EWF) files
+  * [FirewireAddressSpace FirewireAddressSpace] - This AS supports direct memory access over firewire
+
+= Plugins = 
+
+  * *Image Identification*
+      * [CommandReference21#imageinfo imageinfo] - Identify information for the image
+      * [CommandReference21#kdbgscan kdbgscan] - Search for and dump potential KDBG values
+      * [CommandReference21#kpcrscan kpcrscan] - Search for and dump potential `_KPCR` values
+  * *Process and DLLs*
+      * [CommandReference21#pslist pslist] - Print active processes by following the `_EPROCESS` list
+      * [CommandReference21#pstree pstree] - Print process list as a tree
+      * [CommandReference21#psscan psscan] - Scan Physical memory for `_EPROCESS` pool allocations
+      * [CommandReference21#psdispscan psdispscan] - Scan Physical memory for `_EPROCESS` objects based on Dispatch Headers (Windows XP x86 only)
+      * [CommandReference21#dlllist dlllist] - Print list of loaded DLLs for each process
+      * [CommandReference21#dlldump dlldump] - Dump DLLs from a process address space
+      * [CommandReference21#handles handles] - Print list of open handles for each process
+      * [CommandReference21#getsids getsids] - Print the SIDs owning each process
+      * [CommandReference21#verinfo verinfo] - Print a PE file's version information 
+      * [CommandReference21#enumfunc enumfunc] - Enumerate a PE file's imports and exports
+      * <font color='red'>(new)</font> [CommandReference21#envars envars] - Display process environment variables
+      * <font color='red'>(new)</font> [CommandReference21#cmdscan cmdscan] - Extract command history by scanning for `_COMMAND_HISTORY`
+      * <font color='red'>(new)</font> [CommandReference21#consoles consoles] - Extract command history by scanning for `_CONSOLE_INFORMATION`
+  * *Process Memory*
+      * [CommandReference21#memmap memmap] - Print the memory map
+      * [CommandReference21#memdump memdump] - Dump the addressable memory for a process
+      * [CommandReference21#procexedump procexedump] - Dump a process to an executable file
+      * [CommandReference21#procmemdump procmemdump] - Dump a process to an executable memory sample
+      * [CommandReference21#vadwalk vadwalk] - Walk the VAD tree
+      * [CommandReference21#vadtree vadtree] - Walk the VAD tree and display in tree format
+      * [CommandReference21#vadinfo vadinfo] - Dump the VAD info
+      * [CommandReference21#vaddump vaddump] - Dumps out the vad sections to a file
+  * *Kernel Memory and Objects*
+      * [CommandReference21#modules modules] - Print list of loaded modules
+      * [CommandReference21#modscan modscan] - Scan Physical memory for `_LDR_DATA_TABLE_ENTRY` objects
+      * [CommandReference21#moddump moddump] - Extract a kernel driver to disk
+      * [CommandReference21#ssdt ssdt] - Print the Native and GDI System Service Descriptor Tables
+      * [CommandReference21#driverscan driverscan] - Scan physical memory for `_DRIVER_OBJECT` objects
+      * [CommandReference21#filescan filescan] - Scan physical memory for `_FILE_OBJECT` objects
+      * [CommandReference21#mutantscan mutantscan] - Scan physical memory for `_KMUTANT` objects
+      * [CommandReference21#symlinkscan symlinkscan] - Scans for symbolic link objects
+      * [CommandReference21#thrdscan thrdscan] - Scan physical memory for `_ETHREAD` objects
+  * *Networking*
+      * [CommandReference21#connections connections] - Print open connections (XP and 2003 only)
+      * [CommandReference21#connscan connscan] - Scan Physical memory for `_TCPT_OBJECT` objects (XP and 2003 only)
+      * [CommandReference21#sockets sockets] - Print open sockets (XP and 2003 only)
+      * [CommandReference21#sockscan sockscan] - Scan Physical memory for `_ADDRESS_OBJECT` (XP and 2003 only)
+      * [CommandReference21#netscan netscan] - Scan physical memory for network objects (Vista, 2008, and 7)
+  * *Registry*
+      * [CommandReference21#hivescan hivescan] - Scan Physical memory for `_CMHIVE` objects
+      * [CommandReference21#hivelist hivelist] - Print list of registry hives
+      * [CommandReference21#printkey printkey] - Print a registry key, and its subkeys and values
+      * [CommandReference21#hivedump hivedump] - Recursively prints all keys and timestamps in a given hive
+      * [CommandReference21#hashdump hashdump] - Dumps passwords hashes (LM/NTLM) from memory (x86 only)
+      * [CommandReference21#lsadump lsadump] - Dump (decrypted) LSA secrets from the registry (XP and 2003 x86 only)
+      * [CommandReference21#userassist userassist] - Parses and output User Assist keys from the registry
+      * <font color='red'>(new)</font> [CommandReference21#shimcache shimcache] - Parses the Application Compatibility Shim Cache registry key
+  * *File Formats*
+      * [CommandReference21#crashinfo crashinfo] - Dump crash-dump information
+      * [CommandReference21#hibinfo hibinfo] - Dump hibernation file information
+      * [CommandReference21#imagecopy imagecopy] - Copies a physical address space out as a raw DD image
+      * <font color='red'>(new)</font> [CommandReference21#raw2dmp raw2dmp] - Converts a physical memory sample to a windbg crash dump
+  * *Malware*
+      * [CommandReference21#malfind malfind] - Find hidden and injected code
+      * [CommandReference21#svcscan svcscan] - Scan for Windows services
+      * [CommandReference21#ldrmodules ldrmodules] - Detect unlinked DLLs
+      * [CommandReference21#impscan impscan] - Scan for calls to imported functions
+      * [CommandReference21#apihooks apihooks] - Detect API hooks in process and kernel memory (x86 only)
+      * [CommandReference21#idt idt] - Dumps the Interrupt Descriptor Table (x86 only)
+      * [CommandReference21#gdt gdt] - Dumps the Global Descriptor Table (x86 only)
+      * [CommandReference21#threads threads] - Investigate `_ETHREAD` and `_KTHREAD`s
+      * [CommandReference21#callbacks callbacks] - Print system-wide notification routines (x86 only)
+      * [CommandReference21#driverirp driverirp] - Driver IRP hook detection
+      * [CommandReference21#devicetree devicetree] - Show device tree
+      * [CommandReference21#psxview psxview] - Find hidden processes with various process listings
+      * [CommandReference21#timers timers] - Print kernel timers and associated module DPCs (x86 only)
+  * *Miscellaneous*
+      * [CommandReference21#strings strings] - Match physical offsets to virtual addresses
+      * [CommandReference21#volshell volshell] - Shell to interactively explore a memory image
+      * [CommandReference21#bioskbd bioskbd] - Reads the keyboard buffer from Real Mode memory
+      * [CommandReference21#patcher patcher] - Patches memory based on page scans
