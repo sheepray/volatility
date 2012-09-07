@@ -1,4 +1,5 @@
 #summary Volatility Documentation Project (Community Research) ordered by date
+#labels Deprecated
 
 = Introduction =
 
