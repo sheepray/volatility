@@ -1,4 +1,5 @@
 #summary A developers guide for Volatility 2.0.
+#labels Deprecated
 
 = Introduction =
 
