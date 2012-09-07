@@ -1,5 +1,5 @@
 #summary Description of the scanning infrastructure in volatility
-#labels Phase-Implementation
+#labels Deprecated
 
 This page documents features available after Volatility 1.4 beta.
 
