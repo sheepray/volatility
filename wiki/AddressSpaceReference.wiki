@@ -1,0 +1,13 @@
+#summary A summary of volatility's address spaces
+
+= Introduction =
+
+Volatility can handle RAM dumps in various formats. This is a summary of the capabilities and links to where you can learn how to identify and acquire memory in the respective formats. You'll also find notes and information regarding limitations to the formats. 
+
+= Details =
+
+  * [FirewireAddressSpace] - Acquisition over Firewire 
+  * [CrashAddressSpace] - Microsoft crash dump files 
+  * [HiberAddressSpace] - Microsoft hibernation files
+  * [EWFAddressSpace] - Expert Witness (EWF) files
+  * [LimeAddressSpace] - LiME (Linux Memory Extractor) files
