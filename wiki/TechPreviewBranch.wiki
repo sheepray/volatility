@@ -1,4 +1,4 @@
-#summary An outline of scudette's branch.
+#summary An outline of the tech preview branch
 <g:plusone size="medium"></g:plusone>
 
 <wiki:toc max_depth="2" />
