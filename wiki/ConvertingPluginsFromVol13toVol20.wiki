@@ -1,4 +1,5 @@
 #summary Explains how to go about converting volatility 1.3 plugins to volatility 2.0.
+#labels Deprecated
 
 = Introduction =
 
