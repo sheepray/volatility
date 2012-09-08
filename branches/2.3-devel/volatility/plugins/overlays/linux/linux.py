@@ -56,6 +56,9 @@ linux_overlay = {
     'sockaddr_un' : [None, {
         'sun_path'      : [ None , ['String', dict(length = 108)]],
         }],
+    'hlist_head' : [None, {
+        'first'      : [ None , ['pointer', ['hlist_node']]],
+        }],
     'dentry' : [None, {
         'd_u'      : [ None , ['list_head', {}]],
     }],
@@ -235,6 +238,21 @@ def LinuxProfileFactory(profpkg):
 
             return high_addr
 
+        def get_symbol_by_address(self, module, sym_address):
+            ret = ""
+            symtable = self.sys_map
+
+            mod = symtable[module]
+        
+            for (name, addrs) in mod.items():
+                
+                for (addr, addr_type) in addrs:
+                    if sym_address == addr:
+                        ret = name
+                        break   
+ 
+            return ret
+
         def get_symbol(self, sym_name, nm_type = "", sym_type = "", module = "kernel"):
             """Gets a symbol out of the profile
             
@@ -380,7 +398,7 @@ class hlist_node(obj.CType):
 
     def __nonzero__(self):
         ## List entries are valid when both Flinks and Blink are valid
-        return bool(self.next) or bool(self.prev)
+        return bool(self.next) or bool(self.pprev)
 
     def __iter__(self):
         return self.list_of_type(self.obj_parent.obj_name, self.obj_name)
@@ -493,11 +511,22 @@ class desc_struct(obj.CType):
 
 class task_struct(obj.CType):
 
+    def is_valid_task(self): 
+        
+        ret = self.fs.v() != 0 and self.files.v() != 0
+
+        if ret and self.members.get("cred"):
+            ret = self.cred.is_valid()
+
+        return ret
+
     @property
     def uid(self):
         ret = self.members.get("uid")
         if ret is None:
             ret = self.cred.uid
+        else:
+            ret = self.m("uid")
 
         return ret
 
@@ -506,7 +535,8 @@ class task_struct(obj.CType):
         ret = self.members.get("gid")
         if ret is None:
             ret = self.cred.gid
-
+        else:
+            ret = self.m("gid")
         return ret
 
     @property
@@ -514,7 +544,8 @@ class task_struct(obj.CType):
         ret = self.members.get("euid")
         if ret is None:
             ret = self.cred.euid
-
+        else:
+            ret = self.m("euid")
         return ret
 
     def get_process_address_space(self):
