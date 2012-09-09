@@ -32,35 +32,39 @@ MAX_STRING_LENGTH = 256
 import time
 nsecs_per = 1000000000
 
-# FIXME
-# get rid of this! used by lsof
-def mask_number(num):
-    return num & 0xffffffff
+def set_plugin_members(obj_ref):
+
+    obj_ref.addr_space = utils.load_as(obj_ref._config)
 
 class AbstractLinuxCommand(commands.Command):
 
     def __init__(self, *args, **kwargs):
+        self.addr_space = None
         commands.Command.__init__(self, *args, **kwargs)
-        self.addr_space = utils.load_as(self._config)
-        self.profile = self.addr_space.profile
-       
-        # this was the old method to get data from system.map, do not use anymore, use get_symbol below instead
-        # self.smap       = self.profile.sysmap
 
+    @property
+    def profile(self):
+        if self.addr_space:
+            return self.addr_space.profile
+        return None
+
+    def execute(self, *args, **kwargs):
+        commands.Command.execute(self, *args, **kwargs)
+    
     @staticmethod
     def is_valid_profile(profile):
         return profile.metadata.get('os', 'Unknown').lower() == 'linux'
 
-    '''
-    Gets a symbol out of the profile
-    syn_name -> name of the symbol
-    nm_tyes  -> types as defined by 'nm' (man nm for examples)
-    sym_type -> the type of the symbol (passing Pointer will provide auto deref)
-    module   -> which module to get the symbol from, default is kernel, otherwise can be any name seen in 'lsmod'
-
-    Just a wrapper for AbstractLinuxProfile.get_symbol
-    '''
     def get_profile_symbol(self, sym_name, nm_type = "", sym_type = "", module = "kernel"):
+        '''
+        Gets a symbol out of the profile
+        syn_name -> name of the symbol
+        nm_tyes  -> types as defined by 'nm' (man nm for examples)
+        sym_type -> the type of the symbol (passing Pointer will provide auto deref)
+        module   -> which module to get the symbol from, default is kernel, otherwise can be any name seen in 'lsmod'
+
+        Just a wrapper for AbstractLinuxProfile.get_symbol
+        '''
         return self.profile.get_symbol(sym_name, nm_type, sym_type, module)
 
     # In 2.6.3x, Linux changed how the symbols for per_cpu variables were named
@@ -73,19 +77,19 @@ class AbstractLinuxCommand(commands.Command):
             ret = self.get_profile_symbol("per_cpu__" + sym_name, module = module)
 
         return ret
- 
+
     ## FIXME: This currently returns using localtime, we should probably use UTC?
     def get_task_start_time(self, task):
 
         start_time = task.start_time
-        
+
         start_secs = start_time.tv_sec + (start_time.tv_nsec / nsecs_per / 100)
-        
+
         sec = get_boot_time(self) + start_secs
 
         return time.strftime("%a, %d %b %Y %H:%M:%S +0000", time.localtime(sec))
 
-       
+
 # returns a list of online cpus (the processor numbers)
 def online_cpus(self):
 
@@ -122,7 +126,7 @@ def walk_per_cpu_var(obj_ref, per_var, var_type):
     for i in range(max_cpu):
 
         offset = per_offsets[i]
-       
+
         cpu_var = obj_ref.get_per_cpu_symbol(per_var)
 
         addr = cpu_var + offset.v()
@@ -137,7 +141,7 @@ def get_time_vars(obj_ref):
     '''
 
     wall_addr = obj_ref.get_profile_symbol("wall_to_monotonic")
-    
+
     # old way
     if wall_addr:
         wall = obj.Object("timespec", offset = wall_addr, vm = obj_ref.addr_space)
@@ -152,7 +156,7 @@ def get_time_vars(obj_ref):
         timekeeper = obj.Object("timekeeper", offset = timekeeper_addr, vm = obj_ref.addr_space)
 
         wall = timekeeper.wall_to_monotonic
-        timeo = timekeeper.total_sleep_time 
+        timeo = timekeeper.total_sleep_time
 
     return (wall, timeo)
 
@@ -161,10 +165,10 @@ def get_boot_time(obj_ref):
 
     (wall, timeo) = get_time_vars(obj_ref)
 
-    secs  = wall.tv_sec  + timeo.tv_sec
-    nsecs = wall.tv_nsec + timeo.tv_nsec 
+    secs = wall.tv_sec + timeo.tv_sec
+    nsecs = wall.tv_nsec + timeo.tv_nsec
 
-    secs  = secs  * -1
+    secs = secs * -1
     nsecs = nsecs * -1
 
     while nsecs >= nsecs_per:
@@ -212,11 +216,11 @@ def do_get_path(rdentry, rmnt, dentry, vfsmnt):
         return []
 
     while (dentry != rdentry or vfsmnt != rmnt) and dentry.d_name.name.is_valid():
-        
+
         dname = dentry.d_name.name.dereference_as("String", length = MAX_STRING_LENGTH)
-        
+
         ret_path.append(dname.strip('/'))
-        
+
         if dentry == vfsmnt.mnt_root or dentry == dentry.d_parent:
             if vfsmnt.mnt_parent == vfsmnt.v():
                 break
@@ -257,7 +261,7 @@ def get_obj(self, ptr, sname, member):
 
     offset = self.profile.get_obj_offset(sname, member)
 
-    addr  = ptr - offset
+    addr = ptr - offset
 
     return obj.Object(sname, offset = addr, vm = self.addr_space)
 
@@ -423,6 +427,7 @@ def get_phys_addr_section(self, page):
     return -1
 '''
 
+# FIXME - use 'class page' overlay?
 def phys_addr_of_page(self, page):
 
     mem_map_addr = self.get_profile_symbol("mem_map")
@@ -436,7 +441,7 @@ def phys_addr_of_page(self, page):
         # this is hardcoded in the kernel - VMEMMAPSTART, usually 64 bit kernels
         # NOTE: This is really 0xffff0xea0000000000 but we chop to its 48 bit equivalent
         # FIXME: change in 2.3 when truncation no longer occurs
-        mem_map_ptr = 0xea0000000000 
+        mem_map_ptr = 0xea0000000000
 
     else:
         debug.error("phys_addr_of_page: Unable to determine physical address of page\n")
@@ -445,7 +450,7 @@ def phys_addr_of_page(self, page):
 
     phys_offset = phys_offset << 12
 
-    return phys_offset 
+    return phys_offset
 
 def radix_tree_is_indirect_ptr(self, ptr):
 
@@ -453,13 +458,13 @@ def radix_tree_is_indirect_ptr(self, ptr):
 
 def radix_tree_indirect_to_ptr(self, ptr):
 
-    return obj.Object("radix_tree_node", offset = ptr & ~1, vm = self.addr_space)        
+    return obj.Object("radix_tree_node", offset = ptr & ~1, vm = self.addr_space)
 
 def radix_tree_lookup_slot(self, root, index):
 
-    self.RADIX_TREE_MAP_SHIFT   = 6
-    self.RADIX_TREE_MAP_SIZE    = 1 << self.RADIX_TREE_MAP_SHIFT
-    self.RADIX_TREE_MAP_MASK    = self.RADIX_TREE_MAP_SIZE - 1
+    self.RADIX_TREE_MAP_SHIFT = 6
+    self.RADIX_TREE_MAP_SIZE = 1 << self.RADIX_TREE_MAP_SHIFT
+    self.RADIX_TREE_MAP_MASK = self.RADIX_TREE_MAP_SIZE - 1
 
     node = root.rnode
 
@@ -477,7 +482,7 @@ def radix_tree_lookup_slot(self, root, index):
         return page
 
     node = radix_tree_indirect_to_ptr(self, node)
-    
+
     height = node.height
 
     shift = (height - 1) * self.RADIX_TREE_MAP_SHIFT
@@ -486,7 +491,7 @@ def radix_tree_lookup_slot(self, root, index):
 
     while 1:
 
-        idx  = (index >> shift) & self.RADIX_TREE_MAP_MASK
+        idx = (index >> shift) & self.RADIX_TREE_MAP_MASK
 
         slot = node.slots[idx]
 
@@ -526,9 +531,9 @@ def get_page_contents(self, inode, idx):
         #print "inode: %lx | %lx page: %lx" % (inode, inode.v(), page)
 
         phys_offset = phys_addr_of_page(self, page)
-        
+
         phys_as = utils.load_as(self._config, astype = 'physical')
-        
+
         data = phys_as.read(phys_offset, 4096)
     else:
         data = "\x00" * 4096
@@ -542,7 +547,7 @@ def get_file_contents(self, inode):
     data = ""
     file_size = inode.i_size
 
-    extra = file_size % 4096 
+    extra = file_size % 4096
 
     idxs = file_size / 4096
 
@@ -555,7 +560,7 @@ def get_file_contents(self, inode):
         data = data + get_page_contents(self, inode, idx)
 
     # this is chop off any extra data on the last page
-    
+
     if extra != 0:
         extra = extra * -1
 
@@ -563,6 +568,47 @@ def get_file_contents(self, inode):
 
     return data
 
+def is_known_address(obj_ref, addr, modules):
 
+    text  = obj_ref.profile.get_symbol("_text", sym_type="Pointer")
+    etext = obj_ref.profile.get_symbol("_etext", sym_type="Pointer")
+
+    if text <= addr < etext or address_in_module(modules, addr):
+        known = 1
+    else:
+        known = 0
+
+    return known
+
+# This returns the name of the module that contains an address or None
+# The module_list parameter comes from a call to get_modules
+# This function will be updated after 2.2 to resolve symbols within the module as well
+def address_in_module(module_list, address):
+    ret = None
+
+    for (name, start, end) in module_list:
+         
+        if start <= address < end:
+            
+            ret = name
+            break
+
+    return ret
+
+def verify_ops(obj_ref, fops, op_members, modules):
+
+    for check in op_members:
+        addr = fops.m(check)
+
+        if addr and addr != 0:
+                        
+            if addr in obj_ref.known_addrs:
+                known = obj_ref.known_addrs[addr]
+            else:
+                known = is_known_address(obj_ref, addr, modules)
+                obj_ref.known_addrs[addr] = known
+
+            if known == 0:
+                yield (check, addr)
 
 

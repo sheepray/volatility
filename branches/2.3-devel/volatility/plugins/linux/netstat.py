@@ -38,14 +38,14 @@ class linux_netstat(linux_common.AbstractLinuxCommand):
         self._config.add_option('IGNORE_UNIX', short_option = 'U', default = None, help = 'ignore unix sockets', action = 'store_true')
 
     def calculate(self):
-
+        linux_common.set_plugin_members(self)
         if not self.profile.has_type("inet_sock"):
             # ancient (2.6.9) centos kernels do not have inet_sock in debug info
             raise AttributeError, "Given profile does not have inet_sock, please file a bug if the kernel version is > 2.6.11"
 
         openfiles = linux_lsof.linux_lsof(self._config).calculate()
 
-        for (task, filp, _i) in openfiles:
+        for (task, filp, i) in openfiles:
 
             # its a socket!
             if filp.f_op == self.get_profile_symbol("socket_file_ops") or filp.dentry.d_op == self.get_profile_symbol("sockfs_dentry_operations"):
@@ -54,11 +54,11 @@ class linux_netstat(linux_common.AbstractLinuxCommand):
                 skt = self.SOCKET_I(iaddr)
                 inet_sock = obj.Object("inet_sock", offset = skt.sk, vm = self.addr_space)
 
-                yield task, inet_sock
+                yield task, i, inet_sock
 
     def render_text(self, outfd, data):
 
-        for task, inet_sock in data:
+        for task, _fd, inet_sock in data:
 
             proto = self.get_proto_str(inet_sock)
 

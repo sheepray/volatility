@@ -29,6 +29,7 @@ class linux_ifconfig(linux_common.AbstractLinuxCommand):
     """Gathers active interfaces"""
 
     def calculate(self):
+        linux_common.set_plugin_members(self)
 
         # newer kernels
         if self.get_profile_symbol("net_namespace_list"):
@@ -73,7 +74,8 @@ class linux_ifconfig(linux_common.AbstractLinuxCommand):
 
         self.table_header(outfd, [("Interface", "16"), 
                                   ("IP Address", "20"), 
-                                  ("MAC Address", "")])
+                                  ("MAC Address", "18"),
+                                  ("Promiscous Mode", "5")])
                                   
         for net_dev, in_dev in data:
 
@@ -90,5 +92,5 @@ class linux_ifconfig(linux_common.AbstractLinuxCommand):
 
             mac_addr = ":".join(["{0:02x}".format(x) for x in hwaddr][:6])
 
-            self.table_row(outfd, net_dev.name, ip, mac_addr)
+            self.table_row(outfd, net_dev.name, ip, mac_addr, str(net_dev.promisc))
 
