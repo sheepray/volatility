@@ -87,26 +87,40 @@ Soon, a wiki page will be created that details every plugin and its output. Unti
 {{{
 $ python vol.py --info | grep -i linux_
 Volatile Systems Volatility Framework 2.2_alpha
-linux_arp          - Print the ARP table
-linux_cpuinfo      - Prints info about each active processor
-linux_dmesg        - Gather dmesg buffer
-linux_dump_map     - No docs        
-linux_ifconfig     - Gathers active interfaces
-linux_iomem        - Provides output similar to /proc/iomem
-linux_lsmod        - Gather loaded kernel modules
-linux_lsof         - Lists open files
-linux_memmap       - Dumps the memory map for linux tasks.
-linux_mount        - Gather mounted fs/devices
-linux_netstat      - Lists open sockets
-linux_pidhashtable - Enumerates processes through the PID hash table
-linux_proc_maps    - gathers process maps for linux
-linux_psaux        - gathers processes along with full command line and start time
-linux_pslist       - Gather active tasks by walking the task_struct->task list
-linux_pstree       - shows the parent/child relationship between processes
-linux_psxview      - Find hidden processes with various process listings
-linux_route        - lists routing table
-linux_route_cache  - Lists routing table
-linux_tmpfs        - recovers tmpfs filesystems from memory
+linux_arp           - Print the ARP table
+linux_bash          - Recover bash history from bash process memory        
+linux_check_afinfo  - Verifies the operation function pointers of network protocols
+linux_check_creds   - Checks if any processes are sharing credential structures
+linux_check_fop     - Check file operation structures for rootkit modifications
+linux_check_idt     - Checks if the IDT has been altered
+linux_check_modules - Compares module list to sysfs info, if available
+linux_check_syscall - Checks if the system call table has been altered
+linux_cpuinfo       - Prints info about each active processor
+linux_dentry_cache  - Gather files from the dentry cache
+linux_dmesg         - Gather dmesg buffer
+linux_dump_map      - Writes selected memory mappings to disk
+linux_find_file     - Recovers tmpfs filesystems from memory
+linux_ifconfig      - Gathers active interfaces
+linux_iomem         - Provides output similar to /proc/iomem
+linux_lsmod         - Gather loaded kernel modules
+linux_lsof          - Lists open files
+linux_memmap        - Dumps the memory map for linux tasks
+linux_mount         - Gather mounted fs/devices
+linux_mount_cache   - Gather mounted fs/devices from kmem_cache
+linux_netstat       - Lists open sockets
+linux_pidhashtable  - Enumerates processes through the PID hash table
+linux_pkt_queues    - Writes per-process packet queues out to disk
+linux_proc_maps     - Gathers process maps for linux
+linux_psaux         - Gathers processes along with full command line and start time
+linux_pslist        - Gather active tasks by walking the task_struct->task list
+linux_pslist_cache  - Gather tasks from the kmem_cache
+linux_pstree        - Shows the parent/child relationship between processes
+linux_psxview       - Find hidden processes with various process listings
+linux_route_cache   - Recovers the routing cache from memory
+linux_sk_buff_cache - Gather files from the dentry cache
+linux_slabinfo      - Mimics /proc/slabinfo on a running machine
+linux_tmpfs         - Recovers tmpfs filesystems from memory
+linux_vma_cache     - Gather VMAs from the vm_area_struct cache
 }}}
 
 = Acquiring memory =
