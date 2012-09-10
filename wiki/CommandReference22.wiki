@@ -3376,6 +3376,12 @@ This plugin finds rootkits that break themselves from the module list but not sy
 
 === linux_tmpfs === 
 
+== Rootkit Detection == 
+
+=== linux_check_creds ===
+
+The purpose of this plugin is to check if any processes are sharing 'cred' structures. In the beginning of the 2.6 kernel series, the user ID and group ID were just simple integers, so rootkits could elevate the privleges of userland processes by setting these to 0 (root). In later kernels, credentials are kept in a fairly complicated 'cred' structure. So now rootkits instead of allocating and setting their own 'cred' structure simply set a processes cred structure to be that of another root process that does not exit (usually init / pid 1).  This plugin checks for any processes sharing 'cred' structures and reports them as the kernel would normally never do this. It finds a wide range of rootkits and rootkit activity and you can focus your investigation on elevated process (i.e. bash)
+
 == Networking == 
 
 === linux_arp ===
