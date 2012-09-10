@@ -29,7 +29,7 @@ import volatility.plugins.linux.proc_maps as linux_proc_maps
 class linux_dump_map(linux_common.AbstractLinuxCommand):
     """ Writes selected memory mappings to disk """
 
-    def __init__(self, config, *args): 
+    def __init__(self, config, *args):
 
         linux_common.AbstractLinuxCommand.__init__(self, config, *args)
         self._config.add_option('VMA', short_option = 's', default = None, help = 'Filter by VMA starting address', action = 'store', type = 'long')
@@ -37,7 +37,7 @@ class linux_dump_map(linux_common.AbstractLinuxCommand):
 
     def read_addr_range(self, task, start, end):
 
-        pagesize = 4096 # TODO 64bit
+        pagesize = 4096 
 
         # set the as with our new dtb so we can read from userland
         proc_as = task.get_process_address_space()

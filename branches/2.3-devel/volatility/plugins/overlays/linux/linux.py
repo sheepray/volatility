@@ -31,10 +31,10 @@ import zipfile
 import volatility.plugins
 import volatility.plugins.overlays.basic as basic
 import volatility.plugins.overlays.native_types as native_types
+import volatility.exceptions as exceptions
 import volatility.obj as obj
 import volatility.debug as debug
 import volatility.dwarf as dwarf
-import volatility.utils as utils
 
 x64_native_types = copy.deepcopy(native_types.x64_native_types)
 
@@ -157,12 +157,40 @@ def LinuxProfileFactory(profpkg):
             self.load_modifications()
             self.compile()
 
+        def _merge_anonymous_members(self, vtypesvar):
+            members_index = 1
+            types_index = 1
+            offset_index = 0
+
+            try:
+                for candidate in vtypesvar:
+                    done = False
+                    while not done:
+                        if any(member.startswith('__unnamed_') for member in vtypesvar[candidate][members_index]):
+                            for member in vtypesvar[candidate][members_index].keys():
+                                if member.startswith('__unnamed_'):
+                                    member_type = vtypesvar[candidate][members_index][member][types_index][0]
+                                    location = vtypesvar[candidate][members_index][member][offset_index]
+                                    vtypesvar[candidate][members_index].update(vtypesvar[member_type][members_index])
+                                    for name in vtypesvar[member_type][members_index].keys():
+                                        vtypesvar[candidate][members_index][name][offset_index] += location
+                                    del vtypesvar[candidate][members_index][member]
+                            # Don't update done because we'll need to check if any
+                            # of the newly imported types need merging
+                        else:
+                            done = True
+            except KeyError, e:
+                import pdb
+                pdb.set_trace()
+                raise exceptions.VolatilityException("Inconsistent linux profile - unable to look up " + str(e))
+
         def load_vtypes(self):
             """Loads up the vtypes data"""
             ntvar = self.metadata.get('memory_model', '32bit')
             self.native_types = copy.deepcopy(self.native_mapping.get(ntvar))
 
             vtypesvar = dwarf.DWARFParser(dwarfdata).finalize()
+            self._merge_anonymous_members(vtypesvar)
             self.vtypes.update(vtypesvar)
             debug.debug("{2}: Found dwarf file {0} with {1} symbols".format(f.filename, len(vtypesvar.keys()), profilename))
 
@@ -173,8 +201,8 @@ def LinuxProfileFactory(profpkg):
 
             self.sys_map.update(sysmapvar)
 
-        def get_all_symbols(self, module="kernel"):
-            """ Gets all the symbol tuples for the given module """        
+        def get_all_symbols(self, module = "kernel"):
+            """ Gets all the symbol tuples for the given module """
 
             ret = []
 
@@ -183,7 +211,7 @@ def LinuxProfileFactory(profpkg):
             if module in symtable:
 
                 mod = symtable[module]
-        
+
                 for (name, addrs) in mod.items():
                     ret.append(addrs)
             else:
@@ -191,9 +219,9 @@ def LinuxProfileFactory(profpkg):
 
             return ret
 
-        def get_all_addresses(self, module="kernel"):
+        def get_all_addresses(self, module = "kernel"):
             """ Gets all the symbol addresses for the given module """
-            
+
             # returns a hash table for quick looks
             # the main use of this function is to see if an address is known
             ret = {}
@@ -204,7 +232,7 @@ def LinuxProfileFactory(profpkg):
 
                 for (addr, addrtype) in sym:
                     ret[addr] = 1
-    
+
             return ret
 
         def get_symbol_by_address(self, module, sym_address):
@@ -212,39 +240,39 @@ def LinuxProfileFactory(profpkg):
             symtable = self.sys_map
 
             mod = symtable[module]
-        
+
             for (name, addrs) in mod.items():
-                
+
                 for (addr, addr_type) in addrs:
                     if sym_address == addr:
                         ret = name
-                        break   
- 
+                        break
+
             return ret
 
-        def get_all_symbol_names(self, module="kernel"):
+        def get_all_symbol_names(self, module = "kernel"):
             symtable = self.sys_map
-            
+
             if module in symtable:
-            
-                ret = symtable[module].keys()                
+
+                ret = symtable[module].keys()
 
             else:
                 debug.error("get_all_symbol_names called on non-existent module")
 
             return ret
 
-        def get_next_symbol_address(self, sym_name, module="kernel"):
+        def get_next_symbol_address(self, sym_name, module = "kernel"):
             """
             This is used to find the address of the next symbol in the profile
             For some data structures, we cannot determine their size automaticlaly so this
             can be used to figure it out on the fly
             """
-            
-            high_addr  = 0xffffffffffffffff
-            table_addr = self.get_symbol(sym_name, module=module)
 
-            addrs = self.get_all_addresses(module=module)            
+            high_addr = 0xffffffffffffffff
+            table_addr = self.get_symbol(sym_name, module = module)
+
+            addrs = self.get_all_addresses(module = module)
 
             for addr in addrs.keys():
 
@@ -492,10 +520,10 @@ class gate_struct64(obj.CType):
 
     @property
     def Address(self):
-    
-        low    = self.offset_low
+
+        low = self.offset_low
         middle = self.offset_middle
-        high   = self.offset_high
+        high = self.offset_high
 
         ret = (high << 32) | (middle << 16) | low
 
@@ -505,13 +533,13 @@ class desc_struct(obj.CType):
 
     @property
     def Address(self):
-    
+
         return (self.b & 0xffff0000) | (self.a & 0x0000ffff)
 
 class task_struct(obj.CType):
 
-    def is_valid_task(self): 
-        
+    def is_valid_task(self):
+
         ret = self.fs.v() != 0 and self.files.v() != 0
 
         if ret and self.members.get("cred"):
@@ -586,7 +614,7 @@ class linux_fs_struct(obj.CType):
             ret = self.root.mnt
 
         return ret
-        
+
 class net_device(obj.CType):
 
     @property
@@ -647,20 +675,20 @@ class LinuxObjectClasses(obj.ProfileModification):
             'page': page,
             'net_device': net_device,
             })
-            
+
 class LinuxOverlay(obj.ProfileModification):
     conditions = {'os': lambda x: x == 'linux'}
     before = ['BasicObjectClasses'] # , 'LinuxVTypes']
 
     def modification(self, profile):
         profile.merge_overlay(linux_overlay)
-        
+
 class page(obj.CType):
-        
+
     def to_vaddr(self):
         #FIXME Do it!
         pass
-        
+
     def to_paddr(self):
         mem_map_addr = self.obj_vm.profile.get_symbol("mem_map")
         mem_section_addr = self.obj_vm.profile.get_symbol("mem_section")
@@ -672,7 +700,7 @@ class page(obj.CType):
         elif mem_section_addr:
             # this is hardcoded in the kernel - VMEMMAPSTART, usually 64 bit kernels
             # NOTE: This is really 0xffff0xea0000000000 but we chop to its 48 bit equivalent
-            mem_map_ptr = 0xea0000000000 
+            mem_map_ptr = 0xea0000000000
 
         else:
             debug.error("phys_addr_of_page: Unable to determine physical address of page\n")
@@ -681,13 +709,13 @@ class page(obj.CType):
 
         phys_offset = phys_offset << 12
 
-        return phys_offset 
+        return phys_offset
 
 class mount(obj.CType):
 
     @property
     def mnt_sb(self):
-        
+
         if hasattr(self, "mnt"):
             ret = self.mnt.mnt_sb
         else:
@@ -720,17 +748,17 @@ class vfsmount(obj.CType):
     def _get_real_mnt(self):
 
         offset = self.obj_vm.profile.get_obj_offset("mount", "mnt")
-        mnt = obj.Object("mount", offset=self.obj_offset - offset, vm=self.obj_vm)
-        return mnt        
-    
+        mnt = obj.Object("mount", offset = self.obj_offset - offset, vm = self.obj_vm)
+        return mnt
+
     @property
     def mnt_parent(self):
-    
+
         ret = self.members.get("mnt_parent")
         if ret is None:
             ret = self._get_real_mnt().mnt_parent
         else:
-            ret = self.m("mnt_parent") 
+            ret = self.m("mnt_parent")
         return ret
 
     @property

@@ -33,13 +33,12 @@ import time
 nsecs_per = 1000000000
 
 def set_plugin_members(obj_ref):
-
     obj_ref.addr_space = utils.load_as(obj_ref._config)
 
 class AbstractLinuxCommand(commands.Command):
-
     def __init__(self, *args, **kwargs):
         self.addr_space = None
+        self.known_addrs = []
         commands.Command.__init__(self, *args, **kwargs)
 
     @property
@@ -50,7 +49,7 @@ class AbstractLinuxCommand(commands.Command):
 
     def execute(self, *args, **kwargs):
         commands.Command.execute(self, *args, **kwargs)
-    
+
     @staticmethod
     def is_valid_profile(profile):
         return profile.metadata.get('os', 'Unknown').lower() == 'linux'
@@ -85,108 +84,134 @@ class AbstractLinuxCommand(commands.Command):
 
         start_secs = start_time.tv_sec + (start_time.tv_nsec / nsecs_per / 100)
 
-        sec = get_boot_time(self) + start_secs
+        sec = self.get_boot_time() + start_secs
 
-        return time.strftime("%a, %d %b %Y %H:%M:%S +0000", time.localtime(sec))
+        # protect against invalid data in unallocated tasks
+        try:
+            ret = time.strftime("%a, %d %b %Y %H:%M:%S +0000", time.localtime(sec))
+        except ValueError:
+            ret = ""
 
+        return ret
 
-# returns a list of online cpus (the processor numbers)
-def online_cpus(self):
+    # returns a list of online cpus (the processor numbers)
+    def online_cpus(self):
+        cpu_online_bits_addr = self.get_profile_symbol("cpu_online_bits")
+        cpu_present_map_addr = self.get_profile_symbol("cpu_present_map")
 
-    cpu_online_bits_addr = self.get_profile_symbol("cpu_online_bits")
-    cpu_present_map_addr = self.get_profile_symbol("cpu_present_map")
+        #later kernels..
+        if cpu_online_bits_addr:
+            bmap = obj.Object("unsigned long", offset = cpu_online_bits_addr, vm = self.addr_space)
 
-    #later kernels..
-    if cpu_online_bits_addr:
-        bmap = obj.Object("unsigned long", offset = cpu_online_bits_addr, vm = self.addr_space)
+        elif cpu_present_map_addr:
+            bmap = obj.Object("unsigned long", offset = cpu_present_map_addr, vm = self.addr_space)
 
-    elif cpu_present_map_addr:
-        bmap = obj.Object("unsigned long", offset = cpu_present_map_addr, vm = self.addr_space)
+        else:
+            raise AttributeError, "Unable to determine number of online CPUs for memory capture"
 
-    else:
-        raise AttributeError, "Unable to determine number of online CPUs for memory capture"
+        cpus = []
+        for i in range(8):
+            if bmap & (1 << i):
+                cpus.append(i)
 
-    cpus = []
-    for i in range(8):
-        if bmap & (1 << i):
-            cpus.append(i)
+        return cpus
 
-    return cpus
+    def walk_per_cpu_var(self, per_var, var_type):
 
-def walk_per_cpu_var(obj_ref, per_var, var_type):
+        cpus = self.online_cpus()
 
-    cpus = online_cpus(obj_ref)
+        # get the highest numbered cpu
+        max_cpu = cpus[-1] + 1
 
-    # get the highest numbered cpu
-    max_cpu = cpus[-1] + 1
+        offset_var = self.get_profile_symbol("__per_cpu_offset")
+        per_offsets = obj.Object(theType = 'Array', targetType = 'unsigned long', count = max_cpu, offset = offset_var, vm = self.addr_space)
 
-    offset_var = obj_ref.get_profile_symbol("__per_cpu_offset")
-    per_offsets = obj.Object(theType = 'Array', targetType = 'unsigned long', count = max_cpu, offset = offset_var, vm = obj_ref.addr_space)
+        for i in range(max_cpu):
 
-    for i in range(max_cpu):
+            offset = per_offsets[i]
 
-        offset = per_offsets[i]
+            cpu_var = self.get_per_cpu_symbol(per_var)
 
-        cpu_var = obj_ref.get_per_cpu_symbol(per_var)
+            addr = cpu_var + offset.v()
+            var = obj.Object(var_type, offset = addr, vm = self.addr_space)
 
-        addr = cpu_var + offset.v()
-        var = obj.Object(var_type, offset = addr, vm = obj_ref.addr_space)
+            yield i, var
 
-        yield i, var
+    def get_time_vars(self):
+        '''
+        Sometime in 3.[3-5], Linux switched to a global timekeeper structure
+        This just figures out which is in use and returns the correct variables
+        '''
 
-def get_time_vars(obj_ref):
-    '''
-    Sometime in 3.[3-5], Linux switched to a global timekeeper structure
-    This just figures out which is in use and returns the correct variables
-    '''
+        wall_addr = self.get_profile_symbol("wall_to_monotonic")
 
-    wall_addr = obj_ref.get_profile_symbol("wall_to_monotonic")
+        # old way
+        if wall_addr:
+            wall = obj.Object("timespec", offset = wall_addr, vm = self.addr_space)
 
-    # old way
-    if wall_addr:
-        wall = obj.Object("timespec", offset = wall_addr, vm = obj_ref.addr_space)
+            sleep_addr = self.get_profile_symbol("total_sleep_time")
+            timeo = obj.Object("timespec", offset = sleep_addr, vm = self.addr_space)
 
-        sleep_addr = obj_ref.get_profile_symbol("total_sleep_time")
-        timeo = obj.Object("timespec", offset = sleep_addr, vm = obj_ref.addr_space)
+        # timekeeper way
+        else:
+            timekeeper_addr = self.get_profile_symbol("timekeeper")
 
-    # timekeeper way
-    else:
-        timekeeper_addr = obj_ref.get_profile_symbol("timekeeper")
+            timekeeper = obj.Object("timekeeper", offset = timekeeper_addr, vm = self.addr_space)
 
-        timekeeper = obj.Object("timekeeper", offset = timekeeper_addr, vm = obj_ref.addr_space)
+            wall = timekeeper.wall_to_monotonic
+            timeo = timekeeper.total_sleep_time
 
-        wall = timekeeper.wall_to_monotonic
-        timeo = timekeeper.total_sleep_time
+        return (wall, timeo)
 
-    return (wall, timeo)
+    # based on 2.6.35 getboottime
+    def get_boot_time(self):
 
-# based on 2.6.35 getboottime
-def get_boot_time(obj_ref):
+        (wall, timeo) = self.get_time_vars()
 
-    (wall, timeo) = get_time_vars(obj_ref)
+        secs = wall.tv_sec + timeo.tv_sec
+        nsecs = wall.tv_nsec + timeo.tv_nsec
 
-    secs = wall.tv_sec + timeo.tv_sec
-    nsecs = wall.tv_nsec + timeo.tv_nsec
+        secs = secs * -1
+        nsecs = nsecs * -1
 
-    secs = secs * -1
-    nsecs = nsecs * -1
+        while nsecs >= nsecs_per:
 
-    while nsecs >= nsecs_per:
+            nsecs = nsecs - nsecs_per
 
-        nsecs = nsecs - nsecs_per
+            secs = secs + 1
 
-        secs = secs + 1
+        while nsecs < 0:
 
-    while nsecs < 0:
+            nsecs = nsecs + nsecs_per
 
-        nsecs = nsecs + nsecs_per
+            secs = secs - 1
 
-        secs = secs - 1
+        boot_time = secs + (nsecs / nsecs_per / 100)
 
-    boot_time = secs + (nsecs / nsecs_per / 100)
+        return boot_time
 
-    return boot_time
+    def is_known_address(self, addr, modules):
 
+        text = self.profile.get_symbol("_text", sym_type = "Pointer")
+        etext = self.profile.get_symbol("_etext", sym_type = "Pointer")
+
+        return  (text <= addr < etext or address_in_module(modules, addr))
+
+    def verify_ops(self, ops, op_members, modules):
+
+        for check in op_members:
+            addr = ops.m(check)
+
+            if addr and addr != 0:
+
+                if addr in self.known_addrs:
+                    known = self.known_addrs[addr]
+                else:
+                    known = self.is_known_address(addr, modules)
+                    self.known_addrs[addr] = known
+
+                if known == 0:
+                    yield (check, addr)
 
 # similar to for_each_process for this usage
 def walk_list_head(struct_name, list_member, list_head_ptr, _addr_space):
@@ -206,7 +231,6 @@ def walk_internal_list(struct_name, list_member, list_start, addr_space = None):
 
 
 # based on __d_path
-# TODO: (deleted) support
 def do_get_path(rdentry, rmnt, dentry, vfsmnt):
     ret_path = []
 
@@ -257,14 +281,6 @@ def get_path(task, filp):
 
     return do_get_path(rdentry, rmnt, dentry, vfsmnt)
 
-def get_obj(self, ptr, sname, member):
-
-    offset = self.profile.get_obj_offset(sname, member)
-
-    addr = ptr - offset
-
-    return obj.Object(sname, offset = addr, vm = self.addr_space)
-
 def S_ISDIR(mode):
     return (mode & linux_flags.S_IFMT) == linux_flags.S_IFDIR
 
@@ -274,184 +290,6 @@ def S_ISREG(mode):
 ###################
 # code to walk the page cache and mem_map / mem_section page structs
 ###################
-
-'''
-def SECTIONS_PER_ROOT(self, is_extreme):
-
-    if is_extreme:
-        secs_per_root = 4096 / self.profile.get_obj_size("mem_section")
-    
-    else:
-        secs_per_root = 1
-
-    return secs_per_root
-
-def SECTION_NR_TO_ROOT(self, nr, is_extreme):
-
-    secs_per_root = SECTIONS_PER_ROOT(self, is_extreme)
-
-    return nr / secs_per_root
-
-def SECTION_ROOT_MASK(self, is_extreme):
-
-    return SECTIONS_PER_ROOT(self, is_extreme) - 1
-
-def nr_to_section(self, secnum):
-
-    # check if CONFIG_SPARSEMEM_EXTREME is set
-    if "sparse_index_alloc" in self.smap:
-       
-        # mem_section is a double array of type 'mem_section'
- 
-        nr = SECTION_NR_TO_ROOT(self, secnum, 1)
-
-        addr = self.smap["mem_section"]
-        
-        addr = addr + ( nr * self.profile.get_obj_size("mem_section") )
-
-        # check the object here
-        tmp = obj.Object("long", offset=addr, vm=self.addr_space)
-
-        if not tmp.is_valid() or tmp in [None, 0]:
-            return None
-
-        #print "tmp: %x" % (tmp &  (2**64-1))
-
-        offset = (nr & SECTION_ROOT_MASK(self, 1)) * self.profile.get_obj_size("mem_section")
-
-        ret =  tmp + offset
-
-        #print "extreme %s" % tohex(ret)
-
-    else:
-        
-        off = SECTIONS_PER_ROOT(self, 0) * SECTION_NR_TO_ROOT(self, secnum, 0)
-        ret = self.smap["mem_section"] + (off + (nr & SECTION_ROOT_MASK(self, 0)) * self.profile.get_obj_size("mem_section"))
-
-    return ret
-    
-def read_mem_section(self, addr):
-    
-    if addr in [0, None]:
-        return None
-
-    testobj = obj.Object("mem_section", offset=addr, vm=self.addr_space)
-
-    if testobj:
-        SECTION_MAP_LAST_BIT = 1 << 2
-        SECTION_MAP_MASK     = ~(SECTION_MAP_LAST_BIT-1)
-
-        ret = testobj.section_mem_map & SECTION_MAP_MASK 
-    else:
-        ret = None
-    
-    return ret
-
-def valid_section(self, addr):
-
-    mem_section = read_mem_section(self, addr)
-
-    return mem_section
-
-def valid_section_nr(self, nr):
-
-    addr = nr_to_section(self, nr);
-
-    if valid_section(self, addr):
-        ret = addr
-    else:
-        ret = 0 
-
-    return ret
-
-# FIXME 32 bit
-# [SECTION_SIZE_BITS, MAX_PHYSADDR_BITS, MAX_PHYSMEM_BITS]
-def get_bit_size(self):
-
-    return [27, 44, 44]
-
-def PFN_SECTION_SHIFT(self):
-
-    # ?FIXME? arm
-    return get_bit_size(self)[0] - 12
-
-def section_nr_to_pfn(self, nr):
-
-    return nr << PFN_SECTION_SHIFT(self)
-
-def sparse_decode_mem_map(self, addr, nr):
-
-    return addr + (section_nr_to_pfn(self, nr) * self.profile.get_obj_size("page"))
-
-def section_mem_map_addr(self, addr):
-
-    return read_mem_section(self, addr)
-
-# most of the mem_section related work was based on crash
-def get_phys_addr_section(self, page):
-
-    (SECTION_SIZE_BITS, MAX_PHYSADDR_BITS, MAX_PHYSMEM_BITS) = get_bit_size(self)
-    SECTIONS_SHIFT   = MAX_PHYSMEM_BITS - SECTION_SIZE_BITS
-    
-    num_sections = 1 << SECTIONS_SHIFT
-    
-    want_addr = page
-
-    for secnum in range(0, num_sections):
-    
-        sec_addr = valid_section_nr(self, secnum) 
-        
-        if not sec_addr: 
-            continue
-    
-        coded_mem_map = section_mem_map_addr(self, sec_addr)
-    
-        mem_map      = sparse_decode_mem_map(self, coded_mem_map, secnum)
-
-        end_mem_map  = mem_map + ((1 << PFN_SECTION_SHIFT(self)) * self.profile.get_obj_size("page"))
-
-        if mem_map <= want_addr < end_mem_map:
-
-            section_paddr = section_nr_to_pfn(self, secnum) << 12
-
-            pgnum = (want_addr - mem_map) / self.profile.get_obj_size("page")
-
-            phys_offset = section_paddr + (pgnum * 4096)
-
-            print "OFFSET: %d | %x || %s" % (phys_offset, phys_offset, tohex(coded_mem_map))
-        
-            return phys_offset
-
-
-    debug.info("get_phys_addr_section: Unable to get address for page")
-    return -1
-'''
-
-# FIXME - use 'class page' overlay?
-def phys_addr_of_page(self, page):
-
-    mem_map_addr = self.get_profile_symbol("mem_map")
-    mem_section_addr = self.get_profile_symbol("mem_section")
-
-    if mem_map_addr:
-        # FLATMEM kernels, usually 32 bit
-        mem_map_ptr = obj.Object("Pointer", offset = mem_map_addr, vm = self.addr_space)
-
-    elif mem_section_addr:
-        # this is hardcoded in the kernel - VMEMMAPSTART, usually 64 bit kernels
-        # NOTE: This is really 0xffff0xea0000000000 but we chop to its 48 bit equivalent
-        # FIXME: change in 2.3 when truncation no longer occurs
-        mem_map_ptr = 0xea0000000000
-
-    else:
-        debug.error("phys_addr_of_page: Unable to determine physical address of page\n")
-
-    phys_offset = (page - mem_map_ptr) / self.profile.get_obj_size("page")
-
-    phys_offset = phys_offset << 12
-
-    return phys_offset
-
 def radix_tree_is_indirect_ptr(self, ptr):
 
     return ptr & 1
@@ -518,23 +356,22 @@ def find_get_page(self, inode, offset):
     page = radix_tree_lookup_slot(self, inode.i_mapping.page_tree, offset)
 
     #if not page:
-        # TODO swapper_space support
+        # FUTURE swapper_space support
         #print "no page"
 
     return page
 
 def get_page_contents(self, inode, idx):
+    page_addr = find_get_page(self, inode, idx)
 
-    page = find_get_page(self, inode, idx)
+    if page_addr:
+        page = obj.Object("page", offset = page_addr, vm = self.addr_space)
 
-    if page:
-        #print "inode: %lx | %lx page: %lx" % (inode, inode.v(), page)
-
-        phys_offset = phys_addr_of_page(self, page)
+        phys_offset = page.to_paddr()
 
         phys_as = utils.load_as(self._config, astype = 'physical')
 
-        data = phys_as.read(phys_offset, 4096)
+        data = phys_as.zread(phys_offset, 4096)
     else:
         data = "\x00" * 4096
 
@@ -568,18 +405,6 @@ def get_file_contents(self, inode):
 
     return data
 
-def is_known_address(obj_ref, addr, modules):
-
-    text  = obj_ref.profile.get_symbol("_text", sym_type="Pointer")
-    etext = obj_ref.profile.get_symbol("_etext", sym_type="Pointer")
-
-    if text <= addr < etext or address_in_module(modules, addr):
-        known = 1
-    else:
-        known = 0
-
-    return known
-
 # This returns the name of the module that contains an address or None
 # The module_list parameter comes from a call to get_modules
 # This function will be updated after 2.2 to resolve symbols within the module as well
@@ -587,28 +412,31 @@ def address_in_module(module_list, address):
     ret = None
 
     for (name, start, end) in module_list:
-         
+
         if start <= address < end:
-            
+
             ret = name
             break
 
     return ret
 
-def verify_ops(obj_ref, fops, op_members, modules):
+# we can't get the full path b/c we 
+# do not have a ref to the vfsmnt
+def get_partial_path(dentry):
+    path = []
 
-    for check in op_members:
-        addr = fops.m(check)
+    name = ""
 
-        if addr and addr != 0:
-                        
-            if addr in obj_ref.known_addrs:
-                known = obj_ref.known_addrs[addr]
-            else:
-                known = is_known_address(obj_ref, addr, modules)
-                obj_ref.known_addrs[addr] = known
+    while dentry and dentry != dentry.d_parent:
+        name = dentry.d_name.name.dereference_as("String", length = 255)
+        if name.is_valid():
+            path.append(str(name))
+        dentry = dentry.d_parent
 
-            if known == 0:
-                yield (check, addr)
+    path.reverse()
+
+    str_path = "/".join([p for p in path])
+
+    return str_path
 
 

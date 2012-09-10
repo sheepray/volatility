@@ -21,13 +21,10 @@
 @organization:
 """
 
-import sys, os
-import volatility.obj as obj
+import os
 import volatility.plugins.linux.common as linux_common
 import volatility.plugins.linux.mount as linux_mount
-import volatility.plugins.linux.flags as linux_flags
 import volatility.debug as debug
-import volatility.utils as utils
 
 class linux_tmpfs(linux_common.AbstractLinuxCommand):
     '''Recovers tmpfs filesystems from memory'''
@@ -40,6 +37,10 @@ class linux_tmpfs(linux_common.AbstractLinuxCommand):
 
         # used to keep correct time for directories
         self.dir_times = {}
+
+        self.edir     = None
+        self.sb_num   = 0
+        self.list_sbs = False 
 
     # fix metadata for new files
     def fix_md(self, new_file, perms, atime, mtime, isdir = 0):
@@ -55,20 +56,20 @@ class linux_tmpfs(linux_common.AbstractLinuxCommand):
 
         os.chmod(new_file, perms)
 
-    def process_directory(self, dentry, recursive = 0, parent = ""):
+    def process_directory(self, dentry, _recursive = 0, parent = ""):
 
         for dentry in dentry.d_subdirs.list_of_type("dentry", "d_u"):
 
             name = dentry.d_name.name.dereference_as("String", length = 255)
 
             inode = dentry.d_inode
-            
+
             if inode:
-                               
+
                 new_file = os.path.join(parent, name)
-              
-                (perms, size, atime, mtime) = (inode.i_mode, inode.i_size, inode.i_atime, inode.i_mtime)
- 
+
+                (perms, _size, atime, mtime) = (inode.i_mode, inode.i_size, inode.i_atime, inode.i_mtime)
+
                 if linux_common.S_ISDIR(inode.i_mode):
                     # since the directory may already exist
                     try:
@@ -79,9 +80,9 @@ class linux_tmpfs(linux_common.AbstractLinuxCommand):
                     self.fix_md(new_file, perms, atime, mtime, 1)
 
                     self.process_directory(dentry, 1, new_file)
-                    
+
                 elif linux_common.S_ISREG(inode.i_mode):
-        
+
                     contents = linux_common.get_file_contents(self, inode)
 
                     f = open(new_file, "wb")
@@ -89,7 +90,7 @@ class linux_tmpfs(linux_common.AbstractLinuxCommand):
                     f.close()
                     self.fix_md(new_file, perms, atime, mtime)
 
-                # TODO add support for symlinks
+                # FUTURE add support for symlinks
                 else:
                     #print "skipped: %s" % name
                     pass
@@ -102,7 +103,7 @@ class linux_tmpfs(linux_common.AbstractLinuxCommand):
         cur_dir = os.path.join(self.edir)
 
         self.process_directory(root_dentry, parent = cur_dir)
-    
+
         # post processing
         for new_file in self.dir_times:
             (atime, mtime) = self.dir_times[new_file]
@@ -133,23 +134,26 @@ class linux_tmpfs(linux_common.AbstractLinuxCommand):
     def calculate(self):
         linux_common.set_plugin_members(self)
 
-        self.edir     = self._config.DUMP_DIR
-        self.sb_num   = self._config.SB
+        self.edir = self._config.DUMP_DIR
+        self.sb_num = self._config.SB
         self.list_sbs = self._config.LIST_SBS
 
-         # a list of root directory entries
-      
+        # a list of root directory entries
         if self.edir and self.sb_num:
-    
+
             if not os.path.isdir(self.edir):
                 debug.error(self.edir + " is not a directory")
- 
+
             # this path never 'yield's, just writes the filesystem to disk
             tmpfs_sbs = self.get_tmpfs_sbs()
-            
-            # FIXME - validate
-            root_dentry = tmpfs_sbs[self.sb_num - 1][0].s_root
-            
+
+            sb_idx = self.sb_num - 1
+
+            if sb_idx >= len(tmpfs_sbs):
+                debug.error("Invalid superblock number given. Please use the -L option to determine valid numbers.")
+        
+            root_dentry = tmpfs_sbs[sb_idx][0].s_root
+
             self.walk_sb(root_dentry)
 
         elif self.list_sbs:
@@ -157,7 +161,7 @@ class linux_tmpfs(linux_common.AbstractLinuxCommand):
             # vfsmnt.mnt_sb.s_root
             tmpfs_sbs = self.get_tmpfs_sbs()
 
-            for (i, (sb, path)) in enumerate(tmpfs_sbs):
+            for (i, (_sb, path)) in enumerate(tmpfs_sbs):
 
                 yield (i + 1, path)
 
@@ -166,7 +170,7 @@ class linux_tmpfs(linux_common.AbstractLinuxCommand):
 
     # we only render the -L option
     def render_text(self, outfd, data):
-    
+
         for (i, path) in data:
 
             outfd.write("{0:d} -> {1}\n".format(i, path))
