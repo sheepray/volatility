@@ -127,5 +127,3 @@ $ ls -alh /home/mhl/ubuntu.lime
 }}}
 
 = Enterprise Linux Memory Forensics = 
-
-= Known Issues =
