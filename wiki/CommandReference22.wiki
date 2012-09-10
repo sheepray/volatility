@@ -3370,7 +3370,9 @@ Volatile Systems Volatility Framework 2.1_rc1
 
 === linux_lsmod ===
 
-=== linux_lsmod === 
+=== linux_check_modules === 
+
+This plugin finds rootkits that break themselves from the module list but not sysfs. We have never found a rootkit that actually removes itself from sysfs, so on a live system they are hidden from lsmod and /proc/modules, but can still be found under /sys/modules. We perform the same differnecing with the in-memory data structures. 
 
 === linux_tmpfs === 
 
