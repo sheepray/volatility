@@ -3366,6 +3366,32 @@ Volatile Systems Volatility Framework 2.1_rc1
 
 === linux_proc_maps ===
 
+=== linux_bash === 
+
+The argument to the -H/--history_list parameter can be gathered as shown below. The value you supply is 0x6ed4a0. 
+
+{{{
+mhl@ubuntu:~$ gdb /bin/bash 
+GNU gdb (Ubuntu/Linaro 7.4-2012.02-0ubuntu2) 7.4-2012.02
+Copyright (C) 2012 Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.  Type "show copying"
+and "show warranty" for details.
+This GDB was configured as "x86_64-linux-gnu".
+For bug reporting instructions, please see:
+<http://bugs.launchpad.net/gdb-linaro/>...
+Reading symbols from /bin/bash...(no debugging symbols found)...done.
+
+(gdb) disassemble history_list
+Dump of assembler code for function history_list:
+   0x00000000004a5030 <+0>:	mov    0x248469(%rip),%rax        # 0x6ed4a0
+   0x00000000004a5037 <+7>:	retq   
+End of assembler dump.
+
+(gdb) q
+}}}
+
 == Kernel Memory and Objects == 
 
 === linux_lsmod ===
