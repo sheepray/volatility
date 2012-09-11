@@ -110,7 +110,7 @@ This is a catalog of research, documentation, analysis, and tutorials generated 
 ||2010||July||Blog||[http://blog.schatzforensic.com.au/2010/07/finding-object-roots-in-vista-kpcr/ Finding Object Roots in Vista (KPCR)]||Bradley Schatz||
 ||2010||July||Blog||[http://moyix.blogspot.com/2010/07/gdi-utilities-taking-screenshots-of.html GDI Utilities: Taking Screenshots of Memory Dumps]||Brendan Dolan-Gavitt (@moyix)||
 ||2010||July||Blog||[http://moyix.blogspot.com/2010/07/plugin-post-robust-process-scanner.html Plugin Post: Robust Process Scanner]||Brendan Dolan-Gavitt (@moyix)||
-||2010||May||Blog||[http://holisticinfosec.blogspot.com/2010/05/memory-forensics-with-sift-20.html Memory forensics with SIFT 2.0, Volatility, and PTK]||Russ McRee (@holisticinfosec)||
+||2010||May||Blog||[http://holisticinfosec.blogspot.com/2010/05/memory-forensics-with-sift-20.html Memory forensics with SIFT 2.0, Volatility, and PTK]||Russ !McRee (@holisticinfosec)||
 ||2010||May||Blog||[http://blog.schatzforensic.com.au/2010/05/adding-new-structure-definitions-to-volatility/ Adding new structure definitions to Volatility]||Bradley Schatz||
 ||2010||April||Blog||[http://network-forensics.blogspot.com/2010/04/honeynet-forensics-contest.html Challenge 3 of the Forensic Challenge 2010 - Banking Troubles]||@pstutz||
 ||2010||March||Paper(s)||[https://www.honeynet.org/challenges/2010_3_banking_troubles Challenge 3 of the Forensic Challenge 2010 - Banking Troubles]||Pascucci, Hudak, and Pulley||
