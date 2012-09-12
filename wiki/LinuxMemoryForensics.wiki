@@ -165,6 +165,6 @@ $ ls -alh /home/mhl/ubuntu.lime
 
 The instructions in this document assume you're able to install tools, compile modules, and otherwise run commands on the system suspected to be compromised. Since this is not always the case, especially in forensic situations, or if you have tens or hundreds of Linux systems in a corporate environment, you may need to consider other options. For example, one of your IR planning steps should be to catalog all kernels and distributions that may need to be analyzed. Once you've done that, the possibilities include:
 
-  * Build clones (can be VMs) of each unique distribution and kernel and use them to build a profile, which you can then use again memory dumps from the live systems
+  * Build clones (can be VMs) of each unique distribution and kernel and use them to build a profile, which you can then use against memory dumps from the live systems
   * Build a base system of each distribution and with a gcc version similar to the one your target systems are running. Then build profiles for each target kernel on the single base system. Note: Instructions for doing this will be published here in the future. 
   * Acquire a profile from someone else in the community who has built one that matches your criteria. In the future we'll also allow "sharing" or a searchable community repository of Linux profiles.
