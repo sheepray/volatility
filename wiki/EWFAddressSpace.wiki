@@ -10,7 +10,7 @@ Memory acquired by !EnCase or converted using ewfacquire are stored in Expert Wi
 
 = Notes = 
 
-You must have libewf installed for the EWF address space to work correctly.  Move the `contrib/plugins/addrspaces/ewf.py` into `volatility/plugins/addrspaces/` and then run Volatility against the memory sample as you would a raw sample.
+You must have libewf installed for the EWF address space to work correctly.  Move the `contrib/plugins/addrspaces/ewf.py` into `volatility/plugins/addrspaces/` (make sure you do not use `ewf-python.py` since it does not appear to work at this time). Then run Volatility against the memory sample as you would a raw sample.
 
 {{{
 $ mv contrib/plugins/addrspaces/ewf.py volatility/plugins/addrspaces/
