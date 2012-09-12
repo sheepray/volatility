@@ -12,11 +12,11 @@ Volatility 2.2 is scheduled for release in October 2012. We are currently in RC1
 = Release Highlights = 
 
   * Introduction of Linux support (Intel x86, x64) 
-      * Kernels: 2.6.11 to 3.5.x 
+      * Kernels: 2.6.11 to 3.5
       * Debian, Ubuntu, OpenSuSE, Fedora, CentOS, Mandriva, and more...
-  * Over 25+ Linux plugins
+  * Approximately 35 new Linux plugins
   * New LiME Address Space 
-  * Addition of the win32k suite (plugins and APIs for analyzing windows GUI memory)
+  * Addition of the win32k suite (14 new plugins and APIs for analyzing windows GUI memory)
   * New windows plugins:
        * dumpfiles: dumps cached files 
        * getservicesids: calculate SIDs of windows services
