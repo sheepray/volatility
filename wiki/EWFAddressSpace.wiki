@@ -6,6 +6,8 @@ Memory acquired by !EnCase or converted using ewfacquire are stored in Expert Wi
 
 = Acquisition = 
 
+Click on "Add Device" in !EnCase and then make sure that "Physical Memory" is checked.
+
 [https://lh5.googleusercontent.com/-i0HmBBIS1HQ/UFD5PSAPYTI/AAAAAAAAA8s/LdiQLXnihgA/s517/EnCase%2520RAM%25201.png]
 
 [https://lh6.googleusercontent.com/-5Hkr3eiyM1c/UFD5PfUIVOI/AAAAAAAAA8o/HytwtyjuF7s/s795/EnCase%2520RAM%25202.png]
