@@ -2899,6 +2899,34 @@ Please note: the timers are enumerated in different ways depending on the target
 
 For more information on timer objects, see [http://mnin.blogspot.com/2011/10/aint-nuthin-but-ktimer-thing-baby.html Ain't Nuthin But a K(Timer) Thing, Baby].
 
+== Win32k / GUI == 
+
+=== sessions ===
+
+=== wndscan ===
+
+=== deskscan ===
+
+=== atomscan ===
+
+=== atoms ===
+
+=== clipboard === 
+
+=== eventhooks ===
+
+=== gahti ===
+
+===  messagehooks ===
+
+=== screenshot ===
+
+=== userhandles === 
+
+=== windows === 
+
+=== wintree ===
+
 == Miscellaneous ==
 
 === strings ===
