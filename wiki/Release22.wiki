@@ -162,6 +162,7 @@ Volatility 2.2 is scheduled for release in October 2012. We are currently in RC1
           * <font color='red'>(new)</font> [CommandReference22#linux_memmap linux_memmap] - Dumps the memory map for linux tasks
           * <font color='red'>(new)</font> [CommandReference22#linux_pidhashtable linux_pidhashtable] - Enumerates processes through the PID hash table
           * <font color='red'>(new)</font> [CommandReference22#linux_proc_maps linux_proc_maps] - Gathers process maps for linux
+          * <font color='red'>(new)</font> [CommandReference22#linux_bash linux_bash] - Recover bash history from bash process memory
       * *Kernel Memory and Objects*
           * <font color='red'>(new)</font> [CommandReference22#linux_lsmod linux_lsmod] - Gather loaded kernel modules
           * <font color='red'>(new)</font> [CommandReference22#linux_lsof linux_lsof] - Lists open files
@@ -172,6 +173,13 @@ Volatility 2.2 is scheduled for release in October 2012. We are currently in RC1
           * <font color='red'>(new)</font> [CommandReference22#linux_netstat linux_netstat] - Lists open sockets
           * <font color='red'>(new)</font> [CommandReference22#linux_route linux_route] - Lists routing table
           * <font color='red'>(new)</font> [CommandReference22#linux_route_cache linux_route_cache] - Recovers the routing cache from memory
+     * *Malware/Rootkits*
+          * <font color='red'>(new)</font> [CommandReference22#linux_check_afinfo linux_check_afinfo] - Verifies the operation function pointers of network protocols
+          * <font color='red'>(new)</font> [CommandReference22#linux_check_creds linux_check_creds] - Checks if any processes are sharing credential structures
+          * <font color='red'>(new)</font> [CommandReference22#linux_check_fop linux_check_fop] - Check file operation structures for rootkit modifications
+          * <font color='red'>(new)</font> [CommandReference22#linux_check_idt linux_check_idt] - Checks if the IDT has been altered
+          * <font color='red'>(new)</font> [CommandReference22#linux_check_modules linux_check_modules] - Compares module list to sysfs info, if available
+          * <font color='red'>(new)</font> [CommandReference22#linux_check_syscall linux_check_syscall] - Checks if the system call table has been altered
       * *System Information*
           * <font color='red'>(new)</font> [CommandReference22#linux_cpuinfo linux_cpuinfo] - Prints info about each active processor
           * <font color='red'>(new)</font> [CommandReference22#linux_dmesg linux_dmesg] - Gather dmesg buffer
@@ -179,6 +187,8 @@ Volatility 2.2 is scheduled for release in October 2012. We are currently in RC1
           * <font color='red'>(new)</font> [CommandReference22#linux_mount linux_mount] - Gather mounted fs/devices
           * <font color='red'>(new)</font> [CommandReference22#linux_mount_cache linux_mount_cache] - Gather mounted fs/devices from kmem_cache
           * <font color='red'>(new)</font> [CommandReference22#linux_slabinfo linux_slabinfo] - Mimics /proc/slabinfo on a running machine    
+          * <font color='red'>(new)</font> [CommandReference22#linux_dentry_cache linux_dentry_cache] - Gather files from the dentry cache  
+          * <font color='red'>(new)</font> [CommandReference22#linux_find_file linux_find_file] - Extract cached file contents from memory via inodes 
 
 = API Changes = 
 
