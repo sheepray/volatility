@@ -60,6 +60,8 @@ $ sudo zip volatility/volatility/plugins/overlays/linux/Ubuntu1204.zip volatilit
 
 There are technically no naming rules for your zip file, but we recommend you choose a name that's descriptive of your Linux distribution and version. 
 
+If you _do not_ want to write to the core volatility directories (which may be overwritten during upgrades/uninstalls, or may not even exist if you're using the standalone windows executable), then just place your profiles in a directory on disk and use the --plugins=/path/to/profiles to get them loaded by volatility.
+
 == Using the Profile ==
 
 To find the name of your profile, run:
