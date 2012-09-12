@@ -35,8 +35,8 @@ Volatility 2.2 is scheduled for release in October 2012. We are currently in RC1
   * 64-bit Windows 2008 Server Service Pack 1 and 2 
   * 64-bit Windows 2008 `R2` Server Service Pack 0 and 1
   * 64-bit Windows 7 Service Pack 0 and 1
-  * <font color='red'>(new)</font> 32-bit Linux kernels 2.6.x to 3.5.x
-  * <font color='red'>(new)</font> 64-bit Linux kernels 2.6.x to 3.5.x
+  * <font color='red'>(new)</font> 32-bit Linux kernels 2.6.11 to 3.5
+  * <font color='red'>(new)</font> 64-bit Linux kernels 2.6.11 to 3.5
 
 = Address Spaces = 
 
