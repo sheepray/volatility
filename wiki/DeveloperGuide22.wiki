@@ -4,6 +4,8 @@
 
 This page provides information concerning the internals of volatility, that may be useful for those wishing to develop their own plugins. 
 
+*Note: this page and sub-pages should be considered a work in progress until otherwise noted. That means documentation may not be update to date with current APIs in the code base.*
+
 = Details =
 
   * [PluginInterface22 Plugin Interface] - This document is where you should begin, as it provides the basic requirements of a plugin object.
