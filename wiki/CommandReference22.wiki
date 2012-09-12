@@ -3424,13 +3424,23 @@ End of assembler dump.
 
 === linux_lsmod ===
 
-=== linux_check_modules === 
-
-This plugin finds rootkits that break themselves from the module list but not sysfs. We have never found a rootkit that actually removes itself from sysfs, so on a live system they are hidden from lsmod and /proc/modules, but can still be found under /sys/modules. We perform the same differnecing with the in-memory data structures. 
+=== linux_lsof ===
 
 === linux_tmpfs === 
 
 == Rootkit Detection == 
+
+=== linux_check_afinfo === 
+
+=== linux_check_creds ===
+
+=== linux_check_fop ===
+
+=== linux_check_idt ===
+
+=== linux_check_modules === 
+
+This plugin finds rootkits that break themselves from the module list but not sysfs. We have never found a rootkit that actually removes itself from sysfs, so on a live system they are hidden from lsmod and /proc/modules, but can still be found under /sys/modules. We perform the same differnecing with the in-memory data structures. 
 
 === linux_check_creds ===
 
@@ -3442,11 +3452,13 @@ The purpose of this plugin is to check if any processes are sharing 'cred' struc
 
 === linux_ifconfig ===
  
-=== linux_route === 
-
 === linux_route_cache ===
 
 === linux_netstat === 
+
+=== linux_pkt_queues === 
+
+=== linux_sk_buff_cache ===
 
 == System Information == 
 
@@ -3461,3 +3473,9 @@ The purpose of this plugin is to check if any processes are sharing 'cred' struc
 === linux_mount_cache === 
 
 === linux_slabinfo ===
+
+=== linux_dentry_cache === 
+
+=== linux_find_file ===
+
+=== linux_vma_cache ===
