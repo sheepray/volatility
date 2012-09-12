@@ -60,7 +60,32 @@ $ sudo zip volatility/volatility/plugins/overlays/linux/Ubuntu1204.zip volatilit
 
 There are technically no naming rules for your zip file, but we recommend you choose a name that's descriptive of your Linux distribution and version. 
 
-If you _do not_ want to write to the core volatility directories (which may be overwritten during upgrades/uninstalls, or may not even exist if you're using the standalone windows executable), then just place your profiles in a directory on disk and use the --plugins=/path/to/profiles to get them loaded by volatility.
+If you _do not_ want to write to the core volatility directories (which may be overwritten during upgrades/uninstalls, or may not even exist if you're using the standalone windows executable), then just place your profiles in a directory on disk and use the --plugins=/path/to/profiles to get them loaded by volatility. Here is an example:
+
+{{{
+C:\Users\Jake\Desktop>volatility-2.2_rc1.standalone.exe --info | findstr Linux
+Volatile Systems Volatility Framework 2.2_rc1
+
+C:\Users\Jake\Desktop>dir profiles
+ Volume in drive C has no label.
+ Volume Serial Number is ACF0-0C63
+
+ Directory of C:\Users\Jake\Desktop\profiles
+
+09/12/2012  01:47 PM    <DIR>          .
+09/12/2012  01:47 PM    <DIR>          ..
+09/10/2012  10:24 PM           580,930 Mandriva2011.zip
+09/10/2012  10:05 PM           681,770 OpenSuSE12.zip
+09/10/2012  09:54 PM           765,454 Ubuntu1204.zip
+               3 File(s)      2,028,154 bytes
+               2 Dir(s)   8,360,775,680 bytes free
+
+C:\Users\Jake\Desktop>volatility-2.2_rc1.standalone.exe --plugins=profiles --info | findstr Linux
+Volatile Systems Volatility Framework 2.2_rc1
+LinuxMandriva2011x64 - A Profile for Linux Mandriva2011 x64
+LinuxOpenSuSE12x86   - A Profile for Linux OpenSuSE12 x86
+LinuxUbuntu1204x64   - A Profile for Linux Ubuntu1204 x64
+}}}
 
 == Using the Profile ==
 
