@@ -6,6 +6,13 @@ Memory acquired by !EnCase or converted using ewfacquire are stored in Expert Wi
 
 = Acquisition = 
 
+[https://lh5.googleusercontent.com/-i0HmBBIS1HQ/UFD5PSAPYTI/AAAAAAAAA8s/LdiQLXnihgA/s517/EnCase%2520RAM%25201.png]
+
+[https://lh6.googleusercontent.com/-5Hkr3eiyM1c/UFD5PfUIVOI/AAAAAAAAA8o/HytwtyjuF7s/s795/EnCase%2520RAM%25202.png]
+[https://lh4.googleusercontent.com/-0tZFfadXXts/UFD5Pne5ioI/AAAAAAAAA80/M-3I4hG2W-M/s800/EnCase%2520RAM%25203.png]
+[https://lh6.googleusercontent.com/--ReUKbACIGc/UFD5P7nKzdI/AAAAAAAAA88/cPNnTtIjzj8/s563/EnCase%2520RAM%25204%2520View.png]
+[https://lh5.googleusercontent.com/-ZPGJArTY6hE/UFD5PwgBd8I/AAAAAAAAA9I/3UOERvGD4lA/s512/EnCase%2520RAM%25205%2520Acquisition.png]
+
 
 
 = Notes = 
