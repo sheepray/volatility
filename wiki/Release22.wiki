@@ -12,7 +12,7 @@ Volatility 2.2 is scheduled for release in October 2012. We are currently in RC1
 = Release Highlights = 
 
   * Introduction of Linux support (Intel x86, x64) 
-      * Kernels: 2.6.x to 3.5.x 
+      * Kernels: 2.6.11 to 3.5.x 
       * Debian, Ubuntu, OpenSuSE, Fedora, CentOS, Mandriva, and more...
   * Over 25+ Linux plugins
   * New LiME Address Space 
