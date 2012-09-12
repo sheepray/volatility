@@ -88,7 +88,7 @@ Soon, a wiki page will be created that details every plugin and its output. Unti
 $ python vol.py --info | grep -i linux_
 Volatile Systems Volatility Framework 2.2_alpha
 linux_arp           - Print the ARP table
-linux_bash          - Recover bash history from bash process memory        
+linux_bash          - Recover bash history from bash process memory
 linux_check_afinfo  - Verifies the operation function pointers of network protocols
 linux_check_creds   - Checks if any processes are sharing credential structures
 linux_check_fop     - Check file operation structures for rootkit modifications
@@ -117,7 +117,7 @@ linux_pslist_cache  - Gather tasks from the kmem_cache
 linux_pstree        - Shows the parent/child relationship between processes
 linux_psxview       - Find hidden processes with various process listings
 linux_route_cache   - Recovers the routing cache from memory
-linux_sk_buff_cache - Gather files from the dentry cache
+linux_sk_buff_cache - Recovers packets from the sk_buff kmem_cache
 linux_slabinfo      - Mimics /proc/slabinfo on a running machine
 linux_tmpfs         - Recovers tmpfs filesystems from memory
 linux_vma_cache     - Gather VMAs from the vm_area_struct cache
