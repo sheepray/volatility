@@ -171,9 +171,10 @@ Volatility 2.2 is scheduled for release in October 2012. We are currently in RC1
           * <font color='red'>(new)</font> [CommandReference22#linux_arp linux_arp] - Print the ARP table
           * <font color='red'>(new)</font> [CommandReference22#linux_ifconfig linux_ifconfig] - Gathers active interfaces
           * <font color='red'>(new)</font> [CommandReference22#linux_netstat linux_netstat] - Lists open sockets
-          * <font color='red'>(new)</font> [CommandReference22#linux_route linux_route] - Lists routing table
           * <font color='red'>(new)</font> [CommandReference22#linux_route_cache linux_route_cache] - Recovers the routing cache from memory
-     * *Malware/Rootkits*
+          * <font color='red'>(new)</font> [CommandReference22#linux_pkt_queues linux_pkt_queues] - Writes per-process packet queues out to disk
+          * <font color='red'>(new)</font> [CommandReference22#linux_sk_buff_cache linux_sk_buff_cache] - Recovers packets from the sk_buff kmem_cache
+      * *Malware/Rootkits*
           * <font color='red'>(new)</font> [CommandReference22#linux_check_afinfo linux_check_afinfo] - Verifies the operation function pointers of network protocols
           * <font color='red'>(new)</font> [CommandReference22#linux_check_creds linux_check_creds] - Checks if any processes are sharing credential structures
           * <font color='red'>(new)</font> [CommandReference22#linux_check_fop linux_check_fop] - Check file operation structures for rootkit modifications
@@ -189,6 +190,7 @@ Volatility 2.2 is scheduled for release in October 2012. We are currently in RC1
           * <font color='red'>(new)</font> [CommandReference22#linux_slabinfo linux_slabinfo] - Mimics /proc/slabinfo on a running machine    
           * <font color='red'>(new)</font> [CommandReference22#linux_dentry_cache linux_dentry_cache] - Gather files from the dentry cache  
           * <font color='red'>(new)</font> [CommandReference22#linux_find_file linux_find_file] - Extract cached file contents from memory via inodes 
+          * <font color='red'>(new)</font> [CommandReference22#linux_vma_cache linux_vma_cache] - Gather VMAs from the vm_area_struct cache
 
 = API Changes = 
 
