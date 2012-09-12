@@ -194,7 +194,7 @@ Volatility 2.2 is scheduled for release in October 2012. We are currently in RC1
 
 = Release Notes = 
 
-N/A. To be filled out before Release22.
+N/A. To be filled out before release.
 
 = API Changes = 
 
