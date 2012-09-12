@@ -2,7 +2,7 @@
 
 = Introduction =
 
-Memory acquired by !EnCase or converted using ewfacquire are stored in Expert Witness Format (EWF).  Volatility supports the "older" EWF format used by !EnCase v6 and below and not the newer EWF2-EX01 format used in !EnCase v7.
+Memory acquired by !EnCase or converted using ewfacquire are stored in Expert Witness Format (EWF).  Volatility supports the "older" EWF format used by !EnCase v6 (and prior versions), but not the newer EWF2-EX01 format used in !EnCase v7.
 
 = Acquisition = 
 
