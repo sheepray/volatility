@@ -2,10 +2,32 @@
 
 = Introduction =
 
-Add your content here.
+Memory acquired by EnCase or converted using ewfacquire are stored in Expert Witness Format (EWF).  Volatility supports the "older" EWF format used by EnCase v6 and below and not the newer EWF2-EX01 format used in EnCase v7.
 
 = Acquisition = 
 
+
+
 = Notes = 
 
+You must have libewf installed for the EWF address space to work correctly.  Move the `contrib/plugins/addrspaces/ewf.py` into `volatility/plugins/addrspaces/` and then run Volatility against the memory sample as you would a raw sample.
+
+{{{
+$ mv contrib/plugins/addrspaces/ewf.py volatility/plugins/addrspaces/
+$ python vol.py -f WinXPSP3x86.E01 --profile=WinXPSP3x86 pslist
+Volatile Systems Volatility Framework 2.2_alpha
+Offset(V)  Name                    PID   PPID   Thds     Hnds   Sess  Wow64 Start                Exit                
+---------- -------------------- ------ ------ ------ -------- ------ ------ -------------------- --------------------
+0x8aeda660 System                    4      0     99     2022 ------      0                                          
+0x89af3da0 smss.exe                912      4      3       19 ------      0 2011-04-08 17:30:59                      
+0x894c3720 csrss.exe              1036    912     14     1086      0      0 2011-04-08 17:31:05                      
+0x894ceda0 winlogon.exe           1060    912     22      604      0      0 2011-04-08 17:31:07                      
+0x86ff4da0 services.exe           1108   1060     16      417      0      0 2011-04-08 17:31:10                      
+0x8705a770 lsass.exe              1120   1060     23      531      0      0 2011-04-08 17:31:10                                            
+0x86fdbda0 svchost.exe            1368   1108     16      208      0      0 2011-04-08 17:31:12    
+[snip]                 
+}}}
+
 = File Format = 
+
+File format details can be found in [http://code.google.com/p/libewf/downloads/detail?name=Expert%20Witness%20Compression%20Format%20%28EWF%29.pdf Joachim Metz's EWF documentation].
