@@ -194,6 +194,8 @@ Volatility 2.2 is scheduled for release in October 2012. We are currently in RC1
 
 = Release Notes = 
 
+N/A. To be filled out before Release22.
+
 = API Changes = 
 
 == Module Dumping/PE Extraction == 
