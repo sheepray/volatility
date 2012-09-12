@@ -14,13 +14,7 @@ First check the [Release22] page for the supported Linux kernels, distributions,
 
 = Getting the Volatility source =
 
-The source can be currently downloaded by checking out with SVN:
-
-{{{
-$ svn co http://volatility.googlecode.com/svn/trunk volatility
-}}}
-
-The source code can be browsed [http://code.google.com/p/volatility/source/browse/#svn%2Ftrunk here]
+Linux support is available as of [Release22] RC1. Please see the release page for direct download links.
 
 = Creating a profile =
 
