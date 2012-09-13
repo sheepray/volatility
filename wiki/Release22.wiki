@@ -5,7 +5,7 @@
 Volatility 2.2 is scheduled for release in October 2012. We are currently in RC1 for this release:
 
   * [http://volatility.googlecode.com/files/volatility-2.2_rc1.standalone.exe Volatility 2.2 RC1 Standalone Windows Program]
-  * [http://volatility.googlecode.com/files/volatility-2.2_rc1.win32.exe Volatility 2.1 RC1 Windows Module Installer]
+  * [http://volatility.googlecode.com/files/volatility-2.2_rc1.win32.exe Volatility 2.2 RC1 Windows Module Installer]
   * [http://volatility.googlecode.com/files/volatility-2.2_rc1.tar.gz 	Volatility 2.2 RC1 Source code (tgz)]
   * [http://volatility.googlecode.com/files/volatility-2.2_rc1.zip Volatility 2.2 RC1 Source code (zip)]
 
