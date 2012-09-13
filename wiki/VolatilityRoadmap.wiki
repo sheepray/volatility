@@ -69,6 +69,8 @@ This page is the official Volatility Roadmap. The goal of the Roadmap is to help
  * Profile Selection Enhancements
  * New or Updated Plugins 
    * shellbags
+   * mbr/vbr parser
+   * mftparser
 
 = Volatility 3.0 (Official Tech Preview Merge) =
 
