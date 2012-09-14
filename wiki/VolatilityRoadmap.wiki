@@ -87,7 +87,6 @@ This page is the official Volatility Roadmap. The goal of the Roadmap is to help
  * Improved Framework Support (Use as a Library)
  * Application Profiles and WOW64
  * Addition of Windows 8/Server 2012 Support/Testing
- * Win32k Suite (10+ new plugins and API)
  * New or Updated Plugins 
    * privileges 
    * pktscan
