@@ -7,6 +7,7 @@ This is a catalog of research, documentation, analysis, and tutorials generated 
 ||Year||Month||Type||Title||Author||
 ||2012||September||Blog||[http://blog.egeektronic.com/post/31460846365 cr0security rootkit analysis]||Teguh (@egeektronic)||
 ||2012||September||Blog||[http://neosysforensics.blogspot.com.es/2012/08/linux-volatility-y-sus-perfiles.html Linux, Volatility, and Profiles]||neofito (@neosysforensics)||
+||2012||August||Paper/Slides||[https://www.usenix.org/conference/cset12/virtual-machine-introspection-hybrid-honeypot-architecture Virtual Machine Introspection in a Hybrid Honeypot Architecture]||Lengyel, et. al.||
 ||2012||August||Blog||[http://dsocon.blogspot.com/2012/08/using-volatility-framework-as-library.html Using Volatility Framework as a Library]||Adam Pridgen||
 ||2012||August||Blog||[http://www.scribd.com/doc/103174530/Identifying-a-mounted-TrueCrypt-volume-from-artefacts-in-volatile-memory-using-Volatility-2-1 Identifying a mounted TrueCrypt volume from artifacts in volatile memory]||Adam Bridge (bridgeythegeek)||
 ||2012||August||Blog||[http://pen-testing.sans.org/blog/2012/08/03/pen-test-privilege-escalation-through-suspended-virtual-machines Pen Test Privilege Escalation Through Suspended Virtual Machines]||Mark Baggett (@markbaggett)||
