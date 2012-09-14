@@ -30,11 +30,10 @@ To acquire the sample, right-click, click on "Acquire"  and follow the acquisiti
 
 = Notes = 
 
-You must have libewf installed for the EWF address space to work correctly.  Move the `contrib/plugins/addrspaces/ewf.py` into `volatility/plugins/addrspaces/` (make sure you do not use `ewf-python.py` since it does not appear to work at this time). Then run Volatility against the memory sample as you would a raw sample.
+You must have libewf installed for the EWF address space to work correctly.  The address space can be found in the `contrib/plugins/aspaces` folder.  You can use the `--plugins=` parameter in order to use the ewf.py address space without moving it.  The `--plugins=` parameter must come before any other parameters for `vol.py`.  You can see an example below:
 
 {{{
-$ mv contrib/plugins/addrspaces/ewf.py volatility/plugins/addrspaces/
-$ python vol.py -f WinXPSP3x86.E01 --profile=WinXPSP3x86 pslist
+$ python vol.py --plugins=contrib/plugins -f WinXPSP3x86.E01 --profile=WinXPSP3x86 pslist
 Volatile Systems Volatility Framework 2.2_alpha
 Offset(V)  Name                    PID   PPID   Thds     Hnds   Sess  Wow64 Start                Exit                
 ---------- -------------------- ------ ------ ------ -------- ------ ------ -------------------- --------------------
