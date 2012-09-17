@@ -938,7 +938,7 @@ The reason the !PhysicalOffset field exists is so you can distinguish between tw
 
 === evtlogs ===
 
-The `eventlogs` command extracts and parses binary event logs from memory.  Binary event logs are found on Windows XP and 2003 machines, therefore this plugin only works on these architectures.  These files are extracted from VAD of the services.exe process, parsed and dumped to a specified location.
+The `evtlogs` command extracts and parses binary event logs from memory.  Binary event logs are found on Windows XP and 2003 machines, therefore this plugin only works on these architectures.  These files are extracted from VAD of the services.exe process, parsed and dumped to a specified location.
 
 {{{
 $ python vol.py -f WinXPSP1x64.vmem --profile=WinXPSP2x64 evtlogs -D output
