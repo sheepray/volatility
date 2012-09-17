@@ -76,6 +76,7 @@ This is a catalog of research, documentation, analysis, and tutorials generated 
 ||2011||September||Blog||[http://mnin.blogspot.com/2011/09/abstract-memory-analysis-zeus.html Abstract Memory Analysis: Zeus Encryption Keys]||Michael Ligh (@iMHLv2)||
 ||2011||August||Slides||[http://www.digitalforensicssolutions.com/papers/blackhat-workshop-full-presentation.pdf Linux Memory Analysis Workshop]||Andrew Case (@attrc)||
 ||2011||June||Slides||[http://digitalforensicssolutions.com/papers/omfw.pdf Linux Memory Analysis with Volatility]||Andrew Case (@attrc)||
+||2011||June||Paper||[http://www.sciencedirect.com/science/article/pii/S1742287611000508 A survey of main memory acquisition and analysis techniques for the windows operating system]||Stefan Vomel and Felix C. Freiling||
 ||2011||August||Blog||[http://gleeda.blogspot.com/2011_08_01_archive.html Volatility 2.0 and OMFW]||Jamie Levy (@gleeda)||
 ||2011||July||Blog/Paper||[https://www.honeynet.org/challenges/2011_7_compromised_server Forensic Challenge 2011 - Forensic Analysis of a Compromised Server]||Mau, Kahlich, Erasmus, Quintero, & Anand||
 ||2011||June||Blog||[http://mnin.blogspot.com/2011/06/examining-stuxnets-footprint-in-memory.html Stuxnet's Footprint in Memory with Volatility 2.0]||Michael Ligh (@iMHLv2)||
