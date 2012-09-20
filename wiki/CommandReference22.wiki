@@ -1349,7 +1349,7 @@ Offset(V)             PID   Port  Proto Protocol        Address         Create T
 
 Output includes the virtual offset of the `_ADDRESS_OBJECT` by default.  The physical offset can be obtained with the -P switch.
 
-== sockscan ==
+=== sockscan ===
 
 To find `_ADDRESS_OBJECT` structures using pool tag scanning, use the sockscan command. As with connscan, this can pick up residual data and artifacts from previous sockets.
 
