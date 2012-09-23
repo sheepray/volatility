@@ -2,11 +2,9 @@
 
 <wiki:toc max_depth="3" />
 
-= Windows = 
+= Image Identification =
 
-== Image Identification ==
-
-=== imageinfo ===
+== imageinfo ==
 
 For a high level summary of the memory sample you're analyzing, use the imageinfo command. Most often this command is used to identify the operating system, service pack, and hardware architecture (32 or 64 bit), but it also contains other useful information such as the DTB address and time the sample was collected. 
 
@@ -33,7 +31,7 @@ The imageinfo output tells you the suggested profile that you should pass as the
 
 Plugins automatically scan for the KPCR and KDBG values when they need them. However, you can specify the values directly for any plugin by providing --kpcr=ADDRESS or --kdbg=ADDRESS. By supplying the profile and KDBG (or failing that KPCR) to other Volatility commands, you'll get the most accurate and fastest results possible.
 
-=== kdbgscan ===
+== kdbgscan ==
 
 As opposed to [CommandReference22#imageinfo] which simply provides profile suggestions, kdbgscan is designed to positively identify the correct profile and the correct KDBG address (if there happen to be multiple). This plugin scans for the KDBGHeader signatures linked to Volatility profiles and applies sanity checks to reduce false positives. The verbosity of the output and number of sanity checks that can be performed depends on whether Volatility can find a DTB, so if you already know the correct profile (or if you have a profile suggestion from [CommandReference22#imageinfo]), then make sure you use it. 
 
@@ -78,7 +76,7 @@ KPCR                          : 0xfffff80001177000 (CPU 0)
 
 For more information on how KDBG structures are identified read [http://moyix.blogspot.com/2008/04/finding-kernel-global-variables-in.html Finding Kernel Global Variables in Windows] and [http://gleeda.blogspot.com/2010/12/identifying-memory-images.html Identifying Memory Images]
 
-=== kprcscan ===
+== kprcscan ==
 
 Use this command to scan for potential KPCR structures by checking for the self-referencing members as described by [http://blog.schatzforensic.com.au/2010/07/finding-object-roots-in-vista-kpcr/ Finding Object Roots in Vista]. On a multi-core system, each processor has its own KPCR. Therefore, you'll see details for each processor, including IDT and GDT address; current, idle, and next threads; CPU number, vendor & speed; and CR3 value. 
 
@@ -109,9 +107,9 @@ CR3/DTB                       : 0x1dcec000
 
 If the !KdVersionBlock is not null, then it may be possible to find the machine's KDBG address via the KPCR. In fact, the backup method of finding KDBG used by plugins such as [CommandReference22#pslist] is to leverage kpcrscan and then call the KPCR.get_kdbg() API function. 
 
-== Processes and DLLs ==
+= Processes and DLLs =
 
-=== pslist ===
+== pslist ==
 
 To list the processes of a system, use the pslist command. This walks the doubly-linked list pointed to by !PsActiveProcessHead and shows the offset, process name, process ID, the parent process ID, number of threads, number of handles, and date/time when the process started and exited. As of 2.1 it also shows the Session ID and if the process is a Wow64 process (it uses a 32 bit address space on a 64 bit kernel).
 
@@ -175,7 +173,7 @@ Offset(P)          Name                    PID   PPID   Thds     Hnds   Sess  Wo
 ... 
 }}}
 
-=== pstree ===
+== pstree ==
 
 To view the process listing in tree form, use the pstree command. This enumerates processes using the same technique as pslist, so it will also not show hidden or unlinked processes. Child process are indicated using indention and periods. 
 
@@ -200,7 +198,7 @@ Name                                                  Pid   PPid   Thds   Hnds T
 ...
 }}}
 
-=== psscan ===
+== psscan ==
 
 To enumerate processes using pool tag scanning, use the psscan command. This can find processes that previously terminated (inactive) and processes that have been hidden or unlinked by a rootkit. 
 
@@ -234,11 +232,11 @@ Volatile Systems Volatility Framework 2.0
 
 If a process has previously terminated, the Time exited field will show the exit time. If you want to investigate a hidden process (such as displaying its DLLs), then you'll need physical offset of the EPROCESS object, which is shown in the far left column.
 
-=== psdispscan ===
+== psdispscan ==
 
 This plugin is similar to psscan, except it enumerates processes by scanning for DISPATCHER_HEADER instead of pool tags. This gives you an alternate way to carve EPROCESS objects in the event an attacker tried to hide by altering pool tags. This plugin is not well maintained and only supports XP x86. To use it, you must type --plugins=contrib/plugins on command-line. 
 
-=== dlllist ===
+== dlllist ==
 
 To display a process's loaded DLLs, use the dlllist command. It walks the doubly-linked list of LDR_DATA_TABLE_ENTRY structures which is pointed to by the PEB's !InLoadOrderModuleList. DLLs are automatically added to this list when a process calls !LoadLibrary (or some derivative such as !LdrLoadDll) and they aren't removed until !FreeLibrary is called and the reference count reaches zero.
 
@@ -287,7 +285,7 @@ To display the DLLs for a process that is hidden or unlinked by a rootkit, first
 $ python vol.py -f ~/Desktop/win7_trial_64bit.raw --profile=Win7SP0x64 dlllist --offset=0x04a291a8
 }}}
 
-=== dlldump ===
+== dlldump ==
 
 To extract a DLL from a process's memory space and dump it to disk for analysis, use the dlldump command. The syntax is nearly the same as what we've shown for dlllist above. You can:
 
@@ -330,7 +328,7 @@ You can also specify an EPROCESS offset if the DLL you want is in a hidden proce
 $ python vol.py --profile=Win7SP0x86 -f win7.dmp dlldump -o 0x3e3f64e8 -D out --base=0x00680000
 }}}
 
-=== handles ===
+== handles ==
 
 To display the open handles in a process, use the handles command. This applies to files, registry keys, mutexes, named pipes, events, window stations, desktops, threads, and all other types of securable executive objects. This command replaces the older "files" and "regobjkeys" commands from the Volatility 1.3 framework. As of 2.1, the output includes handle value and granted access for each object. 
 
@@ -386,7 +384,7 @@ Offset(V)             Pid             Handle             Access Type            
 
 In some cases, the Details column will be blank (for example, if the objects don't have names). By default, you'll see both named and un-named objects. However, if you want to hide the less meaningful results and only show named objects, use the --silent parameter to this plugin.
 
-=== getsids ===
+== getsids ==
 
 To view the SIDs (Security Identifiers) associated with a process, use the getsids command. Among other things, this can help you identify processes which have maliciously escalated privileges. 
 
@@ -408,7 +406,7 @@ smss.exe (208): S-1-16-16384 (System Mandatory Level)
 [snip]
 }}}
 
-=== cmdscan ===
+== cmdscan ==
 
 The cmdscan plugin searches the memory of csrss.exe on XP/2003/Vista/2008 and conhost.exe on Windows 7 for commands that attackers entered through a console shell (cmd.exe). This is one of the most powerful commands you can use to gain visibility into an attackers actions on a victim system, whether they opened cmd.exe through an RDP session or proxied input/output to a command shell from a networked backdoor. 
 
@@ -459,7 +457,7 @@ Cmd #17 @ 0x135eff0: livekd -w
 
 For background information, see Richard Stevens and Eoghan Casey's [http://ww.dfrws.org/2010/proceedings/stevens.pdf Extracting Windows Cmd Line Details from Physical Memory].
 
-=== consoles ===
+== consoles ==
 
 Similar to [CommandReference22#cmdscan] the consoles plugin finds commands that attackers typed into cmd.exe or executed via backdoors. However, instead of scanning for COMMAND_HISTORY, this plugin scans for CONSOLE_INFORMATION. The major advantage to this plugin is it not only prints the commands attackers typed, but it collects the entire screen buffer (input *and* output). For instance, instead of just seeing "dir", you'll see exactly what the attacker saw, including all files and directories listed by the "dir" command. 
 
@@ -605,7 +603,7 @@ Volatile Systems Volatility Framework 2.1_alpha
   Output: Physical memory in the range 0x00004000-0x00004000 could not be read.                              
 }}}
 
-=== envars === 
+== envars == 
 
 To display a process's environment variables, use the envars plugin. Typically this will show the number of CPUs installed and the hardware architecture (though the [CommandReference22#kdbgscan] output is a much more reliable source), the process's current directory, temporary directory, session name, computer name, user name, and various other interesting artifacts. 
 
@@ -633,7 +631,7 @@ Pid      Process              Block              Variable                       
      296 csrss.exe            0x00000000003d1320 windir                         C:\Windows
 }}}
 
-=== verinfo ===
+== verinfo ==
 
 To display the version information embedded in PE files, use the verinfo command. Not all PE files have version information, and many malware authors forge it to include false data, but nonetheless this command can be very helpful with identifying binaries and for making correlations with other files. 
 
@@ -664,7 +662,7 @@ C:\Windows\system32\csrss.exe
 [snip]
 }}}
 
-=== enumfunc ===
+== enumfunc ==
 
 This plugin enumerates imported and exported functions from processes, dlls, and kernel drivers. Specifically, it handles functions imported by name or ordinal, functions exported by name or ordinal, and forwarded exports. The output will be very verbose in most cases (functions exported by ntdll, msvcrt, and kernel32 can reach 1000+ alone). So you can either reduce the verbosity by filtering criteria with the command-line options (shown below) or you can use look at the code in enumfunc.py and use it as an example of how to use the IAT and EAT parsing API functions in your own plugin. For example, the [CommandReference22#apihooks] plugin leverages the imports and exports APIs to find functions in memory when checking for hooks. 
 
@@ -723,9 +721,9 @@ Process              Type       Module               Ordinal    Address         
 [snip]
 }}}
 
-== Process Memory ==
+= Process Memory =
 
-=== memmap ===
+== memmap ==
 
 The memmap command shows you exactly which pages are memory resident, given a specific process DTB (or kernel DTB if you use this plugin on the Idle or System process). It shows you the virtual address of the page, the corresponding physical offset of the page, and the size of the page. The map information generated by this plugin comes from the underlying address space's get_available_addresses method. 
 
@@ -749,7 +747,7 @@ Virtual            Physical                         Size     DumpFileOffset
 [snip]
 }}}
 
-=== memdump ===
+== memdump ==
 
 To extract all memory resident pages in a process (see [CommandReference22#memmap] for details) into an individual file, use the memdump command. Supply the output directory with -D or --dump-dir=DIR. 
 
@@ -781,7 +779,7 @@ To get help, type 'hh()'
 >>> 
 }}}
 
-=== procmemdump ===
+== procmemdump ==
 
 To dump a process's executable (including the slack space), use the procmemdump command. Optionally, pass the --unsafe or -u flags to bypass certain sanity checks used when parsing the PE header. Some malware will intentionally forge size fields in the PE header so that memory dumping tools fail. 
 
@@ -797,11 +795,11 @@ $ file dump/executable.296.exe
 dump/executable.296.exe: PE32+ executable for MS Windows (native) Mono/.Net assembly
 }}}
 
-=== procexedump ===
+== procexedump ==
 
 To dump a process's executable (*not* including the slack space), use the procexedump command. The syntax is identical to procmemdump.
 
-=== vadinfo ===
+== vadinfo ==
 
 The vadinfo command displays extended information about a process's VAD nodes. In particular, it shows:
 
@@ -843,7 +841,7 @@ Flags2: Inherit: 1
 
 For more information on the VAD, see BDG's [http://www.dfrws.org/2007/proceedings/p62-dolan-gavitt.pdf The VAD Tree: A Process-Eye View of Physical Memory].
 
-=== vadwalk ===
+== vadwalk ==
 
 To inspect a process's VAD nodes in table form, use the vadwalk command. 
 
@@ -865,7 +863,7 @@ Address            Parent             Left               Right              Star
 [snip]
 }}}
 
-=== vadtree ===
+== vadtree ==
 
 To display the VAD nodes in a visual tree form, use the vadtree command. 
 
@@ -894,7 +892,7 @@ Pid:    296
 
 If you want to view the balanced binary tree in Graphviz format, just add --output=dot --output-file=graph.dot to your command. Then you can open graph.dot in any Graphviz-compatible viewer. 
 
-=== vaddump ===
+== vaddump ==
 
 To extract the range of pages described by a VAD node, use the vaddump command. This is similar to [CommandReference22#memdump], except the pages belonging to each VAD node are placed in separate files (named according to the starting and ending addresses) instead of one large conglomerate file. If any pages in the range are not memory resident, they're padded with 0's using the address space's zread() method. 
 
@@ -936,7 +934,7 @@ The files are named like this:
 
 The reason the !PhysicalOffset field exists is so you can distinguish between two processes with the same name. 
 
-=== evtlogs ===
+== evtlogs ==
 
 The `evtlogs` command extracts and parses binary event logs from memory.  Binary event logs are found on Windows XP and 2003 machines, therefore this plugin only works on these architectures.  These files are extracted from VAD of the services.exe process, parsed and dumped to a specified location.
 
@@ -978,9 +976,9 @@ $ cat output/secevent.txt
 
 If the `--verbose` flag is used, SIDs are also evaluated and placed in the parsed output instead of the defaulting raw SID.  This action takes longer to run, since the plugin has to calculate each of the service SID and user SID from registry entries.
 
-== Kernel Memory and Objects ==
+= Kernel Memory and Objects =
 
-=== modules ===
+== modules ==
 
 To view the list of kernel drivers loaded on the system, use the modules command. This walks the doubly-linked list of LDR_DATA_TABLE_ENTRY structures pointed to by !PsLoadedModuleList. Similar to the [CommandReference22#pslist] command, this relies on finding the KDBG structure. In rare cases, you may need to use [CommandReference22#kdbgscan] to find the most appropriate KDBG structure address and then supply it to this plugin like --kdbg=ADDRESS. 
 
@@ -1018,7 +1016,7 @@ Offset(P)          Name                 Base                             Size Fi
 [snip]
 }}}
 
-=== modscan ===
+== modscan ==
 
 The modscan command finds LDR_DATA_TABLE_ENTRY structures by scanning physical memory for pool tags. This can pick up previously unloaded drivers and drivers that have been hidden/unlinked by rootkits. Unlike [CommandReference22#modlist] the order of results has no relationship with the order in which the drivers loaded. As you can see below, DumpIt.sys was found at the lowest physical offset, but it was probably one of the last drivers to load (since it was used to acquire memory). 
 
@@ -1039,7 +1037,7 @@ Offset(P)          Name                 Base                             Size Fi
 [snip]
 }}}
 
-=== moddump ===
+== moddump ==
 
 To extract a kernel driver to a file, use the moddump command. Supply the output directory with -D or --dump-dir=DIR. Without any additional parameters, all drivers identified by [CommandReference#21modlist] will be dumped. If you want a specific driver, supply a regular expression of the driver's name with --regex=REGEX or the module's base address with --base=BASE. 
 
@@ -1069,7 +1067,7 @@ Cannot dump framebuf.dll at fffff960008a0000
 
 Similar to [CommandReference22#dlldump], if critical parts of the PE header are not memory resident, then rebuilding/extracting the driver may fail. Additionally, for drivers that are mapped in different sessions (like win32k.sys), there is currently no way to specify which session to use when acquiring the driver sample. This will be an enhancement added in the Volatility 2.2 release. 
 
-=== ssdt ===
+== ssdt ==
 
 To list the functions in the Native and GUI SSDTs, use the ssdt command. This displays the index, function name, and owning driver for each entry in the SSDT. Please note the following:
 
@@ -1127,7 +1125,7 @@ $ python vol.py -f ~/Desktop/win7_trial_64bit.raw --profile=Win7SP0x64 ssdt | eg
 
 Note that the NT module on your system may be ntkrnlpa.exe or ntkrnlmp.exe - so check that before using egrep of you'll be filtering the wrong module name. Also be aware that this isn't a hardened technique for finding hooks, as malware can load a driver named win32ktesting.sys and bypass your filter. 
 
-=== driverscan ===
+== driverscan ==
 
 To find DRIVER_OBJECTs in physical memory using pool tag scanning, use the driverscan command. This is another way to locate kernel modules, although not all kernel modules have an associated DRIVER_OBJECT. The DRIVER_OBJECT is what contains the 28 IRP (Major Function) tables, thus the [CommandReference22#driverirp] command is based on the methodology used by driverscan. 
 
@@ -1151,7 +1149,7 @@ Offset(P)          #Ptr #Hnd Start                            Size Service Key  
 [snip]
 }}}
 
-=== filescan ===
+== filescan ==
 
 To find FILE_OBJECTs in physical memory using pool tag scanning, use the filescan command. This will find open files even if a rootkit is hiding the files on disk and if the rootkit hooks some API functions to hide the open handles on a live system. The output shows the physical offset of the FILE_OBJECT, file name, number of pointers to the object, number of handles to the object, and the effective permissions granted to the object. 
 
@@ -1179,7 +1177,7 @@ Offset(P)            #Ptr   #Hnd Access Name
 [snip]
 }}}
 
-=== mutantscan ===
+== mutantscan ==
 
 To scan physical memory for KMUTANT objects with pool tag scanning, use the mutantscan command. By default, it displays all objects, but you can pass -s or --silent to only show named mutexes. The CID column contains the process ID and thread ID of the mutex owner if one exists.
 
@@ -1210,7 +1208,7 @@ Offset(P)          #Ptr #Hnd Signal Thread                   CID Name
 [snip]
 }}}
 
-=== symlinkscan ===
+== symlinkscan ==
 
 This plugin scans for symbolic link objects and outputs their information.
 
@@ -1236,7 +1234,7 @@ Offset(P)            #Ptr   #Hnd Creation time            From                 T
 [snip]
 }}}
 
-=== thrdscan ===
+== thrdscan ==
 
 To find ETHREAD objects in physical memory with pool tag scanning, use the thrdscan command. Since an ETHREAD contains fields that identify its parent process, you can use this technique to find hidden processes. One such use case is documented in the [CommandReference22#psxview] command. Also, for verbose details, try the [CommandReference22#threads] plugin. 
 
@@ -1260,9 +1258,9 @@ Offset(P)             PID    TID      Start Address Create Time               Ex
 [snip]
 }}}
 
-== Networking ==
+= Networking =
 
-=== connections ===
+== connections ==
 
 To view TCP connections that were active at the time of the memory acquisition, use the connections command. This walks the singly-linked list of connection structures pointed to by a non-exported symbol in the tcpip.sys module. 
 
@@ -1287,7 +1285,7 @@ Offset(V)          Local Address             Remote Address               Pid
 
 Output includes the virtual offset of the `_TCPT_OBJECT` by default.  The physical offset can be obtained with the -P switch.
 
-=== connscan ===
+== connscan ==
 
 To find `_TCPT_OBJECT` structures using pool tag scanning, use the connscan command. This can find artifacts from previous connections that have since been terminated, in addition to the active ones. In the output below, you'll notice some fields have been partially overwritten, but some of the information is still accurate. For example, the very last entry's Pid field is 0, but all other fields are still in tact. Thus, while it may find false positives sometimes, you also get the benefit of detecting as much information as possible. 
 
@@ -1319,7 +1317,7 @@ Volatile Systems Volatility Framework 2.1_alpha
 0x39b10010 172.16.237.150:1148       172.16.237.138:139             0
 }}}
 
-=== sockets ===
+== sockets ==
 
 To detect listening sockets for any protocol (TCP, UDP, RAW, etc), use the sockets command. This walks a singly-linked list of socket structures which is pointed to by a non-exported symbol in the tcpip.sys module. 
 
@@ -1349,7 +1347,7 @@ Offset(V)             PID   Port  Proto Protocol        Address         Create T
 
 Output includes the virtual offset of the `_ADDRESS_OBJECT` by default.  The physical offset can be obtained with the -P switch.
 
-=== sockscan ===
+== sockscan ==
 
 To find `_ADDRESS_OBJECT` structures using pool tag scanning, use the sockscan command. As with connscan, this can pick up residual data and artifacts from previous sockets.
 
@@ -1376,7 +1374,7 @@ Offset(P)             PID   Port  Proto Protocol        Address         Create T
 [snip]
 }}}
 
-=== netscan ===
+== netscan ==
 
 To scan for network artifacts in 32- and 64-bit Windows Vista, Windows 2008 Server and Windows 7 memory dumps, use the netscan command. This finds TCP endpoints, TCP listeners, UDP endpoints, and UDP listeners. It distinguishes between IPv4 and IPv6, prints the local and remote IP (if applicable), the local and remote port (if applicable), the time when the socket was bound or when the connection was established, and the current state (for TCP connections only). For more information, see [http://mnin.blogspot.com/2011/03/volatilitys-new-netscan-module.html Volatility's New Netscan Module.]
 
@@ -1430,11 +1428,11 @@ Offset(P)  Proto    Local Address                  Foreign Address      State   
 [snip]
 }}}
 
-== Registry ==
+= Registry =
 
 Volatility is the only memory forensics framework with the ability to carve registry data. For more information, see BDG's [http://moyix.blogspot.com/2009/01/memory-registry-tools.html Memory Registry Tools] and [http://moyix.blogspot.com/2009/01/registry-code-updates.html Registry Code Updates]. 
 
-=== hivescan ===
+== hivescan ==
 
 To find the physical addresses of CMHIVEs (registry hives) in memory, use the hivescan command. For more information, see BDG's [http://moyix.blogspot.com/2008/02/enumerating-registry-hives.html Enumerating Registry Hives]. 
 
@@ -1455,7 +1453,7 @@ Offset(P)
 [snip]
 }}}
 
-=== hivelist ===
+== hivelist ==
 
 To locate the virtual addresses of registry hives in memory, and the full paths to the corresponding hive on disk, use the hivelist command. If you want to print values from a certain hive, run this command first so you can see the address of the hives. 
 
@@ -1480,7 +1478,7 @@ Virtual            Physical           Name
 0xfffff8a000f95010 0x000000000c2b4010 \??\C:\Users\testing\ntuser.dat
 }}}
 
-=== printkey ===
+== printkey ==
 
 To display the subkeys, values, data, and data types contained within a specified registry key, use the printkey command. By default, printkey will search all hives and print the key information (if found) for the requested key.  Therefore, if the key is located in more than one hive, the information for the key will be printed for each hive that contains it.  
 
@@ -1565,7 +1563,7 @@ Subkeys:
   (S) Wow6432Node
 }}}
 
-=== hivedump ===
+== hivedump ==
 
 To recursively list all subkeys in a hive, use the hivedump command and pass it the virtual address to the desired hive. 
 
@@ -1586,7 +1584,7 @@ Last Written         Key
 [snip]
 }}}
 
-=== hashdump ===
+== hashdump ==
 
 To extract and decrypt cached domain credentials stored in the registry, use the hashdump command. For more information, see BDG's [http://moyix.blogspot.com/2008/02/cached-domain-credentials.html Cached Domain Credentials] and [http://www.slideshare.net/mooyix/sans-forensics-2009-memory-forensics-and-registry-analysis SANS Forensics 2009 - Memory Forensics and Registry Analysis].
 
@@ -1639,7 +1637,7 @@ If the key is missing you should see an error message:
 
 "The requested key could not be found in the hive(s) searched"
 
-=== lsadump ===
+== lsadump ==
 
 To dump LSA secrets from the registry, use the lsadump command. This exposes information such as the default password (for systems with autologin enabled), the RDP public key, and credentials used by DPAPI.
 
@@ -1690,7 +1688,7 @@ DPAPI_SYSTEM
 0020   D3 91 5C FA A5 8B E6 B4 81 0D B6 D4                ............
 }}}
 
-=== userassist ===
+== userassist ==
 
 To get the UserAssist keys from a sample you can use the userassist plugin.  For more information see Gleeda's [http://gleeda.blogspot.com/2011/04/volatility-14-userassist-plugin.html Volatility UserAssist plugin] post.
 
@@ -1752,7 +1750,7 @@ Last updated:   2010-03-18 01:56:31
 [snip]
 }}}
 
-=== shimcache === 
+== shimcache == 
 
 This plugin parses the Application Compatibility Shim Cache registry key. 
 
@@ -1769,7 +1767,7 @@ Last Modified: 2009-07-14 01:39:25 , Path: \??\C:\Windows\System32\netsh.exe
 Last Modified: 2009-07-14 01:39:07 , Path: \??\C:\Windows\system32\DrvInst.exe
 }}}
 
-=== getservicesids ===
+== getservicesids ==
 
 The `getservicesids` command calculates the SIDs for services on a machine and outputs them in Python dictionary format for future use.
 The service names are taken from the registry ("SYSTEM\!CurrentControlSet\Services").  For more information on how these SIDs are calculated, see [http://jls-scripts.googlecode.com/files/Timeliner%20Release%20Documentation.pdf Timeliner Release Documentation (pdf)].  Example output can be seen below:
@@ -1794,11 +1792,11 @@ servicesids = {
 
 In order to save output to a file, use the `--output-file` option.
 
-== Crash Dumps, Hibernation, and Conversion ==
+= Crash Dumps, Hibernation, and Conversion =
 
 Volatility supports Microsoft crash dumps and hibernation files in addition to raw memory dumps. All commands that work on raw dumps also work on crash and hiber images. 
 
-=== crashinfo ===
+== crashinfo ==
 
 Information from the crashdump header can be printed using the crashinfo command.  You will see information like that of the Microsoft [http://support.microsoft.com/kb/119490 dumpcheck] utility. 
 
@@ -1831,7 +1829,7 @@ FileOffset    Start Address    Length
 3ff7f000      3ffff000
 }}}
 
-=== hibinfo ===
+== hibinfo ==
 
 The hibinfo command reveals additional information stored in the hibernation file, including the state of the Control Registers, such as CR0, etc.  It also identifies the time at which the hibernation file was created, the state of the hibernation file, and the version of windows being hibernated.  Example output for the function is shown below:
 
@@ -1852,7 +1850,7 @@ CR4[PAE]: 1
 Windows Version is 6.1 (7601)
 }}}
 
-=== imagecopy ===
+== imagecopy ==
 
 The imagecopy command allows one to convert any existing type of address space (such as a crashdump, hibernation file, or live firewire session) to a raw memory image. This conversion be necessary if some of your other forensic tools only support reading raw memory dumps. 
 
@@ -1864,7 +1862,7 @@ Volatile Systems Volatility Framework 2.1_alpha
 Writing data (5.00 MB chunks): |.......................................|
 }}}
 
-=== raw2dmp ===
+== raw2dmp ==
 
 To convert a raw memory dump (for example from a win32dd acquisition or a VMware .vmem file) into a Microsoft crash dump, use the raw2dmp command. This is useful if you want to load the memory in the WinDbg kernel debugger for analysis. 
 
@@ -1874,11 +1872,11 @@ Volatile Systems Volatility Framework 2.1_alpha
 Writing data (5.00 MB chunks): |..............................................................................|
 }}}
 
-== Malware and Rootkits ==
+= Malware and Rootkits =
 
 Although all Volatility commands can help you hunt malware in one way or another, there are a few designed specifically for hunting rootkits and malicious code. The most comprehensive documentation for these commands can be found in the [http://www.amazon.com/dp/0470613033 Malware Analyst's Cookbook and DVD: Tools and Techniques For Fighting Malicious Code].  
 
-=== malfind ===
+== malfind ==
 
 The malfind command helps find hidden or injected code/DLLs in user mode memory, based on characteristics such as VAD tag and page permissions. 
 
@@ -1928,7 +1926,7 @@ Flags: CommitCharge: 38, MemCommit: 1, PrivateMemory: 1, Protection: 6
 0x15d000a 0000             ADD [EAX], AL
 }}}
 
-=== yarascan ===
+== yarascan ==
 
 Volatility has several built-in scanning engines to help you find simple patterns like pool tags in physical or virtual address spaces. However, if you need to scan for more complex things like regular expressions or compound rules (i.e. search for "this" and not "that"), you can use the yarascan command. This plugin can help you locate any sequence of bytes (like assembly instructions with wild cards), regular expressions, ANSI strings, or Unicode strings in user mode or kernel memory. 
 
@@ -1983,7 +1981,7 @@ Search for a regular expression in a particular process:
 $ python vol.py -f zeus.vmem yarascan --yara-rules="/my(regular|expression{0,2})/" --pid=624
 }}}
 
-=== svcscan ===
+== svcscan ==
 
 Volatility is the only memory forensics framework with the ability to list services without using the Windows API on a live machine. To see which services are registered on your memory image, use the svcscan command. The output shows the process ID of each service (if its active and pertains to a usermode process), the service name, service display name, service type, and current status. It also shows the binary path for the registered service - which will be an EXE for usermode services and a driver name for services that run from kernel mode. 
 
@@ -2020,7 +2018,7 @@ Binary Path: \Driver\Disk
 [snip]
 }}}
 
-=== ldrmodules ===
+== ldrmodules ==
 
 There are many ways to hide a DLL. One of the ways involves unlinking the DLL from one (or all) of the linked lists in the PEB. However, when this is done, there is still information contained within the VAD (Virtual Address Descriptor) which identifies the base address of the DLL and its full path on disk. To cross-reference this information (known as memory mapped files) with the 3 PEB lists, use the ldrmodules command. 
 
@@ -2083,7 +2081,7 @@ Pid      Process              Base               InLoad InInit InMem MappedPath
 [snip]
 }}}
 
-=== impscan ===
+== impscan ==
 
 In order to fully reverse engineer code that you find in memory dumps, its necessary to see which functions the code imports. In other words, which API functions it calls. When you dump binaries with [CommandReference22#dlldump], [CommandReference22#moddump], or [CommandReference22#procexedump], the IAT (Import Address Table) may not properly be reconstructed due to the high likelihood that one or more pages in the PE header or IAT are not memory resident (paged). Thus, we created impscan. Impscan identifies calls to APIs without parsing a PE's IAT. It even works if malware completely erases the PE header, and it works on kernel drivers. 
 
@@ -2190,7 +2188,7 @@ static main(void) {
 Exit(0);}
 }}}
 
-=== apihooks ===
+== apihooks ==
 
 To find API hooks in user mode or kernel mode, use the apihooks plugin. This finds IAT, EAT, Inline style hooks, and several special types of hooks. For Inline hooks, it detects CALLs and JMPs to direct and indirect locations, and it detects PUSH/RET instruction sequences. The special types of hooks that it detects include syscall hooking in ntdll.dll and calls to unknown code pages in kernel memory. 
 
@@ -2424,7 +2422,7 @@ Disassembly(1):
 [snip]
 }}}
 
-=== idt ===
+== idt ==
 
 To print the system's IDT (Interrupt Descriptor Table), use the idt command. If there are multiple processors on the system, the IDT for each individual CPU is displayed. You'll see the CPU number, the GDT selector, the current address and owning module, and the name of the PE section in which the IDT function resides. If you supply the --verbose parameter, a disassembly of the IDT function will be shown. 
 
@@ -2471,7 +2469,7 @@ Volatile Systems Volatility Framework 2.1_alpha
 0x806b01c7 5f               POP EDI
 }}}
 
-=== gdt ===
+== gdt ==
 
 To print the system's GDT (Global Descriptor Table), use the gdt command. This is useful for detecting rootkits like Alipop that install a call gate so that user mode programs can call directly into kernel mode (using a CALL FAR instruction).
 
@@ -2549,7 +2547,7 @@ ffdf0c86   72 61 6d 20 63 61 6e 6e 6f 74 20 62 65 20 72 75    ram cannot be ru
 ffdf0c96   6e 20 69 6e 20 44 4f 53 20 6d 6f 64 65 2e 0d 0d    n in DOS mode...
 }}}
 
-=== threads ===
+== threads ==
 
 The command gives you extensive details on threads, including the contents of each thread's registers (if available), a disassembly of code at the thread's start address, and various other fields that may be relevant to an investigation. Since any given system has hundreds of threads, making it difficult to sort through, this command associates descriptive tags to the threads it finds - and then you can filter by tag name with the -F or --filter parameter. 
 
@@ -2609,7 +2607,7 @@ For a detailed description of each tag/filter and instructions on how to add you
 
 Note: with the introduction of this command, two older commands (orphan_threads and ssdt_by_threads) have been deprecated. 
 
-=== callbacks ===
+== callbacks ==
 
 Volatility is the only memory forensics platform with the ability to print an assortment of important notification routines and kernel callbacks. Rootkits, anti-virus suites, dynamic analysis tools (such as Sysinternals' Process Monitor and Tcpview), and many components of the Windows kernel use of these callbacks to monitor and/or react to events. We detect the following:
 
@@ -2675,7 +2673,7 @@ GenericKernelCallback                0x8216628f UNKNOWN
 GenericKernelCallback                0x8216628f UNKNOWN
 }}}
 
-=== driverirp ===
+== driverirp ==
 
 To print a driver's IRP (Major Function) table, use the driverirp command. This command inherits from driverscan so that its able to locate DRIVER_OBJECTs. Then it cycles through the function table, printing the purpose of each function, the function's address, and the owning module of the address. 
 
@@ -2730,7 +2728,7 @@ DriverStartIo: 0xf97ea40e
 
 Now you can see that TDL3 redirects all IRPs to its own stub in the vmscsi.sys driver. That code jumps to whichever address is pointed to by 0xffdf0308 - a location in the KUSER_SHARED_DATA region. 
 
-=== devicetree ===
+== devicetree ==
 
 Windows uses a layered driver architecture, or driver chain so that multiple drivers can inspect or respond to an IRP. Rootkits often insert drivers (or devices) into this chain for filtering purposes (to hide files, hide network connections, steal keystrokes or mouse movements). The devicetree plugin shows the relationship of a driver object to its devices (by walking `_DRIVER_OBJECT.DeviceObject.NextDevice`) and any attached devices (`_DRIVER_OBJECT.DeviceObject.AttachedDevice`).
 
@@ -2792,7 +2790,7 @@ DRV 0x176c3930 \FileSystem\NetBIOS
 [snip]
 }}}
 
-=== psxview ===
+== psxview ==
 
 This plugin helps you detect hidden processes by comparing what  !PsActiveProcessHead contains with what is reported by various other sources of process listings. It compares the following:
 
@@ -2860,7 +2858,7 @@ Offset(P)          Name                    PID pslist psscan thrdproc pspcdid cs
 [snip]
 }}}
 
-=== timers === 
+== timers == 
 
 This command prints installed kernel timers (KTIMER) and any associated DPCs (Deferred Procedure Calls). Rootkits such as Zero Access, Rustock, and Stuxnet register timers with a DPC. Although the malware tries to be stealthy and hide in kernel space in a number of different ways, by finding the KTIMERs and looking at the address of the DPC, you can quickly find the malicious code ranges.                       
 
@@ -2899,215 +2897,9 @@ Please note: the timers are enumerated in different ways depending on the target
 
 For more information on timer objects, see [http://mnin.blogspot.com/2011/10/aint-nuthin-but-ktimer-thing-baby.html Ain't Nuthin But a K(Timer) Thing, Baby].
 
-== Win32k / GUI == 
+= Miscellaneous =
 
-The win32k.sys suite of plugins analyzes GUI memory. 
-
-=== sessions ===
-
-This command analyzes the unique `_MM_SESSION_SPACE` objects and prints details related to the processes running in each logon session, mapped drivers, paged/non-paged pools etc. The alternate process lists output by this plugin are leveraged by the `psxview` plugin for rootkit detection. For more information, see [http://volatility-labs.blogspot.com/2012/09/movp-11-logon-sessions-processes-and.html MoVP 1.1 Logon Sessions, Processes, and Images]. 
-
-{{{
-$ python vol.py -f win7x64.dd --profile=Win7SP1x64 sessions
-Volatile Systems Volatility Framework 2.1_alpha
-**************************************************
-Session(V): fffff88002ec7000 ID: 0 Processes: 20
-PagedPoolStart: fffff900c0000000 PagedPoolEnd fffff920bfffffff
- Process: 316 csrss.exe 2011-12-30 08:25:45 
- Process: 352 wininit.exe 2011-12-30 08:25:54 
- Process: 448 services.exe 2011-12-30 08:25:57 
- Process: 464 lsass.exe 2011-12-30 08:25:57 
- Process: 472 lsm.exe 2011-12-30 08:25:57 
- Process: 564 svchost.exe 2011-12-30 08:26:00 
- Process: 632 svchost.exe 2011-12-30 08:26:01 
- Process: 824 sppsvc.exe 2011-12-30 08:26:14 
- Process: 868 svchost.exe 2011-12-30 08:26:15 
- Process: 892 svchost.exe 2011-12-30 08:26:15 
- Process: 928 svchost.exe 2011-12-30 08:26:15 
- Process: 268 svchost.exe 2011-12-30 08:27:04 
- Process: 296 svchost.exe 2011-12-30 08:27:04 
- Process: 1144 spoolsv.exe 2011-12-30 08:27:08 
- Process: 1176 svchost.exe 2011-12-30 08:27:08 
- Process: 1868 svchost.exe 2011-12-30 07:29:10 
- Process: 2016 svchost.exe 2011-12-30 07:29:13 
- Process: 1240 SearchIndexer. 2011-12-30 07:29:13 
- Process: 1904 svchost.exe 2012-01-19 14:27:08 
- Process: 2284 f-response-ent 2012-03-14 16:45:57 
- Image: 0xfffffa800284b860, Address fffff96000080000, Name: win32k.sys
- Image: 0xfffffa800234d200, Address fffff960004e0000, Name: dxg.sys
- Image: 0xfffffa80028178a0, Address fffff960007d0000, Name: TSDDD.dll
-}}}
-
-=== wndscan ===
-
-This command scans for `tagWINDOWSTATION` objects and prints details on the window station, its global atom table, available clipboard formats, and processes or threads currently interacting with the clipboard. For more information see [http://volatility-labs.blogspot.com/2012/09/movp-12-window-stations-and-clipboard.html MoVP 1.2 Window Stations and Clipboard Malware].
-
-{{{
-$ python vol.py -f rdp.mem --profile=Win2003SP2x86 wndscan
-Volatile Systems Volatility Framework 2.1_alpha
-**************************************************
-WindowStation: 0x8581e40, Name: WinSta0, Next: 0x0
-SessionId: 2, AtomTable: 0xe7981648, Interactive: True
-Desktops: Default, Disconnect, Winlogon
-ptiDrawingClipboard: pid - tid -
-spwndClipOpen: 0x0, spwndClipViewer: 0xbc6f2ca8 6772 rdpclip.exe
-cNumClipFormats: 4, iClipSerialNumber: 9
-pClipBase: 0xe6fe8ec8, Formats: CF_UNICODETEXT,CF_LOCALE,CF_TEXT,CF_OEMTEXT 
-[snip] 
-}}}
-
-=== deskscan ===
-
-This command subclasses the `wndscan` plugin and for each window station found, it walks the list of desktops. It can be used for the following purposes:
-
-  * Find rogue desktops used to hide applications from logged-on users  
-  * Detect desktops created by ransomware 
-  * Link threads to their desktops 
-  * Analyze the desktop heap for memory corruptions 
-  * Profile dekstop heap allocations to locate USER objects 
-
-Here's an example of the output. For more information see [http://volatility-labs.blogspot.com/2012/09/movp-13-desktops-heaps-and-ransomware.html MoVP 1.3 Desktops, Heaps, and Ransomware]. 
-
-{{{
-$ python vol.py -f rdp.mem --profile=Win2003SP2x86 deskscan
-Volatile Systems Volatility Framework 2.1_alpha
-**************************************************
-Desktop: 0x8001038, Name: WinSta0\Default, Next: 0x8737bc10
-SessionId: 2, DesktopInfo: 0xbc6f0650, fsHooks: 2128
-spwnd: 0xbc6f06e8, Windows: 238
-Heap: 0xbc6f0000, Size: 0x300000, Base: 0xbc6f0000, Limit: 0xbc9f0000
- 7808 (notepad.exe 6236 parent 5544)
- 7760 (csrss.exe 7888 parent 432)
- 5116 (csrss.exe 7888 parent 432)
- 8168 (PccNTMon.exe 5812 parent 5132)
- 3040 (cmd.exe 5544 parent 5132)
- 6600 (csrss.exe 7888 parent 432)
- 7392 (explorer.exe 5132 parent 8120)
- 5472 (explorer.exe 5132 parent 8120)
- 548 (PccNTMon.exe 5812 parent 5132)
- 6804 (mbamgui.exe 5220 parent 5132)
- 2008 (ctfmon.exe 4576 parent 5132)
- 3680 (PccNTMon.exe 5812 parent 5132)
- 2988 (VMwareTray.exe 3552 parent 5132)
- 1120 (explorer.exe 5132 parent 8120)
- 4500 (explorer.exe 5132 parent 8120)
- 7732 (explorer.exe 5132 parent 8120)
- 6836 (explorer.exe 5132 parent 8120)
- 7680 (winlogon.exe 3272 parent 432)
- 7128 (rdpclip.exe 6772 parent 3272)
- 5308 (rdpclip.exe 6772 parent 3272)
-**************************************************
-Desktop: 0x737bc10, Name: WinSta0\Disconnect, Next: 0x8a2f2068
-SessionId: 2, DesktopInfo: 0xbc6e0650, fsHooks: 0
-spwnd: 0xbc6e06e8, Windows: 25
-Heap: 0xbc6e0000, Size: 0x10000, Base: 0xbc6e0000, Limit: 0xbc6f0000
-**************************************************
-Desktop: 0xa2f2068, Name: WinSta0\Winlogon, Next: 0x0
-SessionId: 2, DesktopInfo: 0xbc6c0650, fsHooks: 0
-spwnd: 0xbc6c06e8, Windows: 6
-Heap: 0xbc6c0000, Size: 0x20000, Base: 0xbc6c0000, Limit: 0xbc6e0000
- 6912 (winlogon.exe 3272 parent 432)
- 1188 (winlogon.exe 3272 parent 432)
- 8172 (winlogon.exe 3272 parent 432)
-**************************************************
-[snip]
-}}}
-
-=== atomscan ===
-
-This command scans physical memory for atom tables. For each table found, it enumerates the bucket of atoms - including session global atoms and window station global atoms. It does not include process local atoms. Atoms are reported the order in which they were found, unless you specify --sort-by=atom (sorts by atom ID) or --sort-by=refcount (sorts by number of references to the atom). Using this plugin you can find registered window messages, rogue injected DLL paths, window class names, etc. 
-
-{{{
-$ python vol.py -f mutihack.vmem atomscan
-AtomOfs(V)       Atom Refs   Pinned Name
----------- ---------- ------ ------ ----
-[snip]
-0xe179d850     0xc038      1      1 OleMainThreadWndClass
-0xe17a7e40     0xc094      2      0 Shell_TrayWnd
-0xe17c34b8     0xc0c4      2      0 UnityAppbarWindowClass
-0xe17c7678     0xc006      1      1 FileName
-0xe17d40a0     0xc0ff      2      0 
-0xe17d4128     0xc027      1      1 SysCH
-0xe17e78f0     0xc01c      1      1 ComboBox
-0xe17e9070     0xc065     26      0 6.0.2600.6028!Combobox
-0xe17ec350     0xc13e      1      0 Xaml
-0xe18119c0     0xc08c      5      0 OM_POST_WM_COMMAND
-[snip]
-}}}
-
-=== atoms ===
-
-This command is similar to `atomscan` above, but it allows us to associate atom tables with their owning window station. We need this command in conjunction with `atomscan` because there are many reasons an atom must be tied to its session or window station (for example when resolving `ihmod` values from windows message hooks or event hooks. 
-
-=== clipboard === 
-
-=== eventhooks ===
-
-=== gahti ===
-
-===  messagehooks ===
-
-=== screenshot ===
-
-=== userhandles === 
-
-=== windows === 
-
-This command enumerates all windows (visible or not) in all desktops of the system. It walks windows in their Z-Order (i.e. front to back focus) starting at the desktops `spwnd` value (the foreground window). For each window it shows details on the window's title, class atoms, the owning thread and process, the visibility properties, the left/right/top/bottom coordinates, the flags and ex-flags, and the window procedure address. For more information on windows, see [http://volatility-labs.blogspot.com/2012/09/movp-22-malware-in-your-windows.html MoVP 2.2 Malware In Your Windows].
-
-{{{
-$ python vol.py -f win7x64.dd --profile=Win7SP1x64 windows
-Volatile Systems Volatility Framework 2.1_alpha
-**************************************************
-Window context: 1\WinSta0\Default
-
-Window Handle: #40170 at 0xfffff900c06258a0, Name: Download: Microsoft Windows SDK 7.1 - Microsoft Download Center - Confirmation - Windows Internet Explorer
-ClassAtom: 0xc193, Class: IEFrame
-SuperClassAtom: 0xc193, SuperClass: IEFrame
-pti: 0xfffff900c24c4c30, Tid: 680 at 0xfffffa8002007060
-ppi: 0xfffff900c28c2320, Process: iexplore.exe, Pid: 2328
-Visible: Yes
-Left: -32000, Top: -32000, Bottom: -32000, Right: -32000
-Style Flags: WS_MINIMIZE,WS_MINIMIZEBOX,WS_TABSTOP,WS_DLGFRAME,WS_BORDER,WS_THICKFRAME,WS_CAPTION,WS_CLIPCHILDREN,WS_SYSMENU,WS_MAXIMIZEBOX,WS_GROUP,WS_OVERLAPPED,WS_VISIBLE,WS_CLIPSIBLINGS
-ExStyle Flags: WS_EX_LTRREADING,WS_EX_RIGHTSCROLLBAR,WS_EX_WINDOWEDGE,WS_EX_LEFT
-Window procedure: 0x714f6f7a
-}}}
-
-=== wintree ===
-
-This command enumerates windows in the same way as the `windows` command above, but it prints less verbose details so that the parent/child relationshop can be easily expressed in a tree form. Instead of a "flat" view, you can see which windows are contained within other windows. 
-
-{{{
-$ python vol.py -f win7x64.dd --profile=Win7SP1x64 wintree
-[snip]
-.Debugging Tools for Windows (visible) hh.exe:1952 HH Parent
-..#70422 (visible) hh.exe:1952 HH Child
-...#90452 (visible) hh.exe:1952 SysTabControl32
-....#a0202 (visible) hh.exe:1952 -
-.....Found: 62 (visible) hh.exe:1952 Static
-.....Select &topic: (visible) hh.exe:1952 Static
-.....Type in the &word(s) to search for: (visible) hh.exe:1952 Static
-.....Sea&rch titles only (visible) hh.exe:1952 Button
-.....&Match similar words (visible) hh.exe:1952 Button
-.....Search previous res&ults (visible) hh.exe:1952 Button
-.....List1 (visible) hh.exe:1952 SysListView32
-......#50164 (visible) hh.exe:1952 SysHeader32
-.....&Display (visible) hh.exe:1952 Button
-.....&List Topics (visible) hh.exe:1952 Button
-.....#70424 (visible) hh.exe:1952 Button
-.....#702cc (visible) hh.exe:1952 ComboBox
-......#f038e (visible) hh.exe:1952 Edit
-..#702ba (visible) hh.exe:1952 HH SizeBar
-..#70420 (visible) hh.exe:1952 HH Child
-...#a0478 (visible) hh.exe:1952 Shell Embedding
-....#36029e (visible) hh.exe:1952 Shell DocObject View
-.....#9013e (visible) hh.exe:1952 Internet Explorer_Server
-..#18029a (visible) hh.exe:1952 ToolbarWindow32
-}}}
-
-== Miscellaneous ==
-
-=== strings ===
+== strings ==
 
 For a given image and a file with lines of the form `<decimal_offset>:<string>`,
 output the corresponding process and virtual addresses where that
@@ -3301,7 +3093,7 @@ perl -e 'while(<>){ if(/(http|https|ftp|mail)\:[\/\w.]+/){print $_;}}' > URLs.tx
 
 Depending on the context, your searches will vary. 
 
-=== volshell ===
+== volshell ==
 
 If you want to interactively explore a memory image, use the volshell command. This gives you an interface similar to !WinDbg into the memory dump. For example, you can:
 
@@ -3493,11 +3285,11 @@ $ echo "cc(pid=4); dd(0x10000)" | [...]
 
 For more information, see BDG's [http://moyix.blogspot.com/2008/08/indroducing-volshell.html Introducing Volshell]. 
 
-=== bioskbd ===
+== bioskbd ==
 
 To read keystrokes from the BIOS area of memory, use the bioskbd command. This can reveal passwords typed into HP, Intel, and Lenovo BIOS and !SafeBoot, !TrueCrypt, and !BitLocker software. Depending on the tool used to acquire memory, not all memory samples will contain the necessary BIOS area. For more information, see Andreas Schuster's [http://computer.forensikblog.de/en/2009/04/read_password_from_keyboard_buffer.html#more Reading Passwords From the Keyboard Buffer], David Sharpe's [http://blog.sharpesecurity.com/2011/05/09/duplicating-volatility-bioskbd-command-function-on-live-windows-systems/ Duplicating Volatility Bioskbd Command Function on Live Windows Systems], and Jonathan Brossard's [http://www.ivizsecurity.com/research/preboot/preboot_whitepaper.pdf Bypassing pre-boot authentication passwords by instrumenting the BIOS keyboard buffer].
 
-=== patcher ===
+== patcher ==
 
 The patcher plugin accepts a single argument of '-x' followed by an XML file.  The XML file then specifies any required patches as in the following example:
 
