@@ -97,19 +97,19 @@ Volatility 2.2 is scheduled for release in October 2012. We are currently in RC2
           * [CommandReference22#symlinkscan symlinkscan] - Scans for symbolic link objects
           * [CommandReference22#thrdscan thrdscan] - Scan physical memory for `_ETHREAD` objects
       * *Win32k / GUI Memory*
-          * <font color='red'>(new)</font> [CommandReference22#sessions sessions] - List details on `_MM_SESSION_SPACE` (user logon sessions)
-          * <font color='red'>(new)</font> [CommandReference22#wndscan wndscan] - Pool scanner for tagWINDOWSTATION (window stations)
-          * <font color='red'>(new)</font> [CommandReference22#deskscan deskscan] - Poolscaner for tagDESKTOP (desktops)
-          * <font color='red'>(new)</font> [CommandReference22#atomscan atomscan] - Pool scanner for `_RTL_ATOM_TABLE`
-          * <font color='red'>(new)</font> [CommandReference22#atoms atoms] - Print session and window station atom tables
-          * <font color='red'>(new)</font> [CommandReference22#clipboard clipboard] - Extract the contents of the windows clipboard
-          * <font color='red'>(new)</font> [CommandReference22#eventhooks eventhooks] - Print details on windows event hooks
-          * <font color='red'>(new)</font> [CommandReference22#gahti gathi] - Dump the USER handle type information
-          * <font color='red'>(new)</font> [CommandReference22#messagehooks messagehooks] - List desktop and thread window message hooks
-          * <font color='red'>(new)</font> [CommandReference22#screenshot screenshot] - Save a pseudo-screenshot based on GDI windows
-          * <font color='red'>(new)</font> [CommandReference22#userhandles userhandles] - Dump the USER handle tables
-          * <font color='red'>(new)</font> [CommandReference22#windows windows] - Print Desktop Windows (verbose details)
-          * <font color='red'>(new)</font> [CommandReference22#wintree wintree] - Print Z-Order Desktop Windows Tree
+          * <font color='red'>(new)</font> [CommandReferenceGui22#sessions sessions] - List details on `_MM_SESSION_SPACE` (user logon sessions)
+          * <font color='red'>(new)</font> [CommandReferenceGui22#wndscan wndscan] - Pool scanner for tagWINDOWSTATION (window stations)
+          * <font color='red'>(new)</font> [CommandReferenceGui22#deskscan deskscan] - Poolscaner for tagDESKTOP (desktops)
+          * <font color='red'>(new)</font> [CommandReferenceGui22#atomscan atomscan] - Pool scanner for `_RTL_ATOM_TABLE`
+          * <font color='red'>(new)</font> [CommandReferenceGui22#atoms atoms] - Print session and window station atom tables
+          * <font color='red'>(new)</font> [CommandReferenceGui22#clipboard clipboard] - Extract the contents of the windows clipboard
+          * <font color='red'>(new)</font> [CommandReferenceGui22#eventhooks eventhooks] - Print details on windows event hooks
+          * <font color='red'>(new)</font> [CommandReferenceGui22#gahti gathi] - Dump the USER handle type information
+          * <font color='red'>(new)</font> [CommandReferenceGui22#messagehooks messagehooks] - List desktop and thread window message hooks
+          * <font color='red'>(new)</font> [CommandReferenceGui22#screenshot screenshot] - Save a pseudo-screenshot based on GDI windows
+          * <font color='red'>(new)</font> [CommandReferenceGui22#userhandles userhandles] - Dump the USER handle tables
+          * <font color='red'>(new)</font> [CommandReferenceGui22#windows windows] - Print Desktop Windows (verbose details)
+          * <font color='red'>(new)</font> [CommandReferenceGui22#wintree wintree] - Print Z-Order Desktop Windows Tree
       * *Networking*
           * [CommandReference22#connections connections] - Print open connections (XP and 2003 only)
           * [CommandReference22#connscan connscan] - Scan Physical memory for `_TCPT_OBJECT` objects (XP and 2003 only)
@@ -132,19 +132,19 @@ Volatility 2.2 is scheduled for release in October 2012. We are currently in RC2
           * [CommandReference22#imagecopy imagecopy] - Copies a physical address space out as a raw DD image
           * [CommandReference22#raw2dmp raw2dmp] - Converts a physical memory sample to a windbg crash dump
       * *Malware*
-          * [CommandReference22#malfind malfind] - Find hidden and injected code
-          * [CommandReference22#svcscan svcscan] - Scan for Windows services
-          * [CommandReference22#ldrmodules ldrmodules] - Detect unlinked DLLs
-          * [CommandReference22#impscan impscan] - Scan for calls to imported functions
-          * [CommandReference22#apihooks apihooks] - Detect API hooks in process and kernel memory (x86 only)
-          * [CommandReference22#idt idt] - Dumps the Interrupt Descriptor Table (x86 only)
-          * [CommandReference22#gdt gdt] - Dumps the Global Descriptor Table (x86 only)
-          * [CommandReference22#threads threads] - Investigate `_ETHREAD` and `_KTHREAD`s
-          * [CommandReference22#callbacks callbacks] - Print system-wide notification routines (x86 only)
-          * [CommandReference22#driverirp driverirp] - Driver IRP hook detection
-          * [CommandReference22#devicetree devicetree] - Show device tree
-          * [CommandReference22#psxview psxview] - Find hidden processes with various process listings
-          * [CommandReference22#timers timers] - Print kernel timers and associated module DPCs (x86 only)
+          * [CommandReferenceMal22#malfind malfind] - Find hidden and injected code
+          * [CommandReferenceMal22#svcscan svcscan] - Scan for Windows services
+          * [CommandReferenceMal22#ldrmodules ldrmodules] - Detect unlinked DLLs
+          * [CommandReferenceMal22#impscan impscan] - Scan for calls to imported functions
+          * [CommandReferenceMal22#apihooks apihooks] - Detect API hooks in process and kernel memory (x86 only)
+          * [CommandReferenceMal22#idt idt] - Dumps the Interrupt Descriptor Table (x86 only)
+          * [CommandReferenceMal22#gdt gdt] - Dumps the Global Descriptor Table (x86 only)
+          * [CommandReferenceMal22#threads threads] - Investigate `_ETHREAD` and `_KTHREAD`s
+          * [CommandReferenceMal22#callbacks callbacks] - Print system-wide notification routines (x86 only)
+          * [CommandReferenceMal22#driverirp driverirp] - Driver IRP hook detection
+          * [CommandReferenceMal22#devicetree devicetree] - Show device tree
+          * [CommandReferenceMal22#psxview psxview] - Find hidden processes with various process listings
+          * [CommandReferenceMal22#timers timers] - Print kernel timers and associated module DPCs (x86 only)
       * *Miscellaneous*
           * [CommandReference22#strings strings] - Match physical offsets to virtual addresses
           * [CommandReference22#volshell volshell] - Shell to interactively explore a memory image
@@ -152,45 +152,45 @@ Volatility 2.2 is scheduled for release in October 2012. We are currently in RC2
           * [CommandReference22#patcher patcher] - Patches memory based on page scans
   * *Linux*
       * *Processes*
-          * <font color='red'>(new)</font> [CommandReference22#linux_pslist linux_pslist] - Gather active tasks by walking the task_struct->task list
-          * <font color='red'>(new)</font> [CommandReference22#linux_psaux linux_psaux] - Gathers processes along with full command line and start time
-          * <font color='red'>(new)</font> [CommandReference22#linux_pslist_cache linux_pslist_cache] - Gather tasks from the kmem_cache
-          * <font color='red'>(new)</font> [CommandReference22#linux_pstree linux_pstree] - Shows the parent/child relationship between processes
-          * <font color='red'>(new)</font> [CommandReference22#linux_psxview linux_psxview] - Find hidden processes with various process listings
+          * <font color='red'>(new)</font> [LinuxCommandReference22#linux_pslist linux_pslist] - Gather active tasks by walking the task_struct->task list
+          * <font color='red'>(new)</font> [LinuxCommandReference22#linux_psaux linux_psaux] - Gathers processes along with full command line and start time
+          * <font color='red'>(new)</font> [LinuxCommandReference22#linux_pslist_cache linux_pslist_cache] - Gather tasks from the kmem_cache
+          * <font color='red'>(new)</font> [LinuxCommandReference22#linux_pstree linux_pstree] - Shows the parent/child relationship between processes
+          * <font color='red'>(new)</font> [LinuxCommandReference22#linux_psxview linux_psxview] - Find hidden processes with various process listings
       * *Process Memory*
-          * <font color='red'>(new)</font> [CommandReference22#linux_dump_map linux_dump_map] - Writes selected process memory mappings to disk
-          * <font color='red'>(new)</font> [CommandReference22#linux_memmap linux_memmap] - Dumps the memory map for linux tasks
-          * <font color='red'>(new)</font> [CommandReference22#linux_pidhashtable linux_pidhashtable] - Enumerates processes through the PID hash table
-          * <font color='red'>(new)</font> [CommandReference22#linux_proc_maps linux_proc_maps] - Gathers process maps for linux
-          * <font color='red'>(new)</font> [CommandReference22#linux_bash linux_bash] - Recover bash history from bash process memory
+          * <font color='red'>(new)</font> [LinuxCommandReference22#linux_dump_map linux_dump_map] - Writes selected process memory mappings to disk
+          * <font color='red'>(new)</font> [LinuxCommandReference22#linux_memmap linux_memmap] - Dumps the memory map for linux tasks
+          * <font color='red'>(new)</font> [LinuxCommandReference22#linux_pidhashtable linux_pidhashtable] - Enumerates processes through the PID hash table
+          * <font color='red'>(new)</font> [LinuxCommandReference22#linux_proc_maps linux_proc_maps] - Gathers process maps for linux
+          * <font color='red'>(new)</font> [LinuxCommandReference22#linux_bash linux_bash] - Recover bash history from bash process memory
       * *Kernel Memory and Objects*
-          * <font color='red'>(new)</font> [CommandReference22#linux_lsmod linux_lsmod] - Gather loaded kernel modules
-          * <font color='red'>(new)</font> [CommandReference22#linux_lsof linux_lsof] - Lists open files
-          * <font color='red'>(new)</font> [CommandReference22#linux_tmpfs linux_tmpfs] - Recovers tmpfs filesystems from memory
+          * <font color='red'>(new)</font> [LinuxCommandReference22#linux_lsmod linux_lsmod] - Gather loaded kernel modules
+          * <font color='red'>(new)</font> [LinuxCommandReference22#linux_lsof linux_lsof] - Lists open files
+          * <font color='red'>(new)</font> [LinuxCommandReference22#linux_tmpfs linux_tmpfs] - Recovers tmpfs filesystems from memory
       * *Networking*
-          * <font color='red'>(new)</font> [CommandReference22#linux_arp linux_arp] - Print the ARP table
-          * <font color='red'>(new)</font> [CommandReference22#linux_ifconfig linux_ifconfig] - Gathers active interfaces
-          * <font color='red'>(new)</font> [CommandReference22#linux_netstat linux_netstat] - Lists open sockets
-          * <font color='red'>(new)</font> [CommandReference22#linux_route_cache linux_route_cache] - Recovers the routing cache from memory
-          * <font color='red'>(new)</font> [CommandReference22#linux_pkt_queues linux_pkt_queues] - Writes per-process packet queues out to disk
-          * <font color='red'>(new)</font> [CommandReference22#linux_sk_buff_cache linux_sk_buff_cache] - Recovers packets from the sk_buff kmem_cache
+          * <font color='red'>(new)</font> [LinuxCommandReference22#linux_arp linux_arp] - Print the ARP table
+          * <font color='red'>(new)</font> [LinuxCommandReference22#linux_ifconfig linux_ifconfig] - Gathers active interfaces
+          * <font color='red'>(new)</font> [LinuxCommandReference22#linux_netstat linux_netstat] - Lists open sockets
+          * <font color='red'>(new)</font> [LinuxCommandReference22#linux_route_cache linux_route_cache] - Recovers the routing cache from memory
+          * <font color='red'>(new)</font> [LinuxCommandReference22#linux_pkt_queues linux_pkt_queues] - Writes per-process packet queues out to disk
+          * <font color='red'>(new)</font> [LinuxCommandReference22#linux_sk_buff_cache linux_sk_buff_cache] - Recovers packets from the sk_buff kmem_cache
       * *Malware/Rootkits*
-          * <font color='red'>(new)</font> [CommandReference22#linux_check_afinfo linux_check_afinfo] - Verifies the operation function pointers of network protocols
-          * <font color='red'>(new)</font> [CommandReference22#linux_check_creds linux_check_creds] - Checks if any processes are sharing credential structures
-          * <font color='red'>(new)</font> [CommandReference22#linux_check_fop linux_check_fop] - Check file operation structures for rootkit modifications
-          * <font color='red'>(new)</font> [CommandReference22#linux_check_idt linux_check_idt] - Checks if the IDT has been altered
-          * <font color='red'>(new)</font> [CommandReference22#linux_check_modules linux_check_modules] - Compares module list to sysfs info, if available
-          * <font color='red'>(new)</font> [CommandReference22#linux_check_syscall linux_check_syscall] - Checks if the system call table has been altered
+          * <font color='red'>(new)</font> [LinuxCommandReference22#linux_check_afinfo linux_check_afinfo] - Verifies the operation function pointers of network protocols
+          * <font color='red'>(new)</font> [LinuxCommandReference22#linux_check_creds linux_check_creds] - Checks if any processes are sharing credential structures
+          * <font color='red'>(new)</font> [LinuxCommandReference22#linux_check_fop linux_check_fop] - Check file operation structures for rootkit modifications
+          * <font color='red'>(new)</font> [LinuxCommandReference22#linux_check_idt linux_check_idt] - Checks if the IDT has been altered
+          * <font color='red'>(new)</font> [LinuxCommandReference22#linux_check_modules linux_check_modules] - Compares module list to sysfs info, if available
+          * <font color='red'>(new)</font> [LinuxCommandReference22#linux_check_syscall linux_check_syscall] - Checks if the system call table has been altered
       * *System Information*
-          * <font color='red'>(new)</font> [CommandReference22#linux_cpuinfo linux_cpuinfo] - Prints info about each active processor
-          * <font color='red'>(new)</font> [CommandReference22#linux_dmesg linux_dmesg] - Gather dmesg buffer
-          * <font color='red'>(new)</font> [CommandReference22#linux_iomem linux_iomem] - Provides output similar to /proc/iomem
-          * <font color='red'>(new)</font> [CommandReference22#linux_mount linux_mount] - Gather mounted fs/devices
-          * <font color='red'>(new)</font> [CommandReference22#linux_mount_cache linux_mount_cache] - Gather mounted fs/devices from kmem_cache
-          * <font color='red'>(new)</font> [CommandReference22#linux_slabinfo linux_slabinfo] - Mimics /proc/slabinfo on a running machine    
-          * <font color='red'>(new)</font> [CommandReference22#linux_dentry_cache linux_dentry_cache] - Gather files from the dentry cache  
-          * <font color='red'>(new)</font> [CommandReference22#linux_find_file linux_find_file] - Extract cached file contents from memory via inodes 
-          * <font color='red'>(new)</font> [CommandReference22#linux_vma_cache linux_vma_cache] - Gather VMAs from the vm_area_struct cache
+          * <font color='red'>(new)</font> [LinuxCommandReference22#linux_cpuinfo linux_cpuinfo] - Prints info about each active processor
+          * <font color='red'>(new)</font> [LinuxCommandReference22#linux_dmesg linux_dmesg] - Gather dmesg buffer
+          * <font color='red'>(new)</font> [LinuxCommandReference22#linux_iomem linux_iomem] - Provides output similar to /proc/iomem
+          * <font color='red'>(new)</font> [LinuxCommandReference22#linux_mount linux_mount] - Gather mounted fs/devices
+          * <font color='red'>(new)</font> [LinuxCommandReference22#linux_mount_cache linux_mount_cache] - Gather mounted fs/devices from kmem_cache
+          * <font color='red'>(new)</font> [LinuxCommandReference22#linux_slabinfo linux_slabinfo] - Mimics /proc/slabinfo on a running machine    
+          * <font color='red'>(new)</font> [LinuxCommandReference22#linux_dentry_cache linux_dentry_cache] - Gather files from the dentry cache  
+          * <font color='red'>(new)</font> [LinuxCommandReference22#linux_find_file linux_find_file] - Extract cached file contents from memory via inodes 
+          * <font color='red'>(new)</font> [LinuxCommandReference22#linux_vma_cache linux_vma_cache] - Gather VMAs from the vm_area_struct cache
 
 = Release Notes = 
 
