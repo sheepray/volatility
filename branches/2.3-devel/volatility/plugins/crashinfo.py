@@ -62,7 +62,7 @@ class CrashInfoModification(obj.ProfileModification):
             })
 
         ## Both x86 and x64 use the same structure for now, just
-        ## so they can share the same get_uptime() method.
+        ## so they can share the same SystemUpTime property.
         profile.object_classes.update({'_DMP_HEADER' : _DMP_HEADER, '_DMP_HEADER64' : _DMP_HEADER})
 
 class CrashInfo(common.AbstractWindowsCommand):
