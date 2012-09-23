@@ -2901,15 +2901,143 @@ For more information on timer objects, see [http://mnin.blogspot.com/2011/10/ain
 
 == Win32k / GUI == 
 
+The win32k.sys suite of plugins analyzes GUI memory. 
+
 === sessions ===
+
+This command analyzes the unique `_MM_SESSION_SPACE` objects and prints details related to the processes running in each logon session, mapped drivers, paged/non-paged pools etc. The alternate process lists output by this plugin are leveraged by the `psxview` plugin for rootkit detection. For more information, see [http://volatility-labs.blogspot.com/2012/09/movp-11-logon-sessions-processes-and.html MoVP 1.1 Logon Sessions, Processes, and Images]. 
+
+{{{
+$ python vol.py -f win7x64.dd --profile=Win7SP1x64 sessions
+Volatile Systems Volatility Framework 2.1_alpha
+**************************************************
+Session(V): fffff88002ec7000 ID: 0 Processes: 20
+PagedPoolStart: fffff900c0000000 PagedPoolEnd fffff920bfffffff
+ Process: 316 csrss.exe 2011-12-30 08:25:45 
+ Process: 352 wininit.exe 2011-12-30 08:25:54 
+ Process: 448 services.exe 2011-12-30 08:25:57 
+ Process: 464 lsass.exe 2011-12-30 08:25:57 
+ Process: 472 lsm.exe 2011-12-30 08:25:57 
+ Process: 564 svchost.exe 2011-12-30 08:26:00 
+ Process: 632 svchost.exe 2011-12-30 08:26:01 
+ Process: 824 sppsvc.exe 2011-12-30 08:26:14 
+ Process: 868 svchost.exe 2011-12-30 08:26:15 
+ Process: 892 svchost.exe 2011-12-30 08:26:15 
+ Process: 928 svchost.exe 2011-12-30 08:26:15 
+ Process: 268 svchost.exe 2011-12-30 08:27:04 
+ Process: 296 svchost.exe 2011-12-30 08:27:04 
+ Process: 1144 spoolsv.exe 2011-12-30 08:27:08 
+ Process: 1176 svchost.exe 2011-12-30 08:27:08 
+ Process: 1868 svchost.exe 2011-12-30 07:29:10 
+ Process: 2016 svchost.exe 2011-12-30 07:29:13 
+ Process: 1240 SearchIndexer. 2011-12-30 07:29:13 
+ Process: 1904 svchost.exe 2012-01-19 14:27:08 
+ Process: 2284 f-response-ent 2012-03-14 16:45:57 
+ Image: 0xfffffa800284b860, Address fffff96000080000, Name: win32k.sys
+ Image: 0xfffffa800234d200, Address fffff960004e0000, Name: dxg.sys
+ Image: 0xfffffa80028178a0, Address fffff960007d0000, Name: TSDDD.dll
+}}}
 
 === wndscan ===
 
+This command scans for `tagWINDOWSTATION` objects and prints details on the window station, its global atom table, available clipboard formats, and processes or threads currently interacting with the clipboard. For more information see [http://volatility-labs.blogspot.com/2012/09/movp-12-window-stations-and-clipboard.html MoVP 1.2 Window Stations and Clipboard Malware].
+
+{{{
+$ python vol.py -f rdp.mem --profile=Win2003SP2x86 wndscan
+Volatile Systems Volatility Framework 2.1_alpha
+**************************************************
+WindowStation: 0x8581e40, Name: WinSta0, Next: 0x0
+SessionId: 2, AtomTable: 0xe7981648, Interactive: True
+Desktops: Default, Disconnect, Winlogon
+ptiDrawingClipboard: pid - tid -
+spwndClipOpen: 0x0, spwndClipViewer: 0xbc6f2ca8 6772 rdpclip.exe
+cNumClipFormats: 4, iClipSerialNumber: 9
+pClipBase: 0xe6fe8ec8, Formats: CF_UNICODETEXT,CF_LOCALE,CF_TEXT,CF_OEMTEXT 
+[snip] 
+}}}
+
 === deskscan ===
+
+This command subclasses the `wndscan` plugin and for each window station found, it walks the list of desktops. It can be used for the following purposes:
+
+  * Find rogue desktops used to hide applications from logged-on users  
+  * Detect desktops created by ransomware 
+  * Link threads to their desktops 
+  * Analyze the desktop heap for memory corruptions 
+  * Profile dekstop heap allocations to locate USER objects 
+
+Here's an example of the output. For more information see [http://volatility-labs.blogspot.com/2012/09/movp-13-desktops-heaps-and-ransomware.html MoVP 1.3 Desktops, Heaps, and Ransomware]. 
+
+{{{
+$ python vol.py -f rdp.mem --profile=Win2003SP2x86 deskscan
+Volatile Systems Volatility Framework 2.1_alpha
+**************************************************
+Desktop: 0x8001038, Name: WinSta0\Default, Next: 0x8737bc10
+SessionId: 2, DesktopInfo: 0xbc6f0650, fsHooks: 2128
+spwnd: 0xbc6f06e8, Windows: 238
+Heap: 0xbc6f0000, Size: 0x300000, Base: 0xbc6f0000, Limit: 0xbc9f0000
+ 7808 (notepad.exe 6236 parent 5544)
+ 7760 (csrss.exe 7888 parent 432)
+ 5116 (csrss.exe 7888 parent 432)
+ 8168 (PccNTMon.exe 5812 parent 5132)
+ 3040 (cmd.exe 5544 parent 5132)
+ 6600 (csrss.exe 7888 parent 432)
+ 7392 (explorer.exe 5132 parent 8120)
+ 5472 (explorer.exe 5132 parent 8120)
+ 548 (PccNTMon.exe 5812 parent 5132)
+ 6804 (mbamgui.exe 5220 parent 5132)
+ 2008 (ctfmon.exe 4576 parent 5132)
+ 3680 (PccNTMon.exe 5812 parent 5132)
+ 2988 (VMwareTray.exe 3552 parent 5132)
+ 1120 (explorer.exe 5132 parent 8120)
+ 4500 (explorer.exe 5132 parent 8120)
+ 7732 (explorer.exe 5132 parent 8120)
+ 6836 (explorer.exe 5132 parent 8120)
+ 7680 (winlogon.exe 3272 parent 432)
+ 7128 (rdpclip.exe 6772 parent 3272)
+ 5308 (rdpclip.exe 6772 parent 3272)
+**************************************************
+Desktop: 0x737bc10, Name: WinSta0\Disconnect, Next: 0x8a2f2068
+SessionId: 2, DesktopInfo: 0xbc6e0650, fsHooks: 0
+spwnd: 0xbc6e06e8, Windows: 25
+Heap: 0xbc6e0000, Size: 0x10000, Base: 0xbc6e0000, Limit: 0xbc6f0000
+**************************************************
+Desktop: 0xa2f2068, Name: WinSta0\Winlogon, Next: 0x0
+SessionId: 2, DesktopInfo: 0xbc6c0650, fsHooks: 0
+spwnd: 0xbc6c06e8, Windows: 6
+Heap: 0xbc6c0000, Size: 0x20000, Base: 0xbc6c0000, Limit: 0xbc6e0000
+ 6912 (winlogon.exe 3272 parent 432)
+ 1188 (winlogon.exe 3272 parent 432)
+ 8172 (winlogon.exe 3272 parent 432)
+**************************************************
+[snip]
+}}}
 
 === atomscan ===
 
+This command scans physical memory for atom tables. For each table found, it enumerates the bucket of atoms - including session global atoms and window station global atoms. It does not include process local atoms. Atoms are reported the order in which they were found, unless you specify --sort-by=atom (sorts by atom ID) or --sort-by=refcount (sorts by number of references to the atom). Using this plugin you can find registered window messages, rogue injected DLL paths, window class names, etc. 
+
+{{{
+$ python vol.py -f mutihack.vmem atomscan
+AtomOfs(V)       Atom Refs   Pinned Name
+---------- ---------- ------ ------ ----
+[snip]
+0xe179d850     0xc038      1      1 OleMainThreadWndClass
+0xe17a7e40     0xc094      2      0 Shell_TrayWnd
+0xe17c34b8     0xc0c4      2      0 UnityAppbarWindowClass
+0xe17c7678     0xc006      1      1 FileName
+0xe17d40a0     0xc0ff      2      0 
+0xe17d4128     0xc027      1      1 SysCH
+0xe17e78f0     0xc01c      1      1 ComboBox
+0xe17e9070     0xc065     26      0 6.0.2600.6028!Combobox
+0xe17ec350     0xc13e      1      0 Xaml
+0xe18119c0     0xc08c      5      0 OM_POST_WM_COMMAND
+[snip]
+}}}
+
 === atoms ===
+
+This command is similar to `atomscan` above, but it allows us to associate atom tables with their owning window station. We need this command in conjunction with `atomscan` because there are many reasons an atom must be tied to its session or window station (for example when resolving `ihmod` values from windows message hooks or event hooks. 
 
 === clipboard === 
 
@@ -2925,7 +3053,57 @@ For more information on timer objects, see [http://mnin.blogspot.com/2011/10/ain
 
 === windows === 
 
+This command enumerates all windows (visible or not) in all desktops of the system. It walks windows in their Z-Order (i.e. front to back focus) starting at the desktops `spwnd` value (the foreground window). For each window it shows details on the window's title, class atoms, the owning thread and process, the visibility properties, the left/right/top/bottom coordinates, the flags and ex-flags, and the window procedure address. For more information on windows, see [http://volatility-labs.blogspot.com/2012/09/movp-22-malware-in-your-windows.html MoVP 2.2 Malware In Your Windows].
+
+{{{
+$ python vol.py -f win7x64.dd --profile=Win7SP1x64 windows
+Volatile Systems Volatility Framework 2.1_alpha
+**************************************************
+Window context: 1\WinSta0\Default
+
+Window Handle: #40170 at 0xfffff900c06258a0, Name: Download: Microsoft Windows SDK 7.1 - Microsoft Download Center - Confirmation - Windows Internet Explorer
+ClassAtom: 0xc193, Class: IEFrame
+SuperClassAtom: 0xc193, SuperClass: IEFrame
+pti: 0xfffff900c24c4c30, Tid: 680 at 0xfffffa8002007060
+ppi: 0xfffff900c28c2320, Process: iexplore.exe, Pid: 2328
+Visible: Yes
+Left: -32000, Top: -32000, Bottom: -32000, Right: -32000
+Style Flags: WS_MINIMIZE,WS_MINIMIZEBOX,WS_TABSTOP,WS_DLGFRAME,WS_BORDER,WS_THICKFRAME,WS_CAPTION,WS_CLIPCHILDREN,WS_SYSMENU,WS_MAXIMIZEBOX,WS_GROUP,WS_OVERLAPPED,WS_VISIBLE,WS_CLIPSIBLINGS
+ExStyle Flags: WS_EX_LTRREADING,WS_EX_RIGHTSCROLLBAR,WS_EX_WINDOWEDGE,WS_EX_LEFT
+Window procedure: 0x714f6f7a
+}}}
+
 === wintree ===
+
+This command enumerates windows in the same way as the `windows` command above, but it prints less verbose details so that the parent/child relationshop can be easily expressed in a tree form. Instead of a "flat" view, you can see which windows are contained within other windows. 
+
+{{{
+$ python vol.py -f win7x64.dd --profile=Win7SP1x64 wintree
+[snip]
+.Debugging Tools for Windows (visible) hh.exe:1952 HH Parent
+..#70422 (visible) hh.exe:1952 HH Child
+...#90452 (visible) hh.exe:1952 SysTabControl32
+....#a0202 (visible) hh.exe:1952 -
+.....Found: 62 (visible) hh.exe:1952 Static
+.....Select &topic: (visible) hh.exe:1952 Static
+.....Type in the &word(s) to search for: (visible) hh.exe:1952 Static
+.....Sea&rch titles only (visible) hh.exe:1952 Button
+.....&Match similar words (visible) hh.exe:1952 Button
+.....Search previous res&ults (visible) hh.exe:1952 Button
+.....List1 (visible) hh.exe:1952 SysListView32
+......#50164 (visible) hh.exe:1952 SysHeader32
+.....&Display (visible) hh.exe:1952 Button
+.....&List Topics (visible) hh.exe:1952 Button
+.....#70424 (visible) hh.exe:1952 Button
+.....#702cc (visible) hh.exe:1952 ComboBox
+......#f038e (visible) hh.exe:1952 Edit
+..#702ba (visible) hh.exe:1952 HH SizeBar
+..#70420 (visible) hh.exe:1952 HH Child
+...#a0478 (visible) hh.exe:1952 Shell Embedding
+....#36029e (visible) hh.exe:1952 Shell DocObject View
+.....#9013e (visible) hh.exe:1952 Internet Explorer_Server
+..#18029a (visible) hh.exe:1952 ToolbarWindow32
+}}}
 
 == Miscellaneous ==
 
