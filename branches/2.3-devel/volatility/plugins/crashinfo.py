@@ -21,6 +21,49 @@ import volatility.plugins.common as common
 import volatility.cache as cache
 import volatility.debug as debug
 import volatility.obj as obj
+import datetime
+
+class _DMP_HEADER(obj.CType):
+    """A class for crash dumps"""
+
+    @property
+    def SystemUpTime(self):
+        """Returns a string uptime"""
+                        
+        # Some utilities write PAGEPAGE to this field when 
+        # creating the dump header. 
+        if self.m('SystemUpTime') == 0x4547415045474150:
+            return obj.NoneObject("No uptime recorded")
+        
+        # 1 uptime is 100ns so convert that to microsec
+        msec = self.m('SystemUpTime') / 10
+
+        return datetime.timedelta(microseconds = msec)
+
+class CrashInfoModification(obj.ProfileModification):
+    """Applies overlays for crash dump headers"""
+
+    conditions = {'os': lambda x: x == 'windows'}
+
+    before = ["WindowsVTypes", "WindowsObjectClasses"]
+
+    def modification(self, profile):
+        profile.merge_overlay({
+                '_DMP_HEADER' : [ None, {
+                    'Comment' : [ None, ['String', dict(length = 128)]],
+                    'DumpType' : [ None, ['Enumeration', dict(choices = {0x1: "Full Dump", 0x2: "Kernel Dump"})]],
+                    'SystemTime' : [ None, ['WinTimeStamp', {}]],
+                }],
+                '_DMP_HEADER64' : [ None, {
+                    'Comment' : [ None, ['String', dict(length = 128)]],
+                    'DumpType' : [ None, ['Enumeration', dict(choices = {0x1: "Full Dump", 0x2: "Kernel Dump"})]],
+                    'SystemTime' : [ None, ['WinTimeStamp', {}]],
+                }],
+            })
+
+        ## Both x86 and x64 use the same structure for now, just
+        ## so they can share the same get_uptime() method.
+        profile.object_classes.update({'_DMP_HEADER' : _DMP_HEADER, '_DMP_HEADER64' : _DMP_HEADER})
 
 class CrashInfo(common.AbstractWindowsCommand):
     """Dump crash-dump information"""
@@ -47,7 +90,6 @@ class CrashInfo(common.AbstractWindowsCommand):
         """Renders the crashdump header as text"""
 
         hdr = data.get_header()
-        hdr_type = hdr.obj_name
 
         outfd.write("{0}:\n".format(hdr.obj_name))
         outfd.write(" Majorversion:         0x{0:08x} ({1})\n".format(hdr.MajorVersion, hdr.MajorVersion))
@@ -66,12 +108,10 @@ class CrashInfo(common.AbstractWindowsCommand):
         outfd.write(" ProductType           0x{0:08x}\n".format(hdr.ProductType))
         outfd.write(" SuiteMask             0x{0:08x}\n".format(hdr.SuiteMask))
         outfd.write(" WriterStatus          0x{0:08x}\n".format(hdr.WriterStatus))
-        comment_offset = hdr.obj_vm.profile.get_obj_offset(hdr_type, "Comment")
-        comment = obj.Object("String",
-                      offset = comment_offset,
-                      vm = hdr.obj_vm, length = 128)
-        outfd.write(" Comment               {0}\n".format(comment))
-
+        outfd.write(" Comment               {0}\n".format(hdr.Comment))
+        outfd.write(" DumpType              {0}\n".format(hdr.DumpType))
+        outfd.write(" SystemTime            {0}\n".format(str(hdr.SystemTime or '')))
+        outfd.write(" SystemUpTime          {0}\n".format(str(hdr.SystemUpTime or '')))
         outfd.write("\nPhysical Memory Description:\n")
         outfd.write("Number of runs: {0}\n".format(len(data.get_runs())))
         outfd.write("FileOffset    Start Address    Length\n")
