@@ -10,6 +10,7 @@
           * Command Reference 
               * [CommandReference22 Windows Core]
               * [CommandReferenceGui22 Windows GUI]
+              * [CommandReferenceMal22 Windows Malware]
               * [LinuxCommandReference22 Linux]
           * [DeveloperGuide22 Developer Guide]
               * [PluginInterface22 Plugin Interface]
