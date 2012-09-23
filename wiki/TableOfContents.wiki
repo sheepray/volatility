@@ -7,7 +7,8 @@
   * Releases
       * [Release22 Volatility 2.2]
           * [VolatilityUsage22 Basic Usage]
-          * [CommandReference22 Command Reference]
+          * [CommandReference22 Windows Command Reference]
+          * [LinuxCommandReference22 Linux Command Reference]
           * [DeveloperGuide22 Developer Guide]
               * [PluginInterface22 Plugin Interface]
               * [AddressSpaces22 Address Spaces]
