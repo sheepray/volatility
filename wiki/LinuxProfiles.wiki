@@ -1,8 +1,8 @@
-#summary One-sentence summary of this page.
+#summary Linux Profile Reference
 
 = Introduction =
 
-Add your content here.
+As described on the [LinuxMemoryForensics] page, these are the available example linux profiles. Do not use these profiles with memory dumps from systems running different kernels than as specified in the profile description. 
 
 = Profiles =
 
