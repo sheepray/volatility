@@ -6,7 +6,7 @@ Although all Volatility commands can help you hunt malware in one way or another
 
 The malfind command helps find hidden or injected code/DLLs in user mode memory, based on characteristics such as VAD tag and page permissions. 
 
-Note: malfind does not detect DLLs injected into a process using !CreateRemoteThread->!LoadLibrary. DLLs injected with this technique are not hidden and thus you can view them with [CommandReference22#dlllist]. The purpose of malfind is to locate DLLs that standard methods/tools do not see. For more information see Issue #178. 
+Note: malfind does not detect DLLs injected into a process using !CreateRemoteThread->!LoadLibrary. DLLs injected with this technique are not hidden and thus you can view them with [CommandReference22#dlllist dlllist]. The purpose of malfind is to locate DLLs that standard methods/tools do not see. For more information see Issue #178. 
 
 Here is an example of using it to detect the presence of Zeus. The first memory segment (starting at 0x01600000) was detected because its executable, marked as private (not shared between processes) and has a VadS tag...which means there is no memory mapped file already occupying the space. Based on a disassembly of the data found at this address, it seems to contain some API hook trampoline stubs. 
 
@@ -209,11 +209,11 @@ Pid      Process              Base               InLoad InInit InMem MappedPath
 
 = impscan =
 
-In order to fully reverse engineer code that you find in memory dumps, its necessary to see which functions the code imports. In other words, which API functions it calls. When you dump binaries with [CommandReference22#dlldump], [CommandReference22#moddump], or [CommandReference22#procexedump], the IAT (Import Address Table) may not properly be reconstructed due to the high likelihood that one or more pages in the PE header or IAT are not memory resident (paged). Thus, we created impscan. Impscan identifies calls to APIs without parsing a PE's IAT. It even works if malware completely erases the PE header, and it works on kernel drivers. 
+In order to fully reverse engineer code that you find in memory dumps, its necessary to see which functions the code imports. In other words, which API functions it calls. When you dump binaries with [CommandReference22#dlldump dlldump], [CommandReference22#moddump moddump], or [CommandReference22#procexedump procexedump], the IAT (Import Address Table) may not properly be reconstructed due to the high likelihood that one or more pages in the PE header or IAT are not memory resident (paged). Thus, we created impscan. Impscan identifies calls to APIs without parsing a PE's IAT. It even works if malware completely erases the PE header, and it works on kernel drivers. 
 
 Previous versions of impscan automatically created a labeled IDB for use with IDA Pro. This functionality has temporarily been disabled, but will return sometime in the future when other similar functionality is introduced. 
 
-Take Coreflood for example. This malware deleted its PE header once it loaded in the target process (by calling !VirtualFree on the injected DLL's !ImageBase). You can use [CommandReference22#malfind] to detect the presence of Coreflood based on the typical criteria (page permissions, VAD tags, etc). Notice how the PE's base address doesn't contain the usual 'MZ' header:
+Take Coreflood for example. This malware deleted its PE header once it loaded in the target process (by calling !VirtualFree on the injected DLL's !ImageBase). You can use [CommandReferenceMal22#malfind malfind] to detect the presence of Coreflood based on the typical criteria (page permissions, VAD tags, etc). Notice how the PE's base address doesn't contain the usual 'MZ' header:
 
 {{{
 $ python vol.py -f coreflood.vmem -p 2044 malfind
@@ -261,7 +261,7 @@ IAT        Call       Module               Function
 
 If you don't specify a base address with -b or --base, then you'll end up scanning the process's main module (i.e. IEXPLORE.EXE since that's -p 2044) for imported functions. You can also specify the base address of a kernel driver to scan the driver for imported kernel-mode functions. 
 
-Laqma loads a kernel driver named lanmandrv.sys. If you extract it with [CommandReference22#moddump], the IAT will be corrupt. So use impscan to rebuild it:
+Laqma loads a kernel driver named lanmandrv.sys. If you extract it with [CommandReference22#moddump moddump], the IAT will be corrupt. So use impscan to rebuild it:
 
 {{{
 $ python vol.py -f laqma.vmem impscan -b 0xfca29000
@@ -322,11 +322,11 @@ As of Volatility 2.1, apihooks also detects hooked winsock procedure tables, inc
 
 Here is an example of detecting IAT hooks installed by Coreflood. The hooking module is unknown because there is no module (DLL) associated with the memory in which the rootkit code exists. If you want to extract the code containing the hooks, you have a few options:
 
-1. See if [CommandReference22#malfind] can automatically find and extract it. 
+1. See if [CommandReferenceMal22#malfind malfind] can automatically find and extract it. 
 
-2. Use [CommandReference22#volshell] dd/db commands to scan backwards and look for an MZ header. Then pass that address to [CommandReference#dlldump] as the --base value. 
+2. Use [CommandReference22#volshell volshell] dd/db commands to scan backwards and look for an MZ header. Then pass that address to [CommandReference#dlldump] as the --base value. 
 
-3. Use [CommandReference22#vaddump] to extract all code segments to individual files (named according to start and end address), then find the file that contains the 0x7ff82 ranges.
+3. Use [CommandReference22#vaddump vaddump] to extract all code segments to individual files (named according to start and end address), then find the file that contains the 0x7ff82 ranges.
 
 {{{
 $ python vol.py -f coreflood.vmem -p 2044 apihooks 
@@ -627,7 +627,7 @@ Volatile Systems Volatility Framework 2.1_alpha
      0      0x3f8 0x00000000        0x0 <Reserved>          0 By   Np 
 }}}
 
-If you want to further investigate the infection, you can break into a [CommandReference22#volshell] as shown below. Then disassemble code at the call gate address.
+If you want to further investigate the infection, you can break into a [CommandReference22#volshell volshell] as shown below. Then disassemble code at the call gate address.
 
 {{{
 $ python vol.py -f alipop.vmem volshell
