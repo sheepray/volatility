@@ -12,4 +12,4 @@ As described on the [LinuxMemoryForensics] page, these are the available example
 || Fedora 17 x64 (3.5.2-3.fc17.x86_x64) || 0x6e74e0  || [http://code.google.com/p/volatility/downloads/detail?name=Fedora17.zip Fedora17.zip] || ||
 || Ubuntu 12.04 LTS x64 (3.2.0-23-generic) || 0x6ed4a0 || [http://code.google.com/p/volatility/downloads/detail?name=Ubuntu1204.zip Ubuntu1204.zip] || ||
 || Mandriva 2011 x64 (2.6.38.7-desktop-lmnb2) || 0x6cbf80 || [http://code.google.com/p/volatility/downloads/detail?name=Mandriva2011.zip Mandriva2011.zip] || ||
-|| CentOS 6.3 x64 (2.6.32-279.el6.x86_x64) || 0x6e0950  || [http://code.google.com/p/volatility/downloads/detail?name=CentOS64.zip CentOS63.zip] || ||
+|| CentOS 6.3 x64 (2.6.32-279.el6.x86_x64) || 0x6e0950  || [http://code.google.com/p/volatility/downloads/detail?name=CentOS63.zip CentOS63.zip] || ||
