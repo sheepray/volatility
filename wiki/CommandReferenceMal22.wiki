@@ -324,7 +324,7 @@ Here is an example of detecting IAT hooks installed by Coreflood. The hooking mo
 
 1. See if [CommandReferenceMal22#malfind malfind] can automatically find and extract it. 
 
-2. Use [CommandReference22#volshell volshell] dd/db commands to scan backwards and look for an MZ header. Then pass that address to [CommandReference#dlldump] as the --base value. 
+2. Use [CommandReference22#volshell volshell] dd/db commands to scan backwards and look for an MZ header. Then pass that address to [CommandReference#dlldump dlldump] as the --base value. 
 
 3. Use [CommandReference22#vaddump vaddump] to extract all code segments to individual files (named according to start and end address), then find the file that contains the 0x7ff82 ranges.
 
@@ -858,7 +858,7 @@ Now you can see that TDL3 redirects all IRPs to its own stub in the vmscsi.sys d
 
 Windows uses a layered driver architecture, or driver chain so that multiple drivers can inspect or respond to an IRP. Rootkits often insert drivers (or devices) into this chain for filtering purposes (to hide files, hide network connections, steal keystrokes or mouse movements). The devicetree plugin shows the relationship of a driver object to its devices (by walking `_DRIVER_OBJECT.DeviceObject.NextDevice`) and any attached devices (`_DRIVER_OBJECT.DeviceObject.AttachedDevice`).
 
-In the example below, Stuxnet has infected \FileSystem\Ntfs by attaching a malicious unnamed device. Although the device itself is unnamed, the device object identifies its driver (\Driver\MRxNet). 
+In the example below, Stuxnet has infected `\FileSystem\Ntfs` by attaching a malicious unnamed device. Although the device itself is unnamed, the device object identifies its driver (\Driver\MRxNet). 
 
 {{{
 $ python vol.py -f stuxnet.vmem devicetree
