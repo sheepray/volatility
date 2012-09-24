@@ -397,13 +397,13 @@ class NETWORK_VOLUME_NAME(obj.CType):
         return flags
 
     def __str__(self):
-        return "{0:25} {1:20} {2}".format("Network Volume Name", self.Description, self.Name)
+        return "{0:25} {1:20} {2} |".format("Network Volume Name", self.Description, self.Name)
 
 
     def get_header(self):
         return [("Entry Type", "25s"),
                 ("Description", "20"),
-                ("Name", ""),
+                ("Name | Full Path", ""),
                ]
 
 
@@ -818,7 +818,7 @@ class ShellBags(common.AbstractWindowsCommand):
         for shell in shellbag_data:
             yield shell
 
-    def build_path(self, reg, key, value, item):
+    def build_path(self, reg, key, item):
         path = ""
         if hasattr(item, "Attributes"):
             path = str(item.Attributes.UnicodeFilename)
@@ -849,8 +849,8 @@ class ShellBags(common.AbstractWindowsCommand):
                     continue
                 for shell in items[item]:
                     full_path = ""
-                    if type(shell) != ITEMPOS:
-                        full_path = self.build_path(reg, name, item, shell).replace("\\\\", "\\")
+                    if type(shell) != ITEMPOS and type(shell) != VOLUME_NAME:
+                        full_path = self.build_path(reg, name, shell).replace("\\\\", "\\")
                     if first:
                         outfd.write(border + "\n")
                         outfd.write("Registry: " + reg + "\n")
