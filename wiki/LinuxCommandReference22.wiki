@@ -2,31 +2,51 @@
 
 <wiki:toc max_depth="3" />
 
-= Linux = 
+= Processes =
 
-== Processes == 
+== linux_pslist ==
 
-=== linux_pslist === 
+This plugin prints the list of active processes starting from the `init_task` symbol and walking the `task_struct->task`linked list. It does not display the swapper process. 
 
-=== linux_psaux ===
+{{{
+$ python vol.py -f ~/Desktop/Linux/ubuntu.lime --profile=LinuxUbuntu1204x64 linux_pslist
+Volatile Systems Volatility Framework 2.2_rc2
+Offset             Name                 Pid             Uid             Start Time
+------------------ -------------------- --------------- --------------- ----------
+0x000088007b818000 init                 1               0               Fri, 17 Aug 2012 19:55:38 +0000
+0x000088007b8196f0 kthreadd             2               0               Fri, 17 Aug 2012 19:55:38 +0000
+0x000088007b81ade0 ksoftirqd/0          3               0               Fri, 17 Aug 2012 19:55:38 +0000
+0x000088007b81c4d0 kworker/0:0          4               0               Fri, 17 Aug 2012 19:55:38 +0000
+0x000088007b81dbc0 kworker/u:0          5               0               Fri, 17 Aug 2012 19:55:38 +0000
+0x000088007b840000 migration/0          6               0               Fri, 17 Aug 2012 19:55:38 +0000
+0x000088007b8416f0 watchdog/0           7               0               Fri, 17 Aug 2012 19:55:38 +0000
+0x000088007b842de0 migration/1          8               0               Fri, 17 Aug 2012 19:55:38 +0000
+0x000088007b8444d0 kworker/1:0          9               0               Fri, 17 Aug 2012 19:55:38 +0000
+0x000088007b845bc0 ksoftirqd/1          10              0               Fri, 17 Aug 2012 19:55:38 +0000
+0x000088007b85ade0 watchdog/1           12              0               Fri, 17 Aug 2012 19:55:38 +0000
+0x000088007b85c4d0 cpuset               13              0               Fri, 17 Aug 2012 19:55:38 +0000
+[snip]
+}}}
 
-=== linux_pstree ===
+== linux_psaux ==
 
-=== linux_pslist_cache ===
+== linux_pstree ==
 
-=== linux_psxview ===
+== linux_pslist_cache ==
 
-== Process Memory == 
+== linux_psxview ==
 
-=== linux_dump_map ===
+= Process Memory =
 
-=== linux_memmap ===
+== linux_dump_map ==
 
-=== linux_pidhashtable ===
+== linux_memmap ==
 
-=== linux_proc_maps ===
+== linux_pidhashtable ==
 
-=== linux_bash === 
+== linux_proc_maps ==
+
+== linux_bash == 
 
 The argument to the -H/--history_list parameter can be gathered by using gdb on a live system. As shown below, the value you supply is 0x6ed4a0 (this was not calculated by us, its in a comment of the gdb output). For some systems, such as OpenSuSE, the history_list symbol is in a shared library (readline.so) instead of /bin/bash and ASLR is enabled. In those cases, its not a static value, and the linux_bash plugin will not work. Please wait until Volatility 2.3 is released which will dynamically determine the history_list address using disassembly. 
 
@@ -52,62 +72,62 @@ End of assembler dump.
 (gdb) q
 }}}
 
-== Kernel Memory and Objects == 
+= Kernel Memory and Objects =
 
-=== linux_lsmod ===
+== linux_lsmod ==
 
-=== linux_lsof ===
+== linux_lsof ==
 
-=== linux_tmpfs === 
+== linux_tmpfs == 
 
-== Rootkit Detection == 
+= Rootkit Detection =
 
-=== linux_check_afinfo === 
+== linux_check_afinfo == 
 
-=== linux_check_creds ===
+== linux_check_creds ==
 
-=== linux_check_fop ===
+== linux_check_fop ==
 
-=== linux_check_idt ===
+== linux_check_idt ==
 
-=== linux_check_modules === 
+== linux_check_modules == 
 
 This plugin finds rootkits that break themselves from the module list but not sysfs. We have never found a rootkit that actually removes itself from sysfs, so on a live system they are hidden from lsmod and /proc/modules, but can still be found under /sys/modules. We perform the same differnecing with the in-memory data structures. 
 
-=== linux_check_creds ===
+== linux_check_creds ==
 
 The purpose of this plugin is to check if any processes are sharing 'cred' structures. In the beginning of the 2.6 kernel series, the user ID and group ID were just simple integers, so rootkits could elevate the privleges of userland processes by setting these to 0 (root). In later kernels, credentials are kept in a fairly complicated 'cred' structure. So now rootkits instead of allocating and setting their own 'cred' structure simply set a processes cred structure to be that of another root process that does not exit (usually init / pid 1).  This plugin checks for any processes sharing 'cred' structures and reports them as the kernel would normally never do this. It finds a wide range of rootkits and rootkit activity and you can focus your investigation on elevated process (i.e. bash)
 
-== Networking == 
+= Networking = 
 
-=== linux_arp ===
+== linux_arp ==
 
-=== linux_ifconfig ===
+== linux_ifconfig ==
  
-=== linux_route_cache ===
+== linux_route_cache ==
 
-=== linux_netstat === 
+== linux_netstat == 
 
-=== linux_pkt_queues === 
+== linux_pkt_queues == 
 
-=== linux_sk_buff_cache ===
+== linux_sk_buff_cache ==
 
-== System Information == 
+= System Information = 
 
-=== linux_cpuinfo === 
+== linux_cpuinfo == 
 
-=== linux_dmesg === 
+== linux_dmesg == 
 
-=== linux_iomem === 
+== linux_iomem == 
 
-=== linux_mount === 
+== linux_mount == 
 
-=== linux_mount_cache === 
+== linux_mount_cache == 
 
-=== linux_slabinfo ===
+== linux_slabinfo ==
 
-=== linux_dentry_cache === 
+== linux_dentry_cache == 
 
-=== linux_find_file ===
+== linux_find_file ==
 
-=== linux_vma_cache ===
+== linux_vma_cache ==
