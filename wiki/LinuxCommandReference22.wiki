@@ -30,11 +30,94 @@ Offset             Name                 Pid             Uid             Start Ti
 
 == linux_psaux ==
 
+This plugin subclasses `linux_pslist` so it enumerates processes in the same way as described above. However, it mimics the `ps aux` command on a live system (specifically it can show the command-line arguments). 
+
+{{{
+$ python vol.py -f ~/Desktop/Linux/ubuntu.lime --profile=LinuxUbuntu1204x64 linux_psaux
+Volatile Systems Volatility Framework 2.2_rc2
+Pid    Uid    Arguments                                                       
+1      0      /sbin/init ro quiet splash                                       Fri, 17 Aug 2012 19:55:38 +0000    
+2      0      [kthreadd]                                                       Fri, 17 Aug 2012 19:55:38 +0000    
+3      0      [ksoftirqd/0]                                                    Fri, 17 Aug 2012 19:55:38 +0000    
+4      0      [kworker/0:0]                                                    Fri, 17 Aug 2012 19:55:38 +0000
+[snip]
+11370  1000   /usr/lib/firefox/firefox                                         Fri, 17 Aug 2012 21:31:22 +0000    
+11389  1000   /usr/lib/x86_64-linux-gnu/at-spi2-core/at-spi-bus-launcher       Fri, 17 Aug 2012 21:31:22 +0000    
+18366  1000   /usr/lib/notify-osd/notify-osd                                   Fri, 17 Aug 2012 22:30:37 +0000    
+18535  0      [kworker/0:1]                                                    Fri, 17 Aug 2012 22:31:13 +0000    
+18646  0      [kworker/0:2]                                                    Fri, 17 Aug 2012 22:36:14 +0000    
+18649  1000   sudo insmod lime-3.2.0-23-generic.ko path=/home/mhl/ubuntu.lime format=lime  Fri, 17 Aug 2012 22:36:42 +0000    
+18650  0      insmod lime-3.2.0-23-generic.ko path=/home/mhl/ubuntu.lime format=lime  Fri, 17 Aug 2012 22:36:42 +0000
+}}}
+
 == linux_pstree ==
+
+This plugin prints a parent/child relationship tree by walking the `task_struct.children` and `task_struct.sibling` members.
+
+{{{
+$ python vol.py -f ~/Desktop/Linux/ubuntu.lime --profile=LinuxUbuntu1204x64 linux_pstree
+Volatile Systems Volatility Framework 2.2_rc2
+Name                 Pid             Uid            
+init                 1               0              
+.upstart-udev-br     375             0              
+.udevd               412             0              
+..udevd              9052            0              
+..udevd              9053            0              
+.upstart-socket-     707             0          
+[snip]
+.unity-2d-spread     11236           1000           
+.gnome-control-c     11244           1000           
+.gnome-terminal      11279           1000           
+..gnome-pty-helpe    11285           1000           
+..bash               11286           1000           
+...sudo              18649           1000           
+....insmod           18650           0              
+.firefox             11370           1000 
+[snip]
+}}}
 
 == linux_pslist_cache ==
 
+This plugin enumerates processes from kmem_cache. It currently only works on systems that use SLAB (i.e. SLUB is not  yet supported). 
+
+{{{
+$ python vol.py -f ~/Desktop/Linux/centos.lime --profile=LinuxCentOS63x64 linux_pslist_cache
+Volatile Systems Volatility Framework 2.2_rc2
+Offset             Name                 Pid             Uid             Start Time
+------------------ -------------------- --------------- --------------- ----------
+0x000088003d52c080 fcoemon              1436            0               Tue, 28 Aug 2012 11:06:24 +0000
+0x000088003d52cae0 bash                 3066            0               Tue, 28 Aug 2012 11:31:47 +0000
+0x000088003d52d540 console-kit-dae      1927            0               Tue, 28 Aug 2012 11:06:30 +0000
+0x000088003857c080 su                   3063            0               Tue, 28 Aug 2012 11:31:47 +0000
+0x000088003857cae0 gnome-screensav      2209            500             Tue, 28 Aug 2012 11:06:49 +0000
+0x000088003857d540 notification-ar      2223            500             Tue, 28 Aug 2012 11:06:49 +0000
+0x000088003d6cc080 sudo                 3062            0               Tue, 28 Aug 2012 11:31:47 +0000
+0x000088003d6ccae0 hald-runner          1619            0               Tue, 28 Aug 2012 11:06:26 +0000
+0x000088003d6cd540 Xorg                 1897            0               Tue, 28 Aug 2012 11:06:30 +0000
+[snip]
+}}}
+
 == linux_psxview ==
+
+This plugin is similar in concept to the [CommandReference22#psxview Windows psxview command] in that it gives you a cross-reference of processes based on multiple sources (the `task_struct.tasks` linked list, the pid hash table, and the kmem_cache). 
+
+{{{
+$ python vol.py -f ~/Desktop/Linux/centos.lime --profile=LinuxCentOS63x64 linux_psxview
+Volatile Systems Volatility Framework 2.2_rc2
+Offset(V)          Name                    PID pslist pid_hash kmem_cache
+------------------ -------------------- ------ ------ -------- ----------
+0x000088003ef85500 init                      1 True   True     True      
+0x000088003ef84aa0 kthreadd                  2 True   True     True      
+0x000088003ef84040 migration/0               3 True   True     True      
+0x000088003ef91540 ksoftirqd/0               4 True   True     True      
+0x000088003ef90ae0 migration/0               5 True   True     True      
+0x000088003ef90080 watchdog/0                6 True   True     True      
+0x000088003efbb500 events/0                  7 True   True     True      
+0x000088003efbaaa0 cgroup                    8 True   True     True      
+0x000088003efba040 khelper                   9 True   True     True      
+0x000088003effb540 netns                    10 True   True     True
+[snip]
+}}}
 
 = Process Memory =
 
