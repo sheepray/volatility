@@ -329,7 +329,7 @@ class FILE_ENTRY(ITEMPOS):
                 ("Create Date", "20"),
                 ("Access Date", "20"),
                 ("File Attr", "25"),
-                ("Full Path", ""),
+                ("Path", ""),
                ]
 
 class FOLDER_ENTRY(obj.CType):
