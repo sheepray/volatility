@@ -35,6 +35,21 @@ import struct
 import datetime 
 import calendar
 
+'''
+Some references for further reading, all of which were used for building this plugin:
+
+http://download.polytechnic.edu.na/pub4/download.sourceforge.net/pub/sourceforge/l/project/li/liblnk/Documentation/Windows%20Shell%20Item%20format/Windows%20Shell%20Item%20format.pdf
+    Windows Shell Item format specification (pdf) by Joachim Metz
+http://www.dfrws.org/2009/proceedings/p69-zhu.pdf
+    Using shellbag information to reconstruct user activities (pdf) by Yuandong Zhu, Pavel Gladyshev and Joshua James
+http://www.williballenthin.com/forensics/shellbags/index.html
+    Windows shellbag forensics by Willi Ballenthin
+http://code.google.com/p/registrydecoder/source/browse/trunk/templates/template_files/ShellBagMRU.py
+    ShellBagMRU.py from Registry Decoder by Kevin Moore
+http://code.google.com/p/regripper/wiki/ShellBags
+    Shellbags RegRipper plugin by Harlan Carvey
+'''
+
 
 EXT_VERSIONS = {
     "0x0003":"Windows XP",
@@ -44,15 +59,15 @@ EXT_VERSIONS = {
 
 # http://support.microsoft.com/kb/813711
 BAG_KEYS = [
-    "Software\\Microsoft\\Windows\\Shell\\BagMRU",
-    "Software\\Microsoft\\Windows\\Shell\\Bags",
-    "Software\\Microsoft\\Windows\\ShellNoRoam\\BagMRU",
-    "Software\\Microsoft\\Windows\\ShellNoRoam\\Bags",
+    "Software\\Microsoft\\Windows\\Shell",
+    "Software\\Microsoft\\Windows\\ShellNoRoam",
 ]
 
 USERDAT_KEYS = [
     "Wow6432Node\\Local Settings\\Software\\Microsoft\\Windows\\Shell",
+    "Wow6432Node\\Local Settings\\Software\\Microsoft\\Windows\\ShellNoRoam",
     "Local Settings\\Software\\Microsoft\\Windows\\Shell",
+    "Local Settings\\Software\\Microsoft\\Windows\\ShellShellNoRoam",
 ]
 
 # These are abbreviated only because there can be more than one in output
@@ -276,10 +291,10 @@ class ITEMPOS(obj.CType):
 
     def __str__(self):
         return "{0:<14} {1:20} {2:20} {3:20} {4:25} {5}".format(self.Attributes.FileName,
-                self.Attributes.ModifiedDate,
-                self.Attributes.CreatedDate,
-                self.Attributes.AccessDate,
-                self.get_file_attrs(), 
+                str(self.Attributes.ModifiedDate),
+                str(self.Attributes.CreatedDate),
+                str(self.Attributes.AccessDate),
+                self.get_file_attrs(),
                 str(self.Attributes.UnicodeFilename))
 
     def get_header(self):
@@ -300,6 +315,22 @@ class FILE_ENTRY(ITEMPOS):
         fileattrs = fileattrs.rstrip(", ")
         return fileattrs
 
+    def __str__(self):
+        return "{0:<14} {1:20} {2:20} {3:20} {4:25}".format(self.Attributes.FileName,
+                str(self.Attributes.ModifiedDate),
+                str(self.Attributes.CreatedDate),
+                str(self.Attributes.AccessDate),
+                self.get_file_attrs())
+                #str(self.Attributes.UnicodeFilename))
+
+    def get_header(self):
+        return [("File Name", "14s"),
+                ("Modified Date", "20"),
+                ("Create Date", "20"),
+                ("Access Date", "20"),
+                ("File Attr", "25"),
+                ("Full Path", ""),
+               ]
 
 class FOLDER_ENTRY(obj.CType):
     def get_folders(self):
@@ -530,7 +561,7 @@ itempos_types_XP = {
     'ATTRIBUTES': [ None, {
         'ModifiedDate': [ 0x0, ['DosDate']], 
         'FileAttrs': [ 0x4, ['unsigned short']],
-        'FileName': [ 0x6, ['String', dict(length = 14)]], # 8.3 File name
+        'FileName': [ 0x6, ['String', dict(length = 255)]], # 8.3 File name although sometimes it's longer than 14 chars
         'FDataSize': [ lambda x: x.FileName.obj_offset + len(x.FileName) + (1 if len(x.FileName) % 2 == 1 else 2), ['unsigned short']],
         'EVersion': [ lambda x: x.FDataSize.obj_offset + 2, ['unsigned short']],
         'Unknown1': [ lambda x: x.EVersion.obj_offset + 2, ['unsigned short']],
@@ -580,7 +611,7 @@ itempos_types_Vista = {
     'ATTRIBUTES' : [ None, {
         'ModifiedDate': [ 0x0, ['DosDate']],
         'FileAttrs': [ 0x4, ['unsigned short']],
-        'FileName': [ 0x6, ['String', dict(length = 14)]], # 8.3 File name
+        'FileName': [ 0x6, ['String', dict(length = 255)]], 
         'FDataSize': [ lambda x: x.FileName.obj_offset + len(x.FileName) + (1 if len(x.FileName) % 2 == 1 else 2), ['unsigned short']],
         'EVersion': [ lambda x: x.FDataSize.obj_offset + 2, ['unsigned short']],
         'Unknown1': [ lambda x: x.EVersion.obj_offset + 2, ['unsigned short']],
@@ -635,7 +666,7 @@ itempos_types_Win7 = {
     'ATTRIBUTES': [ None, {
         'ModifiedDate': [ 0x0, ['DosDate']],
         'FileAttrs': [ 0x4, ['unsigned short']],
-        'FileName': [ 0x6, ['String', dict(length = 14)]], # 8.3 File name
+        'FileName': [ 0x6, ['String', dict(length = 255)]], 
         'FDataSize': [ lambda x: x.FileName.obj_offset + len(x.FileName) + (1 if len(x.FileName) % 2 == 1 else 2), ['unsigned short']],
         'EVersion': [ lambda x: x.FDataSize.obj_offset + 2, ['unsigned short']],
         'Unknown1': [ lambda x: x.EVersion.obj_offset + 2, ['unsigned short']],
@@ -693,8 +724,13 @@ class ShellBags(common.AbstractWindowsCommand):
     def __init__(self, config, *args, **kwargs):
         common.AbstractWindowsCommand.__init__(self, config, *args, **kwargs)
         self.supported = ["FILE_ENTRY", "FOLDER_ENTRY", "CONTROL_PANEL", "VOLUME_NAME", "NETWORK_VOLUME_NAME", "NETWORK_SHARE", "UNKNOWN_00"]
+        self.paths = {}
 
-    def parse_key(self, regapi, thekey, given_root = None):
+    def rreplace(self, s, old, new, occurrence):
+        li = s.rsplit(old, occurrence)
+        return new.join(li)
+
+    def parse_key(self, regapi, reg, thekey, given_root = None):
         items = {} # a dictionary of shellbag objects indexed by value name
         for value, data in regapi.reg_yield_values(None, thekey, thetype = 'REG_BINARY', given_root = given_root):
             if data == None or thekey.find("S-") != -1 or str(value).startswith("LastKnownState"):
@@ -705,12 +741,12 @@ class ShellBags(common.AbstractWindowsCommand):
                 i = 0x18
                 while i < len(data) - 0x10:
                     item = obj.Object("ITEMPOS", offset = i, vm = bufferas)
-                    if i == 0x10 and item.Size < 0x15:
+                    if i == 0x18 and item.Size < 0x15:
                         i = 0x34
                         continue
                     if item != None and item.Size >= 0x15:
                         items[str(value)].append(item)
-                    i += item.Size + 8
+                    i += item.Size + 0x8
             elif str(value).lower().startswith("mrulistex"):
                 list = {}
                 bufferas = addrspace.BufferAddressSpace(self._config, data = data)
@@ -728,6 +764,12 @@ class ShellBags(common.AbstractWindowsCommand):
                     if hasattr(item, "DataSize") and item.DataSize <= 0:
                         continue
                     if thetype in self.supported:
+                        temp = ""
+                        if hasattr(item, "Attributes"):
+                            temp = str(item.Attributes.UnicodeFilename)
+                        elif hasattr(item, "Name"):
+                            temp = str(item.Name)
+                        self.paths[reg + ":" + thekey + ":" + str(value)] = temp
                         items[str(value)] = []
                         items[str(value)].append(item)
         return items 
@@ -743,10 +785,11 @@ class ShellBags(common.AbstractWindowsCommand):
         regapi.reset_current()
         #scan for registries and populate them:
         print "Scanning for registries...."
-        regapi.populate_offsets()
 
         regapi.set_current('ntuser.dat')
+        shellbag_data = []
 
+        print "Gathering shellbag items and building path tree..."
         for bk in BAG_KEYS:
             for cat, current_path in regapi.reg_yield_key("ntuser.dat", bk): 
                 keys = [(k, bk + "\\" + k.Name) for k in regapi.reg_get_all_subkeys("ntuser.dat", key = None, given_root = cat)]
@@ -755,11 +798,10 @@ class ShellBags(common.AbstractWindowsCommand):
                         subkeys = [k for k in regapi.reg_get_all_subkeys("ntuser.dat", key = None, given_root = key)]
                         for k in subkeys:
                             keys.append((k, start + "\\" + k.Name))
-                        items = self.parse_key(regapi, start, given_root = key)
+                        items = self.parse_key(regapi, current_path, start, given_root = key)
                         if len(items) > 0:
-                            yield start, current_path, key, items
-
-        if version >= (6, 1):
+                            shellbag_data.append((start, current_path, key, items))
+        if version >= (6, 0):
             regapi.reset_current()
             regapi.set_current("UsrClass.dat")
             for bk in USERDAT_KEYS:
@@ -770,10 +812,29 @@ class ShellBags(common.AbstractWindowsCommand):
                             subkeys = [k for k in regapi.reg_get_all_subkeys("UsrClass.dat", key = None, given_root = key)]
                             for k in subkeys:
                                 keys.append((k, start + "\\" + k.Name))
-                            items = self.parse_key(regapi, start, given_root = key)
-                            if len(items) > 0:
-                                yield start, current_path, key, items
+                            items = self.parse_key(regapi, current_path, start, given_root = key)
+                            if len(items) > 0: 
+                                shellbag_data.append((start, current_path, key, items))
+        for shell in shellbag_data:
+            yield shell
 
+    def build_path(self, reg, key, value, item):
+        path = ""
+        if hasattr(item, "Attributes"):
+            path = str(item.Attributes.UnicodeFilename)
+        elif hasattr(item, "Name"):
+            path = str(item.Name)
+        else:
+            return path
+        while key != "": 
+            parent = self.rreplace(key, "\\" + key.split("\\")[-1], "", 1)
+            prev = self.paths.get(reg + ":" + parent + ":" + key.split("\\")[-1], "")
+            if prev == "":
+                break
+            path = prev + "\\" + path
+            key = parent
+        return path
+        
 
     def render_text(self, outfd, data):
         border = "*" * 75
@@ -786,24 +847,26 @@ class ShellBags(common.AbstractWindowsCommand):
             for item in items:
                 if item == "MruListEx":
                     continue
-                for l in items[item]:
+                for shell in items[item]:
+                    full_path = ""
+                    if type(shell) != ITEMPOS:
+                        full_path = self.build_path(reg, name, item, shell).replace("\\\\", "\\")
                     if first:
                         outfd.write(border + "\n")
                         outfd.write("Registry: " + reg + "\n")
                         outfd.write("Key: " + name + "\n")
-                        outfd.write("Key name: " + key.Name + "\n")
                         outfd.write("Last updated: {0}\n".format(key.LastWriteTime))
-                        curheader = l.get_header()
+                        curheader = shell.get_header()
                         self.table_header(outfd, mruheader + curheader)
                         first = False
-                    if curheader != l.get_header():
-                        curheader = l.get_header()
+                    if curheader != shell.get_header():
+                        curheader = shell.get_header()
                         outfd.write("\n")
                         self.table_header(outfd, mruheader + curheader)
                     if mru:
-                        outfd.write("{0:7} {1:<5} {2}\n".format(item, mru[int(item)], str(l)))
+                        outfd.write("{0:7} {1:<5} {2} {3}\n".format(item, mru[int(item)], str(shell), full_path))
                     else:
-                        outfd.write("{0:25} {1}\n".format(item, str(l)))
+                        outfd.write("{0:25} {1} {2}\n".format(item, str(shell), full_path))
             if not first:
                 outfd.write(border + "\n\n")
 
