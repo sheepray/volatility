@@ -67,7 +67,7 @@ USERDAT_KEYS = [
     "Wow6432Node\\Local Settings\\Software\\Microsoft\\Windows\\Shell",
     "Wow6432Node\\Local Settings\\Software\\Microsoft\\Windows\\ShellNoRoam",
     "Local Settings\\Software\\Microsoft\\Windows\\Shell",
-    "Local Settings\\Software\\Microsoft\\Windows\\ShellShellNoRoam",
+    "Local Settings\\Software\\Microsoft\\Windows\\ShellNoRoam",
 ]
 
 # These are abbreviated only because there can be more than one in output
