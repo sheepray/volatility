@@ -1236,7 +1236,7 @@ Offset(P)            #Ptr   #Hnd Creation time            From                 T
 
 == thrdscan ==
 
-To find ETHREAD objects in physical memory with pool tag scanning, use the thrdscan command. Since an ETHREAD contains fields that identify its parent process, you can use this technique to find hidden processes. One such use case is documented in the [CommandReference22#psxview psxview] command. Also, for verbose details, try the [CommandReference22#threads threads] plugin. 
+To find ETHREAD objects in physical memory with pool tag scanning, use the thrdscan command. Since an ETHREAD contains fields that identify its parent process, you can use this technique to find hidden processes. One such use case is documented in the [CommandReferenceMal22#psxview psxview] command. Also, for verbose details, try the [CommandReference22#threads threads] plugin. 
 
 {{{
 $ python vol.py -f ~/Desktop/win7_trial_64bit.raw --profile=Win7SP0x64 thrdscan
