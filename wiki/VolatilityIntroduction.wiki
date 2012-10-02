@@ -3,12 +3,12 @@
 
 = Quick Start = 
 
-  # *Choose a release* - the most recent is [Release21] (Volatility 2.1), released August 2012. Older versions are also available on the [http://code.google.com/p/volatility/downloads/list Downloads] page or respective release pages. If you want the cutting edge development build, use an svn client and [http://code.google.com/p/volatility/source/checkout checkout trunk]. 
+  # *Choose a release* - the most recent is [Release22] (Volatility 2.2), released October 2012. Older versions are also available on the [http://code.google.com/p/volatility/downloads/list Downloads] page or respective release pages. If you want the cutting edge development build, use an svn client and [http://code.google.com/p/volatility/source/checkout checkout trunk]. 
   # *Install the code* - Volatility is packaged in several formats, including source code in zip or tar archive (all platforms), a Pyinstaller executable (Windows only) and a standalone executable (Windows only). For help deciding which format is best for your needs, and for installation or upgrade instructions, see VolatilityInstallation.
   # *Target OS specific setup* - the Linux, Mac, and Andoid support may require accessing symbols and building your own profiles before using volatility. If you plan to analyze these operating systems, please see LinuxMemoryForensics, MacMemoryForensics, or AndroidMemoryForensics.
-  # *Read usage and plugins* - command-line parameters, options, and plugins may differ between releases. Thus, each release has a basic usage page and a command reference. For Volatility 2.1, see VolatilityUsage21 and CommandReference21. 
+  # *Read usage and plugins* - command-line parameters, options, and plugins may differ between releases. Thus, each release has a basic usage page and a command reference. For Volatility 2.2, see VolatilityUsage22 and CommandReference22. 
   # *Communicate* - If you have documentation, patches, ideas, or bug reports, you can communicate them through the  [http://code.google.com/p/volatility/issues/list Google Code web interface], IRC (#volatility on freenode), the [http://lists.volatilesystems.com/mailman/listinfo Volatility Mailing List], or Twitter ([https://twitter.com/volatility @volatility]). 
-  # *Develop* - For advanced users who want to develop their own plugins, address spaces, and other components of volatility, there is a recommended StyleGuide and API documentation for each release (see DeveloperGuide21 for the most recent version).
+  # *Develop* - For advanced users who want to develop their own plugins, address spaces, and other components of volatility, there is a recommended StyleGuide and API documentation for each release (see DeveloperGuide22 for the most recent version).
 
 = Why Volatility =
 
