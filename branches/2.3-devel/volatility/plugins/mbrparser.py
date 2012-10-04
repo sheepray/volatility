@@ -24,6 +24,7 @@
 @organization: Volatile Systems
 """
 
+import volatility.commands as commands
 import volatility.plugins.common as common
 import volatility.scan as scan
 import volatility.obj as obj
@@ -185,9 +186,9 @@ class MBRScanner(scan.BaseScanner):
             yield offset - 0x1fe
 
 
-class MBRParser(common.AbstractWindowsCommand):
+class MBRParser(commands.command):
     def __init__(self, config, *args, **kwargs):
-        common.AbstractWindowsCommand.__init__(self, config, *args, **kwargs)
+        commands.command.__init__(self, config, *args)
         # We have all these options, however another will be added for diffing 
         # when it is more refined
         config.add_option('HEX', short_option = 'H', default = False,
