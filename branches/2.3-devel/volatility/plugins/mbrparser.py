@@ -254,7 +254,7 @@ class MBRParser(common.AbstractWindowsCommand):
             ret += "0x%.8x: %-32s %s\n" % (offset + start, hexdump, instruction)
             if instruction == "RET":
                 self.code_data = boot_code[0:offset + size]
-                hexstuff = "\n" + "\n".join(["{0:#010x}: {1:<48}  {2}".format(o, h, ''.join(c)) for o, h, c in self.Hexdump(boot_code[offset + size:], offset + size)])
+                hexstuff = "\n" + "\n".join(["{0:#010x}: {1:<48}  {2}".format(o, h, ''.join(c)) for o, h, c in self.Hexdump(boot_code[offset + size:], offset + start + size)])
                 ret += hexstuff
                 break
         return ret
@@ -295,7 +295,7 @@ class MBRParser(common.AbstractWindowsCommand):
             outfd.write("Bootcode md5: {0}\n".format(h.hexdigest()))
             outfd.write("Bootcode (FULL) md5: {0}\n".format(f.hexdigest()))
             if self._config.HEX:
-                hexstuff = "\n" + "\n".join(["{0:#010x}  {1:<48}  {2}".format(o, h, ''.join(c)) for o, h, c in utils.Hexdump(boot_code)])
+                hexstuff = "\n" + "\n".join(["{0:#010x}  {1:<48}  {2}".format(o, h, ''.join(c)) for o, h, c in self.Hexdump(boot_code, offset)])
                 outfd.write("Bootable code: \n{0} \n".format(hexstuff))
             else:
                 outfd.write("Disassembly of Bootable Code:\n{0}\n\n".format(disasm))
