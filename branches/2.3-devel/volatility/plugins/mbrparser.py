@@ -25,7 +25,6 @@
 """
 
 import volatility.commands as commands
-import volatility.plugins.common as common
 import volatility.scan as scan
 import volatility.obj as obj
 import volatility.utils as utils
