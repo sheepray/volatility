@@ -109,6 +109,7 @@ Volatility 2.2 was released in October 2012.
           * <font color='red'>(new)</font> [CommandReferenceGui22#userhandles userhandles] - Dump the USER handle tables
           * <font color='red'>(new)</font> [CommandReferenceGui22#windows windows] - Print Desktop Windows (verbose details)
           * <font color='red'>(new)</font> [CommandReferenceGui22#wintree wintree] - Print Z-Order Desktop Windows Tree
+          * <font color='red'>(new)</font> [CommandReferenceGui22#gditimers gditimers] - Analyze GDI timer objects and their callbacks
       * *Networking*
           * [CommandReference22#connections connections] - Print open connections (XP and 2003 only)
           * [CommandReference22#connscan connscan] - Scan Physical memory for `_TCPT_OBJECT` objects (XP and 2003 only)
