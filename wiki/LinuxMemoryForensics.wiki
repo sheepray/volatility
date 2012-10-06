@@ -2,7 +2,7 @@
 
 = Introduction =
 
-NOTE: This initial set of instructions *will* change over time. *Please* check back on this wiki and always test the latest version before filing bug reports. The first official Volatility release will Linux support will be [Release22] (expected October 2012). 
+NOTE: This initial set of instructions *will* change over time. *Please* check back on this wiki and always test the latest version before filing bug reports.
 
 = Prerequisites =
 
@@ -14,7 +14,7 @@ First check the [Release22] page for the supported Linux kernels, distributions,
 
 = Getting the Volatility source =
 
-Linux support is available as of [Release22] RC1. Please see the release page for direct download links.
+Linux support is available as of [Release22]. Please see the release page for direct download links.
 
 = Creating a profile =
 
