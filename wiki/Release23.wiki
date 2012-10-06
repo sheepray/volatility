@@ -1,0 +1,182 @@
+#summary Volatility 2.3 Release Notes
+
+= Introduction =
+
+Volatility 2.3 is scheduled for release before the end of 2012. 
+
+= Release Highlights = 
+
+= Operating Systems = 
+
+  * 32-bit Windows XP Service Pack 2 and 3
+  * 32-bit Windows 2003 Server Service Pack 0, 1, 2
+  * 32-bit Windows Vista Service Pack 0, 1, 2
+  * 32-bit Windows 2008 Server Service Pack 1, 2 
+  * 32-bit Windows 7 Service Pack 0, 1
+  * 64-bit Windows XP Service Pack 1 and 2 
+  * 64-bit Windows 2003 Server Service Pack 1 and 2 
+  * 64-bit Windows Vista Service Pack 0, 1, 2
+  * 64-bit Windows 2008 Server Service Pack 1 and 2 
+  * 64-bit Windows 2008 `R2` Server Service Pack 0 and 1
+  * 64-bit Windows 7 Service Pack 0 and 1
+  * 32-bit Linux kernels 2.6.11 to 3.5
+  * 64-bit Linux kernels 2.6.11 to 3.5
+
+= Address Spaces = 
+
+  * !FileAddressSpace - This is a direct file AS
+  * Legacy Intel x86 address spaces
+      * IA32PagedMemoryPae 
+      * IA32PagedMemory
+  * Standard Intel x86 address spaces
+      * JKIA32PagedMemoryPae
+      * JKIA32PagedMemory
+  * AMD64PagedMemory - This AS supports AMD 64-bit address spaces
+  * [CrashAddressSpace WindowsCrashDumpSpace32] - This AS supports windows Crash Dump format (x86)
+  * [CrashAddressSpace WindowsCrashDumpSpace64] - This AS supports windows Crash Dump format (x64)
+  * [HiberAddressSpace WindowsHiberFileSpace32] - This AS supports windows hibernation files (x86 and x64)
+  * [EWFAddressSpace EWFAddressSpace] - This AS supports expert witness (EWF) files
+  * [FirewireAddressSpace FirewireAddressSpace] - This AS supports direct memory access over firewire
+  * [LimeAddressSpace LimeAddressSpace] - This AS supports LiME (Linux Memory Extractor)
+
+= Plugins = 
+
+  * *Windows* 
+      * *Image Identification*
+          * [CommandReference22#imageinfo imageinfo] - Identify information for the image
+          * [CommandReference22#kdbgscan kdbgscan] - Search for and dump potential KDBG values
+          * [CommandReference22#kpcrscan kpcrscan] - Search for and dump potential `_KPCR` values
+      * *Process and DLLs*
+          * [CommandReference22#pslist pslist] - Print active processes by following the `_EPROCESS` list
+          * [CommandReference22#pstree pstree] - Print process list as a tree
+          * [CommandReference22#psscan psscan] - Scan Physical memory for `_EPROCESS` pool allocations
+          * [CommandReference22#psdispscan psdispscan] - Scan Physical memory for `_EPROCESS` objects based on Dispatch Headers (Windows XP x86 only)
+          * [CommandReference22#dlllist dlllist] - Print list of loaded DLLs for each process
+          * [CommandReference22#dlldump dlldump] - Dump DLLs from a process address space
+          * [CommandReference22#handles handles] - Print list of open handles for each process
+          * [CommandReference22#getsids getsids] - Print the SIDs owning each process
+          * [CommandReference22#verinfo verinfo] - Print a PE file's version information 
+          * [CommandReference22#enumfunc enumfunc] - Enumerate a PE file's imports and exports
+          * [CommandReference22#envars envars] - Display process environment variables
+          * [CommandReference22#cmdscan cmdscan] - Extract command history by scanning for `_COMMAND_HISTORY`
+          * [CommandReference21#consoles consoles] - Extract command history by scanning for `_CONSOLE_INFORMATION`
+      * *Process Memory*
+          * [CommandReference22#memmap memmap] - Print the memory map
+          * [CommandReference22#memdump memdump] - Dump the addressable memory for a process
+          * [CommandReference22#procexedump procexedump] - Dump a process to an executable file
+          * [CommandReference22#procmemdump procmemdump] - Dump a process to an executable memory sample
+          * [CommandReference22#vadwalk vadwalk] - Walk the VAD tree
+          * [CommandReference22#vadtree vadtree] - Walk the VAD tree and display in tree format
+          * [CommandReference22#vadinfo vadinfo] - Dump the VAD info
+          * [CommandReference22#vaddump vaddump] - Dumps out the vad sections to a file
+          * <font color='red'>(new)</font> [CommandReference22#evtlogs evtlogs] - Parse XP and 2003 event logs from memory
+      * *Kernel Memory and Objects*
+          * [CommandReference22#modules modules] - Print list of loaded modules
+          * [CommandReference22#modscan modscan] - Scan Physical memory for `_LDR_DATA_TABLE_ENTRY` objects
+          * [CommandReference22#moddump moddump] - Extract a kernel driver to disk
+          * [CommandReference22#ssdt ssdt] - Print the Native and GDI System Service Descriptor Tables
+          * [CommandReference22#driverscan driverscan] - Scan physical memory for `_DRIVER_OBJECT` objects
+          * [CommandReference22#filescan filescan] - Scan physical memory for `_FILE_OBJECT` objects
+          * [CommandReference22#mutantscan mutantscan] - Scan physical memory for `_KMUTANT` objects
+          * [CommandReference22#symlinkscan symlinkscan] - Scans for symbolic link objects
+          * [CommandReference22#thrdscan thrdscan] - Scan physical memory for `_ETHREAD` objects
+      * *Win32k / GUI Memory*
+          * [CommandReferenceGui22#sessions sessions] - List details on `_MM_SESSION_SPACE` (user logon sessions)
+          * [CommandReferenceGui22#wndscan wndscan] - Pool scanner for tagWINDOWSTATION (window stations)
+          * [CommandReferenceGui22#deskscan deskscan] - Poolscaner for tagDESKTOP (desktops)
+          * [CommandReferenceGui22#atomscan atomscan] - Pool scanner for `_RTL_ATOM_TABLE`
+          * [CommandReferenceGui22#atoms atoms] - Print session and window station atom tables
+          * [CommandReferenceGui22#clipboard clipboard] - Extract the contents of the windows clipboard
+          * [CommandReferenceGui22#eventhooks eventhooks] - Print details on windows event hooks
+          * [CommandReferenceGui22#gahti gathi] - Dump the USER handle type information
+          * [CommandReferenceGui22#messagehooks messagehooks] - List desktop and thread window message hooks
+          * [CommandReferenceGui22#screenshot screenshot] - Save a pseudo-screenshot based on GDI windows
+          * [CommandReferenceGui22#userhandles userhandles] - Dump the USER handle tables
+          * [CommandReferenceGui22#windows windows] - Print Desktop Windows (verbose details)
+          * [CommandReferenceGui22#wintree wintree] - Print Z-Order Desktop Windows Tree
+          * [CommandReferenceGui22#gditimers gditimers] - Analyze GDI timer objects and their callbacks
+      * *Networking*
+          * [CommandReference22#connections connections] - Print open connections (XP and 2003 only)
+          * [CommandReference22#connscan connscan] - Scan Physical memory for `_TCPT_OBJECT` objects (XP and 2003 only)
+          * [CommandReference22#sockets sockets] - Print open sockets (XP and 2003 only)
+          * [CommandReference22#sockscan sockscan] - Scan Physical memory for `_ADDRESS_OBJECT` (XP and 2003 only)
+          * [CommandReference22#netscan netscan] - Scan physical memory for network objects (Vista, 2008, and 7)
+      * *Registry*
+          * [CommandReference22#hivescan hivescan] - Scan Physical memory for `_CMHIVE` objects
+          * [CommandReference22#hivelist hivelist] - Print list of registry hives
+          * [CommandReference22#printkey printkey] - Print a registry key, and its subkeys and values
+          * [CommandReference22#hivedump hivedump] - Recursively prints all keys and timestamps in a given hive
+          * [CommandReference22#hashdump hashdump] - Dumps passwords hashes (LM/NTLM) from memory (x86 only)
+          * [CommandReference22#lsadump lsadump] - Dump (decrypted) LSA secrets from the registry (XP and 2003 x86 only)
+          * [CommandReference22#userassist userassist] - Parses and output User Assist keys from the registry
+          * [CommandReference21#shimcache shimcache] - Parses the Application Compatibility Shim Cache registry key
+          * <font color='red'>(new)</font> [CommandReference22#getservicesids getservicesids] - Calculate SIDs for windows services in the registry
+      * *File Formats*
+          * [CommandReference22#crashinfo crashinfo] - Dump crash-dump information
+          * [CommandReference22#hibinfo hibinfo] - Dump hibernation file information
+          * [CommandReference22#imagecopy imagecopy] - Copies a physical address space out as a raw DD image
+          * [CommandReference22#raw2dmp raw2dmp] - Converts a physical memory sample to a windbg crash dump
+      * *Malware*
+          * [CommandReferenceMal22#malfind malfind] - Find hidden and injected code
+          * [CommandReferenceMal22#svcscan svcscan] - Scan for Windows services
+          * [CommandReferenceMal22#ldrmodules ldrmodules] - Detect unlinked DLLs
+          * [CommandReferenceMal22#impscan impscan] - Scan for calls to imported functions
+          * [CommandReferenceMal22#apihooks apihooks] - Detect API hooks in process and kernel memory (x86 only)
+          * [CommandReferenceMal22#idt idt] - Dumps the Interrupt Descriptor Table (x86 only)
+          * [CommandReferenceMal22#gdt gdt] - Dumps the Global Descriptor Table (x86 only)
+          * [CommandReferenceMal22#threads threads] - Investigate `_ETHREAD` and `_KTHREAD`s
+          * [CommandReferenceMal22#callbacks callbacks] - Print system-wide notification routines (x86 only)
+          * [CommandReferenceMal22#driverirp driverirp] - Driver IRP hook detection
+          * [CommandReferenceMal22#devicetree devicetree] - Show device tree
+          * [CommandReferenceMal22#psxview psxview] - Find hidden processes with various process listings
+          * [CommandReferenceMal22#timers timers] - Print kernel timers and associated module DPCs (x86 only)
+      * *Miscellaneous*
+          * [CommandReference22#strings strings] - Match physical offsets to virtual addresses
+          * [CommandReference22#volshell volshell] - Shell to interactively explore a memory image
+          * [CommandReference22#bioskbd bioskbd] - Reads the keyboard buffer from Real Mode memory
+          * [CommandReference22#patcher patcher] - Patches memory based on page scans
+  * *Linux*
+      * *Processes*
+          * [LinuxCommandReference22#linux_pslist linux_pslist] - Gather active tasks by walking the task_struct->task list
+          * [LinuxCommandReference22#linux_psaux linux_psaux] - Gathers processes along with full command line and start time
+          * [LinuxCommandReference22#linux_pslist_cache linux_pslist_cache] - Gather tasks from the kmem_cache
+          * [LinuxCommandReference22#linux_pstree linux_pstree] - Shows the parent/child relationship between processes
+          * [LinuxCommandReference22#linux_psxview linux_psxview] - Find hidden processes with various process listings
+      * *Process Memory*
+          * [LinuxCommandReference22#linux_dump_map linux_dump_map] - Writes selected process memory mappings to disk
+          * [LinuxCommandReference22#linux_memmap linux_memmap] - Dumps the memory map for linux tasks
+          * [LinuxCommandReference22#linux_pidhashtable linux_pidhashtable] - Enumerates processes through the PID hash table
+          * [LinuxCommandReference22#linux_proc_maps linux_proc_maps] - Gathers process maps for linux
+          * [LinuxCommandReference22#linux_bash linux_bash] - Recover bash history from bash process memory
+      * *Kernel Memory and Objects*
+          * [LinuxCommandReference22#linux_lsmod linux_lsmod] - Gather loaded kernel modules
+          * [LinuxCommandReference22#linux_lsof linux_lsof] - Lists open files
+          * [LinuxCommandReference22#linux_tmpfs linux_tmpfs] - Recovers tmpfs filesystems from memory
+      * *Networking*
+          * [LinuxCommandReference22#linux_arp linux_arp] - Print the ARP table
+          * [LinuxCommandReference22#linux_ifconfig linux_ifconfig] - Gathers active interfaces
+          * [LinuxCommandReference22#linux_netstat linux_netstat] - Lists open sockets
+          * [LinuxCommandReference22#linux_route_cache linux_route_cache] - Recovers the routing cache from memory
+          * [LinuxCommandReference22#linux_pkt_queues linux_pkt_queues] - Writes per-process packet queues out to disk
+          * [LinuxCommandReference22#linux_sk_buff_cache linux_sk_buff_cache] - Recovers packets from the sk_buff kmem_cache
+      * *Malware/Rootkits*
+          * [LinuxCommandReference22#linux_check_afinfo linux_check_afinfo] - Verifies the operation function pointers of network protocols
+          * [LinuxCommandReference22#linux_check_creds linux_check_creds] - Checks if any processes are sharing credential structures
+          * [LinuxCommandReference22#linux_check_fop linux_check_fop] - Check file operation structures for rootkit modifications
+          * [LinuxCommandReference22#linux_check_idt linux_check_idt] - Checks if the IDT has been altered
+          * [LinuxCommandReference22#linux_check_modules linux_check_modules] - Compares module list to sysfs info, if available
+          * [LinuxCommandReference22#linux_check_syscall linux_check_syscall] - Checks if the system call table has been altered
+      * *System Information*
+          * [LinuxCommandReference22#linux_cpuinfo linux_cpuinfo] - Prints info about each active processor
+          * [LinuxCommandReference22#linux_dmesg linux_dmesg] - Gather dmesg buffer
+          * [LinuxCommandReference22#linux_iomem linux_iomem] - Provides output similar to /proc/iomem
+          * [LinuxCommandReference22#linux_mount linux_mount] - Gather mounted fs/devices
+          * [LinuxCommandReference22#linux_mount_cache linux_mount_cache] - Gather mounted fs/devices from kmem_cache
+          * [LinuxCommandReference22#linux_slabinfo linux_slabinfo] - Mimics /proc/slabinfo on a running machine    
+          * [LinuxCommandReference22#linux_dentry_cache linux_dentry_cache] - Gather files from the dentry cache  
+          * [LinuxCommandReference22#linux_find_file linux_find_file] - Extract cached file contents from memory via inodes 
+          * [LinuxCommandReference22#linux_vma_cache linux_vma_cache] - Gather VMAs from the vm_area_struct cache
+
+= Release Notes = 
+
+= API Changes = 
