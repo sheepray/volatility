@@ -42,7 +42,7 @@ This page is the official Volatility Roadmap. The goal of the Roadmap is to help
  * New Volshell Commands
  * Updated Documentation and Command Reference 
 
-= Volatility 2.2 (Official Linux Support) =
+= ~~Volatility 2.2 (Official Linux Support)~~ =
 
 *RC1:* Sept 10, 2012
 *Release:* Oct 2, 2012
@@ -51,7 +51,6 @@ This page is the official Volatility Roadmap. The goal of the Roadmap is to help
  * Over 25+ Linux plugins 
  * Windows win32k suite (14+ plugins, classes, algorithms and APIs for analyzing GUI memory)
  * New or Updated Plugins 
-   * filedump	
    * eventlogs
    * getservicesids
 
@@ -71,6 +70,8 @@ This page is the official Volatility Roadmap. The goal of the Roadmap is to help
    * shellbags
    * mbr/vbr parser
    * mftparser
+   * dumpfiles 
+   * iehistory
 
 = Volatility 3.0 (Official Tech Preview Merge) =
 
