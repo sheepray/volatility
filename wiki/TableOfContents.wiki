@@ -6,6 +6,8 @@
       * [AndroidMemoryForensics Android]
   * Releases
       * [Release23 Volatility 2.3]
+          * Command Reference 
+              * [CommandReferenceMal23 Windows Malware]
       * [Release22 Volatility 2.2]
           * [VolatilityUsage22 Basic Usage]
           * Command Reference 
