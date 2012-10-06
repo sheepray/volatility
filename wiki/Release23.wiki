@@ -69,7 +69,7 @@ Volatility 2.3 is scheduled for release before the end of 2012.
           * [CommandReference22#vadtree vadtree] - Walk the VAD tree and display in tree format
           * [CommandReference22#vadinfo vadinfo] - Dump the VAD info
           * [CommandReference22#vaddump vaddump] - Dumps out the vad sections to a file
-          * <font color='red'>(new)</font> [CommandReference22#evtlogs evtlogs] - Parse XP and 2003 event logs from memory
+          * [CommandReference22#evtlogs evtlogs] - Parse XP and 2003 event logs from memory
       * *Kernel Memory and Objects*
           * [CommandReference22#modules modules] - Print list of loaded modules
           * [CommandReference22#modscan modscan] - Scan Physical memory for `_LDR_DATA_TABLE_ENTRY` objects
@@ -110,7 +110,7 @@ Volatility 2.3 is scheduled for release before the end of 2012.
           * [CommandReference22#lsadump lsadump] - Dump (decrypted) LSA secrets from the registry (XP and 2003 x86 only)
           * [CommandReference22#userassist userassist] - Parses and output User Assist keys from the registry
           * [CommandReference21#shimcache shimcache] - Parses the Application Compatibility Shim Cache registry key
-          * <font color='red'>(new)</font> [CommandReference22#getservicesids getservicesids] - Calculate SIDs for windows services in the registry
+          * [CommandReference22#getservicesids getservicesids] - Calculate SIDs for windows services in the registry
       * *File Formats*
           * [CommandReference22#crashinfo crashinfo] - Dump crash-dump information
           * [CommandReference22#hibinfo hibinfo] - Dump hibernation file information
