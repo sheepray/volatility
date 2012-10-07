@@ -316,7 +316,7 @@ Exit(0);}
 
 = apihooks =
 
-To find API hooks in user mode or kernel mode, use the apihooks plugin. This finds IAT, EAT, Inline style hooks, and several special types of hooks. For Inline hooks, it detects CALLs and JMPs to direct and indirect locations, and it detects PUSH/RET instruction sequences. The special types of hooks that it detects include syscall hooking in ntdll.dll and calls to unknown code pages in kernel memory. 
+To find API hooks in user mode or kernel mode, use the apihooks plugin. This finds IAT, EAT, Inline style hooks, and several special types of hooks. For Inline hooks, it detects CALLs and JMPs to direct and indirect locations, and it detects PUSH/RET instruction sequences. It also detects CALLs or JMPs to registers after an immediate value (address) is moved into the register. The special types of hooks that it detects include syscall hooking in ntdll.dll and calls to unknown code pages in kernel memory. 
 
 As of Volatility 2.1, apihooks also detects hooked winsock procedure tables, includes an easier to read output format, supports multiple hop disassembly, and can optionally scan quicker through memory by ignoring non-critical processes and DLLs. 
 
@@ -435,6 +435,43 @@ Disassembly(1):
 0xac10ae 90               NOP
 
 [snip]
+}}}
+
+Here is an example of the duqu style API hooks which moves an immediate value into a register and then JMPs to it. 
+
+{{{
+************************************************************************
+Hook mode: Usermode
+Hook type: Inline/Trampoline
+Process: 1176 (lsass.exe)
+Victim module: ntdll.dll (0x7c900000 - 0x7c9af000)
+Function: ntdll.dll!ZwQuerySection at 0x7c90d8b0
+Hook address: 0x980a02
+Hooking module: <unknown>
+
+Disassembly(0):
+0x7c90d8b0 b8020a9800       MOV EAX, 0x980a02
+0x7c90d8b5 ffe0             JMP EAX
+0x7c90d8b7 03fe             ADD EDI, ESI
+0x7c90d8b9 7fff             JG 0x7c90d8ba
+0x7c90d8bb 12c2             ADC AL, DL
+0x7c90d8bd 1400             ADC AL, 0x0
+0x7c90d8bf 90               NOP
+0x7c90d8c0 b8a8000000       MOV EAX, 0xa8
+0x7c90d8c5 ba               DB 0xba
+0x7c90d8c6 0003             ADD [EBX], AL
+
+Disassembly(1):
+0x980a02 55               PUSH EBP
+0x980a03 8bec             MOV EBP, ESP
+0x980a05 51               PUSH ECX
+0x980a06 51               PUSH ECX
+0x980a07 e8f1fdffff       CALL 0x9807fd
+0x980a0c 8945fc           MOV [EBP-0x4], EAX
+0x980a0f e872feffff       CALL 0x980886
+0x980a14 8945f8           MOV [EBP-0x8], EAX
+0x980a17 83               DB 0x83
+0x980a18 7df8             JGE 0x980a12
 }}}
 
 Here is an example of using apihooks to detect the syscall patches in ntdll.dll (using a Carberp sample):
