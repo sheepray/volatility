@@ -46,4 +46,7 @@
       * [HiberAddressSpace Hibernation]
       * [EWFAddressSpace EWF Files]
       * [LimeAddressSpace LiME (Linux)]
+      * [MachOAddressSpace Macho (Mac OSX)]
+      * [ArmAddressSpace ARM (x86)]
+      * [VirtualBoxCoreDump VirtualBoxELF64]
   * [VolatilityTeam Volatility Team]
