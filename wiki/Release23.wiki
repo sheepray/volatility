@@ -48,10 +48,10 @@ Volatility 2.3 is scheduled for release before the end of 2012.
   * [EWFAddressSpace EWFAddressSpace] - This AS supports expert witness (EWF) files
   * [FirewireAddressSpace FirewireAddressSpace] - This AS supports direct memory access over firewire
   * [LimeAddressSpace LimeAddressSpace] - This AS supports LiME (Linux Memory Extractor)
-  * <font color='red'>(new)</font> [MachOAddressSpace MachOAddressSpace] = This AS supports 32- and 64-bit Mac OSX memory dumps
-  * <font color='red'>(new)</font> [ArmAddressSpace ArmAddressSpace] = This AS supports memory dumps from 32-bit ARM (there is no 64-bit ARM yet)
-  * <font color='red'>(new)</font> [VirtualBoxCoreDump VirtualBoxCoreDumpElf64] = This AS supports memory dumps from !VirtualBox virtual machines 
-  * <font color='red'>(new)</font> [VMwareSnapshotFile VMware Snapshot] = This AS supports VMware saved state (.vmss) and VMware snapshot (.vmsn) files. *Note*: these are _not_ raw memory dumps like the typical .vmem files. 
+  * <font color='red'>(new)</font> [MachOAddressSpace MachOAddressSpace] - This AS supports 32- and 64-bit Mac OSX memory dumps
+  * <font color='red'>(new)</font> [ArmAddressSpace ArmAddressSpace] - This AS supports memory dumps from 32-bit ARM (there is no 64-bit ARM yet)
+  * <font color='red'>(new)</font> [VirtualBoxCoreDump VirtualBoxCoreDumpElf64] - This AS supports memory dumps from !VirtualBox virtual machines 
+  * <font color='red'>(new)</font> [VMwareSnapshotFile VMware Snapshot] - This AS supports VMware saved state (.vmss) and VMware snapshot (.vmsn) files. *Note*: these are _not_ raw memory dumps like the typical .vmem files. 
 = Plugins = 
 
   * *Windows* 
