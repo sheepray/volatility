@@ -1,3 +1,18 @@
 #summary An Address Space for VirtualBox Core Dumps
 
-Coming soon...
+= Introduction = 
+
+Volatility can analyze memory dumps from [https://www.virtualbox.org/ VirtualBox] virtual machines. Philippe Teuwen wrote this Address Space and detailed much of the acquisition, file format, and other intricacies related to this exciting capability [http://wiki.yobi.be/wiki/RAM_analysis on his personal wiki]. 
+
+= Acquisition = 
+
+!VirtualBox does not automatically save a full RAM dump to disk when you suspend or pause a virtual machine (as other virtualization products do). There are two ways to acquire a memory dump, both described by Philippe at the link above:
+
+ * The vboxmanage debugvm commands (see [http://www.virtualbox.org/manual/ch08.html#vboxmanage-debugvm Chapter 8 of the manual]). This creates a standard ELF64 with custom sections that represent the guest's physical memory.
+ * Using the --dbg switch when starting a VM and the .pgmphystofile command (see [https://www.virtualbox.org/ticket/10222 VirtualBox Ticket #10222]). This outputs a raw dd-style physical memory dump that is natively compatible with Volatility. *Note*: a user also attached a Python script vboxdump.py (untested) which can be used to dump memory). 
+
+Of the two methods, the only one that needs special handling is the ELF64.
+
+= Notes = 
+
+= File Format = 
