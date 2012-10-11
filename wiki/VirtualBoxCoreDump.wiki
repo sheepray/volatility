@@ -11,8 +11,31 @@ Volatility can analyze memory dumps from [https://www.virtualbox.org/ VirtualBox
  * The vboxmanage debugvm commands (see [http://www.virtualbox.org/manual/ch08.html#vboxmanage-debugvm Chapter 8 of the manual]). This creates a standard ELF64 with custom sections that represent the guest's physical memory.
  * Using the --dbg switch when starting a VM and the .pgmphystofile command (see [https://www.virtualbox.org/ticket/10222 VirtualBox Ticket #10222]). This outputs a raw dd-style physical memory dump that is natively compatible with Volatility. *Note*: a user also attached a Python script vboxdump.py (untested) which can be used to dump memory). 
 
-Of the two methods, the only one that needs special handling is the ELF64.
+Of the two methods, the only one that needs special handling is the ELF64. However, this is also the method that can be scripted, so it can be very valuable, especially in a sandbox environment. 
 
 = Notes = 
 
+The !VirtualBox AS was officially built and tested using core dumps from !VirtualBox 4.1.23 (latest as of October 2012), but unless the specification (see file format below) is different in earlier (or future) versions, the AS should work on all core dumps. 
+
 = File Format = 
+
+The ELF64 file has several custom program header segments. One of them is a PT_NOTE (elf64_note) whose name is "VBCORE". This segment contains a DBGFCOREDESCRIPTOR structure, which is shown below:
+
+{{{
+>>> dt("DBGFCOREDESCRIPTOR")
+'DBGFCOREDESCRIPTOR' (24 bytes)
+0x0   : u32Magic                       ['unsigned int']
+0x4   : u32FmtVersion                  ['unsigned int']
+0x8   : cbSelf                         ['unsigned int']
+0xc   : u32VBoxVersion                 ['unsigned int']
+0x10  : u32VBoxRevision                ['unsigned int']
+0x14  : cCpus                          ['unsigned int']
+}}}
+
+The structure contains the !VirtualBox magic signature (0xc01ac0de), the version information, and number of CPUs for the target system. If you continue to iterate through the ELF64's program headers, you'll find various PT_LOAD segments (elf64_phdr). Each segment's p_paddr member is a starting physical memory address. The p_offset member tells you where in the ELF64 file you can find the chunk of physical memory. Finally, the p_memsz tells you how big (in bytes) the chunk of memory is. 
+
+For more information on the format of core dump format, see the following links:
+
+  * http://www.virtualbox.org/manual/ch12.html#guestcoreformat
+  * http://www.virtualbox.org/svn/vbox/trunk/include/VBox/vmm/dbgfcorefmt.h
+  * http://www.virtualbox.org/svn/vbox/trunk/src/VBox/VMM/VMMR3/DBGFCoreWrite.cpp
