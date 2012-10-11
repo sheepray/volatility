@@ -51,7 +51,7 @@ Volatility 2.3 is scheduled for release before the end of 2012.
   * <font color='red'>(new)</font> [MachOAddressSpace MachOAddressSpace] = This AS supports 32- and 64-bit Mac OSX memory dumps
   * <font color='red'>(new)</font> [ArmAddressSpace ArmAddressSpace] = This AS supports memory dumps from 32-bit ARM (there is no 64-bit ARM yet)
   * <font color='red'>(new)</font> [VirtualBoxCoreDump VirtualBoxCoreDumpElf64] = This AS supports memory dumps from !VirtualBox virtual machines 
-
+  * <font color='red'>(new)</font> [VMwareSnapshotFile VMware Snapshot] = This AS supports VMware saved state (.vmss) and VMware snapshot (.vmsn) files. *Note*: these are _not_ raw memory dumps like the typical .vmem files. 
 = Plugins = 
 
   * *Windows* 
@@ -129,6 +129,8 @@ Volatility 2.3 is scheduled for release before the end of 2012.
           * [CommandReference22#hibinfo hibinfo] - Dump hibernation file information
           * [CommandReference22#imagecopy imagecopy] - Copies a physical address space out as a raw DD image
           * [CommandReference22#raw2dmp raw2dmp] - Converts a physical memory sample to a windbg crash dump
+          * <font color='red'>(new)</font> [CommandReference23#vboxinfo vboxinfo] - Display header and memory runs information from !VirtualBox core dumps
+          * <font color='red'>(new)</font> [CommandReference23#vmwareinfo vmwareinfo] - Display header and memory runs information from VMware vmss or vmsn files
       * *Malware*
           * [CommandReferenceMal22#malfind malfind] - Find hidden and injected code
           * [CommandReferenceMal22#svcscan svcscan] - Scan for Windows services
