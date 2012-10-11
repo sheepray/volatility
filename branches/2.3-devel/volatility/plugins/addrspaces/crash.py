@@ -108,18 +108,18 @@ class WindowsCrashDumpSpace32(standard.FileAddressSpace):
 
         return stuff_read
 
-    def write(self, vaddr, buf):
-        baddr = self.get_addr(vaddr)
+    def write(self, addr, buf):
+        baddr = self.get_addr(addr)
         return standard.AbstractWritablePagedMemory.write(self, baddr, buf)
 
-    def zread(self, vaddr, length):
-        first_block = 0x1000 - vaddr % 0x1000
-        full_blocks = ((length + (vaddr % 0x1000)) / 0x1000) - 1
-        left_over = (length + vaddr) % 0x1000
+    def zread(self, addr, length):
+        first_block = 0x1000 - addr % 0x1000
+        full_blocks = ((length + (addr % 0x1000)) / 0x1000) - 1
+        left_over = (length + addr) % 0x1000
 
-        self.check_address_range(vaddr)
+        self.check_address_range(addr)
 
-        baddr = self.get_addr(vaddr)
+        baddr = self.get_addr(addr)
 
         if baddr == None:
             if length < first_block:
@@ -130,18 +130,18 @@ class WindowsCrashDumpSpace32(standard.FileAddressSpace):
                 return self.base.read(baddr, length)
             stuff_read = self.base.read(baddr, first_block)
 
-        new_vaddr = vaddr + first_block
+        new_addr = addr + first_block
         for _i in range(0, full_blocks):
-            baddr = self.get_addr(new_vaddr)
+            baddr = self.get_addr(new_addr)
             if baddr == None:
                 stuff_read = stuff_read + ('\0' * 0x1000)
             else:
                 stuff_read = stuff_read + self.base.read(baddr, 0x1000)
 
-            new_vaddr = new_vaddr + 0x1000
+            new_addr = new_addr + 0x1000
 
         if left_over > 0:
-            baddr = self.get_addr(new_vaddr)
+            baddr = self.get_addr(new_addr)
             if baddr == None:
                 stuff_read = stuff_read + ('\0' * left_over)
             else:
