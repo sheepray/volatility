@@ -118,7 +118,11 @@ class VirtualBoxCoreDumpElf64(standard.FileAddressSpace):
         self.as_assert(self.header.u32Magic == DBGFCORE_MAGIC, 'Could not find VBox core magic signature')
         self.as_assert(self.header.u32FmtVersion == DBGFCORE_FMT_VERSION, 'Unknown VBox core format version')
         self.as_assert(self.runs, 'ELF error: did not find any LOAD segment with main RAM')
-        
+       
+    #===============================================================
+    ## FIXME: everything below can be abstract - shared with vmware
+    #===============================================================
+       
     def get_header(self):
         """Get the DBGFCOREDESCRIPTOR, used by vboxinfo plugin"""
         return self.header
