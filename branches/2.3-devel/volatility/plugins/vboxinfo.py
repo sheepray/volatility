@@ -40,15 +40,15 @@ class VBoxInfo(common.AbstractWindowsCommand):
         
     def render_text(self, outfd, data):
     
-        core_desc = data.get_core_desc()
+        header = data.header()
         
-        outfd.write("Magic: {0:#x}\n".format(core_desc.u32Magic))
-        outfd.write("Format: {0:#x}\n".format(core_desc.u32FmtVersion))
+        outfd.write("Magic: {0:#x}\n".format(header.u32Magic))
+        outfd.write("Format: {0:#x}\n".format(header.u32FmtVersion))
         outfd.write("VirtualBox {0}.{1}.{2} (revision {3})\n".format(
-                core_desc.Major, 
-                core_desc.Minor, core_desc.Build, 
-                core_desc.u32VBoxRevision))
-        outfd.write("CPUs: {0}\n\n".format(core_desc.cCpus))
+                header.Major, 
+                header.Minor, header.Build, 
+                header.u32VBoxRevision))
+        outfd.write("CPUs: {0}\n\n".format(header.cCpus))
         
         self.table_header(outfd, [("File Offset", "[addrpad]"), 
                                   ("Memory Offset", "[addrpad]"), 

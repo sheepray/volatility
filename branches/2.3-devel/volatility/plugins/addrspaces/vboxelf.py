@@ -92,7 +92,7 @@ class VirtualBoxCoreDumpElf64(standard.FileAddressSpace):
         self.runs = []
         
         ## The PT_NOTE core descriptor structure 
-        self.core_desc = None
+        self.header = None
                 
         for phdr in elf.program_headers():
         
@@ -101,7 +101,7 @@ class VirtualBoxCoreDumpElf64(standard.FileAddressSpace):
                 note = phdr.p_offset.dereference_as("elf64_note")    
 
                 if note.namesz == 'VBCORE' and note.n_type == NT_VBOXCORE:                                    
-                    self.core_desc = note.cast_descsz("DBGFCOREDESCRIPTOR")
+                    self.header = note.cast_descsz("DBGFCOREDESCRIPTOR")
                 continue
                 
             # Only keep load segments with valid file sizes
@@ -114,14 +114,14 @@ class VirtualBoxCoreDumpElf64(standard.FileAddressSpace):
                               int(phdr.p_offset), 
                               int(phdr.p_memsz)))
                     
-        self.as_assert(self.core_desc, 'ELF error: did not find any PT_NOTE segment with VBCORE')
-        self.as_assert(self.core_desc.u32Magic == DBGFCORE_MAGIC, 'Could not find VBox core magic signature')
-        self.as_assert(self.core_desc.u32FmtVersion == DBGFCORE_FMT_VERSION, 'Unknown VBox core format version')
+        self.as_assert(self.header, 'ELF error: did not find any PT_NOTE segment with VBCORE')
+        self.as_assert(self.header.u32Magic == DBGFCORE_MAGIC, 'Could not find VBox core magic signature')
+        self.as_assert(self.header.u32FmtVersion == DBGFCORE_FMT_VERSION, 'Unknown VBox core format version')
         self.as_assert(self.runs, 'ELF error: did not find any LOAD segment with main RAM')
         
-    def get_core_desc(self):
+    def get_header(self):
         """Get the DBGFCOREDESCRIPTOR, used by vboxinfo plugin"""
-        return self.core_desc
+        return self.header
 
     def get_runs(self):
         """Get the memory block info, used by vboxinfo plugin"""
