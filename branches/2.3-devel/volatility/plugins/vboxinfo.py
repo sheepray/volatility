@@ -40,7 +40,7 @@ class VBoxInfo(common.AbstractWindowsCommand):
         
     def render_text(self, outfd, data):
     
-        header = data.header()
+        header = data.get_header()
         
         outfd.write("Magic: {0:#x}\n".format(header.u32Magic))
         outfd.write("Format: {0:#x}\n".format(header.u32FmtVersion))
