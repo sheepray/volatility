@@ -107,3 +107,40 @@ Crash dumps from 64-bit systems begin with a `_DMP_HEADER64` structure. The Sign
 0x104e: Unused                         ['array', 2, ['unsigned char']]
 0x1050: _reserved0                     ['array', 4016, ['unsigned char']]
 }}}
+
+= Meta Data = 
+
+You can use the crashinfo plugin to dump meta-data from the crash header:
+
+{{{
+$ python vol.py -f win7.dmp --profile=Win7SP1x86 crashinfo
+Volatile Systems Volatility Framework 2.3_alpha
+_DMP_HEADER:
+ Majorversion:         0x0000000f (15)
+ Minorversion:         0x00001db0 (7600)
+ KdSecondaryVersion    0x00000041
+ DirectoryTableBase    0x00185000
+ PfnDataBase           0x83a00000
+ PsLoadedModuleList    0x82984810
+ PsActiveProcessHead   0x8297ce98
+ MachineImageType      0x0000014c
+ NumberProcessors      0x00000001
+ BugCheckCode          0x5454414d
+ PaeEnabled            0x00000001
+ KdDebuggerDataBlock   0x82964be8
+ ProductType           0x45474150
+ SuiteMask             0x45474150
+ WriterStatus          0x45474150
+ Comment               PAGEPAGEPAGEPAGEPAGEPAGE
+ DumpType              Full Dump
+ SystemTime            2010-06-17 16:36:17 
+ SystemUpTime          
+
+Physical Memory Description:
+Number of runs: 3
+FileOffset    Start Address    Length
+00001000      00001000         0009e000
+0009f000      00100000         3fdf0000
+3fe8f000      3ff00000         00100000
+3ff8e000      3ffff000
+}}}
