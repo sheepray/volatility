@@ -7,6 +7,7 @@
   * Releases
       * [Release23 Volatility 2.3]
           * Command Reference 
+              * [CommandReference23 Windows Core]
               * [CommandReferenceMal23 Windows Malware]
       * [Release22 Volatility 2.2]
           * [VolatilityUsage22 Basic Usage]
