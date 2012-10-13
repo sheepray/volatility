@@ -46,3 +46,7 @@ The standard header exists at offset 0 of the file and is shown below. Generally
 }}}
 
 More details on the hibernation file format can be seen in [http://www.blackhat.com/presentations/bh-usa-08/Suiche/BH_US_08_Suiche_Windows_hibernation.pdf Windows Hibernation File For Fun N' Profit]. 
+
+= Meta Data = 
+
+Coming soon....
