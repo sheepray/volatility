@@ -17,6 +17,7 @@
 #
 
 import volatility.plugins.crashinfo as crashinfo
+import volatility.utils as utils
 
 class VMwareInfo(crashinfo.CrashInfo):
     """Dump VMware VMSS/VMSN information"""
