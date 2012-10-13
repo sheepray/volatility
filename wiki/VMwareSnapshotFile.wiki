@@ -1,3 +1,13 @@
 #summary One-sentence summary of this page.
 
-Coming soon...
+= Introduction = 
+
+Volatility can analyze VMware saved state (.vmss) and VMware snapshot (.vmsn) files. This capability was researched and introduced by Nir Izraeli and the AS is modeled after his [http://code.google.com/p/vmsnparser/ vmsnparser project]. Saved state and snapshot files are not the same as typical .vmem files that most everyone is familiar with. Rather, these .vmss/.vmsn contain a fairly complex structure layout which contains the physical memory runs, the VM configuration data, CPU registers, and even PNG thumbnails of the VM's screen. 
+
+= Acquisition = 
+
+While some VMware products store guest memory in .vmem files, other products (such as ESX) create these .vmsn or .vmss files when you suspend or take snapshots of running virtual machines. Since ESX is typically used for larger virtualization environments (compared to VMware Fusion or VMware Desktop), the capability to analyze .vmss/.vmsn can be critical in corporate IR/forensics. 
+
+= Notes = 
+
+= File Format = 
