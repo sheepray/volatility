@@ -15,7 +15,8 @@ Of the two methods, the only one that needs special handling is the ELF64. Howev
 
 = Notes = 
 
-The !VirtualBox AS was officially built and tested using core dumps from !VirtualBox 4.1.23 (latest as of October 2012), but unless the specification (see file format below) is different in earlier (or future) versions, the AS should work on all core dumps. 
+  * The !VirtualBox AS was officially built and tested using core dumps from !VirtualBox 4.1.23 (latest as of October 2012), but unless the specification (see file format below) is different in earlier (or future) versions, the AS should work on all core dumps. 
+  * You can convert a !VirtualBox core dump into a raw dd-style memory dump that other tools can analyze by using the [http://code.google.com/p/volatility/wiki/CommandReference22#imagecopy imagecopy] command.
 
 = File Format = 
 
