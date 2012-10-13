@@ -16,27 +16,12 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA 
 #
 
-import volatility.plugins.common as common
-import volatility.utils as utils
-import volatility.debug as debug
+import volatility.plugins.crashinfo as crashinfo
 
-class VMwareInfo(common.AbstractWindowsCommand):
+class VMwareInfo(crashinfo.CrashInfo):
     """Dump VMware VMSS/VMSN information"""
     
-    def calculate(self):
-        addr_space = utils.load_as(self._config)
-                
-        result = None
-        adrs = addr_space
-        while adrs:
-            if adrs.__class__.__name__ == 'VMWareSnapshotFile':
-                result = adrs
-            adrs = adrs.base
-            
-        if result is None:
-            debug.error("Memory image could not be identified as a vmware vmsn/vmss file")
-            
-        return result
+    target_as = ['VMWareSnapshotFile']
         
     def render_text(self, outfd, data):
     

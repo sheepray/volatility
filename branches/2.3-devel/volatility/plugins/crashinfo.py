@@ -67,6 +67,8 @@ class CrashInfoModification(obj.ProfileModification):
 
 class CrashInfo(common.AbstractWindowsCommand):
     """Dump crash-dump information"""
+    
+    target_as = ['WindowsCrashDumpSpace32', 'WindowsCrashDumpSpace64']
 
     @cache.CacheDecorator("tests/crashinfo")
     def calculate(self):
@@ -76,13 +78,12 @@ class CrashInfo(common.AbstractWindowsCommand):
         result = None
         adrs = addr_space
         while adrs:
-            if adrs.__class__.__name__ == 'WindowsCrashDumpSpace32' or \
-               adrs.__class__.__name__ == 'WindowsCrashDumpSpace64':
+            if adrs.__class__.__name__ in self.target_as:
                 result = adrs
             adrs = adrs.base
 
         if result is None:
-            debug.error("Memory Image could not be identified as a crash dump")
+            debug.error("Memory Image could not be identified as {0}".format(self.target_as))
 
         return result
 

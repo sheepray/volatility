@@ -16,27 +16,12 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA 
 #
 
-import volatility.plugins.common as common
-import volatility.utils as utils
-import volatility.debug as debug
+import volatility.plugins.crashinfo as crashinfo
 
-class VBoxInfo(common.AbstractWindowsCommand):
+class VBoxInfo(crashinfo.CrashInfo):
     """Dump virtualbox information"""
     
-    def calculate(self):
-        addr_space = utils.load_as(self._config)
-                
-        result = None
-        adrs = addr_space
-        while adrs:
-            if adrs.__class__.__name__ == 'VirtualBoxCoreDumpElf64':
-                result = adrs
-            adrs = adrs.base
-            
-        if result is None:
-            debug.error("Memory image could not be identified as a virtualbox core dump")
-            
-        return result
+    target_as = ['VirtualBoxCoreDumpElf64']
         
     def render_text(self, outfd, data):
     
