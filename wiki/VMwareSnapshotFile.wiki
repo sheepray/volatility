@@ -11,3 +11,5 @@ While some VMware products store guest memory in .vmem files, other products (su
 = Notes = 
 
 = File Format = 
+
+= Meta Data = 
