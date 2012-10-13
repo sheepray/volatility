@@ -40,3 +40,26 @@ For more information on the format of core dump format, see the following links:
   * http://www.virtualbox.org/manual/ch12.html#guestcoreformat
   * http://www.virtualbox.org/svn/vbox/trunk/include/VBox/vmm/dbgfcorefmt.h
   * http://www.virtualbox.org/svn/vbox/trunk/src/VBox/VMM/VMMR3/DBGFCoreWrite.cpp
+
+= Meta Data = 
+
+You can use the vboxinfo plugin to dump meta-data from the core dump header:
+
+{{{
+$ python vol.py -f ~/Desktop/win7sp1x64_vbox.elf --profile=Win7SP1x64 vboxinfo 
+Volatile Systems Volatility Framework 2.3_alpha
+
+Magic: 0xc01ac0de
+Format: 0x10000
+VirtualBox 4.1.23 (revision 80870)
+CPUs: 1
+
+File Offset        PhysMem Offset     Size              
+------------------ ------------------ ------------------
+0x0000000000000758 0x0000000000000000 0x00000000e0000000
+0x00000000e0000758 0x00000000e0000000 0x0000000003000000
+0x00000000e3000758 0x00000000f0400000 0x0000000000400000
+0x00000000e3400758 0x00000000f0800000 0x0000000000004000
+0x00000000e3404758 0x00000000ffff0000 0x0000000000010000
+0x00000000e3414758 0x0000000100000000 0x000000006a600000
+}}}
