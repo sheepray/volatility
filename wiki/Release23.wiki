@@ -52,6 +52,8 @@ Volatility 2.3 is scheduled for release before the end of 2012.
   * <font color='red'>(new)</font> [ArmAddressSpace ArmAddressSpace] - This AS supports memory dumps from 32-bit ARM (there is no 64-bit ARM yet)
   * <font color='red'>(new)</font> [VirtualBoxCoreDump VirtualBoxCoreDumpElf64] - This AS supports memory dumps from !VirtualBox virtual machines 
   * <font color='red'>(new)</font> [VMwareSnapshotFile VMware Snapshot] - This AS supports VMware saved state (.vmss) and VMware snapshot (.vmsn) files. *Note*: these are _not_ raw memory dumps like the typical .vmem files. 
+  * <font color='red'>(new)</font> [HPAKAddressSpace HPAKAddressSpace] - This AS supports ".hpak" files produced by H.B. Gary's FDPro tool.
+
 = Plugins = 
 
   * *Windows* 
@@ -131,6 +133,8 @@ Volatility 2.3 is scheduled for release before the end of 2012.
           * [CommandReference22#raw2dmp raw2dmp] - Converts a physical memory sample to a windbg crash dump
           * <font color='red'>(new)</font> [CommandReference23#vboxinfo vboxinfo] - Display header and memory runs information from !VirtualBox core dumps
           * <font color='red'>(new)</font> [CommandReference23#vmwareinfo vmwareinfo] - Display header and memory runs information from VMware vmss or vmsn files
+          * <font color='red'>(new)</font> [CommandReference23#hpakinfo hpakinfo] - Display header and memory runs information from .hpak files 
+          * <font color='red'>(new)</font> [CommandReference23#hpakextract hpakextract] - Extract (and decompress if necessary) the raw physical memory dump from an .hpak file 
       * *Malware*
           * [CommandReferenceMal22#malfind malfind] - Find hidden and injected code
           * [CommandReferenceMal22#svcscan svcscan] - Scan for Windows services
