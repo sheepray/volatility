@@ -25,7 +25,7 @@ $ python vol.py -f <name of memory dump> --profile=<profile name> plugin_name <o
 The source can be currently downloaded by checking out with SVN:
 
 {{{
-$ svn co http://volatility.googlecode.com/svn/branches/2.3-devel 2.3-devel
+$ svn co http://volatility.googlecode.com/svn/trunk volatility-trunk
 }}}
 
 It can be browsed [http://code.google.com/p/volatility/source/browse/#svn%2Fbranches%2Fmac-trunk here]
