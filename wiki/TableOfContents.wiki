@@ -9,14 +9,14 @@
           * Command Reference 
               * [CommandReference23 Windows Core]
               * [CommandReferenceMal23 Windows Malware]
-              * [CommandReferenceRegistryApi23 Registry API]
+              * [CommandReferenceRegistryApi23 Windows Registry API]
       * [Release22 Volatility 2.2]
           * [VolatilityUsage22 Basic Usage]
           * Command Reference 
               * [CommandReference22 Windows Core]
               * [CommandReferenceGui22 Windows GUI]
               * [CommandReferenceMal22 Windows Malware]
-              * [CommandReferenceRegistryApi22 Registry API]
+              * [CommandReferenceRegistryApi22 Windows Registry API]
               * [LinuxCommandReference22 Linux]
           * [DeveloperGuide22 Developer Guide]
               * [PluginInterface22 Plugin Interface]
