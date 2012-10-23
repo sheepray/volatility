@@ -1,8 +1,10 @@
 #summary A reference for the RegistryApi.
 
+<wiki:toc max_depth="3" />
+
 = Introduction =
 
-This wiki describes the !RegistryApi.
+The !RegistryApi allows easier access to registries, keys and values.  It can be very useful when processing complex keys or several registries in memory at once.  This wiki covers each of the functions contained in the !RegistryApi.
 
 = Basic Usage = 
 
