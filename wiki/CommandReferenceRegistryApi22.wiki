@@ -2,16 +2,38 @@
 
 = Introduction =
 
-This wiki describes functions that are found in the !RegistryApi.
+This wiki describes the !RegistryApi.
+
+= Basic Usage = 
+
+In order to use the !RegistryApi it must be imported and instantiated: 
+
+{{{
+import volatility.plugins.registry.registryapi as registryapi
+...
+
+def calculate(self):
+    regapi = registryapi.RegistryApi(self._config)
+
+}}}
+
+or from `volshell`:
+
+{{{
+import volatility.plugins.registry.registryapi as registryapi
+regapi = registryapi.RegistryApi(self._config)
+...
+}}}
+
+At this point any of the !RegistryApi functions may be used.
 
 
-== print_offsets(self) ==
-
-Prints out the offsets of all known registry hives; Used in the case we want to check our offsets and which hive(s) was/were chosen.
+= Functions = 
 
 == populate_offsets(self) ==
 
-Gets and saves all hive offsets so we don't have to scan again.
+Gets and saves all hive offsets so we don't have to scan again.  This is called when the !RegistryApi object is instantiated. 
+
 
 == set_current(self, hive_name = None, user = None) ==
 
@@ -23,33 +45,153 @@ If we find a hive that fits the given criteria, save its offset so we don't have
 
 This function allows one to switch to a different hive/user/context
 
+== print_offsets(self) ==
+
+Prints out the offsets of all known registry hives.  This is used for checking hive offsets and which hive(s) was/were chosen.
+
+{{{
+>>> regapi.print_offsets()
+3788950368 \Device\HarddiskVolume1\Documents and Settings\Administrator\Local Settings\Application Data\Microsoft\Windows\UsrClass.dat
+3789425504 \Device\HarddiskVolume1\Documents and Settings\Administrator\NTUSER.DAT
+3782835040 \Device\HarddiskVolume1\Documents and Settings\NetworkService\Local Settings\Application Data\Microsoft\Windows\UsrClass.dat
+3782883360 \Device\HarddiskVolume1\Documents and Settings\NetworkService\NTUSER.DAT
+3780273992 \Device\HarddiskVolume1\WINDOWS\system32\config\software
+3775062024 [no name]
+3782646624 \Device\HarddiskVolume1\Documents and Settings\LocalService\Local Settings\Application Data\Microsoft\Windows\UsrClass.dat
+3780786512 \Device\HarddiskVolume1\WINDOWS\system32\config\default
+3780241928 \Device\HarddiskVolume1\WINDOWS\system32\config\SAM
+3775093600 \Device\HarddiskVolume1\WINDOWS\system32\config\system
+3778662408 [no name]
+3780371736 \Device\HarddiskVolume1\WINDOWS\system32\config\SECURITY
+2154227972 [no name]
+3783125856 \Device\HarddiskVolume1\Documents and Settings\LocalService\NTUSER.DAT
+}}}
+
+If a registry is set as current it will show up in the output:
+
+{{{
+>>> regapi.set_current("ntuser.dat")
+>>> regapi.print_offsets()
+3788950368 \Device\HarddiskVolume1\Documents and Settings\Administrator\Local Settings\Application Data\Microsoft\Windows\UsrClass.dat
+3789425504 \Device\HarddiskVolume1\Documents and Settings\Administrator\NTUSER.DAT
+3782835040 \Device\HarddiskVolume1\Documents and Settings\NetworkService\Local Settings\Application Data\Microsoft\Windows\UsrClass.dat
+3782883360 \Device\HarddiskVolume1\Documents and Settings\NetworkService\NTUSER.DAT
+3780273992 \Device\HarddiskVolume1\WINDOWS\system32\config\software
+3775062024 [no name]
+3782646624 \Device\HarddiskVolume1\Documents and Settings\LocalService\Local Settings\Application Data\Microsoft\Windows\UsrClass.dat
+3780786512 \Device\HarddiskVolume1\WINDOWS\system32\config\default
+3780241928 \Device\HarddiskVolume1\WINDOWS\system32\config\SAM
+3775093600 \Device\HarddiskVolume1\WINDOWS\system32\config\system
+3778662408 [no name]
+3780371736 \Device\HarddiskVolume1\WINDOWS\system32\config\SECURITY
+2154227972 [no name]
+3783125856 \Device\HarddiskVolume1\Documents and Settings\LocalService\NTUSER.DAT
+current 3789425504 \Device\HarddiskVolume1\Documents and Settings\Administrator\NTUSER.DAT   <-- here
+current 3782883360 \Device\HarddiskVolume1\Documents and Settings\NetworkService\NTUSER.DAT  <-- here
+current 3783125856 \Device\HarddiskVolume1\Documents and Settings\LocalService\NTUSER.DAT    <-- here
+}}}
+
+If `reset_current` is called, we can see the update in `print_offsets`:
+
+{{{
+>>> regapi.reset_current()
+>>> regapi.print_offsets()
+3788950368 \Device\HarddiskVolume1\Documents and Settings\Administrator\Local Settings\Application Data\Microsoft\Windows\UsrClass.dat
+3789425504 \Device\HarddiskVolume1\Documents and Settings\Administrator\NTUSER.DAT
+3782835040 \Device\HarddiskVolume1\Documents and Settings\NetworkService\Local Settings\Application Data\Microsoft\Windows\UsrClass.dat
+3782883360 \Device\HarddiskVolume1\Documents and Settings\NetworkService\NTUSER.DAT
+3780273992 \Device\HarddiskVolume1\WINDOWS\system32\config\software
+3775062024 [no name]
+3782646624 \Device\HarddiskVolume1\Documents and Settings\LocalService\Local Settings\Application Data\Microsoft\Windows\UsrClass.dat
+3780786512 \Device\HarddiskVolume1\WINDOWS\system32\config\default
+3780241928 \Device\HarddiskVolume1\WINDOWS\system32\config\SAM
+3775093600 \Device\HarddiskVolume1\WINDOWS\system32\config\system
+3778662408 [no name]
+3780371736 \Device\HarddiskVolume1\WINDOWS\system32\config\SECURITY
+2154227972 [no name]
+3783125856 \Device\HarddiskVolume1\Documents and Settings\LocalService\NTUSER.DAT
+}}}
+
+Below the administrator's NTUSER.DAT hive is specifically chosen:
+
+{{{
+>>> regapi.set_current(hive_name = "ntuser.dat", user = "administrator")
+>>> regapi.print_offsets()
+3788950368 \Device\HarddiskVolume1\Documents and Settings\Administrator\Local Settings\Application Data\Microsoft\Windows\UsrClass.dat
+3789425504 \Device\HarddiskVolume1\Documents and Settings\Administrator\NTUSER.DAT
+3782835040 \Device\HarddiskVolume1\Documents and Settings\NetworkService\Local Settings\Application Data\Microsoft\Windows\UsrClass.dat
+3782883360 \Device\HarddiskVolume1\Documents and Settings\NetworkService\NTUSER.DAT
+3780273992 \Device\HarddiskVolume1\WINDOWS\system32\config\software
+3775062024 [no name]
+3782646624 \Device\HarddiskVolume1\Documents and Settings\LocalService\Local Settings\Application Data\Microsoft\Windows\UsrClass.dat
+3780786512 \Device\HarddiskVolume1\WINDOWS\system32\config\default
+3780241928 \Device\HarddiskVolume1\WINDOWS\system32\config\SAM
+3775093600 \Device\HarddiskVolume1\WINDOWS\system32\config\system
+3778662408 [no name]
+3780371736 \Device\HarddiskVolume1\WINDOWS\system32\config\SECURITY
+2154227972 [no name]
+3783125856 \Device\HarddiskVolume1\Documents and Settings\LocalService\NTUSER.DAT
+current 3789425504 \Device\HarddiskVolume1\Documents and Settings\Administrator\NTUSER.DAT 
+}}}
+
+== reg_get_currentcontrolset(self, fullname = True) ==
+
+Returns the CurrentControlSet or None on failure.  If fullname is not specified, we only get the number like "1" or "2" etc.  The default is ControlSet00{#} so we can append it to the desired key path.  Returns None if it fails, so you need to verify before using.
+
+{{{
+>>> print regapi.reg_get_currentcontrolset()
+ControlSet001
+>>> print regapi.reg_get_currentcontrolset(fullname = False)
+1
+}}}
+
 == reg_get_key(self, hive_name, key, user = None, given_root = None) ==
 
-Returns a key from a requested hive; assumes this is from a single hive; if more than one hive is specified, the hive/key found is returned	
-  * `hive_name` can be None, hklm or a specific registry name (like SYSTEM)
+Returns a key object from a requested hive; assumes this is from a single hive.  If more than one hive is specified, the first key found is returned.	
+  * `hive_name` can be hklm or a specific registry name (like SYSTEM)
   * `key` is the registry key you are looking for (e.g. 'SAM\Domains\Account\Users')
   * `user` is optional if you want to find keys in a user's NTUSER.DAT registry file
   * `given_root` is optional and allows you to specify the keyroot to avoid recursing through keys
+
+{{{
+>>> regapi.reset_current()
+>>> key
+<CType pointer to [0x000247F8]>
+>>> key = regapi.reg_get_key(hive_name = "system", key = "controlset001\\Control\\ComputerName\\ComputerName") 
+>>> print key.Name
+ComputerName
+}}}
 
 == reg_yield_key(self, hive_name, key, user = None, given_root = None) ==
 
 Use this function if you are collecting keys from more than one hive.
-  * `hive_name` can be None, hklm or a specific registry name (like SYSTEM)
+  * `hive_name` can be hklm or a specific registry name (like SYSTEM)
   * `key` is the registry key you are looking for (e.g. 'SAM\Domains\Account\Users')
   * `user` is optional if you want to find keys in a user's NTUSER.DAT registry file
   * `given_root` is optional and allows you to specify the keyroot to avoid recursing through keys
 
+{{{ 
+>>> for key, current_path in regapi.reg_yield_key("ntuser.dat", "Software\\Microsoft\\Windows\\ShellNoRoam"):
+...     print key.Name, current_path
+... 
+ShellNoRoam \Device\HarddiskVolume1\Documents and Settings\Administrator\NTUSER.DAT 
+ShellNoRoam \Device\HarddiskVolume1\Documents and Settings\NetworkService\NTUSER.DAT 
+ShellNoRoam \Device\HarddiskVolume1\Documents and Settings\LocalService\NTUSER.DAT 
+}}}
+
 == reg_enum_key(self, hive_name, key, user = None) == 
 
 This function enumerates the requested key.
-  * `hive_name` can be None, hklm or a specific registry name (like SYSTEM)
+  * `hive_name` can be hklm or a specific registry name (like SYSTEM)
   * `key` is the registry key you are looking for (e.g. 'SAM\Domains\Account\Users')
   * `user` is optional if you want to find keys in a user's NTUSER.DAT registry file
+
+
 
 == reg_get_all_keys(self, hive_name, user = None, start = None, end = None, reg = False) ==
 
 This function enumerates all keys in specified hives and collects lastwrite times.
-  * `hive_name` can be None, hklm or a specific registry name (like SYSTEM)
+  * `hive_name` can be hklm or a specific registry name (like SYSTEM)
   * `user` is optional if you want to find keys in a user's NTUSER.DAT registry file
   * `start` is optional (except when end is supplied) and is the starting point of the timeline. time is of "YYYY-MM-DD HH:MM:SS" format although you can just put "YYYY-MM-DD" as well.
   * `end` is optional (except when start is supplied) and is the ending point of the timeline. time is of same format as start.
@@ -59,7 +201,7 @@ This function enumerates all keys in specified hives and collects lastwrite time
 == reg_get_all_subkeys(self, hive_name, key, user = None, given_root = None) ==
 
 This function enumerates the subkeys of the requested key.
-  * `hive_name` can be None, hklm or a specific registry name (like SYSTEM)
+  * `hive_name` can be hklm or a specific registry name (like SYSTEM)
   * `key` is the registry key you are looking for (e.g. 'SAM\Domains\Account\Users')
   * `user` is optional if you want to find keys in a user's NTUSER.DAT registry file
   * `given_root` is optional and allows you to specify the keyroot to avoid recursing through keys
@@ -67,7 +209,7 @@ This function enumerates the subkeys of the requested key.
 == reg_yield_values(self, hive_name, key, thetype = None, given_root = None) ==
 
 This function yields all values for a requested registry key.
-  * `hive_name` can be None, hklm or a specific registry name (like SYSTEM)
+  * `hive_name` can be hklm or a specific registry name (like SYSTEM)
   * `key` is the registry key you are looking for (e.g. 'SAM\Domains\Account\Users')
   * `thetype` allows you to specify a `value` type for example `REG_BINARY`, `REG_SZ`, `REG_MULTI_SZ` etc.
   * `given_root` is optional and allows you to specify the keyroot to avoid recursing through keys
@@ -75,7 +217,7 @@ This function yields all values for a requested registry key.
 == reg_get_value(self, hive_name, key, value, strcmp = None, given_root = None) ==
 
 This function returns the requested value of a registry key.
-  * `hive_name` can be None, hklm or a specific registry name (like SYSTEM)
+  * `hive_name` can be hklm or a specific registry name (like SYSTEM)
   * `key` is the registry key you are looking for (e.g. 'SAM\Domains\Account\Users')
   * `value` is the registry value you are looking for at the above key
   * `strcmp` is optional if you want to check for a particular string value.
@@ -84,7 +226,7 @@ This function returns the requested value of a registry key.
 == reg_get_last_modified(self, hive_name, count = 1, user = None, start = None, end = None, reg = False) == 
 
 Wrapper function using reg_get_all_keys. These functions can take a WHILE since all subkeys have to be collected before you can compare lastwrite times.
-  * `hive_name` can be None, hklm or a specific registry name (like SYSTEM)
+  * `hive_name` can be hklm or a specific registry name (like SYSTEM)
   * `count` is N latest lastwrite times in specified hives
   * `user` is optional if you want to find keys in a user's NTUSER.DAT registry file
   * `start` is optional (except when end is supplied) and is the starting point of the timeline. time is of "YYYY-MM-DD HH:MM:SS" format although you can just put "YYYY-MM-DD" as well.
