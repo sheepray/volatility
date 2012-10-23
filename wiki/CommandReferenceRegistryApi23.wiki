@@ -243,6 +243,7 @@ If we want to get keys from more than one hive, we can set use `set_current()` t
 2010-02-26 03:31:42  \Device\HarddiskVolume1\Documents and Settings\Administrator\NTUSER.DAT  $$$PROTO.HIV\Console
 2010-02-26 03:33:33  \Device\HarddiskVolume1\Documents and Settings\Administrator\NTUSER.DAT  $$$PROTO.HIV\Control Panel
 2010-02-26 03:31:42  \Device\HarddiskVolume1\Documents and Settings\Administrator\NTUSER.DAT  $$$PROTO.HIV\Environment
+[snip]
 }}}
 
 == reg_get_all_subkeys(self, hive_name, key, user = None, given_root = None) ==
