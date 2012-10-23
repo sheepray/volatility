@@ -210,15 +210,6 @@ This function enumerates all keys in specified hives and collects lastwrite time
   * `end` is optional (except when start is supplied) and is the ending point of the timeline. time is of same format as start.
   * `reg` is optional, but is used in timeline analysis so we can keep track of the registry name.
 
-
-== reg_get_all_subkeys(self, hive_name, key, user = None, given_root = None) ==
-
-This function enumerates the subkeys of the requested key.
-  * `hive_name` can be None, hklm or a specific registry name (like SYSTEM)
-  * `key` is the registry key you are looking for (e.g. 'SAM\Domains\Account\Users')
-  * `user` is optional if you want to find keys in a user's NTUSER.DAT registry file
-  * `given_root` is optional and allows you to specify the keyroot to avoid recursing through keys
-
 {{{
 >>> regapi.reset_current()
 >>> for lastwrite, regname, key in regapi.reg_get_all_keys(hive_name = "sam", reg = True):
@@ -236,6 +227,66 @@ This function enumerates the subkeys of the requested key.
 2010-02-25 22:22:08  \Device\HarddiskVolume1\WINDOWS\system32\config\SAM  SAM\SAM\Domains\Builtin\Aliases
 [snip]
 }}}
+
+If we want to get keys from more than one hive, we can set use `set_current()` to add hives and then specify `hive_name` as `None`:
+
+{{{
+>>> regapi.reset_current()
+>>> regapi.set_current(hive_name = "ntuser.dat")
+>>> for lastwrite, regname, key in regapi.reg_get_all_keys(None, reg = True):
+...     print lastwrite, regname, key
+... 
+2010-02-26 03:34:45  \Device\HarddiskVolume1\Documents and Settings\Administrator\NTUSER.DAT  $$$PROTO.HIV
+2010-02-26 03:31:09  \Device\HarddiskVolume1\Documents and Settings\NetworkService\NTUSER.DAT  $$$PROTO.HIV
+2010-02-26 03:31:12  \Device\HarddiskVolume1\Documents and Settings\LocalService\NTUSER.DAT  $$$PROTO.HIV
+2010-02-26 03:31:42  \Device\HarddiskVolume1\Documents and Settings\Administrator\NTUSER.DAT  $$$PROTO.HIV\AppEvents
+2010-02-26 03:31:42  \Device\HarddiskVolume1\Documents and Settings\Administrator\NTUSER.DAT  $$$PROTO.HIV\Console
+2010-02-26 03:33:33  \Device\HarddiskVolume1\Documents and Settings\Administrator\NTUSER.DAT  $$$PROTO.HIV\Control Panel
+2010-02-26 03:31:42  \Device\HarddiskVolume1\Documents and Settings\Administrator\NTUSER.DAT  $$$PROTO.HIV\Environment
+}}}
+
+== reg_get_all_subkeys(self, hive_name, key, user = None, given_root = None) ==
+
+This function enumerates the subkeys of the requested key.
+  * `hive_name` can be None, hklm or a specific registry name (like SYSTEM)
+  * `key` is the registry key you are looking for (e.g. 'SAM\Domains\Account\Users')
+  * `user` is optional if you want to find keys in a user's NTUSER.DAT registry file
+  * `given_root` is optional and allows you to specify the keyroot to avoid recursing through keys
+
+{{{
+>>> regapi.set_current(hive_name = "ntuser.dat", user = "administrator") 
+>>> for subkey in regapi.reg_get_all_subkeys(None, key = "software\\microsoft\\windows\\currentversion\\explorer"):
+...     print subkey.Name
+... 
+Advanced
+BitBucket
+CabinetState
+CD Burning
+CLSID
+ComDlg32
+Desktop
+Discardable
+FileExts
+HideDesktopIcons
+MenuOrder
+MountPoints2
+MyComputer
+NewShortcutHandlers
+RunMRU
+Shell Folders
+StartPage
+Streams
+StuckRects2
+tips
+TrayNotify
+User Shell Folders
+UserAssist
+VisualEffects
+Wallpaper
+WebView
+SessionInfo
+}}}
+
 
 == reg_yield_values(self, hive_name, key, thetype = None, given_root = None) ==
 
