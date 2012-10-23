@@ -1,0 +1,92 @@
+#summary A reference for the !RegistryApi.
+
+= Introduction =
+
+This wiki describes functions that are found in the !RegistryApi.
+
+
+== print_offsets(self) ==
+
+Prints out the offsets of all known registry hives; Used in the case we want to check our offsets and which hive(s) was/were chosen.
+
+== populate_offsets(self) ==
+
+Gets and saves all hive offsets so we don't have to scan again.
+
+== set_current(self, hive_name = None, user = None) ==
+
+If we find a hive that fits the given criteria, save its offset so we don't have to scan again. This can be reset using reset_current if context changes
+  * `hive_name` can be None, hklm or a specific registry name (like SYSTEM) 
+  * `user` is optional if you want to find keys in a user's NTUSER.DAT registry file
+
+== reset_current(self) ==
+
+This function allows one to switch to a different hive/user/context
+
+== reg_get_key(self, hive_name, key, user = None, given_root = None) ==
+
+Returns a key from a requested hive; assumes this is from a single hive; if more than one hive is specified, the hive/key found is returned	
+  * `hive_name` can be None, hklm or a specific registry name (like SYSTEM)
+  * `key` is the registry key you are looking for (e.g. 'SAM\Domains\Account\Users')
+  * `user` is optional if you want to find keys in a user's NTUSER.DAT registry file
+  * `given_root` is optional and allows you to specify the keyroot to avoid recursing through keys
+
+== reg_yield_key(self, hive_name, key, user = None, given_root = None) ==
+
+Use this function if you are collecting keys from more than one hive.
+  * `hive_name` can be None, hklm or a specific registry name (like SYSTEM)
+  * `key` is the registry key you are looking for (e.g. 'SAM\Domains\Account\Users')
+  * `user` is optional if you want to find keys in a user's NTUSER.DAT registry file
+  * `given_root` is optional and allows you to specify the keyroot to avoid recursing through keys
+
+== reg_enum_key(self, hive_name, key, user = None) == 
+
+This function enumerates the requested key.
+  * `hive_name` can be None, hklm or a specific registry name (like SYSTEM)
+  * `key` is the registry key you are looking for (e.g. 'SAM\Domains\Account\Users')
+  * `user` is optional if you want to find keys in a user's NTUSER.DAT registry file
+
+== reg_get_all_keys(self, hive_name, user = None, start = None, end = None, reg = False) ==
+
+This function enumerates all keys in specified hives and collects lastwrite times.
+  * `hive_name` can be None, hklm or a specific registry name (like SYSTEM)
+  * `user` is optional if you want to find keys in a user's NTUSER.DAT registry file
+  * `start` is optional (except when end is supplied) and is the starting point of the timeline. time is of "YYYY-MM-DD HH:MM:SS" format although you can just put "YYYY-MM-DD" as well.
+  * `end` is optional (except when start is supplied) and is the ending point of the timeline. time is of same format as start.
+  * `reg` is optional, but is used in timeline analysis so we can keep track of the registry name.
+
+
+== reg_get_all_subkeys(self, hive_name, key, user = None, given_root = None) ==
+
+This function enumerates the subkeys of the requested key.
+  * `hive_name` can be None, hklm or a specific registry name (like SYSTEM)
+  * `key` is the registry key you are looking for (e.g. 'SAM\Domains\Account\Users')
+  * `user` is optional if you want to find keys in a user's NTUSER.DAT registry file
+  * `given_root` is optional and allows you to specify the keyroot to avoid recursing through keys
+
+== reg_yield_values(self, hive_name, key, thetype = None, given_root = None) ==
+
+This function yields all values for a requested registry key.
+  * `hive_name` can be None, hklm or a specific registry name (like SYSTEM)
+  * `key` is the registry key you are looking for (e.g. 'SAM\Domains\Account\Users')
+  * `thetype` allows you to specify a `value` type for example `REG_BINARY`, `REG_SZ`, `REG_MULTI_SZ` etc.
+  * `given_root` is optional and allows you to specify the keyroot to avoid recursing through keys
+
+== reg_get_value(self, hive_name, key, value, strcmp = None, given_root = None) ==
+
+This function returns the requested value of a registry key.
+  * `hive_name` can be None, hklm or a specific registry name (like SYSTEM)
+  * `key` is the registry key you are looking for (e.g. 'SAM\Domains\Account\Users')
+  * `value` is the registry value you are looking for at the above key
+  * `strcmp` is optional if you want to check for a particular string value.
+  * `given_root` is optional and allows you to specify the keyroot to avoid recursing through keys
+
+== reg_get_last_modified(self, hive_name, count = 1, user = None, start = None, end = None, reg = False) == 
+
+Wrapper function using reg_get_all_keys. These functions can take a WHILE since all subkeys have to be collected before you can compare lastwrite times.
+  * `hive_name` can be None, hklm or a specific registry name (like SYSTEM)
+  * `count` is N latest lastwrite times in specified hives
+  * `user` is optional if you want to find keys in a user's NTUSER.DAT registry file
+  * `start` is optional (except when end is supplied) and is the starting point of the timeline. time is of "YYYY-MM-DD HH:MM:SS" format although you can just put "YYYY-MM-DD" as well.
+  * `end` is optional (except when start is supplied) and is the ending point of the timeline. time is of same format as start.
+  * `reg` is optional, but is used in timeline analysis so we can keep track of the registry name.
