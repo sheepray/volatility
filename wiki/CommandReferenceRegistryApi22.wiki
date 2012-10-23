@@ -314,7 +314,7 @@ Wrapper function using reg_get_all_keys. These functions can take a WHILE since 
   * `reg` is optional, but is used in timeline analysis so we can keep track of the registry name.
 
 {{{
->>> for regtime, keyname in regapi.reg_get_last_modified("sam", count = 25):
+>>> for regtime, keyname in regapi.reg_get_last_modified("sam", count = 25, reg = True):
 ...     print regtime, keyname
 ... 
 2010-02-26 03:34:47  SAM\SAM\Domains\Account\Users\000001F4
@@ -342,4 +342,5 @@ Wrapper function using reg_get_all_keys. These functions can take a WHILE since 
 2010-02-25 22:22:08  SAM\SAM\RXACT
 2010-02-25 22:22:08  SAM\SAM\Domains\Builtin\Users\Names
 2010-02-25 22:22:08  SAM\SAM\Domains\Builtin\Users
+>>> 
 }}}
