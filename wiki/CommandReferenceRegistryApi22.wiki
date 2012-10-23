@@ -313,10 +313,10 @@ Wrapper function using reg_get_all_keys. These functions can take a WHILE since 
   * `end` is optional (except when start is supplied) and is the ending point of the timeline. time is of same format as start.
   * `reg` is optional, but is used in timeline analysis so we can keep track of the registry name.
 
+{{{
 >>> for regtime, keyname in regapi.reg_get_last_modified("sam", count = 25):
 ...     print regtime, keyname
 ... 
-{{{
 2010-02-26 03:34:47  SAM\SAM\Domains\Account\Users\000001F4
 2010-02-26 03:28:20  SAM\SAM\Domains\Account\Users\000003EA
 2010-02-26 03:28:20  SAM\SAM\Domains\Account\Aliases\Members\S-1-5-21-789336058-1844823847-839522115\000003EA
