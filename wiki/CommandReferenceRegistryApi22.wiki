@@ -138,7 +138,7 @@ current 0xe1de0b60 \Device\HarddiskVolume1\Documents and Settings\Administrator\
 
 == reg_get_currentcontrolset(self, fullname = True) ==
 
-Returns the CurrentControlSet or None on failure.  If fullname is not specified, we only get the number like "1" or "2" etc.  The default is ControlSet00{#} so we can append it to the desired key path.  Returns None if it fails, so you need to verify before using.
+Returns the !CurrentControlSet or None on failure.  If fullname is not specified, we only get the number like "1" or "2" etc.  The default is !ControlSet00{#} so we can append it to the desired key path.  Returns None if it fails, so you need to verify before using.
 
 {{{
 >>> print regapi.reg_get_currentcontrolset()
