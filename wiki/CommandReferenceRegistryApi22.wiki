@@ -51,20 +51,20 @@ Prints out the offsets of all known registry hives.  This is used for checking h
 
 {{{
 >>> regapi.print_offsets()
-3788950368 \Device\HarddiskVolume1\Documents and Settings\Administrator\Local Settings\Application Data\Microsoft\Windows\UsrClass.dat
-3789425504 \Device\HarddiskVolume1\Documents and Settings\Administrator\NTUSER.DAT
-3782835040 \Device\HarddiskVolume1\Documents and Settings\NetworkService\Local Settings\Application Data\Microsoft\Windows\UsrClass.dat
-3782883360 \Device\HarddiskVolume1\Documents and Settings\NetworkService\NTUSER.DAT
-3780273992 \Device\HarddiskVolume1\WINDOWS\system32\config\software
-3775062024 [no name]
-3782646624 \Device\HarddiskVolume1\Documents and Settings\LocalService\Local Settings\Application Data\Microsoft\Windows\UsrClass.dat
-3780786512 \Device\HarddiskVolume1\WINDOWS\system32\config\default
-3780241928 \Device\HarddiskVolume1\WINDOWS\system32\config\SAM
-3775093600 \Device\HarddiskVolume1\WINDOWS\system32\config\system
-3778662408 [no name]
-3780371736 \Device\HarddiskVolume1\WINDOWS\system32\config\SECURITY
-2154227972 [no name]
-3783125856 \Device\HarddiskVolume1\Documents and Settings\LocalService\NTUSER.DAT
+0xe1d6cb60 \Device\HarddiskVolume1\Documents and Settings\Administrator\Local Settings\Application Data\Microsoft\Windows\UsrClass.dat
+0xe1de0b60 \Device\HarddiskVolume1\Documents and Settings\Administrator\NTUSER.DAT
+0xe1797b60 \Device\HarddiskVolume1\Documents and Settings\NetworkService\Local Settings\Application Data\Microsoft\Windows\UsrClass.dat
+0xe17a3820 \Device\HarddiskVolume1\Documents and Settings\NetworkService\NTUSER.DAT
+0xe1526748 \Device\HarddiskVolume1\WINDOWS\system32\config\software
+0xe102e008 [no name]
+0xe1769b60 \Device\HarddiskVolume1\Documents and Settings\LocalService\Local Settings\Application Data\Microsoft\Windows\UsrClass.dat
+0xe15a3950 \Device\HarddiskVolume1\WINDOWS\system32\config\default
+0xe151ea08 \Device\HarddiskVolume1\WINDOWS\system32\config\SAM
+0xe1035b60 \Device\HarddiskVolume1\WINDOWS\system32\config\system
+0xe139d008 [no name]
+0xe153e518 \Device\HarddiskVolume1\WINDOWS\system32\config\SECURITY
+0x8066e904 [no name]
+0xe17deb60 \Device\HarddiskVolume1\Documents and Settings\LocalService\NTUSER.DAT
 }}}
 
 If a registry is set as current it will show up in the output:
@@ -72,23 +72,23 @@ If a registry is set as current it will show up in the output:
 {{{
 >>> regapi.set_current("ntuser.dat")
 >>> regapi.print_offsets()
-3788950368 \Device\HarddiskVolume1\Documents and Settings\Administrator\Local Settings\Application Data\Microsoft\Windows\UsrClass.dat
-3789425504 \Device\HarddiskVolume1\Documents and Settings\Administrator\NTUSER.DAT
-3782835040 \Device\HarddiskVolume1\Documents and Settings\NetworkService\Local Settings\Application Data\Microsoft\Windows\UsrClass.dat
-3782883360 \Device\HarddiskVolume1\Documents and Settings\NetworkService\NTUSER.DAT
-3780273992 \Device\HarddiskVolume1\WINDOWS\system32\config\software
-3775062024 [no name]
-3782646624 \Device\HarddiskVolume1\Documents and Settings\LocalService\Local Settings\Application Data\Microsoft\Windows\UsrClass.dat
-3780786512 \Device\HarddiskVolume1\WINDOWS\system32\config\default
-3780241928 \Device\HarddiskVolume1\WINDOWS\system32\config\SAM
-3775093600 \Device\HarddiskVolume1\WINDOWS\system32\config\system
-3778662408 [no name]
-3780371736 \Device\HarddiskVolume1\WINDOWS\system32\config\SECURITY
-2154227972 [no name]
-3783125856 \Device\HarddiskVolume1\Documents and Settings\LocalService\NTUSER.DAT
-current 3789425504 \Device\HarddiskVolume1\Documents and Settings\Administrator\NTUSER.DAT   <-- here
-current 3782883360 \Device\HarddiskVolume1\Documents and Settings\NetworkService\NTUSER.DAT  <-- here
-current 3783125856 \Device\HarddiskVolume1\Documents and Settings\LocalService\NTUSER.DAT    <-- here
+0xe1d6cb60 \Device\HarddiskVolume1\Documents and Settings\Administrator\Local Settings\Application Data\Microsoft\Windows\UsrClass.dat
+0xe1de0b60 \Device\HarddiskVolume1\Documents and Settings\Administrator\NTUSER.DAT
+0xe1797b60 \Device\HarddiskVolume1\Documents and Settings\NetworkService\Local Settings\Application Data\Microsoft\Windows\UsrClass.dat
+0xe17a3820 \Device\HarddiskVolume1\Documents and Settings\NetworkService\NTUSER.DAT
+0xe1526748 \Device\HarddiskVolume1\WINDOWS\system32\config\software
+0xe102e008 [no name]
+0xe1769b60 \Device\HarddiskVolume1\Documents and Settings\LocalService\Local Settings\Application Data\Microsoft\Windows\UsrClass.dat
+0xe15a3950 \Device\HarddiskVolume1\WINDOWS\system32\config\default
+0xe151ea08 \Device\HarddiskVolume1\WINDOWS\system32\config\SAM
+0xe1035b60 \Device\HarddiskVolume1\WINDOWS\system32\config\system
+0xe139d008 [no name]
+0xe153e518 \Device\HarddiskVolume1\WINDOWS\system32\config\SECURITY
+0x8066e904 [no name]
+0xe17deb60 \Device\HarddiskVolume1\Documents and Settings\LocalService\NTUSER.DAT
+current 0xe1de0b60 \Device\HarddiskVolume1\Documents and Settings\Administrator\NTUSER.DAT   <-- here
+current 0xe17a3820 \Device\HarddiskVolume1\Documents and Settings\NetworkService\NTUSER.DAT  <-- here
+current 0xe17deb60 \Device\HarddiskVolume1\Documents and Settings\LocalService\NTUSER.DAT    <-- here
 }}}
 
 If `reset_current` is called, we can see the update in `print_offsets`:
@@ -96,20 +96,21 @@ If `reset_current` is called, we can see the update in `print_offsets`:
 {{{
 >>> regapi.reset_current()
 >>> regapi.print_offsets()
-3788950368 \Device\HarddiskVolume1\Documents and Settings\Administrator\Local Settings\Application Data\Microsoft\Windows\UsrClass.dat
-3789425504 \Device\HarddiskVolume1\Documents and Settings\Administrator\NTUSER.DAT
-3782835040 \Device\HarddiskVolume1\Documents and Settings\NetworkService\Local Settings\Application Data\Microsoft\Windows\UsrClass.dat
-3782883360 \Device\HarddiskVolume1\Documents and Settings\NetworkService\NTUSER.DAT
-3780273992 \Device\HarddiskVolume1\WINDOWS\system32\config\software
-3775062024 [no name]
-3782646624 \Device\HarddiskVolume1\Documents and Settings\LocalService\Local Settings\Application Data\Microsoft\Windows\UsrClass.dat
-3780786512 \Device\HarddiskVolume1\WINDOWS\system32\config\default
-3780241928 \Device\HarddiskVolume1\WINDOWS\system32\config\SAM
-3775093600 \Device\HarddiskVolume1\WINDOWS\system32\config\system
-3778662408 [no name]
-3780371736 \Device\HarddiskVolume1\WINDOWS\system32\config\SECURITY
-2154227972 [no name]
-3783125856 \Device\HarddiskVolume1\Documents and Settings\LocalService\NTUSER.DAT
+0xe1d6cb60 \Device\HarddiskVolume1\Documents and Settings\Administrator\Local Settings\Application Data\Microsoft\Windows\UsrClass.dat
+0xe1de0b60 \Device\HarddiskVolume1\Documents and Settings\Administrator\NTUSER.DAT
+0xe1797b60 \Device\HarddiskVolume1\Documents and Settings\NetworkService\Local Settings\Application Data\Microsoft\Windows\UsrClass.dat
+0xe17a3820 \Device\HarddiskVolume1\Documents and Settings\NetworkService\NTUSER.DAT
+0xe1526748 \Device\HarddiskVolume1\WINDOWS\system32\config\software
+0xe102e008 [no name]
+0xe1769b60 \Device\HarddiskVolume1\Documents and Settings\LocalService\Local Settings\Application Data\Microsoft\Windows\UsrClass.dat
+0xe15a3950 \Device\HarddiskVolume1\WINDOWS\system32\config\default
+0xe151ea08 \Device\HarddiskVolume1\WINDOWS\system32\config\SAM
+0xe1035b60 \Device\HarddiskVolume1\WINDOWS\system32\config\system
+0xe139d008 [no name]
+0xe153e518 \Device\HarddiskVolume1\WINDOWS\system32\config\SECURITY
+0x8066e904 [no name]
+0xe17deb60 \Device\HarddiskVolume1\Documents and Settings\LocalService\NTUSER.DAT
+>>>
 }}}
 
 Below the administrator's NTUSER.DAT hive is specifically chosen:
@@ -117,21 +118,22 @@ Below the administrator's NTUSER.DAT hive is specifically chosen:
 {{{
 >>> regapi.set_current(hive_name = "ntuser.dat", user = "administrator")
 >>> regapi.print_offsets()
-3788950368 \Device\HarddiskVolume1\Documents and Settings\Administrator\Local Settings\Application Data\Microsoft\Windows\UsrClass.dat
-3789425504 \Device\HarddiskVolume1\Documents and Settings\Administrator\NTUSER.DAT
-3782835040 \Device\HarddiskVolume1\Documents and Settings\NetworkService\Local Settings\Application Data\Microsoft\Windows\UsrClass.dat
-3782883360 \Device\HarddiskVolume1\Documents and Settings\NetworkService\NTUSER.DAT
-3780273992 \Device\HarddiskVolume1\WINDOWS\system32\config\software
-3775062024 [no name]
-3782646624 \Device\HarddiskVolume1\Documents and Settings\LocalService\Local Settings\Application Data\Microsoft\Windows\UsrClass.dat
-3780786512 \Device\HarddiskVolume1\WINDOWS\system32\config\default
-3780241928 \Device\HarddiskVolume1\WINDOWS\system32\config\SAM
-3775093600 \Device\HarddiskVolume1\WINDOWS\system32\config\system
-3778662408 [no name]
-3780371736 \Device\HarddiskVolume1\WINDOWS\system32\config\SECURITY
-2154227972 [no name]
-3783125856 \Device\HarddiskVolume1\Documents and Settings\LocalService\NTUSER.DAT
-current 3789425504 \Device\HarddiskVolume1\Documents and Settings\Administrator\NTUSER.DAT 
+0xe1d6cb60 \Device\HarddiskVolume1\Documents and Settings\Administrator\Local Settings\Application Data\Microsoft\Windows\UsrClass.dat
+0xe1de0b60 \Device\HarddiskVolume1\Documents and Settings\Administrator\NTUSER.DAT
+0xe1797b60 \Device\HarddiskVolume1\Documents and Settings\NetworkService\Local Settings\Application Data\Microsoft\Windows\UsrClass.dat
+0xe17a3820 \Device\HarddiskVolume1\Documents and Settings\NetworkService\NTUSER.DAT
+0xe1526748 \Device\HarddiskVolume1\WINDOWS\system32\config\software
+0xe102e008 [no name]
+0xe1769b60 \Device\HarddiskVolume1\Documents and Settings\LocalService\Local Settings\Application Data\Microsoft\Windows\UsrClass.dat
+0xe15a3950 \Device\HarddiskVolume1\WINDOWS\system32\config\default
+0xe151ea08 \Device\HarddiskVolume1\WINDOWS\system32\config\SAM
+0xe1035b60 \Device\HarddiskVolume1\WINDOWS\system32\config\system
+0xe139d008 [no name]
+0xe153e518 \Device\HarddiskVolume1\WINDOWS\system32\config\SECURITY
+0x8066e904 [no name]
+0xe17deb60 \Device\HarddiskVolume1\Documents and Settings\LocalService\NTUSER.DAT
+current 0xe1de0b60 \Device\HarddiskVolume1\Documents and Settings\Administrator\NTUSER.DAT 
+>>>
 }}}
 
 == reg_get_currentcontrolset(self, fullname = True) ==
@@ -181,11 +183,22 @@ ShellNoRoam \Device\HarddiskVolume1\Documents and Settings\LocalService\NTUSER.D
 
 == reg_enum_key(self, hive_name, key, user = None) == 
 
-This function enumerates the requested key.
+This function enumerates the subkeys of the requested key.
   * `hive_name` can be hklm or a specific registry name (like SYSTEM)
   * `key` is the registry key you are looking for (e.g. 'SAM\Domains\Account\Users')
   * `user` is optional if you want to find keys in a user's NTUSER.DAT registry file
 
+{{{
+>>> regapi.reset_current()
+>>> regapi.set_current(hive_name = "ntuser.dat", user = "administrator")
+>>> for keypath in regapi.reg_enum_key("ntuser.dat", "Software\\Microsoft\\Windows\\ShellNoRoam"):
+...     print keypath
+... 
+Software\Microsoft\Windows\ShellNoRoam\BagMRU
+Software\Microsoft\Windows\ShellNoRoam\Bags
+Software\Microsoft\Windows\ShellNoRoam\DUIBags
+Software\Microsoft\Windows\ShellNoRoam\MUICache
+}}}
 
 
 == reg_get_all_keys(self, hive_name, user = None, start = None, end = None, reg = False) ==
@@ -206,6 +219,24 @@ This function enumerates the subkeys of the requested key.
   * `user` is optional if you want to find keys in a user's NTUSER.DAT registry file
   * `given_root` is optional and allows you to specify the keyroot to avoid recursing through keys
 
+{{{
+>>> regapi.reset_current()
+>>> for lastwrite, regname, key in regapi.reg_get_all_keys(hive_name = "sam", reg = True):
+...     print lastwrite, regname, key
+... 
+2010-02-25 22:22:08  \Device\HarddiskVolume1\WINDOWS\system32\config\SAM  SAM
+2010-02-25 22:22:08  \Device\HarddiskVolume1\WINDOWS\system32\config\SAM  SAM\SAM
+2010-02-25 22:22:08  \Device\HarddiskVolume1\WINDOWS\system32\config\SAM  SAM\SAM\Domains
+2010-02-25 22:22:08  \Device\HarddiskVolume1\WINDOWS\system32\config\SAM  SAM\SAM\RXACT
+2010-02-26 03:28:20  \Device\HarddiskVolume1\WINDOWS\system32\config\SAM  SAM\SAM\Domains\Account
+2010-02-25 22:22:43  \Device\HarddiskVolume1\WINDOWS\system32\config\SAM  SAM\SAM\Domains\Builtin
+2010-02-26 03:27:57  \Device\HarddiskVolume1\WINDOWS\system32\config\SAM  SAM\SAM\Domains\Account\Aliases
+2010-02-25 22:22:08  \Device\HarddiskVolume1\WINDOWS\system32\config\SAM  SAM\SAM\Domains\Account\Groups
+2010-02-26 03:28:19  \Device\HarddiskVolume1\WINDOWS\system32\config\SAM  SAM\SAM\Domains\Account\Users
+2010-02-25 22:22:08  \Device\HarddiskVolume1\WINDOWS\system32\config\SAM  SAM\SAM\Domains\Builtin\Aliases
+[snip]
+}}}
+
 == reg_yield_values(self, hive_name, key, thetype = None, given_root = None) ==
 
 This function yields all values for a requested registry key.
@@ -213,6 +244,36 @@ This function yields all values for a requested registry key.
   * `key` is the registry key you are looking for (e.g. 'SAM\Domains\Account\Users')
   * `thetype` allows you to specify a `value` type for example `REG_BINARY`, `REG_SZ`, `REG_MULTI_SZ` etc.
   * `given_root` is optional and allows you to specify the keyroot to avoid recursing through keys
+
+{{{
+>>> regapi.reset_current()
+>>> regapi.set_current(hive_name = "ntuser.dat", user = "administrator")
+>>> for value, data in regapi.reg_yield_values(hive_name = "ntuser.dat", key = "Software\\Microsoft\\Windows\\ShellNoRoam", thetype = "REG_SZ"):
+...     print value, data
+... 
+ BOB-DCADFEDC55C
+}}}
+
+We can see that this is correct using `printkey`:
+
+{{{
+$ ./vol.py -f Bob.vmem printkey -K "Software\Microsoft\Windows\ShellNoRoam"
+[snip]
+----------------------------
+Registry: \Device\HarddiskVolume1\Documents and Settings\Administrator\NTUSER.DAT
+Key name: ShellNoRoam (S)
+Last updated: 2010-02-26 03:34:52 
+
+Subkeys:
+  (S) BagMRU
+  (S) Bags
+  (S) DUIBags
+  (S) MUICache
+
+Values:
+REG_SZ                        : (S) BOB-DCADFEDC55C  <-- here
+REG_DWORD     BagMRU Size     : (S) 5000
+}}}
 
 == reg_get_value(self, hive_name, key, value, strcmp = None, given_root = None) ==
 
