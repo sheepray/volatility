@@ -150,13 +150,14 @@ Volatility 2.3 is scheduled for release before the end of 2012.
           * [CommandReferenceMal22#devicetree devicetree] - Show device tree
           * [CommandReferenceMal22#psxview psxview] - Find hidden processes with various process listings
           * [CommandReferenceMal22#timers timers] - Print kernel timers and associated module DPCs (x86 only)
+      * *File System*
+          * <font color="red">(new)</font> [CommandReference23#mbrparser mbrparser] - Scans for and parses potential Master Boot Records (MBRs)
+          * <font color="red">(new)</font> [CommandReference23#mftparser mftparser] - Scans for and parses potential MFT entries
       * *Miscellaneous*
           * [CommandReference22#strings strings] - Match physical offsets to virtual addresses
           * [CommandReference22#volshell volshell] - Shell to interactively explore a memory image
           * [CommandReference22#bioskbd bioskbd] - Reads the keyboard buffer from Real Mode memory
           * [CommandReference22#patcher patcher] - Patches memory based on page scans
-          * <font color="red">(new)</font> [CommandReference23#mbrparser mbrparser] - Scans for and parses potential Master Boot Records (MBRs)
-          * <font color="red">(new)</font> [CommandReference23#mftparser mftparser] - Scans for and parses potential MFT entries
   * *Linux*
       * *Processes*
           * [LinuxCommandReference22#linux_pslist linux_pslist] - Gather active tasks by walking the task_struct->task list
