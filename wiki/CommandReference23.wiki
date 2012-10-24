@@ -2024,7 +2024,7 @@ Disassembly of Bootable Code:
 
 == mftparser == 
 
-This plugin scans for potential Master File Table (MFT) entries in memory (using "FILE" and "BAAD" signatures) and prints out information for certain attributes, currently: `$FILE_NAME` (`$FN`), `$STANDARD_INFORMATION` (`$SI`), `$FN` and `SI` attributes from the `$ATTRIBUTE_LIST`, `$OBJECT_ID` (default output only) and resident `$DATA` (default output only).  This plugin has room for expansion, however and vtypes for other attributes are already included.  For more information please see [http://volatility-labs.blogspot.com/2012/10/omfw-2012-reconstructing-mbr-and-mft.html Reconstructing the MBR and MFT from Memory (OMFW 2012 slides)].  Options of interest include: 
+This plugin scans for potential Master File Table (MFT) entries in memory (using "FILE" and "BAAD" signatures) and prints out information for certain attributes, currently: `$FILE_NAME` (`$FN`), `$STANDARD_INFORMATION` (`$SI`), `$FN` and `$SI` attributes from the `$ATTRIBUTE_LIST`, `$OBJECT_ID` (default output only) and resident `$DATA` (default output only).  This plugin has room for expansion, however and vtypes for other attributes are already included.  For more information please see [http://volatility-labs.blogspot.com/2012/10/omfw-2012-reconstructing-mbr-and-mft.html Reconstructing the MBR and MFT from Memory (OMFW 2012 slides)].  Options of interest include: 
 
   * `-C/--check` - only print out attributes with non-null timestamps
   * `--output=body` - print output in [http://wiki.sleuthkit.org/index.php?title=Body_file Sleuthkit 3.X body format]
