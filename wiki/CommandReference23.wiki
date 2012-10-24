@@ -1938,7 +1938,7 @@ Writing data (5.00 MB chunks): |................................................
 
 == mbrparser ==
 
-Scans for and parses potential Master Boot Records (MBRs).  There are different options for finding MBRs and filtering output.  For more information please see [http://volatility-labs.blogspot.com/2012/10/movp-43-recovering-master-boot-records.html Recovering Master Boot Records (MBRs) from Memory].  While this plugin was written with Windows bootkits in mind, it can also be used with memory samples.
+Scans for and parses potential Master Boot Records (MBRs).  There are different options for finding MBRs and filtering output.  For more information please see [http://volatility-labs.blogspot.com/2012/10/movp-43-recovering-master-boot-records.html Recovering Master Boot Records (MBRs) from Memory].  While this plugin was written with Windows bootkits in mind, it can also be used with memory samples from other systems.
 
 When run without any extra options, `mbrparser` scans for and returns information all potential MBRs defined by signature ('\x55\xaa') found in memory.  Information includes: disassembly of bootcode (must have [http://code.google.com/p/distorm/ distorm3] installed) and partition information.  This will most likely have false positives.
 
@@ -2024,7 +2024,12 @@ Disassembly of Bootable Code:
 
 == mftparser == 
 
+This plugin scans for potential Master File Table (MFT) entries in memory (using "FILE" and "BAAD" signatures) and prints out information for certain attributes (currently `$FILE_NAME`, `$STANDARD_INFORMATION` and `$DATA`).  For more information please see [http://volatility-labs.blogspot.com/2012/10/omfw-2012-reconstructing-mbr-and-mft.html Reconstructing the MBR and MFT from Memory (OMFW 2012 slides)].  Options of interest include: 
 
+  * `-C/--check` - only print out attributes with non-null timestamps
+  * `--output=body` - print output in [http://wiki.sleuthkit.org/index.php?title=Body_file Sleuthkit 3.X body format]
+
+This plugin may take a while to run before seeing output, since it scans first and then builds the directory tree for full file paths.
 
 = Miscellaneous =
 
