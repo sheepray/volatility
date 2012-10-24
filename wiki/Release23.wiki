@@ -7,7 +7,7 @@ Volatility 2.3 is scheduled for release before the end of 2012.
 = Release Highlights = 
 
  * Windows 
-    * new plugins: iehistory, shellbags, dumpfiles, mbrparser
+    * new plugins: iehistory, shellbags, dumpfiles, mbrparser, mftparser
     * apihooks detects duqu style instruction modifications (MOV reg32, imm32; JMP reg32)
     * crashinfo displays uptime, systemtime, and dump type (i.e. kernel, complete, etc)
     * psxview plugin adds two new sources of process listings from the GUI APIs 
@@ -126,6 +126,7 @@ Volatility 2.3 is scheduled for release before the end of 2012.
           * [CommandReference22#userassist userassist] - Parses and output User Assist keys from the registry
           * [CommandReference21#shimcache shimcache] - Parses the Application Compatibility Shim Cache registry key
           * [CommandReference22#getservicesids getservicesids] - Calculate SIDs for windows services in the registry
+          * <font color='red'>(new)</font> [CommandReference22#shellbags shellbags] - This plugin parses and prints Shellbag information obtained from the registry
       * *File Formats*
           * [CommandReference22#crashinfo crashinfo] - Dump crash-dump information
           * [CommandReference22#hibinfo hibinfo] - Dump hibernation file information
@@ -154,6 +155,8 @@ Volatility 2.3 is scheduled for release before the end of 2012.
           * [CommandReference22#volshell volshell] - Shell to interactively explore a memory image
           * [CommandReference22#bioskbd bioskbd] - Reads the keyboard buffer from Real Mode memory
           * [CommandReference22#patcher patcher] - Patches memory based on page scans
+          * <font color="red">(new)</font> mbrparser - Scans for and parses potential Master Boot Records (MBRs)
+          * <font color="red">(new)</font> mftparser - Scans for and parses potential MFT entries
   * *Linux*
       * *Processes*
           * [LinuxCommandReference22#linux_pslist linux_pslist] - Gather active tasks by walking the task_struct->task list
