@@ -27,7 +27,7 @@ Volatility 2.1 was released August 2012.
     * apihooks detects LSP/winsock procedure tables
   * New Output Formatting Support (Table Rendering)
   * New Mechanism for Profile Modifications
-  * New Registry API Support
+  * New [CommandReferenceRegistryApi22 Registry API Support]
   * New Volshell Commands
   * Updated Documentation and Command Reference
 
