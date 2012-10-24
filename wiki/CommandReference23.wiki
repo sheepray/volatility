@@ -2109,6 +2109,7 @@ Scanning for MFT entries and building directory, this can take a while
 (FN) 0x1d800|WINDOWS\Prefetch\SETUP.EXE-07EE9DA4.pf|11454|---a-------I---|0|0|480|1267155973|1267155973|1267155973|1267155973
 (SI) 0x1dc00||11455|-----------I---|0|0|464|1267300267|1267300267|1267300267|1267155974
 (FN) 0x1dc00|System Volume Information\_restore{834817DC-A3FD-4C6D-B5EC-0713C53C7E4B}\RP3|11455|-----------I-D-|0|0|464|1267155974|1267155974|1267155974|1267155974
+[snip]
 }}}
 
 It is recommended that the output be stored in a file using the `--output-file` option, since it is quite lengthy. For example:
