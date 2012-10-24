@@ -155,8 +155,8 @@ Volatility 2.3 is scheduled for release before the end of 2012.
           * [CommandReference22#volshell volshell] - Shell to interactively explore a memory image
           * [CommandReference22#bioskbd bioskbd] - Reads the keyboard buffer from Real Mode memory
           * [CommandReference22#patcher patcher] - Patches memory based on page scans
-          * <font color="red">(new)</font> mbrparser - Scans for and parses potential Master Boot Records (MBRs)
-          * <font color="red">(new)</font> mftparser - Scans for and parses potential MFT entries
+          * <font color="red">(new)</font> [CommandReference22#mbrparser mbrparser] - Scans for and parses potential Master Boot Records (MBRs)
+          * <font color="red">(new)</font> [CommandReference22#mftparser mftparser] - Scans for and parses potential MFT entries
   * *Linux*
       * *Processes*
           * [LinuxCommandReference22#linux_pslist linux_pslist] - Gather active tasks by walking the task_struct->task list
