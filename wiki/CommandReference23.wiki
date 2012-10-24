@@ -1934,6 +1934,44 @@ Volatile Systems Volatility Framework 2.1_alpha
 Writing data (5.00 MB chunks): |..............................................................................|
 }}}
 
+= File System =
+
+== mbrparser ==
+
+Scans for and parses potential Master Boot Records (MBRs).  There are different options for finding MBRs and filtering output.  For more information please see [http://volatility-labs.blogspot.com/2012/10/movp-43-recovering-master-boot-records.html Recovering Master Boot Records (MBRs) from Memory].  While this plugin was written with Windows bootkits in mind, it can also be used with memory samples.
+
+When run without any extra options, `mbrparser` scans for and returns information all potential MBRs defined by signature ('\x55\xaa') found in memory.  Information includes: disassembly of bootcode (must have [http://code.google.com/p/distorm/ distorm3] installed) and partition information.  This will most likely have false positives.
+
+If distorm3 is not installed, the `-H/--hex` option can be used to get the entire bootcode section in hex instead of disassembly:
+
+{{{
+$ python -f [sample] mbrparser -H
+}}}
+
+If the physical offset of the MBR is known, it can be specified with the `-o/--offset=` option for example:
+
+{{{
+$ python -f [sample] -o 0x600 mbrparser
+}}}
+
+If the md5 hash of the desired bootcode is known, one can be specified using either the `-M/--hash` (the hash of bootcode up to the RET instruction) or `-F/--fullhash` (the hash of full bootcode) option.
+
+{{{
+$ python vol.py mbrparser -f AnalysisXPSP3.vmem -M 6010862faee6d5e314aba791380d4f41
+}}}
+
+or 
+
+{{{
+$ python vol.py mbrparser -f AnalysisXPSP3.vmem -F 6010862faee6d5e314aba791380d4f41
+}}}
+
+In order to cut down on false positives there is a `-C/--check` option that checks the partition table for at least one bootable partition and that at least one partition has a valid, nonempty type. 
+
+== mftparser == 
+
+
+
 = Miscellaneous =
 
 == strings ==
