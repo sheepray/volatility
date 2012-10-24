@@ -1945,13 +1945,13 @@ When run without any extra options, `mbrparser` scans for and returns informatio
 If distorm3 is not installed, the `-H/--hex` option can be used to get the entire bootcode section in hex instead of disassembly:
 
 {{{
-$ python -f [sample] mbrparser -H
+$ python vol.py -f [sample] mbrparser -H
 }}}
 
 If the physical offset of the MBR is known, it can be specified with the `-o/--offset=` option for example:
 
 {{{
-$ python -f [sample] -o 0x600 mbrparser
+$ python vol.py -f [sample] -o 0x600 mbrparser
 }}}
 
 If the md5 hash of the desired bootcode is known, one can be specified using either the `-M/--hash` (the hash of bootcode up to the RET instruction) or `-F/--fullhash` (the hash of full bootcode) option.
@@ -1967,6 +1967,60 @@ $ python vol.py mbrparser -f AnalysisXPSP3.vmem -F 6010862faee6d5e314aba791380d4
 }}}
 
 In order to cut down on false positives there is a `-C/--check` option that checks the partition table for at least one bootable partition and that at least one partition has a valid, nonempty type. 
+
+{{{
+$ python vol.py -f [sample] -C mbrparser
+}}}
+
+There is also an option to change the offset for the start of the disassembly.  This can be useful for investigating machines (like Windows XP) that only copy the part of the MBR bootcode that has not yet executed.  For example, before changing the offset:
+
+{{{
+$ python vol.py mbrparser -f AnalysisXPSP3.vmem -o 0x600 
+Volatile Systems Volatility Framework 2.3_alpha
+Potential MBR at physical offset: 0x600
+Disk Signature: d8-8f-d8-8f
+Bootcode md5: c1ca166a3417427890520bbb18911b1f
+Bootcode (FULL) md5: c0bf3a94515bbd70e5a0af82f1804d89
+Disassembly of Bootable Code:
+0x00000600: 0000                             ADD [BX+SI], AL
+0x00000602: 0000                             ADD [BX+SI], AL
+0x00000604: 0000                             ADD [BX+SI], AL
+0x00000606: 0000                             ADD [BX+SI], AL
+0x00000608: 0000                             ADD [BX+SI], AL
+0x0000060a: 0000                             ADD [BX+SI], AL
+0x0000060c: 0000                             ADD [BX+SI], AL
+0x0000060e: 0000                             ADD [BX+SI], AL
+0x00000610: 0000                             ADD [BX+SI], AL
+0x00000612: 0000                             ADD [BX+SI], AL
+0x00000614: 0000                             ADD [BX+SI], AL
+0x00000616: 0000                             ADD [BX+SI], AL
+0x00000618: 0000                             ADD [BX+SI], AL
+0x0000061a: 00bdbe07                         ADD [DI+0x7be], BH
+0x0000061e: b104                             MOV CL, 0x4
+0x00000620: 386e00                           CMP [BP+0x0], CH
+[snip]
+}}}
+
+After changing the starting offset:
+
+{{{
+$ python vol.py mbrparser -f AnalysisXPSP3.vmem -o 0x600 -D 0x1b
+Volatile Systems Volatility Framework 2.3_alpha
+Potential MBR at physical offset: 0x600
+Disk Signature: d8-8f-d8-8f
+Bootcode md5: 961f3ad835d6fa9396e60ea9f825c393
+Bootcode (FULL) md5: f54546c199c72389f20d537997d50c66
+Disassembly of Bootable Code:
+0x0000061b: bdbe07                           MOV BP, 0x7be
+0x0000061e: b104                             MOV CL, 0x4
+0x00000620: 386e00                           CMP [BP+0x0], CH
+0x00000623: 7c09                             JL 0x13
+0x00000625: 7513                             JNZ 0x1f
+0x00000627: 83c510                           ADD BP, 0x10
+0x0000062a: e2f4                             LOOP 0x5
+[snip]
+}}}
+
 
 == mftparser == 
 
