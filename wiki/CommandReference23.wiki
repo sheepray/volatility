@@ -2123,8 +2123,7 @@ Sat Feb 27 2010 15:12:33      480 mac. ---a----------- 0        0        10229
 [snip]                              
                               488 macb ---a-------I--- 0        0        12095    WINDOWS\Prefetch\ACRORD32.EXE-20C463C1.pf                              
                               488 macb ---a-------I--- 0        0        12095    WINDOWS\Prefetch\ACRORD~1.PF
-Sat Feb 27 2010 15:12:34      
-                              480 m... ---a----------- 0        0        10119    
+Sat Feb 27 2010 15:12:34      480 m... ---a----------- 0        0        10119    
 [snip]                              
                               344 macb ---a----------- 0        0        12096    WINDOWS\system32\sdra64.exe                              
                               344 macb -------------D- 0        0        12097    WINDOWS\system32\lowsec
