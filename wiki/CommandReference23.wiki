@@ -2024,12 +2024,102 @@ Disassembly of Bootable Code:
 
 == mftparser == 
 
-This plugin scans for potential Master File Table (MFT) entries in memory (using "FILE" and "BAAD" signatures) and prints out information for certain attributes (currently `$FILE_NAME`, `$STANDARD_INFORMATION` and `$DATA`).  For more information please see [http://volatility-labs.blogspot.com/2012/10/omfw-2012-reconstructing-mbr-and-mft.html Reconstructing the MBR and MFT from Memory (OMFW 2012 slides)].  Options of interest include: 
+This plugin scans for potential Master File Table (MFT) entries in memory (using "FILE" and "BAAD" signatures) and prints out information for certain attributes, currently: `$FILE_NAME` (`$FN`), `$STANDARD_INFORMATION` (`$SI`), `$FN` and `SI` attributes from the `$ATTRIBUTE_LIST`, `$OBJECT_ID` (default output only) and resident `$DATA` (default output only).  This plugin has room for expansion, however and vtypes for other attributes are already included.  For more information please see [http://volatility-labs.blogspot.com/2012/10/omfw-2012-reconstructing-mbr-and-mft.html Reconstructing the MBR and MFT from Memory (OMFW 2012 slides)].  Options of interest include: 
 
   * `-C/--check` - only print out attributes with non-null timestamps
   * `--output=body` - print output in [http://wiki.sleuthkit.org/index.php?title=Body_file Sleuthkit 3.X body format]
 
 This plugin may take a while to run before seeing output, since it scans first and then builds the directory tree for full file paths.
+
+Example (default output):
+
+{{{
+$ python vol.py -f Bob.vmem mftparser
+Volatile Systems Volatility Framework 2.3_alpha
+Scanning for MFT entries and building directory, this can take a while
+[snip]
+***************************************************************************
+MFT entry found at offset 0x2254c00
+Type: In Use & File
+Record Number: 11347
+Link count: 2
+
+
+$STANDARD_INFORMATION
+Creation             Modified             MFT Altered          Access Date          Type
+-------------------- -------------------- -------------------- -------------------- ----
+2010-02-26 03:43:14  2010-02-26 03:43:14  2010-02-26 03:43:14  2010-02-26 03:43:14  Archive
+
+$FILE_NAME
+Creation             Modified             MFT Altered          Access Date          Name/Path
+-------------------- -------------------- -------------------- -------------------- ---------
+2010-02-26 03:43:14  2010-02-26 03:43:14  2010-02-26 03:43:14  2010-02-26 03:43:14  Documents and Settings\Administrator\Cookies\AD7753~1.TXT
+
+$FILE_NAME
+Creation             Modified             MFT Altered          Access Date          Name/Path
+-------------------- -------------------- -------------------- -------------------- ---------
+2010-02-26 03:43:14  2010-02-26 03:43:14  2010-02-26 03:43:14  2010-02-26 03:43:14  Documents and Settings\Administrator\Cookies\administrator@ad.wsod[2].txt
+
+$DATA
+0000000000: 75 5f 31 0a 34 62 38 37 34 33 35 62 63 39 61 65   u_1.4b87435bc9ae
+0000000010: 66 0a 61 64 2e 77 73 6f 64 2e 63 6f 6d 2f 0a 31   f.ad.wsod.com/.1
+0000000020: 30 32 34 0a 33 35 30 32 35 30 35 38 35 36 0a 33   024.3502505856.3
+0000000030: 30 30 36 38 32 36 34 0a 33 35 34 31 34 36 03 00   0068264.354146..
+0000000040: 31 36 0a 33 30 30 36 32 32 32 39 0a 2a 0a 69 5f   16.30062229.*.i_
+0000000050: 31 0a 33 33 3a 37 32 33 3a 33 33 38 3a 30 3a 31   1.33:723:338:0:1
+0000000060: 32 33 37 38 3a 31 3a 31 3a 31 3a 31 32 36 37 31   2378:1:1:1:12671
+0000000070: 35 35 38 30 33 3a 30 3a 4c 0a 61 64 2e 77 73 6f   55803:0:L.ad.wso
+0000000080: 64 2e 63 6f 6d 2f 0a 31 30 32 34 0a 33 35 30 32   d.com/.1024.3502
+0000000090: 35 30 35 38 35 36 0a 33 30 30 36 38 32 36 34 0a   505856.30068264.
+00000000a0: 33 35 34 31 34 36 37 32 31 36 0a 33 30 30 36 32   3541467216.30062
+00000000b0: 32 32 39 0a 2a 0a                                 229.*.
+
+***************************************************************************
+}}}
+
+The bodyfile output is also an option.  The normal MD5 column is replaced with indicators for which attribute was found and its physical offset in memory:
+
+{{{
+$ ./vol.py -f Bob.vmem mftparser --output=body
+Volatile Systems Volatility Framework 2.3_alpha
+Scanning for MFT entries and building directory, this can take a while
+(SI) 0x1d000||11452|r--a-----------|0|0|344|1267155966|1053372834|1267155973|1267155960
+(FN) 0x1d000|WINDOWS\Cache\Adobe Reader 6.0\ENUBIG\Setup.ini|11452|---a-----------|0|0|344|1267155960|1267155960|1267155960|1267155960
+(SI) 0x1d400||11453|---a--t--------|0|0|488|1267155973|1267155973|1267155973|1267155973
+(FN) 0x1d400|Documents and Settings\Administrator\Local Settings\Temp\PERFLI~1.DAT|11453|---a--t--------|0|0|488|1267155973|1267155973|1267155973|1267155973
+(FN) 0x1d400|Documents and Settings\Administrator\Local Settings\Temp\Perflib_Perfdata_f4.dat|11453|---a--t--------|0|0|488|1267155973|1267155973|1267155973|1267155973
+(SI) 0x1d800||11454|---a-------I---|0|0|480|1267155973|1267155973|1267155973|1267155973
+(FN) 0x1d800|WINDOWS\Prefetch\SETUPE~2.PF|11454|---a-------I---|0|0|480|1267155973|1267155973|1267155973|1267155973
+(FN) 0x1d800|WINDOWS\Prefetch\SETUP.EXE-07EE9DA4.pf|11454|---a-------I---|0|0|480|1267155973|1267155973|1267155973|1267155973
+(SI) 0x1dc00||11455|-----------I---|0|0|464|1267300267|1267300267|1267300267|1267155974
+(FN) 0x1dc00|System Volume Information\_restore{834817DC-A3FD-4C6D-B5EC-0713C53C7E4B}\RP3|11455|-----------I-D-|0|0|464|1267155974|1267155974|1267155974|1267155974
+}}}
+
+It is recommended that the output be stored in a file using the `--output-file` option, since it is quite lengthy. For example:
+
+{{{
+$ python vol.py -f Bob.vmem mftparser --output=body --output-file=bob_body.txt
+}}}
+
+The Sleuthkit `mactime` utility can then be used to output the bodyfile in a readable manner:
+
+{{{
+$ mactime -b bob_body.txt > bob_mactime.txt
+$ cat bob_mactime.txt
+[snip]
+
+Sat Feb 27 2010 15:12:32      480 ..c. ---a----------- 0        0        10268    [snip]
+                              456 macb ---a----------- 0        0        12091    Documents and Settings\Administrator\Cookies\ADMINI~1.TXT
+                              480 macb ---a----------- 0        0        12091    Documents and Settings\Administrator\Cookies\administrator@search-network-plus[1].txt
+                              480 macb ---a----------- 0        0        12092                                  488 macb ---a----------- 0        0        12092    Documents and Settings\Administrator\Local Settings\Temporary Internet Files\Content.IE5\Y9UHCP2P\FILE_1~1.EXE                              488 macb ---a----------- 0        0        12092    Documents and Settings\Administrator\Local Settings\Temporary Internet Files\Content.IE5\Y9UHCP2P\file[1].exe                              488 macb ---a----------- 0        0        12093    Documents and Settings\Administrator\Local Settings\Temporary Internet Files\Content.IE5\Y9UHCP2P\FILE_2~1.EXE                              488 macb ---a----------- 0        0        12093    Documents and Settings\Administrator\Local Settings\Temporary Internet Files\Content.IE5\Y9UHCP2P\file[2].exe                              288 macb ---a----------- 0        0        12094    Documents and Settings\Administrator\Local Settings\Temp\e.exe[snip]Sat Feb 27 2010 15:12:33      480 mac. ---a----------- 0        0        10229    [snip]                              488 macb ---a-------I--- 0        0        12095    WINDOWS\Prefetch\ACRORD32.EXE-20C463C1.pf                              488 macb ---a-------I--- 0        0        12095    WINDOWS\Prefetch\ACRORD~1.PFSat Feb 27 2010 15:12:34      480 m... ---a----------- 0        0        10119    [snip]                              344 macb ---a----------- 0        0        12096    WINDOWS\system32\sdra64.exe                              344 macb -------------D- 0        0        12097    WINDOWS\system32\lowsec
+                              296 macb ---a----------- 0        0        12098    WINDOWS\system32\lowsec\local.ds
+                              736 ...b ---a----------- 0        0        12099    WINDOWS\system32\lowsec\USERDS~1.LLL
+                              336 macb ---a----------- 0        0        12099    WINDOWS\system32\lowsec\user.ds
+                              736 ...b ---a----------- 0        0        12099    WINDOWS\system32\lowsec\user.ds.lll
+                              336 ...b ---a----------- 0        0        12101    WINDOWS\system32\lowsec\user.ds
+}}}
+
+
 
 = Miscellaneous =
 
