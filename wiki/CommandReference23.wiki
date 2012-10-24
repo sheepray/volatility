@@ -2039,42 +2039,58 @@ Volatile Systems Volatility Framework 2.3_alpha
 Scanning for MFT entries and building directory, this can take a while
 [snip]
 ***************************************************************************
-MFT entry found at offset 0x2254c00
-Type: In Use & File
-Record Number: 11347
+MFT entry found at offset 0x1e69c00
+Type: File
+Record Number: 12091
 Link count: 2
 
 
 $STANDARD_INFORMATION
 Creation             Modified             MFT Altered          Access Date          Type
 -------------------- -------------------- -------------------- -------------------- ----
-2010-02-26 03:43:14  2010-02-26 03:43:14  2010-02-26 03:43:14  2010-02-26 03:43:14  Archive
+2010-02-27 20:12:32  2010-02-27 20:12:32  2010-02-27 20:12:32  2010-02-27 20:12:32  Archive
 
 $FILE_NAME
 Creation             Modified             MFT Altered          Access Date          Name/Path
 -------------------- -------------------- -------------------- -------------------- ---------
-2010-02-26 03:43:14  2010-02-26 03:43:14  2010-02-26 03:43:14  2010-02-26 03:43:14  Documents and Settings\Administrator\Cookies\AD7753~1.TXT
+2010-02-27 20:12:32  2010-02-27 20:12:32  2010-02-27 20:12:32  2010-02-27 20:12:32  Documents and Settings\Administrator\Cookies\ADMINI~1.TXT
 
 $FILE_NAME
 Creation             Modified             MFT Altered          Access Date          Name/Path
 -------------------- -------------------- -------------------- -------------------- ---------
-2010-02-26 03:43:14  2010-02-26 03:43:14  2010-02-26 03:43:14  2010-02-26 03:43:14  Documents and Settings\Administrator\Cookies\administrator@ad.wsod[2].txt
+2010-02-27 20:12:32  2010-02-27 20:12:32  2010-02-27 20:12:32  2010-02-27 20:12:32  Documents and Settings\Administrator\Cookies\administrator@search-network-plus[1].txt
 
 $DATA
-0000000000: 75 5f 31 0a 34 62 38 37 34 33 35 62 63 39 61 65   u_1.4b87435bc9ae
-0000000010: 66 0a 61 64 2e 77 73 6f 64 2e 63 6f 6d 2f 0a 31   f.ad.wsod.com/.1
-0000000020: 30 32 34 0a 33 35 30 32 35 30 35 38 35 36 0a 33   024.3502505856.3
-0000000030: 30 30 36 38 32 36 34 0a 33 35 34 31 34 36 03 00   0068264.354146..
-0000000040: 31 36 0a 33 30 30 36 32 32 32 39 0a 2a 0a 69 5f   16.30062229.*.i_
-0000000050: 31 0a 33 33 3a 37 32 33 3a 33 33 38 3a 30 3a 31   1.33:723:338:0:1
-0000000060: 32 33 37 38 3a 31 3a 31 3a 31 3a 31 32 36 37 31   2378:1:1:1:12671
-0000000070: 35 35 38 30 33 3a 30 3a 4c 0a 61 64 2e 77 73 6f   55803:0:L.ad.wso
-0000000080: 64 2e 63 6f 6d 2f 0a 31 30 32 34 0a 33 35 30 32   d.com/.1024.3502
-0000000090: 35 30 35 38 35 36 0a 33 30 30 36 38 32 36 34 0a   505856.30068264.
-00000000a0: 33 35 34 31 34 36 37 32 31 36 0a 33 30 30 36 32   3541467216.30062
-00000000b0: 32 32 39 0a 2a 0a                                 229.*.
+0000000000: 65 78 70 0a 31 39 0a 73 65 61 72 63 68 2d 6e 65   exp.19.search-ne
+0000000010: 74 77 6f 72 6b 2d 70 6c 75 73 2e 63 6f 6d 2f 0a   twork-plus.com/.
+0000000020: 31 35 33 36 0a 33 03 00 32 34 33 33 39 32 30 0a   1536.3..2433920.
+0000000030: 33 30 30 36 32 36 30 35 0a 38 33 37 34 31 36 35   30062605.8374165
+0000000040: 37 36 0a 33 30 30 36 32 35 36 39 0a 2a 0a         76.30062569.*.
 
 ***************************************************************************
+[snip]
+***************************************************************************
+MFT entry found at offset 0x1cdbac00
+Type: In Use & File 
+Record Number: 12079
+Link count: 1
+
+
+$STANDARD_INFORMATION
+Creation             Modified             MFT Altered          Access Date          Type   
+-------------------- -------------------- -------------------- -------------------- ----
+2010-02-27 20:12:28  2010-02-27 20:12:28  2010-02-27 20:12:28  2010-02-27 20:12:28  Archive
+
+$FILE_NAME
+Creation             Modified             MFT Altered          Access Date          Name/Path
+-------------------- -------------------- -------------------- -------------------- ---------
+2010-02-27 20:12:28  2010-02-27 20:12:28  2010-02-27 20:12:28  2010-02-27 20:12:28  Documents and Settings\Administrator\Local Settings\Temp\plugtmp\PDF.php
+
+$DATA
+Non-Resident
+
+***************************************************************************
+[snip]
 }}}
 
 The bodyfile output is also an option.  The normal MD5 column is replaced with indicators for which attribute was found and its physical offset in memory:
