@@ -2099,16 +2099,16 @@ The bodyfile output is also an option.  The normal MD5 column is replaced with i
 $ ./vol.py -f Bob.vmem mftparser --output=body
 Volatile Systems Volatility Framework 2.3_alpha
 Scanning for MFT entries and building directory, this can take a while
-(SI) 0x1d000||11452|r--a-----------|0|0|344|1267155966|1053372834|1267155973|1267155960
 (FN) 0x1d000|WINDOWS\Cache\Adobe Reader 6.0\ENUBIG\Setup.ini|11452|---a-----------|0|0|344|1267155960|1267155960|1267155960|1267155960
-(SI) 0x1d400||11453|---a--t--------|0|0|488|1267155973|1267155973|1267155973|1267155973
+(SI) 0x1d000|WINDOWS\Cache\Adobe Reader 6.0\ENUBIG\Setup.ini|11452|r--a-----------|0|0|344|1267155966|1053372834|1267155973|1267155960
 (FN) 0x1d400|Documents and Settings\Administrator\Local Settings\Temp\PERFLI~1.DAT|11453|---a--t--------|0|0|488|1267155973|1267155973|1267155973|1267155973
+(SI) 0x1d400|Documents and Settings\Administrator\Local Settings\Temp\PERFLI~1.DAT|11453|---a--t--------|0|0|488|1267155973|1267155973|1267155973|1267155973
 (FN) 0x1d400|Documents and Settings\Administrator\Local Settings\Temp\Perflib_Perfdata_f4.dat|11453|---a--t--------|0|0|488|1267155973|1267155973|1267155973|1267155973
-(SI) 0x1d800||11454|---a-------I---|0|0|480|1267155973|1267155973|1267155973|1267155973
 (FN) 0x1d800|WINDOWS\Prefetch\SETUPE~2.PF|11454|---a-------I---|0|0|480|1267155973|1267155973|1267155973|1267155973
+(SI) 0x1d800|WINDOWS\Prefetch\SETUPE~2.PF|11454|---a-------I---|0|0|480|1267155973|1267155973|1267155973|1267155973
 (FN) 0x1d800|WINDOWS\Prefetch\SETUP.EXE-07EE9DA4.pf|11454|---a-------I---|0|0|480|1267155973|1267155973|1267155973|1267155973
-(SI) 0x1dc00||11455|-----------I---|0|0|464|1267300267|1267300267|1267300267|1267155974
 (FN) 0x1dc00|System Volume Information\_restore{834817DC-A3FD-4C6D-B5EC-0713C53C7E4B}\RP3|11455|-----------I-D-|0|0|464|1267155974|1267155974|1267155974|1267155974
+(SI) 0x1dc00|System Volume Information\_restore{834817DC-A3FD-4C6D-B5EC-0713C53C7E4B}\RP3|11455|-----------I---|0|0|464|1267300267|1267300267|1267300267|1267155974
 [snip]
 }}}
 
