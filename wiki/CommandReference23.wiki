@@ -1966,7 +1966,7 @@ or
 $ python vol.py mbrparser -f AnalysisXPSP3.vmem -F 6010862faee6d5e314aba791380d4f41
 }}}
 
-In order to cut down on false positives there is a `-C/--check` option that checks the partition table for at least one bootable partition and that at least one partition has a valid, nonempty type. 
+In order to cut down on false positives there is a `-C/--check` option that checks the partition table for one bootable partition that has a known, nonempty type (NTFS, FAT*, etc). 
 
 {{{
 $ python vol.py -f [sample] -C mbrparser
