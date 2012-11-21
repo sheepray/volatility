@@ -7,11 +7,12 @@ Volatility 2.3 is scheduled for release before the end of 2012.
 = Release Highlights = 
 
  * Windows 
-    * new plugins: iehistory, shellbags, dumpfiles, mbrparser, mftparser
+    * new plugins: iehistory, shellbags, dumpfiles, mbrparser, mftparser, unloadedmodules, privileges
     * apihooks detects duqu style instruction modifications (MOV reg32, imm32; JMP reg32)
     * crashinfo displays uptime, systemtime, and dump type (i.e. kernel, complete, etc)
     * psxview plugin adds two new sources of process listings from the GUI APIs 
     * screenshots plugin draws window titles 
+    * svcscan automatically queries the cached registry for service dlls
  * Linux
  * Mac 
  * Android
