@@ -7,12 +7,17 @@ Volatility 2.3 is scheduled for release in January 2013.
 = Release Highlights = 
 
  * Windows 
-    * new plugins: iehistory, shellbags, dumpfiles, mbrparser, mftparser, unloadedmodules, privileges
-    * apihooks detects duqu style instruction modifications (MOV reg32, imm32; JMP reg32)
-    * crashinfo displays uptime, systemtime, and dump type (i.e. kernel, complete, etc)
-    * psxview plugin adds two new sources of process listings from the GUI APIs 
-    * screenshots plugin draws window titles 
-    * svcscan automatically queries the cached registry for service dlls
+    * new plugins
+        * iehistory, shellbags, dumpfiles, mbrparser, mftparser, unloadedmodules, privileges
+    * changes to existing plugins
+        * apihooks detects duqu style instruction modifications (MOV reg32, imm32; JMP reg32)
+        * crashinfo displays uptime, systemtime, and dump type (i.e. kernel, complete, etc)
+        * psxview plugin adds two new sources of process listings from the GUI APIs 
+        * screenshots plugin shows text for window titles 
+        * svcscan automatically queries the cached registry for service dlls
+        * dlllist shows load count to distinguish between static and dynamic loaded dlls
+    * new address spaces 
+        * MachO (Mac), ARM, !VirtualBox, !VMware vmss/vmsn, HPAK
  * Linux
  * Mac 
  * Android
@@ -76,6 +81,7 @@ Volatility 2.3 is scheduled for release in January 2013.
           * [CommandReference22#envars envars] - Display process environment variables
           * [CommandReference22#cmdscan cmdscan] - Extract command history by scanning for `_COMMAND_HISTORY`
           * [CommandReference21#consoles consoles] - Extract command history by scanning for `_CONSOLE_INFORMATION`
+          * <font color='red'>(new)</font> [CommandReference23#privileges privileges] - Identify the present and/or enabled windows privileges for each process
       * *Process Memory*
           * [CommandReference22#memmap memmap] - Print the memory map
           * [CommandReference22#memdump memdump] - Dump the addressable memory for a process
@@ -86,6 +92,7 @@ Volatility 2.3 is scheduled for release in January 2013.
           * [CommandReference22#vadinfo vadinfo] - Dump the VAD info
           * [CommandReference22#vaddump vaddump] - Dumps out the vad sections to a file
           * [CommandReference22#evtlogs evtlogs] - Parse XP and 2003 event logs from memory
+          * <font color='red'>(new)</font> [CommandReference23#iehistory iehistory] - Extract and parse Internet Explorer history and URL cache 
       * *Kernel Memory and Objects*
           * [CommandReference22#modules modules] - Print list of loaded modules
           * [CommandReference22#modscan modscan] - Scan Physical memory for `_LDR_DATA_TABLE_ENTRY` objects
@@ -96,6 +103,8 @@ Volatility 2.3 is scheduled for release in January 2013.
           * [CommandReference22#mutantscan mutantscan] - Scan physical memory for `_KMUTANT` objects
           * [CommandReference22#symlinkscan symlinkscan] - Scans for symbolic link objects
           * [CommandReference22#thrdscan thrdscan] - Scan physical memory for `_ETHREAD` objects
+          * <font color='red'>(new)</font> [CommandReference23#dumpfiles dumpfiles] - Reconstruct files from the windows cache manager and shared section objects
+          * <font color='red'>(new)</font> [CommandReference23#unloadedmodules unloadedmodules] - Show recently unloaded kernel modules (which indirectly tells you which ones recently loaded)
       * *Win32k / GUI Memory*
           * [CommandReferenceGui22#sessions sessions] - List details on `_MM_SESSION_SPACE` (user logon sessions)
           * [CommandReferenceGui22#wndscan wndscan] - Pool scanner for tagWINDOWSTATION (window stations)
