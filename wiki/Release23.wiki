@@ -9,6 +9,7 @@ Volatility 2.3 is scheduled for release in January 2013.
  * Windows 
     * new plugins
         * iehistory, shellbags, dumpfiles, mbrparser, mftparser, unloadedmodules, privileges
+        * poisonivyscan, poisonivyconfig, zeusscan1, zeusscan2, citadelscan1345
     * changes to existing plugins
         * apihooks detects duqu style instruction modifications (MOV reg32, imm32; JMP reg32)
         * crashinfo displays uptime, systemtime, and dump type (i.e. kernel, complete, etc)
@@ -18,6 +19,7 @@ Volatility 2.3 is scheduled for release in January 2013.
         * dlllist shows load count to distinguish between static and dynamic loaded dlls
     * new address spaces 
         * MachO (Mac), ARM, !VirtualBox, !VMware vmss/vmsn, HPAK
+        * associated plugins: vboxinfo, vmwareinfo, hpakinfo, hpakextract 
  * Linux
  * Mac 
  * Android
