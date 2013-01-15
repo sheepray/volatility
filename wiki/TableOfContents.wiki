@@ -54,3 +54,4 @@
       * [VirtualBoxCoreDump VirtualBoxELF64]
       * [VMwareSnapshotFile VMware Snapshot]
   * [VolatilityTeam Volatility Team]
+  * [PluginContest Plugin Contest HOF]
