@@ -2,6 +2,8 @@
 
 Although all Volatility commands can help you hunt malware in one way or another, there are a few designed specifically for hunting rootkits and malicious code. The most comprehensive documentation for these commands can be found in the [http://www.amazon.com/dp/0470613033 Malware Analyst's Cookbook and DVD: Tools and Techniques For Fighting Malicious Code].  
 
+<wiki:toc max_depth="3" />
+
 = malfind =
 
 The malfind command helps find hidden or injected code/DLLs in user mode memory, based on characteristics such as VAD tag and page permissions. 
