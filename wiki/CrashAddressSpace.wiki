@@ -9,7 +9,7 @@ Crash dumps are a standard file format designed and used by Microsoft for debugg
 For detailed instructions creating crash dumps see Microsoft's [http://support.microsoft.com/kb/969028 KB 969028]. Below you'll find a summary of the various techniques. 
 
   * The !SysInternals [http://download.sysinternals.com/files/NotMyFault.zip NotMyFault] tool (!NotMyFault.exe /crash)
-  * [http://support.microsoft.com/kb/244139 CrashOnControlScroll] from a PS/2 keyboard or CTRL, SCROLL, LOCK key sequences on a USB keyboard
+  * !CrashOnControlScroll from a PS/2 keyboard or CTRL, SCROLL, LOCK key sequences on a USB keyboard - see [http://support.microsoft.com/kb/244139 KB 244139]
   * NMI (Non-Maskable Interrupt) - see [http://support.microsoft.com/kb/927069 KB 927069]
   * Remote kernel debugger's .crash or .dump command 
   * The !SysInternals [http://download.sysinternals.com/files/LiveKD.zip LiveKD] tool (!LiveKd -o)
