@@ -20,6 +20,10 @@ Linux support is available as of [Release22]. Please see the release page for di
 
 A Linux Profile is essentially a zip file with information on the kernel's data structures and debug symbols. This is what Volatility uses to locate critical information and how to parse it once found. In the near future, Volatility will include profiles for the most common Linux kernels. Until then, you'll need to create your own profile. 
 
+NOTE: There are known problems building profiles with the dwarfdump distributed with Fedora. If you must use Fedora to build profiles, please see the build procedures in this issue:
+
+https://code.google.com/p/volatility/issues/detail?id=355
+
 == Creating vtypes ==
 
 The current method to create vtypes (kernel's data structures) is to check out the source code and compile 'module.c' against the kernel that you want to analyze. See below for an example of creating vtypes - just cd to 'tools/linux' in the Volatility source directory and type make. This will create a file named 'module.dwarf'. 
