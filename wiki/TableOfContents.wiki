@@ -56,5 +56,6 @@
       * [ArmAddressSpace ARM (x86)]
       * [VirtualBoxCoreDump VirtualBoxELF64]
       * [VMwareSnapshotFile VMware Snapshot]
+      * [HpakAddressSpace Hpak (FDPro)]
   * [VolatilityTeam Volatility Team]
   * [PluginContest Plugin Contest HOF]
