@@ -10,7 +10,7 @@ First check the [Release22] page for the supported Linux kernels, distributions,
 
   * dwarfdump: `apt-get install dwarfdump` on Debian/Ubuntu or the libdwarf-tools package on OpenSuSE, Fedora, and other distributions. 
   * GCC/make: `apt-get install build-essential` on Debial/Ubuntu.
-  * kernel-devel (headers for building kernel modules)
+  * kernel-devel or linux-headers-generic (headers for building kernel modules). 
 
 = Getting the Volatility source =
 
