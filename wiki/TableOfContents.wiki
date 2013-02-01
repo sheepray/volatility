@@ -8,8 +8,11 @@
       * [Release23 Volatility 2.3]
           * Command Reference 
               * [CommandReference23 Windows Core]
+              * [CommandReferenceGui23 Windows GUI]
               * [CommandReferenceMal23 Windows Malware]
               * [CommandReferenceRegistryApi23 Windows Registry]
+              * [LinuxCommandReference23 Linux]
+              * [MacCommandReference23 Mac OSX]
       * [Release22 Volatility 2.2]
           * [VolatilityUsage22 Basic Usage]
           * Command Reference 
