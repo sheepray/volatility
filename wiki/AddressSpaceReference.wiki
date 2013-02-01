@@ -14,3 +14,4 @@ Volatility can handle RAM dumps in various formats. This is a summary of the cap
   * [MachOAddressSpace] - 32- and 64-bit Mac OSX memory dumps
   * [ArmAddressSpace] - 32-bit ARM hardware
   * [VirtualBoxCoreDump] - !VirtualBox virtual machines (ELF64 format)
+  * [HpakAddressSpace] - Format specific to the FDPro acquisition tool
