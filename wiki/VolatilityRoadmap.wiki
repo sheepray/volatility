@@ -57,15 +57,11 @@ This page is the official Volatility Roadmap. The goal of the Roadmap is to help
 = Volatility 2.3 (Official Mac/Android/ARM Support) =
 
 *RC1:* N/A
-*Release:* January 2013
+*Release:* February 2013
 
  * Mac Support (x86, x64)
  * Android/Arm Support
- * New Address Spaces (VMWareSnapshotFile, !VirtualBoxCoreDumpElf64)
- * Pool Scanner Updates
- * Unicode improvements 
- * KDBG/DTB Improvements
- * Profile Selection Enhancements
+ * New Address Spaces (VMWareSnapshotFile, !VirtualBoxCoreDumpElf64, !HpakAddressSpace, MachOAddressSpace)
  * New or Updated Plugins 
    * shellbags
    * mbr/vbr parser
@@ -95,6 +91,10 @@ This page is the official Volatility Roadmap. The goal of the Roadmap is to help
    * dnscache
    * stack, heaps
  * x64 Updates to Malware Plugins (timers, callbacks, idt/gdt, apihooks)
+ * Pool Scanner Updates
+ * Unicode improvements 
+ * KDBG/DTB Improvements
+ * Profile Selection Enhancements
 
 = Volatility Future =
 
