@@ -30,6 +30,7 @@ Regarding dependencies, for the most comprehensive plugin support, you should in
       * Dependent plugins
           * lsadump
           * hashdump
+      * Note: this requires python-dev to build (unless you get pre-built binaries)
  * [http://www.pythonware.com/products/pil/ PIL] - Python Imaging Library 
       * Dependent plugins
           * screenshots
