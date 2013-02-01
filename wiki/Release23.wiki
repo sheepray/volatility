@@ -18,7 +18,7 @@ Volatility 2.3 is scheduled for release in January 2013.
         * svcscan automatically queries the cached registry for service dlls
         * dlllist shows load count to distinguish between static and dynamic loaded dlls
     * new address spaces 
-        * MachO (Mac), ARM, !VirtualBox, !VMware vmss/vmsn, HPAK
+        * MachO (Mac), ARM, !VirtualBox, VMware vmss/vmsn, HPAK
         * associated plugins: vboxinfo, vmwareinfo, hpakinfo, hpakextract 
  * Linux
  * Mac 
@@ -26,19 +26,23 @@ Volatility 2.3 is scheduled for release in January 2013.
 
 = Operating Systems = 
 
-  * 32-bit Windows XP Service Pack 2 and 3
-  * 32-bit Windows 2003 Server Service Pack 0, 1, 2
-  * 32-bit Windows Vista Service Pack 0, 1, 2
-  * 32-bit Windows 2008 Server Service Pack 1, 2 
-  * 32-bit Windows 7 Service Pack 0, 1
-  * 64-bit Windows XP Service Pack 1 and 2 
-  * 64-bit Windows 2003 Server Service Pack 1 and 2 
-  * 64-bit Windows Vista Service Pack 0, 1, 2
-  * 64-bit Windows 2008 Server Service Pack 1 and 2 
-  * 64-bit Windows 2008 `R2` Server Service Pack 0 and 1
-  * 64-bit Windows 7 Service Pack 0 and 1
-  * 32-bit Linux kernels 2.6.11 to 3.5
-  * 64-bit Linux kernels 2.6.11 to 3.5
+ * Windows 
+   * 32-bit Windows XP Service Pack 2 and 3
+   * 32-bit Windows 2003 Server Service Pack 0, 1, 2
+   * 32-bit Windows Vista Service Pack 0, 1, 2
+   * 32-bit Windows 2008 Server Service Pack 1, 2 
+   * 32-bit Windows 7 Service Pack 0, 1
+   * 64-bit Windows XP Service Pack 1 and 2 
+   * 64-bit Windows 2003 Server Service Pack 1 and 2 
+   * 64-bit Windows Vista Service Pack 0, 1, 2
+   * 64-bit Windows 2008 Server Service Pack 1 and 2 
+   * 64-bit Windows 2008 `R2` Server Service Pack 0 and 1
+   * 64-bit Windows 7 Service Pack 0 and 1
+ * Linux 
+   * 32-bit Linux kernels 2.6.11 to 3.5
+   * 64-bit Linux kernels 2.6.11 to 3.5
+ * Mac OSX 
+  
 
 = Address Spaces = 
 
@@ -211,8 +215,18 @@ Volatility 2.3 is scheduled for release in January 2013.
           * [LinuxCommandReference22#linux_dentry_cache linux_dentry_cache] - Gather files from the dentry cache  
           * [LinuxCommandReference22#linux_find_file linux_find_file] - Extract cached file contents from memory via inodes 
           * [LinuxCommandReference22#linux_vma_cache linux_vma_cache] - Gather VMAs from the vm_area_struct cache
+  * *Mac OSX*
 
 = Release Notes = 
+
+= Credits = 
+
+ * Cem Gurkok for his work on the privileges plugin for Windows
+ * Nir Izraeli for his work on the VMware snapshot address space 
+ * Andreas Schuster for his work on poison ivy plugins for Windows 
+ * Joe Sylve for his work on the ARM address space and significant contributions to linux and mac  capabilities
+ * Philippe Teuwen for his work on the virtual box address space 
+ * Santiago Vicente for his work on the citadel plugins for Windows
 
 = API Changes = 
 
