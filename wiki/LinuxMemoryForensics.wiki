@@ -165,6 +165,8 @@ $ ls -alh /home/mhl/ubuntu.lime
 -r--r--r-- 1 root root 2.0G Aug 17 19:37 /home/mhl/ubuntu.lime
 }}}
 
+NOTE: when you execute isnmod, if it tells you "-l Invalid parameter", then repeat the command without quotes around the options. Redhat distros, including CentOS may complain about the quotes, while other distros like Ubuntu require quotes. 
+
 = Enterprise Linux Memory Forensics = 
 
 The instructions in this document assume you're able to install tools, compile modules, and otherwise run commands on the system suspected to be compromised. Since this is not always the case, especially in forensic situations, or if you have tens or hundreds of Linux systems in a corporate environment, you may need to consider other options. For example, one of your IR planning steps should be to catalog all kernels and distributions that may need to be analyzed. Once you've done that, the possibilities include:
