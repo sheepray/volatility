@@ -15,7 +15,7 @@ Volatility 2.3 is scheduled for release in Feburary 2013.
     * screenshots plugin shows text for window titles 
     * svcscan automatically queries the cached registry for service dlls
     * dlllist shows load count to distinguish between static and dynamic loaded dlls
- * new address spaces 
+ * New address spaces 
         * added support for !VirtualBox ELF64 core dumps, VMware saved state (vmss) and snapshot (vmsn) files, and FDPro's non-standard HPAK format 
         * associated plugins: vboxinfo, vmwareinfo, hpakinfo, hpakextract 
  * Mac 
@@ -41,6 +41,7 @@ Volatility 2.3 is scheduled for release in Feburary 2013.
  * Linux 
    * 32-bit Linux kernels 2.6.11 to 3.5
    * 64-bit Linux kernels 2.6.11 to 3.5
+   * OpenSuSE, Ubuntu, Debian, CentOS, Fedora, Mandriva, etc
  * Mac OSX 
   
 
