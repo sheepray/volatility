@@ -219,16 +219,28 @@ Volatility 2.3 is scheduled for release in Feburary 2013.
           * <font color='red'>(new)</font> [CommandReference23#linux_volshell linux_volshell] - Shell to interactively explore Linux/Android memory captures
   * *Mac OSX*
       * *Processes*
+         * <font color='red'>(new)</font> [CommandReference23#mac_lsof mac_lsof] - Lists per-process open files
       * *Process Memory*
          * <font color='red'>(new)</font> [CommandReference23#mac_dump_maps mac_dump_maps] - Dumps memory ranges of processes
       * *Kernel Memory and Objects*
+         * <font color='red'>(new)</font> [CommandReference23#mac_sessions mac_sessions] - Enumerates sessions
+         * <font color='red'>(new)</font> [CommandReference23#mac_ls_logins mac_ls_logins] - Lists login contexts
+         * <font color='red'>(new)</font> [CommandReference23#mac_lsmod mac_lsmod] - Lists loaded kernel modules
+         * <font color='red'>(new)</font> [CommandReference23#mac_mount mac_mount] - Prints mounted device information
       * *Networking*
          * <font color='red'>(new)</font> [CommandReference23#mac_arp mac_arp] - Prints the arp table
+         * <font color='red'>(new)</font> [CommandReference23#mac_ifconfig mac_ifconfig] - Lists network interface information for all devices
+         * <font color='red'>(new)</font> [CommandReference23#mac_netstat mac_netstat] - Lists active per-process network connections
       * *Malware/Rootkits*
          * <font color='red'>(new)</font> [CommandReference23#mac_check_sysctl mac_check_sysctl] - Check for unknown sysctl handlers
          * <font color='red'>(new)</font> [CommandReference23#mac_check_trap_table mac_check_trap_table] - Checks to see if system call table entries are hooked
+         * <font color='red'>(new)</font> [CommandReference23#mac_ip_filters mac_ip_filters] - Reports any hooked IP filters
+         * <font color='red'>(new)</font> [CommandReference23#mac_notifiers mac_notifiers] - Detects rootkits that add hooks into I/O Kit (e.g. LogKext)
       * *System Information*
          * <font color='red'>(new)</font> [CommandReference23#mac_dmesg mac_dmesg] - Prints the kernel debug buffers
+         * <font color='red'>(new)</font> [CommandReference23#mac_find_aslr_shift mac_find_aslr_shift] - Find the ASLR shift value for 10.8+ images
+         * <font color='red'>(new)</font> [CommandReference23#mac_machine_info mac_machine_info] - Prints machine information about the sample
+
 = Release Notes = 
 
 = Credits = 
