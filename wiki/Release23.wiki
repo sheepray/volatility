@@ -2,27 +2,27 @@
 
 = Introduction =
 
-Volatility 2.3 is scheduled for release in January 2013.
+Volatility 2.3 is scheduled for release in Feburary 2013.
 
 = Release Highlights = 
 
  * Windows 
-    * new plugins
-        * iehistory, shellbags, dumpfiles, mbrparser, mftparser, unloadedmodules, privileges
-        * poisonivyscan, poisonivyconfig, zeusscan1, zeusscan2, citadelscan1345
-    * changes to existing plugins
-        * apihooks detects duqu style instruction modifications (MOV reg32, imm32; JMP reg32)
-        * crashinfo displays uptime, systemtime, and dump type (i.e. kernel, complete, etc)
-        * psxview plugin adds two new sources of process listings from the GUI APIs 
-        * screenshots plugin shows text for window titles 
-        * svcscan automatically queries the cached registry for service dlls
-        * dlllist shows load count to distinguish between static and dynamic loaded dlls
-    * new address spaces 
-        * MachO (Mac), ARM, !VirtualBox, VMware vmss/vmsn, HPAK
+    * new plugins to parse IE history/index.dat URLs, recover shellbags data, dump cached files (exe/pdf/doc/etc), extract the MBR and MFT records, explore recently unloaded kernel modules, and display details on process privileges
+    * added plugins to detect poison ivy infections, find and decrypt configurations in memory for poison ivy, zeus v1, zeus v2 and citadelscan 1.3.4.5 
+    * apihooks detects duqu style instruction modifications (MOV reg32, imm32; JMP reg32)
+    * crashinfo displays uptime, systemtime, and dump type (i.e. kernel, complete, etc)
+    * psxview plugin adds two new sources of process listings from the GUI APIs 
+    * screenshots plugin shows text for window titles 
+    * svcscan automatically queries the cached registry for service dlls
+    * dlllist shows load count to distinguish between static and dynamic loaded dlls
+ * new address spaces 
+        * added support for !VirtualBox ELF64 core dumps, VMware saved state (vmss) and snapshot (vmsn) files, and FDPro's non-standard HPAK format 
         * associated plugins: vboxinfo, vmwareinfo, hpakinfo, hpakextract 
- * Linux
  * Mac 
- * Android
+    * new MachO address space for 32- and 64-bit Mac memory samples
+    * over 30+ plugins for Mac memory forensics
+ * Linux/Android
+    * new ARM address space to support memory dumps from Linux and Android devices on ARM 
 
 = Operating Systems = 
 
