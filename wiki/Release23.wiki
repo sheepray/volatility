@@ -174,7 +174,7 @@ Volatility 2.3 is scheduled for release in Feburary 2013.
           * [CommandReference22#volshell volshell] - Shell to interactively explore a memory image
           * [CommandReference22#bioskbd bioskbd] - Reads the keyboard buffer from Real Mode memory
           * [CommandReference22#patcher patcher] - Patches memory based on page scans
-  * *Linux*
+  * *Linux/Android*
       * *Processes*
           * [LinuxCommandReference22#linux_pslist linux_pslist] - Gather active tasks by walking the task_struct->task list
           * [LinuxCommandReference22#linux_psaux linux_psaux] - Gathers processes along with full command line and start time
@@ -215,8 +215,20 @@ Volatility 2.3 is scheduled for release in Feburary 2013.
           * [LinuxCommandReference22#linux_dentry_cache linux_dentry_cache] - Gather files from the dentry cache  
           * [LinuxCommandReference22#linux_find_file linux_find_file] - Extract cached file contents from memory via inodes 
           * [LinuxCommandReference22#linux_vma_cache linux_vma_cache] - Gather VMAs from the vm_area_struct cache
+      * *Miscellaneous*
+          * <font color='red'>(new)</font> [CommandReference23#linux_volshell linux_volshell] - Shell to interactively explore Linux/Android memory captures
   * *Mac OSX*
-
+      * *Processes*
+      * *Process Memory*
+         * <font color='red'>(new)</font> [CommandReference23#mac_dump_maps mac_dump_maps] - Dumps memory ranges of processes
+      * *Kernel Memory and Objects*
+      * *Networking*
+         * <font color='red'>(new)</font> [CommandReference23#mac_arp mac_arp] - Prints the arp table
+      * *Malware/Rootkits*
+         * <font color='red'>(new)</font> [CommandReference23#mac_check_sysctl mac_check_sysctl] - Check for unknown sysctl handlers
+         * <font color='red'>(new)</font> [CommandReference23#mac_check_trap_table mac_check_trap_table] - Checks to see if system call table entries are hooked
+      * *System Information*
+         * <font color='red'>(new)</font> [CommandReference23#mac_dmesg mac_dmesg] - Prints the kernel debug buffers
 = Release Notes = 
 
 = Credits = 
