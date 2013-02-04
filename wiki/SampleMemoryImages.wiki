@@ -5,7 +5,7 @@
 This is a list of publicly available memory samples for testing purposes. 
 
 || *Description* || *OS* ||
-|| [https://t.co/Rfx8Iw7j Jackcr's forensic challenge] || Windows XP x86 (4 images) ||
+|| [https://t.co/Rfx8Iw7j Jackcr's forensic challenge] || Windows XP x86 and Windows 2003 SP0 (4 images) ||
 || [http://t.co/m0JCvrnV GrrCon forensic challenge ISO] (also see [http://t.co/tgpdyUWb PDF questions]) || Windows XP x86 || 
 || [http://malwarecookbook.googlecode.com/svn-history/r26/trunk/17/6/be2.vmem.zip Malware - BlackEnergy] || Windows XP SP2 x86 ||
 || [http://malwarecookbook.googlecode.com/svn-history/r26/trunk/16/6/coreflood.vmem.zip Malware- CoreFlood] || Windows XP SP2 x86 ||
