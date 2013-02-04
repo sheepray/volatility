@@ -43,7 +43,12 @@ Volatility 2.3 is scheduled for release in Feburary 2013.
    * 64-bit Linux kernels 2.6.11 to 3.5
    * OpenSuSE, Ubuntu, Debian, CentOS, Fedora, Mandriva, etc
  * Mac OSX 
-  
+   * <font color='red'>(new)</font> 32-bit 10.5 Leopard (the only 64-bit 10.5 is Server, which isn't supported)
+   * <font color='red'>(new)</font> 32-bit 10.6 Snow Leopard 
+   * <font color='red'>(new)</font> 64-bit 10.6 Snow Leopard 
+   * <font color='red'>(new)</font> 32-bit 10.7 Lion 
+   * <font color='red'>(new)</font> 64-bit 10.7 Lion 
+   * <font color='red'>(new)</font> 64-bit 10.8 Mountain Lion (there is no 32-bit version)
 
 = Address Spaces = 
 
