@@ -1,4 +1,4 @@
-#summary Example usage cases and output for Volatility 2.2 commands
+#summary Example usage cases and output for Volatility 2.3 commands
 
 <wiki:toc max_depth="3" />
 
