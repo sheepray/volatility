@@ -24,6 +24,7 @@ Volatility 2.3 is scheduled for release in Feburary 2013.
  * Linux/Android
     * new ARM address space to support memory dumps from Linux and Android devices on ARM 
     * added plugins to scan linux process and kernel memory with yara signatures, dump LKMs to disk, and check TTY devices for rootkit hooks
+    * added plugins to check the ARM system call and exception vector tables for hooks
 
 = Operating Systems = 
 
@@ -198,7 +199,7 @@ Volatility 2.3 is scheduled for release in Feburary 2013.
           * [LinuxCommandReference23#linux_lsmod linux_lsmod] - Gather loaded kernel modules
           * [LinuxCommandReference23#linux_lsof linux_lsof] - Lists open files
           * [LinuxCommandReference23#linux_tmpfs linux_tmpfs] - Recovers tmpfs filesystems from memory
-          * [LinuxCommandReference23#linux_moddump linux_moddump] - Extract an LKM from memory to disk (.text segment only)
+          * <font color='red'>(new)</font> [LinuxCommandReference23#linux_moddump linux_moddump] - Extract an LKM from memory to disk (.text segment only)
       * *Networking*
           * [LinuxCommandReference23#linux_arp linux_arp] - Print the ARP table
           * [LinuxCommandReference23#linux_ifconfig linux_ifconfig] - Gathers active interfaces
@@ -213,7 +214,9 @@ Volatility 2.3 is scheduled for release in Feburary 2013.
           * [LinuxCommandReference23#linux_check_idt linux_check_idt] - Checks if the IDT has been altered
           * [LinuxCommandReference23#linux_check_modules linux_check_modules] - Compares module list to sysfs info, if available
           * [LinuxCommandReference23#linux_check_syscall linux_check_syscall] - Checks if the system call table has been altered
+          * <font color='red'>(new)</font> [LinuxCommandReference23#linux_check_syscall_arm linux_check_syscall_arm] - Checks if the system call table has been altered (ARM)
           * <font color='red'>(new)</font> [LinuxCommandReference23#linux_check_tty linux_check_tty] - Check TTY devices for rootkit hooks
+          * <font color='red'>(new)</font> [LinuxCommandReference23#linux_check_evt_arm linux_check_evt_arm] - Check ARM exception vector table for hooks
       * *System Information*
           * [LinuxCommandReference23#linux_cpuinfo linux_cpuinfo] - Prints info about each active processor
           * [LinuxCommandReference23#linux_dmesg linux_dmesg] - Gather dmesg buffer
