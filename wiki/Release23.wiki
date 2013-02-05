@@ -95,7 +95,7 @@ Volatility 2.3 is scheduled for release in Feburary 2013.
           * [CommandReference23#envars envars] - Display process environment variables
           * [CommandReference23#cmdscan cmdscan] - Extract command history by scanning for `_COMMAND_HISTORY`
           * [CommandReference21#consoles consoles] - Extract command history by scanning for `_CONSOLE_INFORMATION`
-          * <font color='red'>(new)</font> [CommandReference23#privileges privileges] - Identify the present and/or enabled windows privileges for each process
+          * <font color='red'>(new)</font> [CommandReference23#privs privs] - Identify the present and/or enabled windows privileges for each process
       * *Process Memory*
           * [CommandReference23#memmap memmap] - Print the memory map
           * [CommandReference23#memdump memdump] - Dump the addressable memory for a process
