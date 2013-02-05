@@ -603,6 +603,8 @@ Volatile Systems Volatility Framework 2.1_alpha
   Output: Physical memory in the range 0x00004000-0x00004000 could not be read.                              
 }}}
 
+== privs == 
+
 == envars == 
 
 To display a process's environment variables, use the envars plugin. Typically this will show the number of CPUs installed and the hardware architecture (though the [CommandReference23#kdbgscan kdbgscan] output is a much more reliable source), the process's current directory, temporary directory, session name, computer name, user name, and various other interesting artifacts. 
@@ -976,6 +978,8 @@ $ cat output/secevent.txt
 
 If the `--verbose` flag is used, SIDs are also evaluated and placed in the parsed output instead of the defaulting raw SID.  This action takes longer to run, since the plugin has to calculate each of the service SID and user SID from registry entries.
 
+== iehistory == 
+
 = Kernel Memory and Objects =
 
 == modules ==
@@ -1257,6 +1261,10 @@ Offset(P)             PID    TID      Start Address Create Time               Ex
 0x0000000010f27060    568    648 0xfffff8a0017c6650 2012-02-22 19:58:34
 [snip]
 }}}
+
+== dumpfiles ==
+
+== unloadedmodules ==
 
 = Networking =
 
@@ -1933,6 +1941,14 @@ $ python vol.py -f ~/Desktop/win7_trial_64bit.raw --profile=Win7SP0x64 raw2dmp -
 Volatile Systems Volatility Framework 2.1_alpha
 Writing data (5.00 MB chunks): |..............................................................................|
 }}}
+
+== vboxinfo == 
+
+== vmwareinfo == 
+
+== hpakinfo == 
+
+== hpakextract ==
 
 = File System =
 
