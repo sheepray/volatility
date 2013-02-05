@@ -2,15 +2,18 @@
 
 = Introduction =
 
-These are the instructions for using the new Mac support in Volatility. A presentation on the initial set of features is [http://www.slideshare.net/AndrewDFIR/mac-memory-analysis-with-volatility here].
+These are the instructions for using the Mac support in Volatility. A presentation on the initial set of features can be found [http://www.slideshare.net/AndrewDFIR/mac-memory-analysis-with-volatility here].
 
-NOTE: This initial set of instructions *will* change as the mac branch is updated to align with the coding style and functions of trunk. *Please* check back on this wiki and always test the latest version before filing bug reports. 
+NOTE: These instructions *may* change in the future. *Please* check back on this wiki and always test the latest version before filing bug reports. 
 
 = Supported Systems = 
 
-  * 32-bit and 64-bit 10.6.x Snow Leopard (partial support only)
-  * 32-bit and 64-bit 10.7.x Lion (full support)
-  * 32-bit and 64-bit 10.8.x Mountain Lion (partial support only)
+  * 32-bit 10.5 Leopard (the only 64-bit 10.5 is Server, which isn't supported)
+  * 32-bit 10.6 Snow Leopard
+  * 64-bit 10.6 Snow Leopard
+  * 32-bit 10.7 Lion
+  * 64-bit 10.7 Lion
+  * 64-bit 10.8 Mountain Lion (there is no 32-bit version)
 
 = Changes since the presentation =
 
@@ -35,8 +38,6 @@ It can be browsed [http://code.google.com/p/volatility/source/browse/#svn%2Fbran
 In the near future, the volatility source code will include profiles for the most common Mac kernels. Until then, you'll need to create your own profile. 
 
 To create a profile, you first need to download the !KernelDebugKit for the kernel you want to analyze. This can be downloaded from the [http://developer.apple.com/hardwaredrivers Apple Developer's website] (click OS X Kernel Debug Kits on the right). This account is free and only requires a valid Email address. 
-
-Note: The most recent kernel debug kit available is 10.7.4. If you have a kernel 10.8.0 or greater, go ahead and use the 10.7.4 kit until apple releases newer versions. 
 
 After the !DebugKit is downloaded, mount the dmg file. This will place the contents at "/Volumes/!KernelDebugKit". 
 
@@ -78,7 +79,6 @@ $ python tools/mac/convert.py converted-10.7.2.32bit.dwarfdump > 10.7.2.32bit.vt
 $ dsymutil -s -arch i386 /mach_kernel > 10.7.2.32bit.symbol.dsymutil 
 }}}
 
-
 == Creating the profile (zip) ==
 
 {{{
@@ -103,27 +103,35 @@ To see how to use some of the initial plugins, read the presentation referenced 
 
 {{{
 $ python vol.py --info | grep mac_
-Volatile Systems Volatility Framework 2.2_alpha
-mac_arp             - prints the arp table
-mac_dmesg           - prints the kernel debug buffer
-mac_get_processors  - No docs        
-mac_ifconfig        - No docs        
-mac_ip_filters      - No docs        
-mac_list_open_files - No docs        
-mac_lsmod           - No docs        
-mac_machine_info    - No docs        
-mac_mount           - No docs        
-mac_netstat         - No docs        
-mac_notifiers       - detects rootkits that add hooks into I/O Kit (e.g. LogKext)
-mac_proc_maps       - No docs        
-mac_psaux           - No docs        
-mac_pslist          - No docs        
-mac_route           - No docs        
-mac_runq            - No docs        
-mac_trustedbsd      - No docs        
-mac_version         - No docs        
-mac_vfs_events      - No docs        
-mac_wait_queues     - No docs 
+mac_arp                 - Prints the arp table
+mac_check_sysctl        - Checks for unknown sysctl handlers
+mac_check_trap_table    - Checks to see if system call table entries are hooked
+mac_dmesg               - Prints the kernel debug buffer
+mac_dump_maps           - Dumps memory ranges of processes
+mac_find_aslr_shift     - Find the ASLR shift value for 10.8+ images
+mac_get_processors      - No docs        
+mac_ifconfig            - Lists network interface information for all devices
+mac_ip_filters          - Reports any hooked IP filters
+mac_list_sessions       - Enumerates sessions
+mac_ls_logins           - Lists login contexts
+mac_lsmod               - Lists loaded kernel modules
+mac_lsof                - Lists per-process opened files
+mac_machine_info        - Prints machine information about the sample
+mac_mount               - Prints mounted device information
+mac_netstat             - Lists active per-process network connections
+mac_notifiers           - Detects rootkits that add hooks into I/O Kit (e.g. LogKext)
+mac_pgrp_hash_table     - Walks the process group hash table
+mac_pid_hash_table      - Walks the pid hash table
+mac_proc_maps           - Gets memory maps of processes
+mac_psaux               - Prints processes with arguments in userland (**argv)
+mac_pslist              - List Running Processes
+mac_pstree              - Show parent/child relationship of processes
+mac_route               - Prints the routing table
+mac_runq                - No docs        
+mac_trustedbsd          - Lists malicious trustedbsd policies
+mac_version             - Prints the Mac version
+mac_vfs_events          - Lists Mac VFS Events
+mac_volshell            - Shell in the memory image
 }}}
 
 = Known Issues =
