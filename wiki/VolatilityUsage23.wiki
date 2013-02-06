@@ -154,7 +154,7 @@ The cache allows Volatility to store arbitrary objects and constants for later r
 
 == Setting the Timezone == 
 
-Timestamps extracted from memory can either be in system-local time, or in Universal Time Coordinates (UTC).  If they're in UTC, volatility can be instructed to display them in a time zone of the analyst's choosing.  To choose a timezone, use one of the standard timezone names (such as Europe/London, US/Eastern or most Olson timezones) with the --tz=TIMEZONE flag.
+Timestamps extracted from memory can either be in system-local time, or in Universal Time Coordinates (UTC).  If they're in UTC, Volatility can be instructed to display them in a time zone of the analyst's choosing.  To choose a timezone, use one of the standard timezone names (such as Europe/London, US/Eastern or most [http://en.wikipedia.org/wiki/List_of_tz_database_time_zones Olson timezones]) with the --tz=TIMEZONE flag.  Volatility attempts to use  [http://pytz.sourceforge.net/ pytz] if installed, otherwise it uses [http://docs.python.org/2/library/time.html#time.tzset tzset]. 
 
 Please note that specifying a timezone will not affect how system-local times are displayed.  If you identify a time that you know is UTC-based, please file it as an issue in the issue tracker.
 
