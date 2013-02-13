@@ -132,6 +132,33 @@ Offset(V)          Name                    PID pslist pid_hash kmem_cache
 [snip]
 }}}
 
+== linux_lsof ==
+
+This plugin mimics the `lsof` command on a live system. It prints the list of open file descriptors and their paths for each running process. 
+
+{{{
+$ python vol.py -f ~/Desktop/Linux/ubuntu.lime --profile=LinuxUbuntu1204x64 linux_lsof
+Volatile Systems Volatility Framework 2.2_rc2
+Pid      FD       Path
+-------- -------- ----
+       1        0 /dev/null
+       1        1 /dev/null
+       1        2 /dev/null
+       1        3 /
+       1        4 /
+       1        5 inotify
+       1        6 inotify
+       1        7 /
+       1        8 /
+       1        9 /
+       1       10 /var/log/upstart/modemmanager.log
+       1       11 /
+       1       18 /dev/ptmx
+       1       19 /dev/ptmx
+[snip]
+}}}
+
+
 = Process Memory =
 
 == linux_memmap ==
@@ -265,31 +292,6 @@ vmhgfs 63371
 [snip]
 }}}  
 
-== linux_lsof ==
-
-This plugin mimics the `lsof` command on a live system. It prints the list of open file descriptors and their paths for each running process. 
-
-{{{
-$ python vol.py -f ~/Desktop/Linux/ubuntu.lime --profile=LinuxUbuntu1204x64 linux_lsof
-Volatile Systems Volatility Framework 2.2_rc2
-Pid      FD       Path
--------- -------- ----
-       1        0 /dev/null
-       1        1 /dev/null
-       1        2 /dev/null
-       1        3 /
-       1        4 /
-       1        5 inotify
-       1        6 inotify
-       1        7 /
-       1        8 /
-       1        9 /
-       1       10 /var/log/upstart/modemmanager.log
-       1       11 /
-       1       18 /dev/ptmx
-       1       19 /dev/ptmx
-[snip]
-}}}
 
 == linux_tmpfs == 
 
