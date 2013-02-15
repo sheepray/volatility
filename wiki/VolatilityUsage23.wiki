@@ -191,7 +191,7 @@ Offset(V)  Name                    PID   PPID   Thds     Hnds   Sess  Wow64 Star
 Below is the same output above, but without the `pytz` library installed:
 
 {{{
-$ python2.6 vol.py -f ~win7.vmem --profile=Win7SP1x86 pslist --tz=America/Chicago
+$ python2.6 vol.py -f win7.vmem --profile=Win7SP1x86 pslist --tz=America/Chicago
 Volatile Systems Volatility Framework 2.3_alpha
 Offset(V)  Name                    PID   PPID   Thds     Hnds   Sess  Wow64 Start                          Exit                          
 ---------- -------------------- ------ ------ ------ -------- ------ ------ ------------------------------ ------------------------------
