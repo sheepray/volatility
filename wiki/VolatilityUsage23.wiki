@@ -158,6 +158,51 @@ Timestamps extracted from memory can either be in system-local time, or in Unive
 
 Please note that specifying a timezone will not affect how system-local times are displayed.  If you identify a time that you know is UTC-based, please file it as an issue in the issue tracker.
 
+By default the `_EPROCESS` `CreateTime` and `ExitTime` timestamps are in UTC.  Below is output from Volatility with `pytz` installed:
+
+{{{
+$ python vol.py -f win7.vmem --profile=Win7SP1x86 pslist
+Volatile Systems Volatility Framework 2.3_alpha
+Offset(V)  Name                    PID   PPID   Thds     Hnds   Sess  Wow64 Start                          Exit                          
+---------- -------------------- ------ ------ ------ -------- ------ ------ ------------------------------ ------------------------------
+0x84133630 System                    4      0     93      420 ------      0 2011-10-20 15:25:11 UTC+0000                                 
+0x852add40 smss.exe                276      4      4       29 ------      0 2011-10-20 15:25:11 UTC+0000                                 
+0x851d9530 csrss.exe               364    356      9      560      0      0 2011-10-20 15:25:15 UTC+0000                                 
+0x859c8530 wininit.exe             404    356      7       88      0      0 2011-10-20 15:25:16 UTC+0000                                 
+0x859cf530 csrss.exe               416    396     10      236      1      0 2011-10-20 15:25:16 UTC+0000
+[snip]                      
+}}}
+
+Below is output from the same sample using the `--tz=America/Chicago` option to get Central Standard Time:
+
+{{{
+$ python vol.py -f win7.vmem --profile=Win7SP1x86 pslist --tz=America/Chicago
+Volatile Systems Volatility Framework 2.3_alpha
+Offset(V)  Name                    PID   PPID   Thds     Hnds   Sess  Wow64 Start                          Exit                          
+---------- -------------------- ------ ------ ------ -------- ------ ------ ------------------------------ ------------------------------
+0x84133630 System                    4      0     93      420 ------      0 2011-10-20 10:25:11 CDT-0500                                 
+0x852add40 smss.exe                276      4      4       29 ------      0 2011-10-20 10:25:11 CDT-0500                                 
+0x851d9530 csrss.exe               364    356      9      560      0      0 2011-10-20 10:25:15 CDT-0500                                 
+0x859c8530 wininit.exe             404    356      7       88      0      0 2011-10-20 10:25:16 CDT-0500                                 
+0x859cf530 csrss.exe               416    396     10      236      1      0 2011-10-20 10:25:16 CDT-0500  
+[snip] 
+}}}
+
+Below is the same output above, but without the `pytz` library installed:
+
+{{{
+$ python2.6 vol.py -f ~win7.vmem --profile=Win7SP1x86 pslist --tz=America/Chicago
+Volatile Systems Volatility Framework 2.3_alpha
+Offset(V)  Name                    PID   PPID   Thds     Hnds   Sess  Wow64 Start                          Exit                          
+---------- -------------------- ------ ------ ------ -------- ------ ------ ------------------------------ ------------------------------
+0x84133630 System                    4      0     93      420 ------      0 2011-10-20 10:25:11 CDT                                      
+0x852add40 smss.exe                276      4      4       29 ------      0 2011-10-20 10:25:11 CDT                                      
+0x851d9530 csrss.exe               364    356      9      560      0      0 2011-10-20 10:25:15 CDT                                      
+0x859c8530 wininit.exe             404    356      7       88      0      0 2011-10-20 10:25:16 CDT                                      
+0x859cf530 csrss.exe               416    396     10      236      1      0 2011-10-20 10:25:16 CDT      
+[snip]                                 
+}}}
+
 == Setting the DTB == 
 
 The DTB (Directory Table Base) is what Volatility uses to translate virtual addresses to physical addresses. By default, a kernel DTB is used (from the Idle/System process). If you want to use a different process's DTB when accessing data, supply the address to --dtb=ADDRESS. 
