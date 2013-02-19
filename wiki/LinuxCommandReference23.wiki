@@ -6,26 +6,27 @@
 
 == linux_pslist ==
 
-This plugin prints the list of active processes starting from the `init_task` symbol and walking the `task_struct->tasks` linked list. It does not display the swapper process. 
+This plugin prints the list of active processes starting from the `init_task` symbol and walking the `task_struct->tasks` linked list. It does not display the swapper process. If the DTB column is blank, the item is likely a kernel thread. 
 
 {{{
 $ python vol.py -f ~/Desktop/Linux/ubuntu.lime --profile=LinuxUbuntu1204x64 linux_pslist
 Volatile Systems Volatility Framework 2.2_rc2
-Offset             Name                 Pid             Uid             Start Time
------------------- -------------------- --------------- --------------- ----------
-0x000088007b818000 init                 1               0               Fri, 17 Aug 2012 19:55:38 +0000
-0x000088007b8196f0 kthreadd             2               0               Fri, 17 Aug 2012 19:55:38 +0000
-0x000088007b81ade0 ksoftirqd/0          3               0               Fri, 17 Aug 2012 19:55:38 +0000
-0x000088007b81c4d0 kworker/0:0          4               0               Fri, 17 Aug 2012 19:55:38 +0000
-0x000088007b81dbc0 kworker/u:0          5               0               Fri, 17 Aug 2012 19:55:38 +0000
-0x000088007b840000 migration/0          6               0               Fri, 17 Aug 2012 19:55:38 +0000
-0x000088007b8416f0 watchdog/0           7               0               Fri, 17 Aug 2012 19:55:38 +0000
-0x000088007b842de0 migration/1          8               0               Fri, 17 Aug 2012 19:55:38 +0000
-0x000088007b8444d0 kworker/1:0          9               0               Fri, 17 Aug 2012 19:55:38 +0000
-0x000088007b845bc0 ksoftirqd/1          10              0               Fri, 17 Aug 2012 19:55:38 +0000
-0x000088007b85ade0 watchdog/1           12              0               Fri, 17 Aug 2012 19:55:38 +0000
-0x000088007b85c4d0 cpuset               13              0               Fri, 17 Aug 2012 19:55:38 +0000
+Offset             Name                 Pid             Uid             Gid    DTB                Start Time
+------------------ -------------------- --------------- --------------- ------ ------------------ ----------
+0xffff88007b818000 init                 1               0               0      0x00000000366ec000 Fri, 17 Aug 2012 19:55:38 +0000
+0xffff88007b8196f0 kthreadd             2               0               0      ------------------ Fri, 17 Aug 2012 19:55:38 +0000
+0xffff88007b81ade0 ksoftirqd/0          3               0               0      ------------------ Fri, 17 Aug 2012 19:55:38 +0000
+0xffff88007b81c4d0 kworker/0:0          4               0               0      ------------------ Fri, 17 Aug 2012 19:55:38 +0000
 [snip]
+0xffff8800790c5bc0 gnome-pty-helpe      11285           1000            1000   0x00000000308c1000 Fri, 17 Aug 2012 21:29:31 +0000
+0xffff88007ad15bc0 bash                 11286           1000            1000   0x00000000309fa000 Fri, 17 Aug 2012 21:29:31 +0000
+0xffff88005b8bdbc0 firefox              11370           1000            1000   0x00000000308a8000 Fri, 17 Aug 2012 21:31:22 +0000
+0xffff880079f62de0 at-spi-bus-laun      11389           1000            1000   0x0000000030b8b000 Fri, 17 Aug 2012 21:31:22 +0000
+0xffff880027d28000 notify-osd           18366           1000            1000   0x0000000027d10000 Fri, 17 Aug 2012 22:30:37 +0000
+0xffff88005b8c16f0 kworker/0:1          18535           0               0      ------------------ Fri, 17 Aug 2012 22:31:13 +0000
+0xffff880065ac44d0 kworker/0:2          18646           0               0      ------------------ Fri, 17 Aug 2012 22:36:14 +0000
+0xffff880030b22de0 sudo                 18649           1000            1000   0x0000000027ed3000 Fri, 17 Aug 2012 22:36:42 +0000
+0xffff880027efc4d0 insmod               18650           0               0      0x00000000309db000 Fri, 17 Aug 2012 22:36:42 +0000
 }}}
 
 == linux_psaux ==
@@ -96,17 +97,18 @@ This plugin enumerates processes from kmem_cache. It currently only works on sys
 {{{
 $ python vol.py -f ~/Desktop/Linux/centos.lime --profile=LinuxCentOS63x64 linux_pslist_cache
 Volatile Systems Volatility Framework 2.2_rc2
-Offset             Name                 Pid             Uid             Start Time
------------------- -------------------- --------------- --------------- ----------
-0x000088003d52c080 fcoemon              1436            0               Tue, 28 Aug 2012 11:06:24 +0000
-0x000088003d52cae0 bash                 3066            0               Tue, 28 Aug 2012 11:31:47 +0000
-0x000088003d52d540 console-kit-dae      1927            0               Tue, 28 Aug 2012 11:06:30 +0000
-0x000088003857c080 su                   3063            0               Tue, 28 Aug 2012 11:31:47 +0000
-0x000088003857cae0 gnome-screensav      2209            500             Tue, 28 Aug 2012 11:06:49 +0000
-0x000088003857d540 notification-ar      2223            500             Tue, 28 Aug 2012 11:06:49 +0000
-0x000088003d6cc080 sudo                 3062            0               Tue, 28 Aug 2012 11:31:47 +0000
-0x000088003d6ccae0 hald-runner          1619            0               Tue, 28 Aug 2012 11:06:26 +0000
-0x000088003d6cd540 Xorg                 1897            0               Tue, 28 Aug 2012 11:06:30 +0000
+Offset             Name                 Pid             Uid             Gid    DTB                Start Time
+------------------ -------------------- --------------- --------------- ------ ------------------ ----------
+0xffff88003d52c080 fcoemon              1436            0               0      0x000000003d41a000 Tue, 28 Aug 2012 11:06:24 +0000
+0xffff88003d52cae0 bash                 3066            0               0      0x000000003c365000 Tue, 28 Aug 2012 11:31:47 +0000
+0xffff88003d52d540 console-kit-dae      1927            0               0      0x000000003ceb1000 Tue, 28 Aug 2012 11:06:30 +0000
+0xffff88003857c080 su                   3063            0               0      0x000000003d217000 Tue, 28 Aug 2012 11:31:47 +0000
+0xffff88003857cae0 gnome-screensav      2209            500             501    0x000000003b066000 Tue, 28 Aug 2012 11:06:49 +0000
+0xffff88003857d540 notification-ar      2223            500             501    0x000000003c7ba000 Tue, 28 Aug 2012 11:06:49 +0000
+0xffff88003d6cc080 sudo                 3062            0               501    0x000000003c367000 Tue, 28 Aug 2012 11:31:47 +0000
+0xffff88003d6ccae0 hald-runner          1619            0               0      0x000000003c52b000 Tue, 28 Aug 2012 11:06:26 +0000
+0xffff88003d6cd540 Xorg                 1897            0               0      0x000000003c626000 Tue, 28 Aug 2012 11:06:30 +0000
+0xffff88003c0d6040 nm-applet            2181            500             501    0x000000003bb4a000 Tue, 28 Aug 2012 11:06:49 +0000
 [snip]
 }}}
 
@@ -119,22 +121,19 @@ $ python vol.py -f ~/Desktop/Linux/centos.lime --profile=LinuxCentOS63x64 linux_
 Volatile Systems Volatility Framework 2.2_rc2
 Offset(V)          Name                    PID pslist pid_hash kmem_cache
 ------------------ -------------------- ------ ------ -------- ----------
-0x000088003ef85500 init                      1 True   True     True      
-0x000088003ef84aa0 kthreadd                  2 True   True     True      
-0x000088003ef84040 migration/0               3 True   True     True      
-0x000088003ef91540 ksoftirqd/0               4 True   True     True      
-0x000088003ef90ae0 migration/0               5 True   True     True      
-0x000088003ef90080 watchdog/0                6 True   True     True      
-0x000088003efbb500 events/0                  7 True   True     True      
-0x000088003efbaaa0 cgroup                    8 True   True     True      
-0x000088003efba040 khelper                   9 True   True     True      
-0x000088003effb540 netns                    10 True   True     True
+0xffff88003ef85500 init                      1 True   True     True      
+0xffff88003ef84aa0 kthreadd                  2 True   True     True      
+0xffff88003ef84040 migration/0               3 True   True     True      
+0xffff88003ef91540 ksoftirqd/0               4 True   True     True      
+0xffff88003ef90ae0 migration/0               5 True   True     True      
+0xffff88003ef90080 watchdog/0                6 True   True     True      
+0xffff88003efbb500 events/0                  7 True   True     True 
 [snip]
 }}}
 
 == linux_lsof ==
 
-This plugin mimics the `lsof` command on a live system. It prints the list of open file descriptors and their paths for each running process. 
+This plugin mimics the `lsof` command on a live system. It prints the list of open file descriptors and their paths for each running process. To print only the files for a specific process, use the -p PID option. 
 
 {{{
 $ python vol.py -f ~/Desktop/Linux/ubuntu.lime --profile=LinuxUbuntu1204x64 linux_lsof
