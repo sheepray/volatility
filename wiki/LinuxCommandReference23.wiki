@@ -424,6 +424,31 @@ TCP      192.168.110.150:13377 192.168.110.140:41745 ESTABLISHED           _h4x_
 
 == linux_dentry_cache == 
 
+This plugin recovers the filesystem in memory for each active mount point and can also recover filenames of previously deleted files. It outputs pipe-delimited body-file format:
+
+MD5|name|inode|mode_as_string|UID|GID|size|atime|mtime|ctime|crtime
+
+{{{
+$ python vol.py -f ~Desktop/Linux/centos.lime --profile=LinuxCentOS63x64 linux_dentry_cache
+Volatile Systems Volatility Framework 2.3_alpha
+0|home/mhl/Downloads/src/Module.symvers|0|0|0|0|0|0|0|0
+0|home/mhl/Downloads/src/.3017.o|0|0|0|0|0|0|0|0
+0|home/mhl/Downloads/src/.3017.tmp|0|0|0|0|0|0|0|0
+0|tmp/ccN0ri78.o|0|0|0|0|0|0|0|0
+0|tmp/cc88gIR4.c|0|0|0|0|0|0|0|0
+0|tmp/ccaaUbDc.le|0|0|0|0|0|0|0|0
+0|home/mhl/Downloads/src/modules.order|0|0|0|0|0|0|0|0
+[snip]
+}}}
+
+If you encounter lines that are all 0's, they're indicative of uninitialized entries. If you see invalid or non-ascii characters in the full path name (as shown below), it means the containing directory was deleted, but the file name portion of the data structure was not wiped out. 
+
+{{{
+0|^P?^S^P/???//IBM1026.gz|0|0|0|0|0|0|0|0
+0|^P?^S^P/???//IBM037.gz|0|0|0|0|0|0|0|0
+0|^P?^S^P/???//HP-TURKISH8.gz|0|0|0|0|0|0|0|0
+}}}
+
 == linux_find_file ==
 
 This plugin is typically used in two steps. First you find the inode to a file in the following manner: 
