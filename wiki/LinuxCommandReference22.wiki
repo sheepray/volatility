@@ -212,7 +212,7 @@ This plugin dumps a memory range specified by the -s/--vma parameter to disk. Fo
 
 == linux_bash == 
 
-This plugin recovers bash history from memory, even in the face of anti-forensics (for example if HISTSIZE is set to 0 or HISTSIZE is pointed to /dev/null). For more information, see [http://volatility-labs.blogspot.com/2012/09/movp-14-average-coder-rootkit-bash.html MoVP 1.4 Average Coder Rootkit, Bash History, and Elevated Processes]. 
+This plugin recovers bash history from memory, even in the face of anti-forensics (for example if HISTSIZE is set to 0 or HISTFILE is pointed to /dev/null). For more information, see [http://volatility-labs.blogspot.com/2012/09/movp-14-average-coder-rootkit-bash.html MoVP 1.4 Average Coder Rootkit, Bash History, and Elevated Processes]. 
 
 The argument to the -H/--history_list parameter can be gathered by using gdb on a live system. As shown below, the value you supply is 0x6ed4a0 (this was not calculated by us, its in a comment of the gdb output). For some systems, such as OpenSuSE, the history_list symbol is in a shared library (readline.so) instead of /bin/bash and ASLR is enabled. In those cases, its not a static value, and the linux_bash plugin will not work. Please wait until Volatility 2.3 is released which will dynamically determine the history_list address using disassembly. 
 
