@@ -76,7 +76,7 @@ KPCR                          : 0xfffff80001177000 (CPU 0)
 
 For more information on how KDBG structures are identified read [http://moyix.blogspot.com/2008/04/finding-kernel-global-variables-in.html Finding Kernel Global Variables in Windows] and [http://gleeda.blogspot.com/2010/12/identifying-memory-images.html Identifying Memory Images]
 
-== kprcscan ==
+== kpcrscan ==
 
 Use this command to scan for potential KPCR structures by checking for the self-referencing members as described by [http://blog.schatzforensic.com.au/2010/07/finding-object-roots-in-vista-kpcr/ Finding Object Roots in Vista]. On a multi-core system, each processor has its own KPCR. Therefore, you'll see details for each processor, including IDT and GDT address; current, idle, and next threads; CPU number, vendor & speed; and CR3 value. 
 
