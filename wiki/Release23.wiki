@@ -2,7 +2,7 @@
 
 = Introduction =
 
-Volatility 2.3 is scheduled for release in Feburary 2013.
+Volatility 2.3 is scheduled for release in April 2013.
 
 = Release Highlights = 
 
