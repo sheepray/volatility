@@ -336,6 +336,8 @@ Symbol Name        Member          Address
 tcp4_seq_afinfo    show            0xe0fb9965
 }}}
 
+== linux_check_tty == 
+
 == linux_check_creds ==
 
 This plugin detects rootkits that have elevated privileges to root using DKOM techniques. 
