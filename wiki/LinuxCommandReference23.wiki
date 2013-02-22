@@ -339,6 +339,26 @@ tcp4_seq_afinfo    show            0xe0fb9965
 
 == linux_check_creds ==
 
+This plugin detects rootkits that have elevated privileges to root using DKOM techniques. 
+
+On older 2.6 kernels, the user ID and group ID of a process were kept as simple integers in memory. For a rootkit to elevate the privileges of a process, it simply set these two values to zero.  This simplicity also made it very difficult to use only the information in the process structure itself to detect which processes had been elevated and which were simply spawned by root.
+
+This changed in later versions of 2.6 as the kernel adopted a cred structure to hold all information related to the privileges of a process.  This structure is fairly complicated and forced rootkits to adapt their process elevation methods. Although the kernel provides the prepare_creds and commit_creds functions to allocate and store new credentials, a number of rootkits choose not to use this functionality. Instead, they simply find another process that has the privileges of root and that never exits, usually PID 1, and set the cred pointer of the target process to that of PID 1’s. This effectively gives the attacker’s process full control and the rootkit does not have to attempt the non-trivial task of allocating its own cred structure.
+
+The borrowing of cred structures leads to an inconsistency that Volatility can leverage to find elevated processes. In the normal workings of the kernel, every process gets a unique cred structure and they are never shared or borrowed. The linux_check_creds plugin utilizes this by building a mapping of processes and their cred structures and then reports any processes that share them.   
+
+The following output shows the cred structure running on an infected VM and showing that PID 1 has the same cred structure as the elevated bash shell (PID 9673):
+
+{{{
+$ python vol.py -f avg.hidden-proc.lime --profile=Linuxthisx86 linux_check_creds
+Volatile Systems Volatility Framework 2.2_rc1
+PIDs
+--------
+1, 9673
+}}}
+
+For more information on this plugin, see [http://volatility-labs.blogspot.com/2012/09/movp-14-average-coder-rootkit-bash.html MoVP 1.4 Average Coder Rootkit, Bash History, and Elevated Processes].
+
 == linux_check_fop ==
 
 == linux_check_idt ==
