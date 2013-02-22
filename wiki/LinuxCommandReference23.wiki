@@ -112,6 +112,23 @@ Offset             Name                 Pid             Uid             Gid    D
 [snip]
 }}}
 
+== linux_pidhashtable ==
+
+This plugin enumerates processes by walking the pid hash table. It can assist with detecting hidden processes. The output will appear similar to linux_pslist, but in a different order. 
+
+{{{
+$ python vol.py --profile=LinuxMandriva2011x64 -f mandriva.lime linux_pidhashtable
+Offset             Name                 Pid             Uid             Gid    DTB                Start Time
+------------------ -------------------- --------------- --------------- ------ ------------------ ----------
+0xffff880010b6c410 console-kit-dae      1880            0               0      0x0000000011fa5000 2012-08-28 04:34:01 UTC+0000
+0xffff88000f8016b0 mpt_poll_0           262             0               0      ------------------ 2012-08-28 04:33:46 UTC+0000
+0xffff880014132d60 console-kit-dae      1914            0               0      0x0000000011fa5000 2012-08-28 04:34:01 UTC+0000
+0xffff880001a496b0 kmix                 6315            500             500    0x000000001232b000 2012-08-28 17:17:57 UTC+0000
+0xffff88000fac5ac0 rtkit-daemon         5794            492             491    0x0000000013931000 2012-08-28 17:17:20 UTC+0000
+0xffff880012d1c410 hald                 1859            485             483    0x0000000012fe2000 2012-08-28 04:34:01 UTC+0000
+....
+}}}
+
 == linux_psxview ==
 
 This plugin is similar in concept to the [CommandReference22#psxview Windows psxview command] in that it gives you a cross-reference of processes based on multiple sources (the `task_struct->tasks` linked list, the pid hash table, and the kmem_cache). 
@@ -162,7 +179,19 @@ Pid      FD       Path
 
 == linux_memmap ==
 
-== linux_pidhashtable ==
+This plugin prints the list of allocated and memory-resident (non-swapped) pages in a process. The virtual and physical addresses are shown. Choose specific processes with the -p option. 
+
+{{{
+$ python vol.py --profile=LinuxMandriva2011x64 -f /Volumes/Storage/memory/Linux/mandriva.lime linux_memmap -p 7047
+Task             Pid      Virtual            Physical                         Size
+---------------- -------- ------------------ ------------------ ------------------
+bash                 7047 0x0000000000400000 0x00000000118e5000             0x1000
+bash                 7047 0x0000000000403000 0x000000000d8cc000             0x1000
+bash                 7047 0x0000000000404000 0x0000000016dc2000             0x1000
+bash                 7047 0x0000000000405000 0x0000000016dc3000             0x1000
+bash                 7047 0x0000000000406000 0x0000000003e26000             0x1000
+.....
+}}}
 
 == linux_proc_maps ==
 
