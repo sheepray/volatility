@@ -174,7 +174,6 @@ Pid      FD       Path
 [snip]
 }}}
 
-
 = Process Memory =
 
 == linux_memmap ==
@@ -361,7 +360,65 @@ For more information on this plugin, see [http://volatility-labs.blogspot.com/20
 
 == linux_check_fop ==
 
+This plugin enumerates the /proc filesystem and all opened files and verifies that each member of every file_operations structure is valid (valid means the function pointer is either in the kernel or in a known (not hidden) loadable kernel module). 
+
+{{{
+$ python vol.py -f avgcoder.mem --profile=LinuxCentOS63x64 linux_check_fop
+Volatile Systems Volatility Framework 2.2_rc1
+Symbol Name              Member           Address
+------------------------ ---------------- ------------------
+proc_mnt: root           readdir          0xffffa05ce0e0
+buddyinfo                write            0xffffa05cf0f0
+modules                  read             0xffffa05ce8a0
+}}}
+
+As we can see from the output, Volatility was able to report the three hooks placed by Average Coder (readdir from root of proc, write of buddyinfo, and read of modules), by enumerating all the files and directories under /proc and verifying their members. From here, the investigator knows the machine is compromised and can begin to investigate the rootkit.
+
+This plugin, when given the –i/--inode option, reads the inode at the given address and verifies each member of its i_fop pointer. 
+
+{{{
+$ python vol.py -f avgcoder.mem --profile=LinuxCentOS63x64 linux_check_fop -i 0x88007a85acc0
+Volatile Systems Volatility Framework 2.2_rc1
+Symbol Name                   Member                 Address
+----------------------------- ---------------------- ------------------
+inode at 88007a85acc0         read                   0xffffa05ce4d0
+}}}
+
+As we can see, the plugin tells us that the read member is hooked and the address of the hooked function. 
+
+For more information on this plugin, see [http://volatility-labs.blogspot.com/2012/09/movp-14-average-coder-rootkit-bash.html MoVP 1.4 Average Coder Rootkit, Bash History, and Elevated Processes]
+
 == linux_check_idt ==
+
+This plugin enumerates the interrupt descriptor table (IDT) addresses and symbols. If any entries are hooked by rootkits, you'll see "HOOKED" in the far right column instead of the symbol name. 
+
+{{{
+$ python vol.py -f ~/Downloads/Metasploitable2-Linux/Metasploitable-555c9224.vmem --profile=LinuxMetasploitx86 linux_check_idt
+Volatile Systems Volatility Framework 2.3_alpha
+     Index Address    Symbol                        
+---------- ---------- ------------------------------
+       0x0 0xc0108fec divide_error                  
+       0x1 0xc032ff80 debug                         
+       0x2 0xc032ffcc nmi                           
+       0x3 0xc03300f0 int3                          
+       0x4 0xc0108f8c overflow                      
+       0x5 0xc0108f98 bounds                        
+       0x6 0xc0108fa4 invalid_op                    
+       0x7 0xc0108f3c device_not_available          
+       0x8 0x00000000 xen_save_fl_direct_reloc      
+       0x9 0xc0108fb0 coprocessor_segment_overrun   
+       0xa 0xc0108fbc invalid_TSS                   
+       0xb 0xc0108fc8 segment_not_present           
+       0xc 0xc0108fd4 stack_segment                 
+       0xd 0xc033011c general_protection            
+       0xe 0xc032ff00 page_fault                    
+       0xf 0xc0108ff8 spurious_interrupt_bug        
+      0x10 0xc0108f24 coprocessor_error             
+      0x11 0xc0108fe0 alignment_check               
+      0x12 0xc010035c ignore_int                    
+      0x13 0xc0108f30 simd_coprocessor_error        
+      0x80 0xc01083d0 system_call 
+}}}
 
 == linux_check_syscall == 
 
