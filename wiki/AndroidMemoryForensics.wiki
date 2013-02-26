@@ -366,6 +366,8 @@ $ zip ~/android-volatility/volatility/plugins/overlays/linux/Golfish-2.6.29.zip 
 
 = Examine the Memory Dump with Volatility =
 
+Android is based on Linux so you can use any of the [LinuxCommandReference23 Linux Commands] to analyze your memory dump. 
+
 {{{
 $ cd ~/android-volatility/
 
@@ -385,7 +387,7 @@ Offset     Name                 Pid             Uid             Gid    DTB      
 
 = Troubleshooting =
 
-1) mk_elfconfig error while building the android kernel 
+== mk_elfconfig error while building the android kernel ==
 
 If you get the following error:
 
@@ -401,7 +403,7 @@ make: *** [scripts] Error 2
 
 Install Libelf from http://freecode.com/projects/libelf. Then copy elf.h to /usr/include. This should only be necessary on Mac. 
 
-2) netfilter xt_CONNMARK.o error while building the android kernel
+== netfilter xt_CONNMARK.o error while building the android kernel ==
 
 If you get the following error: 
 
@@ -419,8 +421,8 @@ Disable CONFIG_NETFILTER in the kernel's .config. This should only be necessary 
 
 = Related Links =
 
-http://blog.opensecurityresearch.com/2012/04/acquiring-volatile-memory-from-android.html - "Acquiring volatile memory from Android based devices with LiME Forensics, Part I" By Ismael Valenzuela
+  * http://blog.opensecurityresearch.com/2012/04/acquiring-volatile-memory-from-android.html - "Acquiring volatile memory from Android based devices with LiME Forensics, Part I" By Ismael Valenzuela
 
-http://digitalforensicssolutions.com/papers/android-memory-analysis-DI.pdf - "Acquisition and analysis of volatile memory from android devices" by Joe Sylve, Andrew Case, Lodovico Marziale, and Golden G. Richard. 
+  * http://digitalforensicssolutions.com/papers/android-memory-analysis-DI.pdf - "Acquisition and analysis of volatile memory from android devices" by Joe Sylve, Andrew Case, Lodovico Marziale, and Golden G. Richard. 
 
-http://blog.markloiseau.com/2012/07/how-to-compile-the-android-goldfish-emulator-kernel/ - "How to compile the Android Goldfish kernel" by Mark Loiseau
+  * http://blog.markloiseau.com/2012/07/how-to-compile-the-android-goldfish-emulator-kernel/ - "How to compile the Android Goldfish kernel" by Mark Loiseau
