@@ -2,6 +2,10 @@
 
 <wiki:toc max_depth="1" />
 
+These instructions will help you start performing Android memory forensics with Volatility. It tells you how to setup an Android build environment, cross-compile Android kernels, use the Android Emulator, Acquire memory from Android devices with LiME, build Volatility profiles for Android, and begin running Volatility commands against Android memory dumps. 
+
+Please note these instructions may change over time as new releases of the various components are made available. Also, you should only need to perform many of these steps once (for example setting up a build enviornment). Once you complete those initial steps, creating profiles and analyzing new Android devices is really quite a breeze. 
+
 = Download the Android SDK and NDK =
 
 Choose the proper packages for your host operating system. We strongly recommend doing this on Linux (x64 Ubuntu) or Mac. Windows is not currently supported. Download the "Bundle" option which includes the Eclipse IDE, platform tools, and Android Emulator. 
