@@ -99,7 +99,7 @@ After extracting the SDK, you should create Virtual Android Device (AVD). The ea
 Create a new AVD for your desired target device (Galaxy Nexus, Nexus One, etc). If you plan to 
 dump memory to your sdcard, make sure to assign enough room to the sdcard. 
 
-<screenshot> 
+<img src='https://lh3.googleusercontent.com/-0nT37DwY17I/USwhoswENII/AAAAAAAADEQ/Kk7F2Q1W8hk/w437-h428-o-k/myavd.png'></img>
 
 = Download the Android Kernel Source Code =
 
@@ -216,7 +216,9 @@ emulator: autoconfig: -sdcard /Users/Michael/.android/avd/myavd.avd/sdcard.img
 emulator: Physical RAM size: 1024MB
 }}}
 
-<screen shot>
+You should see an emulated Android device on your screen now, such as the following:
+
+<img src='https://lh3.googleusercontent.com/-oME-lcj4cq0/USwhoccBrMI/AAAAAAAADEU/tkL6boPz7E0/w372-h475-o-k/myavd-droid.png'></img>
 
 = Download and Cross Compile LiME =
 
