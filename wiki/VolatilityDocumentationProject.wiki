@@ -137,6 +137,7 @@ This is a catalog of research, documentation, analysis, and tutorials generated 
 ||2010||May||Blog||[http://holisticinfosec.blogspot.com/2010/05/memory-forensics-with-sift-20.html Memory forensics with SIFT 2.0, Volatility, and PTK]||Russ !McRee (@holisticinfosec)||
 ||2010||May||Blog||[http://blog.schatzforensic.com.au/2010/05/adding-new-structure-definitions-to-volatility/ Adding new structure definitions to Volatility]||Bradley Schatz||
 ||2010||April||Blog||[http://network-forensics.blogspot.com/2010/04/honeynet-forensics-contest.html Challenge 3 of the Forensic Challenge 2010 - Banking Troubles]||@pstutz||
+||2010||April||Blog||[http://blogs.gnome.org/muelli/2010/04/reading-ram-using-firewire/ Reading RAM using Firewire]||muelli||
 ||2010||March||Paper(s)||[https://www.honeynet.org/challenges/2010_3_banking_troubles Challenge 3 of the Forensic Challenge 2010 - Banking Troubles]||Pascucci, Hudak, and Pulley||
 ||2010||February||Blog||[http://cci.cocolog-nifty.com/blog/2010/02/encase-enscri-1.html EnCase EnScripts for Memory Forensics]||Takahiro Haruyama (@cci_forensics)||
 ||2010||January||Blog||[http://neosysforensics.blogspot.com/2010/01/analisis-de-un-caso-real-3.html Análisis de un caso ¿real?, #3]||neofito (@neosysforensics)||
