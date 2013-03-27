@@ -41,6 +41,7 @@ This is a catalog of research, documentation, analysis, and tutorials generated 
 ||2012||August||Magazine||[http://www.chmag.in/article/aug2012/malware-memory-forensics Malware Memory Forensics]||Monnappa||
 ||2012||August||Blog||[http://antelox.blogspot.com/2012/08/configure-volatility-framework-on.html Configure Volatility framework on Windows OS]||Stefano Antenucci||
 ||2012||August||Blog||[http://memoryforensics.blogspot.com/2012/08/recoving-tmpfs-from-memory-with.htm Recoving tmpfs from Memory with Volatility]||Andrew Case (@attrc)||
+||2012||June||Slides||[http://www.slideshare.net/blackthorne/you-suck-at-memory-analysis You suck at Memory Analysis]||Francisco Gama T. R. (@blackthorne)||
 ||2012||June||Blog||[http://mnin.blogspot.com/2012/06/quickpost-flame-volatility.html QuickPost: Flame & Volatility]||Michael Ligh (@iMHLv2)||
 ||2012||June||Blog||[http://memoryforensics.blogspot.com/2012/06/announcing-mac-support-in-volatility.html Announcing Mac Support in Volatility]||Andrew Case (@attrc)||
 ||2012||June||Slides||[http://memoryanalysis.net/research/mac-memory-analysis-with-volatility.pdf Mac Memory Analysis with Volatility]||Andrew Case (@attrc)||
