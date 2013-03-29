@@ -12,5 +12,5 @@ As described on the [MacMemoryForensics] page, these are the available example M
 || 10.6.0 x64  || [https://code.google.com/p/volatility/downloads/detail?name=10.6.0-x64.zip&can=4&q= 10.6.0-x64.zip] || 
 || 10.6.8 32bit   || [http://code.google.com/p/volatility/downloads/detail?name=10.6.8-32bit.zip 10.6.8-32bit.zip] || 
 || 10.8.0 || [http://code.google.com/p/volatility/downloads/detail?name=10.8.0.zip 10.8.0.zip] || 
-|| 10.8.01|| [http://code.google.com/p/volatility/downloads/detail?name=10.8.1.zip 10.8.1.zip] || 
+|| 10.8.1|| [http://code.google.com/p/volatility/downloads/detail?name=10.8.1.zip 10.8.1.zip] || 
 || 10.8.2_12c54 || [http://code.google.com/p/volatility/downloads/detail?name=10.8.2_12c54.zip 10.8.2_12c54.zip] || 
