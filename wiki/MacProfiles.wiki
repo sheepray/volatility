@@ -2,17 +2,30 @@
 
 = Introduction =
 
-As described on the [MacMemoryForensics] page, these are the available example Mac profiles. Do not use these profiles with memory dumps from systems running different kernels than as specified in the profile description.  To find the appropriate profile, check the software release (About this Mac and look at Version).
+These are the available pre-built profiles for Mac OSX memory forensics. If you don't see your system in the list, please follow the instructions on the [MacMemoryForensics] page to build your own. 
+
+If you're not sure which one to choose, click the Apple icon in the top left corner of your Mac's screen and choose About This Mac. Look at the Version number, as shown below. 
+
+[https://lh3.googleusercontent.com/-J38DLJdf1F8/UVnPpKk2UqI/AAAAAAAADHo/eeqPo0eOyKk/s379/AppleVersion.png] 
+
+To verify your architecture, use the following command:
+
+{{{
+$ uname -a | cut -d/ -f2
+RELEASE_X86_64 x86_64
+}}}
+
+If you see "RELEASE_X86_64 x86_64" then choose the AMD 64-bit profile. If you see "RELEASE_I386 i386" then choose the Intel 32-bit profile. 
 
 = Profiles =
 
-|| *Software Release* || *Profile* || 
-|| 10.5.0 || [https://code.google.com/p/volatility/downloads/detail?name=10.5.0-32bit.zip&can=4&q= 10.5.0-32bit.zip] || 
-|| 10.5.8 || [https://code.google.com/p/volatility/downloads/detail?name=10.5.8-32bit.zip&can=4&q= 10.5.8-32bit.zip] ||
-|| 10.6.0 x64  || [https://code.google.com/p/volatility/downloads/detail?name=10.6.0-x64.zip&can=4&q= 10.6.0-x64.zip] || 
-|| 10.6.8 32bit   || [http://code.google.com/p/volatility/downloads/detail?name=10.6.8-32bit.zip 10.6.8-32bit.zip] ||
-|| 10.7.2 x64 || [https://code.google.com/p/volatility/downloads/detail?name=10.7.2.x64.zip&can=1&q= 10.7.2.x64.zip] || 
-|| 10.7.3 x64 || [https://code.google.com/p/volatility/downloads/detail?name=10.7.3-x64.zip&can=1&q= 10.7.3-x64.zip] ||
-|| 10.8.0 || [http://code.google.com/p/volatility/downloads/detail?name=10.8.0.zip 10.8.0.zip] || 
-|| 10.8.1|| [http://code.google.com/p/volatility/downloads/detail?name=10.8.1.zip 10.8.1.zip] || 
-|| 10.8.2_12c54 || [http://code.google.com/p/volatility/downloads/detail?name=10.8.2_12c54.zip 10.8.2_12c54.zip] || 
+|| *Name* || *Version* || *Architecture* || *Profile* || 
+|| Leopard || 10.5.0 || Intel 32-bit || [https://volatility.googlecode.com/files/Leopard_10.5.0_Intel.zip Leopard_10.5.0_Intel.zip] || 
+|| Leopard || 10.5.8 || Intel 32-bit || [https://volatility.googlecode.com/files/Leopard_10.5.8_Intel.zip Leopard_10.5.8_Intel.zip] ||
+|| Snow Leopard || 10.6.0 || AMD 64-bit || [https://volatility.googlecode.com/files/SnowLeopard_10.6.0_AMD.zip SnowLeopard_10.6.0_AMD.zip] || 
+|| Snow Leopard || 10.6.8 || Intel 32-bit || [https://volatility.googlecode.com/files/SnowLeopard_10.6.8_Intel.zip SnowLeopard_10.6.8_Intel.zip] ||
+|| Lion || 10.7.2 || AMD 64-bit || [https://volatility.googlecode.com/files/Lion_10.7.2_AMD.zip Lion_10.7.2_AMD.zip] || 
+|| Lion || 10.7.3 || AMD 64-bit || [https://volatility.googlecode.com/files/Lion_10.7.3_AMD.zip Lion_10.7.3_AMD.zip] ||
+|| Mountain Lion || 10.8.0 || AMD 64-bit || [https://volatility.googlecode.com/files/MountainLion_10.8.0.zip MountainLion_10.8.0.zip] || 
+|| Mountain Lion || 10.8.1 || AMD 64-bit || [https://volatility.googlecode.com/files/MountainLion_10.8.1.zip MountainLion_10.8.1.zip] || 
+|| Mountain Lion || 10.8.2 build 12c54 || AMD 64-bit || [https://volatility.googlecode.com/files/MountainLion_10.8.2_12c54.zip MountainLion_10.8.2_12c54.zip] || 
