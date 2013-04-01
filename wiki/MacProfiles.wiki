@@ -2,7 +2,7 @@
 
 = Introduction =
 
-As described on the [MacMemoryForensics] page, these are the available example Mac profiles. Do not use these profiles with memory dumps from systems running different kernels than as specified in the profile description. 
+As described on the [MacMemoryForensics] page, these are the available example Mac profiles. Do not use these profiles with memory dumps from systems running different kernels than as specified in the profile description.  To find the appropriate profile, check the software release (About this Mac and look at Version).
 
 = Profiles =
 
