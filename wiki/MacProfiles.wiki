@@ -27,7 +27,7 @@ $ file /mach_kernel
 /mach_kernel (for architecture ppc):	Mach-O executable ppc
 }}}
 
-Assuming you wanted to switch to a different mode, for testing purposes, you can do the following and then reboot. 
+Assuming you wanted to switch to a different mode, for testing purposes, you can do the following and then reboot. For more information see [https://support.apple.com/kb/HT3773 Apple Support HT3773]. 
 
 {{{
 $ sudo systemsetup -setkernelbootarchitecture x86_64
