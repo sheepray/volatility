@@ -44,7 +44,7 @@ Once you have downloaded the profile, place the entire zip file in your volatili
 || Leopard || 10.5.8 || Intel 32-bit || [https://volatility.googlecode.com/files/Leopard_10.5.8_Intel.zip Leopard_10.5.8_Intel.zip] ||
 || Snow Leopard || 10.6.0 || AMD 64-bit || [https://volatility.googlecode.com/files/SnowLeopard_10.6.0_AMD.zip SnowLeopard_10.6.0_AMD.zip] || 
 || Snow Leopard || 10.6.8 || Intel 32-bit || [https://volatility.googlecode.com/files/SnowLeopard_10.6.8_Intel.zip SnowLeopard_10.6.8_Intel.zip] ||
-|| Snow Leopard || 10.6.8 || AMD 64-bit || [http://volatility.googlecode.com/files/SnowLeopard_10.6.8_AMD.zip] ||
+|| Snow Leopard || 10.6.8 || AMD 64-bit || [http://volatility.googlecode.com/files/SnowLeopard_10.6.8_AMD.zip SnowLeopard_10.6.8_AMD.zip] ||
 || Lion || 10.7.2 || AMD 64-bit || [https://volatility.googlecode.com/files/Lion_10.7.2_AMD.zip Lion_10.7.2_AMD.zip] || 
 || Lion || 10.7.3 || AMD 64-bit || [https://volatility.googlecode.com/files/Lion_10.7.3_AMD.zip Lion_10.7.3_AMD.zip] ||
 || Mountain Lion || 10.8.0 || AMD 64-bit || [https://volatility.googlecode.com/files/MountainLion_10.8.0.zip MountainLion_10.8.0.zip] || 
