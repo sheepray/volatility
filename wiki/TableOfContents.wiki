@@ -47,6 +47,7 @@
   * [VolatilityBranches Branches]
       * [TechPreviewBranch Tech Preview]
   * [LinuxProfiles Linux Profiles]
+  * [MacProfiles Mac Profiles]
   * [AddressSpaceReference Physical AS]
       * [FirewireAddressSpace Firewire]
       * [CrashAddressSpace Crash Dumps]
