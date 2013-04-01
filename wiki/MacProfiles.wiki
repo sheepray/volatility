@@ -17,9 +17,9 @@ RELEASE_X86_64 x86_64
 
 If you see "RELEASE_X86_64 x86_64" then choose the AMD 64-bit profile. If you see "RELEASE_I386 i386" then choose the Intel 32-bit profile. 
 
-Once you have downloaded the profile, place the entire zip file in your volatility/plugins/overlays/mac folder. _Do not extract the zip_. 
-
 = Profiles =
+
+Once you have downloaded the profile, place the entire zip file in your volatility/plugins/overlays/mac folder. _Do not extract the zip_. 
 
 || *Name* || *Version* || *Architecture* || *Profile* || 
 || Leopard || 10.5.0 || Intel 32-bit || [https://volatility.googlecode.com/files/Leopard_10.5.0_Intel.zip Leopard_10.5.0_Intel.zip] || 
