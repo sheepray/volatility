@@ -1819,7 +1819,7 @@ Value   Mru   File Name      Modified Date        Create Date          Access Da
 [snip]
 }}}
 
-Another option is to use the `--output=body` option for [http://wiki.sleuthkit.org/index.php?title=Body_file TSK 3.x bodyfile format].  You can use this output option when you want to combine output from `timeliner`, [CommandReference23#mftparser] and [CommandReference23#timeliner].  Only ITEMPOS and FILE_ENTRY items are output with the bodyfile format:
+Another option is to use the `--output=body` option for [http://wiki.sleuthkit.org/index.php?title=Body_file TSK 3.x bodyfile format].  You can use this output option when you want to combine output from `timeliner`, [CommandReference23#mftparser mftparser] and [CommandReference23#timeliner timeliner].  Only ITEMPOS and FILE_ENTRY items are output with the bodyfile format:
 
 {{{
 $ ./vol.py -f win7_adobe.vmem --profile=Win7SP1x86 shellbags --output=body
@@ -2668,7 +2668,7 @@ If you don't want to do the extra step of importing, you can use the `--output=x
 $ python vol.py --plugins=contrib/plugins -f XPSP3x86.vmem timeliner --output=xlsx --output-file=output.xlsx
 }}}
 
-Another option is to use the `--output=body` option for [http://wiki.sleuthkit.org/index.php?title=Body_file TSK 3.x bodyfile format].  You can use this output option when you want to combine output from `timeliner`, [CommandReference23#mftparser] and [CommandReference23#shellbags].
+Another option is to use the `--output=body` option for [http://wiki.sleuthkit.org/index.php?title=Body_file TSK 3.x bodyfile format].  You can use this output option when you want to combine output from `timeliner`, [CommandReference23#mftparser mftparser] and [CommandReference23#shellbags shellbags].
 
 By default everything except the registry LastWrite timestamps are included in the output of `timeliner`, this is because obtaining the registry timestamps can take quite a long time.  In order to add them to the output, simply add the `-R` option when you run Volatility.  You can also limit your focus of registry timestamps by listing a specific registry name (like `--hive=SYSTEM`) or user (`--user=Jim`) or both (`--hive=UsrClass.dat   --user=jim`).  These options are case insensitive.  
 
