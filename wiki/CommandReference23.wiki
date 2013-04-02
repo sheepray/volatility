@@ -6,7 +6,7 @@
 
 == imageinfo ==
 
-For a high level summary of the memory sample you're analyzing, use the imageinfo command. Most often this command is used to identify the operating system, service pack, and hardware architecture (32 or 64 bit), but it also contains other useful information such as the DTB address and time the sample was collected. 
+For a high level summary of the memory sample you're analyzing, use the imageinfo command. Most often this command is used to identify the operating system, service pack, and hardware architecture (32 or 64 bit), but it also contains other useful information such as the DTB address and time the sample was collected.  
 
 {{{
 $ python vol.py -f ~/Desktop/win7_trial_64bit.raw imageinfo
@@ -30,6 +30,8 @@ Determining profile based on KDBG search...
 The imageinfo output tells you the suggested profile that you should pass as the parameter to --profile=PROFILE when using other plugins. There may be more than one profile suggestion if profiles are closely related. It also prints the address of the KDBG (short for `_KDDEBUGGER_DATA64`) structure that will be used by plugins like [CommandReference23#pslist pslist] and [CommandReference23#modlist modlist] to find the process and module list heads, respectively. In some cases, especially larger memory samples, there may be multiple KDBG structures. Similarly, if there are multiple processors, you'll see the KPCR address and CPU number for each one. 
 
 Plugins automatically scan for the KPCR and KDBG values when they need them. However, you can specify the values directly for any plugin by providing --kpcr=ADDRESS or --kdbg=ADDRESS. By supplying the profile and KDBG (or failing that KPCR) to other Volatility commands, you'll get the most accurate and fastest results possible.
+
+*Note:* The `imageinfo` plugin will not work on hibernation files unless the correct profile is given in advance.  This is because important structure definitions vary between different operating systems.
 
 == kdbgscan ==
 
