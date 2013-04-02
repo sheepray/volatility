@@ -2674,5 +2674,4 @@ By default everything except the registry LastWrite timestamps are included in t
 
 {{{
 $ python vol.py --plugins=contrib/plugins -f win7SP1x86.vmem --profile=Win7SP1x86 timeliner --output=body --output-file=output.body -R --user=Jim --hive=UsrClass.dat
-$ less output.body
 }}}
