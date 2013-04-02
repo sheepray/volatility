@@ -2612,3 +2612,42 @@ Volatile Systems Volatility Framework 2.1_rc1
 (V): 0x07c05000 [PDE] 0x103f7067 [PTE] 0x1fe30047 (P): 0x1fe30000 Size: 0x00001000
 ...
 }}}
+
+== timeliner ==
+
+This `timeliner` plugin creates a timeline from various artifacts in memory from the following sources: processes, DLLs, modules, sockets, registry keys and embedded registry data such as UserAssist and AppCompatCache (shimcache).  There are three options for output: default verbose output, bodyfile format and an Excel 2007 file.  For more details see [http://jls-scripts.googlecode.com/files/Timeliner%20Release%20Documentation.pdf Timeliner Release Documentation (pdf)] and the OMFW 2011 presentation [https://docs.google.com/leaf?id=0B7mg0ZBnpGuOZjVlYjJmMWMtYTgyYy00OGVlLTkxNmYtZWM2YmJjNzc1Zjc0&hl=en_US Time is on My Side].  
+
+In order to run the `timeliner` plugin, you must either move it from the contrib/plugins folder to volatility/plugins or use the `--plugins` option (seen below).  You might see some "Failed to import..." errors, these can simply be ignored since they are just due to a conflict in paths for some malware plugins that are in the `contrib/plugins` directory.  The default output can be redirected to a file or saved via the `--output-file=` option and imported to Excel.
+
+{{{
+$ python vol.py --plugins=contrib/plugins -f XPSP3x86.vmem timeliner
+Volatile Systems Volatility Framework 2.3_alpha
+*** Failed to import volatility.plugins.malware.zeusscan (ImportError: No module named zeusscan)
+*** Failed to import volatility.plugins.malware.poisonivy (ImportError: No module named poisonivy)
+2011-05-16 15:29:52 UTC+0000|[END LIVE RESPONSE]
+2011-05-16 14:33:25 UTC+0000|[PROCESS]|TPAutoConnect.e|1492|1084||0x01f0bda0||
+2011-05-16 14:33:21 UTC+0000|[PROCESS]|TPAutoConnSvc.e|1084|692||0x01f1a898||
+2011-05-16 14:10:23 UTC+0000|[PROCESS]|alg.exe|2016|672||0x01f73708||
+2011-05-16 14:10:23 UTC+0000|[PROCESS]|TPAutoConnSvc.e|1856|672|2011-05-16 14:32:53 UTC+0000|0x01f79ad8||
+2011-05-16 14:33:06 UTC+0000|[PROCESS]|winlogon.exe|648|360||0x01fc2260||
+2011-05-16 14:33:07 UTC+0000|[PROCESS]|svchost.exe|956|692||0x0200f020||
+2011-05-16 14:33:07 UTC+0000|[PROCESS]|svchost.exe|1096|692||0x0202c658||
+2011-05-16 14:33:04 UTC+0000|[PROCESS]|csrss.exe|616|360||0x02089978||
+2011-05-16 15:29:22 UTC+0000|[PROCESS]|IEXPLORE.EXE|1428|1688||0x020c45c8||
+2011-05-16 14:33:13 UTC+0000|[PROCESS]|explorer.exe|1688|1668||0x020edb88||
+2011-05-16 14:33:08 UTC+0000|[PROCESS]|svchost.exe|1156|692||0x020f55c0||
+}}}
+
+If you don't want to do the extra step of importing, you can use the `--output=xlsx` option with `--output-file=[OUTPUT FILE]` to save directly an Excel 2007 file.  *Note:* You must have [https://bitbucket.org/ericgazoni/openpyxl/wiki/Home OpenPyxl] installed for this.
+
+{{{
+$ python vol.py --plugins=contrib/plugins -f XPSP3x86.vmem timeliner --output=xlsx --output-file=output.xlsx
+}}}
+
+Another option is to use the `--output=body` option for [http://wiki.sleuthkit.org/index.php?title=Body_file TSK 3.x bodyfile format].  You can use this output option when you want to combine output from `timeliner`, [CommandReference23#mftparser] and [CommandReference23#shellbags].
+
+By default everything except the registry LastWrite timestamps are included in the output of `timeliner`, this is because obtaining the registry timestamps can take quite a long time.  In order to add them to the output, simply add the `-R` option when you run Volatility.  You can also limit your focus of registry timestamps by listing a specific registry name (like `--hive=SYSTEM`) or user (`--user=Jim`) or both (`--hive=UsrClass.dat   --user=jim`).  These options are case insensitive.  
+
+{{{
+$ python vol.py --plugins=contrib/plugins -f win7SP1x86.vmem --profile=Win7SP1x86 timeliner --output=body --output-file=output.body -R --user=Jim --hive=UsrClass.dat
+}}}
