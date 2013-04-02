@@ -2670,7 +2670,7 @@ $ python vol.py --plugins=contrib/plugins -f XPSP3x86.vmem timeliner --output=xl
 
 Another option is to use the `--output=body` option for [http://wiki.sleuthkit.org/index.php?title=Body_file TSK 3.x bodyfile format].  You can use this output option when you want to combine output from `timeliner`, [CommandReference23#mftparser mftparser] and [CommandReference23#shellbags shellbags].
 
-By default everything except the registry LastWrite timestamps are included in the output of `timeliner`, this is because obtaining the registry timestamps can take quite a long time.  In order to add them to the output, simply add the `-R` option when you run Volatility.  You can also limit your focus of registry timestamps by listing a specific registry name (like `--hive=SYSTEM`) or user (`--user=Jim`) or both (`--hive=UsrClass.dat   --user=jim`).  These options are case insensitive.  
+By default everything except the registry !LastWrite timestamps are included in the output of `timeliner`, this is because obtaining the registry timestamps can take quite a long time.  In order to add them to the output, simply add the `-R` option when you run Volatility.  You can also limit your focus of registry timestamps by listing a specific registry name (like `--hive=SYSTEM`) or user (`--user=Jim`) or both (`--hive=UsrClass.dat   --user=jim`).  These options are case insensitive.  
 
 {{{
 $ python vol.py --plugins=contrib/plugins -f win7SP1x86.vmem --profile=Win7SP1x86 timeliner --output=body --output-file=output.body -R --user=Jim --hive=UsrClass.dat
