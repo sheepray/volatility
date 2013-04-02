@@ -1760,7 +1760,7 @@ Last updated:   2010-03-18 01:56:31
 
 == shellbags ==
 
-This plugin parses and prints [http://www.dfrws.org/2009/proceedings/p69-zhu.pdf Shellbag (pdf)] information obtained from the registry.  For more information see [http://volatility-labs.blogspot.com/2012/09/movp-32-shellbags-in-memory-setregtime.html Shellbags in Memory, SetRegTime, and TrueCrypt Volumes].
+This plugin parses and prints [http://www.dfrws.org/2009/proceedings/p69-zhu.pdf Shellbag (pdf)] information obtained from the registry.  For more information see [http://volatility-labs.blogspot.com/2012/09/movp-32-shellbags-in-memory-setregtime.html Shellbags in Memory, SetRegTime, and TrueCrypt Volumes].  There are two options for output: verbose (default) and bodyfile format.
 
 {{{
 $ python vol.py -f win7.vmem --profile=Win7SP1x86 shellbags
@@ -1817,7 +1817,22 @@ Value   Mru   File Name      Modified Date        Create Date          Access Da
 0       0     AppData        2011-05-15 22:57:52  2011-05-15 22:57:52  2011-05-15 22:57:52  HID, NI, DIR              C:\Users\user\AppData
 ***************************************************************************
 [snip]
+}}}
 
+Another option is to use the `--output=body` option for [http://wiki.sleuthkit.org/index.php?title=Body_file TSK 3.x bodyfile format].  You can use this output option when you want to combine output from `timeliner`, [CommandReference23#mftparser] and [CommandReference23#timeliner].  Only ITEMPOS and FILE_ENTRY items are output with the bodyfile format:
+
+{{{
+$ ./vol.py -f win7_adobe.vmem --profile=Win7SP1x86 shellbags --output=body
+Volatile Systems Volatility Framework 2.3_alpha
+Scanning for registries....
+Gathering shellbag items and building path tree...
+0|[SHELLBAGS ITEMPOS] Name: Adobe Reader X.lnk/Attrs: ARC/FullPath: Adobe Reader X.lnk/Registry: \??\C:\Users\user\ntuser.dat /Key: Software\Microsoft\Windows\Shell\Bags\1\Desktop/LW: 2011-10-20 15:24:46 UTC+0000|0|---------------|0|0|0|1319124004|1319124004|1319124004|1319124004
+0|[SHELLBAGS ITEMPOS] Name: EnCase v6.18.lnk/Attrs: ARC/FullPath: EnCase v6.18.lnk/Registry: \??\C:\Users\user\ntuser.dat /Key: Software\Microsoft\Windows\Shell\Bags\1\Desktop/LW: 2011-10-20 15:24:46 UTC+0000|0|---------------|0|0|0|1305500546|1305500546|1305500546|1305500546
+0|[SHELLBAGS ITEMPOS] Name: VMware Shared Folders.lnk/Attrs: ARC/FullPath: VMware Shared Folders.lnk/Registry: \??\C:\Users\user\ntuser.dat /Key: Software\Microsoft\Windows\Shell\Bags\1\Desktop/LW: 2011-10-20 15:24:46 UTC+0000|0|---------------|0|0|0|1319123586|1319123586|1305500948|1305500948
+[snip]
+0|[SHELLBAGS FILE_ENTRY] Name: Program Files/Attrs: RO, DIR/FullPath: C:\Program Files/Registry: \??\C:\Users\user\AppData\Local\Microsoft\Windows\UsrClass.dat /Key: Local Settings\Software\Microsoft\Windows\Shell\BagMRU\0\0/LW: 2011-05-15 23:03:35 UTC+0000|0|---------------|0|0|0|1305500504|1305500504|1247539026|1247539026
+0|[SHELLBAGS FILE_ENTRY] Name: Users/Attrs: RO, DIR/FullPath: C:\Users/Registry: \??\C:\Users\user\AppData\Local\Microsoft\Windows\UsrClass.dat /Key: Local Settings\Software\Microsoft\Windows\Shell\BagMRU\0\0/LW: 2011-05-15 23:03:35 UTC+0000|0|---------------|0|0|0|1305500270|1305500270|1247539026|1247539026
+[snip]
 }}}
 
 == shimcache == 
@@ -1827,7 +1842,7 @@ This plugin parses the Application Compatibility Shim Cache registry key.
 {{{
 $ python vol.py -f win7.vmem --profile=Win7SP1x86 shimcache
 Volatile Systems Volatility Framework 2.3_alpha
-Last Modified                                   Path
+Last Modified                  Path
 ------------------------------ ----
 2009-07-14 01:14:22 UTC+0000   \??\C:\Windows\system32\LogonUI.exe
 2009-07-14 01:14:18 UTC+0000   \??\C:\Windows\system32\DllHost.exe
