@@ -1822,7 +1822,7 @@ Value   Mru   File Name      Modified Date        Create Date          Access Da
 Another option is to use the `--output=body` option for [http://wiki.sleuthkit.org/index.php?title=Body_file TSK 3.x bodyfile format].  You can use this output option when you want to combine output from `timeliner`, [CommandReference23#mftparser mftparser] and [CommandReference23#timeliner timeliner].  Only ITEMPOS and FILE_ENTRY items are output with the bodyfile format:
 
 {{{
-$ ./vol.py -f win7_adobe.vmem --profile=Win7SP1x86 shellbags --output=body
+$ ./vol.py -f win7.vmem --profile=Win7SP1x86 shellbags --output=body
 Volatile Systems Volatility Framework 2.3_alpha
 Scanning for registries....
 Gathering shellbag items and building path tree...
