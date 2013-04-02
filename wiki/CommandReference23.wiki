@@ -1825,16 +1825,24 @@ Value   Mru   File Name      Modified Date        Create Date          Access Da
 This plugin parses the Application Compatibility Shim Cache registry key. 
 
 {{{
-$ python vol.py -f ~/Desktop/win7_trial_64bit.raw --profile=Win7SP0x64 shimcache
-Volatile Systems Volatility Framework 2.1_alpha
-Last Modified: 2009-07-14 01:39:15 , Path: \??\C:\Windows\system32\LogonUI.exe
-Last Modified: 2009-07-14 01:39:46 , Path: \??\C:\Windows\System32\svchost.exe
-Last Modified: 2009-07-14 01:39:50 , Path: \??\C:\Windows\system32\vssvc.exe
-Last Modified: 2009-06-10 20:39:58 , Path: \??\C:\Windows\Microsoft.NET\Framework64\v2.0.50727\mscorsvw.exe
-Last Modified: 2009-06-10 21:23:09 , Path: \??\C:\Windows\Microsoft.NET\Framework\v2.0.50727\mscorsvw.exe
-Last Modified: 2009-06-10 20:39:44 , Path: \??\C:\Windows\WinSxS\amd64_netfx-clrgc_b03f5f7f11d50a3a_6.1.7600.16385_none_ada52b8ba0da82ba\clrgc.exe
-Last Modified: 2009-07-14 01:39:25 , Path: \??\C:\Windows\System32\netsh.exe
-Last Modified: 2009-07-14 01:39:07 , Path: \??\C:\Windows\system32\DrvInst.exe
+$ python vol.py -f win7.vmem --profile=Win7SP1x86 shimcache
+Volatile Systems Volatility Framework 2.3_alpha
+Last Modified                                   Path
+------------------------------ ----
+2009-07-14 01:14:22 UTC+0000   \??\C:\Windows\system32\LogonUI.exe
+2009-07-14 01:14:18 UTC+0000   \??\C:\Windows\system32\DllHost.exe
+2009-07-14 01:16:03 UTC+0000   \??\C:\Windows\System32\networkexplorer.dll
+2009-07-14 01:14:31 UTC+0000   \??\C:\WINDOWS\SYSTEM32\RUNDLL32.EXE
+2011-03-22 18:18:16 UTC+0000   \??\C:\Program Files\VMware\VMware Tools\TPAutoConnect.exe
+2009-07-14 01:14:25 UTC+0000   \??\C:\Windows\System32\msdtc.exe
+2009-07-14 01:15:22 UTC+0000   \??\C:\Windows\System32\gameux.dll
+2011-08-12 00:00:18 UTC+0000   \??\C:\Program Files\Common Files\VMware\Drivers\vss\comreg.exe
+2010-08-02 20:42:26 UTC+0000   \??\C:\Program Files\VMware\VMware Tools\TPAutoConnSvc.exe
+2009-07-14 01:14:27 UTC+0000   \??\C:\Windows\system32\net1.exe
+2009-07-14 01:14:27 UTC+0000   \??\C:\Windows\System32\net.exe
+2011-08-12 00:06:50 UTC+0000   \??\C:\Program Files\VMware\VMware Tools\vmtoolsd.exe
+2009-07-14 01:14:45 UTC+0000   \??\C:\Windows\system32\WFS.exe
+[snip]
 }}}
 
 == getservicesids ==
@@ -2636,6 +2644,7 @@ Volatile Systems Volatility Framework 2.3_alpha
 2011-05-16 15:29:22 UTC+0000|[PROCESS]|IEXPLORE.EXE|1428|1688||0x020c45c8||
 2011-05-16 14:33:13 UTC+0000|[PROCESS]|explorer.exe|1688|1668||0x020edb88||
 2011-05-16 14:33:08 UTC+0000|[PROCESS]|svchost.exe|1156|692||0x020f55c0||
+[snip]
 }}}
 
 If you don't want to do the extra step of importing, you can use the `--output=xlsx` option with `--output-file=[OUTPUT FILE]` to save directly an Excel 2007 file.  *Note:* You must have [https://bitbucket.org/ericgazoni/openpyxl/wiki/Home OpenPyxl] installed for this.
@@ -2650,4 +2659,5 @@ By default everything except the registry LastWrite timestamps are included in t
 
 {{{
 $ python vol.py --plugins=contrib/plugins -f win7SP1x86.vmem --profile=Win7SP1x86 timeliner --output=body --output-file=output.body -R --user=Jim --hive=UsrClass.dat
+$ less output.body
 }}}
