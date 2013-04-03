@@ -7,7 +7,7 @@ Volatility 2.3 is scheduled for release in April 2013.
 = Release Highlights = 
 
  * Windows 
-    * new plugins to parse IE history/index.dat URLs, recover shellbags data, dump cached files (exe/pdf/doc/etc), extract the MBR and MFT records, explore recently unloaded kernel modules, and display details on process privileges
+    * new plugins to parse IE history/index.dat URLs, recover shellbags data, dump cached files (exe/pdf/doc/etc), extract the MBR and MFT records, explore recently unloaded kernel modules, dump SSL private and public keys/certs, and display details on process privileges
     * added plugins to detect poison ivy infections, find and decrypt configurations in memory for poison ivy, zeus v1, zeus v2 and citadelscan 1.3.4.5 
     * apihooks detects duqu style instruction modifications (MOV reg32, imm32; JMP reg32)
     * crashinfo displays uptime, systemtime, and dump type (i.e. kernel, complete, etc)
@@ -182,6 +182,8 @@ Volatility 2.3 is scheduled for release in April 2013.
           * [CommandReference23#volshell volshell] - Shell to interactively explore a memory image
           * [CommandReference23#bioskbd bioskbd] - Reads the keyboard buffer from Real Mode memory
           * [CommandReference23#patcher patcher] - Patches memory based on page scans
+          * <font color="red">(new)</font> [CommandReference23#timeliner timeliner] - Produce timelines in body file format, excel 2007 spreadsheets, or text 
+          * <font color="red">(new)</font> [CommandReference23#dumpcerts dumpcerts] - Extract SSL private and public keys/certs 
   * *Linux/Android*
       * *Processes*
           * [LinuxCommandReference23#linux_pslist linux_pslist] - Gather active tasks by walking the task_struct->task list
