@@ -48,7 +48,7 @@ After the !DebugKit is downloaded, mount the dmg file. This will place the conte
 The first step is to get the dwarf (debug) info from the kernel. The following shows how this can be done for the 32 bit debug information:
 
 {{{
-$ dwarfdump -arch i386 -i /Volumes/KernelDebugKit/DEBUG_Kernel/mach_kernel.dSYM/Contents/Resources/DWARF/mach_kernel > 10.7.2.32bit.dwarfdump
+$ dwarfdump -arch i386 -i /Volumes/KernelDebugKit/mach_kernel.dSYM > 10.7.2.32bit.dwarfdump
 }}}
 
 You would use "-arch x86_64" for the 64 bit information.
@@ -131,7 +131,3 @@ mac_version             - Prints the Mac version
 mac_vfs_events          - Lists Mac VFS Events
 mac_volshell            - Shell in the memory image
 }}}
-
-= Known Issues =
-
-The 'psaux' plugin will break if you get a memory capture from a 64 bit machine booted into a 32 bit kernel.
