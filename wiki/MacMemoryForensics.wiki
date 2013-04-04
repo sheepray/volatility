@@ -60,10 +60,8 @@ Note: The output file name can be anything you want.
 The next step is to convert the Mac dwarfdump output to the Linux style output supported by Volatility:
 
 {{{
-$ python tools/mac/convert.py 10.7.2.32bit.dwarfdump converted-10.7.2.32bit.dwarfdump 1
+$ python tools/mac/convert.py 10.7.2.32bit.dwarfdump converted-10.7.2.32bit.dwarfdump
 }}}
-
-Note: The last argument "1" needs to be there and is not a typo
 
 === Step 3 ===
 
@@ -76,7 +74,7 @@ $ python tools/mac/convert.py converted-10.7.2.32bit.dwarfdump > 10.7.2.32bit.vt
 == Symbol Information ==
 
 {{{
-$ dsymutil -s -arch i386 /mach_kernel > 10.7.2.32bit.symbol.dsymutil 
+$ dsymutil -s -arch i386 /Volumes/KernelDebugKit/mach_kernel > 10.7.2.32bit.symbol.dsymutil 
 }}}
 
 == Creating the profile (zip) ==
