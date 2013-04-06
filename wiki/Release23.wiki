@@ -278,9 +278,3 @@ Volatility 2.3 is scheduled for release in April 2013.
  * Joe Sylve for his work on the ARM address space and significant contributions to linux and mac  capabilities
  * Philippe Teuwen for his work on the virtual box address space 
  * Santiago Vicente for his work on the citadel plugins for Windows
-
-= API Changes = 
-
-== Searching process memory == 
-
-  * The `_EPROCESS.search_process_memory` API used to accept a single string as a parameter and scan process memory for the string. You can now supply a list of strings to the API and it will scan for them all in a single pass; yielding all results as they're found. 
