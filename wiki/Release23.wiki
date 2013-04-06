@@ -267,6 +267,8 @@ Volatility 2.3 is scheduled for release in April 2013.
          * <font color='red'>(new)</font> [MacCommandReference23#mac_version mac_version] - Prints the Mac version 
       * *Miscellaneous*
           * <font color='red'>(new)</font> [MacCommandReference23#mac_volshell mac_volshell] - Shell to interactively explore mac memory captures
+          * <font color='red'>(new)</font> [MacCommandReference23#machoinfo machoinfo] - Display header and memory runs for Mach-O memory dumps
+          * <font color='red'>(new)</font> [MacCommandReference23#mac_yarascan mac_yarascan] - Scan for Yara signatures in process or kernel memory
 
 = Credits = 
 
