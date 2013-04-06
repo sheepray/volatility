@@ -1,3 +1,84 @@
-#summary An Address Space for Mac OSX
+#summary An AS for ATC-NY's OSX Mach-O Memory Dumps
+
+= Introduction =
+
+Volatility supports OSX memory dumps made with [http://cybermarshal.com/index.php/cyber-marshal-utilities/mac-memory-reader ATC-NY CyberMarshall Mac Memory Reader]. 
+
+= Acquisition = 
+
+By default, Mac Memory Reader uses a Mach-O file format for memory dumps. It can optionally save in raw/padded (-P) or raw/un-padded (-p) formats. The help information below is from version 3.0.2:
+
+{{{
+$ ./MacMemoryReader 
+ATC-NY Mac Marshal Mac Memory Reader 3.0.2 ($Revision: 1.24 $)
+Copyright (c) Architecture Technology Corporation.  All rights reserved.
+
+Usage: ./MacMemoryReader [-g] [-d] [-H hashtype] [-r] [-p] [-P] [-k] <filename>
+
+   -g print progress messages suitable for parsing by a GUI
+   -d print verbose debugging information to stderr
+   -H compute the given hash on the output data (where hashtype
+      is one of MD5, SHA-1, SHA-256, or SHA-512); can be given
+      multiple times; hash is printed on stderr
+   -r also copy "reserved" areas of memory, such as that used
+      by shared-memory graphics adapters; EXPERIMENTAL
+   -p dump memory in plain raw DD format instead of Mach-O, then write
+      a table of contents to stderr listing file offsets versus
+      physical memory offsets
+   -P dump memory in plain raw DD format, inserting zeros for un-mapped
+      regions in the memory map; no table of contents is needed,
+      because file offsets will correspond to physical memory
+      offsets, but the resulting file may be much larger than RAM
+   -k load the RAM dump kernel extension and set up /dev/mem and
+      /dev/pmap, but do not dump memory; for EXPERTS ONLY
+
+   dumps physical memory to <filename> in Mach-O (the default) or
+   raw/DD format.  The resulting file may be slightly larger than
+   physical memory due to the Mach-O header and alignment constraints.
+   If the filename is '-', memory is dumped to stdout.
+}}}
+
+= Notes = 
+
+If you plan to do analysis with Volatility, you must either use the default Mach-O or raw/padded. We do not, and never will, support raw/un-padded. 
+
+= File Format = 
+
+The Mach-O file format is a standard documented by Apple - see [https://developer.apple.com/library/mac/#documentation/DeveloperTools/Conceptual/MachORuntime/Reference/reference.html OS X ABI Mach-O File Format Reference] for more details. 
+
+The memory dump will begin with a mach_header or mach_header_64 structure, as shown below. The magic is MH_MAGIC (0xFEEDFACE) for mach_header and MH_MAGIC_64 (0xFEEDFACF) for mach_header_64.
+
+{{{
+>>> dt("mach_header_64")
+'mach_header_64' (32 bytes)
+0x0   : magic                          ['unsigned int']
+0x4   : cputype                        ['int']
+0x8   : cpusubtype                     ['int']
+0xc   : filetype                       ['unsigned int']
+0x10  : ncmds                          ['unsigned int']
+0x14  : sizeofcmds                     ['unsigned int']
+0x18  : flags                          ['unsigned int']
+0x1c  : reserved                       ['unsigned int']
+}}}
+
+Immediately following the header, one or more segment_command or segment_command_64 structures can be found. These describe the memory runs, in particular the virtual address and size of the run and the offset within the file where the data can be found. 
+
+{{{
+>>> dt("segment_command_64")
+'segment_command_64' (72 bytes)
+0x0   : cmd                            ['unsigned int']
+0x4   : cmdsize                        ['unsigned int']
+0x8   : segname                        ['array', 16, ['char']]
+0x18  : vmaddr                         ['unsigned long long']
+0x20  : vmsize                         ['unsigned long long']
+0x28  : fileoff                        ['unsigned long long']
+0x30  : filesize                       ['unsigned long long']
+0x38  : maxprot                        ['int']
+0x3c  : initprot                       ['int']
+0x40  : nsects                         ['unsigned int']
+0x44  : flags                          ['unsigned int']
+}}}
+
+= Meta Data = 
 
 Coming soon....
