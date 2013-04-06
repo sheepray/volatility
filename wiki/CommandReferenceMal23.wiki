@@ -146,6 +146,23 @@ Binary Path: \Driver\Disk
 [snip]
 }}}
 
+A new option (--verbose) is available starting with Volatility 2.3. This option checks the !ServiceDll registry key and reports which DLL is hosting the service. This is a critical capability since malware very commonly installs services using svchost.exe (the shared host service process) and implements the actual malicious code in a DLL. 
+
+{{{
+$ python vol.py -f win7_trial_64bit.raw svcscan --verbose --profile=Win7SP0x64
+Volatile Systems Volatility Framework 2.3_alpha
+Offset: 0xa26e70
+Order: 71
+Process ID: 1104
+Service Name: DPS
+Display Name: Diagnostic Policy Service
+Service Type: SERVICE_WIN32_SHARE_PROCESS
+Service State: SERVICE_RUNNING
+Binary Path: C:\Windows\system32\svchost.exe -k LocalServiceNoNetwork
+ServiceDll: %SystemRoot%\system32\dps.dll <----- This is the component you recover from disk
+....
+}}}
+
 = ldrmodules =
 
 There are many ways to hide a DLL. One of the ways involves unlinking the DLL from one (or all) of the linked lists in the PEB. However, when this is done, there is still information contained within the VAD (Virtual Address Descriptor) which identifies the base address of the DLL and its full path on disk. To cross-reference this information (known as memory mapped files) with the 3 PEB lists, use the ldrmodules command. 
