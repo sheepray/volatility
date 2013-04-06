@@ -27,7 +27,7 @@ Determining profile based on KDBG search...
      Image local date and time : 2012-02-22 03:29:02 -0800
 }}}
 
-The imageinfo output tells you the suggested profile that you should pass as the parameter to --profile=PROFILE when using other plugins. There may be more than one profile suggestion if profiles are closely related. It also prints the address of the KDBG (short for `_KDDEBUGGER_DATA64`) structure that will be used by plugins like [CommandReference23#pslist pslist] and [CommandReference23#modlist modlist] to find the process and module list heads, respectively. In some cases, especially larger memory samples, there may be multiple KDBG structures. Similarly, if there are multiple processors, you'll see the KPCR address and CPU number for each one. 
+The imageinfo output tells you the suggested profile that you should pass as the parameter to --profile=PROFILE when using other plugins. There may be more than one profile suggestion if profiles are closely related. It also prints the address of the KDBG (short for `_KDDEBUGGER_DATA64`) structure that will be used by plugins like [CommandReference23#pslist pslist] and [CommandReference23#modules modules] to find the process and module list heads, respectively. In some cases, especially larger memory samples, there may be multiple KDBG structures. Similarly, if there are multiple processors, you'll see the KPCR address and CPU number for each one. 
 
 Plugins automatically scan for the KPCR and KDBG values when they need them. However, you can specify the values directly for any plugin by providing --kpcr=ADDRESS or --kdbg=ADDRESS. By supplying the profile and KDBG (or failing that KPCR) to other Volatility commands, you'll get the most accurate and fastest results possible.
 
@@ -202,7 +202,7 @@ Name                                                  Pid   PPid   Thds   Hnds T
 
 == psscan ==
 
-To enumerate processes using pool tag scanning, use the psscan command. This can find processes that previously terminated (inactive) and processes that have been hidden or unlinked by a rootkit. 
+To enumerate processes using pool tag scanning (POOL_HEADER), use the psscan command. This can find processes that previously terminated (inactive) and processes that have been hidden or unlinked by a rootkit. The downside is that rootkits can still hide by overwriting the pool tag values (though not commonly seen in the wild).
 
 {{{
 $ python vol.py --profile=Win7SP0x86 -f win7.dmp psscan
@@ -232,7 +232,7 @@ Volatile Systems Volatility Framework 2.0
 [snip]
 }}}
 
-If a process has previously terminated, the Time exited field will show the exit time. If you want to investigate a hidden process (such as displaying its DLLs), then you'll need physical offset of the EPROCESS object, which is shown in the far left column.
+If a process has previously terminated, the Time exited field will show the exit time. If you want to investigate a hidden process (such as displaying its DLLs), then you'll need physical offset of the EPROCESS object, which is shown in the far left column. Almost all process-related plugins take a --OFFSET parameter so that you can work with hidden processes. 
 
 == psdispscan ==
 
@@ -240,7 +240,7 @@ This plugin is similar to psscan, except it enumerates processes by scanning for
 
 == dlllist ==
 
-To display a process's loaded DLLs, use the dlllist command. It walks the doubly-linked list of LDR_DATA_TABLE_ENTRY structures which is pointed to by the PEB's !InLoadOrderModuleList. DLLs are automatically added to this list when a process calls !LoadLibrary (or some derivative such as !LdrLoadDll) and they aren't removed until !FreeLibrary is called and the reference count reaches zero.
+To display a process's loaded DLLs, use the dlllist command. It walks the doubly-linked list of LDR_DATA_TABLE_ENTRY structures which is pointed to by the PEB's !InLoadOrderModuleList. DLLs are automatically added to this list when a process calls !LoadLibrary (or some derivative such as !LdrLoadDll) and they aren't removed until !FreeLibrary is called and the reference count reaches zero. The load count column tells you if a DLL was statically loaded (i.e. as a result of being in the exe or another DLL's import table) or dynamically loaded. 
 
 {{{
 $ python vol.py -f ~/Desktop/win7_trial_64bit.raw --profile=Win7SP0x64 dlllist 
@@ -248,17 +248,17 @@ $ python vol.py -f ~/Desktop/win7_trial_64bit.raw --profile=Win7SP0x64 dlllist
 wininit.exe pid:    332
 Command line : wininit.exe
 
-Base                             Size Path
------------------- ------------------ ----
-0x00000000ff530000            0x23000 C:\Windows\system32\wininit.exe
-0x0000000076d40000           0x1ab000 C:\Windows\SYSTEM32\ntdll.dll
-0x0000000076b20000           0x11f000 C:\Windows\system32\kernel32.dll
-0x000007fefcd50000            0x6b000 C:\Windows\system32\KERNELBASE.dll
-0x0000000076c40000            0xfa000 C:\Windows\system32\USER32.dll
-0x000007fefd7c0000            0x67000 C:\Windows\system32\GDI32.dll
-0x000007fefe190000             0xe000 C:\Windows\system32\LPK.dll
-0x000007fefef80000            0xca000 C:\Windows\system32\USP10.dll
-0x000007fefd860000            0x9f000 C:\Windows\system32\msvcrt.dll
+Base                             Size          LoadCount Path
+------------------ ------------------ ------------------ ----
+0x00000000ff530000            0x23000             0xffff C:\Windows\system32\wininit.exe
+0x0000000076d40000           0x1ab000             0xffff C:\Windows\SYSTEM32\ntdll.dll
+0x0000000076b20000           0x11f000             0xffff C:\Windows\system32\kernel32.dll
+0x000007fefcd50000            0x6b000             0xffff C:\Windows\system32\KERNELBASE.dll
+0x0000000076c40000            0xfa000             0xffff C:\Windows\system32\USER32.dll
+0x000007fefd7c0000            0x67000             0xffff C:\Windows\system32\GDI32.dll
+0x000007fefe190000             0xe000             0xffff C:\Windows\system32\LPK.dll
+0x000007fefef80000            0xca000             0xffff C:\Windows\system32\USP10.dll
+0x000007fefd860000            0x9f000             0xffff C:\Windows\system32\msvcrt.dll
 [snip]
 }}}
 
@@ -272,13 +272,13 @@ iexplore.exe pid:   1892
 Command line : "C:\Program Files (x86)\Internet Explorer\iexplore.exe" 
 Note: use ldrmodules for listing DLLs in Wow64 processes
 
-Base                             Size Path
------------------- ------------------ ----
-0x0000000000080000            0xa6000 C:\Program Files (x86)\Internet Explorer\iexplore.exe
-0x0000000076d40000           0x1ab000 C:\Windows\SYSTEM32\ntdll.dll
-0x00000000748d0000            0x3f000 C:\Windows\SYSTEM32\wow64.dll
-0x0000000074870000            0x5c000 C:\Windows\SYSTEM32\wow64win.dll
-0x0000000074940000             0x8000 C:\Windows\SYSTEM32\wow64cpu.dll
+Base                             Size          LoadCount Path
+------------------ ------------------ ------------------ ----
+0x0000000000080000            0xa6000             0xffff C:\Program Files (x86)\Internet Explorer\iexplore.exe
+0x0000000076d40000           0x1ab000             0xffff C:\Windows\SYSTEM32\ntdll.dll
+0x00000000748d0000            0x3f000                0x3 C:\Windows\SYSTEM32\wow64.dll
+0x0000000074870000            0x5c000                0x1 C:\Windows\SYSTEM32\wow64win.dll
+0x0000000074940000             0x8000                0x1 C:\Windows\SYSTEM32\wow64cpu.dll
 }}}
 
 To display the DLLs for a process that is hidden or unlinked by a rootkit, first use the psscan to get the physical offset of the EPROCESS object and supply it with --offset=OFFSET. The plugin will "bounce back" and determine the virtual address of the EPROCESS and then acquire an address space in order to access the PEB. 
@@ -302,21 +302,21 @@ To specify an output directory, use --dump-dir=DIR or -d DIR.
 {{{
 $ python vol.py -f ~/Desktop/win7_trial_64bit.raw --profile=Win7SP0x64 dlldump -D dlls/
 ...
-Dumping sechost.dll, Process: lsass.exe, Base: 7fefd830000 output: module.444.173c5700.7fefd830000.dll
-Dumping cryptbase.dll, Process: lsass.exe, Base: 7fefcb80000 output: module.444.173c5700.7fefcb80000.dll
-Cannot dump lsass.exe@pstorsvc.dll at 7fef71e0000
-Dumping USP10.dll, Process: lsass.exe, Base: 7fefef80000 output: module.444.173c5700.7fefef80000.dll
-Dumping LPK.dll, Process: lsass.exe, Base: 7fefe190000 output: module.444.173c5700.7fefe190000.dll
-Cannot dump lsass.exe@WINSTA.dll at 7fefcc40000
-Dumping GDI32.dll, Process: lsass.exe, Base: 7fefd7c0000 output: module.444.173c5700.7fefd7c0000.dll
-Dumping DNSAPI.dll, Process: lsass.exe, Base: 7fefc270000 output: module.444.173c5700.7fefc270000.dll
-Dumping Secur32.dll, Process: lsass.exe, Base: 7fefc5d0000 output: module.444.173c5700.7fefc5d0000.dll
-Dumping SAMSRV.dll, Process: lsass.exe, Base: 7fefc7e0000 output: module.444.173c5700.7fefc7e0000.dll
-Dumping KERNELBASE.dll, Process: lsass.exe, Base: 7fefcd50000 output: module.444.173c5700.7fefcd50000.dll
+Process(V)         Name                 Module Base        Module Name          Result
+------------------ -------------------- ------------------ -------------------- ------
+0xfffffa8000ce97f0 smss.exe             0x0000000047a90000 smss.exe             OK: module.208.176e97f0.47a90000.dll
+0xfffffa8000ce97f0 smss.exe             0x0000000076d40000                      Error: DllBase is paged
+0xfffffa8000c006c0 csrss.exe            0x0000000049700000 csrss.exe            OK: module.296.176006c0.49700000.dll
+0xfffffa8000c006c0 csrss.exe            0x0000000076d40000 ntdll.dll            Error: DllBase is paged
+0xfffffa8000c006c0 csrss.exe            0x000007fefd860000 msvcrt.dll           Error: DllBase is paged
+0xfffffa80011c5700 lsass.exe            0x000007fefcc40000 WINSTA.dll           Error: DllBase is paged
+0xfffffa80011c5700 lsass.exe            0x000007fefd7c0000 GDI32.dll            OK: module.444.173c5700.7fefd7c0000.dll
+0xfffffa80011c5700 lsass.exe            0x000007fefc270000 DNSAPI.dll           OK: module.444.173c5700.7fefc270000.dll
+0xfffffa80011c5700 lsass.exe            0x000007fefc5d0000 Secur32.dll          OK: module.444.173c5700.7fefc5d0000.dll
 ...
 }}}
 
-If the extraction fails, as it did for a few DLLs above, it probably means that some of the memory pages in that DLL were not memory resident (due to paging). In particular, this is a problem if the first page containing the PE header and thus the PE section mappings is not available. In these cases you can still extract the memory segment using the [CommandReference23#vaddump vaddump] command, but you'll need to manually rebuild the PE header and fixup the sections as described in [http://mnin.blogspot.com/2008/11/recovering-coreflood-binaries-with.html Recovering CoreFlood Binaries with Volatility]. 
+If the extraction fails, as it did for a few DLLs above, it probably means that some of the memory pages in that DLL were not memory resident (due to paging). In particular, this is a problem if the first page containing the PE header and thus the PE section mappings is not available. In these cases you can still extract the memory segment using the [CommandReference23#vaddump vaddump] command, but you'll need to manually rebuild the PE header and fixup the sections (if you plan on analyzing in IDA Pro) as described in [http://mnin.blogspot.com/2008/11/recovering-coreflood-binaries-with.html Recovering CoreFlood Binaries with Volatility]. 
 
 To dump a PE file that doesn't exist in the DLLs list (for example, due to code injection or malicious unlinking), just specify the base address of the PE in process memory:
 
@@ -383,6 +383,8 @@ Offset(V)             Pid             Handle             Access Type            
 0xfffffa8001325950    296              0x1dc           0x1fffff Process          sppsvc.exe(816)
 ...
 }}}
+
+The object type can be any of the names printed by the "!object \ObjectTypes" windbg command (see [http://computer.forensikblog.de/en/2009/04/enumerate-object-types.html Enumerate Object Types] for more details.
 
 In some cases, the Details column will be blank (for example, if the objects don't have names). By default, you'll see both named and un-named objects. However, if you want to hide the less meaningful results and only show named objects, use the --silent parameter to this plugin.
 
