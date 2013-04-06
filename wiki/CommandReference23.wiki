@@ -1012,6 +1012,31 @@ If the `--verbose` flag is used, SIDs are also evaluated and placed in the parse
 
 == iehistory == 
 
+This plugin recovers fragments of IE history index.dat cache files. It can find basic accessed links (via FTP or HTTP), redirected links (--REDR), and deleted entries (--LEAK). It applies to any process which loads and uses the wininet.dll library, not just Internet Explorer. Typically that includes Windows Explorer and even malware samples. For more information, see [http://volatility-labs.blogspot.com/2012/09/howto-scan-for-internet-cachehistory.html HowTo: Scan for Internet Cache/History and URLs].
+
+{{{
+$ python vol.py -f exemplar17_1.vmem iehistory
+Volatile Systems Volatility Framework 2.3_alpha
+**************************************************
+Process: 1928 explorer.exe
+Cache type "URL " at 0xf25100
+Record length: 0x100
+Location: Visited: foo@http://192.168.30.129/malware/40024.exe
+Last modified: 2009-01-08 01:52:09 
+Last accessed: 2009-01-08 01:52:09 
+File Offset: 0x100, Data Offset: 0x0, Data Length: 0xa0
+**************************************************
+Process: 1928 explorer.exe
+Cache type "URL " at 0xf25300
+Record length: 0x180
+Location: Visited: foo@http://www.abcjmp.com/jump1/?affiliate=mu1&subid=88037&terms=eminem&sid=Z605044303%40%40wMfNTNxkTM1EzX5QzNy81My8lM18FN4gTM2gzNzITM&a=zh5&mr=1&rc=0
+Last modified: 2009-01-08 01:52:44 
+Last accessed: 2009-01-08 01:52:44 
+File Offset: 0x180, Data Offset: 0x0, Data Length: 0x108
+**************************************************
+.....
+}}}
+
 = Kernel Memory and Objects =
 
 == modules ==
@@ -1054,7 +1079,7 @@ Offset(P)          Name                 Base                             Size Fi
 
 == modscan ==
 
-The modscan command finds LDR_DATA_TABLE_ENTRY structures by scanning physical memory for pool tags. This can pick up previously unloaded drivers and drivers that have been hidden/unlinked by rootkits. Unlike [CommandReference23#modlist modlist] the order of results has no relationship with the order in which the drivers loaded. As you can see below, DumpIt.sys was found at the lowest physical offset, but it was probably one of the last drivers to load (since it was used to acquire memory). 
+The modscan command finds LDR_DATA_TABLE_ENTRY structures by scanning physical memory for pool tags. This can pick up previously unloaded drivers and drivers that have been hidden/unlinked by rootkits. Unlike [CommandReference23#modules modules] the order of results has no relationship with the order in which the drivers loaded. As you can see below, DumpIt.sys was found at the lowest physical offset, but it was probably one of the last drivers to load (since it was used to acquire memory). 
 
 {{{
 $ python vol.py -f ~/Desktop/win7_trial_64bit.raw --profile=Win7SP0x64 modscan
@@ -1081,27 +1106,20 @@ For more information, see BDG's [http://moyix.blogspot.com/2008/10/plugin-post-m
 
 {{{
 $ python vol.py -f ~/Desktop/win7_trial_64bit.raw --profile=Win7SP0x64 moddump -D drivers/
-Volatile Systems Volatility Framework 2.1_alpha
-Dumping ntoskrnl.exe, Base: fffff8000261a000 output: driver.fffff8000261a000.sys
-Dumping hal.dll, Base: fffff80002bf7000 output: driver.fffff80002bf7000.sys
-Dumping intelide.sys, Base: fffff88000e5c000 output: driver.fffff88000e5c000.sys
-Dumping mouclass.sys, Base: fffff8800349b000 output: driver.fffff8800349b000.sys
-Dumping msisadrv.sys, Base: fffff88000f7c000 output: driver.fffff88000f7c000.sys
-Dumping ndistapi.sys, Base: fffff880035c3000 output: driver.fffff880035c3000.sys
-Dumping pacer.sys, Base: fffff88002c5d000 output: driver.fffff88002c5d000.sys
-Dumping WDFLDR.SYS, Base: fffff88000f0d000 output: driver.fffff88000f0d000.sys
-Dumping usbhub.sys, Base: fffff880036be000 output: driver.fffff880036be000.sys
-Dumping hwpolicy.sys, Base: fffff8800149f000 output: driver.fffff8800149f000.sys
-Dumping kbdclass.sys, Base: fffff8800348c000 output: driver.fffff8800348c000.sys
-Dumping amdxata.sys, Base: fffff88000c00000 output: driver.fffff88000c00000.sys
-Dumping crashdmp.sys, Base: fffff88003781000 output: driver.fffff88003781000.sys
-Dumping swenum.sys, Base: fffff88003461000 output: driver.fffff88003461000.sys
-Cannot dump TSDDD.dll at fffff96000670000
-Cannot dump framebuf.dll at fffff960008a0000
+Volatile Systems Volatility Framework 2.3_alpha
+Module Base        Module Name          Result
+------------------ -------------------- ------
+0xfffff8000261a000 ntoskrnl.exe         OK: driver.fffff8000261a000.sys
+0xfffff80002bf7000 hal.dll              OK: driver.fffff80002bf7000.sys
+0xfffff88000e5c000 intelide.sys         OK: driver.fffff88000e5c000.sys
+0xfffff8800349b000 mouclass.sys         OK: driver.fffff8800349b000.sys
+0xfffff88000f7c000 msisadrv.sys         OK: driver.fffff88000f7c000.sys
+0xfffff880035c3000 ndistapi.sys         OK: driver.fffff880035c3000.sys
+0xfffff88002c5d000 pacer.sys            OK: driver.fffff88002c5d000.sys
 [snip]
 }}}
 
-Similar to [CommandReference23#dlldump dlldump], if critical parts of the PE header are not memory resident, then rebuilding/extracting the driver may fail. Additionally, for drivers that are mapped in different sessions (like win32k.sys), there is currently no way to specify which session to use when acquiring the driver sample. This will be an enhancement added in the Volatility 2.2 release. 
+Similar to [CommandReference23#dlldump dlldump], if critical parts of the PE header are not memory resident, then rebuilding/extracting the driver may fail. Additionally, for drivers that are mapped in different sessions (like win32k.sys), there is currently no way to specify which session to use when acquiring the driver sample. 
 
 == ssdt ==
 
@@ -1246,7 +1264,7 @@ Offset(P)          #Ptr #Hnd Signal Thread                   CID Name
 
 == symlinkscan ==
 
-This plugin scans for symbolic link objects and outputs their information.
+This plugin scans for symbolic link objects and outputs their information. In the past, this has been used to link drive letters (i.e. D:, E:, F:, etc) to true crypt volumes (i.e. \Device\TrueCryptVolume). For more information, see [http://computer.forensikblog.de/en/2009/04/symbolic-link-objects.html Symbolic Link Objects] and [http://www.scribd.com/doc/103174530/Identifying-a-mounted-TrueCrypt-volume-from-artefacts-in-volatile-memory-using-Volatility-2-1 Identifying a Mounted True Crypt Volume from Artifacts in Volatile Memory]. 
 
 {{{
 $ python -f ~/Desktop/win7_trial_64bit.raw --profile=Win7SP0x64 symlinkscan
@@ -1272,7 +1290,7 @@ Offset(P)            #Ptr   #Hnd Creation time            From                 T
 
 == thrdscan ==
 
-To find ETHREAD objects in physical memory with pool tag scanning, use the thrdscan command. Since an ETHREAD contains fields that identify its parent process, you can use this technique to find hidden processes. One such use case is documented in the [CommandReferenceMal22#psxview psxview] command. Also, for verbose details, try the [CommandReference23#threads threads] plugin. 
+To find ETHREAD objects in physical memory with pool tag scanning, use the thrdscan command. Since an ETHREAD contains fields that identify its parent process, you can use this technique to find hidden processes. One such use case is documented in the [CommandReferenceMal23#psxview psxview] command. Also, for verbose details, try the [CommandReference23#threads threads] plugin. 
 
 {{{
 $ python vol.py -f ~/Desktop/win7_trial_64bit.raw --profile=Win7SP0x64 thrdscan
@@ -1297,6 +1315,19 @@ Offset(P)             PID    TID      Start Address Create Time               Ex
 == dumpfiles ==
 
 == unloadedmodules ==
+
+Windows stores information on recently unloaded drivers for debugging purposes. This gives you an alternative way to determine what happened on a system, besides the well known modules and modscan plugins. 
+
+{{{
+$ python vol.py -f win7_trial_64bit.raw unloadedmodules --profile=Win7SP0x64
+Volatile Systems Volatility Framework 2.3_alpha
+Name                 StartAddress       EndAddress         Time
+-------------------- ------------------ ------------------ ----
+dump_dumpfve.sys     0xfffff88001931000 0xfffff88001944000 2012-02-22 19:58:21 
+dump_atapi.sys       0xfffff88001928000 0xfffff88001931000 2012-02-22 19:58:21 
+dump_ataport.sys     0xfffff8800191c000 0xfffff88001928000 2012-02-22 19:58:21 
+crashdmp.sys         0xfffff8800190e000 0xfffff8800191c000 2012-02-22 19:58:21
+}}}
 
 = Networking =
 
@@ -1421,7 +1452,7 @@ To scan for network artifacts in 32- and 64-bit Windows Vista, Windows 2008 Serv
 Please note the following: 
 
  * The netscan command uses pool tag scanning 
- * There are at least 2 alternate ways to enumerate connections and sockets on Vista+ operating systems. One of them is using partitions and dynamic hash tables, which is how the netstat.exe utility on Windows systems works. The other involves bitmaps and port pools. Plugins for both of these methods exist for the Volatility 2.1 framework, but are currently not in the public trunk. 
+ * There are at least 2 alternate ways to enumerate connections and sockets on Vista+ operating systems. One of them is using partitions and dynamic hash tables, which is how the netstat.exe utility on Windows systems works. The other involves bitmaps and port pools. 
 
 {{{
 $ python vol.py -f ~/Desktop/win7_trial_64bit.raw --profile=Win7SP0x64 netscan
