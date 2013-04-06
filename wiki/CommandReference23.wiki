@@ -390,7 +390,7 @@ In some cases, the Details column will be blank (for example, if the objects don
 
 == getsids ==
 
-To view the SIDs (Security Identifiers) associated with a process, use the getsids command. Among other things, this can help you identify processes which have maliciously escalated privileges. 
+To view the SIDs (Security Identifiers) associated with a process, use the getsids command. Among other things, this can help you identify processes which have maliciously escalated privileges and which processes belong to specific users. 
 
 For more information, see BDG's [http://moyix.blogspot.com/2008/08/linking-processes-to-users.html Linking Processes To Users].
 
@@ -608,6 +608,31 @@ Volatile Systems Volatility Framework 2.1_alpha
 }}}
 
 == privs == 
+
+This plugin shows you which process privileges are present, enabled, and/or enabled by default. You can pass it the --silent flag to only show privileges that a process explicitly enabled (i.e. that were were not enabled by default but are currently enabled). The --regex=REGEX parameter can be used to filter for specific privilege names. 
+
+{{{
+$ python vol.py -f win7_trial_64bit.raw privs --profile=Win7SP0x64
+Volatile Systems Volatility Framework 2.3_alpha
+Pid      Process          Value  Privilege                            Attributes               Description
+-------- ---------------- ------ ------------------------------------ ------------------------ -----------
+       4 System                2 SeCreateTokenPrivilege               Present                  Create a token object
+       4 System                3 SeAssignPrimaryTokenPrivilege        Present                  Replace a process-level token
+       4 System                4 SeLockMemoryPrivilege                Present,Enabled,Default  Lock pages in memory
+       4 System                5 SeIncreaseQuotaPrivilege             Present                  Increase quotas
+       4 System                6 SeMachineAccountPrivilege                                     Add workstations to the domain
+       4 System                7 SeTcbPrivilege                       Present,Enabled,Default  Act as part of the operating system
+       4 System                8 SeSecurityPrivilege                  Present                  Manage auditing and security log
+       4 System                9 SeTakeOwnershipPrivilege             Present                  Take ownership of files/objects
+       4 System               10 SeLoadDriverPrivilege                Present                  Load and unload device drivers
+       4 System               11 SeSystemProfilePrivilege             Present,Enabled,Default  Profile system performance
+       4 System               12 SeSystemtimePrivilege                Present                  Change the system time
+       4 System               13 SeProfileSingleProcessPrivilege      Present,Enabled,Default  Profile a single process
+       4 System               14 SeIncreaseBasePriorityPrivilege      Present,Enabled,Default  Increase scheduling priority
+       4 System               15 SeCreatePagefilePrivilege            Present,Enabled,Default  Create a pagefile
+       4 System               16 SeCreatePermanentPrivilege           Present,Enabled,Default  Create permanent shared objects
+.....
+}}}
 
 == envars == 
 
@@ -904,33 +929,36 @@ To extract the range of pages described by a VAD node, use the vaddump command. 
 
 {{{
 $ python vol.py -f ~/Desktop/win7_trial_64bit.raw --profile=Win7SP0x64 vaddump -D vads
-Volatile Systems Volatility Framework 2.1_alpha
-Pid:      4
-************************************************************************
-Pid:    208
-************************************************************************
-Pid:    296
-************************************************************************
-Pid:    332
-************************************************************************
-Pid:    344
-************************************************************************
+Volatile Systems Volatility Framework 2.3_alpha
+Pid        Process              Start              End                Result
+---------- -------------------- ------------------ ------------------ ------
+         4 System               0x0000000076d40000 0x0000000076eeafff vads/System.17fef9e0.0x0000000076d40000-0x0000000076eeafff.dmp
+         4 System               0x0000000000040000 0x0000000000040fff vads/System.17fef9e0.0x0000000000040000-0x0000000000040fff.dmp
+         4 System               0x0000000000010000 0x0000000000032fff vads/System.17fef9e0.0x0000000000010000-0x0000000000032fff.dmp
+         4 System               0x000000007ffe0000 0x000000007ffeffff vads/System.17fef9e0.0x000000007ffe0000-0x000000007ffeffff.dmp
+         4 System               0x0000000076f20000 0x000000007709ffff vads/System.17fef9e0.0x0000000076f20000-0x000000007709ffff.dmp
+       208 smss.exe             0x000000007efe0000 0x000000007ffdffff vads/smss.exe.176e97f0.0x000000007efe0000-0x000000007ffdffff.dmp
+       208 smss.exe             0x00000000003d0000 0x00000000004cffff vads/smss.exe.176e97f0.0x00000000003d0000-0x00000000004cffff.dmp
+       208 smss.exe             0x0000000000100000 0x0000000000100fff vads/smss.exe.176e97f0.0x0000000000100000-0x0000000000100fff.dmp
+       208 smss.exe             0x0000000000000000 0x00000000000fffff vads/smss.exe.176e97f0.0x0000000000000000-0x00000000000fffff.dmp
+       208 smss.exe             0x0000000000190000 0x000000000020ffff vads/smss.exe.176e97f0.0x0000000000190000-0x000000000020ffff.dmp
+       208 smss.exe             0x0000000047a90000 0x0000000047aaffff vads/smss.exe.176e97f0.0x0000000047a90000-0x0000000047aaffff.dmp
+       208 smss.exe             0x00000000005e0000 0x000000000065ffff vads/smss.exe.176e97f0.0x00000000005e0000-0x000000000065ffff.dmp
 [snip]
 
-$ ls -alh vads
-total 229536
-drwxr-xr-x  107 Michael  staff   3.6K Jun 24 16:15 .
-drwxr-xr-x   25 Michael  staff   850B Jun 24 16:14 ..
--rw-r--r--    1 Michael  staff   140K Jun 24 16:15 System.17fef9e0.00010000-00032fff.dmp
--rw-r--r--    1 Michael  staff   4.0K Jun 24 16:15 System.17fef9e0.00040000-00040fff.dmp
--rw-r--r--    1 Michael  staff   1.7M Jun 24 16:15 System.17fef9e0.76d40000-76eeafff.dmp
--rw-r--r--    1 Michael  staff   1.5M Jun 24 16:15 System.17fef9e0.76f20000-7709ffff.dmp
--rw-r--r--    1 Michael  staff    64K Jun 24 16:15 System.17fef9e0.7ffe0000-7ffeffff.dmp
--rw-r--r--    1 Michael  staff   1.0M Jun 24 16:15 csrss.exe.176006c0.00000000-000fffff.dmp
--rw-r--r--    1 Michael  staff   412K Jun 24 16:15 csrss.exe.176006c0.00100000-00166fff.dmp
--rw-r--r--    1 Michael  staff   4.0K Jun 24 16:15 csrss.exe.176006c0.00170000-00170fff.dmp
--rw-r--r--    1 Michael  staff   8.0K Jun 24 16:15 csrss.exe.176006c0.00180000-00181fff.dmp
--rw-r--r--    1 Michael  staff   4.0K Jun 24 16:15 csrss.exe.176006c0.00190000-00190fff.dmp
+$ ls -al vads/
+total 123720
+drwxr-xr-x  69 michaelligh  staff      2346 Apr  6 13:12 .
+drwxr-xr-x  37 michaelligh  staff      1258 Apr  6 13:11 ..
+-rw-r--r--   1 michaelligh  staff    143360 Apr  6 13:12 System.17fef9e0.0x0000000000010000-0x0000000000032fff.dmp
+-rw-r--r--   1 michaelligh  staff      4096 Apr  6 13:12 System.17fef9e0.0x0000000000040000-0x0000000000040fff.dmp
+-rw-r--r--   1 michaelligh  staff   1748992 Apr  6 13:12 System.17fef9e0.0x0000000076d40000-0x0000000076eeafff.dmp
+-rw-r--r--   1 michaelligh  staff   1572864 Apr  6 13:12 System.17fef9e0.0x0000000076f20000-0x000000007709ffff.dmp
+-rw-r--r--   1 michaelligh  staff     65536 Apr  6 13:12 System.17fef9e0.0x000000007ffe0000-0x000000007ffeffff.dmp
+-rw-r--r--   1 michaelligh  staff   1048576 Apr  6 13:12 csrss.exe.176006c0.0x0000000000000000-0x00000000000fffff.dmp
+-rw-r--r--   1 michaelligh  staff    421888 Apr  6 13:12 csrss.exe.176006c0.0x0000000000100000-0x0000000000166fff.dmp
+-rw-r--r--   1 michaelligh  staff      4096 Apr  6 13:12 csrss.exe.176006c0.0x0000000000170000-0x0000000000170fff.dmp
+-rw-r--r--   1 michaelligh  staff      8192 Apr  6 13:12 csrss.exe.176006c0.0x0000000000180000-0x0000000000181fff.dmp
 [snip]
 }}}
 
