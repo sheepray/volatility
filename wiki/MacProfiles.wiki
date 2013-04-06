@@ -37,16 +37,27 @@ changes to kernel architecture have been saved.
 
 = Profiles =
 
-Once you have downloaded the profile, place the entire zip file in your volatility/plugins/overlays/mac folder.  Ignore the warning message about the download being depreciated.  _Do not extract the zip_. 
+Click to download an [https://code.google.com/p/volatility/downloads/detail?name=MacProfilesAll.zip archive of 38 different Mac OSX profiles]. Extract the main zip and copy/move the individual profiles that you want to activate into your volatility/plugins/overlays/mac folder.  
 
-|| *Name* || *Version* || *Architecture* || *Profile* || 
-|| Leopard || 10.5.0 || Intel 32-bit || [https://volatility.googlecode.com/files/Leopard_10.5.0_Intel.zip Leopard_10.5.0_Intel.zip] || 
-|| Leopard || 10.5.8 || Intel 32-bit || [https://volatility.googlecode.com/files/Leopard_10.5.8_Intel.zip Leopard_10.5.8_Intel.zip] ||
-|| Snow Leopard || 10.6.0 || AMD 64-bit || [https://volatility.googlecode.com/files/SnowLeopard_10.6.0_AMD.zip SnowLeopard_10.6.0_AMD.zip] || 
-|| Snow Leopard || 10.6.8 || Intel 32-bit || [https://volatility.googlecode.com/files/SnowLeopard_10.6.8_Intel.zip SnowLeopard_10.6.8_Intel.zip] ||
-|| Snow Leopard || 10.6.8 || AMD 64-bit || [http://volatility.googlecode.com/files/SnowLeopard_10.6.8_AMD.zip SnowLeopard_10.6.8_AMD.zip] ||
-|| Lion || 10.7.2 || AMD 64-bit || [https://volatility.googlecode.com/files/Lion_10.7.2_AMD.zip Lion_10.7.2_AMD.zip] || 
-|| Lion || 10.7.3 || AMD 64-bit || [https://volatility.googlecode.com/files/Lion_10.7.3_AMD.zip Lion_10.7.3_AMD.zip] ||
-|| Mountain Lion || 10.8.0 || AMD 64-bit || [https://volatility.googlecode.com/files/MountainLion_10.8.0.zip MountainLion_10.8.0.zip] || 
-|| Mountain Lion || 10.8.1 || AMD 64-bit || [https://volatility.googlecode.com/files/MountainLion_10.8.1.zip MountainLion_10.8.1.zip] || 
-|| Mountain Lion || 10.8.2 build 12c54 || AMD 64-bit || [https://volatility.googlecode.com/files/MountainLion_10.8.2_12c54.zip MountainLion_10.8.2_12c54.zip] || 
+  * Leopard 10.5 (32-bit)
+  * Leopard 10.5.3 (32-bit)
+  * Leopard 10.5.4 (32-bit)
+  * Leopard 10.5.5 (32-bit)
+  * Leopard 10.5.6 (32-bit)
+  * Leopard 10.5.7 (32-bit)
+  * Leopard 10.5.8 (32-bit)
+  * Snow Leopard 10.6 (32 and 64-bit)
+  * Snow Leopard 10.6.1 (32 and 64-bit)
+  * Snow Leopard 10.6.2 (32 and 64-bit)
+  * Snow Leopard 10.6.4 (32 and 64-bit)
+  * Snow Leopard 10.6.5 (32 and 64-bit)
+  * Snow Leopard 10.6.6 (32 and 64-bit)
+  * Lion 10.7 (32 and 64-bit)
+  * Lion 10.7.1 (32 and 64-bit)
+  * Lion 10.7.2 (32 and 64-bit)
+  * Lion 10.7.3 (32 and 64-bit)
+  * Lion 10.7.4 (32 and 64-bit)
+  * Lion 10.7.5 (32 and 64-bit)
+  * Mountain Lion 10.8.1 (64-bit)
+  * Mountain Lion 10.8.2 (64-bit)
+  * Mountain Lion 10.8.3 (64-bit) 
