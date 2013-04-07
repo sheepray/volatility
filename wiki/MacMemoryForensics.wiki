@@ -1,12 +1,14 @@
 #summary Instructions on how access and use the Mac OS X support
 
+<wiki:toc max_depth="2" />
+
 = Introduction =
 
 These are the instructions for using the Mac support in Volatility. A presentation on the initial set of features can be found [http://www.slideshare.net/AndrewDFIR/mac-memory-analysis-with-volatility here].
 
-= Determine Your Version =
+= Determine your version =
 
-If you're not sure which one to choose, click the Apple icon in the top left corner of your Mac's screen and choose About This Mac. Look at the Version number, as shown below. 
+Before you analyze a memory dump with Volatility, figure out what version of OSX you're dealing with. To do this, click the Apple icon in the top left corner of your Mac's screen and choose About This Mac. Look at the Version number, as shown below. 
 
 [https://lh3.googleusercontent.com/-J38DLJdf1F8/UVnPpKk2UqI/AAAAAAAADHo/eeqPo0eOyKk/s379/AppleVersion.png] 
 
@@ -35,7 +37,7 @@ setting kernel architecture to: x86_64
 changes to kernel architecture have been saved.
 }}}
 
-= Profiles =
+= Download pre-built profiles =
 
 Click to download an [https://code.google.com/p/volatility/downloads/detail?name=MacProfilesAll.zip archive of 38 different Mac OSX profiles]. Extract the main zip and copy/move the individual profiles that you want to activate into your volatility/plugins/overlays/mac folder.  
 
@@ -92,8 +94,6 @@ $ dwarfdump -arch i386 -i /Volumes/KernelDebugKit/mach_kernel.dSYM > 10.7.2.32bi
 
 You would use "-arch x86_64" for the 64 bit information.
 
-Note: The output file name can be anything you want.
-
 === Step 2 ===
 
 The next step is to convert the Mac dwarfdump output to the Linux style output supported by Volatility:
@@ -104,19 +104,23 @@ $ python tools/mac/convert.py 10.7.2.32bit.dwarfdump converted-10.7.2.32bit.dwar
 
 === Step 3 ===
 
-Create the vtypes file from the converted file
+Create the vtypes file from the converted file. It is required that you give the output file a .vtypes extension. 
 
 {{{
 $ python tools/mac/convert.py converted-10.7.2.32bit.dwarfdump > 10.7.2.32bit.vtypes
 }}}
 
-== Symbol Information ==
+== Symbol information ==
+
+Generate symbols in the following manner. It is required that you give the output file a .symbol.dsymutil extension.
 
 {{{
 $ dsymutil -s -arch i386 /Volumes/KernelDebugKit/mach_kernel > 10.7.2.32bit.symbol.dsymutil 
 }}}
 
-== Creating the profile (zip) ==
+== Putting it all together ==
+
+Create a zip archive of the .vtypes and .symbol.dysmutil files that you've created. 
 
 {{{
 $ zip 10.7.2.32bit.zip 10.7.2.32-bit.symbol.dsymutil 10.7.2.32bit.vtypes 
@@ -136,20 +140,22 @@ Volatility does not provide the ability to acquire memory. We recommend using [h
 
 = Plugins =
 
-To see how to use some of the initial plugins, read the presentation referenced above. To find all currently available plugins:
+To find all currently available plugins, use the following command. For more information on what these plugins do and how to use them correctly, see the [MacCommandReference23] page. 
 
 {{{
 $ python vol.py --info | grep mac_
 mac_arp                 - Prints the arp table
+mac_check_syscalls      - Checks to see if system call table entries are hooked
 mac_check_sysctl        - Checks for unknown sysctl handlers
 mac_check_trap_table    - Checks to see if system call table entries are hooked
+mac_dead_procs          - Prints terminated/de-allocated processes
 mac_dmesg               - Prints the kernel debug buffer
 mac_dump_maps           - Dumps memory ranges of processes
 mac_find_aslr_shift     - Find the ASLR shift value for 10.8+ images
-mac_get_processors      - No docs        
 mac_ifconfig            - Lists network interface information for all devices
 mac_ip_filters          - Reports any hooked IP filters
 mac_list_sessions       - Enumerates sessions
+mac_list_zones          - Prints active zones
 mac_ls_logins           - Lists login contexts
 mac_lsmod               - Lists loaded kernel modules
 mac_lsof                - Lists per-process opened files
@@ -159,14 +165,17 @@ mac_netstat             - Lists active per-process network connections
 mac_notifiers           - Detects rootkits that add hooks into I/O Kit (e.g. LogKext)
 mac_pgrp_hash_table     - Walks the process group hash table
 mac_pid_hash_table      - Walks the pid hash table
+mac_print_boot_cmdline  - Prints kernel boot arguments
 mac_proc_maps           - Gets memory maps of processes
-mac_psaux               - Prints processes with arguments in userland (**argv)
+mac_psaux               - Prints processes with arguments in user land (**argv)
 mac_pslist              - List Running Processes
 mac_pstree              - Show parent/child relationship of processes
+mac_psxview             - Find hidden processes with various process listings
 mac_route               - Prints the routing table
-mac_runq                - No docs        
+mac_tasks               - List Active Tasks
 mac_trustedbsd          - Lists malicious trustedbsd policies
 mac_version             - Prints the Mac version
 mac_vfs_events          - Lists Mac VFS Events
 mac_volshell            - Shell in the memory image
+mac_yarascan            - A shell in the mac memory image
 }}}
