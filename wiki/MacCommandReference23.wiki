@@ -4,8 +4,73 @@
 
 = Processes =
 == mac_pslist ==
+
+This plugin walks the linked list of processes and displays their short name, pid, uid, gid, bits (32, 64, or 64 shared), the DTB address, and creation time. You can tweak the timestamp time zone by using --tz=TIMEZONE (see [VolatilityUsage23#Setting_the_Timezone Setting the Timezone]. 
+
+{{{
+$ python vol.py --profile=MacMountainLion_10_8_3_AMDx64 -f ~/10.8.3.mmr.macho mac_pslist
+Volatile Systems Volatility Framework 2.3_alpha
+Offset             Name                 Pid      Uid      Gid      PGID     Bits         DTB                Start Time
+------------------ -------------------- -------- -------- -------- -------- ------------ ------------------ ----------
+0xffffff8032be4ea0 image                4175     0        0        4167     64BIT        0x0000000317e7e000 2013-03-29 12:16:20 UTC+0000
+0xffffff803dfdea40 coresymbolicatio     4173     0        0        4173     64BIT        0x00000004114c0000 2013-03-29 12:16:18 UTC+0000
+0xffffff8032498d20 MacMemoryReader      4168     0        0        4167     64BIT        0x00000003f94a8000 2013-03-29 12:16:17 UTC+0000
+0xffffff803dfe0020 sudo                 4167     0        20       4167     64BIT        0x0000000414a34000 2013-03-29 12:16:15 UTC+0000
+0xffffff803dfe1a60 mdworker             4164     89       89       4164     64BIT        0x00000003f70cf000 2013-03-29 12:15:32 UTC+0000
+0xffffff80370af760 DashboardClient      4160     501      20       275      64BIT        0x00000003e5bd9000 2013-03-29 12:14:36 UTC+0000
+0xffffff803634ba60 CVMCompiler          4127     501      20       4127     64BIT        0x000000016692b000 2013-03-29 12:10:58 UTC+0000
+0xffffff80370b11a0 cookied              4126     501      20       4126     64BIT        0x00000003137cc000 2013-03-29 12:10:58 UTC+0000
+0xffffff803dfe1600 WebProcess           4124     501      20       4121     64BIT        0x00000003f235a000 2013-03-29 12:10:57 UTC+0000
+0xffffff803249c600 taskgated            4122     0        0        4122     64BIT        0x00000003f3038000 2013-03-29 12:10:57 UTC+0000
+0xffffff80314a9d40 Safari               4121     501      20       4121     64BIT        0x00000003f616c000 2013-03-29 12:10:57 UTC+0000
+[snip]
+}}}
+
 == mac_tasks == 
+
+This plugin enumerates processes by first enumerating tasks and then following the task.bsd_info pointer to find the process object. 
+
+{{{
+$ python vol.py --profile=MacMountainLion_10_8_3_AMDx64 -f ~/10.8.3.mmr.macho mac_tasks
+Volatile Systems Volatility Framework 2.3_alpha
+Offset             Name                 Pid      Uid      Gid      PGID     Bits         DTB                Start Time
+------------------ -------------------- -------- -------- -------- -------- ------------ ------------------ ----------
+0xffffff800fada2d0 kernel_task          0        0        0        0        64BIT        0x0000000011e9f000 2013-03-29 01:08:47 UTC+0000
+0xffffff80314aaa60 launchd              1        0        0        1        64BIT        0x0000000011234000 2013-03-29 01:08:47 UTC+0000
+0xffffff80314a98e0 UserEventAgent       11       0        0        11       64BIT        0x000000000be18000 2013-03-29 01:08:49 UTC+0000
+0xffffff80314aa1a0 kextd                12       0        0        12       64BIT        0x000000000becb000 2013-03-29 01:08:49 UTC+0000
+0xffffff80314a9480 notifyd              14       0        0        14       64BIT        0x0000000023b9b000 2013-03-29 01:08:49 UTC+0000
+0xffffff80314a9020 securityd            15       0        0        15       64BIT        0x000000001dd43000 2013-03-29 01:08:49 UTC+0000
+[snip]
+}}}
+
 == mac_pstree == 
+
+This plugin shows the parent/child relationship between processes. 
+
+{{{
+$ python vol.py --profile=MacMountainLion_10_8_3_AMDx64 -f ~/10.8.3.mmr.macho mac_pstree
+Volatile Systems Volatility Framework 2.3_alpha
+Name                 Pid             Uid            
+kernel_task          0               0              
+.launchd             1               0              
+..coresymbolicatio   4173            0              
+..taskgated          4122            0              
+..ocspd              973             0              
+..launchd            561             89             
+...mdworker          4164            89             
+...cfprefsd          566             89             
+...distnoted         565             89             
+..VDCAssistant       558             0              
+..Dropbox            518             501            
+...dbfseventsd       545             0              
+....dbfseventsd      546             0              
+.....dbfseventsd     552             501            
+.....dbfseventsd     549             501            
+..vmware-usbarbitr   461             0     
+[snip]
+}}}
+
 == mac_lsof == 
 
 This plugin lists the open file handles. As you can see from the output, a user was viewing volatility source code files at the time of the memory dump. 
@@ -33,12 +98,141 @@ Volatile Systems Volatility Framework 2.3_alpha
 }}}
 
 == mac_pgrp_hash_table == 
+
+This plugin enumerates processes by walking the process group hash table. 
+
+{{{
+$ python vol.py --profile=MacMountainLion_10_8_3_AMDx64 -f ~/10.8.3.mmr.macho mac_pgrp_hash_table
+Volatile Systems Volatility Framework 2.3_alpha
+Offset             Name                 Pid      Uid      Gid      PGID     Bits         DTB                Start Time
+------------------ -------------------- -------- -------- -------- -------- ------------ ------------------ ----------
+0xffffff800fada2d0 kernel_task          0        0        0        0        64BIT        0x0000000011e9f000 2013-03-29 01:08:47 UTC+0000
+0xffffff8032c64600 apsd                 257      0        0        257      64BIT        0x000000005d70e000 2013-03-29 01:09:15 UTC+0000
+0xffffff80314aaa60 launchd              1        0        0        1        64BIT        0x0000000011234000 2013-03-29 01:08:47 UTC+0000
+0xffffff8032be6480 tccd                 258      501      20       258      64BIT        0x000000004bb09000 2013-03-29 01:09:15 UTC+0000
+0xffffff803249b480 Terminal             259      501      20       259      64BIT        0x000000004b66d000 2013-03-29 01:09:15 UTC+0000
+0xffffff803dfdf300 Dropbox              518      501      20       516      32BIT        0x0000000175f97000 2013-03-29 01:10:15 UTC+0000
+0xffffff803dfe11a0 dbfseventsd          545      0        20       516      32BIT        0x000000014f98f000 2013-03-29 01:10:18 UTC+0000
+[snip]
+}}}
+
 == mac_pid_hash_table == 
+
+This plugin enumerates processes by walking the pid hash table. 
+
+{{{
+$ python vol.py --profile=MacMountainLion_10_8_3_AMDx64 -f ~/10.8.3.mmr.macho mac_pid_hash_table
+Volatile Systems Volatility Framework 2.3_alpha
+Offset             Name                 Pid      Uid      Gid      PGID     Bits         DTB                Start Time
+------------------ -------------------- -------- -------- -------- -------- ------------ ------------------ ----------
+0xffffff80314aa600 Google Chrome He     1025     501      20       261      32BIT        0x000000004c7a4000 2013-03-29 01:56:58 UTC+0000
+0xffffff8032c64600 apsd                 257      0        0        257      64BIT        0x000000005d70e000 2013-03-29 01:09:15 UTC+0000
+0xffffff80314aaa60 launchd              1        0        0        1        64BIT        0x0000000011234000 2013-03-29 01:08:47 UTC+0000
+0xffffff8032be6480 tccd                 258      501      20       258      64BIT        0x000000004bb09000 2013-03-29 01:09:15 UTC+0000
+0xffffff803dfdd460 Google Chrome He     1027     501      20       261      32BIT        0x000000014fd18000 2013-03-29 01:57:12 UTC+0000
+0xffffff803249b480 Terminal             259      501      20       259      64BIT        0x000000004b66d000 2013-03-29 01:09:15 UTC+0000
+0xffffff8032498000 Google Chrome        261      501      20       261      32BIT        0x000000006f56e000 2013-03-29 01:09:15 UTC+0000
+[snip]
+}}}
+
 == mac_psaux == 
+
+This plugin accesses process memory to pull command-line arguments passed to the process at startup. 
+
+{{{
+$ python vol.py --profile=MacMountainLion_10_8_3_AMDx64 -f ~/10.8.3.mmr.macho mac_psaux
+Volatile Systems Volatility Framework 2.3_alpha
+Pid      Name                 Bits             Stack              Length   Argc     Arguments
+-------- -------------------- ---------------- ------------------ -------- -------- ---------
+       0 kernel_task          64BIT            0x0000000000000000        0        0 
+[snip]
+      40 mDNSResponder        64BIT            0x00007fff54403000      384        2 /usr/sbin/mDNSResponder -launchd
+      41 networkd             64BIT            0x00007fff50d3f000      360        1 /usr/libexec/networkd
+      59 warmd                64BIT            0x00007fff51816000      232        1 /usr/libexec/warmd
+      60 usbmuxd              64BIT            0x00007fff5fc00000      504        2 /System/Library/PrivateFrameworks/MobileDevice.framework/Versions/A/Resources/usbmuxd -launchd
+      63 stackshot            64BIT            0x00007fff59a7a000      224        2 /usr/libexec/stackshot -t
+      64 SleepServicesD       64BIT            0x00007fff582d5000      280        1 /System/Library/CoreServices/SleepServicesD
+      66 revisiond            64BIT            0x00007fff50d1b000      376        1 /System/Library/PrivateFrameworks/GenerationalStorage.framework/Versions/A/Support/revisiond
+      71 netbiosd             64BIT            0x00007fff577d3000      360        1 /usr/sbin/netbiosd
+      72 mds                  64BIT            0x00007fff5713e000      376        1 /System/Library/Frameworks/CoreServices.framework/Frameworks/Metadata.framework/Support/mds
+      75 loginwindow          64BIT            0x00007fff59635000      328        2 /System/Library/CoreServices/loginwindow.app/Contents/MacOS/loginwindow console
+      77 KernelEventAgent     64BIT            0x00007fff5e5b7000      232        1 /usr/sbin/KernelEventAgent
+      78 kdc                  64BIT            0x00007fff54a32000      304        1 /System/Library/PrivateFrameworks/Heimdal.framework/Helpers/kdc
+      80 hidd                 64BIT            0x00007fff56819000      232        1 /usr/libexec/hidd
+      82 dynamic_pager        64BIT            0x00007fff5dfdd000      248        3 /sbin/dynamic_pager -F /private/var/vm/swapfile
+      84 dpd                  64BIT            0x00007fff5f995000      232        1 /usr/libexec/dpd
+      85 corestoraged         64BIT            0x00007fff5dfed000      232        1 /usr/libexec/corestoraged
+      86 appleeventsd         64BIT            0x00007fff5cc55000      408        2 /System/Library/CoreServices/appleeventsd --server
+      89 blued                64BIT            0x00007fff5a65d000      224        1 /usr/sbin/blued
+      91 autofsd              64BIT            0x00007fff577d9000      208        1 /usr/libexec/autofsd autofsd
+      95 ntpd                 64BIT            0x00007fff5a494000      296        9 /usr/sbin/ntpd -c /private/etc/ntp-restrict.conf -n -g -p /var/run/ntpd.pid -f /var/db/ntp.drift
+[snip]
+}}}
+
 == mac_dead_procs ==
+
+This plugin prints terminated/dead processes. In most cases, the UID, GID, PGID, Bits, and DTB columns will show invalid data since we could be looking at partially overwritten data structures. Also please note in some rare cases, active processes are also found in this list. We are currently investigating conditions that lead to active processes showing up in the freed process object list. 
+
+{{{
+$ python vol.py --profile=MacMountainLion_10_8_3_AMDx64 -f ~/10.8.3.mmr.macho mac_dead_procs
+Volatile Systems Volatility Framework 2.3_alpha
+Offset             Name                 Pid      Uid      Gid      PGID     Bits         DTB                Start Time
+------------------ -------------------- -------- -------- -------- -------- ------------ ------------------ ----------
+0xffffff8036349760 diskmanagementd      4158     -        -        -55...11              ------------------ 2013-03-29 12:14:31 UTC+0000
+0xffffff8036349760 diskmanagementd      4158     -        -        -55...11              ------------------ 2013-03-29 12:14:31 UTC+0000
+0xffffff8032c60d20 lssave               4161     -        -        -55...11              ------------------ 2013-03-29 12:14:43 UTC+0000
+0xffffff803dfe08e0 com.apple.audio.     4146     -        -        -55...11              ------------------ 2013-03-29 12:12:59 UTC+0000
+0xffffff803dfe0d40 com.apple.audio.     4145     -        -        -55...11              ------------------ 2013-03-29 12:12:59 UTC+0000
+0xffffff8032c62300 com.apple.qtkits     4147     -        -        -55...11              ------------------ 2013-03-29 12:12:59 UTC+0000
+[snip]
+}}}
+
 == mac_psxview == 
+
+This plugin enumerates processes in 6 different ways and cross-references the processes that appear in each list. Its a very effective way to identify processes hidden in only one or two ways. 
+
+{{{
+$ python vol.py --profile=MacMountainLion_10_8_3_AMDx64 -f ~/10.8.3.mmr.macho mac_psxview
+Volatile Systems Volatility Framework 2.3_alpha
+Offset(P)          Name                    PID pslist parents pid_hash pgrp_hash_table session leaders task processes
+------------------ -------------------- ------ ------ ------- -------- --------------- --------------- --------------
+0xffffff800fada2d0 kernel_task               0 True   True    False    True            True            True          
+0xffffff80314aaa60 launchd                   1 True   True    True     True            True            True          
+0xffffff80314a98e0 UserEventAgent           11 True   False   True     True            True            True          
+0xffffff80314aa1a0 kextd                    12 True   False   True     True            True            True          
+0xffffff80314a9480 notifyd                  14 True   False   True     True            True            True          
+0xffffff80314a9020 securityd                15 True   False   True     True            True            True          
+0xffffff80314a8bc0 diskarbitrationd         16 True   False   True     True            True            True          
+0xffffff80314a8760 configd                  17 True   False   True     True            True            True          
+0xffffff80314a8300 powerd                   18 True   False   True     True            True            True          
+0xffffff80314a7ea0 syslogd                  19 True   False   True     True            True            True          
+0xffffff80314a7a40 distnoted                20 True   False   True     True            True            True          
+0xffffff80314a75e0 cfprefsd                 21 True   False   True     True            True            True        
+[snip]
+}}}
+
 = Process Memory =
 == mac_proc_maps == 
+
+This plugin shows the allocated memory blocks in each process, along with their starting and ending addresses, permissions, and name of them mapped file if it applies. You can filter processes with the -p option. 
+
+{{{
+$ python vol.py --profile=MacMountainLion_10_8_3_AMDx64 -f ~/10.8.3.mmr.macho mac_proc_maps -p 1 
+Volatile Systems Volatility Framework 2.3_alpha
+Pid      Name                 Start              End                Perms     Map Name
+-------- -------------------- ------------------ ------------------ --------- --------
+1        launchd              0x000000010630c000 0x0000000106333000 r-x       Macintosh HD/sbin/launchd
+1        launchd              0x0000000106333000 0x0000000106335000 rw-       Macintosh HD/sbin/launchd
+1        launchd              0x0000000106335000 0x000000010633b000 r--       Macintosh HD/sbin/launchd
+1        launchd              0x000000010633b000 0x000000010633c000 r--       
+1        launchd              0x000000010633c000 0x000000010633f000 r-x       Macintosh HD/usr/lib/libauditd.0.dylib
+1        launchd              0x000000010633f000 0x0000000106340000 rw-       Macintosh HD/usr/lib/libauditd.0.dylib
+1        launchd              0x0000000106340000 0x0000000106343000 r--       Macintosh HD/usr/lib/libauditd.0.dylib
+1        launchd              0x0000000106343000 0x0000000106344000 r--       
+1        launchd              0x0000000106344000 0x0000000106345000 rw-       Macintosh HD/private/var/db/dyld/dyld_shared_cache_x86_64
+[snip]
+}}}
+
 == mac_dump_maps == 
 = Kernel Memory and Objects =
 == mac_list_sessions == 
@@ -105,6 +299,21 @@ Address                          Size   Refs   Version      Name
 }}}
 
 == mac_mount == 
+
+This plugin shows the mounted file systems. 
+
+{{{
+$ python vol.py --profile=MacMountainLion_10_8_3_AMDx64 -f ~/10.8.3.mmr.macho mac_mount
+Volatile Systems Volatility Framework 2.3_alpha
+Device                         Mount Point                                                  Type
+------------------------------ ------------------------------------------------------------ ----
+/                              /dev/disk3                                                   hfs
+/dev                           devfs                                                        devfs
+/net                           map -hosts                                                   autofs
+/home                          map auto_home                                                autofs
+/Volumes/LaCie                 /dev/disk2s2                                                 hfs
+}}}
+
 == mac_vfs_events == 
 = Networking =
 == mac_arp == 
@@ -151,7 +360,57 @@ vmnet8     192.168.228.1
 }}}
 
 == mac_netstat == 
+
+This plugin shows active UNIX sockets and TCP/UDP endpoints (along with the TCP state and local/remote IPs and ports).
+
+{{{
+$ python vol.py --profile=MacMountainLion_10_8_3_AMDx64 -f ~/10.8.3.mmr.macho mac_netstat
+Volatile Systems Volatility Framework 2.3_alpha
+UNIX -
+UNIX /var/tmp/launchd/sock
+UNIX -
+UNIX /var/tmp/com.barebones.authd.socket
+UNIX /var/run/com.apple.ActivityMonitor.socket
+TCP :::548 :::0 TIME_WAIT
+TCP 0.0.0.0:548 0.0.0.0:0 TIME_WAIT
+UDP 127.0.0.1:60762 0.0.0.0:0 
+UNIX /var/run/mDNSResponder
+UNIX /var/rpc/ncacn_np/lsarpc
+UNIX /var/rpc/ncalrpc/lsarpc
+TCP 10.0.1.3:49179 173.194.76.125:5222 TIME_WAIT
+TCP 10.0.1.3:49188 205.188.248.150:443 TIME_WAIT
+TCP 10.0.1.3:49189 205.188.254.208:443 TIME_WAIT
+TCP 10.0.1.3:50614 205.188.13.76:443 TIME_WAIT
+UDP 0.0.0.0:137 0.0.0.0:0 
+UDP 0.0.0.0:138 0.0.0.0:0 
+UNIX /var/run/vpncontrol.sock
+UNIX /var/run/portmap.socket
+TCP :::5900 :::0 TIME_WAIT
+[snip]
+}}}
+
 == mac_route == 
+
+This plugin dumps the routing table. It shows the Source and Destination IPs, name of the interface, and for versions that support it - the sent/recv statistics and expiration/delta times. Only 10.7.x and 10.8.x OSX versions include the extra details.  
+
+{{{
+$ python vol.py --profile=MacMountainLion_10_8_3_AMDx64 -f ~/10.8.3.mmr.macho mac_route
+Volatile Systems Volatility Framework 2.3_alpha
+Source IP                Dest. IP                    Name           Sent               Recv                     Time                 Exp.    Delta
+------------------------ ------------------------ ---------- ------------------ ------------------ ------------------------------ ---------- -----
+0.0.0.0                  10.0.1.1                    en1            4342              50431         2013-03-29 01:08:55 UTC+0000      0      0
+10.0.1.0                                             en1            8331              31691         2013-03-29 01:08:56 UTC+0000      8      0
+10.0.1.1                 00:26:bb:6c:8e:64           en1            4551               4517         2013-03-29 01:08:53 UTC+0000    40318    40310
+10.0.1.2                 ac:16:2d:32:fc:d7           en1             1                  47          2013-03-29 11:56:02 UTC+0000    40037    1201
+10.0.1.3                 127.0.0.1                   lo0             0                 6168         2013-03-29 01:08:55 UTC+0000      0      0
+10.0.1.8                 e8:8d:28:cb:67:07           en1             19                924          2013-03-29 11:56:30 UTC+0000    40065    1201
+10.0.1.255               ff:ff:ff:ff:ff:ff           en1             12                 0           2013-03-29 12:13:59 UTC+0000    39913    0
+17.171.4.15              10.0.1.1                    en1             39                 39          2013-03-29 01:08:55 UTC+0000      0      0
+17.172.232.105           10.0.1.1                    en1             2                  60          2013-03-29 01:09:16 UTC+0000      0      0
+17.172.238.203           10.0.1.1                    en1             0                  58          2013-03-29 01:09:46 UTC+0000      0      0
+[snip]
+}}}
+
 = Malware/Rootkits =
 == mac_check_sysctl == 
 
@@ -227,6 +486,25 @@ TrapTable           12 0xffffff800f418ab0 __kernelrpc_mach_vm_deallocate_trap
 
 == mac_ip_filters == 
 == mac_notifiers == 
+
+This plugin detects rootkits that add hooks into I/O Kit (e.g. LogKext). If any entries are suspicious, you'll see "UNKNOWN" in the Status column. 
+
+{{{
+$ python vol.py --profile=MacMountainLion_10_8_3_AMDx64 -f ~/10.8.3.mmr.macho mac_notifiers
+Volatile Systems Volatility Framework 2.3_alpha
+Status     Key                            Handler            Matches
+---------- ------------------------------ ------------------ -------
+OK         IOServicePublish               0xffffff7f8fa878e8 IODisplayConnect
+OK         IOServicePublish               0xffffff7f91206ab6 IOResources,AppleClamshellState
+OK         IOServicePublish               0xffffff7f8fa94188 IOResources,AppleClamshellState
+OK         IOServicePublish               0xffffff800f872d50 IODisplayWrangler
+OK         IOServicePublish               0xffffff7f902ff732 IOHIDevice
+OK         IOServicePublish               0xffffff7f902ff732 IOHIDEventService
+OK         IOServicePublish               0xffffff7f902ff732 IODisplayWrangler
+OK         IOServicePublish               0xffffff7f902ffe74 AppleKeyswitch
+[snip]
+}}}
+
 == mac_trustedbsd == 
 = System Information =
 == mac_dmesg == 
@@ -294,6 +572,20 @@ sys	0m0.444s
 }}}
 
 == mac_machine_info == 
+
+This plugin prints the machine's kernel major/minor versions, RAM size, and CPU details. 
+
+{{{
+$ python vol.py --profile=MacMountainLion_10_8_3_AMDx64 -f ~/10.8.3.mmr.macho mac_machine_info
+Volatile Systems Volatility Framework 2.3_alpha
+Major Version:  12
+Minor Version:  3
+Memory Size:    17179869184
+Max CPUs:       4
+Physical CPUs:  4
+Logical CPUs:   4
+}}}
+
 == mac_version == 
 == mac_print_boot_cmdline ==
 == mac_vfs_events == 
