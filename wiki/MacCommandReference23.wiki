@@ -4,16 +4,20 @@
 
 = Processes =
 == mac_pslist ==
+== mac_tasks == 
 == mac_pstree == 
 == mac_lsof == 
 == mac_pgrp_hash_table == 
 == mac_pid_hash_table == 
 == mac_psaux == 
+== mac_dead_procs ==
+== mac_psxview == 
 = Process Memory =
 == mac_proc_maps == 
 == mac_dump_maps == 
 = Kernel Memory and Objects =
-== mac_sessions == 
+== mac_list_sessions == 
+== mac_list_zones ==
 == mac_ls_logins == 
 == mac_lsmod == 
 == mac_mount == 
@@ -35,5 +39,8 @@
 == mac_find_aslr_shift == 
 == mac_machine_info == 
 == mac_version == 
+== mac_print_boot_cmdline ==
+== mac_vfs_events == 
 = Miscellaneous =
 == mac_volshell == 
+== mac_yarascan == 
