@@ -7,6 +7,31 @@
 == mac_tasks == 
 == mac_pstree == 
 == mac_lsof == 
+
+This plugin lists the open file handles. As you can see from the output, a user was viewing volatility source code files at the time of the memory dump. 
+
+{{{
+$ python vol.py --profile=MacMountainLion_10_8_3_AMDx64 -f ~/10.8.3.mmr.macho mac_lsof
+Volatile Systems Volatility Framework 2.3_alpha
+0 -> /Macintosh HD/dev/null
+1 -> /Macintosh HD/dev/null
+2 -> /Macintosh HD/dev/null
+4 -> /Macintosh HD/dev/console
+81 -> /Macintosh HD/dev/autofs_nowait
+0 -> /Macintosh HD/dev/null
+1 -> /Macintosh HD/dev/null
+2 -> /Macintosh HD/dev/null
+[snip]
+19 -> /Macintosh HD/Users/michaelligh/Desktop/volatility/volatility/plugins/mac/pstasks.py
+20 -> /Macintosh HD/Users/michaelligh/Desktop/volatility/volatility/plugins/mac/pstree.py
+21 -> /Macintosh HD/Users/michaelligh/Desktop/volatility/volatility/plugins/mac/pgrp_hash_table.py
+22 -> /Macintosh HD/Users/michaelligh/Desktop/volatility/volatility/plugins/mac/pslist.py
+23 -> /Macintosh HD/Users/michaelligh/Desktop/volatility/volatility/plugins/mac/psaux.py
+24 -> /Macintosh HD/Users/michaelligh/Desktop/2.3.todo.txt
+25 -> /Macintosh HD/Users/michaelligh/Desktop/mac_profile.sh
+[snip]
+}}}
+
 == mac_pgrp_hash_table == 
 == mac_pid_hash_table == 
 == mac_psaux == 
@@ -17,9 +42,68 @@
 == mac_dump_maps == 
 = Kernel Memory and Objects =
 == mac_list_sessions == 
+
+This plugin enumerates sessions from the session hash table. You can use this information to link processes to user names. 
+
+{{{
+$ python vol.py --profile=MacMountainLion_10_8_3_AMDx64 -f ~/10.8.3.mmr.macho mac_list_sessions
+Volatile Systems Volatility Framework 2.3_alpha
+Leader (Pid) Leader (Name)        Login Name               
+------------ -------------------- -------------------------
+           0 kernel_task                                   
+         257 apsd                 _softwareupdate          
+           1 launchd              _securityagent           
+          -1 <INVALID LEADER>     michaelligh              
+          11 UserEventAgent       root                     
+          12 kextd                root                     
+          14 notifyd              root                     
+          15 securityd            root                     
+          16 diskarbitrationd     root     
+[snip]
+}}}
+
 == mac_list_zones ==
+
+This plugin enumerates zones (in this context a zone is similar to a structure). You can use it to determine how many of a particular type of structure (i.e. a process object) are active and freed. For example, below you can see that 133 proc structures are active on the system. Other plugins can inherit from mac_list_zones and actually collect the addresses of each active object type, leading to a wealthy source of information regarding where to find allocated objects in memory dumps. 
+
+{{{
+$ python vol.py --profile=MacMountainLion_10_8_3_AMDx64 -f ~/10.8.3.mmr.macho mac_list_zones
+Volatile Systems Volatility Framework 2.3_alpha
+Name                           Active Count Free Count Element Size
+------------------------------ ------------ ---------- ------------
+zones                                   182          0          592
+vm.objects                           153401    8832498          224
+vm.object.hash.entries               135206     882875           40
+maps                                    149      34033          232
+VM.map.entries                        26463   24372727           80
+Reserved.VM.map.entries                  35      13164           80
+VM.map.copies                             0     220097           80
+pmap                                    139       7962          256
+pagetable.anchors                       139       7962         4096
+proc                                    133       4042         1120
+[snip]
+}}}
+
 == mac_ls_logins == 
 == mac_lsmod == 
+
+This plugin lists the loaded kernel extensions, their base addresses and size, reference count, and version number. 
+
+{{{
+$ python vol.py --profile=MacMountainLion_10_8_3_AMDx64 -f ~/10.8.3.mmr.macho mac_lsmod
+Volatile Systems Volatility Framework 2.3_alpha
+Address                          Size   Refs   Version      Name
+------------------ ------------------ -------- ------------ ----
+0xffffff7f91847000             0x3000    0     3.0.2        com.atc-nycorp.devmem.kext
+0xffffff7f91841000             0x6000    0     10.1.24      com.vmware.kext.vmioplug.10.1.24
+0xffffff7f91834000             0xd000    0     0104.03.86   com.vmware.kext.vmx86
+0xffffff7f9182a000             0xa000    0     0104.03.86   com.vmware.kext.vmnet
+0xffffff7f9181a000            0x10000    0     90.4.23      com.vmware.kext.vsockets
+0xffffff7f91808000            0x12000    1     90.4.18      com.vmware.kext.vmci
+0xffffff7f916d2000             0xe000    0     75.19        com.apple.driver.AppleBluetoothMultitouch
+[snip]
+}}}
+
 == mac_mount == 
 == mac_vfs_events == 
 = Networking =
@@ -41,6 +125,31 @@ Source IP                Dest. IP                    Name           Sent        
 }}}
 
 == mac_ifconfig == 
+
+This plugin prints the IPv4, IPv6, and Ethernet addresses for interfaces (both physical and virtual) on the system. 
+
+{{{
+$ python vol.py --profile=MacMountainLion_10_8_3_AMDx64 -f ~/10.8.3.mmr.macho mac_ifconfig
+Volatile Systems Volatility Framework 2.3_alpha
+Interface  Address
+---------- -------
+lo0        fe80:1::1
+lo0        127.0.0.1
+lo0        ::1
+gif0       
+stf0       
+en1        8c:2d:aa:41:1e:3b
+en1        fe80:4::8e2d:aaff:fe41:1e3b
+en1        10.0.1.3
+en0        10:dd:b1:9f:d5:ce
+p2p0       0e:2d:aa:41:1e:3b
+fw0        00:0a:27:02:00:4b:19:5c
+vmnet1     00:50:56:c0:00:01
+vmnet1     172.16.244.1
+vmnet8     00:50:56:c0:00:08
+vmnet8     192.168.228.1
+}}}
+
 == mac_netstat == 
 == mac_route == 
 = Malware/Rootkits =
@@ -150,6 +259,38 @@ Volatile Systems Volatility Framework 2.3_alpha
 Shift Value       
 ------------------
 0x000000000f200000
+}}}
+
+For example, if you run the mac_pslist plugin (which uses symbols) and it will scan for the shift value automatically:
+
+{{{
+$ time python vol.py --profile=MacMountainLion_10_8_3_AMDx64 -f ~/10.8.3.mmr.macho mac_pslist
+Volatile Systems Volatility Framework 2.3_alpha
+Offset             Name                 Pid      Uid      Gid      PGID     Bits         DTB                Start Time
+------------------ -------------------- -------- -------- -------- -------- ------------ ------------------ ----------
+0xffffff8032be4ea0 image                4175     0        0        4167     64BIT        0x0000000317e7e000 2013-03-29 12:16:20 UTC+0000
+0xffffff803dfdea40 coresymbolicatio     4173     0        0        4173     64BIT        0x00000004114c0000 2013-03-29 12:16:18 UTC+0000
+0xffffff8032498d20 MacMemoryReader      4168     0        0        4167     64BIT        0x00000003f94a8000 2013-03-29 12:16:17 UTC+0000
+[snip]
+real	0m12.642s
+user	0m11.117s
+sys	0m0.743s
+}}}
+
+If you supply the shift value when running mac_pslist, the plugin will complete about 1.5 seconds quicker. This isn't a significant speed enhancement, but if you were running several plugins sequentially, the total time saved can end up being significant.
+
+{{{
+$ time python vol.py --profile=MacMountainLion_10_8_3_AMDx64 -f ~/10.8.3.mmr.macho mac_pslist --shift=0x000000000f200000
+Volatile Systems Volatility Framework 2.3_alpha
+Offset             Name                 Pid      Uid      Gid      PGID     Bits         DTB                Start Time
+------------------ -------------------- -------- -------- -------- -------- ------------ ------------------ ----------
+0xffffff8032be4ea0 image                4175     0        0        4167     64BIT        0x0000000317e7e000 2013-03-29 12:16:20 UTC+0000
+0xffffff803dfdea40 coresymbolicatio     4173     0        0        4173     64BIT        0x00000004114c0000 2013-03-29 12:16:18 UTC+0000
+0xffffff8032498d20 MacMemoryReader      4168     0        0        4167     64BIT        0x00000003f94a8000 2013-03-29 12:16:17 UTC+0000
+[snip]
+real	0m10.998s
+user	0m10.544s
+sys	0m0.444s
 }}}
 
 == mac_machine_info == 
