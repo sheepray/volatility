@@ -4,26 +4,69 @@
 
 These are the instructions for using the Mac support in Volatility. A presentation on the initial set of features can be found [http://www.slideshare.net/AndrewDFIR/mac-memory-analysis-with-volatility here].
 
-NOTE: These instructions *may* change in the future. *Please* check back on this wiki and always test the latest version before filing bug reports. 
+= Determine Your Version =
 
-= Supported Systems = 
+If you're not sure which one to choose, click the Apple icon in the top left corner of your Mac's screen and choose About This Mac. Look at the Version number, as shown below. 
 
-  * 32-bit 10.5 Leopard (the only 64-bit 10.5 is Server, which isn't supported)
-  * 32-bit 10.6 Snow Leopard
-  * 64-bit 10.6 Snow Leopard
-  * 32-bit 10.7 Lion
-  * 64-bit 10.7 Lion
-  * 64-bit 10.8 Mountain Lion (there is no 32-bit version)
+[https://lh3.googleusercontent.com/-J38DLJdf1F8/UVnPpKk2UqI/AAAAAAAADHo/eeqPo0eOyKk/s379/AppleVersion.png] 
 
-= Changes since the presentation =
-
-The presentation was based on an old code base. To run the plugins shown in the presentation, do not use the "profile_file" option and instead pass the name of your profile (explained later) to the "profile" option. You also do not have to use the "--no-cache" option anymore. Example:
+To verify your architecture, use the following command. If you see "RELEASE_X86_64 x86_64" then choose the AMD 64-bit profile. If you see "RELEASE_I386 i386" then choose the Intel 32-bit profile. 
 
 {{{
-$ python vol.py -f <name of memory dump> --profile=<profile name> plugin_name <optional plugin options>
+$ uname -a | cut -d/ -f2
+RELEASE_X86_64 x86_64
 }}}
 
-= Getting the source =
+Note: Some Macs ship with kernels capable of running in 32-bit or 64-bit mode. Even if you see "RELEASE_I386 i386" it may be possible to boot your system into 64-bit mode. To check, run the file command on your /mach_kernel. As you can see, the machine below can run as i386 (32-bit), x86_64 (64-bit), or ppc. 
+
+{{{
+$ file /mach_kernel 
+/mach_kernel: Mach-O universal binary with 3 architectures
+/mach_kernel (for architecture x86_64):	Mach-O 64-bit executable x86_64
+/mach_kernel (for architecture i386):	Mach-O executable i386
+/mach_kernel (for architecture ppc):	Mach-O executable ppc
+}}}
+
+Assuming you wanted to switch to a different mode, for testing purposes, you can do the following and then reboot. For more information see [https://support.apple.com/kb/HT3773 Apple Support HT3773]. 
+
+{{{
+$ sudo systemsetup -setkernelbootarchitecture x86_64
+setting kernel architecture to: x86_64
+changes to kernel architecture have been saved.
+}}}
+
+= Profiles =
+
+Click to download an [https://code.google.com/p/volatility/downloads/detail?name=MacProfilesAll.zip archive of 38 different Mac OSX profiles]. Extract the main zip and copy/move the individual profiles that you want to activate into your volatility/plugins/overlays/mac folder.  
+
+  * Leopard 10.5 (32-bit)
+  * Leopard 10.5.3 (32-bit)
+  * Leopard 10.5.4 (32-bit)
+  * Leopard 10.5.5 (32-bit)
+  * Leopard 10.5.6 (32-bit)
+  * Leopard 10.5.7 (32-bit)
+  * Leopard 10.5.8 (32-bit)
+  * Snow Leopard 10.6 (32 and 64-bit)
+  * Snow Leopard 10.6.1 (32 and 64-bit)
+  * Snow Leopard 10.6.2 (32 and 64-bit)
+  * Snow Leopard 10.6.4 (32 and 64-bit)
+  * Snow Leopard 10.6.5 (32 and 64-bit)
+  * Snow Leopard 10.6.6 (32 and 64-bit)
+  * Lion 10.7 (32 and 64-bit)
+  * Lion 10.7.1 (32 and 64-bit)
+  * Lion 10.7.2 (32 and 64-bit)
+  * Lion 10.7.3 (32 and 64-bit)
+  * Lion 10.7.4 (32 and 64-bit)
+  * Lion 10.7.5 (32 and 64-bit)
+  * Mountain Lion 10.8.1 (64-bit)
+  * Mountain Lion 10.8.2 (64-bit)
+  * Mountain Lion 10.8.3 (64-bit) 
+
+= Building a Profile = 
+
+If you need to perform memory analysis on a version of Mac OSX that isn't in the list above, you will need to build your own profile. 
+
+== Getting the source ==
 
 The source can be currently downloaded by checking out with SVN:
 
@@ -31,11 +74,7 @@ The source can be currently downloaded by checking out with SVN:
 $ svn co http://volatility.googlecode.com/svn/trunk volatility-trunk
 }}}
 
-It can be browsed [http://code.google.com/p/volatility/source/browse/#svn%2Fbranches%2Fmac-trunk here]
-
-= Creating a profile =
-
-In the near future, the volatility source code will include profiles for the most common Mac kernels. Until then, you'll need to create your own profile. 
+== Creating a profile ==
 
 To create a profile, you first need to download the !KernelDebugKit for the kernel you want to analyze. This can be downloaded from the [http://developer.apple.com/hardwaredrivers Apple Developer's website] (click OS X Kernel Debug Kits on the right). This account is free and only requires a valid Email address. 
 
