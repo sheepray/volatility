@@ -2,7 +2,7 @@
 
 = Introduction =
 
-NOTE: This initial set of instructions *will* change over time. *Please* check back on this wiki and always test the latest version before filing bug reports.
+This page describes how to use Volatility's Linux support. 
 
 = Prerequisites =
 
