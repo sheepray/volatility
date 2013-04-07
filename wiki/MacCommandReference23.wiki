@@ -25,6 +25,7 @@
 == mac_route == 
 = Malware/Rootkits =
 == mac_check_sysctl == 
+== mac_check_syscalls ==
 == mac_check_trap_table == 
 == mac_ip_filters == 
 == mac_notifiers == 
