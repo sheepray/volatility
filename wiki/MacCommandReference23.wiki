@@ -24,19 +24,134 @@
 == mac_vfs_events == 
 = Networking =
 == mac_arp == 
+
+This plugin prints the ARP table, including sent/recv statistics, time the entry was created, and its expiration. 
+
+{{{
+$ python vol.py --profile=MacMountainLion_10_8_3_AMDx64 -f ~/10.8.3.mmr.macho mac_arp
+Volatile Systems Volatility Framework 2.3_alpha
+Source IP                Dest. IP                    Name           Sent               Recv                     Time                 Exp.    Delta
+------------------------ ------------------------ ---------- ------------------ ------------------ ------------------------------ ---------- -----
+192.168.228.255          ff:ff:ff:ff:ff:ff          vmnet8           10                 0           2013-03-29 12:13:59 UTC+0000    39913    0
+172.16.244.255           ff:ff:ff:ff:ff:ff          vmnet1           10                 0           2013-03-29 12:13:59 UTC+0000    39913    0
+10.0.1.255               ff:ff:ff:ff:ff:ff           en1             12                 0           2013-03-29 12:13:59 UTC+0000    39913    0
+10.0.1.8                 e8:8d:28:cb:67:07           en1             19                924          2013-03-29 11:56:30 UTC+0000    40065    1201
+10.0.1.2                 ac:16:2d:32:fc:d7           en1             1                  47          2013-03-29 11:56:02 UTC+0000    40037    1201
+10.0.1.1                 00:26:bb:6c:8e:64           en1            4551               4517         2013-03-29 01:08:53 UTC+0000    40318    40310
+}}}
+
 == mac_ifconfig == 
 == mac_netstat == 
 == mac_route == 
 = Malware/Rootkits =
 == mac_check_sysctl == 
+
+This plugin checks for unknown sysctl handlers. You'll see the name of the sysctl, associated permissions, the handler address, and any available details (may be a string or a number, depending on the purpose of the sysctl. The "Status" column will contain "OK" if the sysctl is known/safe or "UNKNOWN" if its been hooked. 
+
+{{{
+$ python vol.py --profile=MacMountainLion_10_8_3_AMDx64 -f ~/10.8.3.mmr.macho mac_check_sysctl
+Volatile Systems Volatility Framework 2.3_alpha
+Name                           Number   Perms  Handler            Status     Value
+------------------------------ -------- ------ ------------------ ---------- -----
+ostype                                1 R-L    0xffffff800f76cee0 OK         Darwin
+osrelease                             2 R-L    0xffffff800f76cee0 OK         12.3.0
+osrevision                            3 R-L    0xffffff800f76cdd0 OK         
+version                               4 R-L    0xffffff800f76cee0 OK         Darwin Kernel Version 12.3.0: Sun Jan  6 22:37:10 PST 2013; root:xnu-2050.22.13~1/RELEASE_X86_64
+maxvnodes                             5 RWL    0xffffff800f76ad60 OK         
+maxproc                               6 RWL    0xffffff800f76adc0 OK         
+maxfiles                              7 RWL    0xffffff800f76cdd0 OK         4638564691968
+argmax                                8 R-L    0xffffff800f76cdd0 OK         
+securelevel                           9 RWL    0xffffff800f76af80 OK         
+hostname                             10 RWL    0xffffff800f76b040 OK         
+[snip]
+}}}
+
 == mac_check_syscalls ==
+
+This plugin prints the syscall table entries and resolves the function address to the appropriate kernel symbol. If any functions are hooked by rootkits, you'll see a "HOOKED" in the far right column. 
+
+{{{
+$ python vol.py --profile=MacMountainLion_10_8_3_AMDx64 -f ~/10.8.3.mmr.macho mac_check_syscalls
+Volatile Systems Volatility Framework 2.3_alpha
+Table Name      Index  Address            Symbol                        
+--------------- ------ ------------------ ------------------------------
+SyscallTable         0 0xffffff800f7755f0 _nosys                        
+SyscallTable         1 0xffffff800f755430 _exit                         
+SyscallTable         2 0xffffff800f759730 _fork                         
+SyscallTable         3 0xffffff800f775630 _read                         
+SyscallTable         4 0xffffff800f775d00 _write                        
+SyscallTable         5 0xffffff800f4fb210 _open                         
+SyscallTable         6 0xffffff800f749f30 _close                        
+SyscallTable         7 0xffffff800f756660 _wait4                        
+SyscallTable         8 0xffffff800f7755f0 _nosys                        
+SyscallTable         9 0xffffff800f4fbc20 _link                         
+SyscallTable        10 0xffffff800f4fc8c0 _unlink                       
+SyscallTable        11 0xffffff800f7755f0 _nosys                        
+SyscallTable        12 0xffffff800f4fa650 _chdir         
+[snip]
+}}}
+
 == mac_check_trap_table == 
+
+This plugin checks the status of the mach trap table function pointers to determine if they've been hooked. The Symbol column displays "HOOKED" if any appear to be maliciously altered. The "kern_invalid" entries are safe, they're just default/un-used handlers (similar to how un-used IRPs on Windows point to nt!IopInvalidDeviceRequest). 
+
+{{{
+$ python vol.py --profile=MacMountainLion_10_8_3_AMDx64 -f ~/10.8.3.mmr.macho mac_check_trap_table
+Volatile Systems Volatility Framework 2.3_alpha
+Table Name      Index  Address            Symbol                                            
+--------------- ------ ------------------ --------------------------------------------------
+TrapTable            0 0xffffff800f434ec0 _kern_invalid                                     
+TrapTable            1 0xffffff800f434ec0 _kern_invalid                                     
+TrapTable            2 0xffffff800f434ec0 _kern_invalid                                     
+TrapTable            3 0xffffff800f434ec0 _kern_invalid                                     
+TrapTable            4 0xffffff800f434ec0 _kern_invalid                                     
+TrapTable            5 0xffffff800f434ec0 _kern_invalid                                     
+TrapTable            6 0xffffff800f434ec0 _kern_invalid                                     
+TrapTable            7 0xffffff800f434ec0 _kern_invalid                                     
+TrapTable            8 0xffffff800f434ec0 _kern_invalid                                     
+TrapTable            9 0xffffff800f434ec0 _kern_invalid                                     
+TrapTable           10 0xffffff800f418a20 __kernelrpc_mach_vm_allocate_trap                 
+TrapTable           11 0xffffff800f434ec0 _kern_invalid                                     
+TrapTable           12 0xffffff800f418ab0 __kernelrpc_mach_vm_deallocate_trap  
+[snip]
+}}}
+
 == mac_ip_filters == 
 == mac_notifiers == 
 == mac_trustedbsd == 
 = System Information =
 == mac_dmesg == 
+
+This plugin recovers the kernel debug buffer. 
+
+{{{
+$ python vol.py --profile=MacMountainLion_10_8_3_AMDx64 -f ~/10.8.3.mmr.macho mac_dmesg
+Volatile Systems Volatility Framework 2.3_alpha
+deny mach-lookup com.apple.coresymbolicationd
+MacAuthEvent en1   Auth result for: 00:26:bb:77:d2:a7  MAC AUTH succeeded
+wlEvent: en1 en1 Link UP virtIf = 0
+AirPort: RSN handshake complete on en1
+wl0: Roamed or switched channel, reason #8, bssid 00:26:bb:77:d2:a7
+en1: BSSID changed to 00:26:bb:77:d2:a7
+en1::IO80211Interface::postMessage bssid changed
+MacAuthEvent en1   Auth result for: 00:26:bb:77:d2:a7  MAC AUTH succeeded
+wlEvent: en1 en1 Link UP virtIf = 0
+AirPort: RSN handshake complete on en1
+[snip]
+}}}
+
 == mac_find_aslr_shift == 
+
+This plugin only applies to Mountain Lion (10.8.x) versions using Address Space Layout Randomization. The symbol addresses that Volatility pulls from the mach_kernel need to be adjusted using a special "shift" value that we first must find by scanning the physical memory dump. Any plugin for 10.8.x that utilizes symbols will do this scan in the background unless you supply the value as the --shift=SHIFT parameter. 
+
+{{{
+$ python vol.py --profile=MacMountainLion_10_8_3_AMDx64 -f ~/10.8.3.mmr.macho mac_find_aslr_shift
+Volatile Systems Volatility Framework 2.3_alpha
+Shift Value       
+------------------
+0x000000000f200000
+}}}
+
 == mac_machine_info == 
 == mac_version == 
 == mac_print_boot_cmdline ==
