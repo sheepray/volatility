@@ -659,4 +659,20 @@ To switch into a specific process's context and read from a user mode address:
 
 Note after you switch contexts with cc(), the current process's proc object can be found at self.proc. 
 
+{{{
+>>> cc(pid = 261)
+Current context: process Google Chrome, pid=261 DTB=0x6f56e000
+>>> hex(self.proc.user_stack)
+'0xbffe8000L'
+>>> db(self.proc.user_stack - self.proc.p_argslen)
+0xbffe7d44  2f 41 70 70 6c 69 63 61 74 69 6f 6e 73 2f 47 6f   /Applications/Go
+0xbffe7d54  6f 67 6c 65 20 43 68 72 6f 6d 65 2e 61 70 70 2f   ogle.Chrome.app/
+0xbffe7d64  43 6f 6e 74 65 6e 74 73 2f 4d 61 63 4f 53 2f 47   Contents/MacOS/G
+0xbffe7d74  6f 6f 67 6c 65 20 43 68 72 6f 6d 65 00 00 00 00   oogle.Chrome....
+0xbffe7d84  2f 41 70 70 6c 69 63 61 74 69 6f 6e 73 2f 47 6f   /Applications/Go
+0xbffe7d94  6f 67 6c 65 20 43 68 72 6f 6d 65 2e 61 70 70 2f   ogle.Chrome.app/
+0xbffe7da4  43 6f 6e 74 65 6e 74 73 2f 4d 61 63 4f 53 2f 47   Contents/MacOS/G
+0xbffe7db4  6f 6f 67 6c 65 20 43 68 72 6f 6d 65 00 2d 70 73   oogle.Chrome.-ps
+}}}
+
 == mac_yarascan == 
