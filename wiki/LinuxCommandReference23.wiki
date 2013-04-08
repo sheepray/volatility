@@ -324,6 +324,21 @@ vmhgfs 63371
 
 == linux_moddump == 
 
+This plugin dumps linux kernel modules to disk for further inspection. The files are named according to their lkm name, their starting address in kernel memory, and with an .lkm extension. If you know the name of a module you want to dump, you can use the -r/--regex=REGEX parameter with -i/--ignore-case option. 
+
+{{{
+$ python vol.py --profile=LinuxUbuntux64 -f ~/ubuntu.lime linux_moddump -D mods/
+Volatile Systems Volatility Framework 2.3_alpha
+Wrote 16794 bytes to lime.0xffffffffa01ef000.lkm
+Wrote 122198 bytes to vmwgfx.0xffffffffa0296000.lkm
+Wrote 76949 bytes to ttm.0xffffffffa0282000.lkm
+Wrote 242038 bytes to drm.0xffffffffa022f000.lkm
+Wrote 63371 bytes to vmhgfs.0xffffffffa021e000.lkm
+Wrote 52475 bytes to vsock.0xffffffffa01f7000.lkm
+Wrote 82479 bytes to vmci.0xffffffffa01d9000.lkm
+[snip]
+}}}
+
 == linux_tmpfs == 
 
 = Rootkit Detection =
