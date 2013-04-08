@@ -711,7 +711,7 @@ centoslive pts/0        2013-08-09 16:28 (:0.0)
 
 This plugin presents an interactive shell in the linux memory image. You can use it to simply list processes:
 
-{{{{
+{{{
 $ python vol.py --profile=LinuxUbuntux64 -f ~/ubuntu.lime linux_volshell
 Volatile Systems Volatility Framework 2.3_alpha
 Current context: process init, pid=1 DTB=0x366ec000
@@ -768,3 +768,28 @@ Current context: process firefox, pid=11370 DTB=0x308a8000
 After doing so, any of the db/dd/dq commands will output data from the process's address space. 
 
 == linux_yarascan == 
+
+This plugin allows you to scan for Yara rules anywhere in process or kernel memory. The rules can be supplied on command-line (-Y) or in a file on disk (-y). In the example below, we limit our scan to one process (firefox pid 11370) and look for URLs:
+
+{{{
+$ python vol.py --profile=LinuxUbuntux64 -f ~/ubuntu.lime linux_yarascan -Y "http://" -p 11370
+Volatile Systems Volatility Framework 2.3_alpha
+Task: firefox pid 11370 rule r1 addr 0x7ff9fdde4945
+0x7ff9fdde4945  68 74 74 70 3a 2f 2f 6c 69 6d 65 2d 66 6f 72 65   http://lime-fore
+0x7ff9fdde4955  6e 73 69 63 73 2e 67 6f 6f 67 6c 65 63 6f 64 65   nsics.googlecode
+0x7ff9fdde4965  2e 63 6f 6d 2f 66 69 6c 65 73 2f 6c 69 6d 65 2d   .com/files/lime-
+0x7ff9fdde4975  66 6f 72 65 6e 73 69 63 73 2d 31 2e 31 2d 72 31   forensics-1.1-r1
+Task: firefox pid 11370 rule r1 addr 0x7ff9fde3b388
+0x7ff9fde3b388  68 74 74 70 3a 2f 2f 63 6f 64 65 2e 67 6f 6f 67   http://code.goog
+0x7ff9fde3b398  6c 65 2e 63 6f 6d 2f 70 2f 76 6f 6c 61 74 69 6c   le.com/p/volatil
+0x7ff9fde3b3a8  69 74 79 2f 73 6f 75 72 63 65 2f 6c 69 73 74 00   ity/source/list.
+0x7ff9fde3b3b8  f8 e8 00 00 bc 07 00 00 30 c7 7b 25 fa 7f 00 00   ........0.{%....
+Task: firefox pid 11370 rule r1 addr 0x7ff9fde48468
+0x7ff9fde48468  68 74 74 70 3a 2f 2f 77 77 77 2e 67 73 74 61 74   http://www.gstat
+0x7ff9fde48478  69 63 2e 63 6f 6d 2f 63 6f 64 65 73 69 74 65 2f   ic.com/codesite/
+0x7ff9fde48488  70 68 22 2c 22 64 6f 6d 61 69 6e 4e 61 6d 65 22   ph","domainName"
+0x7ff9fde48498  3a 6e 75 6c 6c 2c 22 61 73 73 65 74 56 65 72 73   :null,"assetVers
+[snip]
+}}}
+
+To scan all processes, just leave off the -p parameter (or to scan multiple processes use -p 1,2,3 syntax). You can also scan kernel memory using the --kernel option. 
