@@ -234,6 +234,18 @@ Pid      Name                 Start              End                Perms     Ma
 }}}
 
 == mac_dump_maps == 
+
+This plugin dumps/extracts a memory block seen in the mac_proc_maps output. For example, if you wanted to recover the launchd binary which is reportedly located at 0x000000010630c000 in the launchd process memory, you can do the following:
+
+{{{
+$ python vol.py --profile=MacMountainLion_10_8_3_AMDx64 -f ~/10.8.3.mmr.macho mac_dump_maps -p 1 -s 0x000000010630c000 -O launchd.binary.dmp
+Volatile Systems Volatility Framework 2.3_alpha
+Wrote 159744 bytes
+
+$ file launchd.binary.dmp 
+launchd.binary.dmp: Mach-O 64-bit executable x86_64
+}}}
+
 = Kernel Memory and Objects =
 == mac_list_sessions == 
 
