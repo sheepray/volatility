@@ -609,7 +609,6 @@ Darwin Kernel Version 12.3.0: Sun Jan  6 22:37:10 PST 2013; root:xnu-2050.22.13~
 }}}
 
 == mac_print_boot_cmdline ==
-== mac_vfs_events == 
 = Miscellaneous =
 == mac_volshell == 
 
