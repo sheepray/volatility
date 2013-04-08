@@ -587,8 +587,76 @@ Logical CPUs:   4
 }}}
 
 == mac_version == 
+
+This plugin shows the version string you'd see from "uname -a" on a live system.
+
+{{{
+$ python vol.py --profile=MacMountainLion_10_8_3_AMDx64 -f ~/10.8.3.mmr.macho mac_version
+Volatile Systems Volatility Framework 2.3_alpha
+Darwin Kernel Version 12.3.0: Sun Jan  6 22:37:10 PST 2013; root:xnu-2050.22.13~1/RELEASE_X86_64
+}}}
+
 == mac_print_boot_cmdline ==
 == mac_vfs_events == 
 = Miscellaneous =
 == mac_volshell == 
+
+This plugin presents an interactive shell in the mac memory image. You can list processes, switch contexts for printing process-specific addresses, display mac kernel structure types, etc. 
+
+To list processes:
+
+{{{
+$ python vol.py --profile=MacMountainLion_10_8_3_AMDx64 -f ~/Desktop/10.8.3/10.8.3.mmr.macho mac_volshell
+Volatile Systems Volatility Framework 2.3_alpha
+Current context: process kernel_task, pid=0 DTB=0x11e9f000
+Welcome to volshell! Current memory image is:
+file:///Users/michaelligh/Desktop/10.8.3.mmr.macho
+To get help, type 'hh()'
+>>> ps()
+Name             PID    Offset  
+kernel_task      0      0xffffff800fada2d0
+launchd          1      0xffffff80314aaa60
+UserEventAgent   11     0xffffff80314a98e0
+kextd            12     0xffffff80314aa1a0
+notifyd          14     0xffffff80314a9480
+securityd        15     0xffffff80314a9020
+[snip]
+}}}
+
+To display a data structure:
+
+{{{
+>>> dt("proc")
+'proc' (1120 bytes)
+0x0   : p_list                         ['__unnamed_14910873']
+0x10  : p_pid                          ['int']
+0x18  : task                           ['pointer', ['task']]
+0x20  : p_pptr                         ['pointer', ['proc']]
+0x28  : p_ppid                         ['int']
+0x2c  : p_pgrpid                       ['int']
+0x30  : p_uid                          ['unsigned int']
+0x34  : p_gid                          ['unsigned int']
+[snip]
+}}}
+
+To overlay a data structure to an offset in an address space:
+
+{{{
+>>> dt("proc", 0xffffff800fada2d0)
+[proc proc] @ 0xFFFFFF800FADA2D0
+0x0   : p_list                         18446743524216775376
+0x10  : p_pid                          0
+0x18  : task                           18446743524770536480
+0x20  : p_pptr                         18446743524216775376
+0x28  : p_ppid                         0
+0x2c  : p_pgrpid                       0
+0x30  : p_uid                          0
+0x34  : p_gid                          0
+[snip]
+}}}
+
+To switch into a specific process's context and read from a user mode address: 
+
+Note after you switch contexts with cc(), the current process's proc object can be found at self.proc. 
+
 == mac_yarascan == 
