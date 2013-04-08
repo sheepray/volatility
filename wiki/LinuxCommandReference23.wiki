@@ -241,7 +241,7 @@ This plugin dumps a memory range specified by the -s/--vma parameter to disk. Fo
 
 This plugin recovers bash history from memory, even in the face of anti-forensics (for example if HISTSIZE is set to 0 or HISTFILE is pointed to /dev/null). For more information, see [http://volatility-labs.blogspot.com/2012/09/movp-14-average-coder-rootkit-bash.html MoVP 1.4 Average Coder Rootkit, Bash History, and Elevated Processes]. 
 
-The argument to the -H/--history_list parameter can be gathered by using gdb on a live system. As shown below, the value you supply is 0x6ed4a0 (this was not calculated by us, its in a comment of the gdb output). For some systems, such as OpenSuSE, the history_list symbol is in a shared library (readline.so) instead of /bin/bash and ASLR is enabled. In those cases, its not a static value, and the linux_bash plugin will not work. Please wait until Volatility 2.3 is released which will dynamically determine the history_list address using disassembly. 
+The argument to the -H/--history_list parameter can be gathered by using gdb on a live system. As shown below, the value you supply is 0x6ed4a0 (this was not calculated by us, its in a comment of the gdb output). For some systems, such as OpenSuSE, the history_list symbol is in a shared library (readline.so) instead of /bin/bash and ASLR is enabled. In those cases, its not a static value, and the linux_bash plugin will not work. The -P/--printunalloc argument tells the plugin to print unallocated/deleted commands (can sometimes yield invalid data). 
 
 {{{
 mhl@ubuntu:~$ gdb /bin/bash 
@@ -265,31 +265,34 @@ End of assembler dump.
 (gdb) q
 }}}
 
-Here's an example of the output. The command time is seconds since epoch. 
+Here's an example of the output. 
 
 {{{
 $ python vol.py -f avgcoder.mem --profile=LinuxCentOS63x64 linux_bash -H 0x6e0950 -P
-Volatile Systems Volatility Framework 2.2_rc1
-Command Time         Command
--------------------- -------
-#1376083693          dmesg | head -50
-#1376085088          df
-#1376085110          dmesg | tail -50
-#1376085118          sudo mount /dev/sda1 /mnt
-#1376085122          cd /mnt
-#1376085122          ls
-#1376085128          sudo insmod rootkit.ko
-#1376085176          echo "hide" > /proc/buddyinfo
-#1376085180          lsmod | grep root
-#1376085194          w
-#1376085218          echo "huser centoslive" > /proc/buddyinfo
-#1376085220          w
-#1376085229          sleep 900 &
-#1376085241          echo "hpid 2872" > /proc/buddyinfo
-#1376085253          ps auwx | grep sleep
-#1376085241          echo "hpid 2872" > /proc/buddyinfo
-#1376085128          sudo insmod rootkit.ko
+Volatile Systems Volatility Framework 2.3_alpha
+Pid      Name                 Command Time                   Command
+-------- -------------------- ------------------------------ -------
+    2738 bash                 2013-08-09 21:28:13 UTC+0000   dmesg | head -50
+    2738 bash                 2013-08-09 21:51:28 UTC+0000   df
+    2738 bash                 2013-08-09 21:51:50 UTC+0000   dmesg | tail -50
+    2738 bash                 2013-08-09 21:51:58 UTC+0000   sudo mount /dev/sda1 /mnt
+    2738 bash                 2013-08-09 21:52:02 UTC+0000   cd /mnt
+    2738 bash                 2013-08-09 21:52:02 UTC+0000   ls
+    2738 bash                 2013-08-09 21:52:08 UTC+0000   sudo insmod rootkit.ko
+    2738 bash                 2013-08-09 21:52:56 UTC+0000   echo "hide" > /proc/buddyinfo 
+    2738 bash                 2013-08-09 21:53:00 UTC+0000   lsmod | grep root
+    2738 bash                 2013-08-09 21:53:14 UTC+0000   w
+    2738 bash                 2013-08-09 21:53:38 UTC+0000   echo "huser centoslive" > /proc/buddyinfo 
+    2738 bash                 2013-08-09 21:53:40 UTC+0000   w
+    2738 bash                 2013-08-09 21:53:49 UTC+0000   sleep 900 &
+    2738 bash                 2013-08-09 21:54:01 UTC+0000   echo "hpid 2872" > /proc/buddyinfo 
+    2738 bash                 2013-08-09 21:54:13 UTC+0000   ps auwx | grep sleep
+    2738 bash                 2013-08-09 21:54:01 UTC+0000   echo "hpid 2872" > /proc/buddyinfo 
+    2738 bash                 2013-08-09 21:54:13 UTC+0000   ?
+    2738 bash                 2013-08-09 21:52:08 UTC+0000   sudo insmod rootkit.ko
 }}}
+
+Note: The -H/--history_list argument is now optional starting with Volatility 2.3. If you don't supply it, we now scan in a brute-force manner and automatically find the value. This is critical to being able to find bash history in memory when you don't have access to a live system on which to run gdb. By default, in the brute force mode, we only check processes named "bash" however if an attacker copies /bin/bash to /tmp/a then there may be fragments of attacker's commands in a process named "a" so use -A/--scan_all to scan all processes regardless of their name. 
 
 = Kernel Memory and Objects =
 
@@ -319,6 +322,7 @@ vmhgfs 63371
 [snip]
 }}}  
 
+== linux_moddump == 
 
 == linux_tmpfs == 
 
@@ -493,6 +497,18 @@ The purpose of this plugin is to check if any processes are sharing 'cred' struc
 
 == linux_arp ==
 
+This plugin prints the ARP table. 
+
+{{{
+$ python vol.py --profile=LinuxUbuntux64 -f ~/ubuntu.lime linux_arp
+Volatile Systems Volatility Framework 2.3_alpha
+WARNING : volatility.obj      : Overlay structure tty_struct not present in vtypes
+[?                                         ] at 00:00:00:00:00:00    on lo
+[192.168.16.254                            ] at 00:50:56:f5:fd:73    on eth0
+[0.0.0.0                                   ] at 00:00:00:00:00:00    on lo
+[192.168.16.2                              ] at 00:50:56:fe:70:7d    on eth0
+}}}
+
 == linux_ifconfig ==
  
 == linux_route_cache ==
@@ -525,6 +541,8 @@ TCP      192.168.110.150:13377 192.168.110.140:41745 ESTABLISHED           _h4x_
 == linux_iomem == 
 
 == linux_mount == 
+
+== linux_keyboard_notifier ==
 
 == linux_mount_cache == 
 
@@ -584,3 +602,9 @@ centoslive pts/0        2013-08-09 16:28 (:0.0)
 }}}
 
 == linux_vma_cache ==
+
+= Miscellaneous = 
+
+== linux_volshell == 
+
+== linux_yarascan == 
