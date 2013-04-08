@@ -188,18 +188,18 @@ Volatility 2.3 is scheduled for release in April 2013.
       * *Processes*
           * [LinuxCommandReference23#linux_pslist linux_pslist] - Gather active tasks by walking the task_struct->task list
           * [LinuxCommandReference23#linux_psaux linux_psaux] - Gathers processes along with full command line and start time
-          * [LinuxCommandReference23#linux_pslist_cache linux_pslist_cache] - Gather tasks from the kmem_cache
           * [LinuxCommandReference23#linux_pstree linux_pstree] - Shows the parent/child relationship between processes
-          * [LinuxCommandReference23#linux_psxview linux_psxview] - Find hidden processes with various process listings
-      * *Process Memory*
-          * [LinuxCommandReference23#linux_dump_map linux_dump_map] - Writes selected process memory mappings to disk
-          * [LinuxCommandReference23#linux_memmap linux_memmap] - Dumps the memory map for linux tasks
+          * [LinuxCommandReference23#linux_pslist_cache linux_pslist_cache] - Gather tasks from the kmem_cache
           * [LinuxCommandReference23#linux_pidhashtable linux_pidhashtable] - Enumerates processes through the PID hash table
+          * [LinuxCommandReference23#linux_psxview linux_psxview] - Find hidden processes with various process listings
+          * [LinuxCommandReference23#linux_lsof linux_lsof] - Lists open files
+      * *Process Memory*
+          * [LinuxCommandReference23#linux_memmap linux_memmap] - Dumps the memory map for linux tasks
           * [LinuxCommandReference23#linux_proc_maps linux_proc_maps] - Gathers process maps for linux
+          * [LinuxCommandReference23#linux_dump_map linux_dump_map] - Writes selected process memory mappings to disk
           * [LinuxCommandReference23#linux_bash linux_bash] - Recover bash history from bash process memory
       * *Kernel Memory and Objects*
           * [LinuxCommandReference23#linux_lsmod linux_lsmod] - Gather loaded kernel modules
-          * [LinuxCommandReference23#linux_lsof linux_lsof] - Lists open files
           * [LinuxCommandReference23#linux_tmpfs linux_tmpfs] - Recovers tmpfs filesystems from memory
           * <font color='red'>(new)</font> [LinuxCommandReference23#linux_moddump linux_moddump] - Extract an LKM from memory to disk (.text segment only)
       * *Networking*
@@ -229,6 +229,7 @@ Volatility 2.3 is scheduled for release in April 2013.
           * [LinuxCommandReference23#linux_dentry_cache linux_dentry_cache] - Gather files from the dentry cache  
           * [LinuxCommandReference23#linux_find_file linux_find_file] - Extract cached file contents from memory via inodes 
           * [LinuxCommandReference23#linux_vma_cache linux_vma_cache] - Gather VMAs from the vm_area_struct cache
+          * <font color='red'>(new)</font> [LinuxCommandReference23#linux_keyboard_notifier linux_keyboard_notifier] - Parses the keyboard notifier call chain
       * *Miscellaneous*
           * <font color='red'>(new)</font> [CommandReference23#linux_volshell linux_volshell] - Shell to interactively explore Linux/Android memory captures
           * <font color='red'>(new)</font> [CommandReference23#linux_yarascan linux_yarascan] - Scan process and kernel memory with yara signatures
