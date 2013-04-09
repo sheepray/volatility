@@ -28,6 +28,8 @@ Volatility 2.3 is scheduled for release in April 2013.
 
 = Operating Systems = 
 
+Volatility supports the following operating systems and versions. All Windows profiles are included in the standard Volatility package. You can download sample Linux profiles from the LinuxProfiles wiki page or read LinuxMemoryForensics on how to build your own. You can download a [https://code.google.com/p/volatility/downloads/detail?name=MacProfilesAll.zip single archive of 38 different Mac OSX profiles] or read MacMemoryForensics to build your own. 
+
  * Windows 
    * 32-bit Windows XP Service Pack 2 and 3
    * 32-bit Windows 2003 Server Service Pack 0, 1, 2
@@ -44,13 +46,13 @@ Volatility 2.3 is scheduled for release in April 2013.
    * 32-bit Linux kernels 2.6.11 to 3.5
    * 64-bit Linux kernels 2.6.11 to 3.5
    * OpenSuSE, Ubuntu, Debian, CentOS, Fedora, Mandriva, etc
- * Mac OSX (download profiles from the MacProfiles page)
-   * <font color='red'>(new)</font> 32-bit 10.5 Leopard (the only 64-bit 10.5 is Server, which isn't supported)
-   * <font color='red'>(new)</font> 32-bit 10.6 Snow Leopard 
-   * <font color='red'>(new)</font> 64-bit 10.6 Snow Leopard 
-   * <font color='red'>(new)</font> 32-bit 10.7 Lion 
-   * <font color='red'>(new)</font> 64-bit 10.7 Lion 
-   * <font color='red'>(new)</font> 64-bit 10.8 Mountain Lion (there is no 32-bit version)
+ * Mac OSX 
+   * <font color='red'>(new)</font> 32-bit 10.5.x Leopard (the only 64-bit 10.5 is Server, which isn't supported)
+   * <font color='red'>(new)</font> 32-bit 10.6.x Snow Leopard 
+   * <font color='red'>(new)</font> 64-bit 10.6.x Snow Leopard 
+   * <font color='red'>(new)</font> 32-bit 10.7.x Lion 
+   * <font color='red'>(new)</font> 64-bit 10.7.x Lion 
+   * <font color='red'>(new)</font> 64-bit 10.8.x Mountain Lion (there is no 32-bit version)
 
 = Address Spaces = 
 
