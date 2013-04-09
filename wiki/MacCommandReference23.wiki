@@ -609,6 +609,18 @@ Darwin Kernel Version 12.3.0: Sun Jan  6 22:37:10 PST 2013; root:xnu-2050.22.13~
 }}}
 
 == mac_print_boot_cmdline ==
+
+This plugin prints the boot arguments passed to the kernel upon system start
+
+{{{
+$ python vol.py --profile=MacSnowLeopard_10_6_AMDx64  -f /root/mac-images-profiles/s10.6.0x64.vmem mac_print_boot_cmdline
+Volatile Systems Volatility Framework 2.3_alpha
+Command Line
+------------
+srv=1
+}}}
+
+
 = Miscellaneous =
 == mac_volshell == 
 
