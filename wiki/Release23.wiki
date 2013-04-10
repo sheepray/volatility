@@ -251,10 +251,8 @@ Volatility supports the following operating systems and versions. All Windows pr
       * *Kernel Memory and Objects*
          * <font color='red'>(new)</font> [MacCommandReference23#mac_list_sessions mac_list_sessions] - Enumerates sessions
          * <font color='red'>(new)</font> [MacCommandReference23#mac_list_zones mac_list_zones] - Enumerates zones (allocated/freed object counts)
-         * <font color='red'>(new)</font> [MacCommandReference23#mac_ls_logins mac_ls_logins] - Lists login contexts
          * <font color='red'>(new)</font> [MacCommandReference23#mac_lsmod mac_lsmod] - Lists loaded kernel modules
          * <font color='red'>(new)</font> [MacCommandReference23#mac_mount mac_mount] - Prints mounted device information
-         * <font color='red'>(new)</font> [MacCommandReference23#mac_vfs_events mac_vfs_events] - Prints Mac VFS events
       * *Networking*
          * <font color='red'>(new)</font> [MacCommandReference23#mac_arp mac_arp] - Prints the arp table
          * <font color='red'>(new)</font> [MacCommandReference23#mac_ifconfig mac_ifconfig] - Lists network interface information for all devices
