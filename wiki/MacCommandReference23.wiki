@@ -290,7 +290,6 @@ proc                                    133       4042         1120
 [snip]
 }}}
 
-== mac_ls_logins == 
 == mac_lsmod == 
 
 This plugin lists the loaded kernel extensions, their base addresses and size, reference count, and version number. 
@@ -326,7 +325,6 @@ Device                         Mount Point                                      
 /Volumes/LaCie                 /dev/disk2s2                                                 hfs
 }}}
 
-== mac_vfs_events == 
 = Networking =
 == mac_arp == 
 
