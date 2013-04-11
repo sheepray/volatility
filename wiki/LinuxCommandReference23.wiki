@@ -395,6 +395,10 @@ tty5             0xffffffff8131a0b0 n_tty_receive_buf
 tty6             0xffffffff8131a0b0 n_tty_receive_buf
 }}}
 
+== linux_keyboard_notifier ==
+
+This plugin detects the second kernel level keylogging method described in "Bridging the Semantic Gap to Mitigate Kernel-level Keyloggers". It works by walking the kernel "keyboard_notifier_list" and checking if each notifier (callback) is within the kernel.  If the callback is malicious then its symbol name is printed, otherwise "HOOKED" is printed.
+
 == linux_check_creds ==
 
 This plugin detects rootkits that have elevated privileges to root using DKOM techniques. 
@@ -741,7 +745,6 @@ PCI mem                            	0x0               	0xFFFFFFFFFF
 
 == linux_mount == 
 
-== linux_keyboard_notifier ==
 
 == linux_mount_cache == 
 
