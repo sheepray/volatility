@@ -379,6 +379,22 @@ tcp4_seq_afinfo    show            0xe0fb9965
 
 == linux_check_tty == 
 
+This plugin detects one of the kernel level keylogging methods described in "Bridging the Semantic Gap to Mitigate Kernel-level
+Keyloggers". It works by checking the receive_buf function pointer for every active tty driver on the system. If the function pointer is not hooked then its symbol name is printed, otherwise "HOOKED" is printed.
+
+{{{
+# python vol.py -f centos.lime --profile=LinuxCentos63Newx64 linux_check_tty
+Volatile Systems Volatility Framework 2.3_alpha
+Name             Address            Symbol
+---------------- ------------------ ------------------------------
+tty1             0xffffffff8131a0b0 n_tty_receive_buf
+tty2             0xffffffff8131a0b0 n_tty_receive_buf
+tty3             0xffffffff8131a0b0 n_tty_receive_buf
+tty4             0xffffffff8131a0b0 n_tty_receive_buf
+tty5             0xffffffff8131a0b0 n_tty_receive_buf
+tty6             0xffffffff8131a0b0 n_tty_receive_buf
+}}}
+
 == linux_check_creds ==
 
 This plugin detects rootkits that have elevated privileges to root using DKOM techniques. 
