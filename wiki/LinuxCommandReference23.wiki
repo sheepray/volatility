@@ -615,7 +615,66 @@ TCP      192.168.110.150:13377 192.168.110.140:41745 ESTABLISHED           _h4x_
 
 == linux_pkt_queues == 
 
+When a socket is attempting to send packets out onto the network at rates that the network cannot handle, or when the kernel has processed received packets that the corresponding userland service has not yet picked up, these packets are placed on per-socket send and receive queues.
+
+The linux_pkt_queues plugin enumerates these queues for each active socket in the kernel and writes the recovered packets to disk.
+
+Running the Plugin:
+
+{{{
+# python vol.py --profile=LinuxDebianx86 -f network.lime linux_pkt_queues -D recovered_packets
+Volatile Systems Volatility Framework 2.2_rc1
+Wrote 32 bytes to receive.1466.3
+Wrote 128 bytes to receive.2565.3
+Wrote 32 bytes to receive.2839.3
+}}}
+
+As the plugin finds queued packets, it writes them out with a filename of <receive or send>.<PID>.<file descriptor number>.  The owning process can then be referenced by its PID in linux_pslist / linux_psaux  and the file descriptor can be matched with output from linux_lsof on a per-process basis.
+
+
 == linux_sk_buff_cache ==
+
+The linux_sk_buff_cache plugin leverages the kmem_cache to find network packets that are in kernel memory and writes them to disk.
+
+Running the plugin:
+
+{{{
+# python vol.py --profile=LinuxDebianx86 -f network.lime linux_sk_buff_cache -D recovered_packets
+Volatile Systems Volatility Framework 2.2_rc1
+Wrote 20 bytes to de2c60c0
+Wrote 1430 bytes to de2da900
+Wrote 60 bytes to de21c680
+Wrote 42 bytes to de2cc600
+Wrote 1430 bytes to de284f00
+Wrote 68 bytes to def720c0
+Wrote 68 bytes to def72540
+}}}
+
+Sample recovered data:
+
+{{{
+# strings recovered_packets/*
+<snip>
+
+GET /safebrowsing/rd/<removed>
+HTTP/1.1
+Host: safebrowsing-cache.google.com
+User-Agent: Mozilla/5.0 (X11; Linux i686; rv:7.0.1) Gecko/20100101 Firefox/7.0.1
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+Accept-Language: en-us,en;q=0.5
+Accept-Encoding: gzip, deflate
+Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Connection: keep-alive
+Cookie: PREF=ID=<removed>:LM=1346093776:S=_zT51pWTC5-mvK0t
+Pragma: no-cache
+Cache-Control: no-cache
+<snip>
+}}}
+
+The plugin enumerates all of the packets from memory and writes them to a file named as the virtual address of where the owning structure was found.  As can be see in the strings output, this plugin is very effective at recovering packets still referenced by the kernel.
+
+Note: This plugin can be run with the –u/--unallocated option to recover packet structures that were previously de-allocated and are no longer in use.
+
 
 = System Information = 
 
