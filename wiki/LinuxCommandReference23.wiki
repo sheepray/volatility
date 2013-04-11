@@ -341,6 +341,28 @@ Wrote 82479 bytes to vmci.0xffffffffa01d9000.lkm
 
 == linux_tmpfs == 
 
+This plugins lists and recovers tmpfs filesystems from memory. This is very useful in forensics investigations as these filesystems are never written to disk and attackers leverage this fact to hide their data in places like /dev/shm. 
+
+To use this plugin you must first list the tmpfs filesystems with the "L" option:
+
+{{{
+# python vol.py --profile=Linuxthisx86 -f after-blog-post.lime linux_tmpfs -L
+Volatile Systems Volatility Framework 2.2
+1 -> /dev/shm
+2 -> /lib/init/rw
+}}}
+
+You then choose a filesystem to recover by number and give an output directory:
+
+{{{
+# python vol.py --profile=Linuxthisx86 -f after-blog-post.lime linux_tmpfs -S 1 -D tmpfs
+Volatile Systems Volatility Framework 2.2
+# ls -lR tmpfs
+tmpfs:
+total 0
+-rw------- 1 root root 0 Oct  7  2012 XXXXXXXXXXX.injected
+}}}
+
 = Rootkit Detection =
 
 == linux_check_afinfo == 
