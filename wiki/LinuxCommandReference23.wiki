@@ -867,6 +867,33 @@ centoslive pts/0        2013-08-09 16:28 (:0.0)
 
 == linux_vma_cache ==
 
+This plugins works by walking the kmem_cache of vm_area_struct structures. These structures represent a memory mapping within a process and hold information such as the mapped file, starting and ending addresses, and permissions. Depending on how the kernel is compiled, these structures may also hold a pointer to the task_struct (process) that opened or still has open the mapping. The "-u" flag can be passed to the plugin to find information on mappings that were closed or that were opened by processes that exited.
+
+{{{
+# python vol.py -f centos.lime --profile=LinuxCentos63Newx64 linux_vma_cache | head -20
+Volatile Systems Volatility Framework 2.3_alpha
+Process          PID    Start              End                Path
+---------------- ------ ------------------ ------------------ ----
+bash               3066 0x00000000008dc000 0x00000000008e5000 bin/bash
+bash               3066 0x0000000000400000 0x00000000004d4000 bin/bash
+packagekitd        2595 0x0000003639e04000 0x000000363a003000 lib64/libattr.so.1.1.0
+automount          1712 0x00007f6460000000 0x00007f6460021000
+udisks-daemon      2178 0x00007f697f09e000 0x00007f697f09f000 lib64/libnss_files-2.12.so
+nm-applet          2181 0x00007f1cb06c9000 0x00007f1cb08c8000 usr/lib64/gtk-2.0/2.10.0/loaders/svg_loader.so
+nm-applet          2181 0x00007f1cb08c8000 0x00007f1cb08c9000 usr/lib64/gtk-2.0/2.10.0/loaders/svg_loader.so
+bash               3066 0x00000000006d3000 0x00000000006dd000 bin/bash
+nm-applet          2181 0x000000363ce00000 0x000000363ce10000 lib64/libbz2.so.1.0.4
+nm-applet          2181 0x000000363d00f000 0x000000363d011000 lib64/libbz2.so.1.0.4
+nm-applet          2181 0x000000363ce10000 0x000000363d00f000 lib64/libbz2.so.1.0.4
+nm-applet          2181 0x00007f1cb011d000 0x00007f1cb0121000 usr/lib64/libcroco-0.6.so.3.0.1
+nm-applet          2181 0x00007f1cb0468000 0x00007f1cb0490000
+nm-applet          2181 0x00007f1cafee4000 0x00007f1caff1d000 usr/lib64/libcroco-0.6.so.3.0.1
+nm-applet          2181 0x00007f1cb06c5000 0x00007f1cb06c7000 usr/lib64/librsvg-2.so.2.26.0
+clock-applet       2222 0x00007fce51b72000 0x00007fce51e44000 usr/share/icons/hicolor/icon-theme.cache
+clock-applet       2222 0x00007fce5339c000 0x00007fce533b4000 usr/share/mime/mime.cache
+clock-applet       2222 0x00007fce5361a000 0x00007fce53621000 usr/lib64/gconv/gconv-modules.cache
+
+
 = Miscellaneous = 
 
 == linux_volshell == 
