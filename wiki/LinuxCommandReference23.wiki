@@ -892,7 +892,7 @@ nm-applet          2181 0x00007f1cb06c5000 0x00007f1cb06c7000 usr/lib64/librsvg-
 clock-applet       2222 0x00007fce51b72000 0x00007fce51e44000 usr/share/icons/hicolor/icon-theme.cache
 clock-applet       2222 0x00007fce5339c000 0x00007fce533b4000 usr/share/mime/mime.cache
 clock-applet       2222 0x00007fce5361a000 0x00007fce53621000 usr/lib64/gconv/gconv-modules.cache
-
+}}}
 
 = Miscellaneous = 
 
