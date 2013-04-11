@@ -743,12 +743,74 @@ PCI mem                            	0x0               	0xFFFFFFFFFF
 [snip]
 }}}
 
+== linux_slabinfo ==
+
+This plugin mimics the output of reading /proc/slabinfo on a running Linux system. It is part of the infrastructure to allow plugins to read entries from the kmem_cache.
+
+{{{
+# python vol.py -f centos.lime --profile=LinuxCentos63Newx64 linux_slabinfo
+Volatile Systems Volatility Framework 2.3_alpha
+<name>                         <active_objs> <num_objs> <objsize>  <objperslab> <pagesperslab>  <active_slabs> <num_slabs>
+------------------------------ ------------- ---------- ---------- ------------ --------------- -------------- -----------
+fuse_request                   0             0          632        6            1               0              0
+fuse_inode                     0             0          768        5            1               0              0
+bridge_fdb_cache               0             0          64         59           1               0              0
+rpc_buffers                    8             8          2048       2            1               4              4
+rpc_tasks                      8             15         256        15           1               1              1
+rpc_inode_cache                8             8          832        4            1               2              2
+libfc_em                       0             0          256        15           1               0              0
+libfc_fcp_pkt                  0             0          256        15           1               0              0
+}}}
+
 == linux_mount == 
 
+This plugins mimics of the output of /proc/mouns on a running Linux system. For each mountpoint it prints the flags, mounted source (drive, network share, etc) and the director it is mounted on.
+
+{{{
+# python vol.py -f centos.lime --profile=LinuxCentos63Newx64 linux_mount
+Volatile Systems Volatility Framework 2.3_alpha
+sunrpc                    /var/lib/nfs/rpc_pipefs             rpc_pipefs   rw,relatime
+/proc/bus/usb             /proc/bus/usb                       usbfs        rw,relatime
+devtmpfs                  /                                   devtmpfs     rw,relatime,nosuid
+tmpfs                     /dev/shm                            tmpfs        rw,relatime,nosuid,nodev
+/dev/mapper/vg_livecd-lv_root /                                   ext4         rw,relatime
+sysfs                     /sys                                sysfs        rw,relatime,nosuid,nodev,noexec
+devtmpfs                  /dev                                devtmpfs     rw,relatime,nosuid
+/dev/sr0                  /media/CentOS-6.3-x86_64-LiveCD     iso9660      ro,relatime,nosuid,nodev
+none                      /proc/sys/fs/binfmt_misc            binfmt_misc  rw,relatime
+-hosts                    /net                                autofs       rw,relatime
+/etc/auto.misc            /misc                               autofs       rw,relatime
+none                      /selinux                            selinuxfs    rw,relatime
+devpts                    /dev/pts                            devpts       rw,relatime
+proc                      /proc                               proc         rw,relatime,nosuid,nodev,noexec
+/dev/sda1                 /boot                               ext4         rw,relatime
+}}}
 
 == linux_mount_cache == 
 
-== linux_slabinfo ==
+This plugins gathers information on currrently mounted filesystems from the kmem_cache. You can use the -u option to potentially gather information on previously connected devices.
+
+{{{
+# python vol.py -f centos.lime --profile=LinuxCentos63Newx64 linux_mount_cache
+Volatile Systems Volatility Framework 2.3_alpha
+sunrpc                    /var/lib/nfs/rpc_pipefs             rpc_pipefs   rw,relatime
+/etc/auto.misc            /misc                               autofs       rw,relatime
+-hosts                    /net                                autofs       rw,relatime
+none                      /proc/sys/fs/binfmt_misc            binfmt_misc  rw,relatime
+/dev/sda1                 /boot                               ext4         rw,relatime
+/proc/bus/usb             /proc/bus/usb                       usbfs        rw,relatime
+devtmpfs                  /dev                                devtmpfs     rw,relatime,nosuid
+none                      /selinux                            selinuxfs    rw,relatime
+/dev/mapper/vg_livecd-lv_root /                                   ext4         rw,relatime
+tmpfs                     /dev/shm                            tmpfs        rw,relatime,nosuid,nodev
+devpts                    /dev/pts                            devpts       rw,relatime
+devtmpfs                  /                                   devtmpfs     rw,relatime,nosuid
+sysfs                     /sys                                sysfs        rw,relatime,nosuid,nodev,noexec
+proc                      /proc                               proc         rw,relatime,nosuid,nodev,noexec
+/dev/sr0                  /media/CentOS-6.3-x86_64-LiveCD     iso9660      ro,relatime,nosuid,nodev
+}}}
+
+
 
 == linux_dentry_cache == 
 
