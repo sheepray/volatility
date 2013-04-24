@@ -446,7 +446,7 @@ hostname                             10 RWL    0xffffff800f76b040 OK
 
 == mac_check_syscalls ==
 
-This plugin prints the syscall table entries and resolves the function address to the appropriate kernel symbol. If any functions are hooked by rootkits, you'll see a "HOOKED" in the far right column. 
+This plugin prints the syscall table entries and resolves the function address to the appropriate kernel symbol. If any functions are hooked by rootkits, you'll see a "HOOKED" in the far right column. There are some exceptions, however, where a function can be hooked and you won't see the HOOKED indicator...for example when you hook with D-Trace as described in [http://siliconblade.blogspot.com/2013/04/hunting-d-trace-rootkits-with.html Hunting D-Trace Rootkits with The Volatility Framework].
 
 {{{
 $ python vol.py --profile=MacMountainLion_10_8_3_AMDx64 -f ~/10.8.3.mmr.macho mac_check_syscalls
