@@ -989,54 +989,51 @@ Here is an example of detecting the Prolaco malware with psxview. A "False" in a
 
 {{{
 $ python vol.py -f prolaco.vmem psxview
-Volatile Systems Volatility Framework 2.1_alpha
-Offset(P)  Name                    PID pslist psscan thrdproc pspcdid csrss
----------- -------------------- ------ ------ ------ -------- ------- -----
-0x06499b80 svchost.exe            1148 True   True   True     True    True 
-0x04b5a980 VMwareUser.exe          452 True   True   True     True    True 
-0x0655fc88 VMUpgradeHelper        1788 True   True   True     True    True 
-0x0211ab28 TPAutoConnSvc.e        1968 True   True   True     True    True 
-0x04c2b310 wscntfy.exe             888 True   True   True     True    True 
-0x061ef558 svchost.exe            1088 True   True   True     True    True 
-0x06945da0 spoolsv.exe            1432 True   True   True     True    True 
-0x05471020 smss.exe                544 True   True   True     True    False
-0x04a544b0 ImmunityDebugge        1136 True   True   True     True    True 
-0x069d5b28 vmtoolsd.exe           1668 True   True   True     True    True 
-0x06384230 vmacthlp.exe            844 True   True   True     True    True 
-0x010f7588 wuauclt.exe             468 True   True   True     True    True 
-0x066f0da0 csrss.exe               608 True   True   True     True    False
-0x05f027e0 alg.exe                 216 True   True   True     True    True 
-0x06015020 services.exe            676 True   True   True     True    True 
-0x04a065d0 explorer.exe           1724 True   True   True     True    True 
-0x049c15f8 TPAutoConnect.e        1084 True   True   True     True    True 
-0x0115b8d8 svchost.exe             856 True   True   True     True    True 
-0x01214660 System                    4 True   True   True     True    False
-0x01122910 svchost.exe            1028 True   True   True     True    True 
-0x04be97e8 VMwareTray.exe          432 True   True   True     True    True 
-0x05f47020 lsass.exe               688 True   True   True     True    True 
-0x063c5560 svchost.exe             936 True   True   True     True    True 
-0x066f0978 winlogon.exe            632 True   True   True     True    True 
-0x0640ac10 msiexec.exe            1144 False  True   False    False   False
-0x005f23a0 rundll32.exe           1260 False  True   False    False   False
-0x0113f648 1_doc_RCData_61        1336 False  True   True     True    True 
+Volatile Systems Volatility Framework 2.3_alpha
+Offset(P)  Name                    PID pslist psscan thrdproc pspcid csrss session deskthrd
+---------- -------------------- ------ ------ ------ -------- ------ ----- ------- --------
+0x06499b80 svchost.exe            1148 True   True   True     True   True  True    True    
+0x04b5a980 VMwareUser.exe          452 True   True   True     True   True  True    True    
+0x05f027e0 alg.exe                 216 True   True   True     True   True  True    True    
+0x010f7588 wuauclt.exe             468 True   True   True     True   True  True    True    
+0x04c2b310 wscntfy.exe             888 True   True   True     True   True  True    True    
+0x061ef558 svchost.exe            1088 True   True   True     True   True  True    True    
+0x06015020 services.exe            676 True   True   True     True   True  True    True    
+0x06384230 vmacthlp.exe            844 True   True   True     True   True  True    True    
+0x069d5b28 vmtoolsd.exe           1668 True   True   True     True   True  True    True    
+0x04a544b0 ImmunityDebugge        1136 True   True   True     True   True  True    True    
+0x0655fc88 VMUpgradeHelper        1788 True   True   True     True   True  True    True    
+0x06945da0 spoolsv.exe            1432 True   True   True     True   True  True    True    
+0x05f47020 lsass.exe               688 True   True   True     True   True  True    True    
+0x0113f648 1_doc_RCData_61        1336 False  True   True     True   True  True    True    
+0x04a065d0 explorer.exe           1724 True   True   True     True   True  True    True    
+0x066f0978 winlogon.exe            632 True   True   True     True   True  True    True    
+0x0115b8d8 svchost.exe             856 True   True   True     True   True  True    True    
+0x063c5560 svchost.exe             936 True   True   True     True   True  True    True    
+0x01122910 svchost.exe            1028 True   True   True     True   True  True    True    
+0x04be97e8 VMwareTray.exe          432 True   True   True     True   True  True    True    
+0x0211ab28 TPAutoConnSvc.e        1968 True   True   True     True   True  True    True    
+0x049c15f8 TPAutoConnect.e        1084 True   True   True     True   True  True    True    
+0x05471020 smss.exe                544 True   True   True     True   False False   False   
+0x066f0da0 csrss.exe               608 True   True   True     True   False True    True    
+0x01214660 System                    4 True   True   True     True   False False   False   
+0x0640ac10 msiexec.exe            1144 False  True   False    False  False False   False   
+0x005f23a0 rundll32.exe           1260 False  True   False    False  False False   False 
 }}}
 
 The output looks similar for x64 systems:
 
 {{{
 $ python vol.py -f ~/Desktop/win7_trial_64bit.raw --profile=Win7SP0x64 psxview
-Volatile Systems Volatility Framework 2.1_alpha
-Offset(P)          Name                    PID pslist psscan thrdproc pspcdid csrss
------------------- -------------------- ------ ------ ------ -------- ------- -----
-0x00000000173c5700 lsass.exe               444 True   True   True     True    True 
-0x00000000176006c0 csrss.exe               296 True   True   True     True    False
-0x0000000017803b30 rundll32.exe           2016 True   True   True     True    True 
-0x0000000017486690 spoolsv.exe            1076 True   True   True     True    True 
-0x0000000017db7960 svchost.exe             856 True   True   True     True    True 
-0x0000000017dd09e0 svchost.exe             916 True   True   True     True    True 
-0x0000000017606b30 csrss.exe               344 True   True   True     True    False
-0x000000001769a630 regsvr32.exe           1180 True   True   False    True    False
-0x0000000017692300 wininit.exe             332 True   True   True     True    True 
+Volatile Systems Volatility Framework 2.3_alpha
+Offset(P)          Name                    PID pslist psscan thrdproc pspcid csrss session deskthrd
+------------------ -------------------- ------ ------ ------ -------- ------ ----- ------- --------
+0x0000000017692300 wininit.exe             332 True   True   True     True   True  True    True    
+0x00000000173c5700 lsass.exe               444 True   True   True     True   True  True    False   
+0x0000000017803b30 rundll32.exe           2016 True   True   True     True   True  True    False   
+0x0000000017486690 spoolsv.exe            1076 True   True   True     True   True  True    True    
+0x0000000017db7960 svchost.exe             856 True   True   True     True   True  True    False   
+0x0000000017dd09e0 svchost.exe             916 True   True   True     True   True  True    False
 [snip]
 }}}
 
