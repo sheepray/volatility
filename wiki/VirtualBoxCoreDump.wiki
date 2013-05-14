@@ -44,7 +44,7 @@ For more information on the format of core dump format, see the following links:
 
 = Meta Data = 
 
-You can use the [CommandReference23#vboxinfo vboxinfo] plugin to dump meta-data from the core dump header. Note the memory ranges: if a system has less than 3.5 GB of RAM, the entire main memory will be contained in the first run (0 - 0xe0000000). The VGA/video memory beings at 0xe0000000 on both x86 and x64 systems. Several MMIO device memory ranges ambiguously labeled "VirtualBox Device" (in Windows' Device Manager) follow the VGA segment. If a system has more than 3.5 GB of RAM, the remainder of memory begins at 0x100000000. 
+You can use the [CommandReference23#vboxinfo vboxinfo] plugin to dump meta-data from the core dump header. Note the memory ranges: if a system has less than 3.5 GB of RAM, the entire main memory will be contained in the first run (0 - 0xe0000000). The VGA/video memory beings at 0xe0000000 on both x86 and x64 systems. Several MMIO device memory ranges ambiguously labeled "!VirtualBox Device" (in Windows' Device Manager) follow the VGA segment. If a system has more than 3.5 GB of RAM, the remainder of memory begins at 0x100000000. 
 
 The system below had about 5.5 GB RAM:
 
