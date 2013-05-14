@@ -57,7 +57,7 @@ This page is the official Volatility Roadmap. The goal of the Roadmap is to help
 = Volatility 2.3 (Official Mac/Android/ARM Support) =
 
 *RC1:* N/A
-*Release:* April 2013
+*Release:* June 2013
 
  * Mac Support (x86, x64)
  * Android/Arm Support
