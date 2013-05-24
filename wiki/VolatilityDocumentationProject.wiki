@@ -34,6 +34,7 @@ This is a catalog of research, documentation, analysis, and tutorials generated 
 ||2012||November||Video||[http://www.youtube.com/watch?v=Khnas55TV0w DFIROnline: Android Forensics with Volatility and LiME] ||Andrew Case (@attrc)||
 ||2012||November||Blog||[http://www.sysforensics.org/2012/11/aptish-attack-via-metasploit-part-iii.html APTish Attack via Metasploit - Part III - Memory Analysis]||Patrick Olsen (@patrickrolsen)||
 ||2012||November||Blog||[http://thelulzkittens.blogspot.com/2012/11/jackcr-forensic-challenge.html @jackcr forensic challenge]||@infoseckitten, @magicked, @alwaysreit||
+||2012||November||Blog||[http://infosecbits.blogspot.com/2012/11/memory-forensics-for-malware-analysis.html Memory Forensics for Malware Analysis]||Andrew McNicol||
 ||2012||November||Blog||[http://forensec.wordpress.com/2012/11/13/automating-volatility-2/ Automating Volatility]||@martijnveken||
 ||2012||November||Paper||[http://seclab.cs.ucsb.edu/media/uploads/papers/blacksheep.pdf Blacksheep: Detecting Compromised Hosts in Homogeneous Crowds]||UC Santa Barbara||
 ||2012||October||Slides||[http://securityxploded.com/presentations/Reversing%20&%20Malware%20Analysis%20Training%20Part%2012%20-%20Rootkit%20Analysis.pptx Case Study - Rootkit Analysis]||m0nna (@monnappa22)||
