@@ -193,6 +193,8 @@ Offset             Name                 Pid      Uid      Gid      PGID     Bits
 
 This plugin enumerates processes in 6 different ways and cross-references the processes that appear in each list. Its a very effective way to identify processes hidden in only one or two ways. 
 
+For more information, see [http://volatility-labs.blogspot.com/2013/06/movp-ii-41-leveraging-process-cross.html MOVP II - 4.1 - Leveraging Process Cross-View Analysis for Mac Rootkit Detection].
+
 {{{
 $ python vol.py --profile=MacMountainLion_10_8_3_AMDx64 -f ~/10.8.3.mmr.macho mac_psxview
 Volatile Systems Volatility Framework 2.3_alpha
@@ -214,6 +216,9 @@ Offset(P)          Name                    PID pslist parents pid_hash pgrp_hash
 }}}
 
 = Process Memory =
+
+For more information on the complexities of Mac process memory, see [http://volatility-labs.blogspot.com/2013/06/movp-ii-42-dumping-scanning-and.html MoVP II - 4.2 - Dumping, Scanning, and Searching Mac OSX Process Memory].
+
 == mac_proc_maps == 
 
 This plugin shows the allocated memory blocks in each process, along with their starting and ending addresses, permissions, and name of them mapped file if it applies. You can filter processes with the -p option. 
