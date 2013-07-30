@@ -12,6 +12,8 @@ First check the [Release22] page for the supported Linux kernels, distributions,
   * GCC/make: apt-get install build-essential on Debial/Ubuntu.
   * headers for building kernel modules: this is the kernel-devel or linux-headers-generic package. sometimes you may need to uname -a to find your kernel version and then be specific like apt-get install linux-headers-2.6.24-16.server
 
+<font color = 'red'>By far, the most common mistake regarding Linux memory forensics is building a profile for a system other than the machine you want to analyze. For example, you cannot build a profile for a Debian 2.6.32 system to analyze a memory dump from Mandrake 2.6.32. Likewise you cannot build a profile for SuSE 2.5.35 system to analyze a memory dump from SuSE 2.6.42. You must ensure the profile you build matches the target system in 1) Linux distribution 2) exact kernel version 3) CPU architecture (32-bit, 64-bit, etc).</font>
+
 = Getting the Volatility source =
 
 Linux support is available as of [Release22]. Please see the release page for direct download links.
