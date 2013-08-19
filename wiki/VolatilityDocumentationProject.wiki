@@ -94,6 +94,7 @@ This is a catalog of research, documentation, analysis, and tutorials generated 
 ||2012||January||Blog||[http://www.sysforensics.org/2012/01/malware-analysis-with-sift-and.html Malware Analysis with SIFT and Volatility]||@patrickrolsen||
 ||2012||January||Blog||[http://jamaaldev.blogspot.com/2012/01/running-volatility-memory-forensics-on.html Running Volatility Memory Forensics Framework on your android phone!]||Jamaal Speights||
 ||2012||January||Slides||[http://digitalforensicssolutions.com/Android_Mind_Reading.pdf Android Mind Reading: Memory Acquisition and Analysis with DMD and Volatility]||Joe Sylve (@jtsylve)||
+||2012||January||Video||[http://www.youtube.com/watch?v=oWkOyphlmM8 Android Mind Reading: Memory Acquisition and Analysis with DMD and Volatility]||Joe Sylve (@jtsylve)||
 ||2012||January||Paper||[http://www.memoryanalysis.net/research/android-memory-analysis-DI.pdf Acquisition and Analysis of Volatile Memory from Android Devices]||Joe Sylve (@jtsylve) & Andrew Case (@attrc)||
 ||2012||January||Blog||[http://active-security.blogspot.com/2012/01/ramnit-zeus-and-bat-part-2.html Ramnit, Zeus and the BAT! Part 2]||cbentle2||
 ||2011||December||Slides||[http://www.reconstructer.org/papers/Hunting%20malware%20with%20Volatility%20v2.0.pdf Hunting Malware with Volatiltiy 2.0]||Frank Boldewin||
