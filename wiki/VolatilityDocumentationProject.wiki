@@ -14,8 +14,10 @@ This is a catalog of research, documentation, analysis, and tutorials generated 
 ||2013||July||Blog||[http://behindthefirewalls.blogspot.com/2013/07/zeus-trojan-memory-forensics-with.html Zeus trojan memory forensics with Volatility]||Javier Nieto Arevalo||
 ||2013||July||Code||[https://github.com/Dutchy-/volatility-plugins Linux Threads and CPU Registers Plugins]||Edwin Smulders (0x445554434859)||
 ||2013||July||Blog||[http://siliconblade.blogspot.com/2013/07/offensive-volatility-messing-with-os-x.html Offensive Volatility: Messing with the OS X Syscall Table]||Cem Gurkok (@CGurkok)||
+||2013||July||Blog||[http://jamaaldev.blogspot.com/2013/07/ethscan-volatility-memory-forensics.html Ethscan: volatility memory forensics framework plugin for recovering Ethernet frames from memory.]||Jamaal Speights (@jamaalspeights)||
 ||2013||June||Paper||[http://www.s3.eurecom.fr/docs/raid13_graziano.pdf Hypervisor Memory Forensics (pdf)]||Mariano Graziano (@emd3l)||
 ||2013||June||Blog||[http://neosysforensics.blogspot.com/2013/06/analizando-un-trozito-de-memoria.html Analizando un trozito de memoria]||neofito (@neosysforensics)||
+||2013||June||Blog||[http://jamaaldev.blogspot.com/2013/06/volatility-22-classapi-documentation.html Volatility 2.2 Class/Api Documentation]||Jamaal Speights (@jamaalspeights)||
 ||2013||May||Blog||[https://www-304.ibm.com/connections/blogs/xforce/entry/zeus?lang=en_us Zues Analysis - Memory Forensics Via Volatility]||Zubair Ashraf (@zashraf1337)||
 ||2013||May||Blog||[http://www.504ensics.com/automated-volatility-plugin-generation-with-dalvik-inspector/ Automatic Plugin Generation with Dalvik Inspector]||Joe Sylve (@jtsylve) and Vico Marziale (@vicomarziale)||
 ||2013||May||Blog||[http://siliconblade.blogspot.com/2013/05/checkdtrace-volatility-plugin-arises.html check_dtrace - A Volatility Plugin Arises]||Cem Gurkok (@CGurkok)||
