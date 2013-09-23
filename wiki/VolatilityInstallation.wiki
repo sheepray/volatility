@@ -33,6 +33,7 @@ For the most comprehensive plugin support, you should install the following libr
  * [http://code.google.com/p/yara-project/ Yara] - A malware identification and classification tool 
       * Dependent plugins
           * yarascan, linux_yarascan, mac_yarascan
+      * Note: get yara from the project's main website, do not install it with pip (see Issue #446)
  * [https://www.dlitz.net/software/pycrypto/ PyCrypto] - The Python Cryptography Toolkit 
       * Dependent plugins
           * lsadump
