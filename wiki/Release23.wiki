@@ -57,12 +57,9 @@ Volatility supports the following operating systems and versions. All Windows pr
 = Address Spaces = 
 
   * !FileAddressSpace - This is a direct file AS
-  * Legacy Intel x86 address spaces
-      * IA32PagedMemoryPae 
-      * IA32PagedMemory
   * Standard Intel x86 address spaces
-      * JKIA32PagedMemoryPae
-      * JKIA32PagedMemory
+      * IA32PagedMemoryPae
+      * IA32PagedMemory
   * AMD64PagedMemory - This AS supports AMD 64-bit address spaces
   * [CrashAddressSpace WindowsCrashDumpSpace32] - This AS supports windows Crash Dump format (x86)
   * [CrashAddressSpace WindowsCrashDumpSpace64] - This AS supports windows Crash Dump format (x64)
