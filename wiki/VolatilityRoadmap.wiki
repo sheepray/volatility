@@ -54,10 +54,10 @@ This page is the official Volatility Roadmap. The goal of the Roadmap is to help
    * eventlogs
    * getservicesids
 
-= Volatility 2.3 (Official Mac/Android/ARM Support) =
+= ~~Volatility 2.3 (Official Mac/Android/ARM Support)~~ =
 
 *RC1:* N/A
-*Release:* June 2013
+*Release:* Oct 2013
 
  * Mac Support (x86, x64)
  * Android/Arm Support
@@ -71,8 +71,8 @@ This page is the official Volatility Roadmap. The goal of the Roadmap is to help
 
 = Volatility 3.0 (Official Tech Preview Merge) =
 
-*RC1:* Late 2013
-*Release:* Late 2013
+*RC1:* 2014
+*Release:* 2014
 
  * A refactor and clean up of the vtype language/profiles/object system
  * Plugin management and the session object 
