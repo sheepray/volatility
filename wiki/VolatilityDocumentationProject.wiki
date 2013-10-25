@@ -7,6 +7,7 @@ This is a catalog of research, documentation, analysis, and tutorials generated 
 ||Year||Month||Type||Title||Author||
 ||2013||October||Blog||[http://blog.handlerdiaries.com/?p=71 Locating injected code in memory]||Jack Crook (@jackcr)||
 ||2013||October||Blog||[http://www.wyattroersma.com/?p=77 Analyzing Hyper-V Saved State files in Volatility]||Wyatt Roersma (@!WyattRoersma)||
+||2013||October||Blog/Paper||[http://www.wyattroersma.com/?p=64 GrrCON DFIR Challenge 2013||Wyatt Roersma (@!WyattRoersma)||
 ||2013||October||Code||[https://github.com/sebastienbr/Volatility/tree/master/plugins Filelist and Virustotal Volatility Plugins]||Sebastien Bourdon-Richard||
 ||2013||October||Blog||[http://www.ghettoforensics.com/2013/10/dumping-malware-configuration-data-from.html Dumping Malware Configuration Data from Memory with Volatility]||Brian Baskin (@bbaskin)||
 ||2013||October||Blog||[http://forensec.wordpress.com/2013/10/08/volshell-for-the-web/ VOLSHELL FOR THE WEB!]||Martijn Veken (@martijnveken)||
