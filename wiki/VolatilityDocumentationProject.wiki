@@ -6,7 +6,7 @@ This is a catalog of research, documentation, analysis, and tutorials generated 
 
 ||Year||Month||Type||Title||Author||
 ||2013||October||Blog||[http://forensec.wordpress.com/2013/10/08/volshell-for-the-web/ VOLSHELL FOR THE WEB!]||Martijn Veken (@martijnveken)||
-||2013||September||[http://resources.infosecinstitute.com/the-hunt-for-memory-malwares/ The Hunt for Memory Malware]||Albert Fruz||
+||2013||September||Blog||[http://resources.infosecinstitute.com/the-hunt-for-memory-malwares/ The Hunt for Memory Malware]||Albert Fruz||
 ||2013||August||Blog||[http://sketchymoose.blogspot.com.es/2013/09/total-recall-script-released.html Total Recall Script Released]||Melissa (@sk3tchymoos3)||
 ||2013||August||Code||[https://github.com/hiddenillusion/volatility Some scripts/plugins for Volatility]||Glenn P. Edwards Jr (@hiddenillusion)||
 ||2013||August||Code||[https://bitbucket.org/carlpulley/libbap/wiki/Home Volatility Interface to the Binary Analysis Platform]||Carl Pulley||
