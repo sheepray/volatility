@@ -69,7 +69,7 @@ This page is the official Volatility Roadmap. The goal of the Roadmap is to help
    * dumpfiles 
    * iehistory
 
-= ~~Volatility 2.4 (Official Windows 8/Server 2012/Mavericks Support)~~ =
+= Volatility 2.4 (Official Windows 8/Server 2012/Mavericks Support) =
 
 *RC1:* N/A
 *Release:* Jan 2014
@@ -78,7 +78,7 @@ This page is the official Volatility Roadmap. The goal of the Roadmap is to help
  * Mac 10.9 / Mavericks
  * Pool Scanner Updates
 
-= Volatility 3.0 (Official Tech Preview Merge) =
+= Volatility 3.0 =
 
 *RC1:* 2014
 *Release:* 2014
