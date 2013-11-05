@@ -74,9 +74,11 @@ This page is the official Volatility Roadmap. The goal of the Roadmap is to help
 *RC1:* N/A
 *Release:* Jan 2014
 
- * Windows 8/Server 2012
+ * Windows 8 and 8.1/Server 2012 and 2012 R2
  * Mac 10.9 / Mavericks
  * Pool Scanner Updates
+ * VAD plugin design improvements 
+ * Enhanced PE dumping APIs 
 
 = Volatility 3.0 =
 
