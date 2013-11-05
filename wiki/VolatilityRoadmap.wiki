@@ -79,6 +79,7 @@ This page is the official Volatility Roadmap. The goal of the Roadmap is to help
  * Pool Scanner Updates
  * VAD plugin design improvements 
  * Enhanced PE dumping APIs 
+ * Truecrypt investigation plugins
 
 = Volatility 3.0 =
 
