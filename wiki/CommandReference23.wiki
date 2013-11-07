@@ -1361,9 +1361,9 @@ The output is in the format of:
 
 The extension can be:
 
-* img – !ImageSectionObject
-* dat - !DataSectionObject
-* vacb – !SharedCacheMap 
+  * img – !ImageSectionObject
+  * dat - !DataSectionObject
+  * vacb – !SharedCacheMap 
 
 You can look at the `-S/--summary-file` in order to map the file back to its original filename:
 
