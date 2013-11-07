@@ -1314,6 +1314,60 @@ Offset(P)             PID    TID      Start Address Create Time               Ex
 
 == dumpfiles ==
 
+An important concept that every computer scientist, especially those who have spent time doing operating system research, is intimately familiar with is that of caching.  Files are cached in memory for system performance as they are accessed and used.  This makes the cache a valuable source from a forensic perspective since we are able to retrieve files that were in use correctly, instead of file carving which does not make use of how items are mapped in memory.  Files may not be completely mapped in memory (also for performance), so missing sections are zero padded.  Files dumped from memory can then be processed with external tools.
+
+For more information see AAron Walter's post: [http://volatility-labs.blogspot.com/2012/10/movp-44-cache-rules-everything-around.html MoVP 4.4 Cache Rules Everything Around Me(mory)].
+
+There are several options in the dumpfiles plugin, for example:
+
+{{{
+  -r REGEX, --regex=REGEX
+                        Dump files matching REGEX
+  -i, --ignore-case     Ignore case in pattern match
+  -o OFFSET, --offset=OFFSET
+                        Dump files for Process with physical address OFFSET
+  -Q PHYSOFFSET, --physoffset=PHYSOFFSET
+                        Dump File Object at physical address PHYSOFFSET
+  -D DUMP_DIR, --dump-dir=DUMP_DIR
+                        Directory in which to dump extracted files
+  -S SUMMARY_FILE, --summary-file=SUMMARY_FILE
+                        File where to store summary information
+  -p PID, --pid=PID     Operate on these Process IDs (comma-separated)
+  -n, --name            Include extracted filename in output file path
+  -u, --unsafe          Relax safety constraints for more data
+  -F FILTER, --filter=FILTER
+                        Filters to apply (comma-separated)
+}}}
+
+By default, dumpfiles iterates through the VAD and extracts all files that are mapped as DataSectionObject, ImageSectionObject or SharedCacheMap.  As an investigator, however, you may want to perform a more targeted search.  You can use the `-r` and `-i` flags to specify a case-insensitive regex of a filename: 
+
+{{{
+$ python vol.py -f mebromi.raw dumpfiles -D output/ -r evt$ -i 
+Volatility Foundation Volatility Framework 2.3
+DataSectionObject 0x81ed6240   684    \Device\HarddiskVolume1\WINDOWS\system32\config\AppEvent.Evt
+SharedCacheMap 0x81ed6240   684    \Device\HarddiskVolume1\WINDOWS\system32\config\AppEvent.Evt
+DataSectionObject 0x8217beb0   684    \Device\HarddiskVolume1\WINDOWS\system32\config\SecEvent.Evt
+DataSectionObject 0x8217bd78   684    \Device\HarddiskVolume1\WINDOWS\system32\config\SysEvent.Evt
+SharedCacheMap 0x8217bd78   684    \Device\HarddiskVolume1\WINDOWS\system32\config\SysEvent.Evt
+}}} 
+
+Not every file will be currently active or in the VAD, and such files will not be dumped when using the `-r/--regex` option.  For these files you can first scan for a `_FILE_OBJECT` and then use the `-Q/--physoffset` flag to extract the file.  Special NTFS files are examples of files that must be dumped specifically:
+
+{{{
+$ python vol.py -f mebromi.raw filescan |grep -i mft
+Volatility Foundation Volatility Framework 2.3
+0x02410900      3      0 RWD--- \Device\HarddiskVolume1\$Mft
+0x02539e30      3      0 RWD--- \Device\HarddiskVolume1\$Mft
+0x025ac868      3      0 RWD--- \Device\HarddiskVolume1\$MftMirr
+
+$ python vol.py -f mebromi.raw dumpfiles -D output/ -Q 0x02539e30
+Volatility Foundation Volatility Framework 2.3
+DataSectionObject 0x02539e30   None   \Device\HarddiskVolume1\$Mft
+SharedCacheMap 0x02539e30   None   \Device\HarddiskVolume1\$Mft
+}}}
+
+
+
 == unloadedmodules ==
 
 Windows stores information on recently unloaded drivers for debugging purposes. This gives you an alternative way to determine what happened on a system, besides the well known modules and modscan plugins. 
