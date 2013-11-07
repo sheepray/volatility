@@ -1339,7 +1339,7 @@ There are several options in the dumpfiles plugin, for example:
                         Filters to apply (comma-separated)
 }}}
 
-By default, dumpfiles iterates through the VAD and extracts all files that are mapped as !DataSectionObject, !ImageSectionObject or !SharedCacheMap.  As an investigator, however, you may want to perform a more targeted search.  You can use the `-r` and `-i` flags to specify a case-insensitive regex of a filename: 
+By default, dumpfiles iterates through the VAD and extracts all files that are mapped as !DataSectionObject, !ImageSectionObject or !SharedCacheMap.  As an investigator, however, you may want to perform a more targeted search.  You can use the `-r` and `-i` flags to specify a case-insensitive regex of a filename.  In the output below, you can see where the file was dumped from (!DataSectionObject, !ImageSectionObject or !SharedCacheMap), the offset of the `_FILE_OBJECT`, the PID of the process whose VAD contained the file and the file path on disk:
 
 {{{
 $ python vol.py -f mebromi.raw dumpfiles -D output/ -r evt$ -i -S summary.txt
@@ -1355,11 +1355,13 @@ file.684.0x81fc6ed0.vacb	file.684.0x82256a48.dat		file.684.0x82256e48.dat		file.
 file.684.0x8217b720.vacb	file.684.0x82256c50.dat		file.None.0x82339c70.dat
 }}} 
 
-The output is in the format of:
+The dumped filename is in the format of:
 
 `file.[PID].[OFFSET].[EXT]`
 
-The extension can be:
+The OFFSET is the offset of the !SharedCacheMap or the `_CONTROL_AREA`, not the `_FILE_OBJECT`.
+
+The extension (EXT) can be:
 
   * img – !ImageSectionObject
   * dat - !DataSectionObject
@@ -1388,7 +1390,7 @@ DataSectionObject 0x02539e30   None   \Device\HarddiskVolume1\$Mft
 SharedCacheMap 0x02539e30   None   \Device\HarddiskVolume1\$Mft
 }}}
 
-
+The `-f/--filter` option allows you to specify which view of the file you would like to dump (!DataSectionObject, !ImageSectionObject or !SharedCacheMap).  For example, if you wanted to only see the state information for an executable file, you could specify `--filter=!ImageSectionObject`.
 
 == unloadedmodules ==
 
