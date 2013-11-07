@@ -1342,14 +1342,36 @@ There are several options in the dumpfiles plugin, for example:
 By default, dumpfiles iterates through the VAD and extracts all files that are mapped as DataSectionObject, ImageSectionObject or SharedCacheMap.  As an investigator, however, you may want to perform a more targeted search.  You can use the `-r` and `-i` flags to specify a case-insensitive regex of a filename: 
 
 {{{
-$ python vol.py -f mebromi.raw dumpfiles -D output/ -r evt$ -i 
+$ python vol.py -f mebromi.raw dumpfiles -D output/ -r evt$ -i -S summary.txt
 Volatility Foundation Volatility Framework 2.3
 DataSectionObject 0x81ed6240   684    \Device\HarddiskVolume1\WINDOWS\system32\config\AppEvent.Evt
 SharedCacheMap 0x81ed6240   684    \Device\HarddiskVolume1\WINDOWS\system32\config\AppEvent.Evt
 DataSectionObject 0x8217beb0   684    \Device\HarddiskVolume1\WINDOWS\system32\config\SecEvent.Evt
 DataSectionObject 0x8217bd78   684    \Device\HarddiskVolume1\WINDOWS\system32\config\SysEvent.Evt
 SharedCacheMap 0x8217bd78   684    \Device\HarddiskVolume1\WINDOWS\system32\config\SysEvent.Evt
+
+$ ls output/
+file.684.0x81fc6ed0.vacb	file.684.0x82256a48.dat		file.684.0x82256e48.dat		file.None.0x82339cd8.vacb
+file.684.0x8217b720.vacb	file.684.0x82256c50.dat		file.None.0x82339c70.dat
 }}} 
+
+The output is in the format of:
+
+`file.[PID].[OFFSET].[EXT]`
+
+The extension can be:
+
+* img – ImageSectionObject
+* dat - DataSectionObject
+* vacb – SharedCacheMap 
+
+You can look at the `-S/--summary-file` in order to map the file back to its original filename:
+
+{{{
+{"name": "\\Device\\HarddiskVolume1\\WINDOWS\\system32\\config\\AppEvent.Evt", "ofpath": "dumpfiles/file.684.0x82256e48.dat", "pid": 684,...
+}}}
+
+Or you can use the `-n/--name` option in order to dump file the files with the original filename.
 
 Not every file will be currently active or in the VAD, and such files will not be dumped when using the `-r/--regex` option.  For these files you can first scan for a `_FILE_OBJECT` and then use the `-Q/--physoffset` flag to extract the file.  Special NTFS files are examples of files that must be dumped specifically:
 
