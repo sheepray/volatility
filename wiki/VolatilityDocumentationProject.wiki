@@ -7,7 +7,7 @@ This is a catalog of research, documentation, analysis, and tutorials generated 
 ||Year||Month||Type||Title||Author||
 ||2013||November||Blog||[http://malware-unplugged.blogspot.com/2013/11/hunting-apt-rat-9002-in-memory-using.html Hunting APT RAT 9002 In Memory Using Volatility Plugin]||Monnappa (@monnappa22)||
 ||2013||November||Blog||[http://blog.handlerdiaries.com/?p=100 Analyzing Malicious Processes]||Jack Crook (@jackcr)||
-||2013||November||Blog||[http://holisticinfosec.blogspot.com/2013/11/volatility-23-and-fireeyes-diskless.html Volatility 2.3 and `FireEye`'s diskless, memory-only Trojan.APT.9002||Russ `McRee` (@holisticinfosec)||
+||2013||November||Blog||[http://holisticinfosec.blogspot.com/2013/11/volatility-23-and-fireeyes-diskless.html Volatility 2.3 and `FireEye`'s diskless, memory-only Trojan.APT.9002]||Russ `McRee` (@holisticinfosec)||
 ||2013||October||Blog||[http://blog.handlerdiaries.com/?p=71 Locating injected code in memory]||Jack Crook (@jackcr)||
 ||2013||October||Blog||[http://www.wyattroersma.com/?p=77 Analyzing Hyper-V Saved State files in Volatility]||Wyatt Roersma (@!WyattRoersma)||
 ||2013||October||Blog/Paper||[http://www.wyattroersma.com/?p=64 GrrCON DFIR Challenge 2013]||Wyatt Roersma (@!WyattRoersma)||
