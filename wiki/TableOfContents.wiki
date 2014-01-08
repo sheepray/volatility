@@ -59,4 +59,3 @@
       * [VMwareSnapshotFile VMware Snapshot]
       * [HpakAddressSpace Hpak (FDPro)]
   * [VolatilityTeam Volatility Team]
-  * [PluginContest Plugin Contest HOF]
