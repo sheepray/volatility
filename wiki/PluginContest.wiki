@@ -1,5 +1,0 @@
-#summary Volatility Plugin Contest Hall of Fame
-
-= Introduction =
-
-Coming soon....
