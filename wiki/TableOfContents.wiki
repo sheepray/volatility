@@ -44,8 +44,6 @@
   * [StyleGuide Style Guide]
   * [VolatilityRoadmap Roadmap]
   * [VolatilityDocumentationProject Community Docs]
-  * [VolatilityBranches Branches]
-      * [TechPreviewBranch Tech Preview]
   * [LinuxProfiles Linux Profiles]
   * [AddressSpaceReference Physical AS]
       * [FirewireAddressSpace Firewire]
