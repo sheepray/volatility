@@ -176,7 +176,7 @@ This is a catalog of research, documentation, analysis, and tutorials generated 
 ||2011||March||Blog||[http://moyix.blogspot.com/2011/03/automatically-generating-memory.html Automatically Generating Memory Forensic Tools]||Brendan Dolan-Gavitt (@moyix)||
 ||2011||March||Blog||[http://dfsforensics.blogspot.com/2011/03/analyzing-new-honeynet-memory-analysis.html Analyzing the New Honeynet Memory Analysis Challenge with Volatility]||Andrew Case (@attrc)||
 ||2011||March||Blog||[http://dfsforensics.blogspot.com/2011/03/bringing-linux-support-to-volatility.html Bringing Linux Support to Volatility]||Andrew Case (@attrc)||
-||2011||March||Blog||[http://www.zonbi.org/?p=429 Volatility (Undead Security)]||Matt??||
+||2011||March||Blog||[http://archive.zonbi.org/?p=429 Volatility (Undead Security)]||Matt (@undeadsecurity)||
 ||2011||February||Blog||[http://quequero.org/Shylock_via_volatility Shylock via volatility]||Evilcry||
 ||2011||January||Blog||[http://computer-forensics.sans.org/blog/2011/01/13/whats-new-volatility-1-4 A Quick Look at Volatility 1.4 RC1 - What's New?]||Lenny Zeltser (@lennyzeltser)||
 ||2011||January||Paper||[http://www.memoryanalysis.net/research/PAPER-De-Anonymizing%20Live%20CDs%20through%20Physical%20Memory%20Analysis.pdf De-Anonymizing Live CDs through Physical Memory Analysis]||Andrew Case (@attrc)||
