@@ -107,7 +107,7 @@ $ python tools/mac/convert.py 10.7.2.32bit.dwarfdump converted-10.7.2.32bit.dwar
 Create the vtypes file from the converted file. It is required that you give the output file a .vtypes extension. 
 
 {{{
-$ python tools/mac/convert.py converted-10.7.2.32bit.dwarfdump 10.7.2.32bit.vtypes
+$ python tools/mac/convert.py converted-10.7.2.32bit.dwarfdump > 10.7.2.32bit.vtypes
 }}}
 
 == Symbol information ==
