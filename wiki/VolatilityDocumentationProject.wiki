@@ -12,6 +12,7 @@ This is a catalog of research, documentation, analysis, and tutorials generated 
 ||2014||January||Blog||[http://blog.handlerdiaries.com/?p=363 Forensics Analysis of Anti-Forensic Activities]||Jack Crook (@jackcr)||
 ||2014||January||Blog||[http://blog.cassidiancybersecurity.com/post/2014/01/PlugX-v2:-meet-SController PlugX "v2": meet "SController"] || F4b (@0xf4b)||
 ||2014||January||Blog||[http://www.nops.re/2014/01/27/phd-ctf-freebdsm/ PHDays CTF 2014 - FreeBDSM]||Mariano Graziano (@emd3l)||
+||2013||December||Blog||[http://corneldupreez.me/cryptolocker-analysis-with-volatility/ Cryptolocker Analysis with Volatility]|| Cornel||
 ||2013||December||Blog||[http://sempersecurus.blogspot.com/2013/12/another-look-at-cross-platform-ddos.html Another look at a cross-platform DDoS botnet]||Andre' Di Mino (@sempersecurus)||
 ||2013||December||Blog||[http://www.tekdefense.com/news/2013/12/23/analyzing-darkcomet-in-memory.html ANALYZING DARKCOMET IN MEMORY]||Ian Ahl (@!TekDefense)||
 ||2013||December||Blog||[http://traceevidence.blogspot.com/2013/12/the-botmaster-jackcr-122713-memory-image.html The botmaster: jackcr - 12/27/13 memory image]||Kyle Oetken (@kyleoetken)||
