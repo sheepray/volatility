@@ -5,7 +5,7 @@
 This is a list of publicly available memory samples for testing purposes. 
 
 || *Description* || *OS* ||
-|| [https://docs.google.com/file/d/0B-pKvSR-QbsHdDRzeG8xNVNnbEU/edit Dark Comet] (see [http://www.tekdefense.com/news/2013/12/23/analyzing-darkcomet-in-memory.html blogpost]|| Win7SP1x86||
+|| [https://docs.google.com/file/d/0B-pKvSR-QbsHdDRzeG8xNVNnbEU/edit Dark Comet] (see [http://www.tekdefense.com/news/2013/12/23/analyzing-darkcomet-in-memory.html blogpost)]|| Win7SP1x86||
 || [http://www.memoryanalysis.net/memuploads/MacMountainLion_10_8_3_AMDx64.vmem.7z Mac OSX 10.8.3 x64] || Mac Mountain Lion 10.8.3 x64 ||
 || [https://t.co/Rfx8Iw7j Jackcr's forensic challenge] || Windows XP x86 and Windows 2003 SP0 x86 (4 images) ||
 || [http://t.co/m0JCvrnV GrrCon forensic challenge ISO] (also see [http://t.co/tgpdyUWb PDF questions]) || Windows XP x86 || 
