@@ -10,6 +10,7 @@ This is a catalog of research, documentation, analysis, and tutorials generated 
 ||2014||March||Blog||[http://www.evild3ad.com/3610/creating-volatility-linux-profiles-opensuse/ Creating Volatility Linux Profiles (openSUSE)]||@Evild3ad79||
 ||2014||March||Blog||[http://www.evild3ad.com/3571/creating-volatility-linux-profiles-debianubuntu/ Creating Volatility Linux Profiles (Debian/Ubuntu)]||@Evild3ad79||
 ||2014||February||Presentation||[http://www.rsaconference.com/writable/presentations/file_upload/hta-f01-hunting-mac-malware-with-memory-forensics.pdf Hunting Mac Malware with Memory Forensics]||Andrew Case (@attrc)||
+||2014||February||Presentation||[http://www.rsaconference.com/writable/presentations/file_upload/anf-r03-hunting-for-os-x-rootkits-in-memory.pdf Hunting for OS X Rootkits in Memory]||Cem Gurkok (@CGurkok)||
 ||2014||February||Blog||[https://dfirjournal.wordpress.com/2014/02/24/dumping-darkcomet-config-out-of-memory-using-volatility/ Dumping DarkComet config out of memory using volatility]||@dfirn00b||
 ||2014||February||Blog||[http://www.ghettoforensics.com/2014/02/malware-with-no-strings-attached.html Malware with No Strings Attached - Dynamic Analysis]||Brian Baskin (@bbaskin)||
 ||2014||February||Blog||[http://carnal0wnage.attackresearch.com/2014/02/finding-malicious-dlls-with-volatility.html Finding malicious DLLs with Volatility]||Chris Gates (@carnal0wnage)||
