@@ -9,7 +9,7 @@ This is a catalog of research, documentation, analysis, and tutorials generated 
 ||2014||March||Code||[https://github.com/Phaeilo/vol-openvpn OpenVPN credentials extractor]||Phaeilo||
 ||2014||March||Blog||[http://www.evild3ad.com/3610/creating-volatility-linux-profiles-opensuse/ Creating Volatility Linux Profiles (openSUSE)]||@Evild3ad79||
 ||2014||March||Blog||[http://www.evild3ad.com/3571/creating-volatility-linux-profiles-debianubuntu/ Creating Volatility Linux Profiles (Debian/Ubuntu)]||@Evild3ad79||
-||2014||February||Blog||[https://dfirjournal.wordpress.com/2014/02/24/dumping-darkcomet-config-out-of-memory-using-volatility/ Dumping DarkComet config out of memory using volatility]||@@dfirn00b||
+||2014||February||Blog||[https://dfirjournal.wordpress.com/2014/02/24/dumping-darkcomet-config-out-of-memory-using-volatility/ Dumping DarkComet config out of memory using volatility]||@dfirn00b||
 ||2014||February||Blog||[http://www.ghettoforensics.com/2014/02/malware-with-no-strings-attached.html Malware with No Strings Attached - Dynamic Analysis]||Brian Baskin (@bbaskin)||
 ||2014||February||Blog||[http://carnal0wnage.attackresearch.com/2014/02/finding-malicious-dlls-with-volatility.html Finding malicious DLLs with Volatility]||Chris Gates (@carnal0wnage)||
 ||2014||January||Slides||[http://www.slideshare.net/suffert/2010-2013-sandro-suffert-memory-forensics-introdutory-work-shop-public memory forensics introductory work shop]||Sandro Suffert (@suffert)||
