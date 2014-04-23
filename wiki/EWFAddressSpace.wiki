@@ -53,10 +53,22 @@ Offset(V)  Name                    PID   PPID   Thds     Hnds   Sess  Wow64 Star
 
 If you are using the compiled version of Volatility (exe), the address space is not available by default.  In this case you can do one of the following:
 
+  * Install libewf and use the address space by supplying the `--plugins` location as previous described.
   * Mount the memory sample with !EnCase and run Volatility over the exposed device (see [http://volatility-labs.blogspot.com/2013/10/sampling-ram-across-encase-enterprise.html]).
   * Mount the memory sample with FTK Imager as "Physical & Logical" and then use an *admin* prompt to run the Volatility on the exposed device. 
-    * If the "drive" that was mounted is E:\ the proper command would be `vol.exe -f "E:\unallocated space" ` ... etc. 
-  * Install libewf and use the address space by supplying the `--plugins` location as previous described.
+    * If the "drive" that was mounted is E:\ the proper command would be `vol.exe -f "E:\unallocated space" ` ... etc. An example of this can be seen below:
+
+{{{
+c:\Users\user\Desktop>volatility_23_beta.exe -f "e:\unallocated space" pslist
+Volatile Systems Volatility Framework 2.3_beta
+Offset(V)  Name                    PID   PPID   Thds     Hnds   Sess  Wow64 Start                          Exit
+---------- -------------------- ------ ------ ------ -------- ------------ ------------------------------ ------------------------------
+0x823c8830 System                    4      0     62      425 ------      0
+0x82335da0 smss.exe                576      4      3       19 ------      0 2010-12-27 21:34:32 UTC+0000
+0x82264020 csrss.exe               624    576     11      397      0      0 2010-12-27 21:34:32 UTC+0000
+0x81d91020 winlogon.exe            648    576     19      583      0      0 2010-12-27 21:34:32 UTC+0000
+[snip]
+}}}
 
 = File Format = 
 
