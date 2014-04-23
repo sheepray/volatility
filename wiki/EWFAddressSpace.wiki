@@ -47,6 +47,15 @@ Offset(V)  Name                    PID   PPID   Thds     Hnds   Sess  Wow64 Star
 [snip]                 
 }}}
 
+= Alternative Methods =
+
+If you are using the compiled version of Volatility (exe), the address space is not available by default.  In this case you can do one of the following:
+
+  * Mount the memory sample with !EnCase and run Volatility over the exposed device (see [http://volatility-labs.blogspot.com/2013/10/sampling-ram-across-encase-enterprise.html]).
+  * Mount the memory sample with FTK Imager as "Physical & Logical" and then use an *admin* prompt to run the Volatility on the exposed device. 
+    * If the "drive" that was mounted is E:\ the proper command would be `vol.exe -f "E:\unallocated space" ` ... etc. 
+  * Install libewf and use the address space by supplying the `--plugins` location as previous described.
+
 = File Format = 
 
 File format details can be found in [http://code.google.com/p/libewf/downloads/detail?name=Expert%20Witness%20Compression%20Format%20%28EWF%29.pdf Joachim Metz's EWF documentation].
