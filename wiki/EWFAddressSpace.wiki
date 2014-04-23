@@ -58,17 +58,7 @@ If you are using the compiled version of Volatility (exe), the address space is 
   * Mount the memory sample with FTK Imager as "Physical & Logical" and then use an *admin* prompt to run the Volatility on the exposed device. 
     * If the "drive" that was mounted is E:\ the proper command would be `vol.exe -f "E:\unallocated space" ` ... etc. An example of this can be seen below:
 
-{{{
-c:\Users\user\Desktop>volatility_23_beta.exe -f "e:\unallocated space" pslist
-Volatile Systems Volatility Framework 2.3_beta
-Offset(V)  Name                    PID   PPID   Thds     Hnds   Sess  Wow64 Start                          Exit
----------- -------------------- ------ ------ ------ -------- ------------ ------------------------------ ------------------------------
-0x823c8830 System                    4      0     62      425 ------      0
-0x82335da0 smss.exe                576      4      3       19 ------      0 2010-12-27 21:34:32 UTC+0000
-0x82264020 csrss.exe               624    576     11      397      0      0 2010-12-27 21:34:32 UTC+0000
-0x81d91020 winlogon.exe            648    576     19      583      0      0 2010-12-27 21:34:32 UTC+0000
-[snip]
-}}}
+[https://lh6.googleusercontent.com/-Oh1quwh7nAw/U1g9IgIGdkI/AAAAAAAABUk/G2KkA-moPpw/w709-h365-no/FTK.png]
 
 = File Format = 
 
