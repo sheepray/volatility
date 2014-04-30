@@ -199,7 +199,8 @@ This is a catalog of research, documentation, analysis, and tutorials generated 
 ||2010||December||Blog||[http://zeltser.com/remnux/ REMnux: A Linux Distribution for Reverse-Engineering Malware]||Lenny Zeltser (@lennyzeltser)||
 ||2010||December||Blog||[http://perpetualhorizon.blogspot.com/2010/12/peeling-apart-tdl4-and-other-seeds-of.html Peeling Apart TDL4 and Other Seeds of Evil Part I]||Curt Wilson||
 ||2010||November||Blog||[http://lorgor.blogspot.com/2010/11/volatility-memory-forensics-i.html Volatility Memory Forensics]||lg||
-||2010||Septmeber||Blog||[http://computer.forensikblog.de/files/talks/ZISC2010-Recent_Advances_in_Memory_Forensics.pdf Recent Advances in Memory Forensics]||Andreas Schuster (@forensikblog)||
+||2010||October||Blog||[http://computer.forensikblog.de/en/2011/10/timers-and-times.html Timers and Times]||Andreas Schuster (@forensikblog)||
+||2010||September||Blog||[http://computer.forensikblog.de/files/talks/ZISC2010-Recent_Advances_in_Memory_Forensics.pdf Recent Advances in Memory Forensics]||Andreas Schuster (@forensikblog)||
 ||2010||August||Blog||[http://gleeda.blogspot.com/2010/08/upated-sqlite-plugins.html Upated Volatility SQLite plugins]||Jamie Levy (@gleeda)||
 ||2010||July||Blog||[http://blog.schatzforensic.com.au/2010/07/finding-object-roots-in-vista-kpcr/ Finding Object Roots in Vista (KPCR)]||Bradley Schatz||
 ||2010||July||Blog||[http://moyix.blogspot.com/2010/07/gdi-utilities-taking-screenshots-of.html GDI Utilities: Taking Screenshots of Memory Dumps]||Brendan Dolan-Gavitt (@moyix)||
@@ -225,12 +226,14 @@ This is a catalog of research, documentation, analysis, and tutorials generated 
 ||2009||June||Slides||[http://computer.forensikblog.de/files/talks/FIRST2009-Windows_Memory_Forensics_with_Volatility.pdf Windows Memory Forensics with Volatility]||Andreas Schuster (@forensikblog)||
 ||2009||May||Blog||[http://neosysforensics.blogspot.com/2009/05/analisis-de-un-caso-real-2.html Análisis de un caso ¿real?, #2]||neofito (@neosysforensics)||
 ||2009||May||Blog||[http://mnin.blogspot.com/2009/05/volatility-plug-in-for-iateatinline.html Volatility Plug-in for IAT/EAT/Inline Hook Detection]||Michael Ligh (@iMHLv2)||
+||2019||April||Blog||[http://computer.forensikblog.de/en/2009/04/update-of-objtypescan-plugin.html Update of objtypescan plugin]||Andreas Schuster (@forensikblog)||
 ||2009||April||Blog||[http://computer.forensikblog.de/en/2009/04/reading-passwords-from-the-keyboard-buffer.html Reading Passwords from the Keyboard buffer]||Andreas Schuster (@forensikblog)||
 ||2009||April||Blog||[http://computer.forensikblog.de/en/2009/04/searching-for-mutants.html Searching for Mutants]||Andreas Schuster (@forensikblog)||
 ||2009||April||Blog||[http://computer.forensikblog.de/en/2009/04/symbolic-link-objects.html Symbolic Link Objects]||Andreas Schuster (@forensikblog)||
 ||2009||April||Blog||[http://computer.forensikblog.de/en/2009/04/scanning-for-drivers.html Scanning for Drivers]||Andreas Schuster (@forensikblog)||
 ||2009||April||Blog||[http://computer.forensikblog.de/en/2009/04/linking-file-objects-to-processes.html Linking File Objects to Processes]||Andreas Schuster (@forensikblog)||
 ||2009||April||Blog||[http://computer.forensikblog.de/en/2009/04/enumerate-object-types.html Enumerate Object Types]||Andreas Schuster (@forensikblog)||
+||2009||April||Blog||[http://computer.forensikblog.de/en/2009/04/0xbad0b0b0.html 0xbad0b0b0]||Andreas Schuster (@forensikblog)||
 ||2009||March||Blog||[http://neosysforensics.blogspot.com/2009/03/tuneando-volatility.html Tuneando Volatility]||neofito (@neosysforensics)||
 ||2009||March||Blog||[http://neosysforensics.blogspot.com/2009/03/analisis-de-un-caso-real.html Análisis de un caso ¿real?]||neofito (@neosysforensics)||
 ||2009||March||Blog||[http://neosysforensics.blogspot.com/2009/03/volatility-y-regripper-juntos.html Volatility y RegRipper, ¡juntos!]||neofito (@neosysforensics)||
