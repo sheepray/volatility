@@ -274,4 +274,16 @@ This is a catalog of research, documentation, analysis, and tutorials generated 
 ||2006||October||Blog||[http://computer.forensikblog.de/en/2006/10/searching-in-pool-allocations.html Searching in Pool Allocations]||Andreas Schuster (@forensikblog)||
 ||2006||September||Blog||[http://ntsecurity.nu/onmymind/2006/2006-09-02.html Memory dumping over FireWire - UMA issues]||Arne Vidstrom||
 ||2006||July||Slides||[http://www.4tphi.net/fatkit/papers/fatkit_dll_rc3.pdf FATKit: Detecting Malicious Library Injection and Upping the “Anti”]||AAron Walters||
+||2006||June||Blog||[http://computer.forensikblog.de/en/2006/06/dfrws-2006-paper.html DFRWS 2006 Paper]||Andreas Schuster (@forensikblog)||
+||2006||June||Blog||[http://computer.forensikblog.de/en/2006/06/reconstructing-a-binary-3.html Reconstructing a Binary (3)]||Andreas Schuster (@forensikblog)||
+||2006||April||Blog||[http://computer.forensikblog.de/en/2006/04/reconstructing-a-binary-2.html Reconstructing a Binary (2)]||Andreas Schuster (@forensikblog)||
+||2006||April||Blog||[http://computer.forensikblog.de/en/2006/04/reconstructing-a-binary-1.html Reconstructing a Binary (1)]||Andreas Schuster (@forensikblog)||
+||2006||April||Blog||[http://computer.forensikblog.de/en/2006/04/reconstructing-the-process-memory.html Reconstructing the Process Memory]||Andreas Schuster (@forensikblog)||
+||2006||March||Blog||[http://computer.forensikblog.de/en/2006/03/dmp-file-structure.html DMP File Structure]||Andreas Schuster (@forensikblog)||
+||2006||March||Blog||[http://computer.forensikblog.de/en/2006/03/converting-virtual-into-physical-addresses.html Converting Virtual into Physical Addresses]||Andreas Schuster (@forensikblog)||
+||2006||March||Blog||[http://computer.forensikblog.de/en/2006/03/searching-for-processes-and-threads.html Search for Processes and Threads]||Andreas Schuster (@forensikblog)||
+||2006||February||Blog||[http://computer.forensikblog.de/en/2006/02/dating-the-execution-of-certain-routines.html Dating the execution of certain routines]||Andreas Schuster (@forensikblog)||
+||2006||February||Blog||[http://computer.forensikblog.de/en/2006/02/dispatcher-header.html _DISPATCHER_HEADER]||Andreas Schuster (@forensikblog)||
+||2006||February||Blog||[http://computer.forensikblog.de/en/2006/02/more-on-processes-and-threads.html More on Processes and Threads]||Andreas Schuster (@forensikblog)||
 ||2006||February||Paper||[http://dx.doi.org/10.1016/j.diin.2006.10.001 FATKit: A Framework for the Extraction and Analysis of Digital Forensic Data from Volatile System Memory]||Petroni, Walters, Fraser, Arbaugh||
+||2005||December||Blog||[http://computer.forensikblog.de/en/2005/12/timestamps-in-thread-and-process-objects.html Timestamps in Thread and Process Objects]||Andreas Schuster (@forensikblog)||
