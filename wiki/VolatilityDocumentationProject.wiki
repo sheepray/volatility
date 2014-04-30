@@ -231,7 +231,7 @@ This is a catalog of research, documentation, analysis, and tutorials generated 
 ||2009||April||Blog||[http://computer.forensikblog.de/en/2009/04/searching-for-mutants.html Searching for Mutants]||Andreas Schuster (@forensikblog)||
 ||2009||April||Blog||[http://computer.forensikblog.de/en/2009/04/symbolic-link-objects.html Symbolic Link Objects]||Andreas Schuster (@forensikblog)||
 ||2009||April||Blog||[http://computer.forensikblog.de/en/2009/04/scanning-for-drivers.html Scanning for Drivers]||Andreas Schuster (@forensikblog)||
-||2009||April||Blog||[http://computer.forensikblog.de/en/2009/04/scanning-for-file-objects.html Scanning for File Objects||Andreas Schuster (@forensikblog)||
+||2009||April||Blog||[http://computer.forensikblog.de/en/2009/04/scanning-for-file-objects.html Scanning for File Objects]||Andreas Schuster (@forensikblog)||
 ||2009||April||Blog||[http://computer.forensikblog.de/en/2009/04/linking-file-objects-to-processes.html Linking File Objects to Processes]||Andreas Schuster (@forensikblog)||
 ||2009||April||Blog||[http://computer.forensikblog.de/en/2009/04/enumerate-object-types.html Enumerate Object Types]||Andreas Schuster (@forensikblog)||
 ||2009||April||Blog||[http://computer.forensikblog.de/en/2009/04/kernel-objects.html Kernel Objects]||Andreas Schuster (@forensikblog)||
