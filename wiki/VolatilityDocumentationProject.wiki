@@ -265,7 +265,7 @@ This is a catalog of research, documentation, analysis, and tutorials generated 
 ||2007||August||Blog||[http://computer.forensikblog.de/en/2007/08/from-volatools-to-volatility.html From Volatools to Volatility]||Andreas Schuster (@forensikblog)||
 ||2007||May||Blog||[http://computer.forensikblog.de/en/2007/05/copies-of-page-directories.html Copies of Page Directories]||Andreas Schuster (@forensikblog)||
 ||2007||May||Blog||[http://computer.forensikblog.de/en/2007/05/searching-for-page-directories-2.html Searching for Page Directories (2)]||Andreas Schuster (@forensikblog)||
-||2007||May||Blog||[http://computer.forensikblog.de/en/2007/05/searching-for-page-directories-1.html Searching for Page Directories (1)||Andreas Schuster (@forensikblog)||
+||2007||May||Blog||[http://computer.forensikblog.de/en/2007/05/searching-for-page-directories-1.html Searching for Page Directories (1)]||Andreas Schuster (@forensikblog)||
 ||2007||May||Blog||[http://computer.forensikblog.de/en/2007/05/walking-the-vad-tree.html Walking the VAD Tree]||Andreas Schuster (@forensikblog)||
 ||2007||March||Blog||[http://computer.forensikblog.de/en/2007/03/volatools.html Volatools]||Andreas Schuster (@forensikblog)||
 ||2007||February||Paper||[https://www.blackhat.com/presentations/bh-dc-07/Walters/Paper/bh-dc-07-Walters-WP.pdf Volatools: Integrating Volatile Memory Forensics into the Digital Investigation Process]||A. Walters and N. Petroni||
