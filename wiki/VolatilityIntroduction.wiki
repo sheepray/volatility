@@ -1,5 +1,4 @@
 #summary Introduction to Volatility
-#labels Featured
 
 = Quick Start = 
 
